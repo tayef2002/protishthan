@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>প্রতিষ্ঠান তালিকাভুক্ত করুন — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+}
+html,body{min-height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+body{display:flex;justify-content:center;padding:32px 16px}
+
+.page-wrap{width:100%;max-width:640px}
+
+.top-logo{text-align:center;margin-bottom:24px}
+.top-logo a{font-size:24px;font-weight:900;color:var(--blue);text-decoration:none;letter-spacing:-.5px}
+.top-logo a span{color:var(--text);opacity:.5}
+
+.card{background:white;border-radius:24px;padding:36px 32px;box-shadow:0 8px 32px rgba(0,0,0,.06);border:1px solid var(--border);position:relative;overflow:hidden}
+
+.form-header{text-align:center;margin-bottom:28px}
+.form-header h1{font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px}
+.form-header p{font-size:14px;color:var(--text-2)}
+
+.progress-steps{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:32px}
+.pstep{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.pstep.active{background:var(--blue);width:24px;border-radius:4px}
+
+.field{margin-bottom:18px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.field-row .field{margin-bottom:0}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.field label .req{color:var(--red)}
+input,select,textarea{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:all .2s;background:white;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+input::placeholder,textarea::placeholder{color:var(--text-3)}
+textarea{resize:vertical;min-height:80px}
+
+
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-btn{padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;background:white;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px}
+.type-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.type-btn.selected{border-color:var(--blue);background:var(--blue-light)}
+.type-btn .icon{font-size:22px}
+.type-btn .label{font-size:13px;font-weight:600;color:var(--text)}
+.type-btn.selected .label{color:var(--blue)}
+
+.field-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
+
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.chip-btn{padding:9px 14px;border:1.5px solid var(--border);border-radius:20px;background:white;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-2);transition:all .2s}
+.chip-btn:hover{border-color:var(--blue)}
+.chip-btn.selected{border-color:var(--blue);background:var(--blue);color:white}
+.other-input{margin-top:10px}
+.field-error.show{display:block}
+
+.btn-row{display:flex;gap:10px;margin-top:8px}
+.btn-back{flex:0 0 auto;padding:14px 20px;background:var(--surface);color:var(--text-2);border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-next{flex:1;padding:14px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;position:relative}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(26,86,219,.35)}
+.btn-next .btn-text{display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-next.loading .btn-text{visibility:hidden}
+.spinner{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.btn-next.loading .spinner{display:block}
+
+.fstep{display:none}
+.fstep.active{display:block;animation:fadeSlide .4s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+
+/* SUCCESS SCREEN */
+.success-screen{display:none;text-align:center;padding:12px 0}
+.success-screen.show{display:block}
+.success-icon-wrap{width:88px;height:88px;background:var(--green-l);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:44px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-screen h2{font-size:22px;font-weight:800;color:var(--text);margin-bottom:10px}
+.success-screen p.sub{font-size:14px;color:var(--text-2);margin-bottom:32px;line-height:1.7}
+
+.timeline{text-align:left;margin-bottom:28px}
+.tline-item{display:flex;gap:14px;padding-bottom:24px;position:relative}
+.tline-item:last-child{padding-bottom:0}
+.tline-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:34px;width:2px;height:calc(100% - 10px);background:var(--border)}
+.tline-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;z-index:1}
+.tline-dot.done{background:var(--green);color:white}
+.tline-dot.pending{background:var(--amber-l);color:var(--amber);border:2px solid var(--amber)}
+.tline-dot.locked{background:var(--surface);color:var(--text-3);border:2px solid var(--border)}
+.tline-text .t{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.tline-text .s{font-size:12px;color:var(--text-3)}
+
+.success-note{background:var(--blue-light);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--blue-dark);margin-bottom:24px;text-align:left;line-height:1.6}
+
+.success-btns{display:flex;gap:10px}
+.btn-success-secondary{flex:1;padding:13px;background:white;color:var(--text);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.btn-success-primary{flex:1;padding:13px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;font-family:inherit}
+
+.trust-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px;font-size:11px;color:var(--text-3)}
+.trust-row span{display:flex;align-items:center;gap:4px}
+
+@media(max-width:480px){
+  .card{padding:28px 20px;border-radius:20px}
+  .field-row{grid-template-columns:1fr}
+  .type-grid{grid-template-columns:1fr 1fr}
+  .success-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div class="top-logo"><a href="index.html">Protisht<span>han</span></a></div>
+
+  <div class="card">
+
+    <!-- FORM CONTAINER -->
+    <div id="formContainer">
+      <div class="form-header">
+        <h1>আপনার প্রতিষ্ঠান তালিকাভুক্ত করুন</h1>
+        <p>সম্পূর্ণ ফ্রি — মাত্র ২ মিনিটে সম্পূর্ণ করুন</p>
+      </div>
+
+      <div class="progress-steps">
+        <div class="pstep active" id="ps1"></div>
+        <div class="pstep" id="ps2"></div>
+        <div class="pstep" id="ps3"></div>
+      </div>
+
+      <!-- STEP 1: Institution Info -->
+      <div class="fstep active" id="step1">
+        <div class="field">
+          <label>প্রতিষ্ঠানের নাম <span class="req">*</span></label>
+          <input type="text" id="instName" placeholder="যেমন: দারুল উলুম মাদ্রাসা" oninput="updateSlugPreview()">
+        </div>
+
+        <div class="field">
+          <label>প্রতিষ্ঠানের ধরন <span class="req">*</span></label>
+          <div class="type-grid" id="typeGrid">
+            <button type="button" class="type-btn" data-type="মাদ্রাসা" onclick="selectType(this)">
+              <span class="icon">🕌</span><span class="label">মাদ্রাসা</span>
+            </button>
+            <button type="button" class="type-btn" data-type="স্কুল" onclick="selectType(this)">
+              <span class="icon">🏫</span><span class="label">স্কুল</span>
+            </button>
+            <button type="button" class="type-btn" data-type="কলেজ" onclick="selectType(this)">
+              <span class="icon">🎓</span><span class="label">কলেজ</span>
+            </button>
+            <button type="button" class="type-btn" data-type="কোচিং সেন্টার" onclick="selectType(this)">
+              <span class="icon">📚</span><span class="label">কোচিং সেন্টার</span>
+            </button>
+          </div>
+          <div class="field-error" id="typeErr">প্রতিষ্ঠানের ধরন নির্বাচন করুন</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>জেলা <span class="req">*</span></label>
+            <select id="instDistrict" onchange="onDistrictChange()">
+              <option value="">নির্বাচন করুন</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>উপজেলা / থানা <span class="req">*</span></label>
+            <select id="instUpazila" disabled>
+              <option value="">আগে জেলা দিন</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>আনুমানিক শিক্ষার্থী সংখ্যা</label>
+          <input type="number" id="studentCount" placeholder="যেমন: ১৫০ (ঐচ্ছিক)" min="0">
+        </div>
+
+        <button class="btn-next" onclick="goToStep(2)">
+          <span class="btn-text">পরবর্তী →</span>
+        </button>
+      </div>
+
+      <!-- STEP 2: Contact + Slug -->
+      <div class="fstep" id="step2">
+        <div class="field">
+          <label>যোগাযোগের ব্যক্তির নাম <span class="req">*</span></label>
+          <input type="text" id="contactName" placeholder="যেমন: মোঃ রফিকুল ইসলাম">
+        </div>
+
+        <div class="field">
+          <label>WhatsApp নম্বর <span class="req">*</span></label>
+          <input type="tel" id="contactPhone" placeholder="01XXXXXXXXX" maxlength="11">
+          <div class="field-error" id="phoneErr">সঠিক নম্বর দিন (01XXXXXXXXX)</div>
+        </div>
+
+        <div class="field">
+          <label>সংক্ষিপ্ত ঠিকানা / বিবরণ</label>
+          <textarea id="addressNote" placeholder="যেমন: বানিয়াচং বাজার রোড, হবিগঞ্জ (ঐচ্ছিক)"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>ইমেইল <span class="req">*</span></label>
+            <input type="email" id="instEmail" placeholder="you@email.com">
+            <div class="field-error" id="emailErr">সঠিক ইমেইল দিন</div>
+          </div>
+          <div class="field">
+            <label>পাসওয়ার্ড <span class="req">*</span></label>
+            <input type="password" id="instPassword" placeholder="কমপক্ষে ৮ অক্ষর">
+            <div class="field-error" id="pwdErr">কমপক্ষে ৮ অক্ষর দিন</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:-6px;margin-bottom:6px">এই ইমেইল-পাসওয়ার্ড দিয়ে পরে আপনার ড্যাশবোর্ডে লগইন করতে পারবেন — তথ্য আবার দিতে হবে না।</div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goToStep(1)">← পেছনে</button>
+          <button class="btn-next" onclick="goToStep(3)">
+            <span class="btn-text">পরবর্তী →</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Additional Details -->
+      <div class="fstep" id="step3">
+        <div class="field-row">
+          <div class="field">
+            <label>প্রতিষ্ঠার সাল</label>
+            <input type="number" id="foundingYear" placeholder="যেমন: ২০১৫" min="1900" max="2026">
+          </div>
+          <div class="field">
+            <label>শিক্ষক সংখ্যা</label>
+            <input type="number" id="teacherCount" placeholder="যেমন: ১২" min="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>মাধ্যম / বোর্ড</label>
+          <div class="chip-grid" id="mediumGrid">
+            <button type="button" class="chip-btn" data-val="বাংলা মিডিয়াম" onclick="toggleChip(this)">বাংলা মিডিয়াম</button>
+            <button type="button" class="chip-btn" data-val="ইংলিশ মিডিয়াম" onclick="toggleChip(this)">ইংলিশ মিডিয়াম</button>
+            <button type="button" class="chip-btn" data-val="ইংলিশ ভার্সন" onclick="toggleChip(this)">ইংলিশ ভার্সন</button>
+            <button type="button" class="chip-btn" data-val="কওমি মাদ্রাসা" onclick="toggleChip(this)">কওমি মাদ্রাসা</button>
+            <button type="button" class="chip-btn" data-val="আলিয়া মাদ্রাসা" onclick="toggleChip(this)">আলিয়া মাদ্রাসা</button>
+            <button type="button" class="chip-btn" data-val="হিফজ বিভাগ" onclick="toggleChip(this)">হিফজ বিভাগ</button>
+            <button type="button" class="chip-btn" data-val="ক্যামব্রিজ/ও-লেভেল" onclick="toggleChip(this)">ক্যামব্রিজ/ও-লেভেল</button>
+            <button type="button" class="chip-btn" data-val="এবতেদায়ি/নূরানী" onclick="toggleChip(this)">এবতেদায়ি/নূরানী</button>
+          </div>
+          <input type="text" id="otherMedium" class="other-input" placeholder="অন্য কিছু হলে লিখুন (ঐচ্ছিক)">
+        </div>
+
+        <div class="field">
+          <label>কোন শ্রেণি থেকে কোন শ্রেণি পড়ানো হয়</label>
+          <input type="text" id="classRange" placeholder="যেমন: প্লে থেকে দশম, বা হিফজ থেকে দাওরায়ে হাদিস">
+        </div>
+
+        <div class="field">
+          <label>শিক্ষাবর্ষ / সেশন শুরু হয় কোন মাসে</label>
+          <select id="sessionMonth" onchange="onSessionMonthChange()">
+            <option value="">নির্বাচন করুন (ঐচ্ছিক)</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+            <option value="সারাবছর ভর্তি চলে">সারাবছর ভর্তি চলে</option>
+            <option value="অন্য">অন্য</option>
+          </select>
+          <input type="text" id="otherSessionMonth" class="other-input" placeholder="মাস লিখুন" style="display:none">
+        </div>
+
+        <div class="field">
+          <label>ছাত্র/ছাত্রী কাদের জন্য</label>
+          <div class="chip-grid chip-grid-single" id="genderGrid">
+            <button type="button" class="chip-btn" data-val="ছাত্র" onclick="selectSingleChip(this,'genderGrid')">ছাত্র</button>
+            <button type="button" class="chip-btn" data-val="ছাত্রী" onclick="selectSingleChip(this,'genderGrid')">ছাত্রী</button>
+            <button type="button" class="chip-btn" data-val="ছাত্র-ছাত্রী উভয়" onclick="selectSingleChip(this,'genderGrid')">ছাত্র-ছাত্রী উভয়</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ভর্তি চলছে কিনা</label>
+          <div class="chip-grid chip-grid-single" id="admissionGrid">
+            <button type="button" class="chip-btn" data-val="খোলা" onclick="selectSingleChip(this,'admissionGrid')">খোলা</button>
+            <button type="button" class="chip-btn" data-val="বন্ধ" onclick="selectSingleChip(this,'admissionGrid')">বন্ধ</button>
+            <button type="button" class="chip-btn" data-val="সীমিত সিট" onclick="selectSingleChip(this,'admissionGrid')">সীমিত সিট</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>মাসিক ফি এর রেঞ্জ</label>
+          <input type="text" id="feeRange" placeholder="যেমন: ৫০০-১০০০ টাকা (ঐচ্ছিক)">
+        </div>
+
+        <div class="field">
+          <label>সুযোগ-সুবিধা</label>
+          <div class="chip-grid" id="facilityGrid">
+            <button type="button" class="chip-btn" data-val="আবাসিক" onclick="toggleChip(this)">আবাসিক</button>
+            <button type="button" class="chip-btn" data-val="পরিবহন" onclick="toggleChip(this)">পরিবহন</button>
+            <button type="button" class="chip-btn" data-val="লাইব্রেরি" onclick="toggleChip(this)">লাইব্রেরি</button>
+            <button type="button" class="chip-btn" data-val="ক্যান্টিন" onclick="toggleChip(this)">ক্যান্টিন</button>
+            <button type="button" class="chip-btn" data-val="কম্পিউটার ল্যাব" onclick="toggleChip(this)">কম্পিউটার ল্যাব</button>
+            <button type="button" class="chip-btn" data-val="খেলার মাঠ" onclick="toggleChip(this)">খেলার মাঠ</button>
+          </div>
+          <input type="text" id="otherFacility" class="other-input" placeholder="অন্য কিছু হলে লিখুন (ঐচ্ছিক)">
+        </div>
+
+        <div class="field">
+          <label>অর্জন / বিশেষত্ব</label>
+          <div class="chip-grid" id="achievementGrid">
+            <button type="button" class="chip-btn" data-val="ভালো বোর্ড রিজাল্ট" onclick="toggleChip(this)">ভালো বোর্ড রিজাল্ট</button>
+            <button type="button" class="chip-btn" data-val="অভিজ্ঞ শিক্ষক প্যানেল" onclick="toggleChip(this)">অভিজ্ঞ শিক্ষক প্যানেল</button>
+            <button type="button" class="chip-btn" data-val="নিজস্ব ক্যাম্পাস" onclick="toggleChip(this)">নিজস্ব ক্যাম্পাস</button>
+            <button type="button" class="chip-btn" data-val="ডিজিটাল ক্লাসরুম" onclick="toggleChip(this)">ডিজিটাল ক্লাসরুম</button>
+          </div>
+          <input type="text" id="otherAchievement" class="other-input" placeholder="অন্য কিছু হলে লিখুন (ঐচ্ছিক)">
+        </div>
+
+        <div class="field">
+          <label>সংক্ষিপ্ত বর্ণনা</label>
+          <textarea id="instDescription" placeholder="প্রতিষ্ঠান সম্পর্কে ২-৩ লাইনে লিখুন (ঐচ্ছিক)"></textarea>
+        </div>
+
+        <div class="field">
+          <label>ফেসবুক পেজ লিংক</label>
+          <input type="text" id="facebookLink" placeholder="https://facebook.com/... (ঐচ্ছিক)">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goToStep(2)">← পেছনে</button>
+          <button class="btn-next" id="submitBtn" onclick="submitListing()">
+            <span class="btn-text">তালিকাভুক্ত করুন ✓</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon-wrap">✅</div>
+      <h2>ধন্যবাদ! আপনার আবেদন গ্রহণ করা হয়েছে</h2>
+      <p class="sub">আপনার প্রতিষ্ঠানের তথ্য আমাদের কাছে সফলভাবে জমা হয়েছে।</p>
+
+      <div class="timeline">
+        <div class="tline-item">
+          <div class="tline-dot done">✓</div>
+          <div class="tline-text">
+            <div class="t">তথ্য জমা হয়েছে</div>
+            <div class="s">এইমাত্র সম্পন্ন হয়েছে</div>
+          </div>
+        </div>
+        <div class="tline-item">
+          <div class="tline-dot pending">⏳</div>
+          <div class="tline-text">
+            <div class="t">আমাদের team যাচাই করছে</div>
+            <div class="s">সাধারণত ২৪-৪৮ ঘণ্টা সময় লাগে</div>
+          </div>
+        </div>
+        <div class="tline-item">
+          <div class="tline-dot locked">🔒</div>
+          <div class="tline-text">
+            <div class="t">তথ্যভান্ডারে প্রকাশিত হবে</div>
+            <div class="s">যাচাই সম্পন্ন হলে স্বয়ংক্রিয়ভাবে</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-note">
+        💬 যাচাই সম্পন্ন হলে আমরা আপনার দেওয়া WhatsApp নম্বরে জানিয়ে দেব। কোনো প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করতে পারেন।
+      </div>
+
+      <div class="success-btns">
+        <a href="index.html" class="btn-success-secondary">হোমপেজে ফিরে যান</a>
+        <a href="dashboard.html" class="btn-success-primary">আপনার ড্যাশবোর্ডে যান →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="trust-row">
+    <span>🔒 SSL সুরক্ষিত</span>
+    <span>🇧🇩 বাংলাদেশে তৈরি</span>
+    <span>⚡ সম্পূর্ণ ফ্রি</span>
+  </div>
+</div>
+
+<script>
+const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
+
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+let selectedType = '';
+
+function populateDistricts(){
+  const sel = document.getElementById('instDistrict');
+  BD_LOCATIONS.forEach((dist, i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = dist.n;
+    sel.appendChild(opt);
+  });
+}
+populateDistricts();
+
+function onDistrictChange(){
+  const distIdx = document.getElementById('instDistrict').value;
+  const upaSel = document.getElementById('instUpazila');
+  upaSel.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+  if(distIdx === ''){
+    upaSel.disabled = true;
+    return;
+  }
+  upaSel.disabled = false;
+  BD_LOCATIONS[distIdx].u.forEach(upa=>{
+    const opt = document.createElement('option');
+    opt.value = upa;
+    opt.textContent = upa;
+    upaSel.appendChild(opt);
+  });
+}
+
+function selectType(btn){
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedType = btn.dataset.type;
+  document.getElementById('typeErr').classList.remove('show');
+}
+
+function toggleChip(btn){
+  btn.classList.toggle('selected');
+}
+
+function selectSingleChip(btn, gridId){
+  document.querySelectorAll('#'+gridId+' .chip-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function getSelectedChips(gridId){
+  return Array.from(document.querySelectorAll('#'+gridId+' .chip-btn.selected')).map(b=>b.dataset.val);
+}
+
+function onSessionMonthChange(){
+  const val = document.getElementById('sessionMonth').value;
+  const otherInput = document.getElementById('otherSessionMonth');
+  otherInput.style.display = (val === 'অন্য') ? 'block' : 'none';
+}
+
+function goToStep(step){
+  if(step === 2){
+    const name = document.getElementById('instName').value.trim();
+    if(!name){
+      alert('প্রতিষ্ঠানের নাম দিন');
+      return;
+    }
+    if(!selectedType){
+      document.getElementById('typeErr').classList.add('show');
+      return;
+    }
+    const dist = document.getElementById('instDistrict').value;
+    const upa = document.getElementById('instUpazila').value;
+    if(dist===''||!upa){
+      alert('জেলা এবং উপজেলা নির্বাচন করুন');
+      return;
+    }
+  }
+
+  if(step === 3){
+    const contactName = document.getElementById('contactName').value.trim();
+    const contactPhone = document.getElementById('contactPhone').value.trim();
+    const instEmail = document.getElementById('instEmail').value.trim();
+    const instPassword = document.getElementById('instPassword').value;
+    document.getElementById('phoneErr').classList.remove('show');
+    document.getElementById('emailErr').classList.remove('show');
+    document.getElementById('pwdErr').classList.remove('show');
+    if(!contactName || !contactPhone){
+      alert('যোগাযোগের নাম ও WhatsApp নম্বর দিন');
+      return;
+    }
+    if(!/^01[0-9]{9}$/.test(contactPhone)){
+      document.getElementById('phoneErr').classList.add('show');
+      return;
+    }
+    if(!instEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(instEmail)){
+      document.getElementById('emailErr').classList.add('show');
+      return;
+    }
+    if(!instPassword || instPassword.length < 8){
+      document.getElementById('pwdErr').classList.add('show');
+      return;
+    }
+  }
+
+  document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+
+  document.querySelectorAll('.pstep').forEach(p=>p.classList.remove('active'));
+  for(let i=1;i<=step;i++) document.getElementById('ps'+i).classList.add('active');
+}
+
+async function submitListing(){
+  const contactName = document.getElementById('contactName').value.trim();
+  const contactPhone = document.getElementById('contactPhone').value.trim();
+  const addressNote = document.getElementById('addressNote').value.trim();
+  const instEmail = document.getElementById('instEmail').value.trim();
+  const instPassword = document.getElementById('instPassword').value;
+
+  if(!contactName || !contactPhone){
+    alert('* চিহ্নিত সব তথ্য পূরণ করুন');
+    return;
+  }
+  if(!/^01[0-9]{9}$/.test(contactPhone)){
+    alert('সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)');
+    return;
+  }
+  if(!instEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(instEmail)){
+    alert('সঠিক ইমেইল দিন');
+    return;
+  }
+  if(!instPassword || instPassword.length < 8){
+    alert('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর দিন');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+
+  const instName = document.getElementById('instName').value.trim();
+  const distIdx = document.getElementById('instDistrict').value;
+  const district = BD_LOCATIONS[distIdx].n;
+  const upazila = document.getElementById('instUpazila').value;
+  const studentCount = document.getElementById('studentCount').value.trim();
+
+  const foundingYear = document.getElementById('foundingYear').value.trim();
+  const teacherCount = document.getElementById('teacherCount').value.trim();
+  const medium = getSelectedChips('mediumGrid');
+  const otherMedium = document.getElementById('otherMedium').value.trim();
+  const classRange = document.getElementById('classRange').value.trim();
+  let sessionMonth = document.getElementById('sessionMonth').value;
+  const otherSessionMonth = document.getElementById('otherSessionMonth').value.trim();
+  const genderSelected = document.querySelector('#genderGrid .chip-btn.selected');
+  const genderType = genderSelected ? genderSelected.dataset.val : null;
+  const admissionSelected = document.querySelector('#admissionGrid .chip-btn.selected');
+  const admissionStatus = admissionSelected ? admissionSelected.dataset.val : null;
+  const feeRange = document.getElementById('feeRange').value.trim();
+  const facilities = getSelectedChips('facilityGrid');
+  const otherFacility = document.getElementById('otherFacility').value.trim();
+  const achievements = getSelectedChips('achievementGrid');
+  const otherAchievement = document.getElementById('otherAchievement').value.trim();
+  const description = document.getElementById('instDescription').value.trim();
+  const facebookLink = document.getElementById('facebookLink').value.trim();
+
+  // Slug is decided later by admin during approval; store a temporary placeholder for now
+  const tempSlug = 'pending-' + Date.now();
+
+  // Auto-generate a short_name slug for the institutions (SaaS) account from the institution name
+  function autoSlug(name){
+    return (name||'institute').toLowerCase()
+      .replace(/[^\u0980-\u09FFa-z0-9\s]/g,'')
+      .trim().replace(/\s+/g,'-').slice(0,40) || ('institute-' + Date.now());
+  }
+
+  try{
+    // Step 1: Create the login account (email + password)
+    const { data: authData, error: authError } = await sb.auth.signUp({
+      email: instEmail, password: instPassword,
+      options:{ data:{ institution_name: instName, principal_name: contactName, phone: contactPhone } }
+    });
+    if(authError){
+      btn.classList.remove('loading');
+      if(authError.message.includes('already registered')) alert('এই ইমেইল দিয়ে account আগেই আছে। লগইন পেজ থেকে লগইন করুন।');
+      else alert(authError.message);
+      return;
+    }
+
+    // Step 2: Auto-create the institutions (SaaS) account using the same submitted data
+    const shortName = autoSlug(instName);
+    const { error: instError } = await sb.from('institutions').insert({
+      name: instName, short_name: shortName, email: instEmail, phone: contactPhone,
+      plan: 'free', is_active: true, principal_name: contactName, district, upazila,
+      institution_type: selectedType
+    });
+    if(instError){
+      btn.classList.remove('loading');
+      alert('Account তৈরি হয়েছে কিন্তু institution profile-এ সমস্যা হয়েছে: ' + instError.message);
+      return;
+    }
+
+    // Step 3: Submit the directory listing (existing behavior, unchanged)
+    const { error } = await sb.from('listing_submissions').insert({
+      institution_name: instName,
+      institution_type: selectedType,
+      district: district,
+      upazila: upazila,
+      student_count: studentCount || null,
+      contact_name: contactName,
+      contact_phone: contactPhone,
+      address_note: addressNote || null,
+      desired_slug: tempSlug,
+      status: 'pending',
+      founding_year: foundingYear || null,
+      teacher_count: teacherCount || null,
+      medium: medium.length ? medium : null,
+      other_medium: otherMedium || null,
+      class_range: classRange || null,
+      session_start_month: sessionMonth || null,
+      other_session_month: otherSessionMonth || null,
+      gender_type: genderType,
+      admission_status: admissionStatus,
+      fee_range: feeRange || null,
+      facilities: facilities.length ? facilities : null,
+      other_facility: otherFacility || null,
+      achievements: achievements.length ? achievements : null,
+      other_achievement: otherAchievement || null,
+      description: description || null,
+      facebook_link: facebookLink || null
+    });
+
+    if(error) throw error;
+
+    btn.classList.remove('loading');
+    document.getElementById('formContainer').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+
+  }catch(e){
+    btn.classList.remove('loading');
+    alert('সমস্যা হয়েছে: ' + (e.message || 'আবার চেষ্টা করুন'));
+  }
+}
+
+document.getElementById('contactPhone').addEventListener('input', e=>{
+  e.target.value = e.target.value.replace(/[^0-9]/g,'');
+});
+</script>
+</body>
+</html>

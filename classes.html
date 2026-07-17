@@ -1,0 +1,1208 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ক্লাস ব্যবস্থাপনা — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.user-name-link{cursor:pointer}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn-add{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.content{padding:24px 28px;flex:1}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:var(--white);border-radius:var(--rl);padding:16px 18px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.stat-mini-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-mini-num{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.stat-mini-label{font-size:11px;color:var(--text-3)}
+
+.class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.class-card{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);padding:18px;transition:all .25s}
+.class-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(26,86,219,.1);transform:translateY(-2px)}
+.cc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cc-icon{width:42px;height:42px;border-radius:11px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cc-name{font-size:14.5px;font-weight:700;color:var(--text)}
+.cc-section{font-size:11px;color:var(--text-3);margin-top:1px}
+.cc-teacher-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;border-top:1px solid var(--border);padding-top:12px;margin-bottom:10px}
+.cc-teacher-label{color:var(--text-3)}
+.cc-teacher-val{color:var(--text-2);font-weight:600}
+.cc-teacher-val.unassigned{color:var(--amber)}
+.cc-actions{display:flex;gap:8px}
+.cc-btn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:white;color:var(--text-2);transition:all .2s;font-family:inherit}
+.cc-btn:hover{border-color:var(--blue);color:var(--blue)}
+.cc-btn.danger:hover{border-color:var(--red);color:var(--red)}
+
+.cc-subjects-section{border-top:1px solid var(--border);padding-top:12px;margin-bottom:12px}
+.cc-subjects-label{font-size:11px;color:var(--text-3);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.03em}
+.cc-subject-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.cc-subject-tag{display:flex;align-items:center;gap:5px;background:var(--purple-l);color:var(--purple);font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:100px}
+.cc-subject-tag .rm{cursor:pointer;font-weight:800;opacity:.6}
+.cc-subject-tag .rm:hover{opacity:1}
+.cc-subject-add{display:flex;gap:6px}
+.cc-subject-add input{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;outline:none}
+.cc-subject-add input:focus{border-color:var(--blue)}
+.cc-subject-add button{padding:7px 12px;border-radius:8px;border:none;background:var(--blue);color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.cc-subject-add button:hover{background:var(--blue-dark)}
+
+.modal-section-divider{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 10px;border-top:1px solid var(--border);padding-top:14px}
+.fee-chip-wrap{min-height:42px;border:none;border-radius:0;padding:0;display:flex;align-items:center;background:none;cursor:text}
+.fee-input-row{display:flex;align-items:center;flex:1;gap:4px}
+.fee-taka{color:var(--text-3);font-size:13px;flex-shrink:0}
+.fee-input{border:none;outline:none;background:none;font-size:14px;color:var(--text);width:100%;font-family:inherit}
+.fee-input::-webkit-inner-spin-button,.fee-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.fee-chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:5px 10px 5px 12px;border-radius:20px;cursor:default}
+.fee-chip-x{background:rgba(255,255,255,0.25);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;flex-shrink:0}
+.fee-chip-x:hover{background:rgba(255,255,255,0.45)}
+.switch-toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.switch-toggle input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:100px;transition:.2s}
+.switch-slider::before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.switch-toggle input:checked + .switch-slider{background:var(--green)}
+.switch-toggle input:checked + .switch-slider::before{transform:translateX(20px)}
+.subject-row{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:9px;padding:9px 11px;margin-bottom:7px}
+.subject-row .sr-name{flex:1;font-size:13px;font-weight:600;color:var(--text)}
+.subject-row .sr-time{font-size:11.5px;color:var(--purple);font-weight:600;background:var(--purple-l);padding:3px 8px;border-radius:100px;white-space:nowrap}
+.subject-row .sr-rm{cursor:pointer;color:var(--text-3);font-weight:800;flex-shrink:0}
+.subject-row .sr-rm:hover{color:var(--red)}
+.subject-add-form{display:flex;flex-direction:column;gap:10px;background:var(--blue-light);border-radius:12px;padding:14px;border:1.5px solid rgba(26,86,219,.12)}
+.subject-add-form input[type="text"]{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:var(--white)}
+.subject-add-form input[type="text"]:focus{border-color:var(--blue)}
+.saf-label{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.day-picker{display:flex;gap:5px;flex-wrap:wrap}
+.day-btn{padding:5px 10px;border-radius:100px;border:1.5px solid var(--border);background:var(--white);font-size:11.5px;font-weight:700;cursor:pointer;color:var(--text-3);transition:all .15s;font-family:inherit}
+.day-btn.active{background:var(--blue);border-color:var(--blue);color:white}
+.saf-time-row{display:flex;gap:8px;align-items:flex-end}
+.saf-time-group{flex:1;display:flex;flex-direction:column;gap:5px}
+.saf-time-group label{font-size:10.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em}
+.saf-time-sep{font-size:18px;color:var(--text-3);padding-bottom:10px;flex-shrink:0}
+.time-input-wrap{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;cursor:pointer;user-select:none;transition:border-color .15s;position:relative}
+.time-input-wrap:hover{border-color:#94A3B8}
+.time-input-wrap.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.ti-icon{color:var(--text-3);flex-shrink:0;display:flex}
+.ti-val{font-size:15px;font-weight:700;color:var(--text);letter-spacing:.5px;flex:1;font-variant-numeric:tabular-nums}
+.ti-val.empty{color:var(--text-3);font-weight:500}
+.ti-ampm{font-size:10px;font-weight:800;padding:2px 6px;border-radius:100px;background:var(--blue-light);color:var(--blue)}
+/* Time Picker Popup */
+.time-picker-popup{position:fixed;z-index:9999;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px 12px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:264px;display:none}
+.time-picker-popup.show{display:block}
+.tp-section-label{font-size:10px;font-weight:800;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px}
+.tp-hours-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:12px}
+.tp-mins-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:12px}
+.tp-btn{padding:7px 2px;border-radius:8px;border:1.5px solid transparent;background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;color:var(--text-2);text-align:center;transition:all .1s;font-family:inherit;line-height:1}
+.tp-btn:hover{background:var(--blue-light);color:var(--blue)}
+.tp-btn.sel-h{background:var(--blue);color:white}
+.tp-btn.sel-m{background:var(--blue);color:white}
+.tp-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:10px}
+.tp-preview{font-size:17px;font-weight:800;color:var(--text);letter-spacing:.5px}
+.tp-preview .tp-prev-ampm{font-size:11px;font-weight:700;color:var(--text-3);margin-left:3px}
+.tp-clear{font-size:12px;color:var(--text-3);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:inherit;padding:0}
+.subject-add-form .saf-add-btn{padding:10px;border-radius:9px;border:none;background:var(--blue);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.subject-add-form .saf-add-btn:hover{background:var(--blue-dark)}
+.sr-days{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+.sr-day-badge{font-size:10px;font-weight:700;background:rgba(124,58,237,.12);color:var(--purple);padding:1px 6px;border-radius:100px}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:64px 24px;background:var(--white);border-radius:var(--rl);border:1px dashed var(--border)}
+.empty-icon{font-size:56px;margin-bottom:16px}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-card{background:white;border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;transform:scale(.92) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.modal-overlay.show .modal-card{transform:scale(1) translateY(0)}
+.modal-head{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surface);border:none;cursor:pointer;font-size:16px;color:var(--text-2);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:20px 24px}
+.form-field{margin-bottom:14px}
+.form-field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.form-field input,.form-field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--text)}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.form-hint{font-size:11px;color:var(--text-3);margin-top:4px}
+.modal-footer{padding:16px 24px 24px;display:flex;gap:10px}
+.btn-cancel{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-cancel:hover{border-color:var(--text-3)}
+.btn-save{flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;position:relative}
+.btn-save.loading .btn-text{display:none}
+.btn-save .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.btn-save.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast-overlay.show{opacity:1;pointer-events:all}
+.toast-card{background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.2);margin:0 20px}
+.toast-icon-wrap{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px}
+
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+
+/* ===== MOBILE BOTTOM NAV ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding-bottom:86px}
+  .bottom-nav{display:flex!important}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.more-sheet-overlay.show{opacity:1;pointer-events:all}
+.more-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 8px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:75vh;overflow-y:auto;z-index:301}
+.more-sheet-overlay.show .more-sheet{transform:translateY(0)}
+.more-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:6px auto 16px}
+.more-sheet-title{font-size:14px;font-weight:700;color:var(--text);padding:0 10px 12px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 6px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:14px;text-decoration:none;color:var(--text-2)}
+.more-sheet-item:active{background:var(--surface)}
+.more-sheet-icon{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center}
+.more-sheet-label{font-size:11px;font-weight:600;text-align:center;line-height:1.3}
+
+
+
+/* ===== MOBILE TOPBAR FIX (v3) ===== */
+@media(max-width:768px){
+  .topbar{
+    flex-wrap:wrap!important;
+    justify-content:space-between!important;
+    height:auto!important;
+    padding:12px 16px!important;
+    row-gap:10px!important;
+  }
+  .topbar-title{font-size:15px!important;margin-bottom:0!important;width:auto!important}
+  .topbar-right{
+    margin-left:0!important;
+    margin-top:0!important;
+    width:auto!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+  }
+  .topbar-right .btn-add{padding:8px 13px!important;font-size:12px!important}
+  .content{padding-top:12px!important}
+}
+
+@media(max-width:768px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  table{font-size:10.5px!important}
+  table th,table td{padding:6px 4px!important}
+}
+
+@media(max-width:600px){
+  .stats-grid,.stats-row,.fin-stats,.qa-grid{min-width:0}
+  .stat-card,.stat-mini,.fin-stat,.qa-card{min-width:0;overflow:hidden}
+  .stat-num,.stat-mini-num,.fin-stat-num{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card,.table-card,.content > div{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">আপনার প্রতিষ্ঠান</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item active" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name user-name-link" id="userName" onclick="window.location.href='settings.html'">Loading...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="event.stopPropagation();doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title">ক্লাস ব্যবস্থাপনা</div></div>
+    <div class="topbar-right">
+      <button class="btn-add" onclick="openModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন ক্লাস</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--blue-light)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+        <div><div class="stat-mini-num" id="totalClasses">০</div><div class="stat-mini-label">মোট ক্লাস</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--green-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div>
+        <div><div class="stat-mini-num" id="assignedClasses">০</div><div class="stat-mini-label">Teacher নিযুক্ত</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--amber-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z"/><path d="M12 10v4M12 17.5h.01"/></svg>️</div>
+        <div><div class="stat-mini-num" id="unassignedClasses">০</div><div class="stat-mini-label">Teacher বাকি</div></div>
+      </div>
+    </div>
+
+    <div class="class-grid" id="classGrid">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+        <h3>কোনো ক্লাস তৈরি করা হয়নি</h3>
+        <p>প্রথম ক্লাস তৈরি করে শুরু করুন — এটা Students ও Teachers ফর্মে dropdown হিসেবে ব্যবহৃত হবে</p>
+        <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন ক্লাস তৈরি করুন</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT CLASS MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">নতুন ক্লাস তৈরি করুন</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>ক্লাসের নাম *</label>
+        <input type="text" id="fName" placeholder="যেমন: ৬ষ্ঠ শ্রেণি, হিফজ বিভাগ, Dawra">
+      </div>
+      <div class="form-field">
+        <label>শাখা / সেকশন (ঐচ্ছিক)</label>
+        <input type="text" id="fSection" placeholder="যেমন: ক, খ (একাধিক শাখা থাকলে)">
+      </div>
+      <div style="background:var(--surface);border-radius:10px;padding:14px;margin-bottom:4px">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">💰 ফি নির্ধারণ</div>
+        <div class="form-field" style="margin-bottom:10px">
+          <label>মাসিক ফি (সকলের জন্য)</label>
+          <div class="fee-chip-wrap" id="wrapMonthlyFee">
+            <div class="fee-chip" id="chipMonthlyFee" style="display:none"></div>
+            <div class="fee-input-row" id="inputRowMonthlyFee">
+              <span class="fee-taka">৳</span>
+              <input type="number" id="fMonthlyFee" placeholder="যেমন: ১০০০" class="fee-input"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();feeConfirm('MonthlyFee')}"
+                onblur="setTimeout(()=>feeConfirm('MonthlyFee'),150)">
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="form-field" style="margin-bottom:0">
+            <label>ভর্তি ফি — নতুন</label>
+            <div class="fee-chip-wrap" id="wrapAdmissionFee">
+              <div class="fee-chip" id="chipAdmissionFee" style="display:none"></div>
+              <div class="fee-input-row" id="inputRowAdmissionFee">
+                <span class="fee-taka">৳</span>
+                <input type="number" id="fAdmissionFee" placeholder="যেমন: ১৩০০" class="fee-input"
+                  onkeydown="if(event.key==='Enter'){event.preventDefault();feeConfirm('AdmissionFee')}"
+                  onblur="setTimeout(()=>feeConfirm('AdmissionFee'),150)">
+              </div>
+            </div>
+          </div>
+          <div class="form-field" style="margin-bottom:0">
+            <label>ভর্তি ফি — পুরাতন</label>
+            <div class="fee-chip-wrap" id="wrapAdmissionFeeOld">
+              <div class="fee-chip" id="chipAdmissionFeeOld" style="display:none"></div>
+              <div class="fee-input-row" id="inputRowAdmissionFeeOld">
+                <span class="fee-taka">৳</span>
+                <input type="number" id="fAdmissionFeeOld" placeholder="যেমন: ৫০০" class="fee-input"
+                  onkeydown="if(event.key==='Enter'){event.preventDefault();feeConfirm('AdmissionFeeOld')}"
+                  onblur="setTimeout(()=>feeConfirm('AdmissionFeeOld'),150)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field" style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);padding:12px 14px;border-radius:10px">
+        <div>
+          <label style="margin-bottom:2px">এই ক্লাসের শিক্ষার্থী Student Login করতে পারবে?</label>
+          <div style="font-size:11px;color:var(--text-3)">চালু থাকলে এই ক্লাসের ছাত্ররা নিজের ফোন নম্বর দিয়ে লগইন করতে পারবে</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="fStudentLoginEnabled">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <div class="form-hint" style="margin-top:-4px">শিক্ষক নিযুক্ত করতে <a href="teachers.html" style="color:var(--blue);font-weight:600">শিক্ষক পেজে</a> যান — সেখান থেকে একজন শিক্ষককে একাধিক ক্লাসে নিযুক্ত করা যাবে।</div>
+
+      <div class="modal-section-divider"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/></svg> বিষয় ও সময়সূচী</div>
+      <div id="modalSubjectsList"></div>
+      <div class="subject-add-form">
+        <input type="text" id="newSubjectName" placeholder="বিষয়ের নাম — যেমন: গণিত, বাংলা">
+        <div>
+          <div class="saf-label">কোন কোন দিন?</div>
+          <div class="day-picker" id="dayPicker">
+            <button type="button" class="day-btn" data-day="রবি" onclick="toggleDay(this)">রবি</button>
+            <button type="button" class="day-btn" data-day="সোম" onclick="toggleDay(this)">সোম</button>
+            <button type="button" class="day-btn" data-day="মঙ্গল" onclick="toggleDay(this)">মঙ্গল</button>
+            <button type="button" class="day-btn" data-day="বুধ" onclick="toggleDay(this)">বুধ</button>
+            <button type="button" class="day-btn" data-day="বৃহঃ" onclick="toggleDay(this)">বৃহঃ</button>
+            <button type="button" class="day-btn" data-day="শুক্র" onclick="toggleDay(this)">শুক্র</button>
+            <button type="button" class="day-btn" data-day="শনি" onclick="toggleDay(this)">শনি</button>
+            <button type="button" class="day-btn" style="background:#e8f5e9;border-color:#2e7d32;color:#2e7d32;font-size:10.5px" onclick="selectShaniTobrih()">শনি–বৃহ</button>
+          </div>
+        </div>
+        <div class="saf-time-row">
+          <div class="saf-time-group">
+            <label>শুরুর সময়</label>
+            <div class="time-input-wrap" id="startTimeWrap" onclick="openTimePicker('start',event)">
+              <span class="ti-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+              <span class="ti-val empty" id="startTimeVal">--:--</span>
+              <span class="ti-ampm" id="startAmPm" style="display:none">AM</span>
+            </div>
+          </div>
+          <div class="saf-time-sep">→</div>
+          <div class="saf-time-group">
+            <label>শেষের সময়</label>
+            <div class="time-input-wrap" id="endTimeWrap" onclick="openTimePicker('end',event)">
+              <span class="ti-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+              <span class="ti-val empty" id="endTimeVal">--:--</span>
+              <span class="ti-ampm" id="endAmPm" style="display:none">AM</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="addSubjectBtn" class="saf-add-btn" onclick="addModalSubject()" style="flex:1">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+            বিষয় যুক্ত করুন
+          </button>
+          <button type="button" id="cancelEditBtn" onclick="cancelEditSubject()" style="display:none;padding:10px 14px;border-radius:9px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">বাতিল</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">বাতিল</button>
+      <button class="btn-save" id="saveBtn" onclick="saveClass()"><span class="btn-text">সেভ করুন</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-overlay" id="toastOverlay">
+  <div class="toast-card">
+    <div class="toast-icon-wrap" id="toastIconWrap"><span id="toastIconEmoji"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span></div>
+    <div class="toast-title" id="toastTitle" style="font-size:18px;font-weight:800;margin-bottom:6px">সফল!</div>
+    <div class="toast-msg" id="toastMsg" style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:18px"></div>
+    <button onclick="closeToast()" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">ঠিক আছে</button>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+let currentInstitution = null;
+let allClasses = [];
+let allTeachers = [];
+let editClassId = null;
+
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showToast(type, title, msg){
+  document.getElementById('toastIconWrap').style.background = type==='success' ? 'var(--green-l)' : 'var(--red-l)';
+  document.getElementById('toastIconEmoji').innerHTML = type==='success' ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastOverlay').classList.add('show');
+}
+function closeToast(){ document.getElementById('toastOverlay').classList.remove('show'); }
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata || {};
+  document.getElementById('userName').textContent = meta.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (meta.principal_name||'A').slice(0,1);
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(inst){
+    currentInstitution = inst;
+    document.getElementById('instNameSidebar').textContent = inst.name;
+    await loadTeachers();
+    await loadSubjects();
+    await loadClasses();
+  } else {
+    document.getElementById('emptyState').innerHTML = `
+      <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z"/><path d="M12 10v4M12 17.5h.01"/></svg>️</div>
+      <h3>প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</h3>
+      <p>আপনার account এ প্রতিষ্ঠানের তথ্য সংযুক্ত নেই।</p>
+    `;
+  }
+}
+
+async function loadTeachers(){
+  const { data } = await sb.from('teachers').select('id, full_name, teacher_code').eq('institution_id', currentInstitution.id).eq('is_active', true);
+  allTeachers = data || [];
+}
+
+async function loadClasses(){
+  const { data, error } = await sb.from('classes').select('*').eq('institution_id', currentInstitution.id).order('created_at',{ascending:true});
+  if(error){ console.error(error); return; }
+  allClasses = data || [];
+  renderClasses();
+  updateStats();
+}
+
+let allSubjects = [];
+let allTeacherClassSubjects = [];
+async function loadSubjects(){
+  const [subjRes, tcsRes] = await Promise.all([
+    sb.from('class_subjects').select('*').order('created_at',{ascending:true}),
+    sb.from('teacher_class_subjects').select('teacher_id,class_id,subject_name')
+  ]);
+  if(subjRes.error){ console.error(subjRes.error); return; }
+  allSubjects = subjRes.data || [];
+  allTeacherClassSubjects = tcsRes.data || [];
+}
+
+function subjectsForClass(classId){
+  return allSubjects.filter(s=>s.class_id===classId);
+}
+
+let modalSubjects = []; // [{ id (null if pending/new), subject_name, start_time, end_time }]
+
+function autoFillNextStartTime(){
+  if(_editingSubjectIdx !== null) return; // editing mode e change korbo na
+  const lastWithEnd = [...modalSubjects].reverse().find(s => s.end_time);
+  if(!lastWithEnd) return;
+  let [eh, em] = lastWithEnd.end_time.split(':').map(Number);
+  em += 1;
+  if(em >= 60){ em = 0; eh = (eh + 1) % 24; }
+  pickerStartH = String(eh).padStart(2,'0');
+  pickerStartM = String(em).padStart(2,'0');
+  pickerEndH = null; pickerEndM = '00';
+  updateTimeInputDisplay('start');
+  updateTimeInputDisplay('end');
+}
+
+function renderModalSubjectsList(){
+  const container = document.getElementById('modalSubjectsList');
+  if(!modalSubjects.length){
+    container.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:8px">এখনো কোনো বিষয় যুক্ত করা হয়নি।</div>';
+    return;
+  }
+  container.innerHTML = modalSubjects.map((s, idx)=>{
+    const dayBadges = s.days_of_week ? s.days_of_week.split(',').map(d=>`<span class="sr-day-badge">${d}</span>`).join('') : '<span style="font-size:10px;color:var(--red);font-weight:600">⚠ দিন নেই</span>';
+    const hasIssue = !s.days_of_week || !s.start_time;
+    return `<div class="subject-row" style="${hasIssue?'border:1.5px solid #FCA5A5;background:#FFF5F5':''}">
+      <div style="flex:1;min-width:0">
+        <div class="sr-name">${escapeHtml(s.subject_name)}</div>
+        <div class="sr-days">${dayBadges}${s.start_time?`<span class="sr-time" style="font-size:10px;margin-left:4px">${s.start_time}${s.end_time?' – '+s.end_time:''}</span>`:'<span style="font-size:10px;color:var(--red);font-weight:600;margin-left:4px">⚠ সময় নেই</span>'}</div>
+      </div>
+      <span onclick="editModalSubject(${idx})" title="সম্পাদনা করুন" style="cursor:pointer;color:var(--blue);padding:4px 7px;border-radius:6px;background:var(--blue-light);font-size:11px;font-weight:700;margin-right:6px">✏ Edit</span>
+      <span class="sr-rm" onclick="removeModalSubject(${idx})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+    </div>`;
+  }).join('');
+  setTimeout(autoFillNextStartTime, 0);
+}
+
+async function removeModalSubject(idx){
+  const s = modalSubjects[idx];
+  if(s.id){
+    try{
+      const { error } = await sb.from('class_subjects').delete().eq('id', s.id);
+      if(error) throw error;
+      await loadSubjects(); renderClasses();
+    }catch(e){
+      showToast('error','সমস্যা হয়েছে', e.message);
+      return;
+    }
+  }
+  modalSubjects.splice(idx, 1);
+  renderModalSubjectsList();
+}
+
+let _editingSubjectIdx = null; // null = adding new, number = editing existing
+
+function editModalSubject(idx){
+  const s = modalSubjects[idx];
+  _editingSubjectIdx = idx;
+
+  // Fill subject name
+  document.getElementById('newSubjectName').value = s.subject_name;
+
+  // Fill days
+  document.querySelectorAll('#dayPicker .day-btn').forEach(btn=>{
+    const days = s.days_of_week ? s.days_of_week.split(',').map(d=>d.trim()) : [];
+    btn.classList.toggle('active', days.includes(btn.dataset.day));
+  });
+
+  // Fill times — must set pickerStartH/pickerEndH variables used by getTimeValPicker()
+  if(s.start_time){
+    const [h,m] = s.start_time.split(':');
+    pickerStartH = h; pickerStartM = m||'00';
+    updateTimeInputDisplay('start');
+  }
+  if(s.end_time){
+    const [h,m] = s.end_time.split(':');
+    pickerEndH = h; pickerEndM = m||'00';
+    updateTimeInputDisplay('end');
+  }
+
+  // Change button label
+  const addBtn = document.getElementById('addSubjectBtn');
+  if(addBtn){ addBtn.textContent = '✓ আপডেট করুন'; addBtn.style.background='var(--green)'; }
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(cancelBtn) cancelBtn.style.display='';
+
+  document.getElementById('newSubjectName').focus();
+  document.getElementById('newSubjectName').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function cancelEditSubject(){
+  _editingSubjectIdx = null;
+  document.getElementById('newSubjectName').value = '';
+  document.querySelectorAll('#dayPicker .day-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('startTimeVal').textContent='--:--';
+  document.getElementById('startTimeVal').classList.add('empty');
+  document.getElementById('startAmPm').style.display='none';
+  document.getElementById('endTimeVal').textContent='--:--';
+  document.getElementById('endTimeVal').classList.add('empty');
+  document.getElementById('endAmPm').style.display='none';
+  delete document.getElementById('startTimeWrap').dataset.val;
+  delete document.getElementById('endTimeWrap').dataset.val;
+  const addBtn = document.getElementById('addSubjectBtn');
+  if(addBtn){ addBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> বিষয় যুক্ত করুন'; addBtn.style.background=''; }
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(cancelBtn) cancelBtn.style.display='none';
+}
+
+function toggleDay(btn){ btn.classList.toggle('active'); }
+function selectShaniTobrih(){
+  const order = ['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহঃ'];
+  document.querySelectorAll('#dayPicker .day-btn').forEach(b=>{
+    b.classList.toggle('active', order.includes(b.dataset.day));
+  });
+}
+
+function getSelectedDays(){
+  return [...document.querySelectorAll('#dayPicker .day-btn.active')].map(b=>b.dataset.day).join(',');
+}
+
+function addModalSubject(){
+  const nameInput = document.getElementById('newSubjectName');
+  const name = nameInput.value.trim();
+  if(!name){ showToast('error','বিষয়ের নাম দিন','যেমন: গণিত, বাংলা ইত্যাদি'); return; }
+  const days = getSelectedDays();
+  const start_time = getTimeValPicker('start');
+  const end_time   = getTimeValPicker('end');
+  if(!days){ showToast('error','দিন নির্বাচন করুন','কোন কোন দিন এই ক্লাস হবে তা select করুন'); return; }
+  if(!start_time){ showToast('error','শুরুর সময় দিন','বিষয়টি কখন শুরু হয় তা দিন'); return; }
+
+  if(_editingSubjectIdx !== null){
+    const subj = modalSubjects[_editingSubjectIdx];
+    subj.subject_name = name;
+    subj.days_of_week = days || null;
+    subj.start_time = start_time;
+    subj.end_time = end_time;
+
+    // If subject already exists in DB: delete old + re-insert (avoids UPDATE RLS)
+    if(subj.id){
+      (async()=>{
+        const oldId = subj.id;
+        const classId = editClassId; // global var set when modal opens
+        console.log('[edit subject] classId=', classId, 'oldId=', oldId, 'days=', days);
+
+        const { error: delErr } = await sb.from('class_subjects').delete().eq('id', oldId);
+        if(delErr){ console.error('delete error', delErr); showToast('error','Delete সমস্যা', delErr.message); return; }
+
+        const { data: newRow, error: insErr } = await sb.from('class_subjects').insert({
+          class_id: classId,
+          subject_name: name,
+          start_time: start_time,
+          end_time: end_time,
+          days_of_week: days || null
+        }).select().single();
+        if(insErr){ console.error('insert error', insErr); showToast('error','Insert সমস্যা', insErr.message); return; }
+
+        console.log('[edit subject] saved:', newRow);
+        subj.id = newRow.id;
+        showToast('success','সংরক্ষিত হয়েছে', name+' আপডেট হয়ে গেছে');
+        await loadSubjects();
+        renderModalSubjectsList();
+      })();
+    } else {
+      showToast('success','আপডেট হয়েছে', name+' সম্পাদনা সংরক্ষিত হয়েছে');
+    }
+
+    cancelEditSubject();
+    renderModalSubjectsList();
+    return;
+  }
+
+  // ADD new subject
+  modalSubjects.push({ id: null, subject_name: name, start_time, end_time, days_of_week: days || null });
+
+  // Smart next-class: pre-fill next subject's start from this subject's end + 1 min
+  if(end_time){
+    let [eh, em] = end_time.split(':').map(Number);
+    em += 1;
+    if(em >= 60){ em = 0; eh = (eh + 1) % 24; }
+    pickerStartH = String(eh).padStart(2,'0');
+    pickerStartM = String(em).padStart(2,'0');
+    pickerEndH = null; pickerEndM = '00';
+    updateTimeInputDisplay('start');
+    updateTimeInputDisplay('end');
+  } else {
+    resetTimePicker();
+  }
+
+  nameInput.value = '';
+  document.querySelectorAll('#dayPicker .day-btn').forEach(b=>b.classList.remove('active'));
+  renderModalSubjectsList();
+}
+
+function updateStats(){
+  const total = allClasses.length;
+  const assigned = allClasses.filter(c=>c.teacher_id).length;
+  document.getElementById('totalClasses').textContent = total;
+  document.getElementById('assignedClasses').textContent = assigned;
+  document.getElementById('unassignedClasses').textContent = total - assigned;
+}
+
+function teacherNameById(id){
+  const t = allTeachers.find(x=>x.id===id);
+  return t ? t.full_name : null;
+}
+
+function renderClasses(){
+  const grid = document.getElementById('classGrid');
+  if(!allClasses.length){
+    grid.innerHTML = `<div class="empty-state" id="emptyState">
+      <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+      <h3>কোনো ক্লাস তৈরি করা হয়নি</h3>
+      <p>প্রথম ক্লাস তৈরি করে শুরু করুন — এটা Students ও Teachers ফর্মে dropdown হিসেবে ব্যবহৃত হবে</p>
+      <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন ক্লাস তৈরি করুন</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = allClasses.map(c=>{
+    const teacherName = teacherNameById(c.teacher_id);
+    const subjects = subjectsForClass(c.id);
+    return `<div class="class-card">
+      <div class="cc-top">
+        <div class="cc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+        <div>
+          <div class="cc-name">${escapeHtml(c.name)}</div>
+          <div class="cc-section">${c.section ? escapeHtml(c.section) + ' শাখা' : 'কোনো শাখা নেই'}</div>
+        </div>
+      </div>
+      <div class="cc-teacher-row">
+        <span class="cc-teacher-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg>‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg> শিক্ষক</span>
+        <span class="cc-teacher-val ${teacherName?'':'unassigned'}">${teacherName ? escapeHtml(teacherName) : 'নিযুক্ত করা হয়নি'}</span>
+      </div>
+      ${(c.monthly_fee||c.admission_fee||c.admission_fee_old) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        ${c.monthly_fee ? `<span style="font-size:11px;background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:20px;font-weight:600">৳${c.monthly_fee} মাসিক</span>` : ''}
+        ${c.admission_fee ? `<span style="font-size:11px;background:#e3f2fd;color:#1565c0;padding:3px 8px;border-radius:20px;font-weight:600">৳${c.admission_fee} নতুন ভর্তি</span>` : ''}
+        ${c.admission_fee_old ? `<span style="font-size:11px;background:#f3e5f5;color:#6a1b9a;padding:3px 8px;border-radius:20px;font-weight:600">৳${c.admission_fee_old} পুরাতন ভর্তি</span>` : ''}
+      </div>` : ''}
+      <div class="cc-subjects-section">
+        <div class="cc-subjects-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/></svg> বিষয় ও সময়সূচী</div>
+        <div class="cc-subject-tags">
+          ${subjects.length ? subjects.map(s=>{
+            const days = s.days_of_week ? ` · ${s.days_of_week}` : '';
+            const time = (s.start_time&&s.end_time) ? ` · ${s.start_time}–${s.end_time}` : '';
+            const tcs = allTeacherClassSubjects.find(r=>r.class_id===s.class_id&&r.subject_name===s.subject_name);
+            const tName = tcs ? (allTeachers.find(t=>t.id===tcs.teacher_id)?.full_name||'') : '';
+            const teacherBadge = tName ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;background:rgba(5,150,105,.1);color:#065F46;padding:1px 6px;border-radius:100px;margin-left:4px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>${escapeHtml(tName)}</span>` : '';
+            return `<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:5px 0;border-bottom:1px solid var(--border)">
+              <span class="cc-subject-tag" style="margin:0">${escapeHtml(s.subject_name)}${days}${time}</span>${teacherBadge}
+            </div>`;
+          }).join('') : '<span style="font-size:11.5px;color:var(--text-3)">কোনো বিষয় যুক্ত করা হয়নি — Edit করে যুক্ত করুন</span>'}
+        </div>
+      </div>
+      <div class="cc-actions">
+        <button class="cc-btn" onclick="openEditModal('${c.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>️ Edit</button>
+        <button class="cc-btn danger" onclick="deleteClass('${c.id}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(){
+  editClassId = null;
+  document.getElementById('modalTitle').textContent = 'নতুন ক্লাস তৈরি করুন';
+  document.getElementById('fName').value = '';
+  document.getElementById('fSection').value = '';
+  feeClearAll();
+  document.getElementById('fStudentLoginEnabled').checked = false;
+  modalSubjects = [];
+  renderModalSubjectsList();
+  setTimeout(()=>resetTimePicker(), 0);
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function openEditModal(id){
+  const c = allClasses.find(x=>x.id===id);
+  if(!c) return;
+  editClassId = id;
+  document.getElementById('modalTitle').textContent = 'ক্লাস সম্পাদনা করুন';
+  document.getElementById('fName').value = c.name||'';
+  document.getElementById('fSection').value = c.section||'';
+  feeSetValue('MonthlyFee', c.monthly_fee||null);
+  feeSetValue('AdmissionFee', c.admission_fee||null);
+  feeSetValue('AdmissionFeeOld', c.admission_fee_old||null);
+  document.getElementById('fStudentLoginEnabled').checked = !!c.student_login_enabled;
+  modalSubjects = subjectsForClass(c.id).map(s=>({ id: s.id, subject_name: s.subject_name, start_time: s.start_time, end_time: s.end_time, days_of_week: s.days_of_week||null }));
+  renderModalSubjectsList();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+
+function feeConfirm(key){
+  const input = document.getElementById('f'+key);
+  const val = input.value.trim();
+  if(!val || isNaN(val) || parseInt(val)<=0) return;
+  const chip = document.getElementById('chip'+key);
+  const inputRow = document.getElementById('inputRow'+key);
+  chip.innerHTML = `৳${parseInt(val).toLocaleString('en')} <button class="fee-chip-x" type="button" onclick="feeRemove('${key}')">✕</button>`;
+  chip.style.display = 'inline-flex';
+  inputRow.style.display = 'none';
+}
+function feeRemove(key){
+  const input = document.getElementById('f'+key);
+  const chip = document.getElementById('chip'+key);
+  const inputRow = document.getElementById('inputRow'+key);
+  input.value = '';
+  chip.style.display = 'none';
+  inputRow.style.display = 'flex';
+  setTimeout(()=>input.focus(),0);
+}
+function feeSetValue(key, val){
+  const input = document.getElementById('f'+key);
+  if(val){ input.value = val; feeConfirm(key); }
+  else { feeRemove(key); }
+}
+function feeClearAll(){
+  ['MonthlyFee','AdmissionFee','AdmissionFeeOld'].forEach(k=>feeRemove(k));
+}
+
+async function saveClass(){
+  const name = document.getElementById('fName').value.trim();
+  const section = document.getElementById('fSection').value.trim();
+  const monthlyFeeVal = document.getElementById('fMonthlyFee').value.trim();
+  const monthly_fee = monthlyFeeVal ? parseInt(monthlyFeeVal) : null;
+  const admissionFeeVal = document.getElementById('fAdmissionFee').value.trim();
+  const admission_fee = admissionFeeVal ? parseInt(admissionFeeVal) : null;
+  const admissionFeeOldVal = document.getElementById('fAdmissionFeeOld').value.trim();
+  const admission_fee_old = admissionFeeOldVal ? parseInt(admissionFeeOldVal) : null;
+  const student_login_enabled = document.getElementById('fStudentLoginEnabled').checked;
+
+  if(!name){ showToast('error','তথ্য অসম্পূর্ণ','ক্লাসের নাম দিন।'); return; }
+
+  const btn = document.getElementById('saveBtn');
+  btn.classList.add('loading');
+
+  try{
+    let classId = editClassId;
+    if(editClassId){
+      const { error } = await sb.from('classes').update({ name, section: section||null, monthly_fee, admission_fee, admission_fee_old, student_login_enabled }).eq('id', editClassId);
+      if(error) throw error;
+    } else {
+      const { data, error } = await sb.from('classes').insert({ institution_id: currentInstitution.id, name, section: section||null, monthly_fee, admission_fee, admission_fee_old, student_login_enabled }).select().single();
+      if(error) throw error;
+      classId = data.id;
+    }
+
+    // Insert new subjects (id: null)
+    const pendingSubjects = modalSubjects.filter(s => !s.id);
+    if(pendingSubjects.length){
+      const { error: subErr } = await sb.from('class_subjects').insert(
+        pendingSubjects.map(s => ({ class_id: classId, subject_name: s.subject_name, start_time: s.start_time, end_time: s.end_time, days_of_week: s.days_of_week||null }))
+      );
+      if(subErr) throw subErr;
+    }
+
+    // Update existing subjects (those with an id)
+    const existingSubjects = modalSubjects.filter(s => s.id);
+    for(const s of existingSubjects){
+      const { error: updErr } = await sb.from('class_subjects').update({
+        subject_name: s.subject_name,
+        start_time: s.start_time,
+        end_time: s.end_time,
+        days_of_week: s.days_of_week||null
+      }).eq('id', s.id);
+      if(updErr) throw updErr;
+    }
+
+    showToast('success', editClassId ? 'আপডেট হয়েছে' : 'তৈরি হয়েছে', editClassId ? 'ক্লাসের তথ্য সফলভাবে আপডেট হয়েছে।' : 'নতুন ক্লাস সফলভাবে তৈরি হয়েছে।');
+    btn.classList.remove('loading');
+    closeModal();
+    await loadSubjects();
+    loadClasses();
+  }catch(e){
+    btn.classList.remove('loading');
+    showToast('error','সমস্যা হয়েছে', e.message.includes('duplicate')||e.message.includes('unique') ? 'এই নামে ক্লাস বা বিষয় আগেই আছে।' : e.message);
+  }
+}
+
+async function deleteClass(id){
+  if(!confirm('এই ক্লাস ডিলিট করতে চান? (এই ক্লাসের শিক্ষার্থী/শিক্ষক তথ্য মুছে যাবে না, শুধু ক্লাস রেফারেন্স মুছবে)')) return;
+  try{
+    const { error } = await sb.from('classes').delete().eq('id', id);
+    if(error) throw error;
+    showToast('success','ডিলিট হয়েছে','ক্লাসটি মুছে ফেলা হয়েছে।');
+    loadClasses();
+  }catch(e){
+    showToast('error','সমস্যা হয়েছে', e.message);
+  }
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+init();
+</script>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item" href="finance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="bnav-label">হিসাব</span></a>
+  <button class="bnav-item" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16M16 17h2a2 2 0 0 0 0-4h-2"/><path d="M16 8h2a2 2 0 0 0 0-4h-2"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13.5h1v1h-1zM11.5 13.5h1v1h-1zM15.5 13.5h1v1h-1z"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5M9 14h6M9 18h4"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2M10 15h4"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){
+  var ov = document.getElementById('moreSheetOverlay');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===this) closeMoreSheet(); });
+})();
+</script>
+
+<!-- Time Picker Popup -->
+<div class="time-picker-popup" id="timePickerPopup">
+  <div class="tp-section-label">Hour</div>
+  <div class="tp-hours-grid" id="tpHoursGrid"></div>
+  <div class="tp-section-label">Minute</div>
+  <div class="tp-mins-grid" id="tpMinsGrid"></div>
+  <div class="tp-footer">
+    <span class="tp-preview"><span id="tpPreviewTime">--:--</span><span class="tp-prev-ampm" id="tpPreviewAmPm"></span></span>
+    <button class="tp-clear" type="button" onclick="clearActivePicker()">মুছুন</button>
+  </div>
+</div>
+
+<script>
+/* ─── Custom Time Picker ─── */
+let activeTimePicker = null; // 'start' | 'end'
+let pickerStartH = null, pickerStartM = '00';
+let pickerEndH   = null, pickerEndM   = '00';
+
+const TP_HOURS = [6,7,8,9,10,11,12,13,14,15,16,17];
+const TP_MINS  = [0,5,10,15,20,25,30,35,40,45,50,55];
+
+(function buildTimePicker(){
+  const hg = document.getElementById('tpHoursGrid');
+  const mg = document.getElementById('tpMinsGrid');
+  hg.innerHTML = TP_HOURS.map(h=>{
+    const val = String(h).padStart(2,'0');
+    const label = h > 12 ? h-12 : h;
+    return `<button type="button" class="tp-btn" data-h="${val}" onclick="selectTpHour(this)">${label}</button>`;
+  }).join('');
+  mg.innerHTML = TP_MINS.map(m=>{
+    const val = String(m).padStart(2,'0');
+    return `<button type="button" class="tp-btn" data-m="${val}" onclick="selectTpMinute(this)">${val}</button>`;
+  }).join('');
+})();
+
+function openTimePicker(which, e){
+  e.stopPropagation();
+  activeTimePicker = which;
+  const popup = document.getElementById('timePickerPopup');
+  const wrap  = document.getElementById(which+'TimeWrap');
+  const rect  = wrap.getBoundingClientRect();
+
+  // Estimate popup height (~240px), position above if not enough space below
+  const popupH = 240;
+  const spaceBelow = window.innerHeight - rect.bottom;
+  let top, left;
+  if(spaceBelow < popupH + 12 && rect.top > popupH + 12){
+    top = rect.top + window.scrollY - popupH - 6;
+  } else {
+    top = rect.bottom + window.scrollY + 6;
+  }
+  left = rect.left + window.scrollX;
+  if(left + 264 > window.innerWidth - 8) left = window.innerWidth - 272;
+  if(left < 8) left = 8;
+  popup.style.top  = top + 'px';
+  popup.style.left = left + 'px';
+
+  // Highlight current selections
+  const h = which==='start' ? pickerStartH : pickerEndH;
+  const m = (which==='start' ? pickerStartM : pickerEndM) || '00';
+  document.querySelectorAll('#tpHoursGrid .tp-btn').forEach(b=>b.classList.toggle('sel-h', b.dataset.h===h));
+  document.querySelectorAll('#tpMinsGrid  .tp-btn').forEach(b=>b.classList.toggle('sel-m', b.dataset.m===m));
+  updateTpFooter(h, m);
+
+  document.querySelectorAll('.time-input-wrap').forEach(w=>w.classList.remove('active'));
+  wrap.classList.add('active');
+  popup.classList.add('show');
+}
+
+function selectTpHour(btn){
+  const h = btn.dataset.h;
+  document.querySelectorAll('#tpHoursGrid .tp-btn').forEach(b=>b.classList.remove('sel-h'));
+  btn.classList.add('sel-h');
+  if(activeTimePicker==='start') pickerStartH = h;
+  else pickerEndH = h;
+  const m = (activeTimePicker==='start' ? pickerStartM : pickerEndM) || '00';
+  updateTpFooter(h, m);
+  updateTimeInputDisplay(activeTimePicker);
+}
+
+function selectTpMinute(btn){
+  const m = btn.dataset.m;
+  document.querySelectorAll('#tpMinsGrid .tp-btn').forEach(b=>b.classList.remove('sel-m'));
+  btn.classList.add('sel-m');
+  if(activeTimePicker==='start') pickerStartM = m;
+  else pickerEndM = m;
+  const h = activeTimePicker==='start' ? pickerStartH : pickerEndH;
+  updateTpFooter(h, m);
+  updateTimeInputDisplay(activeTimePicker);
+  // Auto-fill end when start minute is picked
+  if(activeTimePicker==='start' && h) autoFillEndFromStart(h, m);
+  closeTimePicker();
+}
+
+function updateTpFooter(h, m){
+  const hInt = h ? parseInt(h) : null;
+  const display = hInt ? `${hInt>12?hInt-12:hInt}:${m||'00'}` : '--:--';
+  const ampm    = hInt ? (hInt>=12?'PM':'AM') : '';
+  document.getElementById('tpPreviewTime').textContent  = display;
+  document.getElementById('tpPreviewAmPm').textContent  = ampm ? ' '+ampm : '';
+}
+
+function updateTimeInputDisplay(which){
+  const h = which==='start' ? pickerStartH : pickerEndH;
+  const m = (which==='start' ? pickerStartM : pickerEndM) || '00';
+  const valEl  = document.getElementById(which+'TimeVal');
+  const ampmEl = document.getElementById(which+'AmPm');
+  if(h){
+    const hInt = parseInt(h);
+    valEl.textContent = `${hInt>12?hInt-12:hInt}:${m}`;
+    valEl.classList.remove('empty');
+    ampmEl.textContent = hInt>=12 ? 'PM' : 'AM';
+    ampmEl.style.display = '';
+  } else {
+    valEl.textContent = '--:--';
+    valEl.classList.add('empty');
+    ampmEl.style.display = 'none';
+  }
+}
+
+function autoFillEndFromStart(startH, startM){
+  let total = parseInt(startH)*60 + parseInt(startM) + 45;
+  let eh = Math.floor(total/60);
+  let em = total % 60;
+  em = Math.round(em/5)*5;
+  if(em>=60){ eh++; em=0; }
+  if(eh>17) eh=17;
+  pickerEndH = String(eh).padStart(2,'0');
+  pickerEndM = String(em).padStart(2,'0');
+  updateTimeInputDisplay('end');
+}
+
+function clearActivePicker(){
+  if(activeTimePicker==='start'){ pickerStartH=null; pickerStartM='00'; }
+  else { pickerEndH=null; pickerEndM='00'; }
+  updateTimeInputDisplay(activeTimePicker);
+  updateTpFooter(null,'00');
+  closeTimePicker();
+}
+
+function closeTimePicker(){
+  document.getElementById('timePickerPopup').classList.remove('show');
+  document.querySelectorAll('.time-input-wrap').forEach(w=>w.classList.remove('active'));
+  activeTimePicker = null;
+}
+
+function getTimeValPicker(which){
+  const h = which==='start' ? pickerStartH : pickerEndH;
+  const m = (which==='start' ? pickerStartM : pickerEndM) || '00';
+  return h ? `${h}:${m}` : null;
+}
+
+function resetTimePicker(){
+  pickerStartH=null; pickerStartM='00';
+  pickerEndH=null;   pickerEndM='00';
+  updateTimeInputDisplay('start');
+  updateTimeInputDisplay('end');
+}
+
+// Close when clicking outside
+document.addEventListener('click', function(e){
+  const popup = document.getElementById('timePickerPopup');
+  if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
+    closeTimePicker();
+  }
+});
+</script>
+</body>
+</html>

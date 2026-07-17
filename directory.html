@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>তথ্যভান্ডার — বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠান | Protishthan</title>
+<meta name="description" content="বাংলাদেশের সকল স্কুল, মাদ্রাসা, কলেজের তথ্য। বিভাগ, জেলা ও উপজেলা ভিত্তিক প্রতিষ্ঠানের তালিকা, result, admission তথ্য।">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
+  --green:#059669;--green-light:#ECFDF5;
+  --r:10px;--rl:16px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── PERSISTENT LISTING PROMO BAR (matches index.html) ── */
+.listing-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:190;width:min(92%,1080px);background:rgba(15,23,42,.6);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.12);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden;min-height:100px}
+.listing-bar::before{content:'';position:absolute;top:-40%;left:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.25) 0%,transparent 70%);pointer-events:none}
+.listing-bar-text{position:relative;z-index:1;flex:1;min-width:0;height:64px;display:flex;align-items:center}
+.listing-rotator{position:relative;width:100%;height:100%}
+.listing-slide{position:absolute;inset:0;display:flex;align-items:center;opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.listing-slide.active{opacity:1;transform:translateY(0);pointer-events:auto}
+.listing-slide-inner{font-size:21px;font-weight:800;color:white;line-height:1.35}
+.listing-slide-inner .hl{color:#60A5FA}
+.listing-slide-inner .hl2{color:#34D399}
+.listing-dots{position:absolute;left:0;bottom:-2px;display:flex;gap:6px;z-index:2}
+.listing-dot{width:18px;height:3px;border-radius:3px;background:rgba(255,255,255,.2);transition:background .3s}
+.listing-dot.active{background:#60A5FA}
+.listing-bar-cta{position:relative;z-index:1;flex-shrink:0;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:white;border:none;border-radius:11px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(26,86,219,.4)}
+.listing-bar-cta .cta-icon{display:none;font-size:20px}
+.listing-bar-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,86,219,.55)}
+body{padding-bottom:110px}
+@media(max-width:768px){
+  .listing-bar{flex-direction:row;align-items:center;gap:12px;padding:14px 14px 14px 18px;bottom:12px;border-radius:16px;min-height:auto}
+  .listing-bar-text{height:auto;min-height:0;flex:1;min-width:0}
+  .listing-rotator{height:auto;min-height:auto}
+  .listing-slide{position:static;display:none;opacity:1;transform:none}
+  .listing-slide.active{display:flex}
+  .listing-slide-inner{font-size:14px;line-height:1.4}
+  .listing-bar-cta{width:48px;height:48px;padding:0;border-radius:50%;justify-content:center;flex-shrink:0}
+  .listing-bar-cta .cta-text{display:none}
+  .listing-bar-cta .cta-icon{display:inline}
+  .listing-dots{display:none}
+  body{padding-bottom:110px}
+}
+.logo{font-size:20px;font-weight:900;color:var(--blue);letter-spacing:-.5px;text-decoration:none}
+.logo span{opacity:.5;color:var(--text)}
+.nav-links{display:flex;gap:24px;list-style:none}
+.nav-links a{text-decoration:none;color:var(--text-2);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--blue)}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px}
+.btn-ghost{padding:7px 16px;border:1.5px solid var(--border);border-radius:8px;background:none;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-pri{padding:7px 18px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-pri:hover{background:var(--blue-dark)}
+
+/* HERO SEARCH */
+.search-hero{background:linear-gradient(145deg,#0A1628,#0F2048,#1A3570);padding:100px 5% 48px;position:relative;overflow:hidden}
+.search-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.search-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.search-hero-content{position:relative;z-index:2;text-align:center;max-width:700px;margin:0 auto}
+.search-hero h1{font-size:clamp(28px,4vw,48px);font-weight:900;color:white;letter-spacing:-1px;margin-bottom:10px;line-height:1.1}
+.search-hero h1 span{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.search-hero p{font-size:15px;color:rgba(255,255,255,.55);margin-bottom:28px}
+
+/* SEARCH BOX */
+.search-box{background:white;border-radius:14px;padding:6px 6px 6px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);max-width:620px;margin:0 auto 20px}
+.search-box input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:none}
+.search-box input::placeholder{color:var(--text-3)}
+.search-box button{padding:10px 24px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s}
+.search-box button:hover{background:var(--blue-dark)}
+
+.search-hint{color:white;font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px}
+.search-hint .dot{width:8px;height:8px;border-radius:50%;background:#ff4d4d;display:inline-block;animation:pulse-dot 1.5s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+.search-box-wrap{position:relative;max-width:620px;margin:0 auto}
+.my-area-btn{background:var(--surface)!important;color:var(--text)!important;font-size:13px!important;padding:10px 16px!important;white-space:nowrap}
+.my-area-btn:hover{background:var(--border)!important}
+
+.search-suggest{display:none;position:fixed;background:white;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.25);max-height:360px;overflow-y:auto;z-index:9999;text-align:left}
+.search-suggest.show{display:block}
+.suggest-label{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:12px 16px 6px}
+.suggest-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .15s;text-decoration:none;color:var(--text)}
+.suggest-item:hover{background:var(--surface)}
+.suggest-icon{font-size:20px;flex-shrink:0}
+.suggest-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.suggest-meta{font-size:12px;color:var(--text-3)}
+.suggest-empty{padding:20px 16px;text-align:center;color:var(--text-3);font-size:13px}
+
+/* QUICK FILTERS */
+.quick-filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.qf{padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:rgba(255,255,255,.8);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px)}
+.qf:hover,.qf.active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:white}
+
+/* STATS BAR */
+.stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+.stat-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px}
+.stat-num{font-weight:700;color:white}
+
+/* MAIN CONTENT */
+.main{padding:40px 5%;max-width:1200px;margin:0 auto}
+
+/* FILTER ROW */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;align-items:center}
+.filter-label{font-size:13px;font-weight:600;color:var(--text-2)}
+.filter-select{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:white;outline:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:var(--blue)}
+.filter-tag{padding:6px 14px;border:1.5px solid var(--border);border-radius:100px;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;transition:all .2s;background:white}
+.filter-tag:hover,.filter-tag.on{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.result-count{margin-left:auto;font-size:13px;color:var(--text-3)}
+
+/* SECTION TITLE */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sec-head h2{font-size:18px;font-weight:700;color:var(--text)}
+.sec-head a{font-size:13px;color:var(--blue);text-decoration:none;font-weight:500}
+.sec-head a:hover{text-decoration:underline}
+.divider{height:1px;background:var(--border);margin:32px 0}
+
+/* DIVISION GRID */
+.div-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:32px}
+.div-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rl);padding:16px;text-align:center;text-decoration:none;display:block;cursor:pointer;user-select:none;-webkit-user-select:none;transition:all .2s}
+.div-card:hover{border-color:var(--blue);background:var(--blue-light);transform:translateY(-2px)}
+.div-card.sel{border-color:var(--blue);background:var(--blue-light)}
+.div-icon{font-size:28px;margin-bottom:8px}
+.div-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+.div-count{font-size:11px;color:var(--text-3)}
+.div-card.sel .div-name{color:var(--blue)}
+
+/* TYPE CARDS */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:32px}
+.type-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:10px}
+.type-card:hover,.type-card.sel{border-color:var(--blue);background:var(--blue-light)}
+.type-icon{font-size:22px;flex-shrink:0}
+.type-name{font-size:13px;font-weight:600;color:var(--text-2)}
+.type-card:hover .type-name,.type-card.sel .type-name{color:var(--blue)}
+
+/* INSTITUTION LIST */
+.inst-list{display:flex;flex-direction:column;gap:10px}
+.inst-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .25s;text-decoration:none}
+.inst-card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(26,86,219,.08);transform:translateX(3px)}
+.inst-logo{width:48px;height:48px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.inst-info{flex:1}
+.inst-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.inst-meta{font-size:12px;color:var(--text-3);display:flex;gap:12px;flex-wrap:wrap}
+.inst-meta span{display:flex;align-items:center;gap:3px}
+.inst-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.itag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px}
+.itag-blue{background:var(--blue-light);color:var(--blue)}
+.itag-green{background:var(--green-light);color:var(--green)}
+.itag-gray{background:#F1EFF8;color:#5F5E5A}
+.itag-amber{background:#FFFBEB;color:#D97706}
+.inst-right{text-align:right;flex-shrink:0}
+.inst-arrow{font-size:18px;color:var(--text-3);transition:transform .2s}
+.inst-card:hover .inst-arrow{transform:translateX(4px);color:var(--blue)}
+.inst-rating{font-size:12px;color:#F59E0B;margin-bottom:2px}
+.inst-students{font-size:11px;color:var(--text-3)}
+
+/* INFO CARDS */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:32px}
+.info-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:20px;transition:all .25s;cursor:pointer}
+.info-card:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(26,86,219,.08);transform:translateY(-2px)}
+.info-icon{font-size:28px;margin-bottom:10px}
+.info-title{font-size:15px;font-weight:700;margin-bottom:5px}
+.info-desc{font-size:13px;color:var(--text-2);line-height:1.6}
+.info-link{font-size:12px;color:var(--blue);font-weight:600;margin-top:10px;display:block}
+
+/* RANKING TABLE */
+.rank-table{width:100%;border-collapse:collapse;margin-bottom:32px}
+.rank-table th{background:var(--surface);padding:10px 14px;text-align:left;font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.rank-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:14px}
+.rank-table tr:hover td{background:var(--surface)}
+.rank-num{font-weight:800;color:var(--blue);font-size:16px}
+.rank-name{font-weight:600;color:var(--text)}
+.rank-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:var(--blue-light);color:var(--blue)}
+
+/* LOAD MORE */
+.load-more{text-align:center;margin:24px 0}
+.btn-load{padding:11px 32px;border:1.5px solid var(--border);border-radius:10px;background:white;font-size:14px;font-weight:600;color:var(--text-2);cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-load:hover{border-color:var(--blue);color:var(--blue)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 24px;color:var(--text-3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:16px;font-weight:600;color:var(--text-2);margin-bottom:6px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .stats-bar{gap:16px}
+  .filter-row{gap:8px}
+  .inst-right{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#features">ফিচার</a></li>
+    <li><a href="index.html#how">কিভাবে কাজ করে</a></li>
+    <li><a href="directory.html" class="active">তথ্যভান্ডার</a></li>
+    <li><a href="index.html#pricing">মূল্য</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-ghost">লগইন</a>
+    <a href="login.html?tab=signup" class="btn-pri">বিনামূল্যে শুরু করুন</a>
+  </div>
+</nav>
+
+<div class="listing-bar" id="listingBar">
+  <div class="listing-bar-text">
+    <div class="listing-rotator" id="listingRotator2">
+      <div class="listing-slide active">
+        <div class="listing-slide-inner">বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠান<br>এখন <span class="hl2">আমাদের তালিকাভুক্ত</span></div>
+      </div>
+      <div class="listing-slide">
+        <div class="listing-slide-inner">সম্পূর্ণ <span class="hl">ফ্রিতে</span> তালিকাভুক্ত করুন<br>আজই — মাত্র ২ মিনিটে</div>
+      </div>
+      <div class="listing-slide">
+        <div class="listing-slide-inner">আপনার প্রতিষ্ঠান পাবে<br><span class="hl2">সম্পূর্ণ ফ্রি ওয়েবসাইট</span></div>
+      </div>
+    </div>
+    <div class="listing-dots" id="listingDots2"></div>
+  </div>
+  <a href="list-institution.html" class="listing-bar-cta"><span class="cta-text">শুরু করুন →</span><span class="cta-icon">→</span></a>
+</div>
+
+<!-- SEARCH HERO -->
+<div class="search-hero">
+  <div class="search-grid"></div>
+  <div class="search-glow"></div>
+  <div class="search-hero-content">
+    <h1>বাংলাদেশের সকল<br><span>শিক্ষা প্রতিষ্ঠানের তথ্য</span></h1>
+    <p>৫০,০০০+ প্রতিষ্ঠানের তথ্য, result, admission — সব এক জায়গায়</p>
+    <div class="search-hint"><span class="dot"></span> Protishthan সহজে খুঁজে পেতে বাংলায় সার্চ করুন</div>
+    <div class="search-box-wrap">
+      <div class="search-box">
+        <input type="text" id="mainSearch" placeholder="প্রতিষ্ঠানের নাম, এলাকা বা PRN নম্বর লিখুন..." oninput="onSearchInput(this.value)" onfocus="onSearchFocus()" autocomplete="off">
+        <button class="my-area-btn" onclick="useMyLocation()" title="আমার এলাকা">📍 আমার এলাকা</button>
+        <button onclick="doSearch(document.getElementById('mainSearch').value)">🔍 খুঁজুন</button>
+      </div>
+      <div class="search-suggest" id="searchSuggest"></div>
+    </div>
+    <div class="quick-filters">
+      <span class="qf active" onclick="quickFilterType('',this)">সব প্রতিষ্ঠান</span>
+      <span class="qf" onclick="quickFilterType('মাদ্রাসা',this)">মাদ্রাসা</span>
+      <span class="qf" onclick="quickFilterType('স্কুল',this)">স্কুল</span>
+      <span class="qf" onclick="quickFilterType('কলেজ',this)">কলেজ</span>
+      <span class="qf" onclick="quickFilterType('কোচিং সেন্টার',this)">কোচিং সেন্টার</span>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">৫০,০০০+</span> প্রতিষ্ঠান</div>
+  <div class="stat-item"><span class="stat-num">৬৪</span> জেলা</div>
+  <div class="stat-item"><span class="stat-num">৮</span> বিভাগ</div>
+  <div class="stat-item"><span class="stat-num">৪৯৫</span> উপজেলা</div>
+  <div class="stat-item"><span class="stat-num">Daily</span> আপডেট</div>
+</div>
+
+<!-- MAIN -->
+<div class="main" style="padding-top:32px">
+
+  <!-- DIVISION SECTION -->
+  <div class="sec-head">
+    <h2>📍 বিভাগ ভিত্তিক খুঁজুন</h2>
+    <a href="#">সব বিভাগ →</a>
+  </div>
+  <div class="div-grid">
+    <div class="div-card" onclick="filterByDiv('ঢাকা',this)">
+      <div class="div-icon">🏙️</div>
+      <div class="div-name">ঢাকা</div>
+      <div class="div-count" data-div="ঢাকা">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('চট্টগ্রাম',this)">
+      <div class="div-icon">⚓</div>
+      <div class="div-name">চট্টগ্রাম</div>
+      <div class="div-count" data-div="চট্টগ্রাম">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('সিলেট',this)">
+      <div class="div-icon">🍵</div>
+      <div class="div-name">সিলেট</div>
+      <div class="div-count" data-div="সিলেট">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('রাজশাহী',this)">
+      <div class="div-icon">🥭</div>
+      <div class="div-name">রাজশাহী</div>
+      <div class="div-count" data-div="রাজশাহী">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('খুলনা',this)">
+      <div class="div-icon">🐯</div>
+      <div class="div-name">খুলনা</div>
+      <div class="div-count" data-div="খুলনা">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('বরিশাল',this)">
+      <div class="div-icon">🚢</div>
+      <div class="div-name">বরিশাল</div>
+      <div class="div-count" data-div="বরিশাল">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('রংপুর',this)">
+      <div class="div-icon">🌾</div>
+      <div class="div-name">রংপুর</div>
+      <div class="div-count" data-div="রংপুর">শীঘ্রই আসছে</div>
+    </div>
+    <div class="div-card" onclick="filterByDiv('ময়মনসিংহ',this)">
+      <div class="div-icon">🎓</div>
+      <div class="div-name">ময়মনসিংহ</div>
+      <div class="div-count" data-div="ময়মনসিংহ">শীঘ্রই আসছে</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TYPE SECTION -->
+  <div class="sec-head">
+    <h2>🏫 ধরন অনুযায়ী</h2>
+  </div>
+  <div class="type-grid">
+    <div class="type-card sel" data-type="" onclick="filterByType('',this)">
+      <span class="type-icon">🏫</span>
+      <span class="type-name">সব ধরন</span>
+    </div>
+    <div class="type-card" data-type="স্কুল" onclick="filterByType('স্কুল',this)">
+      <span class="type-icon">📚</span>
+      <span class="type-name">স্কুল</span>
+    </div>
+    <div class="type-card" data-type="মাদ্রাসা" onclick="filterByType('মাদ্রাসা',this)">
+      <span class="type-icon">🕌</span>
+      <span class="type-name">মাদ্রাসা</span>
+    </div>
+    <div class="type-card" data-type="কলেজ" onclick="filterByType('কলেজ',this)">
+      <span class="type-icon">🎓</span>
+      <span class="type-name">কলেজ</span>
+    </div>
+    <div class="type-card" data-type="কোচিং সেন্টার" onclick="filterByType('কোচিং সেন্টার',this)">
+      <span class="type-icon">✏️</span>
+      <span class="type-name">কোচিং সেন্টার</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- INSTITUTION LIST -->
+  <div class="sec-head">
+    <h2>📋 প্রতিষ্ঠানের তালিকা</h2>
+    <span class="result-count" id="resultCount">৬টি প্রতিষ্ঠান দেখাচ্ছে</span>
+  </div>
+
+  <!-- FILTER ROW -->
+  <div class="filter-row">
+    <span class="filter-label">ফিল্টার:</span>
+    <select class="filter-select" id="filterDistrict" onchange="onFilterDistrictChange()">
+      <option value="">সব জেলা</option>
+    </select>
+    <select class="filter-select" id="filterUpazila" onchange="applyFilters()">
+      <option value="">সব উপজেলা</option>
+    </select>
+    <select class="filter-select" id="filterMedium" onchange="applyFilters()">
+      <option value="">সব মাধ্যম</option>
+      <option value="বাংলা মিডিয়াম">বাংলা মিডিয়াম</option>
+      <option value="ইংলিশ মিডিয়াম">ইংলিশ মিডিয়াম</option>
+      <option value="ইংলিশ ভার্সন">ইংলিশ ভার্সন</option>
+      <option value="কওমি মাদ্রাসা">কওমি মাদ্রাসা</option>
+      <option value="আলিয়া মাদ্রাসা">আলিয়া মাদ্রাসা</option>
+      <option value="হিফজ বিভাগ">হিফজ বিভাগ</option>
+    </select>
+    <div class="filter-tag" id="filterAdmissionOpen" onclick="toggleAdmissionFilter(this)">✅ ভর্তি চলছে</div>
+  </div>
+
+  <div class="inst-list" id="instList">
+    <div id="instLoading" style="text-align:center;padding:50px 20px;color:var(--text-3)">
+      <div style="font-size:32px;margin-bottom:10px">⏳</div>
+      <div>প্রতিষ্ঠান লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <div class="load-more" id="loadMoreWrap" style="display:none">
+    <button class="btn-load" id="loadMoreBtn">আরো প্রতিষ্ঠান দেখুন</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- INFO CARDS -->
+  <div class="sec-head">
+    <h2>📖 দরকারি তথ্য</h2>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-icon">📊</div>
+      <div class="info-title">SSC Result 2024</div>
+      <div class="info-desc">সিলেট বোর্ডের সর্বশেষ SSC পরীক্ষার ফলাফল, পাসের হার ও A+ তালিকা।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">📝</div>
+      <div class="info-title">Admission Guide 2025</div>
+      <div class="info-desc">কোন প্রতিষ্ঠানে কীভাবে ভর্তি হবেন, যোগ্যতা ও আবেদন প্রক্রিয়া।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">💼</div>
+      <div class="info-title">শিক্ষক নিয়োগ বিজ্ঞপ্তি</div>
+      <div class="info-desc">সারাদেশের সর্বশেষ শিক্ষক নিয়োগ বিজ্ঞপ্তি ও NTRCA তথ্য।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">💰</div>
+      <div class="info-title">Scholarship তথ্য</div>
+      <div class="info-desc">সরকারি উপবৃত্তি, জিপিএ ভিত্তিক বৃত্তি ও আবেদনের নিয়ম।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">📋</div>
+      <div class="info-title">MPO তালিকা</div>
+      <div class="info-desc">বাংলাদেশের সকল MPO ভুক্ত প্রতিষ্ঠানের সম্পূর্ণ তালিকা।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🏛️</div>
+      <div class="info-title">সরকারি সার্কুলার</div>
+      <div class="info-desc">শিক্ষা মন্ত্রণালয় ও বোর্ডের সর্বশেষ সার্কুলার ও নির্দেশনা।</div>
+      <a class="info-link" href="#">বিস্তারিত দেখুন →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer style="background:#0A1628;color:rgba(255,255,255,.5);padding:32px 5%;text-align:center;font-size:13px">
+  <p style="margin-bottom:8px;font-size:20px;font-weight:900;color:white">Protisht<span style="opacity:.5">han</span></p>
+  <p>© ২০২৪ Protishthan · বাংলাদেশের #১ প্রতিষ্ঠান ম্যানেজমেন্ট সিস্টেম · Made with ❤️ in Bangladesh 🇧🇩</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
+
+const DIVISION_MAP = {
+  "ঢাকা": ["ঢাকা","গাজীপুর","নারায়ণগঞ্জ","মানিকগঞ্জ","মুন্সিগঞ্জ","নরসিংদী","টাঙ্গাইল","কিশোরগঞ্জ","গোপালগঞ্জ","ফরিদপুর","মাদারীপুর","রাজবাড়ী","শরীয়তপুর"],
+  "চট্টগ্রাম": ["চট্টগ্রাম","কক্সবাজার","কুমিল্লা","ব্রাহ্মণবাড়িয়া","চাঁদপুর","ফেনী","লক্ষ্মীপুর","নোয়াখালী","খাগড়াছড়ি","রাঙ্গামাটি","বান্দরবান"],
+  "সিলেট": ["সিলেট","সুনামগঞ্জ","হবিগঞ্জ","মৌলভীবাজার"],
+  "রাজশাহী": ["রাজশাহী","চাঁপাইনবাবগঞ্জ","নাটোর","নওগাঁ","পাবনা","বগুড়া","সিরাজগঞ্জ","জয়পুরহাট"],
+  "খুলনা": ["খুলনা","বাগেরহাট","সাতক্ষীরা","যশোর","ঝিনাইদহ","মাগুরা","নড়াইল","কুষ্টিয়া","চুয়াডাঙ্গা","মেহেরপুর"],
+  "বরিশাল": ["বরিশাল","ভোলা","পটুয়াখালী","পিরোজপুর","বরগুনা","ঝালকাঠি"],
+  "রংপুর": ["রংপুর","দিনাজপুর","গাইবান্ধা","কুড়িগ্রাম","লালমনিরহাট","নীলফামারী","পঞ্চগড়","ঠাকুরগাঁও"],
+  "ময়মনসিংহ": ["ময়মনসিংহ","জামালপুর","নেত্রকোণা","শেরপুর"]
+};
+
+let selectedDivision = '';
+
+function filterByDiv(div, el){
+  selectedDivision = (selectedDivision === div) ? '' : div;
+  document.querySelectorAll('.div-card').forEach(c=>c.classList.remove('sel'));
+  if(selectedDivision) el.classList.add('sel');
+
+  // Clear manual district/upazila selection since division is a broader filter
+  document.getElementById('filterDistrict').value = '';
+  document.getElementById('filterUpazila').innerHTML = '<option value="">সব উপজেলা</option>';
+
+  applyFilters();
+}
+
+let allApproved = [];
+let selectedType = '';
+
+function fillDistrictFilter(){
+  const sel = document.getElementById('filterDistrict');
+  BD_LOCATIONS.forEach(d=>{
+    const opt = document.createElement('option');
+    opt.value = d.n;
+    opt.textContent = d.n;
+    sel.appendChild(opt);
+  });
+}
+fillDistrictFilter();
+
+function onFilterDistrictChange(){
+  selectedDivision = '';
+  document.querySelectorAll('.div-card').forEach(c=>c.classList.remove('sel'));
+
+  const distVal = document.getElementById('filterDistrict').value;
+  const upaSel = document.getElementById('filterUpazila');
+  upaSel.innerHTML = '<option value="">সব উপজেলা</option>';
+  const distObj = BD_LOCATIONS.find(d=>d.n===distVal);
+  if(distObj){
+    distObj.u.forEach(u=>{
+      const opt = document.createElement('option');
+      opt.value = u;
+      opt.textContent = u;
+      upaSel.appendChild(opt);
+    });
+  }
+  applyFilters();
+}
+
+function toggleAdmissionFilter(el){
+  el.classList.toggle('on');
+  applyFilters();
+}
+
+function quickFilterType(type, el){
+  document.querySelectorAll('.qf').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+
+  selectedType = type;
+  document.querySelectorAll('.type-card').forEach(c=>{
+    c.classList.toggle('sel', c.dataset.type === type);
+  });
+  applyFilters();
+}
+
+function filterByType(type, el){
+  selectedType = type;
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.querySelectorAll('.qf').forEach(c=>{
+    c.classList.toggle('active', c.textContent.trim() === (type || 'সব প্রতিষ্ঠান'));
+  });
+  applyFilters();
+}
+
+const typeIcons = { 'মাদ্রাসা':'🕌', 'স্কুল':'📚', 'কলেজ':'🎓', 'কোচিং সেন্টার':'✏️' };
+
+function escapeHtml(str){
+  if(str===null||str===undefined) return '';
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function renderCards(list){
+  const wrap = document.getElementById('instList');
+  document.getElementById('resultCount').textContent = list.length + 'টি প্রতিষ্ঠান দেখাচ্ছে';
+
+  if(list.length === 0){
+    wrap.innerHTML = '<div style="text-align:center;padding:50px 20px;color:var(--text-3)"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>কোনো প্রতিষ্ঠান পাওয়া যায়নি</div></div>';
+    return;
+  }
+
+  wrap.innerHTML = list.map(s=>{
+    const icon = typeIcons[s.institution_type] || '🏫';
+    const tags = [];
+    if(s.founding_year) tags.push('<span class="itag itag-gray">' + escapeHtml(s.founding_year) + ' সালে প্রতিষ্ঠিত</span>');
+    if(Array.isArray(s.medium) && s.medium.length){
+      s.medium.slice(0,2).forEach(m=>tags.push('<span class="itag itag-blue">' + escapeHtml(m) + '</span>'));
+    }
+    if(s.admission_status === 'খোলা') tags.push('<span class="itag itag-green">ভর্তি চলছে</span>');
+    if(Array.isArray(s.achievements) && s.achievements.length){
+      tags.push('<span class="itag itag-gray">' + escapeHtml(s.achievements[0]) + '</span>');
+    }
+    if(window.__institutionsWithNotices && window.__institutionsWithNotices.has(s.institution_name)){
+      tags.push('<span class="itag itag-amber">📢 নতুন নোটিস</span>');
+    }
+
+    const metaParts = [];
+    if(s.prn_number) metaParts.push('<span>🆔 PRN-' + String(s.prn_number).padStart(4,'0') + '</span>');
+    metaParts.push('<span>📍 ' + escapeHtml(s.upazila||'') + ', ' + escapeHtml(s.district||'') + '</span>');
+    if(s.student_count) metaParts.push('<span>👨‍🎓 ' + escapeHtml(s.student_count) + ' শিক্ষার্থী</span>');
+    if(s.teacher_count) metaParts.push('<span>👨‍🏫 ' + escapeHtml(s.teacher_count) + ' শিক্ষক</span>');
+
+    return '<a class="inst-card" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+      '<div class="inst-logo">' + icon + '</div>' +
+      '<div class="inst-info">' +
+        '<div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
+        '<div class="inst-meta">' + metaParts.join('') + '</div>' +
+        (tags.length ? '<div class="inst-tags">' + tags.join('') + '</div>' : '') +
+      '</div>' +
+      '<div class="inst-right">' +
+        '<div class="inst-arrow">→</div>' +
+      '</div>' +
+    '</a>';
+  }).join('');
+
+  loadNoticeIndicators(list);
+}
+
+async function loadNoticeIndicators(list){
+  if(window.__institutionsWithNotices) return; // only fetch once per page load
+  const names = [...new Set(list.map(s=>s.institution_name).filter(Boolean))];
+  if(!names.length) return;
+  try{
+    const { data: insts } = await sb.from('institutions').select('id,name').in('name', names);
+    if(!insts || !insts.length) return;
+    const idToName = {};
+    insts.forEach(i=>idToName[i.id]=i.name);
+    const ids = insts.map(i=>i.id);
+    const { data: notices } = await sb.from('institution_notices').select('institution_id').in('institution_id', ids).eq('is_active', true);
+    if(!notices || !notices.length) return;
+    const namesWithNotices = new Set(notices.map(n=>idToName[n.institution_id]).filter(Boolean));
+    window.__institutionsWithNotices = namesWithNotices;
+    renderCards(list); // re-render once with badges
+  }catch(e){ console.error('notice indicator lookup failed', e); }
+}
+
+function updateDivisionCounts(){
+  document.querySelectorAll('.div-count').forEach(el=>{
+    const div = el.dataset.div;
+    if(!div) return;
+    const districtsInDiv = DIVISION_MAP[div] || [];
+    const count = allApproved.filter(s=>districtsInDiv.includes(s.district)).length;
+    el.textContent = count > 0 ? (count + ' প্রতিষ্ঠান') : 'এখনো নেই';
+  });
+}
+
+function applyFilters(){
+  const district = document.getElementById('filterDistrict').value;
+  const upazila = document.getElementById('filterUpazila').value;
+  const medium = document.getElementById('filterMedium').value;
+  const admissionOnly = document.getElementById('filterAdmissionOpen').classList.contains('on');
+  const searchVal = (document.getElementById('mainSearch')?.value || '').trim();
+
+  let filtered = allApproved.filter(s=>{
+    if(selectedType && s.institution_type !== selectedType) return false;
+    if(selectedDivision && !(DIVISION_MAP[selectedDivision]||[]).includes(s.district)) return false;
+    if(district && s.district !== district) return false;
+    if(upazila && s.upazila !== upazila) return false;
+    if(medium && !(Array.isArray(s.medium) && s.medium.includes(medium))) return false;
+    if(admissionOnly && s.admission_status !== 'খোলা') return false;
+    if(searchVal){
+      // Check if search value looks like a PRN search (e.g. "1425", "PRN-1425", "PRN1425")
+      const prnMatch = searchVal.match(/^(?:PRN-?)?(\d{1,6})$/i);
+      if(prnMatch){
+        const searchedNum = parseInt(prnMatch[1], 10);
+        if(s.prn_number === searchedNum) return true;
+        return false;
+      }
+      const haystack = (s.institution_name + ' ' + s.district + ' ' + s.upazila).toLowerCase();
+      if(!haystack.includes(searchVal.toLowerCase())) return false;
+    }
+    return true;
+  });
+
+  renderCards(filtered);
+}
+
+function doSearch(val){
+  applyFilters();
+}
+
+let searchDebounceTimer = null;
+
+function onSearchInput(val){
+  doSearch(val);
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(()=>{
+    if(val.trim().length >= 2){
+      showSuggestions(val.trim());
+    } else if(val.trim().length === 0){
+      showPopularSuggestions();
+    } else {
+      hideSuggestions();
+    }
+  }, 250);
+}
+
+function onSearchFocus(){
+  const val = document.getElementById('mainSearch').value.trim();
+  if(val.length === 0){
+    showPopularSuggestions();
+  } else if(val.length >= 2){
+    showSuggestions(val);
+  }
+}
+
+function positionSuggestBox(){
+  const wrap = document.querySelector('.search-box-wrap');
+  const box = document.getElementById('searchSuggest');
+  if(!wrap || !box) return;
+  const rect = wrap.getBoundingClientRect();
+  box.style.left = rect.left + 'px';
+  box.style.top = (rect.bottom + 8) + 'px';
+  box.style.width = rect.width + 'px';
+}
+
+window.addEventListener('resize', positionSuggestBox);
+window.addEventListener('scroll', function(){
+  const box = document.getElementById('searchSuggest');
+  if(box && box.classList.contains('show')) positionSuggestBox();
+});
+
+function hideSuggestions(){
+  const box = document.getElementById('searchSuggest');
+  box.classList.remove('show');
+  box.innerHTML = '';
+}
+
+function suggestItemHtml(s){
+  const icon = typeIcons[s.institution_type] || '🏫';
+  const admissionTag = s.admission_status === 'খোলা' ? ' • ভর্তি চলছে' : '';
+  return '<a class="suggest-item" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+    '<span class="suggest-icon">' + icon + '</span>' +
+    '<div><div class="suggest-name">' + escapeHtml(s.institution_name) + '</div>' +
+    '<div class="suggest-meta">' + escapeHtml(s.upazila||'') + ', ' + escapeHtml(s.district||'') + admissionTag + '</div></div>' +
+  '</a>';
+}
+
+function showSuggestions(query){
+  const box = document.getElementById('searchSuggest');
+  const q = query.toLowerCase();
+  const matches = allApproved.filter(s=>{
+    const haystack = (s.institution_name + ' ' + s.district + ' ' + s.upazila).toLowerCase();
+    return haystack.includes(q);
+  }).slice(0, 8);
+
+  if(matches.length === 0){
+    box.innerHTML = '<div class="suggest-empty">কোনো প্রতিষ্ঠান খুঁজে পাওয়া যায়নি</div>';
+  } else {
+    box.innerHTML = '<div class="suggest-label">খুঁজে পাওয়া প্রতিষ্ঠান</div>' + matches.map(suggestItemHtml).join('');
+  }
+  positionSuggestBox();
+  box.classList.add('show');
+}
+
+function showPopularSuggestions(){
+  const box = document.getElementById('searchSuggest');
+  const sorted = allApproved.slice().sort((a,b)=>(b.view_count||0) - (a.view_count||0)).slice(0, 6);
+
+  if(sorted.length === 0){
+    hideSuggestions();
+    return;
+  }
+
+  box.innerHTML = '<div class="suggest-label">জনপ্রিয় প্রতিষ্ঠান</div>' + sorted.map(suggestItemHtml).join('');
+  positionSuggestBox();
+  box.classList.add('show');
+}
+
+document.addEventListener('click', function(e){
+  const wrap = document.querySelector('.search-box-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    hideSuggestions();
+  }
+});
+
+function useMyLocation(){
+  if(!navigator.geolocation){
+    alert('আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(async function(pos){
+    try{
+      const { latitude, longitude } = pos.coords;
+      const resp = await fetch('https://nominatim.openstreetmap.org/reverse?lat=' + latitude + '&lon=' + longitude + '&format=json&accept-language=bn');
+      const data = await resp.json();
+      const addr = data.address || {};
+      const candidateDistrict = addr.state_district || addr.county || addr.state || '';
+
+      const matchedDistrict = BD_LOCATIONS.find(d => candidateDistrict.includes(d.n) || d.n.includes(candidateDistrict));
+
+      if(matchedDistrict){
+        document.getElementById('filterDistrict').value = matchedDistrict.n;
+        onFilterDistrictChange();
+        document.getElementById('instList').scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        alert('আপনার এলাকা স্বয়ংক্রিয়ভাবে খুঁজে পাওয়া যায়নি। দয়া করে জেলা নির্বাচন করুন।');
+      }
+    }catch(e){
+      alert('লোকেশন খুঁজে পেতে সমস্যা হয়েছে। দয়া করে জেলা নির্বাচন করুন।');
+    }
+  }, function(){
+    alert('লোকেশন অনুমতি দেওয়া হয়নি। দয়া করে জেলা নির্বাচন করুন।');
+  });
+}
+
+async function loadApprovedInstitutions(){
+  try{
+    const { data, error } = await sb.from('listing_submissions').select('*').eq('status','approved').or('is_hidden.is.null,is_hidden.eq.false').order('created_at', { ascending:false });
+    if(error) throw error;
+    allApproved = data || [];
+  }catch(e){
+    allApproved = [];
+    console.error('Failed to load approved institutions', e);
+  }
+  applyFilters();
+  updateDivisionCounts();
+}
+
+// Listing bar rotating text
+(function(){
+  const slides = document.querySelectorAll('#listingRotator2 .listing-slide');
+  const dotsWrap = document.getElementById('listingDots2');
+  if(!slides.length) return;
+
+  slides.forEach((_, i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'listing-dot' + (i===0?' active':'');
+    dotsWrap.appendChild(dot);
+  });
+  const dots = dotsWrap.querySelectorAll('.listing-dot');
+
+  let current = 0;
+  setInterval(()=>{
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }, 3500);
+})();
+
+// Auto-search if redirected here from landing page listing bar with ?q=...
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if(q){
+    const input = document.getElementById('mainSearch');
+    if(input) input.value = q;
+  }
+})();
+
+loadApprovedInstitutions();
+</script>
+</body>
+</html>

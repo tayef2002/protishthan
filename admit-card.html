@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>প্রবেশপত্র — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--white:#fff;--border:#E2E8F0;--bg:#F1F5F9;--green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;--r:10px;--rl:16px;--sidebar:240px}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.content{padding:24px 28px;flex:1;display:flex;align-items:center;justify-content:center}
+.coming-wrap{text-align:center;max-width:480px}
+.coming-icon{width:80px;height:80px;background:var(--red-l);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--red)}
+.coming-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:10px;letter-spacing:-.4px}
+.coming-desc{font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:28px}
+.coming-features{display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px}
+.cf-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)}
+.cf-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding-bottom:86px}.bottom-nav{display:flex!important}}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end}
+.more-sheet-overlay.show{display:flex}
+.more-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:16px 16px 32px;max-height:80vh;overflow-y:auto}
+.more-sheet-handle{width:40px;height:4px;background:#E2E8F0;border-radius:2px;margin:0 auto 16px}
+.more-sheet-title{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:14px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;text-decoration:none;color:#0F172A;background:#F8FAFF;border:1px solid #E2E8F0}
+.more-sheet-icon{width:42px;height:42px;border-radius:12px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;color:#1A56DB}
+.more-sheet-label{font-size:9px;font-weight:600;color:#475569;text-align:center;line-height:1.3}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo"><div class="name">Protisht<span>han</span></div><div class="inst" id="instNameSidebar">আপনার প্রতিষ্ঠান</div></div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span>Dashboard</span></a>
+    <a class="nav-item" href="attendance.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span>উপস্থিতি</span></a>
+    <a class="nav-item" href="students.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span>শিক্ষার্থী</span></a>
+    <a class="nav-item" href="guardians.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span><span>অভিভাবক</span></a>
+    <a class="nav-item" href="teachers.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span><span>শিক্ষক/স্টাফ</span></a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span><span>ক্লাস ব্যবস্থাপনা</span></a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="exam.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span><span>পরীক্ষা ও Result</span></a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span><span>ক্লাস রুটিন</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/></svg></span><span>Library</span></a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span><span>হিসাব বিভাগ</span></a>
+    <a class="nav-item" href="vouchers.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span>ভাউচার</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span><span>Reports</span></a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item active" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="public-page.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span><span>Public Page</span></a>
+    <a class="nav-item" href="settings.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span><span>Settings</span></a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name" id="userName" onclick="window.location.href='settings.html'" style="cursor:pointer">লোড হচ্ছে...</div>
+        <div class="user-role">Admin · <span onclick="doLogout()" style="color:#F87171;cursor:pointer;text-decoration:underline">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar"><div class="topbar-title">প্রবেশপত্র (Admit Card)</div></div>
+  <div class="content">
+    <div class="coming-wrap">
+      <div class="coming-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+      </div>
+      <div class="coming-title">পরীক্ষার প্রবেশপত্র</div>
+      <div class="coming-desc">পরীক্ষার আগে শিক্ষার্থীদের admit card তৈরি করুন। প্রতিষ্ঠানের নাম, পরীক্ষার সময়সূচী ও শিক্ষার্থীর তথ্য সহ print করুন।</div>
+      <div class="coming-features">
+        <div class="cf-item"><div class="cf-dot"></div> পরীক্ষা বেছে নিলে সব student এর card auto-ready</div>
+        <div class="cf-item"><div class="cf-dot"></div> শিক্ষার্থীর নাম, রোল, শ্রেণী, পরীক্ষার তারিখ সহ</div>
+        <div class="cf-item"><div class="cf-dot"></div> প্রতিষ্ঠানের সিলমোহর ও principal স্বাক্ষরের স্থান</div>
+        <div class="cf-item"><div class="cf-dot"></div> বিষয়ভিত্তিক পরীক্ষার সময়সূচী table</div>
+        <div class="cf-item"><div class="cf-dot"></div> Bulk print — A4 তে ৪টি card একসাথে</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="exam.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span><span class="bnav-label">পরীক্ষা</span></a>
+    <button class="bnav-item" onclick="openMoreSheet()"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span><span>মেনু</span></button>
+  <button class="bnav-item active" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span class="bnav-label">প্রবেশপত্র</span></button>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient('https://eoqeeuujvpydhmfteqqj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',{ auth: { storageKey: 'prot-inst' } });
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const { data: inst } = await sb.from('institutions').select('name,principal_name').eq('email', session.user.email).maybeSingle();
+  if(inst){
+    document.getElementById('instNameSidebar').textContent = inst.name || '';
+    const nm = inst.principal_name || '';
+    document.getElementById('userName').textContent = nm;
+    if(nm) document.getElementById('userAvatar').textContent = nm.slice(0,2);
+  }
+}
+function doLogout(){ sb.auth.signOut().then(()=>{ window.location.href='login.html'; }); }
+init();
+</script>
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){ var ov=document.getElementById('moreSheetOverlay'); if(ov) ov.addEventListener('click',function(e){ if(e.target===this) closeMoreSheet(); }); })();
+</script>
+</body>
+</html>

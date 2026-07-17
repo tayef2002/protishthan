@@ -1,0 +1,657 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dashboard — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative;border:none;background:none;width:calc(100% - 16px);text-align:left;font-family:inherit}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.disabled{opacity:.35;cursor:not-allowed}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-bottom{padding:14px 16px;position:relative;z-index:1}
+.user-card{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px}
+.user-avatar{width:34px;height:34px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;flex-shrink:0}
+.user-name{font-size:12.5px;font-weight:700;color:white}
+.user-role{font-size:10.5px;color:rgba(255,255,255,.4)}
+.logout-btn{display:block;width:100%;text-align:center;margin-top:8px;padding:7px;font-size:11.5px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-family:inherit}
+.logout-btn:hover{color:white}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:28px 32px;min-height:100vh}
+
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--text-2);margin-top:3px}
+
+/* STATUS BANNERS */
+.banner{border-radius:var(--rl);padding:18px 22px;margin-bottom:22px;display:flex;align-items:flex-start;gap:14px}
+.banner.pending{background:var(--amber-l);border:1px solid #FDE68A}
+.banner.rejected{background:var(--red-l);border:1px solid #FECACA}
+.banner.approved{background:var(--green-l);border:1px solid #A7F3D0}
+.banner-ic{font-size:24px;flex-shrink:0}
+.banner-t{font-size:14.5px;font-weight:700;margin-bottom:3px}
+.banner.pending .banner-t{color:var(--amber)}
+.banner.rejected .banner-t{color:var(--red)}
+.banner.approved .banner-t{color:var(--green)}
+.banner-s{font-size:13px;color:var(--text-2);line-height:1.6}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:white;border:1px solid var(--border);border-radius:var(--rl);padding:18px}
+.stat-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.stat-val{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.stat-lbl{font-size:12px;color:var(--text-2);margin-top:2px}
+
+/* CARD / TABLE */
+.card{background:white;border:1px solid var(--border);border-radius:var(--rxl);padding:20px;margin-bottom:20px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-size:15px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 10px;color:var(--text-3);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11.5px;font-weight:700}
+.pill.free{background:var(--surface);color:var(--text-2)}
+.pill.paid{background:var(--green-l);color:var(--green)}
+.pill.pending{background:var(--amber-l);color:var(--amber)}
+.pill.approved{background:var(--green-l);color:var(--green)}
+.pill.rejected{background:var(--red-l);color:var(--red)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-3);font-size:13px}
+
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.profile-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.profile-item .k{font-size:11.5px;color:var(--text-3);font-weight:700;margin-bottom:3px}
+.profile-item .v{font-size:14px;font-weight:600}
+
+.add-btn{background:var(--blue);color:white;border:none;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block}
+
+.comm-hero-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:24px}
+@media (max-width:700px){.comm-hero-grid{grid-template-columns:1fr}}
+.comm-hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,#0A1628 0%,#1A3570 55%,#3B6FE0 100%);border-radius:var(--rxl);padding:26px 28px;color:white;display:flex;flex-direction:column;justify-content:center}
+.comm-hero-glow{position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(167,139,250,.35),transparent 70%);pointer-events:none}
+.comm-hero-ic{font-size:26px;margin-bottom:10px;position:relative;z-index:1}
+.comm-hero-lbl{font-size:13px;color:rgba(255,255,255,.65);font-weight:600;margin-bottom:6px;position:relative;z-index:1}
+.comm-hero-val{font-size:38px;font-weight:900;letter-spacing:-1px;position:relative;z-index:1}
+
+.comm-rules-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.comm-rule-chip{display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--border);border-radius:var(--rl);padding:12px 18px}
+.comm-rule-chip.first{border-color:#FDE68A;background:var(--amber-l)}
+.comm-rule-chip.recurring{border-color:#A7F3D0;background:var(--green-l)}
+.comm-rule-ic{font-size:18px;width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.comm-rule-chip.first .comm-rule-ic{background:rgba(217,119,6,.15);color:var(--amber)}
+.comm-rule-chip.recurring .comm-rule-ic{background:rgba(5,150,105,.15);color:var(--green)}
+.comm-rule-pct{font-size:18px;font-weight:800;line-height:1.1}
+.comm-rule-chip.first .comm-rule-pct{color:var(--amber)}
+.comm-rule-chip.recurring .comm-rule-pct{color:var(--green)}
+.comm-rule-txt{font-size:11.5px;color:var(--text-2);font-weight:600;white-space:nowrap}
+.comm-rule-arrow{font-size:18px;color:var(--text-3);font-weight:700}
+@media (max-width:600px){.comm-rules-row{flex-direction:column;align-items:stretch}.comm-rule-arrow{display:none}}
+.submit-btn-inst{width:100%;background:var(--blue);color:white;border:none;padding:11px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.submit-btn-inst:hover{background:var(--blue-dark)}
+.add-btn:hover{background:var(--blue-dark)}
+.disabled-overlay{opacity:.4;pointer-events:none;filter:grayscale(.3)}
+
+.view{display:none}
+.view.active{display:block}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.detail-item{background:var(--surface);border-radius:10px;padding:12px 14px}
+.detail-item.full{grid-column:1/-1}
+.detail-item .k{font-size:11px;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em}
+.detail-item .v{font-size:14px;font-weight:600;color:var(--text)}
+.chip-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip-tag{background:var(--blue-light);color:var(--blue-dark);font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px}
+@media (max-width:700px){.detail-grid{grid-template-columns:1fr}}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:white;border-radius:var(--rxl);max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:28px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-head h2{font-size:18px;font-weight:800}
+.modal-close{background:var(--surface);border:none;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="sidebarDistrict">Agent Panel</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <button class="nav-item active" id="nav-overview" onclick="showView('overview')">
+      <span class="nav-icon">📊</span><span>Overview</span>
+    </button>
+    <button class="nav-item" id="nav-institutions" onclick="showView('institutions')">
+      <span class="nav-icon">🏫</span><span>আমার জেলার প্রতিষ্ঠান</span>
+    </button>
+    <button class="nav-item" id="nav-commission" onclick="showView('commission')">
+      <span class="nav-icon">💰</span><span>কমিশন</span>
+    </button>
+    <button class="nav-item" id="nav-mysubmissions" onclick="showView('mysubmissions')">
+      <span class="nav-icon">📥</span><span>আমার Submission</span>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="showView('profile')">
+      <span class="nav-icon">👤</span><span>প্রোফাইল</span>
+    </button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name" id="userName">—</div>
+        <div class="user-role">Protishthan Agent</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">লগআউট</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div id="statusBannerWrap"></div>
+
+  <!-- OVERVIEW -->
+  <div class="view active" id="view-overview">
+    <div class="page-head">
+      <div>
+        <div class="page-title">ওভারভিউ</div>
+        <div class="page-sub" id="overviewSub">আপনার জেলার সারসংক্ষেপ</div>
+      </div>
+      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+    </div>
+
+    <div class="stat-grid" id="statGrid">
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--blue-light);color:var(--blue)">🏫</div>
+        <div class="stat-val" id="statTotal">—</div>
+        <div class="stat-lbl">মোট প্রতিষ্ঠান (জেলায়)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--surface);color:var(--text-2)">🆓</div>
+        <div class="stat-val" id="statFree">—</div>
+        <div class="stat-lbl">Free Plan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">💳</div>
+        <div class="stat-val" id="statPaid">—</div>
+        <div class="stat-lbl">Paid Plan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--purple-l);color:var(--purple)">💰</div>
+        <div class="stat-val" id="statCommission">—</div>
+        <div class="stat-lbl">মোট কমিশন (পেন্ডিং)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-title">সাম্প্রতিক প্রতিষ্ঠান (জেলায়)</div></div>
+      <div id="recentInstTable"></div>
+    </div>
+  </div>
+
+  <!-- INSTITUTIONS -->
+  <div class="view" id="view-institutions">
+    <div class="page-head">
+      <div>
+        <div class="page-title">আমার জেলার প্রতিষ্ঠান</div>
+        <div class="page-sub">এই জেলার সব registered প্রতিষ্ঠান (SaaS account)</div>
+      </div>
+      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+    </div>
+    <div class="card">
+      <div id="fullInstTable"></div>
+    </div>
+  </div>
+
+  <!-- COMMISSION -->
+  <div class="view" id="view-commission">
+    <div class="page-head">
+      <div>
+        <div class="page-title">কমিশন</div>
+        <div class="page-sub">প্রতিষ্ঠান paid থাকা পর্যন্ত স্বয়ংক্রিয়ভাবে কমিশন জমা হয়</div>
+      </div>
+    </div>
+    <div class="comm-rules-row">
+      <div class="comm-rule-chip first">
+        <div class="comm-rule-ic">①</div>
+        <div><div class="comm-rule-pct">৫০%</div><div class="comm-rule-txt">১ম মাসে</div></div>
+      </div>
+      <div class="comm-rule-arrow">→</div>
+      <div class="comm-rule-chip recurring">
+        <div class="comm-rule-ic">↻</div>
+        <div><div class="comm-rule-pct">২৫%</div><div class="comm-rule-txt">পরের প্রতি মাসে, যতদিন paid</div></div>
+      </div>
+    </div>
+    <div class="comm-hero-grid">
+      <div class="comm-hero-card">
+        <div class="comm-hero-glow"></div>
+        <div class="comm-hero-ic">💰</div>
+        <div class="comm-hero-lbl">মোট জমা হওয়া কমিশন</div>
+        <div class="comm-hero-val" id="commTotal">৳০</div>
+      </div>
+      <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">🏫</div>
+        <div class="stat-val" id="commInstCount">—</div>
+        <div class="stat-lbl">কমিশন-যোগ্য Paid প্রতিষ্ঠান</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">প্রতিষ্ঠান ভিত্তিক কমিশন বিস্তার</div></div>
+      <div id="commissionTable"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <!-- MY SUBMISSIONS (listing_submissions tracking) -->
+  <div class="view" id="view-mysubmissions">
+    <div class="page-head">
+      <div>
+        <div class="page-title">আমার Submission</div>
+        <div class="page-sub">এই জেলায় submit করা সব directory listing-এর status</div>
+      </div>
+      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--amber-l);color:var(--amber)">⏳</div>
+        <div class="stat-val" id="subPendingCount">—</div>
+        <div class="stat-lbl">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">✅</div>
+        <div class="stat-val" id="subApprovedCount">—</div>
+        <div class="stat-lbl">Approved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--red-l);color:var(--red)">❌</div>
+        <div class="stat-val" id="subRejectedCount">—</div>
+        <div class="stat-lbl">Rejected</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">সব Submission</div></div>
+      <div id="mySubmissionsTable"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-profile">
+    <div class="page-head"><div><div class="page-title">প্রোফাইল</div><div class="page-sub">Admin দ্বারা নির্ধারিত — পরিবর্তনের জন্য Admin-এর সাথে যোগাযোগ করুন</div></div></div>
+    <div class="card">
+      <div class="profile-grid" id="profileGrid"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="modal-overlay" id="instEditModal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-head">
+      <h2 id="instEditName">—</h2>
+      <button class="modal-close" onclick="closeInstEditModal()">✕</button>
+    </div>
+    <div id="instEditBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="subDetailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="subModalName">—</h2>
+      <button class="modal-close" onclick="closeSubDetail()">✕</button>
+    </div>
+    <div id="subModalBody"></div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-agent' } }
+);
+
+let agent = null;
+
+const PLAN_LABEL = { free:'Free', tier_599:'৳599 প্ল্যান', tier_1199:'৳1199 প্ল্যান', tier_1999:'৳1999 প্ল্যান' };
+const PLAN_PRICE = { free:0, tier_599:599, tier_1199:1199, tier_1999:1999 };
+
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtMoney(n){ return '৳' + Math.round(n||0).toLocaleString('en-IN'); }
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href = 'agent-login.html'; return; }
+
+  const { data, error } = await sb.from('agents').select('*').eq('user_id', session.user.id).maybeSingle();
+  if(error || !data){
+    alert('আপনার agent প্রোফাইল পাওয়া যায়নি। Admin-এর সাথে যোগাযোগ করুন।');
+    return;
+  }
+  agent = data;
+
+  document.getElementById('sidebarDistrict').textContent = agent.district + ' জেলা';
+  document.getElementById('userName').textContent = agent.full_name;
+  document.getElementById('userAvatar').textContent = (agent.full_name||'এ').charAt(0);
+
+  renderStatusBanner();
+  renderProfile();
+
+  if(agent.status === 'approved'){
+    loadInstitutions();
+    loadCommissions();
+    loadMySubmissions();
+  } else {
+    document.getElementById('nav-institutions').classList.add('disabled');
+    document.getElementById('nav-commission').classList.add('disabled');
+    document.getElementById('nav-mysubmissions').classList.add('disabled');
+    document.getElementById('nav-institutions').onclick = null;
+    document.getElementById('nav-commission').onclick = null;
+    document.getElementById('nav-mysubmissions').onclick = null;
+    document.getElementById('statGrid').classList.add('disabled-overlay');
+    document.getElementById('recentInstTable').innerHTML = '<div class="empty-state">Admin অনুমোদনের পর এই তথ্য দেখতে পারবেন।</div>';
+  }
+}
+
+function renderStatusBanner(){
+  const wrap = document.getElementById('statusBannerWrap');
+  if(agent.status === 'pending_review'){
+    wrap.innerHTML = `<div class="banner pending"><div class="banner-ic">⏳</div><div><div class="banner-t">Review Pending</div><div class="banner-s">আপনার এজেন্ট আবেদনটি Admin রিভিউ করছেন। অনুমোদন না হওয়া পর্যন্ত প্রতিষ্ঠান ও কমিশন তথ্য দেখা যাবে না — কিন্তু আপনার প্রোফাইল ও ড্যাশবোর্ড অ্যাক্সেস চালু আছে।</div></div>`;
+  } else if(agent.status === 'rejected'){
+    wrap.innerHTML = `<div class="banner rejected"><div class="banner-ic">❌</div><div><div class="banner-t">আবেদন প্রত্যাখ্যাত হয়েছে</div><div class="banner-s">আপনার এজেন্ট আবেদনটি অনুমোদন পায়নি। বিস্তারিত জানতে Admin-এর সাথে যোগাযোগ করুন।</div></div>`;
+  } else {
+    wrap.innerHTML = `<div class="banner approved"><div class="banner-ic">✅</div><div><div class="banner-t">আপনি একজন অনুমোদিত এজেন্ট</div><div class="banner-s">${escapeHtml(agent.district)} জেলার জন্য আপনি দায়িত্বপ্রাপ্ত। নতুন প্রতিষ্ঠান যুক্ত করুন এবং কমিশন ট্র্যাক করুন।</div></div>`;
+  }
+}
+
+function renderProfile(){
+  const fields = [
+    ['নাম', agent.full_name],
+    ['ইমেইল', agent.email],
+    ['ফোন', agent.phone||'—'],
+    ['জেলা', agent.district],
+    ['Status', agent.status],
+    ['যোগদানের তারিখ', new Date(agent.created_at).toLocaleDateString('bn-BD')],
+  ];
+  document.getElementById('profileGrid').innerHTML = fields.map(f=>`<div class="profile-item"><div class="k">${f[0]}</div><div class="v">${escapeHtml(f[1])}</div></div>`).join('');
+}
+
+let myInstitutionsData = [];
+
+async function loadInstitutions(){
+  const { data, error } = await sb.from('institutions').select('*').eq('assigned_agent_id', agent.id).order('created_at',{ascending:false});
+  if(error || !data){ return; }
+  myInstitutionsData = data;
+
+  const total = data.length;
+  const freeCount = data.filter(i=>i.plan==='free'||!i.plan).length;
+  const paidCount = total - freeCount;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statFree').textContent = freeCount;
+  document.getElementById('statPaid').textContent = paidCount;
+
+  const recent = data.slice(0,5);
+  document.getElementById('recentInstTable').innerHTML = renderInstTable(recent, false);
+  document.getElementById('fullInstTable').innerHTML = renderInstTable(data, true);
+}
+
+function renderInstTable(rows, showEdit){
+  if(!rows.length) return '<div class="empty-state">এখনো কোনো প্রতিষ্ঠান নেই।</div>';
+  let html = '<table><thead><tr><th>প্রতিষ্ঠান</th><th>প্ল্যান</th><th>ফোন</th><th>যোগদানের তারিখ</th>'+(showEdit?'<th></th>':'')+'</tr></thead><tbody>';
+  rows.forEach(r=>{
+    const planKey = r.plan || 'free';
+    const isPaid = planKey !== 'free';
+    html += `<tr><td style="font-weight:600">${escapeHtml(r.name)}</td><td><span class="pill ${isPaid?'paid':'free'}">${PLAN_LABEL[planKey]||planKey}</span></td><td style="color:var(--text-3)">${escapeHtml(r.phone||'-')}</td><td style="color:var(--text-3)">${new Date(r.created_at).toLocaleDateString('bn-BD')}</td>`;
+    if(showEdit) html += `<td><button class="add-btn" style="padding:6px 12px;font-size:12px" onclick="openInstEditModal('${r.id}')">✏️ Edit</button></td>`;
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function openInstEditModal(id){
+  const inst = myInstitutionsData.find(x=>x.id===id);
+  if(!inst) return;
+  document.getElementById('instEditName').textContent = inst.name;
+  let html = '<div style="display:flex;flex-direction:column;gap:14px">';
+  html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">প্রতিষ্ঠানের নাম</label><input id="editInstName" value="${escapeHtml(inst.name)}" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit"></div>`;
+  html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">অধ্যক্ষ/পরিচালকের নাম</label><input id="editInstPrincipal" value="${escapeHtml(inst.principal_name||'')}" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit"></div>`;
+  html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">ফোন নম্বর</label><input id="editInstPhone" value="${escapeHtml(inst.phone||'')}" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit"></div>`;
+  html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">উপজেলা</label><input id="editInstUpazila" value="${escapeHtml(inst.upazila||'')}" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit"></div>`;
+  html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">প্ল্যান</label><select id="editInstPlan" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit">`;
+  Object.keys(PLAN_LABEL).forEach(k=>{ html += `<option value="${k}" ${inst.plan===k?'selected':''}>${PLAN_LABEL[k]}</option>`; });
+  html += `</select></div>`;
+  html += `<div style="font-size:11.5px;color:var(--text-3)">⚠️ Email ও জেলা পরিবর্তন করা যাবে না — Admin-এর সাথে যোগাযোগ করুন।</div>`;
+  html += `<button class="submit-btn-inst" onclick="saveInstEdit('${inst.id}')">সেভ করুন</button>`;
+  html += '</div>';
+  document.getElementById('instEditBody').innerHTML = html;
+  document.getElementById('instEditModal').classList.add('show');
+}
+
+function closeInstEditModal(){
+  document.getElementById('instEditModal').classList.remove('show');
+}
+
+async function saveInstEdit(id){
+  const name = document.getElementById('editInstName').value.trim();
+  const principal_name = document.getElementById('editInstPrincipal').value.trim();
+  const phone = document.getElementById('editInstPhone').value.trim();
+  const upazila = document.getElementById('editInstUpazila').value.trim();
+  const plan = document.getElementById('editInstPlan').value;
+  if(!name){ alert('প্রতিষ্ঠানের নাম দিন।'); return; }
+  try{
+    const { error } = await sb.from('institutions').update({ name, principal_name, phone, upazila, plan }).eq('id', id);
+    if(error) throw error;
+    closeInstEditModal();
+    await loadInstitutions();
+  }catch(e){
+    alert('সমস্যা হয়েছে: ' + e.message);
+  }
+}
+
+async function loadCommissions(){
+  const { data, error } = await sb.from('institutions').select('*').eq('assigned_agent_id', agent.id).not('paid_since','is',null);
+  if(error || !data){ return; }
+
+  let totalCommission = 0;
+  const rows = data.map(inst=>{
+    const price = PLAN_PRICE[inst.plan] || 0;
+    const months = Math.max(1, monthsBetween(inst.paid_since, new Date()));
+    const commission = price*0.5 + Math.max(0, months-1)*price*0.25;
+    totalCommission += commission;
+    return { name: inst.name, plan: inst.plan, paid_since: inst.paid_since, months, commission };
+  });
+
+  document.getElementById('statCommission').textContent = fmtMoney(totalCommission);
+  document.getElementById('commTotal').textContent = fmtMoney(totalCommission);
+  document.getElementById('commInstCount').textContent = data.length;
+
+  if(!rows.length){
+    document.getElementById('commissionTable').innerHTML = '<div class="empty-state">এখনো কোনো paid প্রতিষ্ঠান নেই।</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>প্রতিষ্ঠান</th><th>প্ল্যান</th><th>Paid সময়কাল</th><th>কমিশন</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    html += `<tr><td style="font-weight:600">${escapeHtml(r.name)}</td><td><span class="pill paid">${PLAN_LABEL[r.plan]||r.plan}</span></td><td style="color:var(--text-3)">${r.months} মাস</td><td style="font-weight:700;color:var(--green)">${fmtMoney(r.commission)}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('commissionTable').innerHTML = html;
+}
+
+let mySubmissionsData = [];
+
+async function loadMySubmissions(){
+  const { data, error } = await sb.from('listing_submissions').select('*').eq('assigned_agent_id', agent.id).order('created_at',{ascending:false});
+  if(error || !data){ return; }
+  mySubmissionsData = data;
+
+  const pending = data.filter(s=>s.status==='pending').length;
+  const approved = data.filter(s=>s.status==='approved').length;
+  const rejected = data.filter(s=>s.status==='rejected').length;
+  document.getElementById('subPendingCount').textContent = pending;
+  document.getElementById('subApprovedCount').textContent = approved;
+  document.getElementById('subRejectedCount').textContent = rejected;
+
+  if(!data.length){
+    document.getElementById('mySubmissionsTable').innerHTML = '<div class="empty-state">এখনো কোনো submission নেই। "নতুন প্রতিষ্ঠান যুক্ত করুন" বাটনে ক্লিক করে শুরু করুন।</div>';
+    return;
+  }
+  const STATUS_LABEL = { pending:'Pending', approved:'Approved', rejected:'Rejected' };
+  let html = '<table><thead><tr><th>প্রতিষ্ঠান</th><th>ধরন</th><th>স্ট্যাটাস</th><th>জমা দেওয়ার তারিখ</th><th></th></tr></thead><tbody>';
+  data.forEach(s=>{
+    html += `<tr><td style="font-weight:600">${escapeHtml(s.institution_name)}</td><td style="color:var(--text-3)">${escapeHtml(s.institution_type||'-')}</td><td><span class="pill ${s.status}">${STATUS_LABEL[s.status]||s.status}</span></td><td style="color:var(--text-3)">${new Date(s.created_at).toLocaleDateString('bn-BD')}</td><td><button class="add-btn" style="padding:6px 12px;font-size:12px" onclick="openSubDetail('${s.id}')">বিস্তারিত</button></td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('mySubmissionsTable').innerHTML = html;
+}
+
+function chipListHtml(arr, otherVal){
+  const items = Array.isArray(arr) ? arr.slice() : [];
+  if(otherVal) items.push(otherVal);
+  if(!items.length) return '<span style="color:var(--text-3)">দেওয়া হয়নি</span>';
+  return '<div class="chip-list">' + items.map(i=>`<span class="chip-tag">${escapeHtml(i)}</span>`).join('') + '</div>';
+}
+
+function openSubDetail(id){
+  const s = mySubmissionsData.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('subModalName').textContent = s.institution_name;
+  const STATUS_LABEL = { pending:'Pending', approved:'Approved', rejected:'Rejected' };
+
+  const inp = (key,label,val)=>`<div class="detail-item"><div class="k">${label}</div><input id="ed_${key}" value="${escapeHtml(val||'')}" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;font-weight:600"></div>`;
+  const inpFull = (key,label,val)=>`<div class="detail-item full"><div class="k">${label}</div><input id="ed_${key}" value="${escapeHtml(val||'')}" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;font-weight:600"></div>`;
+  const taFull = (key,label,val)=>`<div class="detail-item full"><div class="k">${label}</div><textarea id="ed_${key}" rows="2" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;font-weight:600;resize:vertical">${escapeHtml(val||'')}</textarea></div>`;
+  const chipsFull = (key,label,arr,otherVal)=>{
+    const combined = Array.isArray(arr) ? arr.slice() : [];
+    if(otherVal) combined.push(otherVal);
+    return `<div class="detail-item full"><div class="k">${label} <span style="color:var(--text-3);font-weight:400">(কমা দিয়ে আলাদা করুন)</span></div><input id="ed_${key}" value="${escapeHtml(combined.join(', '))}" style="width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;font-weight:600"></div>`;
+  };
+
+  let html = '<div class="detail-grid">';
+  html += inp('institution_type','ধরন', s.institution_type);
+  html += `<div class="detail-item"><div class="k">জেলা / উপজেলা</div><div class="v">${escapeHtml(s.district||'-')} / ${escapeHtml(s.upazila||'-')}</div></div>`;
+  html += inp('contact_name','যোগাযোগের নাম', s.contact_name);
+  html += inp('contact_phone','WhatsApp নম্বর', s.contact_phone);
+  html += taFull('address_note','ঠিকানা / বিবরণ', s.address_note);
+  html += inp('founding_year','প্রতিষ্ঠার সাল', s.founding_year);
+  html += inp('student_count','শিক্ষার্থী সংখ্যা', s.student_count);
+  html += inp('teacher_count','শিক্ষক সংখ্যা', s.teacher_count);
+  html += inp('session_start_month','সেশন শুরুর মাস', s.session_start_month === 'অন্য' ? (s.other_session_month||'') : s.session_start_month);
+  html += chipsFull('medium','মাধ্যম / বোর্ড', s.medium, s.other_medium);
+  html += inpFull('class_range','কোন শ্রেণি থেকে কোন শ্রেণি', s.class_range);
+  html += inp('gender_type','ছাত্র/ছাত্রী', s.gender_type);
+  html += inp('admission_status','ভর্তি স্ট্যাটাস', s.admission_status);
+  html += inpFull('fee_range','মাসিক ফি রেঞ্জ', s.fee_range);
+  html += chipsFull('facilities','সুযোগ-সুবিধা', s.facilities, s.other_facility);
+  html += chipsFull('achievements','অর্জন / বিশেষত্ব', s.achievements, s.other_achievement);
+  html += taFull('description','সংক্ষিপ্ত বর্ণনা', s.description);
+  html += inpFull('facebook_link','ফেসবুক লিংক', s.facebook_link);
+  html += '</div>';
+
+  html += `<button class="submit-btn-inst" style="margin-bottom:14px" onclick="saveSubEdit('${s.id}')">পরিবর্তন সেভ করুন</button>`;
+
+  html += `<div style="background:var(--surface);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text-2)">বর্তমান স্ট্যাটাস: <span class="pill ${s.status}" style="margin-left:4px">${STATUS_LABEL[s.status]||s.status}</span>`;
+  if(s.status==='approved'){
+    const prnDisplay = s.prn_number ? ('PRN-' + String(s.prn_number).padStart(4,'0')) : 'নেই';
+    html += `<br><span style="font-size:12px;color:var(--text-3)">Slug: ${escapeHtml(s.desired_slug||'-')}</span><br><span style="font-size:12px;color:var(--text-3)">PRN: ${prnDisplay}</span>`;
+  }
+  html += '</div>';
+
+  document.getElementById('subModalBody').innerHTML = html;
+  document.getElementById('subDetailModal').classList.add('show');
+}
+
+function closeSubDetail(){
+  document.getElementById('subDetailModal').classList.remove('show');
+}
+
+async function saveSubEdit(id){
+  const v = (key)=>{ const el = document.getElementById('ed_'+key); return el ? el.value.trim() : null; };
+  const toArr = (str)=> str ? str.split(',').map(x=>x.trim()).filter(Boolean) : [];
+
+  const payload = {
+    institution_type: v('institution_type'),
+    contact_name: v('contact_name'),
+    contact_phone: v('contact_phone'),
+    address_note: v('address_note'),
+    founding_year: v('founding_year'),
+    student_count: v('student_count'),
+    teacher_count: v('teacher_count'),
+    session_start_month: v('session_start_month'),
+    class_range: v('class_range'),
+    gender_type: v('gender_type'),
+    admission_status: v('admission_status'),
+    fee_range: v('fee_range'),
+    description: v('description'),
+    facebook_link: v('facebook_link'),
+    medium: toArr(v('medium')),
+    facilities: toArr(v('facilities')),
+    achievements: toArr(v('achievements')),
+    other_medium: null, other_facility: null, other_achievement: null, other_session_month: null
+  };
+
+  try{
+    const { error } = await sb.from('listing_submissions').update(payload).eq('id', id);
+    if(error) throw error;
+    closeSubDetail();
+    await loadMySubmissions();
+    alert('তথ্য সেভ হয়েছে।');
+  }catch(e){
+    alert('সমস্যা হয়েছে: ' + e.message);
+  }
+}
+
+function monthsBetween(start, end){
+  const s = new Date(start), e = new Date(end);
+  return (e.getFullYear()-s.getFullYear())*12 + (e.getMonth()-s.getMonth()) + 1;
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'agent-login.html';
+}
+
+init();
+</script>
+</body>
+</html>

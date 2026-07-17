@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষার্থী লগইন — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
+  --green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);overflow:hidden}
+body{display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);position:relative}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px}
+.bg-glow{position:absolute;top:20%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%)}
+
+.login-card{position:relative;z-index:2;background:white;border-radius:24px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.logo{text-align:center;font-size:24px;font-weight:900;color:var(--blue);letter-spacing:-.5px;margin-bottom:8px}
+.logo span{color:var(--text);opacity:.6}
+.subtitle{text-align:center;font-size:13px;color:var(--text-2);margin-bottom:28px}
+
+.icon-circle{width:72px;height:72px;background:var(--blue-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px}
+.field-wrap{position:relative}
+.field-wrap input{width:100%;padding:14px 16px;padding-left:44px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;font-family:inherit;color:var(--text);outline:none;transition:all .2s;letter-spacing:0.5px}
+.field-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.field-wrap input::placeholder{color:var(--text-3);letter-spacing:normal}
+.field-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px}
+.field-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
+.field-error.show{display:block}
+
+.btn-login{width:100%;padding:15px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;margin-top:8px}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(26,86,219,.4)}
+.btn-login.loading .btn-text{display:none}
+.btn-login .spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-login.loading .spinner{display:block}
+
+.trust-info{text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.trust-info p{font-size:11px;color:var(--text-3);line-height:1.6}
+
+.toast-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast-overlay.show{opacity:1;pointer-events:all}
+.toast-card{background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;transform:scale(.9) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.2);margin:0 20px}
+.toast-overlay.show .toast-card{transform:scale(1) translateY(0)}
+.toast-icon-wrap{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px}
+.toast-icon-success{background:var(--green-l)}
+.toast-icon-error{background:var(--red-l)}
+.toast-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.toast-msg{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:18px}
+.toast-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
+
+@media(max-width:480px){
+  .login-card{margin:16px;padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="login-card">
+  <div class="icon-circle">👨‍🎓</div>
+  <div class="logo">Protisht<span>han</span></div>
+  <div class="subtitle">শিক্ষার্থী — আপনার তথ্য দেখুন</div>
+
+  <div class="field">
+    <label>আপনার ফোন নম্বর</label>
+    <div class="field-wrap">
+      <span class="field-icon">📱</span>
+      <input type="tel" id="studentPhone" placeholder="01XXXXXXXXX" maxlength="11" inputmode="numeric">
+    </div>
+    <div class="field-error" id="phoneErr">সঠিক ফোন নম্বর দিন (01XXXXXXXXX)</div>
+  </div>
+
+  <button class="btn-login" id="loginBtn" onclick="doStudentLogin()">
+    <span class="btn-text">প্রবেশ করুন →</span>
+    <div class="spinner"></div>
+  </button>
+
+  <div class="trust-info">
+    <p>🔒 প্রতিষ্ঠানে যে নম্বর দেওয়া হয়েছে, সেটি দিয়েই লগইন করুন। নম্বর না জানলে প্রতিষ্ঠানের সাথে যোগাযোগ করুন।</p>
+  </div>
+</div>
+
+<div class="toast-overlay" id="toastOverlay">
+  <div class="toast-card">
+    <div class="toast-icon-wrap" id="toastIconWrap"><span id="toastIconEmoji">✅</span></div>
+    <div class="toast-title" id="toastTitle">সফল!</div>
+    <div class="toast-msg" id="toastMsg"></div>
+    <button class="toast-btn" onclick="closeToast()">ঠিক আছে</button>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-student' } }
+);
+
+function showToast(type,title,msg){
+  document.getElementById('toastIconWrap').className = 'toast-icon-wrap '+(type==='success'?'toast-icon-success':'toast-icon-error');
+  document.getElementById('toastIconEmoji').textContent = type==='success'?'✅':'❌';
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastOverlay').classList.add('show');
+}
+function closeToast(){ document.getElementById('toastOverlay').classList.remove('show'); }
+
+async function doStudentLogin(){
+  const phone = document.getElementById('studentPhone').value.trim();
+  const errEl = document.getElementById('phoneErr');
+  errEl.classList.remove('show');
+
+  if(!/^01[0-9]{9}$/.test(phone)){
+    errEl.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('loginBtn');
+  btn.classList.add('loading');
+
+  try{
+    const { data: students, error } = await sb
+      .from('students')
+      .select('*, institutions(id, name, short_name), classes(id, name, student_login_enabled)')
+      .eq('phone', phone);
+
+    if(error) throw error;
+
+    if(!students || students.length === 0){
+      btn.classList.remove('loading');
+      showToast('error','পাওয়া যায়নি','এই নম্বর দিয়ে কোনো শিক্ষার্থীর তথ্য পাওয়া যায়নি। প্রতিষ্ঠানের সাথে যোগাযোগ করুন।');
+      return;
+    }
+
+    // Check if THIS STUDENT'S CLASS has student login enabled (class-level control)
+    const enabledStudents = students.filter(s => s.classes && s.classes.student_login_enabled);
+    if(enabledStudents.length === 0){
+      btn.classList.remove('loading');
+      showToast('error','লগইন বন্ধ আছে','আপনার ক্লাসের জন্য Student Login এখনো চালু করা হয়নি। প্রতিষ্ঠানের সাথে যোগাযোগ করুন।');
+      return;
+    }
+
+    localStorage.setItem('student_phone', phone);
+    localStorage.setItem('student_data', JSON.stringify(enabledStudents));
+
+    btn.classList.remove('loading');
+    showToast('success','স্বাগতম! 🎉','লগইন সফল হয়েছে। Dashboard এ নিয়ে যাওয়া হচ্ছে...');
+    setTimeout(()=>{ window.location.href='student-dashboard.html'; }, 1500);
+
+  }catch(e){
+    btn.classList.remove('loading');
+    showToast('error','সমস্যা হয়েছে', e.message || 'আবার চেষ্টা করুন');
+  }
+}
+
+document.getElementById('studentPhone').addEventListener('keydown', e=>{ if(e.key==='Enter') doStudentLogin(); });
+document.getElementById('studentPhone').addEventListener('input', e=>{
+  e.target.value = e.target.value.replace(/[^0-9]/g,'');
+});
+</script>
+</body>
+</html>

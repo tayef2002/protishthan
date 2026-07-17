@@ -1,0 +1,637 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protishthan — লগইন</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
+  --green:#059669;--red:#DC2626;--r:12px;--rl:20px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);overflow:hidden}
+body{display:grid;grid-template-columns:1fr 1fr;height:100vh}
+
+/* LEFT */
+.left{background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden;height:100vh}
+.left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.left-glow{position:absolute;top:20%;left:30%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%);pointer-events:none}
+.left-glow-2{position:absolute;bottom:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,.25) 0%,transparent 70%);pointer-events:none}
+.logo{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;text-decoration:none;display:inline-block;margin-bottom:36px}
+.logo span{opacity:.5}
+.hero-text{position:relative;z-index:2}
+.hero-text h2{font-size:clamp(26px,3vw,40px);font-weight:900;color:white;line-height:1.1;letter-spacing:-1px;margin-bottom:12px}
+.hero-text h2 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-text p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.7;max-width:300px}
+.activity-section{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+.activity-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.activity-feed{display:flex;flex-direction:column;gap:8px}
+.activity-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:11px;backdrop-filter:blur(8px);animation:slideIn .4s ease both}
+@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+.act-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.act-green{background:rgba(52,211,153,.15)}
+.act-blue{background:rgba(96,165,250,.15)}
+.act-purple{background:rgba(167,139,250,.15)}
+.act-text .t{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.act-text .s{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
+.act-dot{width:6px;height:6px;border-radius:50%;background:#34D399;margin-left:auto;flex-shrink:0;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.left-footer{position:relative;z-index:2}
+.left-footer p{font-size:11px;color:rgba(255,255,255,.2)}
+
+/* RIGHT */
+.right{background:var(--white);display:flex;justify-content:center;padding:0;overflow-y:auto;height:100vh}
+.right-inner{width:100%;max-width:460px;padding:28px 48px 40px}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-radius:10px;padding:4px;margin-bottom:24px;border:1px solid var(--border);position:sticky;top:0;z-index:10}
+.tabs-wrap{background:white;position:sticky;top:0;z-index:10;padding-top:28px;margin-top:-28px}
+.tab{flex:1;padding:9px;text-align:center;font-size:14px;font-weight:600;border-radius:7px;cursor:pointer;transition:all .25s;color:var(--text-3);border:none;background:none;font-family:inherit}
+.tab.active{background:var(--white);color:var(--blue);box-shadow:0 1px 8px rgba(0,0,0,.08)}
+
+/* FORMS — only one visible at a time */
+.form-panel{display:none}
+.form-panel.active{display:block}
+
+.form-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:5px}
+.form-sub{font-size:13px;color:var(--text-2);margin-bottom:22px;line-height:1.6}
+
+/* ROLE */
+.role-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-btn{padding:11px 6px;border:1.5px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit}
+.role-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.role-btn.selected{border-color:var(--blue);background:var(--blue-light)}
+.role-icon{font-size:20px}
+.role-label{font-size:11px;font-weight:600;color:var(--text-2)}
+.role-btn.selected .role-label{color:var(--blue)}
+
+/* FIELDS */
+.field{margin-bottom:14px}
+.type-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.type-chip{padding:9px 16px;border:1.5px solid var(--border);border-radius:100px;background:white;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-2);transition:all .15s}
+.type-chip:hover{border-color:var(--blue)}
+.type-chip.selected{border-color:var(--blue);background:var(--blue);color:white}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.field-row .field{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.field-wrap{position:relative}
+.field-wrap input{width:100%;padding:11px 14px;padding-right:42px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:all .2s}
+.field-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.field-wrap input::placeholder{color:var(--text-3)}
+.field-wrap input.error{border-color:var(--red)}
+.field-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-3);cursor:pointer;user-select:none}
+.field-error{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.field-error.show{display:block}
+
+.form-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.remember{display:flex;align-items:center;gap:7px;cursor:pointer}
+.remember input[type=checkbox]{width:15px;height:15px;accent-color:var(--blue);cursor:pointer}
+.remember span{font-size:12px;color:var(--text-2)}
+.forgot{font-size:12px;color:var(--blue);text-decoration:none;font-weight:500}
+.forgot:hover{text-decoration:underline}
+
+/* BUTTON */
+.btn-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;position:relative;overflow:hidden}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,86,219,.35)}
+.btn-submit.loading{pointer-events:none;opacity:.8}
+.btn-submit .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-submit.loading .btn-text{display:none}
+.btn-submit.loading .spinner{display:block}
+
+.bottom-link{text-align:center;margin-top:16px;font-size:12px;color:var(--text-2)}
+.bottom-link a{color:var(--blue);font-weight:600;text-decoration:none}
+
+/* SLUG */
+.slug-preview{font-size:11px;color:var(--blue);font-weight:500;margin-left:6px}
+.slug-suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-3);white-space:nowrap}
+
+/* PASS STRENGTH */
+.pass-bars{display:flex;gap:3px;margin-top:5px}
+.pass-bar{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
+.pass-label{font-size:11px;color:var(--text-3);margin-top:3px}
+
+/* SUCCESS */
+.success-panel{display:none;text-align:center;padding:20px 0}
+.success-panel.show{display:block}
+.success-circle{width:68px;height:68px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.success-panel h3{font-size:20px;font-weight:800;margin-bottom:6px}
+.success-panel p{font-size:13px;color:var(--text-2)}
+.progress-wrap{margin-top:16px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-bar{height:100%;background:var(--blue);width:0;transition:width 2s linear;border-radius:2px}
+
+/* TRUST */
+.trust-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.trust-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-3)}
+
+/* MOBILE */
+@media(max-width:768px){
+  body{grid-template-columns:1fr;overflow:auto}
+  html,body{height:auto}
+  .left{display:none}
+  .right{height:auto;overflow:visible;padding:0}
+  .right-inner{padding:24px 20px 32px}
+}
+
+/* TOAST POPUP */
+.toast-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast-overlay.show{opacity:1;pointer-events:all}
+.toast-card{background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;transform:scale(.9) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.toast-overlay.show .toast-card{transform:scale(1) translateY(0)}
+.toast-icon-wrap{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px}
+.toast-icon-success{background:#ECFDF5}
+.toast-icon-error{background:#FEF2F2}
+.toast-title{font-size:20px;font-weight:800;color:#0F172A;margin-bottom:6px;letter-spacing:-.5px}
+.toast-msg{font-size:14px;color:#475569;line-height:1.6;margin-bottom:20px}
+.toast-progress{height:4px;background:#E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:16px}
+.toast-progress-bar{height:100%;background:linear-gradient(90deg,#1A56DB,#818CF8);border-radius:10px;width:0;transition:width 2s linear}
+.toast-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.toast-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,86,219,.3)}
+.toast-btn.red{background:linear-gradient(135deg,#DC2626,#EF4444)}
+</style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-grid"></div>
+  <div class="left-glow"></div>
+  <div class="left-glow-2"></div>
+  <div style="position:relative;z-index:2">
+    <a href="index.html" class="logo">Protisht<span>han</span></a>
+    <div class="hero-text">
+      <h2>স্বাগতম<br><span class="grad">Protishthan এ</span></h2>
+      <p>বাংলাদেশের সব প্রতিষ্ঠান এখন পরিচালনা করছে স্মার্টভাবে।</p>
+    </div>
+  </div>
+  <div class="activity-section">
+    <div class="activity-title">এইমাত্র হয়েছে</div>
+    <div class="activity-feed" id="actFeed">
+      <div class="activity-item" style="animation-delay:.1s">
+        <div class="act-icon act-green">🔒</div>
+        <div class="act-text"><div class="t">রাফিউল — উপস্থিত</div><div class="s">দারুল উলুম · সকাল ৮:০২</div></div>
+        <div class="act-dot"></div>
+      </div>
+      <div class="activity-item" style="animation-delay:.2s">
+        <div class="act-icon act-blue">💬</div>
+        <div class="act-text"><div class="t">WhatsApp পাঠানো হয়েছে</div><div class="s">১২ জন অভিভাবককে</div></div>
+        <div class="act-dot"></div>
+      </div>
+      <div class="activity-item" style="animation-delay:.3s">
+        <div class="act-icon act-purple">💳</div>
+        <div class="act-text"><div class="t">ফি পরিশোধ</div><div class="s">৳১,২০০ — Bkash</div></div>
+        <div class="act-dot"></div>
+      </div>
+      <div class="activity-item" style="animation-delay:.4s">
+        <div class="act-icon act-green">📊</div>
+        <div class="act-text"><div class="t">মাসিক রিপোর্ট তৈরি</div><div class="s">অক্টোবর ২০২৪ · ১৫০ শিক্ষার্থী</div></div>
+        <div class="act-dot"></div>
+      </div>
+    </div>
+  </div>
+  <div class="left-footer">
+    <p>© ২০২৪ Protishthan · Made in Bangladesh 🇧🇩</p>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="right-inner">
+
+    <!-- TABS -->
+    <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="switchTab('login')">লগইন</button>
+      <button class="tab" id="tabSignup" onclick="switchTab('signup')">নতুন রেজিস্ট্রেশন</button>
+    </div>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="form-panel active" id="loginPanel">
+      <h2 class="form-title">আবার স্বাগতম 👋</h2>
+      <p class="form-sub">আপনার প্রতিষ্ঠানের অ্যাকাউন্টে লগইন করুন</p>
+
+      <div class="role-select">
+        <button class="role-btn selected" onclick="selectRole(this)">
+          <span class="role-icon">👤</span>
+          <span class="role-label">প্রতিষ্ঠান</span>
+        </button>
+        <button class="role-btn" onclick="window.location.href='teacher-login.html'">
+          <span class="role-icon">👨‍🏫</span>
+          <span class="role-label">শিক্ষক</span>
+        </button>
+        <button class="role-btn" onclick="window.location.href='guardian-login.html'">
+          <span class="role-icon">👨‍👩‍👦</span>
+          <span class="role-label">অভিভাবক</span>
+        </button>
+        <button class="role-btn" onclick="window.location.href='student-login.html'">
+          <span class="role-icon">👨‍🎓</span>
+          <span class="role-label">শিক্ষার্থী</span>
+        </button>
+      </div>
+
+      <div class="field">
+        <label>ফোন নম্বর বা ইমেইল</label>
+        <div class="field-wrap">
+          <input type="text" id="loginEmail" placeholder="01XXXXXXXXX বা email@example.com">
+          <span class="field-icon">📱</span>
+        </div>
+        <div class="field-error" id="loginEmailErr">সঠিক ফোন নম্বর বা ইমেইল দিন</div>
+      </div>
+
+      <div class="field">
+        <label>পাসওয়ার্ড</label>
+        <div class="field-wrap">
+          <input type="password" id="loginPass" placeholder="আপনার পাসওয়ার্ড">
+          <span class="field-icon" onclick="togglePass('loginPass',this)" style="cursor:pointer">👁️</span>
+        </div>
+        <div class="field-error" id="loginPassErr">পাসওয়ার্ড দিন</div>
+      </div>
+
+      <div class="form-row">
+        <label class="remember">
+          <input type="checkbox">
+          <span>মনে রাখুন</span>
+        </label>
+        <a href="#" class="forgot">পাসওয়ার্ড ভুলে গেছেন?</a>
+      </div>
+
+      <button class="btn-submit" id="loginBtn" onclick="doLogin()">
+        <span class="btn-text">লগইন করুন →</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="bottom-link">
+        নতুন প্রতিষ্ঠান? <a href="#" onclick="switchTab('signup');return false">বিনামূল্যে রেজিস্ট্রেশন করুন</a>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="success-panel" id="loginSuccess">
+        <div class="success-circle">✓</div>
+        <h3>লগইন সফল!</h3>
+        <p>Dashboard এ নিয়ে যাওয়া হচ্ছে...</p>
+        <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+    </div>
+
+    <!-- SIGNUP PANEL -->
+    <div class="form-panel" id="signupPanel">
+      <h2 class="form-title">শুরু করুন বিনামূল্যে 🎉</h2>
+      <p class="form-sub">আপনার প্রতিষ্ঠানের জন্য Protishthan সেটআপ করুন</p>
+
+      <div class="field">
+        <label>প্রতিষ্ঠানের নাম</label>
+        <div class="field-wrap">
+          <input type="text" id="instName" placeholder="যেমন: দারুল উলুম মাদ্রাসা" oninput="updateSlug()">
+          <span class="field-icon">🏫</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>প্রতিষ্ঠানের ধরন</label>
+        <div class="type-chip-grid" id="instTypeGrid">
+          <button type="button" class="type-chip" data-type="মাদ্রাসা" onclick="selectInstType(this)">মাদ্রাসা</button>
+          <button type="button" class="type-chip" data-type="স্কুল" onclick="selectInstType(this)">স্কুল</button>
+          <button type="button" class="type-chip" data-type="কলেজ" onclick="selectInstType(this)">কলেজ</button>
+          <button type="button" class="type-chip" data-type="কোচিং সেন্টার" onclick="selectInstType(this)">কোচিং সেন্টার</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>প্রধান শিক্ষক / Principal এর নাম</label>
+        <div class="field-wrap">
+          <input type="text" id="principalName" placeholder="যেমন: মোঃ রফিকুল ইসলাম">
+          <span class="field-icon">👤</span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>জেলা</label>
+          <div class="field-wrap">
+            <select id="instDistrict" onchange="onDistrictChange()" style="width:100%;padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:white;appearance:none">
+              <option value="">নির্বাচন করুন</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>উপজেলা / থানা</label>
+          <div class="field-wrap">
+            <select id="instUpazila" style="width:100%;padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:white;appearance:none" disabled>
+              <option value="">আগে জেলা দিন</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>প্রতিষ্ঠানের ওয়েবসাইট <span class="slug-preview" id="slugPreview"></span></label>
+        <div class="field-wrap">
+          <input type="text" id="instSlug" placeholder="darul-ulum" oninput="validateSlug(this)" style="padding-right:100px">
+          <span class="slug-suffix">.protishthan.com</span>
+        </div>
+        <div class="field-error" id="slugErr">শুধু ইংরেজি অক্ষর ও হাইফেন ব্যবহার করুন</div>
+      </div>
+
+      <div class="field">
+        <label>ইমেইল</label>
+        <div class="field-wrap">
+          <input type="email" id="signupEmail" placeholder="ইমেইল বা ফোন নম্বর">
+          <span class="field-icon">📱</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>ফোন নম্বর</label>
+        <div class="field-wrap">
+          <input type="tel" id="signupPhone" placeholder="01XXXXXXXXX">
+          <span class="field-icon">📱</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>পাসওয়ার্ড তৈরি করুন</label>
+        <div class="field-wrap">
+          <input type="password" id="signupPass" placeholder="কমপক্ষে ৮ অক্ষর" oninput="checkPass(this.value)">
+          <span class="field-icon" onclick="togglePass('signupPass',this)" style="cursor:pointer">👁️</span>
+        </div>
+        <div class="pass-bars">
+          <div class="pass-bar" id="pb1"></div>
+          <div class="pass-bar" id="pb2"></div>
+          <div class="pass-bar" id="pb3"></div>
+          <div class="pass-bar" id="pb4"></div>
+        </div>
+        <div class="pass-label" id="passLabel"></div>
+      </div>
+
+      <button class="btn-submit" id="signupBtn" onclick="doSignup()">
+        <span class="btn-text">বিনামূল্যে শুরু করুন →</span>
+        <div class="spinner"></div>
+      </button>
+
+      <div class="bottom-link">
+        ইতিমধ্যে account আছে? <a href="#" onclick="switchTab('login');return false">লগইন করুন</a>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-badge"><span>🔒</span> SSL সুরক্ষিত</div>
+      <div class="trust-badge"><span>🇧🇩</span> বাংলাদেশে তৈরি</div>
+      <div class="trust-badge"><span>⚡</span> ২৪/৭ সক্রিয়</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
+
+// Supabase init
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+// Auto redirect if already logged in
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session) window.location.href='dashboard.html';
+});
+
+function showErr(msg){
+  let box=document.getElementById('errBox');
+  if(!box){box=document.createElement('div');box.id='errBox';box.style.cssText='background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:#DC2626;margin-bottom:14px;';document.getElementById('loginPanel').insertBefore(box,document.getElementById('loginPanel').querySelector('.field'));}
+  box.textContent=msg;box.style.display=msg?'block':'none';
+}
+
+function switchTab(tab){
+  document.getElementById('loginPanel').classList.toggle('active', tab==='login');
+  document.getElementById('signupPanel').classList.toggle('active', tab==='signup');
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+  document.getElementById('loginSuccess').classList.remove('show');
+  document.getElementById('loginBtn').style.display='';
+}
+
+function selectRole(btn){
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function togglePass(id,icon){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  icon.textContent=inp.type==='password'?'👁️':'🙈';
+}
+function populateDistricts(){
+  const sel = document.getElementById('instDistrict');
+  BD_LOCATIONS.forEach((dist, i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = dist.n;
+    sel.appendChild(opt);
+  });
+}
+
+function onDistrictChange(){
+  const distIdx = document.getElementById('instDistrict').value;
+  const upaSel = document.getElementById('instUpazila');
+
+  upaSel.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+
+  if(distIdx === ''){
+    upaSel.disabled = true;
+    return;
+  }
+
+  upaSel.disabled = false;
+  BD_LOCATIONS[distIdx].u.forEach(upa=>{
+    const opt = document.createElement('option');
+    opt.value = upa;
+    opt.textContent = upa;
+    upaSel.appendChild(opt);
+  });
+}
+
+populateDistricts();
+
+function selectInstType(btn){
+  document.querySelectorAll('#instTypeGrid .type-chip').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function updateSlug(){
+  const v=document.getElementById('instName').value;
+  const slug=v.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30);
+  document.getElementById('instSlug').value=slug;
+  document.getElementById('slugPreview').textContent=slug?'→ '+slug+'.protishthan.com':'';
+}
+function validateSlug(inp){
+  const ok=/^[a-z0-9-]*$/.test(inp.value);
+  document.getElementById('slugErr').classList.toggle('show',!ok&&inp.value.length>0);
+  document.getElementById('slugPreview').textContent=inp.value?'→ '+inp.value+'.protishthan.com':'';
+}
+function checkPass(v){
+  const bars=[document.getElementById('pb1'),document.getElementById('pb2'),document.getElementById('pb3'),document.getElementById('pb4')];
+  bars.forEach(b=>b.style.background='var(--border)');
+  if(!v){document.getElementById('passLabel').textContent='';return}
+  let s=0;
+  if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const c=['#EF4444','#F59E0B','#3B82F6','#10B981'],l=['দুর্বল','মোটামুটি','ভালো','শক্তিশালী'];
+  for(let i=0;i<s;i++)bars[i].style.background=c[s-1];
+  document.getElementById('passLabel').textContent=l[s-1]||'';
+  document.getElementById('passLabel').style.color=c[s-1]||'var(--text-3)';
+}
+async function doLogin(){
+  let input=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!input||!pass){showToast('error','অসম্পূর্ণ তথ্য','ইমেইল/ফোন এবং পাসওয়ার্ড দিন');return;}
+  const btn=document.getElementById('loginBtn');
+  btn.classList.add('loading');
+  // If phone number, try to find email from institutions table
+  let loginEmail = input;
+  if(/^01[0-9]{9}$/.test(input)){
+    const {data:instData} = await sb.from('institutions').select('email').eq('phone',input).single();
+    if(instData && instData.email) loginEmail = instData.email;
+    else { btn.classList.remove('loading'); showToast('error','লগইন ব্যর্থ','এই ফোন নম্বর দিয়ে কোনো account পাওয়া যায়নি'); return; }
+  }
+  const {data,error}=await sb.auth.signInWithPassword({email:loginEmail,password:pass});
+  if(error){
+    btn.classList.remove('loading');
+    showToast('error','লগইন ব্যর্থ',(error.message==='Invalid login credentials'?'ইমেইল বা পাসওয়ার্ড ভুল। আবার চেষ্টা করুন।':error.message));
+    return;
+  }
+  btn.classList.remove('loading');
+  showToast('success','লগইন সফল! 🎉','আপনার dashboard এ নিয়ে যাওয়া হচ্ছে...',true);
+}
+async function doSignup(){
+  const name=document.getElementById('instName').value.trim();
+  const principal=document.getElementById('principalName').value.trim();
+  const distIdx=document.getElementById('instDistrict').value;
+  const upazila=document.getElementById('instUpazila').value;
+  const slug=document.getElementById('instSlug').value.trim();
+  const email=document.getElementById('signupEmail').value.trim();
+  const phone=document.getElementById('signupPhone').value.trim();
+  const pass=document.getElementById('signupPass').value;
+  const instTypeBtn=document.querySelector('#instTypeGrid .type-chip.selected');
+  const institutionType=instTypeBtn?instTypeBtn.dataset.type:null;
+  if(!name||!principal||!slug||!email||!pass){showToast('error','অসম্পূর্ণ তথ্য','সব তথ্য সঠিকভাবে পূরণ করুন');return;}
+  if(distIdx===''||!upazila){showToast('error','অসম্পূর্ণ তথ্য','জেলা এবং উপজেলা নির্বাচন করুন');return;}
+  if(pass.length<8){showToast('error','দুর্বল পাসওয়ার্ড','পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে');return;}
+
+  const district = BD_LOCATIONS[distIdx].n;
+
+  const btn=document.getElementById('signupBtn');
+  btn.classList.add('loading');
+  try{
+    const {data,error}=await sb.auth.signUp({
+      email,password:pass,
+      options:{data:{institution_name:name,principal_name:principal,short_name:slug,phone}}
+    });
+    if(error){
+      btn.classList.remove('loading');
+      if(error.message.includes('already registered')){showToast('error','ইমেইল আগেই ব্যবহৃত','এই ইমেইল দিয়ে account আছে। লগইন করুন।');}
+      else if(error.message.includes('rate limit')){showToast('error','একটু অপেক্ষা করুন','৫ মিনিট পর আবার চেষ্টা করুন।');}
+      else{showToast('error','সমস্যা হয়েছে',error.message);}
+      return;
+    }
+    if(data.user){
+      await sb.from('institutions').insert({name,short_name:slug,email,phone,plan:'free',is_active:true,principal_name:principal,district,upazila,institution_type:institutionType});
+    }
+    btn.classList.remove('loading');
+    switchTab('login');
+    showToast('success','রেজিস্ট্রেশন সফল! 🎉','আপনার প্রতিষ্ঠানের account তৈরি হয়েছে। এখন লগইন করুন।');
+  } catch(e){
+    btn.classList.remove('loading');
+    showToast('error','সমস্যা হয়েছে', e.message||'আবার চেষ্টা করুন');
+  }
+}
+
+// Live activity feed rotation
+const acts=[
+  {cls:'act-green',icon:'🔒',t:'সানজিদা — উপস্থিত',s:'আল-আমিন একাডেমি · ৮:১৫'},
+  {cls:'act-blue',icon:'💬',t:'WhatsApp পাঠানো',s:'৮ জন অভিভাবককে notification'},
+  {cls:'act-purple',icon:'💳',t:'ফি পরিশোধ',s:'৳৮০০ — Bkash · নূর উদ্দিন বিদ্যালয়'},
+  {cls:'act-green',icon:'🔒',t:'রাফিউল — উপস্থিত',s:'দারুল উলুম · সকাল ৮:০২'},
+];
+let ai=0;
+setInterval(()=>{
+  const f=document.getElementById('actFeed');
+  const a=acts[ai%acts.length];
+  const d=document.createElement('div');
+  d.className='activity-item';
+  d.innerHTML=`<div class="act-icon ${a.cls}">${a.icon}</div><div class="act-text"><div class="t">${a.t}</div><div class="s">${a.s}</div></div><div class="act-dot"></div>`;
+  f.insertBefore(d,f.firstChild);
+  if(f.children.length>4)f.removeChild(f.lastChild);
+  ai++;
+},3000);
+</script>
+
+<!-- PROFESSIONAL TOAST -->
+<div class="toast-overlay" id="toastOverlay">
+  <div class="toast-card">
+    <div class="toast-icon-wrap" id="toastIconWrap">
+      <span id="toastIconEmoji">✅</span>
+    </div>
+    <div class="toast-title" id="toastTitle">সফল!</div>
+    <div class="toast-msg" id="toastMsg"></div>
+    <div class="toast-progress" id="toastProgressWrap" style="display:none">
+      <div class="toast-progress-bar" id="toastProgressBar"></div>
+    </div>
+    <button class="toast-btn" id="toastBtn" onclick="closeToast()">ঠিক আছে</button>
+  </div>
+</div>
+
+</body>
+</html>
+<script>
+// Auto switch tab from URL param
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('tab')==='signup')switchTab('signup');
+})();
+
+function showToast(type, title, msg, autoRedirect){
+  const overlay=document.getElementById('toastOverlay');
+  const iconWrap=document.getElementById('toastIconWrap');
+  const emoji=document.getElementById('toastIconEmoji');
+  const titleEl=document.getElementById('toastTitle');
+  const msgEl=document.getElementById('toastMsg');
+  const btn=document.getElementById('toastBtn');
+  const progressWrap=document.getElementById('toastProgressWrap');
+  const progressBar=document.getElementById('toastProgressBar');
+  
+  titleEl.textContent=title;
+  msgEl.textContent=msg;
+  
+  if(type==='success'){
+    iconWrap.className='toast-icon-wrap toast-icon-success';
+    emoji.textContent='✅';
+    btn.className='toast-btn';
+  } else {
+    iconWrap.className='toast-icon-wrap toast-icon-error';
+    emoji.textContent='❌';
+    btn.className='toast-btn red';
+  }
+  
+  if(autoRedirect){
+    progressWrap.style.display='block';
+    btn.textContent='Dashboard এ যাচ্ছি...';
+    btn.disabled=true;
+    overlay.classList.add('show');
+    setTimeout(()=>{ progressBar.style.width='100%'; },50);
+    setTimeout(()=>{ window.location.href='dashboard.html'; },2200);
+  } else {
+    progressWrap.style.display='none';
+    btn.textContent='ঠিক আছে';
+    btn.disabled=false;
+    overlay.classList.add('show');
+  }
+}
+
+function closeToast(){
+  document.getElementById('toastOverlay').classList.remove('show');
+}
+</script>

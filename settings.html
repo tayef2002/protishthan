@@ -1,0 +1,1010 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;--amber:#D97706;--amber-l:#FFFBEB;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.user-name-link{cursor:pointer}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.content{padding:24px 28px;flex:1;width:100%}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:18px;align-items:start;max-width:1700px;margin:0 auto}
+.col-left,.col-right{display:flex;flex-direction:column;min-width:0;gap:18px}
+.s-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:20px}
+.s-card-title{font-size:14.5px;font-weight:800;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.s-card-sub{font-size:12px;color:var(--text-3);margin-bottom:16px}
+.form-field{margin-bottom:14px}
+.form-field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.form-field input,.form-field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none}
+.form-field input:disabled{background:var(--surface);color:var(--text-3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-btn{padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;background:white;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px}
+.type-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.type-btn.selected{border-color:var(--blue);background:var(--blue-light)}
+.type-btn .icon{font-size:22px}
+.type-btn .label{font-size:13px;font-weight:600;color:var(--text)}
+.type-btn.selected .label{color:var(--blue)}
+.btn-save{padding:11px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-save:disabled{opacity:.6;cursor:default}
+.btn-outline{padding:10px 18px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-danger{padding:11px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--red),#B91C1C);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+.logo-row{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.logo-circle{width:76px;height:76px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-3);text-align:center;line-height:1.2;flex-shrink:0;overflow:hidden;background:var(--surface)}
+.logo-circle img{width:100%;height:100%;object-fit:cover}
+
+.badge-row{display:flex;gap:10px;flex-wrap:wrap}
+.id-badge{flex:1;min-width:150px;background:var(--blue-light);border-radius:12px;padding:14px 16px}
+.id-badge-label{font-size:11px;color:var(--text-3);margin-bottom:4px;font-weight:600}
+.id-badge-val{font-size:17px;font-weight:800;color:var(--blue-dark)}
+.id-badge.empty{background:var(--surface)}
+.id-badge.empty .id-badge-val{color:var(--text-3);font-size:13px;font-weight:600}
+
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;gap:10px}
+.detail-row:last-child{border-bottom:none}
+.detail-row .lbl{color:var(--text-2)}
+.detail-row .val{font-weight:700;color:var(--text);text-align:right;word-break:break-all}
+
+.toggle-switch{position:relative;width:46px;height:26px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:100px;cursor:pointer;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-switch input:checked + .toggle-slider{background:var(--blue)}
+.toggle-switch input:checked + .toggle-slider::before{transform:translateX(20px)}
+
+.plan-pill{display:inline-block;padding:5px 14px;border-radius:100px;font-size:13px;font-weight:800;background:var(--green-l);color:var(--green);margin-bottom:6px}
+.plan-pill.free{background:var(--surface);color:var(--text-2)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding:16px;padding-bottom:90px;max-width:100%}
+  .bottom-nav{display:flex!important}
+  .form-row{grid-template-columns:1fr}
+  .topbar{padding:12px 16px;height:auto}
+  .settings-grid{grid-template-columns:1fr}
+}
+@media(max-width:1024px) and (min-width:769px){
+  .settings-grid{grid-template-columns:1fr}
+  .content{max-width:640px}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.more-sheet-overlay.show{opacity:1;pointer-events:all}
+.more-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 8px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:75vh;overflow-y:auto;z-index:301}
+.more-sheet-overlay.show .more-sheet{transform:translateY(0)}
+.more-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:6px auto 16px}
+.more-sheet-title{font-size:14px;font-weight:700;color:var(--text);padding:0 10px 12px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 6px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:14px;text-decoration:none;color:var(--text-2)}
+.more-sheet-item:active{background:var(--surface)}
+.more-sheet-icon{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center}
+.more-sheet-label{font-size:11px;font-weight:600;text-align:center;line-height:1.3}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item active" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name user-name-link" id="userName" onclick="window.location.href='settings.html'">Loading...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="event.stopPropagation();doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title">Settings</div></div>
+  </div>
+
+  <div class="content">
+  <div class="settings-grid">
+    <div class="col-left">
+
+    <!-- PROFILE -->
+    <div class="s-card">
+      <div class="s-card-title">🏫 প্রতিষ্ঠানের প্রোফাইল</div>
+      <div class="s-card-sub">এই তথ্য রেজাল্ট শিট, ভাউচার ও পাবলিক পেজে দেখাবে</div>
+
+      <div class="logo-row">
+        <div class="logo-circle" id="logoPreview">Null<br>(লোগো)</div>
+        <div>
+          <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+          <button class="btn-outline" onclick="document.getElementById('logoFileInput').click()" id="logoUploadBtn">লোগো আপলোড করুন</button>
+          <div style="font-size:11px;color:var(--text-3);margin-top:6px">JPG/PNG, বর্গাকার ছবি ভালো দেখাবে</div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>প্রতিষ্ঠানের নাম</label>
+        <input type="text" id="fName" autocomplete="off" name="inst_name_field">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>অধ্যক্ষ/পরিচালকের নাম</label>
+          <input type="text" id="fPrincipal" autocomplete="off" name="inst_principal_field">
+        </div>
+        <div class="form-field">
+          <label>ফোন নম্বর</label>
+          <input type="text" id="fPhone" autocomplete="off" name="inst_phone_field">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>প্রতিষ্ঠানের ধরন</label>
+        <div class="type-grid" id="settingsTypeGrid">
+          <button type="button" class="type-btn" data-type="মাদ্রাসা" onclick="selectSettingsType(this)"><span class="icon">🕌</span><span class="label">মাদ্রাসা</span></button>
+          <button type="button" class="type-btn" data-type="স্কুল" onclick="selectSettingsType(this)"><span class="icon">🏫</span><span class="label">স্কুল</span></button>
+          <button type="button" class="type-btn" data-type="কলেজ" onclick="selectSettingsType(this)"><span class="icon">🎓</span><span class="label">কলেজ</span></button>
+          <button type="button" class="type-btn" data-type="কোচিং সেন্টার" onclick="selectSettingsType(this)"><span class="icon">📚</span><span class="label">কোচিং সেন্টার</span></button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>জেলা</label>
+          <select id="fDistrict" onchange="onSettingsDistrictChange()"><option value="">নির্বাচন করুন</option></select>
+        </div>
+        <div class="form-field">
+          <label>উপজেলা</label>
+          <select id="fUpazila" disabled><option value="">আগে জেলা দিন</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>EIIN নম্বর</label>
+          <input type="text" id="fEiin" placeholder="থাকলে দিন" autocomplete="off" name="inst_eiin_field">
+        </div>
+      </div>
+      <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">প্রোফাইল সেভ করুন</button>
+    </div>
+
+    <!-- ID BADGES -->
+    <div class="s-card">
+      <div class="s-card-title">🪪 স্বীকৃতি নম্বর</div>
+      <div class="s-card-sub">এগুলো সিস্টেম থেকে অটো তৈরি হয়, এডিট করা যায় না</div>
+      <div class="badge-row">
+        <div class="id-badge" id="prnBadgeWrap">
+          <div class="id-badge-label">PRN</div>
+          <div class="id-badge-val" id="prnVal">—</div>
+        </div>
+        <div class="id-badge" id="eiinBadgeWrap">
+          <div class="id-badge-label">EIIN</div>
+          <div class="id-badge-val" id="eiinVal">—</div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+    <div class="col-right">
+
+    <!-- শিক্ষা বর্ষ -->
+    <div class="s-card">
+      <div class="s-card-title">📅 শিক্ষা বর্ষ</div>
+      <div class="s-card-sub">শুরু ও শেষ মাস দিন — মাদ্রাসায় সেপ্টেম্বর-আগস্ট হলে ২ বছর স্বয়ংক্রিয়ভাবে হবে</div>
+
+      <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;margin-bottom:10px">
+        <div class="form-field" style="margin-bottom:0">
+          <label>শুরুর মাস</label>
+          <select id="fStartMonth" onchange="onAcademicYearChange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:13px">
+            <option value="1">জানুয়ারি</option><option value="2">ফেব্রুয়ারি</option>
+            <option value="3">মার্চ</option><option value="4">এপ্রিল</option>
+            <option value="5">মে</option><option value="6">জুন</option>
+            <option value="7">জুলাই</option><option value="8">আগস্ট</option>
+            <option value="9">সেপ্টেম্বর</option><option value="10">অক্টোবর</option>
+            <option value="11">নভেম্বর</option><option value="12">ডিসেম্বর</option>
+          </select>
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label>তারিখ</label>
+          <select id="fStartDay" onchange="onAcademicYearChange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:13px"></select>
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label>শুরুর সাল (ইং)</label>
+          <select id="fStartYear" onchange="onAcademicYearChange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:13px"></select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:10px;margin-bottom:14px">
+        <div class="form-field" style="margin-bottom:0">
+          <label>শেষের মাস</label>
+          <select id="fEndMonth" onchange="onAcademicYearChange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:13px">
+            <option value="1">জানুয়ারি</option><option value="2">ফেব্রুয়ারি</option>
+            <option value="3">মার্চ</option><option value="4">এপ্রিল</option>
+            <option value="5">মে</option><option value="6">জুন</option>
+            <option value="7">জুলাই</option><option value="8">আগস্ট</option>
+            <option value="9">সেপ্টেম্বর</option><option value="10">অক্টোবর</option>
+            <option value="11">নভেম্বর</option><option value="12">ডিসেম্বর</option>
+          </select>
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label>তারিখ</label>
+          <select id="fEndDay" onchange="onAcademicYearChange()" style="width:100%;padding:9px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:13px"></select>
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label>শেষের সাল (স্বয়ংক্রিয়)</label>
+          <input type="text" id="fEndYear" placeholder="—" disabled style="width:100%;background:var(--surface-alt,#f4f6ff)">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="form-field" style="margin-bottom:0">
+          <label>ইংরেজি শিক্ষা বর্ষ</label>
+          <input type="text" id="fAcademicYearEN" placeholder="স্বয়ংক্রিয়" disabled style="width:100%;font-weight:700">
+        </div>
+        <div class="form-field" style="margin-bottom:0">
+          <label>হিজরি বর্ষ (স্বয়ংক্রিয়)</label>
+          <input type="text" id="fAcademicYearAR" placeholder="স্বয়ংক্রিয়" disabled style="width:100%;font-weight:700">
+        </div>
+      </div>
+
+      <div id="academicYearPreview" style="display:none;background:var(--blue-light);border:1.5px solid var(--blue);border-radius:9px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:4px">প্রশ্ন পত্রে এভাবে দেখাবে:</div>
+        <div id="academicYearPreviewText" style="font-size:15px;font-weight:700;color:var(--text)"></div>
+      </div>
+      <button class="btn-save" onclick="saveAcademicYear()">শিক্ষা বর্ষ সংরক্ষণ করুন</button>
+    </div>
+
+    <!-- GEO-FENCE / TEACHER TRACKING -->
+    <div class="s-card">
+      <div class="s-card-title">📍 শিক্ষক উপস্থিতি ট্র্যাকিং (Geo-fence)</div>
+      <p style="font-size:12px;color:var(--text-3);margin-bottom:14px">শিক্ষক Check-in/Out বাটন চাপলে তার location এই এলাকার ভেতরে আছে কিনা check হবে। বাইরে হলে কাজ করবে না।</p>
+
+      <div id="geoLocStatus" style="margin-bottom:12px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;background:var(--surface);color:var(--text-3);display:flex;align-items:center;gap:8px">
+        <span>📍</span> <span id="geoLocText">Location এখনো Set হয়নি</span>
+      </div>
+
+      <button class="btn-save" style="background:#059669;margin-bottom:14px" onclick="setInstituteLocation()">
+        📍 আমি এখন প্রতিষ্ঠানে আছি — এখানের Location Set করুন
+      </button>
+
+      <div class="form-field" style="margin-bottom:6px">
+        <label>Geo-fence Radius (এলাকার পরিধি)</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <input type="range" id="geoRadius" min="50" max="500" step="10" value="100"
+            oninput="document.getElementById('geoRadiusVal').textContent=this.value+' মিটার'"
+            style="flex:1;accent-color:var(--blue)">
+          <span id="geoRadiusVal" style="font-size:14px;font-weight:800;color:var(--blue);min-width:80px">১০০ মিটার</span>
+        </div>
+        <p style="font-size:11px;color:var(--text-3);margin-top:4px">ছোট মাদ্রাসা: ৫০–১০০ মি. | বড় ক্যাম্পাস: ২০০–৩০০ মি.</p>
+      </div>
+
+      <button class="btn-save" onclick="saveGeoFence()">Geo-fence সেভ করুন</button>
+
+      <div id="geoSavedNote" style="display:none;margin-top:10px;font-size:12px;color:var(--green);font-weight:600">✓ সেভ হয়েছে</div>
+    </div>
+
+    <!-- ACCOUNT / SECURITY -->
+    <div class="s-card">
+      <div class="s-card-title">🔐 একাউন্ট ও সিকিউরিটি</div>
+      <div class="detail-row"><div class="lbl">লগইন ইমেইল</div><div class="val" id="loginEmailVal">—</div></div>
+      <div class="form-field" style="margin-top:14px">
+        <label>নতুন পাসওয়ার্ড</label>
+        <input type="password" id="fNewPassword" placeholder="কমপক্ষে ৬ ডিজিট" autocomplete="new-password">
+      </div>
+      <button class="btn-save" onclick="changePassword()">পাসওয়ার্ড পরিবর্তন করুন</button>
+    </div>
+
+    <!-- PUBLIC PAGE -->
+    <div class="s-card">
+      <div class="s-card-title">🌐 Public Page</div>
+      <div id="publicPageBody">
+        <div class="s-card-sub">লোড হচ্ছে...</div>
+      </div>
+    </div>
+
+    <!-- PLAN -->
+    <div class="s-card">
+      <div class="s-card-title">💳 সাবস্ক্রিপশন/প্ল্যান</div>
+      <div id="planBody">
+        <div class="s-card-sub">লোড হচ্ছে...</div>
+      </div>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="s-card">
+      <div class="s-card-title">⚠️ Danger Zone</div>
+      <div class="s-card-sub">লগআউট করলে আবার লগইন করতে হবে</div>
+      <button class="btn-danger" onclick="doLogout()">লগআউট করুন</button>
+    </div>
+
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+let currentInstitution = null;
+let selectedSettingsType = '';
+
+const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
+
+function populateSettingsDistricts(){
+  const sel = document.getElementById('fDistrict');
+  sel.innerHTML = '<option value="">নির্বাচন করুন</option>';
+  BD_LOCATIONS.forEach((dist, i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = dist.n;
+    sel.appendChild(opt);
+  });
+}
+function onSettingsDistrictChange(keepUpazila){
+  const distIdx = document.getElementById('fDistrict').value;
+  const upaSel = document.getElementById('fUpazila');
+  const prevVal = keepUpazila || '';
+  upaSel.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
+  if(distIdx === ''){
+    upaSel.disabled = true;
+    return;
+  }
+  upaSel.disabled = false;
+  BD_LOCATIONS[distIdx].u.forEach(upa=>{
+    const opt = document.createElement('option');
+    opt.value = upa;
+    opt.textContent = upa;
+    if(upa === prevVal) opt.selected = true;
+    upaSel.appendChild(opt);
+  });
+}
+function selectSettingsType(btn){
+  document.querySelectorAll('#settingsTypeGrid .type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedSettingsType = btn.dataset.type;
+}
+populateSettingsDistricts();
+
+let currentListing = null;
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata || {};
+  document.getElementById('loginEmailVal').textContent = session.user.email;
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(!inst){ document.querySelector('.content').innerHTML = '<div class="s-card">প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</div>'; return; }
+  currentInstitution = inst;
+  document.getElementById('userName').textContent = inst.principal_name || meta.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (inst.principal_name||meta.principal_name||'A').slice(0,1);
+  document.getElementById('instNameSidebar').textContent = inst.name;
+  const topbarInst = document.getElementById('topbarInstName');
+  if(topbarInst){ topbarInst.style.display='flex'; topbarInst.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(inst.name) + (inst.prn_number ? ' · PRN-'+String(inst.prn_number).padStart(4,'0') : '') + '</span>'; }
+
+  document.getElementById('fName').value = inst.name || '';
+  document.getElementById('fPrincipal').value = inst.principal_name || '';
+  document.getElementById('fPhone').value = inst.phone || '';
+  document.getElementById('fEiin').value = inst.eiin || '';
+
+  // District/Upazila select
+  if(inst.district){
+    const distIdx = BD_LOCATIONS.findIndex(d=>d.n === inst.district);
+    if(distIdx > -1){
+      document.getElementById('fDistrict').value = distIdx;
+      onSettingsDistrictChange(inst.upazila || '');
+    }
+  }
+  // Institution type chip
+  if(inst.institution_type){
+    const typeBtn = document.querySelector(`#settingsTypeGrid .type-btn[data-type="${inst.institution_type}"]`);
+    if(typeBtn) selectSettingsType(typeBtn);
+  }
+
+  if(inst.logo_url){
+    document.getElementById('logoPreview').innerHTML = `<img src="${inst.logo_url}">`;
+  }
+
+  document.getElementById('prnVal').textContent = inst.prn_number ? ('PRN-'+String(inst.prn_number).padStart(4,'0')) : 'এখনো পাওয়া যায়নি';
+  document.getElementById('eiinVal').textContent = inst.eiin || 'যুক্ত করা হয়নি';
+  if(!inst.prn_number) document.getElementById('prnBadgeWrap').classList.add('empty');
+  if(!inst.eiin) document.getElementById('eiinBadgeWrap').classList.add('empty');
+
+  if(inst.name && inst.institution_type) lockNameAndType();
+
+  renderPlan(inst);
+  await loadPublicPage(inst);
+  loadAcademicYear();
+  loadGeoFence();
+}
+
+function lockNameAndType(){
+  const nameInput = document.getElementById('fName');
+  nameInput.readOnly = true;
+  nameInput.style.cssText += ';background:var(--surface);color:var(--text-3);cursor:not-allowed;';
+  const nameField = nameInput.closest('.form-field');
+  if(nameField && !nameField.querySelector('.lock-note')){
+    const note = document.createElement('div');
+    note.className = 'lock-note';
+    note.style.cssText = 'font-size:11px;color:#e05;margin-top:4px;display:flex;align-items:center;gap:4px';
+    note.innerHTML = '🔒 প্রতিষ্ঠানের নাম পরিবর্তন করা যাবে না। প্রয়োজনে Admin এর সাথে যোগাযোগ করুন।';
+    nameField.appendChild(note);
+  }
+  document.querySelectorAll('#settingsTypeGrid .type-btn').forEach(btn=>{
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+    btn.style.opacity = btn.classList.contains('selected') ? '0.8' : '0.35';
+  });
+  const typeField = document.getElementById('settingsTypeGrid').closest('.form-field');
+  if(typeField && !typeField.querySelector('.lock-note')){
+    const note2 = document.createElement('div');
+    note2.className = 'lock-note';
+    note2.style.cssText = 'font-size:11px;color:#e05;margin-top:4px;display:flex;align-items:center;gap:4px';
+    note2.innerHTML = '🔒 প্রতিষ্ঠানের ধরন পরিবর্তন করা যাবে না। প্রয়োজনে Admin এর সাথে যোগাযোগ করুন।';
+    typeField.appendChild(note2);
+  }
+}
+
+async function saveProfile(){
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true; btn.textContent = 'সেভ হচ্ছে...';
+  const distSel = document.getElementById('fDistrict');
+  const distName = distSel.value !== '' ? BD_LOCATIONS[distSel.value].n : '';
+  const updates = {
+    name: document.getElementById('fName').value.trim(),
+    principal_name: document.getElementById('fPrincipal').value.trim(),
+    phone: document.getElementById('fPhone').value.trim(),
+    district: distName,
+    upazila: document.getElementById('fUpazila').value.trim(),
+    institution_type: selectedSettingsType || currentInstitution.institution_type || '',
+    eiin: document.getElementById('fEiin').value.trim() || null
+  };
+  const { error } = await sb.from('institutions').update(updates).eq('id', currentInstitution.id);
+  btn.disabled = false; btn.textContent = 'প্রোফাইল সেভ করুন';
+  if(error){ showToast('সমস্যা হয়েছে: '+error.message); return; }
+  Object.assign(currentInstitution, updates);
+  document.getElementById('instNameSidebar').textContent = updates.name;
+  document.getElementById('userName').textContent = updates.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (updates.principal_name||'A').slice(0,1);
+  const topbarInst2 = document.getElementById('topbarInstName');
+  if(topbarInst2) topbarInst2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(updates.name) + (currentInstitution.prn_number ? ' · PRN-'+String(currentInstitution.prn_number).padStart(4,'0') : '') + '</span>';
+  document.getElementById('eiinVal').textContent = updates.eiin || 'যুক্ত করা হয়নি';
+  document.getElementById('eiinBadgeWrap').classList.toggle('empty', !updates.eiin);
+  // keep auth metadata in sync too, for any page still reading it
+  sb.auth.updateUser({ data: { principal_name: updates.principal_name, institution_name: updates.name } });
+  if(updates.name && updates.institution_type) lockNameAndType();
+  showToast('প্রোফাইল সেভ হয়েছে।');
+}
+
+async function handleLogoUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const btn = document.getElementById('logoUploadBtn');
+  btn.disabled = true; btn.textContent = 'আপলোড হচ্ছে...';
+  const fileName = currentInstitution.id + '_' + Date.now() + '_' + file.name.replace(/\s/g,'_');
+  const { error: upErr } = await sb.storage.from('institution-logos').upload(fileName, file, { upsert: true });
+  if(upErr){ showToast('আপলোড সমস্যা: '+upErr.message); btn.disabled=false; btn.textContent='লোগো আপলোড করুন'; return; }
+  const { data: pub } = sb.storage.from('institution-logos').getPublicUrl(fileName);
+  const logoUrl = pub.publicUrl;
+  await sb.from('institutions').update({ logo_url: logoUrl }).eq('id', currentInstitution.id);
+  currentInstitution.logo_url = logoUrl;
+  document.getElementById('logoPreview').innerHTML = `<img src="${logoUrl}">`;
+  btn.disabled = false; btn.textContent = 'লোগো আপলোড করুন';
+  showToast('লোগো আপলোড হয়েছে।');
+}
+
+// ============== শিক্ষা বর্ষ ==============
+function enToBn(n){
+  return String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+}
+
+// AH ≈ EN year - 579 (rough approximation; more accurate: based on month)
+// For a given EN year + month, the Hijri year changes mid-year (~July/Aug)
+// Hijri new year ≈ EN year - 579 for Jan-Jul, EN year - 578 for Aug-Dec
+function calcHijri(enYear, month) {
+  // Muharram 1 shifts ~11 days each year. Approx: AH starts Jul/Aug in gregorian.
+  // month 1-7 → same offset; month 8-12 → offset decreases by 1
+  return month >= 8 ? (enYear - 578) : (enYear - 579);
+}
+
+// Derive end year from start month/year and end month
+function calcEndYear(startYear, startMonth, endMonth) {
+  // If end month is before start month, the year wraps (e.g., Sept→Aug = next year)
+  return endMonth < startMonth ? startYear + 1 : startYear;
+}
+
+// Build the short 2-digit suffix for spanning years: 2026→27, 1447→48
+function shortYear(y) { return String(y).slice(-2); }
+
+function initYearDropdown() {
+  const sel = document.getElementById('fStartYear');
+  if (!sel) return;
+  const cur = new Date().getFullYear();
+  sel.innerHTML = '';
+  for (let y = cur - 5; y <= cur + 10; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === cur) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function populateDaySelect(selId, selectedDay){
+  const sel = document.getElementById(selId);
+  sel.innerHTML = Array.from({length:31},(_,i)=>`<option value="${i+1}"${i+1===selectedDay?' selected':''}>${i+1}</option>`).join('');
+}
+
+function getAcademicYearData() {
+  const startMonth = parseInt(document.getElementById('fStartMonth').value) || 1;
+  const startDay   = parseInt(document.getElementById('fStartDay').value) || 1;
+  const startYear  = parseInt(document.getElementById('fStartYear').value);
+  const endMonth   = parseInt(document.getElementById('fEndMonth').value) || 12;
+  const endDay     = parseInt(document.getElementById('fEndDay').value) || 30;
+  if (!startYear || startYear < 2000 || startYear > 2100) return null;
+
+  const endYear  = calcEndYear(startYear, startMonth, endMonth);
+  const spanning = endYear !== startYear; // does it span 2 calendar years?
+
+  const arStart = calcHijri(startYear, startMonth);
+  const arEnd   = calcHijri(endYear,   endMonth);
+  const arSpanning = arEnd !== arStart;
+
+  const enLabel = spanning
+    ? `${startYear}-${shortYear(endYear)}`
+    : `${startYear}`;
+  const arLabel = arSpanning
+    ? `${arStart}-${shortYear(arEnd)}`
+    : `${arStart}`;
+
+  const formatted = `${enToBn(enLabel)}ইং/${enToBn(arLabel)}হিজরী`;
+
+  const pad = n => String(n).padStart(2,'0');
+  const academic_start_date = `${startYear}-${pad(startMonth)}-${pad(startDay)}`;
+  const academic_end_date   = `${endYear}-${pad(endMonth)}-${pad(endDay)}`;
+
+  return { startYear, endYear, startMonth, endMonth, startDay, endDay, arStart, arEnd, enLabel, arLabel, formatted, academic_start_date, academic_end_date };
+}
+
+function onAcademicYearChange() {
+  const d = getAcademicYearData();
+  const preview     = document.getElementById('academicYearPreview');
+  const previewText = document.getElementById('academicYearPreviewText');
+
+  if (!d) {
+    document.getElementById('fEndYear').value    = '';
+    document.getElementById('fAcademicYearEN').value = '';
+    document.getElementById('fAcademicYearAR').value = '';
+    preview.style.display = 'none';
+    return;
+  }
+
+  document.getElementById('fEndYear').value        = d.endYear;
+  document.getElementById('fAcademicYearEN').value = d.enLabel;
+  document.getElementById('fAcademicYearAR').value = d.arLabel + 'হিজরী';
+  preview.style.display = '';
+  previewText.textContent = `বার্ষিক পরীক্ষা-${d.formatted}`;
+}
+
+async function saveAcademicYear() {
+  const d = getAcademicYearData();
+  if (!d) { alert('সঠিক তথ্য দিন'); return; }
+
+  const { data: updRes, error } = await sb.from('institutions')
+    .update({
+      academic_year_en:    d.startYear,
+      academic_year_ar:    d.arStart,
+      academic_year_label: d.formatted,
+      academic_year_start_month: d.startMonth,
+      academic_year_end_month:   d.endMonth,
+      academic_start_date: d.academic_start_date,
+      academic_end_date:   d.academic_end_date,
+    })
+    .eq('id', currentInstitution.id)
+    .select();
+
+  if (error) {
+    // Fallback: try without date columns (may not exist in DB yet)
+    const { data: updRes2, error: err2 } = await sb.from('institutions')
+      .update({
+        academic_year_en:    d.startYear,
+        academic_year_ar:    d.arStart,
+        academic_year_label: d.formatted,
+        academic_year_start_month: d.startMonth,
+        academic_year_end_month:   d.endMonth,
+      })
+      .eq('id', currentInstitution.id).select();
+    if (err2) { alert('সমস্যা: ' + err2.message); return; }
+    if (!updRes2?.length) { alert('Update হয়নি — ID মিলছে না।'); return; }
+  } else if (!updRes?.length) {
+    alert('Update হয়নি — institution ID মিলছে না। ID: ' + currentInstitution.id); return;
+  }
+
+  // Save month prefs locally so UI can reload them
+  localStorage.setItem('ay_start_month_' + currentInstitution.id, d.startMonth);
+  localStorage.setItem('ay_end_month_'   + currentInstitution.id, d.endMonth);
+
+  currentInstitution.academic_year_en    = d.startYear;
+  currentInstitution.academic_year_ar    = d.arStart;
+  currentInstitution.academic_year_label = d.formatted;
+  currentInstitution.academic_start_date = d.academic_start_date;
+  currentInstitution.academic_end_date   = d.academic_end_date;
+  showToast('শিক্ষা বর্ষ সংরক্ষিত হয়েছে! (' + d.formatted + ')');
+}
+
+function loadAcademicYear() {
+  const inst = currentInstitution;
+  initYearDropdown();
+  populateDaySelect('fStartDay', 1);
+  populateDaySelect('fEndDay', 30);
+  if (!inst) return;
+
+  const startM = inst.academic_year_start_month
+    || parseInt(localStorage.getItem('ay_start_month_' + inst.id)) || 1;
+  const endM   = inst.academic_year_end_month
+    || parseInt(localStorage.getItem('ay_end_month_'   + inst.id)) || 12;
+
+  const startD = inst.academic_start_date ? parseInt(inst.academic_start_date.split('-')[2]) : 1;
+  const endD   = inst.academic_end_date   ? parseInt(inst.academic_end_date.split('-')[2])   : 30;
+  populateDaySelect('fStartDay', startD);
+  populateDaySelect('fEndDay',   endD);
+  document.getElementById('fStartMonth').value = startM;
+  document.getElementById('fEndMonth').value   = endM;
+
+  if (inst.academic_year_en) {
+    const sel = document.getElementById('fStartYear');
+    // ensure the saved year exists as an option; add if not
+    if (![...sel.options].some(o => parseInt(o.value) === inst.academic_year_en)) {
+      const opt = document.createElement('option');
+      opt.value = inst.academic_year_en;
+      opt.textContent = inst.academic_year_en;
+      sel.insertBefore(opt, sel.firstChild);
+    }
+    sel.value = inst.academic_year_en;
+  }
+  onAcademicYearChange();
+}
+
+// ---- GEO-FENCE ----
+let _pendingLat = null, _pendingLng = null;
+
+function loadGeoFence(){
+  const inst = currentInstitution;
+  if(!inst) return;
+  const lat = inst.geo_lat, lng = inst.geo_lng, radius = inst.geo_radius_meters;
+  const radiusSel = document.getElementById('geoRadius');
+  const radiusVal = document.getElementById('geoRadiusVal');
+  if(radius){ radiusSel.value = radius; radiusVal.textContent = radius + ' মিটার'; }
+  if(lat && lng){
+    document.getElementById('geoLocStatus').style.background = '#ECFDF5';
+    document.getElementById('geoLocStatus').style.color = '#059669';
+    const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+    document.getElementById('geoLocText').textContent = `✓ Location Set আছে — Radius: ${toBn(radius||100)} মিটার`;
+  }
+}
+
+async function setInstituteLocation(){
+  if(!navigator.geolocation){ showToast('এই browser এ GPS সাপোর্ট নেই'); return; }
+  const btn = event.target;
+  btn.textContent = '⏳ GPS নেওয়া হচ্ছে...';
+  btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      _pendingLat = pos.coords.latitude;
+      _pendingLng = pos.coords.longitude;
+      const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+      document.getElementById('geoLocStatus').style.background = '#FEF3C7';
+      document.getElementById('geoLocStatus').style.color = '#92400E';
+      document.getElementById('geoLocText').textContent = `📌 GPS পাওয়া গেছে — Radius সেট করে "Geo-fence সেভ করুন" চাপুন`;
+      btn.textContent = '✓ GPS পাওয়া গেছে — এখন Radius ঠিক করে সেভ করুন';
+      btn.disabled = false;
+    },
+    err => {
+      showToast('GPS পাওয়া যায়নি: ' + err.message);
+      btn.textContent = '📍 আমি এখন প্রতিষ্ঠানে আছি — এখানের Location Set করুন';
+      btn.disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+async function saveGeoFence(){
+  if(!currentInstitution){ showToast('প্রতিষ্ঠান লোড হয়নি'); return; }
+  const radius = parseInt(document.getElementById('geoRadius').value) || 100;
+  const updates = { geo_radius_meters: radius };
+  if(_pendingLat !== null){ updates.geo_lat = _pendingLat; updates.geo_lng = _pendingLng; }
+  else if(!currentInstitution.geo_lat){ showToast('আগে "Location Set করুন" বাটনে চাপুন'); return; }
+
+  const { error } = await sb.from('institutions').update(updates).eq('id', currentInstitution.id);
+  if(error){ showToast('সমস্যা: ' + error.message); return; }
+  Object.assign(currentInstitution, updates);
+  document.getElementById('geoSavedNote').style.display = 'block';
+  const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+  document.getElementById('geoLocStatus').style.background = '#ECFDF5';
+  document.getElementById('geoLocStatus').style.color = '#059669';
+  document.getElementById('geoLocText').textContent = `✓ সেভ হয়েছে — Radius: ${toBn(radius)} মিটার`;
+  showToast('Geo-fence সেভ হয়েছে ✓');
+}
+
+async function changePassword(){
+  const val = document.getElementById('fNewPassword').value;
+  if(!val || val.length < 6){ showToast('পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।'); return; }
+  const { error } = await sb.auth.updateUser({ password: val });
+  if(error){ showToast('সমস্যা হয়েছে: '+error.message); return; }
+  document.getElementById('fNewPassword').value = '';
+  showToast('পাসওয়ার্ড পরিবর্তন হয়েছে।');
+}
+
+function renderPlan(inst){
+  const planMap = {
+    'free': { label: 'ফ্রি প্ল্যান', price: '৳০/মাস', cls:'free' },
+    'tier_599': { label: '৫৯৯ প্ল্যান', price: '৳৫৯৯/মাস (≤১০০ শিক্ষার্থী)', cls:'' },
+    'tier_1199': { label: '১১৯৯ প্ল্যান', price: '৳১,১৯৯/মাস (১০১-৩০০ শিক্ষার্থী)', cls:'' },
+    'tier_1999': { label: '১৯৯৯ প্ল্যান', price: '৳১,৯৯৯/মাস (৩০০+ শিক্ষার্থী)', cls:'' }
+  };
+  const p = planMap[inst.plan] || planMap['free'];
+  document.getElementById('planBody').innerHTML = `
+    <span class="plan-pill ${p.cls}">${p.label}</span>
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:14px">${p.price}</div>
+    <a class="btn-outline" style="text-decoration:none;display:inline-block" href="https://wa.me/?text=${encodeURIComponent('আমি প্ল্যান আপগ্রেড করতে চাই — '+inst.name)}" target="_blank">প্ল্যান আপগ্রেড করতে যোগাযোগ করুন</a>
+  `;
+}
+
+async function loadPublicPage(inst){
+  // institution_name may have been edited since the listing was first submitted,
+  // so try several fallbacks: exact name -> fuzzy name -> phone -> district/upazila/type combo
+  let data = null;
+  const byName = await sb.from('listing_submissions').select('*').eq('institution_name', inst.name).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  data = byName.data;
+  if(!data && inst.name){
+    const fuzzy = await sb.from('listing_submissions').select('*').ilike('institution_name', '%'+inst.name.trim()+'%').order('created_at',{ascending:false}).limit(1).maybeSingle();
+    data = fuzzy.data;
+  }
+  if(!data && inst.phone){
+    const byPhone = await sb.from('listing_submissions').select('*').eq('contact_phone', inst.phone).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    data = byPhone.data;
+  }
+  if(!data && inst.district && inst.upazila){
+    const byLoc = await sb.from('listing_submissions').select('*').eq('district', inst.district).eq('upazila', inst.upazila).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    data = byLoc.data;
+  }
+  currentListing = data;
+  const wrap = document.getElementById('publicPageBody');
+  if(!data){
+    wrap.innerHTML = `<div class="s-card-sub">এখনো ডিরেক্টরিতে কোনো লিস্টিং পাওয়া যায়নি। সম্ভবত প্রতিষ্ঠানটি সরাসরি admin approve হয়েছে, পাবলিক ফর্ম দিয়ে আবেদন হয়নি।</div>`;
+    return;
+  }
+  if(data.status !== 'approved'){
+    wrap.innerHTML = `<div class="s-card-sub">📋 লিস্টিং জমা হয়েছে, এখনো অনুমোদনের অপেক্ষায় (স্ট্যাটাস: ${escapeHtml(data.status)})।</div>`;
+    return;
+  }
+  const link = location.origin + '/institution-detail.html?slug=' + encodeURIComponent(data.desired_slug);
+  wrap.innerHTML = `
+    <div class="detail-row"><div class="lbl">পাবলিক লিংক</div><div class="val"><a href="${link}" target="_blank" style="color:var(--blue)">${escapeHtml(link)}</a></div></div>
+    <div class="detail-row">
+      <div class="lbl">ডিরেক্টরিতে দেখাবে</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="visibleToggle" ${data.is_hidden?'':'checked'} onchange="toggleVisibility(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  `;
+}
+
+async function toggleVisibility(isVisible){
+  if(!currentListing) return;
+  await sb.from('listing_submissions').update({ is_hidden: !isVisible }).eq('id', currentListing.id);
+  currentListing.is_hidden = !isVisible;
+  showToast(isVisible ? 'ডিরেক্টরিতে দেখানো হবে।' : 'ডিরেক্টরি থেকে hide করা হয়েছে।');
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+init();
+</script>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item" href="finance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="bnav-label">হিসাব</span></a>
+  <button class="bnav-item active" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16M16 17h2a2 2 0 0 0 0-4h-2"/><path d="M16 8h2a2 2 0 0 0 0-4h-2"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13.5h1v1h-1zM11.5 13.5h1v1h-1zM15.5 13.5h1v1h-1z"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5M9 14h6M9 18h4"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2M10 15h4"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){
+  var ov = document.getElementById('moreSheetOverlay');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===this) closeMoreSheet(); });
+})();
+</script>
+</body>
+</html>

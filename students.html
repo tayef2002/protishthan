@@ -1,0 +1,1885 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষার্থী — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR (same as dashboard) */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.user-name-link{cursor:pointer}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn-add{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.btn-short-txt{display:none}
+.content{padding:24px 28px;flex:1}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:var(--white);border-radius:var(--rl);padding:16px 18px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.stat-mini-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-mini-num{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.stat-mini-label{font-size:11px;color:var(--text-3)}
+
+/* SEARCH + FILTER BAR */
+.filter-bar{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);padding:14px 16px;display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-3)}
+.filter-select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:white;cursor:pointer;outline:none}
+.view-toggle{display:flex;background:var(--surface);border-radius:8px;padding:3px;border:1px solid var(--border)}
+.view-btn{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text-3);transition:all .2s}
+.view-btn.active{background:white;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* STUDENT GRID */
+.student-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.student-card{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);padding:18px;transition:all .25s;cursor:pointer}
+.student-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(26,86,219,.1);transform:translateY(-2px)}
+.sc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sc-avatar{width:46px;height:46px;border-radius:12px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.sc-name{font-size:14px;font-weight:700;color:var(--text)}
+.sc-meta{font-size:11px;color:var(--text-3);margin-top:1px}
+.sc-status{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px}
+.sc-status.present{background:var(--green-l);color:var(--green)}
+.sc-status.absent{background:var(--red-l);color:var(--red)}
+.sc-status.none{background:var(--surface);color:var(--text-3)}
+.sc-details{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:12px}
+.sc-detail-row{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.sc-detail-label{color:var(--text-3)}
+.sc-detail-val{color:var(--text-2);font-weight:600}
+.sc-actions{display:flex;gap:8px;margin-top:12px}
+.sc-btn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:white;color:var(--text-2);transition:all .2s;font-family:inherit}
+.sc-btn:hover{border-color:var(--blue);color:var(--blue)}
+.sc-btn.wa{background:#25D366;color:white;border:none}
+.sc-btn.wa:hover{background:#1EB85B}
+
+/* EMPTY STATE */
+.empty-state{grid-column:1/-1;text-align:center;padding:64px 24px;background:var(--white);border-radius:var(--rl);border:1px dashed var(--border)}
+.empty-icon{font-size:56px;margin-bottom:16px}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-card{background:white;border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.92) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.modal-overlay.show .modal-card{transform:scale(1) translateY(0)}
+.modal-head{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surface);border:none;cursor:pointer;font-size:16px;color:var(--text-2);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:20px 24px}
+.modal-section-title{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px}
+.modal-section-title:first-child{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{margin-bottom:0}
+.fee-display-box{background:var(--blue-light);border-radius:12px;padding:12px 14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;animation:feeIn .35s ease;overflow:hidden}
+@keyframes feeIn{from{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin-top:0}to{opacity:1;max-height:80px;padding-top:12px;padding-bottom:12px;margin-top:10px}}
+.fee-display-amount{font-size:18px;font-weight:800;color:var(--blue)}
+.fee-display-label{font-size:11px;color:var(--text-2)}
+.switch-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);padding:10px 14px;border-radius:10px;margin-top:10px}
+.switch-toggle-row label{font-size:12.5px;font-weight:600;color:var(--text);margin:0}
+.switch-toggle{position:relative;display:inline-block;width:42px;height:23px;flex-shrink:0}
+.switch-toggle input{opacity:0;width:0;height:0}
+.switch-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:100px;transition:.2s}
+.switch-slider::before{position:absolute;content:"";height:17px;width:17px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.switch-toggle input:checked + .switch-slider{background:var(--blue)}
+.switch-toggle input:checked + .switch-slider::before{transform:translateX(19px)}
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chip-btn{padding:7px 13px;border:1.5px solid var(--border);border-radius:100px;background:white;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-2);transition:all .15s}
+.chip-btn.selected{border-color:var(--blue);background:var(--blue);color:white}
+.sc-fee-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-left:6px;vertical-align:1px}
+.sc-fee-badge.free{background:var(--green-l);color:var(--green)}
+.sc-fee-badge.custom{background:#F5F3FF;color:#7C3AED}
+.form-field.full{grid-column:1/-1}
+.form-field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.form-field input,.form-field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--text)}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.modal-footer{padding:16px 24px 24px;display:flex;gap:10px}
+.btn-cancel{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-cancel:hover{border-color:var(--text-3)}
+.btn-save{flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.btn-save.loading .btn-text{display:none}
+.btn-save .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.btn-save.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast-overlay.show{opacity:1;pointer-events:all}
+.toast-card{background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;transform:scale(.9) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.2);margin:0 20px}
+.toast-overlay.show .toast-card{transform:scale(1) translateY(0)}
+.toast-icon-wrap{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px}
+.toast-icon-success{background:var(--green-l)}
+.toast-icon-error{background:var(--red-l)}
+.toast-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.toast-msg{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:18px}
+.toast-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+
+/* ===== MOBILE BOTTOM NAV ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding-bottom:86px}
+  .bottom-nav{display:flex!important}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.more-sheet-overlay.show{opacity:1;pointer-events:all}
+.more-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 8px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:75vh;overflow-y:auto;z-index:301}
+.more-sheet-overlay.show .more-sheet{transform:translateY(0)}
+.more-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:6px auto 16px}
+.more-sheet-title{font-size:14px;font-weight:700;color:var(--text);padding:0 10px 12px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 6px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:14px;text-decoration:none;color:var(--text-2)}
+.more-sheet-item:active{background:var(--surface)}
+.more-sheet-icon{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center}
+.more-sheet-label{font-size:11px;font-weight:600;text-align:center;line-height:1.3}
+
+
+
+/* ===== MOBILE TOPBAR FIX (v3) ===== */
+@media(max-width:768px){
+  .topbar{
+    flex-wrap:wrap!important;
+    justify-content:space-between!important;
+    height:auto!important;
+    padding:12px 16px!important;
+    row-gap:10px!important;
+  }
+  .topbar-title{font-size:15px!important;margin-bottom:0!important;width:auto!important}
+  .topbar-right{
+    margin-left:0!important;
+    margin-top:0!important;
+    width:auto!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+  }
+  .topbar-right .btn-add{padding:8px 13px!important;font-size:12px!important}
+  .content{padding-top:12px!important}
+}
+
+@media(max-width:768px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  table{font-size:10.5px!important}
+  table th,table td{padding:6px 4px!important}
+}
+
+@media(max-width:600px){
+  .stats-grid,.stats-row,.fin-stats,.qa-grid{min-width:0}
+  .stat-card,.stat-mini,.fin-stat,.qa-card{min-width:0;overflow:hidden}
+  .stat-num,.stat-mini-num,.fin-stat-num{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card,.table-card,.content > div{min-width:0}
+  #scanPreviewCards [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+  #scanModalOverlay>div{border-radius:16px 16px 0 0!important;position:fixed!important;bottom:0;top:auto!important;max-height:92vh!important}
+}
+
+@media(max-width:768px){
+  .topbar{flex-wrap:nowrap!important;justify-content:space-between!important}
+  .topbar-title{font-size:13px!important;flex-shrink:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar-right{margin-left:8px!important;width:auto!important;flex-wrap:nowrap!important;flex-shrink:0;gap:6px!important}
+  .topbar-right .btn-add{padding:7px 10px!important;font-size:11px!important;gap:3px!important;white-space:nowrap}
+  .btn-full-txt{display:none}
+  .btn-short-txt{display:inline}
+}
+@media(min-width:769px){
+  .btn-short-txt{display:none}
+}
+
+@media(max-width:768px){
+  .topbar-right{flex:1!important;display:flex!important;gap:8px!important}
+  .topbar-right .btn-add{flex:1!important;justify-content:center!important;padding:9px 6px!important;font-size:12.5px!important}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">আপনার প্রতিষ্ঠান</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item active" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name user-name-link" id="userName" onclick="window.location.href='settings.html'">Loading...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="event.stopPropagation();doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title">শিক্ষার্থী ব্যবস্থাপনা</div></div>
+    <div class="topbar-right">
+      <button class="btn-add" style="background:linear-gradient(135deg,#059669,#10B981)" onclick="document.getElementById('excelInput').click()"><span class="btn-full-txt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 21V10M12 21V4M19 21v-7"/></svg> Excel Import</span><span class="btn-short-txt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 21V10M12 21V4M19 21v-7"/></svg> Excel</span></button>
+      <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelImport(event)">
+      <div class="add-wrap" style="position:relative">
+        <button class="btn-add" onclick="toggleAddMenu(event)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+          <span class="btn-full-txt">নতুন শিক্ষার্থী</span>
+          <span class="btn-short-txt">নতুন</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-left:2px"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="addStudentMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:white;border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.13);width:240px;z-index:300;overflow:hidden">
+          <div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;padding:12px 16px 6px">যোগ করার পদ্ধতি</div>
+          <div onclick="closeAddMenu();openModal()" style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='#EEF3FF'" onmouseout="this.style.background=''">
+            <div style="width:36px;height:36px;border-radius:10px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✍️</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">ম্যানুয়ালি যোগ করুন</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">তথ্য টাইপ করে যোগ</div></div>
+          </div>
+          <div onclick="closeAddMenu();openScanModal()" style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='#ECFDF5'" onmouseout="this.style.background=''">
+            <div style="width:36px;height:36px;border-radius:10px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📷</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">ভর্তি ফর্ম স্ক্যান</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">ফর্মের ছবি থেকে auto</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:not-allowed;opacity:.45;border-bottom:1px solid var(--border)">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">বাল্ক তালিকা স্ক্যান</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">রেজিস্টার পাতার ছবি</div></div>
+            <span style="font-size:9px;font-weight:700;background:var(--bg);color:var(--text-3);border:1px solid var(--border);padding:2px 7px;border-radius:100px">শীঘ্রই</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:not-allowed;opacity:.45">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔗</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">QR কোড রেজিস্ট্রেশন</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">শিক্ষার্থী নিজেই পূরণ করে</div></div>
+            <span style="font-size:9px;font-weight:700;background:var(--bg);color:var(--text-3);border:1px solid var(--border);padding:2px 7px;border-radius:100px">শীঘ্রই</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--blue-light)">👨‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></div>
+        <div><div class="stat-mini-num" id="totalStudents">০</div><div class="stat-mini-label">মোট শিক্ষার্থী</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--green-l)">♂️</div>
+        <div><div class="stat-mini-num" id="maleStudents">০</div><div class="stat-mini-label">ছেলে</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--purple-l)">♀️</div>
+        <div><div class="stat-mini-num" id="femaleStudents">০</div><div class="stat-mini-label">মেয়ে</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--amber-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/></svg></div>
+        <div><div class="stat-mini-num" id="totalClasses">০</div><div class="stat-mini-label">ক্লাস সংখ্যা</div></div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+        <input type="text" id="searchInput" placeholder="নাম, রোল বা ক্লাস দিয়ে খুঁজুন..." oninput="filterStudents()">
+      </div>
+      <select class="filter-select" id="classFilter" onchange="filterStudents()">
+        <option value="">সব ক্লাস</option>
+      </select>
+      <select class="filter-select" id="genderFilter" onchange="filterStudents()">
+        <option value="">সব</option>
+        <option value="male">ছেলে</option>
+        <option value="female">মেয়ে</option>
+      </select>
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewListBtn" onclick="setView('list')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6M9 15h6"/></svg> তালিকা</button>
+        <button class="view-btn" id="viewGroupBtn" onclick="setView('group')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg> ক্লাস ভিত্তিক</button>
+      </div>
+    </div>
+
+    <!-- STUDENT GRID -->
+    <div class="student-grid" id="studentGrid">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">👨‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></div>
+        <h3>কোনো শিক্ষার্থী এখনো যোগ করা হয়নি</h3>
+        <p>প্রথম শিক্ষার্থী যোগ করে শুরু করুন</p>
+        <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন শিক্ষার্থী যোগ করুন</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">নতুন শিক্ষার্থী যোগ করুন</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editStudentId" value="">
+      <input type="hidden" id="editGuardianId" value="">
+      <input type="hidden" id="editFatherId" value="">
+      <input type="hidden" id="editMotherId" value="">
+
+      <div class="modal-section-title">শিক্ষার্থীর তথ্য</div>
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>শিক্ষার্থীর নাম *</label>
+          <input type="text" id="stuName" placeholder="যেমন: রাফিউল ইসলাম">
+        </div>
+        <div class="form-field">
+          <label>ক্লাস *</label>
+          <select id="stuClass" onchange="updateFeeDisplay(); autoFillRollAndId()">
+            <option value="">নির্বাচন করুন</option>
+          </select>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">ক্লাস তালিকায় না থাকলে <a href="classes.html" style="color:var(--blue);font-weight:600">ক্লাস ব্যবস্থাপনা</a>-এ গিয়ে আগে তৈরি করুন।</div>
+          <div class="fee-display-box" id="feeDisplayBox" style="display:none">
+            <div><div class="fee-display-label">এই ক্লাসের নির্ধারিত মাসিক ফি</div><div class="fee-display-amount" id="feeDisplayAmount">৳০</div></div>
+          </div>
+          <div class="switch-toggle-row" id="feeOverrideToggleRow" style="display:none">
+            <label>এই ছাত্রের জন্য ফি ভিন্ন করতে চান?</label>
+            <label class="switch-toggle">
+              <input type="checkbox" id="feeOverrideEnabled" onchange="toggleFeeOverrideUI()">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div id="feeOverrideOptions" style="display:none">
+            <div class="chip-grid" id="feeOverrideChips">
+              <button type="button" class="chip-btn" data-val="custom" onclick="selectFeeChip(this)">কাস্টম পরিমাণ</button>
+              <button type="button" class="chip-btn" data-val="free" onclick="selectFeeChip(this)">সম্পূর্ণ ফ্রি</button>
+            </div>
+            <input type="number" id="feeCustomAmount" placeholder="যেমন: ২৫০ (হাফ ফি)" style="margin-top:8px;display:none;width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>রোল নম্বর <span style="font-size:10px;color:var(--text-3);font-weight:400">(স্বয়ংক্রিয়)</span></label>
+          <div style="position:relative">
+            <input type="text" id="stuRoll" placeholder="ক্লাস নির্বাচন করুন" readonly style="background:var(--surface);color:var(--text);cursor:default;padding-right:36px">
+            <div id="rollLoader" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite"></div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>শিক্ষার্থী আইডি <span style="font-size:10px;color:var(--text-3);font-weight:400">(স্বয়ংক্রিয়)</span></label>
+          <div style="position:relative">
+            <input type="text" id="stuStudentId" placeholder="ক্লাস নির্বাচন করুন" readonly style="background:var(--surface);color:var(--text);cursor:default;padding-right:36px">
+            <input type="hidden" id="stuStudentIdHidden">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>জন্ম তারিখ</label>
+          <input type="date" id="stuDob">
+        </div>
+        <div class="form-field">
+          <label>লিঙ্গ</label>
+          <select id="stuGender">
+            <option value="male">ছেলে</option>
+            <option value="female">মেয়ে</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>ঠিকানা</label>
+          <input type="text" id="stuAddress" placeholder="যেমন: বানিয়াচং, হবিগঞ্জ">
+        </div>
+        <div class="form-field full">
+          <label>শিক্ষার্থীর ফোন নম্বর (ঐচ্ছিক — দিলে এই নম্বর দিয়েই Student Login করতে পারবে)</label>
+          <input type="text" id="stuPhone" placeholder="01XXXXXXXXX (না দিলে খালি রাখুন)" inputmode="numeric" oninput="this.value=toBengaliToEnglish(this.value)">
+        </div>
+      </div>
+
+      <div class="modal-section-title">ভর্তির তথ্য <span style="color:var(--text-3);font-weight:400">(ঐচ্ছিক)</span></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>দাখিলা নং (ভর্তি নম্বর)</label>
+          <input type="text" id="stuDakhilaNo" placeholder="যেমন: ১২৩">
+        </div>
+        <div class="form-field">
+          <label>নতুন / পুরাতন</label>
+          <select id="stuNotunPuraton">
+            <option value="">নির্বাচন করুন</option>
+            <option value="নতুন">নতুন</option>
+            <option value="পুরাতন">পুরাতন</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>শিক্ষাবর্ষ (হিজরি)</label>
+          <input type="text" id="stuShikkhaBorshoHijri" placeholder="যেমন: ১৪৪৬">
+        </div>
+        <div class="form-field">
+          <label>শিক্ষাবর্ষ (ইংরেজি)</label>
+          <input type="text" id="stuShikkhaBorshoEnglish" placeholder="যেমন: ২০২৫">
+        </div>
+        <div class="form-field">
+          <label>বিভাগ</label>
+          <input type="text" id="stuDept" placeholder="যেমন: হিফজ, কিতাব, নাজেরা">
+        </div>
+        <div class="form-field">
+          <label>ভর্তির ফি (টাকা)</label>
+          <input type="number" id="stuFeeAmount" placeholder="যেমন: ৫০০">
+        </div>
+      </div>
+
+      <div class="modal-section-title">বর্তমান ঠিকানা <span style="color:var(--text-3);font-weight:400">(ঐচ্ছিক)</span></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>গ্রাম / মহল্লা</label>
+          <input type="text" id="stuPresentVillage" placeholder="যেমন: উত্তরপাড়া">
+        </div>
+        <div class="form-field">
+          <label>ডাকঘর</label>
+          <input type="text" id="stuPresentPost" placeholder="যেমন: বানিয়াচং বাজার">
+        </div>
+        <div class="form-field">
+          <label>উপজেলা</label>
+          <input type="text" id="stuPresentUpazila" placeholder="যেমন: বানিয়াচং">
+        </div>
+        <div class="form-field">
+          <label>জেলা</label>
+          <input type="text" id="stuPresentDistrict" placeholder="যেমন: হবিগঞ্জ">
+        </div>
+      </div>
+
+      <div class="modal-section-title">স্থায়ী ঠিকানা <span style="color:var(--text-3);font-weight:400">(বর্তমানের মতো হলে খালি রাখুন)</span></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>গ্রাম / মহল্লা</label>
+          <input type="text" id="stuPermanentVillage" placeholder="যেমন: দক্ষিণপাড়া">
+        </div>
+        <div class="form-field">
+          <label>ডাকঘর</label>
+          <input type="text" id="stuPermanentPost" placeholder="যেমন: আজমিরীগঞ্জ">
+        </div>
+        <div class="form-field">
+          <label>উপজেলা</label>
+          <input type="text" id="stuPermanentUpazila" placeholder="যেমন: আজমিরীগঞ্জ">
+        </div>
+        <div class="form-field">
+          <label>জেলা</label>
+          <input type="text" id="stuPermanentDistrict" placeholder="যেমন: হবিগঞ্জ">
+        </div>
+      </div>
+
+      <div class="modal-section-title">অন্যান্য তথ্য <span style="color:var(--text-3);font-weight:400">(ঐচ্ছিক)</span></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>অভিভাবকের নাম (পিতা/মাতা ছাড়া অন্য কেউ হলে)</label>
+          <input type="text" id="stuGuardianName" placeholder="যেমন: মোঃ রহিম উদ্দিন">
+        </div>
+        <div class="form-field">
+          <label>শিক্ষার্থীর সাথে সম্পর্ক</label>
+          <input type="text" id="stuStudentRelation" placeholder="যেমন: চাচা, ভাই, দাদা">
+        </div>
+        <div class="form-field">
+          <label>পূর্ববর্তী প্রতিষ্ঠানের নাম</label>
+          <input type="text" id="stuPrevInstitution" placeholder="যেমন: জামিয়া ইসলামিয়া">
+        </div>
+        <div class="form-field">
+          <label>পূর্ববর্তী শ্রেণী</label>
+          <input type="text" id="stuPrevClass" placeholder="যেমন: তৃতীয়, প্রথম">
+        </div>
+      </div>
+
+      <div class="modal-section-title">অভিভাবকের তথ্য <span style="color:var(--text-3);font-weight:400">(কমপক্ষে একজন আবশ্যক)</span></div>
+      <div class="guardian-block" style="background:var(--surface);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--text)">👨 পিতার তথ্য</span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3);cursor:pointer">
+            <input type="checkbox" id="skipFather" onchange="toggleGuardianFields('father')" style="accent-color:var(--blue)"> বাদ দিন
+          </label>
+        </div>
+        <div class="form-grid" id="fatherFields">
+          <div class="form-field">
+            <label>পিতার নাম</label>
+            <input type="text" id="fatherName" placeholder="যেমন: মোঃ করিম উদ্দিন">
+          </div>
+          <div class="form-field">
+            <label>WhatsApp নম্বর</label>
+            <input type="tel" id="fatherWhatsapp" placeholder="01XXXXXXXXX" inputmode="numeric" oninput="this.value=toBengaliToEnglish(this.value)">
+          </div>
+        </div>
+      </div>
+      <div class="guardian-block" style="background:var(--surface);border-radius:12px;padding:14px;border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:12px;font-weight:700;color:var(--text)">👩 মাতার তথ্য</span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3);cursor:pointer">
+            <input type="checkbox" id="skipMother" onchange="toggleGuardianFields('mother')" style="accent-color:var(--blue)"> বাদ দিন
+          </label>
+        </div>
+        <div class="form-grid" id="motherFields">
+          <div class="form-field">
+            <label>মাতার নাম</label>
+            <input type="text" id="motherName" placeholder="যেমন: রোকেয়া বেগম">
+          </div>
+          <div class="form-field">
+            <label>WhatsApp নম্বর</label>
+            <input type="tel" id="motherWhatsapp" placeholder="01XXXXXXXXX" inputmode="numeric" oninput="this.value=toBengaliToEnglish(this.value)">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">বাতিল</button>
+      <button class="btn-save" id="saveBtn" onclick="saveStudent()">
+        <span class="btn-text" id="saveBtnText">শিক্ষার্থী যোগ করুন</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-overlay" id="toastOverlay">
+  <div class="toast-card">
+    <div class="toast-icon-wrap" id="toastIconWrap"><span id="toastIconEmoji"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span></div>
+    <div class="toast-title" id="toastTitle">সফল!</div>
+    <div class="toast-msg" id="toastMsg"></div>
+    <button class="toast-btn" onclick="closeToast()">ঠিক আছে</button>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+let currentInstitution = null;
+let allStudents = [];
+let currentView = 'list';
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata || {};
+  document.getElementById('userName').textContent = meta.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (meta.principal_name||'A').slice(0,1);
+  document.getElementById('instNameSidebar').textContent = meta.institution_name || 'আপনার প্রতিষ্ঠান';
+
+  const { data: inst, error: instErr } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  
+  if(inst){
+    currentInstitution = inst;
+    document.getElementById('instNameSidebar').textContent = inst.name;
+    loadStudents();
+    loadClassOptions();
+  } else {
+    document.getElementById('emptyState').innerHTML = `
+      <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z"/><path d="M12 10v4M12 17.5h.01"/></svg>️</div>
+      <h3>প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</h3>
+      <p>আপনার account এ প্রতিষ্ঠানের তথ্য সংযুক্ত নেই। Settings থেকে যোগ করুন বা নতুন account খুলুন।</p>
+    `;
+  }
+}
+
+async function loadStudents(){
+  if(!currentInstitution) return;
+  const { data, error } = await sb
+    .from('students')
+    .select('*, guardians(*)')
+    .eq('institution_id', currentInstitution.id)
+    .order('created_at', { ascending: false });
+
+  if(error){ console.error(error); return; }
+  allStudents = data || [];
+  renderStudents(allStudents);
+  updateStats();
+  updateClassFilter();
+}
+
+function updateStats(){
+  document.getElementById('totalStudents').textContent = allStudents.length.toLocaleString('bn');
+  document.getElementById('maleStudents').textContent = allStudents.filter(s=>s.gender==='male').length.toLocaleString('bn');
+  document.getElementById('femaleStudents').textContent = allStudents.filter(s=>s.gender==='female').length.toLocaleString('bn');
+  const classes = new Set(allStudents.map(s=>s.class_id).filter(Boolean));
+  document.getElementById('totalClasses').textContent = classes.size.toLocaleString('bn');
+}
+
+function updateClassFilter(){
+  const select = document.getElementById('classFilter');
+  const classes = [...new Set(allStudents.map(s=>s.class_name).filter(Boolean))];
+  select.innerHTML = '<option value="">সব ক্লাস</option>' + classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+let allClassOptions = [];
+async function loadClassOptions(){
+  if(!currentInstitution) return;
+  const { data, error } = await sb.from('classes').select('*').eq('institution_id', currentInstitution.id).order('created_at',{ascending:true});
+  if(error){ console.error(error); return; }
+  allClassOptions = data || [];
+  const sel = document.getElementById('stuClass');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">নির্বাচন করুন</option>' + allClassOptions.map(c=>`<option value="${c.id}">${c.name}${c.section?(' ('+c.section+')'):''}</option>`).join('');
+  if(current) sel.value = current;
+}
+
+function renderStudentCard(s){
+  const guardians = s.guardians || [];
+  const father = guardians.find(g=>g.relation==='পিতা');
+  const mother = guardians.find(g=>g.relation==='মাতা');
+  const primaryWa = father ? father.whatsapp_number : (mother ? mother.whatsapp_number : '');
+  const initial = (s.full_name||'?').slice(0,1);
+  const hasOverride = s.custom_monthly_fee !== null && s.custom_monthly_fee !== undefined;
+  const feeBadge = hasOverride ? (Number(s.custom_monthly_fee)===0 ? '<span class="sc-fee-badge free">ফ্রি</span>' : '<span class="sc-fee-badge custom">কাস্টম ফি ৳'+Number(s.custom_monthly_fee).toLocaleString('en-IN')+'</span>') : '';
+  return `
+    <div class="student-card">
+      <div class="sc-top">
+        <div class="sc-avatar">${initial}</div>
+        <div>
+          <div class="sc-name">${s.full_name} ${feeBadge}</div>
+          <div class="sc-meta">${s.class_name||'—'} ${s.roll_number?'· রোল '+s.roll_number:''}</div>
+        </div>
+        <span class="sc-status none">নতুন</span>
+      </div>
+      <div class="sc-details">
+        ${father?'<div class="sc-detail-row"><span class="sc-detail-label">পিতা</span><span class="sc-detail-val">'+father.full_name+' · '+father.whatsapp_number+'</span></div>':''}
+        ${mother?'<div class="sc-detail-row"><span class="sc-detail-label">মাতা</span><span class="sc-detail-val">'+mother.full_name+' · '+mother.whatsapp_number+'</span></div>':''}
+        ${s.address?'<div class="sc-detail-row"><span class="sc-detail-label">ঠিকানা</span><span class="sc-detail-val">'+s.address+'</span></div>':''}
+      </div>
+      <div class="sc-actions">
+        <button class="sc-btn" onclick="openEditModal('${s.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>️ Edit</button>
+        <button class="sc-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteStudent('${s.id}','${s.full_name}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>️</button>
+        <button class="sc-btn wa" onclick="window.open('https://wa.me/88${primaryWa}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 11.5a8.5 8.5 0 1 1-3.8-7.1"/><path d="M21 11.5c0 4.7-3.8 8.5-8.5 8.5a8.6 8.6 0 0 1-3.2-.6L4 21l1.4-4.2A8.5 8.5 0 1 1 21 11.5z"/></svg></button>
+      </div>
+    </div>`;
+}
+
+function setView(view){
+  currentView = view;
+  document.getElementById('viewListBtn').classList.toggle('active', view==='list');
+  document.getElementById('viewGroupBtn').classList.toggle('active', view==='group');
+  filterStudents();
+}
+
+function renderStudents(students){
+  const grid = document.getElementById('studentGrid');
+  if(students.length===0){
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👨‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></div>
+        <h3>কোনো শিক্ষার্থী পাওয়া যায়নি</h3>
+        <p>প্রথম শিক্ষার্থী যোগ করে শুরু করুন</p>
+        <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন শিক্ষার্থী যোগ করুন</button>
+      </div>`;
+    return;
+  }
+
+  if(currentView === 'group'){
+    const groups = {};
+    students.forEach(s=>{
+      const cls = s.class_name || 'অজানা';
+      if(!groups[cls]) groups[cls] = [];
+      groups[cls].push(s);
+    });
+    grid.style.display = 'block';
+    grid.innerHTML = Object.keys(groups).map(cls=>`
+      <div style="margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:14px;font-weight:700;color:var(--text)">${cls}</span>
+          <span style="font-size:11px;color:var(--text-3);background:var(--surface);padding:2px 9px;border-radius:100px">${groups[cls].length.toLocaleString('bn')} জন</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+          ${groups[cls].map(renderStudentCard).join('')}
+        </div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  grid.style.display = 'grid';
+  grid.innerHTML = students.map(renderStudentCard).join('');
+}
+
+function filterStudents(){
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const classF = document.getElementById('classFilter').value;
+  const genderF = document.getElementById('genderFilter').value;
+  let filtered = allStudents.filter(s=>{
+    const matchSearch = !search || s.full_name.toLowerCase().includes(search) || (s.roll_number||'').includes(search) || (s.class_name||'').includes(search);
+    const matchClass = !classF || s.class_name===classF;
+    const matchGender = !genderF || s.gender===genderF;
+    return matchSearch && matchClass && matchGender;
+  });
+  renderStudents(filtered);
+}
+
+
+// Auto-generate Roll & Student ID when class is selected
+async function autoFillRollAndId() {
+  const classId = document.getElementById('stuClass').value;
+  const rollInput = document.getElementById('stuRoll');
+  const sidInput  = document.getElementById('stuStudentId');
+  const sidHidden = document.getElementById('stuStudentIdHidden');
+  const loader    = document.getElementById('rollLoader');
+
+  // Skip auto-fill when editing existing student
+  if (document.getElementById('editStudentId').value) return;
+
+  if (!classId) {
+    rollInput.value = '';
+    sidInput.value  = '';
+    sidHidden.value = '';
+    return;
+  }
+
+  loader.style.display = 'block';
+
+  // 1. Find next roll number for this class
+  const { data: classStudents } = await sb
+    .from('students')
+    .select('roll_number')
+    .eq('class_id', classId)
+    .eq('institution_id', currentInstitution.id);
+
+  const maxRoll = (classStudents || []).reduce((max, s) => {
+    const n = parseInt(s.roll_number) || 0;
+    return n > max ? n : max;
+  }, 0);
+  rollInput.value = String(maxRoll + 1).padStart(2, '0');
+
+  // 2. Generate unique 5-digit student ID
+  const { data: allSids } = await sb
+    .from('students')
+    .select('student_id')
+    .eq('institution_id', currentInstitution.id);
+  const usedIds = new Set((allSids || []).map(s => s.student_id).filter(Boolean));
+
+  let newId;
+  do { newId = String(Math.floor(10000 + Math.random() * 90000)); }
+  while (usedIds.has(newId));
+
+  sidInput.value  = newId;
+  sidHidden.value = newId;
+  loader.style.display = 'none';
+}
+
+function updateFeeDisplay(){
+  const classId = document.getElementById('stuClass').value;
+  const cls = allClassOptions.find(c=>c.id===classId);
+  const box = document.getElementById('feeDisplayBox');
+  const toggleRow = document.getElementById('feeOverrideToggleRow');
+  if(!cls || !cls.monthly_fee){
+    box.style.display = 'none';
+    toggleRow.style.display = 'none';
+    document.getElementById('feeOverrideEnabled').checked = false;
+    toggleFeeOverrideUI();
+    return;
+  }
+  document.getElementById('feeDisplayAmount').textContent = '৳' + Number(cls.monthly_fee).toLocaleString('en-IN');
+  box.style.display = 'flex';
+  toggleRow.style.display = 'flex';
+}
+function toggleFeeOverrideUI(){
+  const on = document.getElementById('feeOverrideEnabled').checked;
+  document.getElementById('feeOverrideOptions').style.display = on ? 'block' : 'none';
+  if(!on){
+    document.querySelectorAll('#feeOverrideChips .chip-btn').forEach(b=>b.classList.remove('selected'));
+    document.getElementById('feeCustomAmount').style.display = 'none';
+    document.getElementById('feeCustomAmount').value = '';
+  }
+}
+function selectFeeChip(btn){
+  document.querySelectorAll('#feeOverrideChips .chip-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('feeCustomAmount').style.display = btn.dataset.val==='custom' ? 'block' : 'none';
+  if(btn.dataset.val==='custom') document.getElementById('feeCustomAmount').focus();
+}
+function getFeeOverrideValue(){
+  if(!document.getElementById('feeOverrideEnabled').checked) return null; // use class default
+  const sel = document.querySelector('#feeOverrideChips .chip-btn.selected');
+  if(!sel) return null;
+  if(sel.dataset.val==='free') return 0;
+  const v = parseFloat(document.getElementById('feeCustomAmount').value);
+  return isNaN(v) ? null : v;
+}
+
+function toggleGuardianFields(type){
+  const skip = document.getElementById(type==='father'?'skipFather':'skipMother').checked;
+  const fields = document.getElementById(type==='father'?'fatherFields':'motherFields');
+  fields.style.opacity = skip ? '0.4' : '1';
+  fields.querySelectorAll('input').forEach(inp=>{
+    inp.disabled = skip;
+    if(skip) inp.value='';
+  });
+}
+
+function openModal(){
+  document.getElementById('modalTitle').textContent = 'নতুন শিক্ষার্থী যোগ করুন';
+  document.getElementById('saveBtnText').textContent = 'শিক্ষার্থী যোগ করুন';
+  document.getElementById('editStudentId').value = '';
+  document.getElementById('editGuardianId').value = '';
+  document.getElementById('editFatherId').value = '';
+  document.getElementById('editMotherId').value = '';
+  document.getElementById('stuClass').value = '';
+  document.getElementById('stuRoll').value = '';
+  document.getElementById('stuStudentId').value = '';
+  document.getElementById('stuStudentIdHidden').value = '';
+  document.getElementById('skipFather').checked = false;
+  document.getElementById('skipMother').checked = false;
+  toggleGuardianFields('father');
+  toggleGuardianFields('mother');
+  document.getElementById('feeDisplayBox').style.display = 'none';
+  document.getElementById('feeOverrideToggleRow').style.display = 'none';
+  document.getElementById('feeOverrideEnabled').checked = false;
+  toggleFeeOverrideUI();
+  // Auto-fill শিক্ষাবর্ষ from institution settings
+  autoFillShikkhaBorsho();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function toBengaliToEnglish(str){
+  if(!str) return '';
+  let s = '';
+  for(let i=0;i<str.length;i++){
+    const c = str.charCodeAt(i);
+    // Bengali digits ০ (০) to ৯ (৯)
+    if(c >= 0x09E6 && c <= 0x09EF) s += String(c - 0x09E6);
+    else s += str[i];
+  }
+  return s;
+}
+function normalizeBDPhone(val){
+  if(!val) return '';
+  // Bengali → English digits first
+  let s = toBengaliToEnglish(val);
+  // Remove spaces, dashes, dots, parentheses
+  s = s.replace(/[\s\-().]/g, '');
+  // +88 or 88 prefix → strip
+  if(s.startsWith('+88')) s = s.slice(3);
+  else if(s.startsWith('88') && s.length > 11) s = s.slice(2);
+  return s;
+}
+
+function parseDob(dobStr){
+  if(!dobStr) return null;
+  const s = toBengaliToEnglish(String(dobStr)).trim();
+  // Already ISO YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const parts = s.match(/(\d+)/g);
+  if(!parts || parts.length < 3) return null;
+  let d, m, y;
+  if(parseInt(parts[0]) > 1000){ y=parts[0]; m=parts[1]; d=parts[2]; }
+  else { d=parts[0]; m=parts[1]; y=parts[2]; }
+  // 2-digit year: assume 2000s
+  let yi = parseInt(y);
+  if(yi < 100) yi += 2000;
+  if(yi < 1900 || yi > 2030) return null;
+  const mo = String(parseInt(m)).padStart(2,'0');
+  const dy = String(parseInt(d)).padStart(2,'0');
+  if(parseInt(mo) < 1 || parseInt(mo) > 12) return null;
+  if(parseInt(dy) < 1 || parseInt(dy) > 31) return null;
+  return yi+'-'+mo+'-'+dy;
+}
+
+function normalizeClassName(name){
+  return toBengaliToEnglish((name||'').toLowerCase()).replace(/[^a-z0-9]/g,'');
+}
+
+async function autoFillRollAndIdForEdit(classId, studentRowId){
+  const rollInput = document.getElementById('stuRoll');
+  const sidInput  = document.getElementById('stuStudentId');
+  const sidHidden = document.getElementById('stuStudentIdHidden');
+  const { data: classStudents } = await sb.from('students').select('roll_number').eq('class_id', classId).eq('institution_id', currentInstitution.id);
+  const maxRoll = (classStudents || []).reduce((max, s) => { const n = parseInt(s.roll_number) || 0; return n > max ? n : max; }, 0);
+  rollInput.value = String(maxRoll + 1).padStart(2, '0');
+  // Only generate a new student_id if the student doesn't already have one
+  if(!sidHidden.value){
+    const { data: allSids } = await sb.from('students').select('student_id').eq('institution_id', currentInstitution.id);
+    const usedIds = new Set((allSids || []).map(s => s.student_id).filter(Boolean));
+    let newId;
+    do { newId = String(Math.floor(10000 + Math.random() * 90000)); } while (usedIds.has(newId));
+    sidInput.value = newId;
+    sidHidden.value = newId;
+    // Immediately persist so it never changes again on re-open
+    if(studentRowId){
+      await sb.from('students').update({ student_id: newId }).eq('id', studentRowId);
+      // Update local cache so re-opening modal shows the saved ID
+      const cached = allStudents.find(x => x.id === studentRowId);
+      if(cached) cached.student_id = newId;
+    }
+  }
+}
+
+function getAcademicYearLabels(inst){
+  const startYear  = parseInt(inst.academic_year_en)   || 0;
+  const arStart    = parseInt(inst.academic_year_ar)   || 0;
+  const startMonth = parseInt(inst.academic_year_start_month) || 1;
+  const endMonth   = parseInt(inst.academic_year_end_month)   || 12;
+  if(!startYear) return { en: '', ar: '' };
+  const endYear = endMonth < startMonth ? startYear + 1 : startYear;
+  const arEnd   = endMonth >= 8 ? (endYear - 578) : (endYear - 579);
+  const enLabel = endYear !== startYear ? `${startYear}-${String(endYear).slice(-2)}` : `${startYear}`;
+  const arLabel = arEnd   !== arStart   ? `${arStart}-${String(arEnd).slice(-2)}`     : `${arStart}`;
+  return { en: enLabel, ar: arLabel };
+}
+
+function autoFillShikkhaBorsho(){
+  if(!currentInstitution) return;
+  const { en: enLabel, ar: arLabel } = getAcademicYearLabels(currentInstitution);
+  if(enLabel){
+    const enField = document.getElementById('stuShikkhaBorshoEnglish');
+    if(enField) enField.value = enLabel;
+  }
+  if(arLabel){
+    const arField = document.getElementById('stuShikkhaBorshoHijri');
+    if(arField) arField.value = arLabel;
+  }
+}
+
+function openEditModal(studentId){
+  const s = allStudents.find(x=>x.id===studentId);
+  if(!s) return;
+  const guardians = s.guardians || [];
+  const father = guardians.find(g=>g.relation==='পিতা');
+  const mother = guardians.find(g=>g.relation==='মাতা');
+
+  document.getElementById('modalTitle').textContent = 'শিক্ষার্থীর তথ্য সম্পাদনা করুন';
+  document.getElementById('saveBtnText').textContent = 'পরিবর্তন সংরক্ষণ করুন';
+  document.getElementById('editStudentId').value = s.id;
+  document.getElementById('editFatherId').value = father ? father.id : '';
+  document.getElementById('editMotherId').value = mother ? mother.id : '';
+
+  document.getElementById('stuName').value = s.full_name || '';
+  document.getElementById('stuClass').value = s.class_id || '';
+  updateFeeDisplay();
+  const cls = allClassOptions.find(c=>c.id===s.class_id);
+  const hasOverride = s.custom_monthly_fee !== null && s.custom_monthly_fee !== undefined;
+  document.getElementById('feeOverrideEnabled').checked = hasOverride;
+  toggleFeeOverrideUI();
+  if(hasOverride){
+    const val = Number(s.custom_monthly_fee);
+    document.querySelectorAll('#feeOverrideChips .chip-btn').forEach(b=>b.classList.remove('selected'));
+    if(val === 0){
+      document.querySelector('#feeOverrideChips .chip-btn[data-val="free"]').classList.add('selected');
+      document.getElementById('feeCustomAmount').style.display = 'none';
+    } else {
+      document.querySelector('#feeOverrideChips .chip-btn[data-val="custom"]').classList.add('selected');
+      document.getElementById('feeCustomAmount').style.display = 'block';
+      document.getElementById('feeCustomAmount').value = val;
+    }
+  }
+  document.getElementById('stuRoll').value = s.roll_number || '';
+  // Set existing student_id FIRST before any async call, so autoFillRollAndIdForEdit sees it
+  document.getElementById('stuStudentId').value = s.student_id || '';
+  document.getElementById('stuStudentIdHidden').value = s.student_id || '';
+  // Auto-generate roll (and ID only if missing) for this student
+  if(!s.roll_number && s.class_id) autoFillRollAndIdForEdit(s.class_id, s.id);
+  document.getElementById('stuDob').value = s.date_of_birth || '';
+  document.getElementById('stuGender').value = s.gender || 'male';
+  document.getElementById('stuAddress').value = s.address || '';
+  document.getElementById('stuPhone').value = toBengaliToEnglish(s.phone || '');
+
+  const ed = s.extra_data || {};
+  document.getElementById('stuDakhilaNo').value = ed.dakhila_no || '';
+  document.getElementById('stuNotunPuraton').value = ed.notun_puraton || '';
+  document.getElementById('stuShikkhaBorshoHijri').value = ed.shikkha_borsho_hijri || '';
+  document.getElementById('stuShikkhaBorshoEnglish').value = ed.shikkha_borsho_english || '';
+  document.getElementById('stuDept').value = ed.dept || '';
+  document.getElementById('stuFeeAmount').value = ed.fee_amount || '';
+  const pa = ed.present_address || {};
+  document.getElementById('stuPresentVillage').value = pa.village || '';
+  document.getElementById('stuPresentPost').value = pa.post || '';
+  document.getElementById('stuPresentUpazila').value = pa.upazila || '';
+  document.getElementById('stuPresentDistrict').value = pa.district || '';
+  const pma = ed.permanent_address || {};
+  document.getElementById('stuPermanentVillage').value = pma.village || '';
+  document.getElementById('stuPermanentPost').value = pma.post || '';
+  document.getElementById('stuPermanentUpazila').value = pma.upazila || '';
+  document.getElementById('stuPermanentDistrict').value = pma.district || '';
+  document.getElementById('stuGuardianName').value = ed.guardian_name || '';
+  document.getElementById('stuStudentRelation').value = ed.student_relation || '';
+  document.getElementById('stuPrevInstitution').value = ed.prev_institution || '';
+  document.getElementById('stuPrevClass').value = ed.prev_class || '';
+
+  document.getElementById('skipFather').checked = !father;
+  document.getElementById('fatherName').value = father ? father.full_name : '';
+  document.getElementById('fatherWhatsapp').value = toBengaliToEnglish(father ? (father.whatsapp_number || '') : '');
+  toggleGuardianFields('father');
+
+  document.getElementById('skipMother').checked = !mother;
+  document.getElementById('motherName').value = mother ? mother.full_name : '';
+  document.getElementById('motherWhatsapp').value = toBengaliToEnglish(mother ? (mother.whatsapp_number || '') : '');
+  toggleGuardianFields('mother');
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  ['stuName','stuRoll','stuDob','stuAddress','stuPhone','stuStudentId','stuStudentIdHidden','fatherName','fatherWhatsapp','motherName','motherWhatsapp','editStudentId','editGuardianId','editFatherId','editMotherId','stuDakhilaNo','stuShikkhaBorshoHijri','stuShikkhaBorshoEnglish','stuDept','stuFeeAmount','stuPresentVillage','stuPresentPost','stuPresentUpazila','stuPresentDistrict','stuPermanentVillage','stuPermanentPost','stuPermanentUpazila','stuPermanentDistrict','stuGuardianName','stuStudentRelation','stuPrevInstitution','stuPrevClass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('stuNotunPuraton').value='';
+  document.getElementById('skipFather').checked=false;
+  document.getElementById('skipMother').checked=false;
+  document.getElementById('feeOverrideEnabled').checked=false;
+  toggleFeeOverrideUI();
+  document.getElementById('feeDisplayBox').style.display='none';
+  document.getElementById('feeOverrideToggleRow').style.display='none';
+}
+
+function showToast(type,title,msg){
+  const overlay=document.getElementById('toastOverlay');
+  document.getElementById('toastIconWrap').className = 'toast-icon-wrap '+(type==='success'?'toast-icon-success':'toast-icon-error');
+  document.getElementById('toastIconEmoji').innerHTML = type==='success'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').innerHTML = msg;
+  overlay.classList.add('show');
+}
+function closeToast(){ document.getElementById('toastOverlay').classList.remove('show'); }
+
+async function saveStudent(){
+  const name = document.getElementById('stuName').value.trim();
+  const classId = document.getElementById('stuClass').value;
+  const selectedClass = allClassOptions.find(c=>c.id===classId);
+  const className = selectedClass ? selectedClass.name : '';
+  const roll = document.getElementById('stuRoll').value.trim();
+  const dob = document.getElementById('stuDob').value;
+  const gender = document.getElementById('stuGender').value;
+  const address = document.getElementById('stuAddress').value.trim();
+  const phone = normalizeBDPhone(document.getElementById('stuPhone').value.trim());
+
+  const skipFather = document.getElementById('skipFather').checked;
+  const fatherName = document.getElementById('fatherName').value.trim();
+  const fatherWhatsapp = normalizeBDPhone(document.getElementById('fatherWhatsapp').value.trim());
+  const skipMother = document.getElementById('skipMother').checked;
+  const motherName = document.getElementById('motherName').value.trim();
+  const motherWhatsapp = normalizeBDPhone(document.getElementById('motherWhatsapp').value.trim());
+
+  const dakhilaNo = document.getElementById('stuDakhilaNo').value.trim();
+  const notunPuraton = document.getElementById('stuNotunPuraton').value;
+  const shikkhaBorshoHijri = document.getElementById('stuShikkhaBorshoHijri').value.trim();
+  const shikkhaBorshoEnglish = document.getElementById('stuShikkhaBorshoEnglish').value.trim();
+  const dept = document.getElementById('stuDept').value.trim();
+  const feeAmount = document.getElementById('stuFeeAmount').value.trim();
+  const presentVillage = document.getElementById('stuPresentVillage').value.trim();
+  const presentPost = document.getElementById('stuPresentPost').value.trim();
+  const presentUpazila = document.getElementById('stuPresentUpazila').value.trim();
+  const presentDistrict = document.getElementById('stuPresentDistrict').value.trim();
+  const permanentVillage = document.getElementById('stuPermanentVillage').value.trim();
+  const permanentPost = document.getElementById('stuPermanentPost').value.trim();
+  const permanentUpazila = document.getElementById('stuPermanentUpazila').value.trim();
+  const permanentDistrict = document.getElementById('stuPermanentDistrict').value.trim();
+  const guardianName = document.getElementById('stuGuardianName').value.trim();
+  const studentRelation = document.getElementById('stuStudentRelation').value.trim();
+  const prevInstitution = document.getElementById('stuPrevInstitution').value.trim();
+  const prevClass = document.getElementById('stuPrevClass').value.trim();
+
+  const editStudentId = document.getElementById('editStudentId').value;
+  const editFatherId = document.getElementById('editFatherId').value;
+  const editMotherId = document.getElementById('editMotherId').value;
+  const isEdit = !!editStudentId;
+  const customFee = getFeeOverrideValue();
+
+  // Build combined address from sub-fields if old address is empty
+  const combinedPresentAddress = [presentVillage, presentPost, presentUpazila, presentDistrict].filter(Boolean).join(', ');
+  const resolvedAddress = address || combinedPresentAddress || null;
+
+  // Store all extra admission form fields as JSON
+  const extraData = {
+    dakhila_no: dakhilaNo || null,
+    notun_puraton: notunPuraton || null,
+    shikkha_borsho_hijri: shikkhaBorshoHijri || null,
+    shikkha_borsho_english: shikkhaBorshoEnglish || null,
+    dept: dept || null,
+    fee_amount: feeAmount ? parseFloat(feeAmount) : null,
+    present_address: { village: presentVillage, post: presentPost, upazila: presentUpazila, district: presentDistrict },
+    permanent_address: { village: permanentVillage, post: permanentPost, upazila: permanentUpazila, district: permanentDistrict },
+    guardian_name: guardianName || null,
+    student_relation: studentRelation || null,
+    prev_institution: prevInstitution || null,
+    prev_class: prevClass || null,
+  };
+
+  if(!name||!className){
+    showToast('error','অসম্পূর্ণ তথ্য','শিক্ষার্থীর নাম ও ক্লাস আবশ্যক');
+    return;
+  }
+  if(skipFather && skipMother){
+    showToast('error','অভিভাবক প্রয়োজন','কমপক্ষে পিতা বা মাতার একজনের তথ্য দিন');
+    return;
+  }
+  // Auto-skip mother if both fields are empty
+  const effectiveSkipMother = skipMother || (!motherName && !motherWhatsapp);
+  if(!skipFather && (!fatherName||!fatherWhatsapp)){
+    showToast('error','অসম্পূর্ণ তথ্য','পিতার নাম ও WhatsApp নম্বর দিন, বা "বাদ দিন" select করুন');
+    return;
+  }
+  if(!skipFather && fatherWhatsapp && !/^01[0-9]{9}$/.test(fatherWhatsapp)){
+    showToast('error','ভুল নম্বর','পিতার সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)');
+    return;
+  }
+  if(!effectiveSkipMother && motherWhatsapp && !/^01[0-9]{9}$/.test(motherWhatsapp)){
+    showToast('error','ভুল নম্বর','মাতার সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)');
+    return;
+  }
+  if(phone && !/^01[0-9]{9}$/.test(phone)){
+    showToast('error','ভুল নম্বর','শিক্ষার্থীর সঠিক ফোন নম্বর দিন (01XXXXXXXXX) বা খালি রাখুন');
+    return;
+  }
+  if(!currentInstitution){
+    showToast('error','সমস্যা হয়েছে','প্রতিষ্ঠানের তথ্য লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+    return;
+  }
+
+  const btn = document.getElementById('saveBtn');
+  btn.classList.add('loading');
+
+  try{
+    let studentId = editStudentId;
+
+    if(isEdit){
+      const studentIdVal = document.getElementById('stuStudentIdHidden').value;
+      const { error: stuErr } = await sb.from('students').update({
+        full_name: name, class_name: className, class_id: classId || null, roll_number: roll,
+        date_of_birth: dob || null, gender: gender, address: resolvedAddress, phone: phone || null,
+        custom_monthly_fee: customFee, extra_data: extraData,
+        student_id: studentIdVal || null
+      }).eq('id', editStudentId);
+      if(stuErr) throw stuErr;
+    } else {
+      const studentIdVal = document.getElementById('stuStudentIdHidden').value;
+      const { data: student, error: stuErr } = await sb.from('students').insert({
+        institution_id: currentInstitution.id, full_name: name, class_name: className, class_id: classId || null,
+        roll_number: roll, date_of_birth: dob || null, gender: gender,
+        address: resolvedAddress, phone: phone || null, is_active: true,
+        custom_monthly_fee: customFee, student_id: studentIdVal || null,
+        extra_data: extraData
+      }).select().single();
+      if(stuErr) throw stuErr;
+      studentId = student.id;
+    }
+
+    // Handle father
+    if(!skipFather){
+      if(editFatherId){
+        const { error: fErr } = await sb.from('guardians').update({full_name:fatherName, whatsapp_number:fatherWhatsapp, phone:fatherWhatsapp}).eq('id', editFatherId);
+        if(fErr) throw fErr;
+      } else {
+        const { error: fErr } = await sb.from('guardians').insert({student_id:studentId, full_name:fatherName, relation:'পিতা', whatsapp_number:fatherWhatsapp, phone:fatherWhatsapp});
+        if(fErr) throw fErr;
+      }
+    } else if(editFatherId){
+      await sb.from('guardians').delete().eq('id', editFatherId);
+    }
+
+    // Handle mother
+    if(!effectiveSkipMother){
+      if(editMotherId){
+        const { error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', editMotherId);
+        if(mErr) throw mErr;
+      } else {
+        // Check if a mother guardian already exists (e.g. inserted via scan with empty number)
+        const { data: existingMother } = await sb.from('guardians').select('id').eq('student_id', studentId).eq('relation','মাতা').maybeSingle();
+        if(existingMother){
+          const { error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', existingMother.id);
+          if(mErr) throw mErr;
+        } else {
+          const { error: mErr } = await sb.from('guardians').insert({student_id:studentId, full_name:motherName, relation:'মাতা', whatsapp_number:motherWhatsapp, phone:motherWhatsapp});
+          if(mErr) throw mErr;
+        }
+      }
+    } else if(effectiveSkipMother && editMotherId){
+      await sb.from('guardians').delete().eq('id', editMotherId);
+    }
+
+    btn.classList.remove('loading');
+    closeModal();
+    showToast('success','সফল!', name+(isEdit?' এর তথ্য সফলভাবে পরিবর্তন হয়েছে':' কে সফলভাবে যোগ করা হয়েছে'));
+    loadStudents();
+
+  }catch(e){
+    btn.classList.remove('loading');
+    showToast('error','সমস্যা হয়েছে', e.message||'আবার চেষ্টা করুন');
+  }
+}
+
+async function deleteStudent(studentId, studentName){
+  const confirmed = await new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+      <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+      <h3 style="margin:0 0 8px;font-size:16px;color:#1a1a2e">${studentName}</h3>
+      <p style="margin:0 0 20px;color:#666;font-size:14px">এই শিক্ষার্থীকে delete করতে চান? এই কাজ ফিরিয়ে আনা যাবে না।</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button id="del-cancel" style="padding:10px 20px;border:1.5px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;color:#333">বাতিল</button>
+        <button id="del-confirm" style="padding:10px 20px;border:none;border-radius:8px;background:#e53e3e;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Delete করুন</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#del-confirm').onclick = () => { document.body.removeChild(overlay); resolve(true); };
+    overlay.querySelector('#del-cancel').onclick = () => { document.body.removeChild(overlay); resolve(false); };
+    overlay.onclick = (e) => { if(e.target===overlay){ document.body.removeChild(overlay); resolve(false); } };
+  });
+  if(!confirmed) return;
+  try{
+    await sb.from('guardians').delete().eq('student_id', studentId);
+    const { error } = await sb.from('students').delete().eq('id', studentId);
+    if(error) throw error;
+    showToast('success','Delete সফল', studentName+' কে সরিয়ে ফেলা হয়েছে');
+    loadStudents();
+  }catch(e){
+    showToast('error','সমস্যা হয়েছে', e.message);
+  }
+}
+
+function doLogout(){ sb.auth.signOut().then(()=>window.location.href='login.html'); }
+
+async function handleExcelImport(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  if(!currentInstitution){
+    showToast('error','সমস্যা হয়েছে','প্রতিষ্ঠানের তথ্য লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+      if(rows.length === 0){
+        showToast('error','খালি ফাইল','Excel file এ কোনো data পাওয়া যায়নি');
+        event.target.value = '';
+        return;
+      }
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for(const row of rows){
+        const name = (row['নাম'] || row['Name'] || row['name'] || '').toString().trim();
+        const className = (row['ক্লাস'] || row['Class'] || row['class'] || '').toString().trim();
+        const roll = (row['রোল'] || row['Roll'] || row['roll'] || '').toString().trim();
+        const gender = (row['লিঙ্গ'] || row['Gender'] || row['gender'] || 'male').toString().toLowerCase().includes('মেয়ে') || (row['Gender']||'').toLowerCase()==='female' ? 'female' : 'male';
+        const address = (row['ঠিকানা'] || row['Address'] || row['address'] || '').toString().trim();
+        const fatherName = (row['পিতার নাম'] || row['Father Name'] || row['father_name'] || '').toString().trim();
+        const fatherWa = (row['পিতার নম্বর'] || row['Father WhatsApp'] || row['father_whatsapp'] || '').toString().trim();
+        const motherName = (row['মাতার নাম'] || row['Mother Name'] || row['mother_name'] || '').toString().trim();
+        const motherWa = (row['মাতার নম্বর'] || row['Mother WhatsApp'] || row['mother_whatsapp'] || '').toString().trim();
+
+        if(!name || !className){ failCount++; continue; }
+        if(!fatherWa && !motherWa){ failCount++; continue; }
+
+        try{
+          // Find or auto-create the matching class so this row links to a real class_id
+          let matchedClass = allClassOptions.find(c => c.name.toLowerCase() === className.toLowerCase());
+          let classId = matchedClass ? matchedClass.id : null;
+          if(!classId){
+            const { data: newClass } = await sb.from('classes').insert({ institution_id: currentInstitution.id, name: className }).select().single();
+            if(newClass){ classId = newClass.id; allClassOptions.push(newClass); }
+          }
+
+          const { data: student, error: stuErr } = await sb.from('students').insert({
+            institution_id: currentInstitution.id, full_name: name, class_name: className, class_id: classId,
+            roll_number: roll, gender: gender, address: address || null, is_active: true
+          }).select().single();
+          if(stuErr) throw stuErr;
+
+          if(fatherName && /^01[0-9]{9}$/.test(fatherWa)){
+            await sb.from('guardians').insert({student_id: student.id, full_name: fatherName, relation: 'পিতা', whatsapp_number: fatherWa, phone: fatherWa});
+          }
+          if(motherName && /^01[0-9]{9}$/.test(motherWa)){
+            await sb.from('guardians').insert({student_id: student.id, full_name: motherName, relation: 'মাতা', whatsapp_number: motherWa, phone: motherWa});
+          }
+          successCount++;
+        }catch(err){
+          failCount++;
+        }
+      }
+
+      event.target.value = '';
+      showToast(successCount>0?'success':'error',
+        successCount>0?'Import সফল!':'Import ব্যর্থ',
+        successCount+' জন শিক্ষার্থী যোগ হয়েছে'+(failCount>0?', '+failCount+' জনের তথ্য সমস্যা ছিল':'')
+      );
+      loadStudents();
+
+    } catch(err){
+      showToast('error','সমস্যা হয়েছে','Excel file পড়তে সমস্যা হয়েছে। সঠিক format ব্যবহার করুন।');
+      event.target.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+
+init();
+</script>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item active" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item" href="finance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="bnav-label">হিসাব</span></a>
+  <button class="bnav-item" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16M16 17h2a2 2 0 0 0 0-4h-2"/><path d="M16 8h2a2 2 0 0 0 0-4h-2"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13.5h1v1h-1zM11.5 13.5h1v1h-1zM15.5 13.5h1v1h-1z"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5M9 14h6M9 18h4"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2M10 15h4"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){
+  var ov = document.getElementById('moreSheetOverlay');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===this) closeMoreSheet(); });
+})();
+</script>
+<!-- ═══════════════════ SCAN MODAL ═══════════════════ -->
+<div id="scanModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:600;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:20px;width:100%;max-width:820px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">📷 ভর্তি ফর্ম স্ক্যান</div>
+      <button onclick="closeScanModal()" style="width:32px;height:32px;border:none;background:var(--surface);border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text-2)">✕</button>
+    </div>
+    <div style="padding:22px;overflow-y:auto;flex:1">
+
+      <!-- UPLOAD STATE -->
+      <div id="scanUploadState">
+        <div id="scanDropZone" onclick="document.getElementById('scanFileInput').click()" ondragover="scanDragOver(event)" ondragleave="scanDragLeave(event)" ondrop="scanDropFiles(event)" style="border:2px dashed var(--border);border-radius:16px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)">
+          <div style="font-size:44px;margin-bottom:12px">📂</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">ভর্তি ফর্মের ছবি আপলোড করুন</div>
+          <div style="font-size:13px;color:var(--text-3)">ক্লিক করুন অথবা ছবি টেনে আনুন<br>JPG, PNG — একসাথে অনেকগুলো দেওয়া যাবে</div>
+          <input type="file" id="scanFileInput" accept="image/*" multiple style="display:none" onchange="scanHandleFiles(this.files)">
+        </div>
+        <div id="scanUploadedList" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- PROCESSING STATE -->
+      <div id="scanProcessingState" style="display:none;text-align:center;padding:48px 24px">
+        <div style="width:56px;height:56px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px"></div>
+        <div id="scanProcessTitle" style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px">ফর্ম বিশ্লেষণ করা হচ্ছে...</div>
+        <div style="font-size:13px;color:var(--text-3)">AI হাতের লেখা পড়ছে, একটু অপেক্ষা করুন</div>
+        <div style="height:6px;background:var(--border);border-radius:100px;margin-top:22px;overflow:hidden"><div id="scanProgressFill" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-mid));border-radius:100px;transition:width .3s;width:0%"></div></div>
+        <div id="scanProgressText" style="margin-top:10px;font-size:12px;color:var(--text-3)">০ / ০ ফর্ম</div>
+      </div>
+
+      <!-- PREVIEW STATE -->
+      <div id="scanPreviewState" style="display:none">
+        <div id="scanPreviewInfo" style="display:flex;align-items:center;gap:10px;background:var(--green-l);border:1px solid rgba(5,150,105,.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);font-weight:500">
+          ✅ <span id="scanPreviewMsg">স্ক্যান সম্পন্ন। তথ্য যাচাই করুন — ভুল থাকলে সরাসরি edit করুন।</span>
+        </div>
+        <div id="scanPreviewCards" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeScanModal()" style="padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:white;color:var(--text-2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">বাতিল</button>
+      <button id="scanActionBtn" onclick="handleScanAction()" style="padding:9px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">➜ স্ক্যান শুরু করুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ ADD MENU ═══
+function toggleAddMenu(e){
+  e.stopPropagation();
+  const m = document.getElementById('addStudentMenu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+function closeAddMenu(){ document.getElementById('addStudentMenu').style.display = 'none'; }
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.add-wrap')) closeAddMenu();
+});
+
+// ═══ SCAN MODAL ═══
+let scanFiles = [];
+let scanResults = [];
+let scanClasses = [];
+let scanPhase = 'upload';
+
+function openScanModal(){
+  scanFiles = []; scanResults = []; scanPhase = 'upload';
+  document.getElementById('scanUploadedList').innerHTML = '';
+  document.getElementById('scanFileInput').value = '';
+  setScanPhase('upload');
+  const ov = document.getElementById('scanModalOverlay');
+  ov.style.display = 'flex';
+}
+function closeScanModal(){
+  document.getElementById('scanModalOverlay').style.display = 'none';
+}
+
+function setScanPhase(phase){
+  scanPhase = phase;
+  document.getElementById('scanUploadState').style.display = phase === 'upload' ? 'block' : 'none';
+  document.getElementById('scanProcessingState').style.display = phase === 'processing' ? 'block' : 'none';
+  document.getElementById('scanPreviewState').style.display = phase === 'preview' ? 'block' : 'none';
+  const btn = document.getElementById('scanActionBtn');
+  if(phase === 'upload'){
+    btn.textContent = '➜ স্ক্যান শুরু করুন';
+    btn.style.background = 'linear-gradient(135deg,var(--blue),var(--blue-mid))';
+    btn.disabled = false;
+  } else if(phase === 'processing'){
+    btn.textContent = '⏳ প্রক্রিয়া চলছে...';
+    btn.disabled = true;
+  } else {
+    btn.textContent = '✓ সব যোগ করুন (' + scanResults.length + ' জন)';
+    btn.style.background = 'linear-gradient(135deg,#059669,#10B981)';
+    btn.disabled = false;
+  }
+}
+
+function scanHandleFiles(files){
+  Array.from(files).forEach(f => {
+    if(!f.type.startsWith('image/')) return;
+    scanFiles.push(f);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--border);border-radius:10px;padding:10px 14px';
+      div.innerHTML = `<img src="${e.target.result}" style="width:44px;height:44px;border-radius:6px;object-fit:cover">
+        <div style="flex:1;font-size:12px;font-weight:600;color:var(--text)">${f.name}</div>
+        <div style="font-size:11px;color:var(--text-3)">${(f.size/1024).toFixed(0)} KB</div>
+        <button onclick="scanRemoveFile(this,'${f.name}')" style="width:24px;height:24px;border:none;background:var(--red-l);color:var(--red);border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>`;
+      document.getElementById('scanUploadedList').appendChild(div);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function scanRemoveFile(btn, name){
+  scanFiles = scanFiles.filter(f => f.name !== name);
+  btn.closest('div[style]').remove();
+}
+function scanDragOver(e){ e.preventDefault(); document.getElementById('scanDropZone').style.borderColor = 'var(--blue)'; document.getElementById('scanDropZone').style.background = 'var(--blue-light)'; }
+function scanDragLeave(){ document.getElementById('scanDropZone').style.borderColor = ''; document.getElementById('scanDropZone').style.background = 'var(--surface)'; }
+function scanDropFiles(e){ e.preventDefault(); scanDragLeave(); scanHandleFiles(e.dataTransfer.files); }
+
+async function handleScanAction(){
+  if(scanPhase === 'upload'){
+    if(scanFiles.length === 0){ alert('আগে ছবি আপলোড করুন'); return; }
+    setScanPhase('processing');
+    scanResults = [];
+    for(let i = 0; i < scanFiles.length; i++){
+      document.getElementById('scanProgressText').textContent = (i+1) + ' / ' + scanFiles.length + ' ফর্ম';
+      document.getElementById('scanProcessTitle').textContent = 'ফর্ম ' + (i+1) + ' বিশ্লেষণ করা হচ্ছে...';
+      document.getElementById('scanProgressFill').style.width = Math.round(((i+1)/scanFiles.length)*100) + '%';
+      try {
+        const b64 = await new Promise((res,rej) => { const r = new FileReader(); r.onload = e => res(e.target.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(scanFiles[i]); });
+        const resp = await fetch('/api/scan-form', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ image: b64, mimeType: scanFiles[i].type }) });
+        const data = await resp.json();
+        if(data.student) scanResults.push(data.student);
+        else scanResults.push({ name:'(পড়া যায়নি)', father_name:'', dob:'', desired_class:'', mobile:'', notun_puraton:'নতুন', _err:true });
+      } catch(e) {
+        scanResults.push({ name:'(ত্রুটি)', father_name:'', dob:'', desired_class:'', mobile:'', notun_puraton:'নতুন', _err:true });
+      }
+    }
+    // Load classes before rendering preview
+    const instId = currentInstitution?.id || localStorage.getItem('selected_institution_id');
+    const { data: clsData } = await sb.from('classes').select('id,name').eq('institution_id', instId).order('created_at',{ascending:true});
+    scanClasses = clsData || [];
+    renderScanPreview();
+    setScanPhase('preview');
+  } else if(scanPhase === 'preview'){
+    await confirmScanAdd();
+  }
+}
+
+// field definitions: type = text|date|phone|select|number
+const SCAN_FIELDS = [
+  { f:'name',                       label:'শিক্ষার্থীর নাম',           required:true,  type:'text' },
+  { f:'father_name',                label:'পিতার নাম',                  type:'text' },
+  { f:'mother_name',                label:'মাতার নাম',                  type:'text' },
+  { f:'dob',                        label:'জন্ম তারিখ',                 type:'date' },
+  { f:'gender',                     label:'লিঙ্গ',                      type:'select', options:['','ছেলে','মেয়ে'] },
+  { f:'desired_class',              label:'ভর্তির শ্রেণী',              type:'class-select' },
+  { f:'notun_puraton',              label:'ধরন',                        type:'select', options:['নতুন','পুরাতন'] },
+  { f:'mobile',                     label:'মোবাইল নম্বর',               type:'phone' },
+  { f:'dakhila_no',                 label:'দাখিলা নম্বর',               type:'text' },
+  { f:'form_no',                    label:'ফর্ম নম্বর',                  type:'text' },
+  { f:'dept',                       label:'বিভাগ/শাখা',                 type:'text' },
+  { f:'shikkha_borsho_hijri',       label:'শিক্ষাবর্ষ (হিজরি)',          type:'text' },
+  { f:'shikkha_borsho_english',     label:'শিক্ষাবর্ষ (ইংরেজি)',         type:'text' },
+  { f:'guardian_name',              label:'অভিভাবকের নাম',              type:'text' },
+  { f:'student_relation',           label:'অভিভাবকের সম্পর্ক',          type:'text' },
+  { f:'present_address_village',    label:'বর্তমান ঠিকানা — গ্রাম/মহল্লা', type:'text' },
+  { f:'present_address_post',       label:'বর্তমান ঠিকানা — পোস্ট অফিস', type:'text' },
+  { f:'present_address_upazila',    label:'বর্তমান ঠিকানা — উপজেলা',   type:'text' },
+  { f:'present_address_district',   label:'বর্তমান ঠিকানা — জেলা',      type:'text' },
+  { f:'permanent_address_village',  label:'স্থায়ী ঠিকানা — গ্রাম/মহল্লা', type:'text' },
+  { f:'permanent_address_post',     label:'স্থায়ী ঠিকানা — পোস্ট অফিস', type:'text' },
+  { f:'permanent_address_upazila',  label:'স্থায়ী ঠিকানা — উপজেলা',   type:'text' },
+  { f:'permanent_address_district', label:'স্থায়ী ঠিকানা — জেলা',      type:'text' },
+  { f:'prev_institution',           label:'পূর্ববর্তী প্রতিষ্ঠান',      type:'text' },
+  { f:'prev_class',                 label:'পূর্ববর্তী শ্রেণী',           type:'text' },
+  { f:'fee_amount',                 label:'ভর্তি ফি (টাকা)',             type:'number' },
+];
+
+function scanFieldInput(fd, val, i){
+  const base = `data-i="${i}" data-f="${fd.f}" onchange="updateScanResult(this)"`;
+  const missing = fd.required && !val;
+  const borderColor = missing ? 'var(--red)' : 'var(--border)';
+  const bg = missing ? '#FFF5F5' : 'white';
+  const inputStyle = `border:1px solid ${borderColor};border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13px;color:var(--text);background:${bg};outline:none;width:100%;box-sizing:border-box;transition:border .15s`;
+
+  if(fd.type === 'select'){
+    const opts = fd.options.map(o => `<option value="${o}" ${o===(val||fd.options[0])?'selected':''}>${o||'— বেছে নিন —'}</option>`).join('');
+    return `<select ${base} style="${inputStyle}">${opts}</select>`;
+  }
+  if(fd.type === 'class-select'){
+    const valNorm = normalizeClassName(val||'');
+    // Find best matching class from loaded list
+    let bestId = '', bestName = '';
+    if(scanClasses && scanClasses.length){
+      for(const c of scanClasses){
+        const cn = normalizeClassName(c.name);
+        if(cn === valNorm || cn.includes(valNorm) || valNorm.includes(cn)){
+          bestId = c.id; bestName = c.name; break;
+        }
+      }
+    }
+    const emptyOpt = `<option value="">— শ্রেণী বেছে নিন —</option>`;
+    const classOpts = (scanClasses||[]).map(c =>
+      `<option value="${c.id}" data-name="${c.name}" ${c.id===bestId?'selected':''}>${c.name}</option>`
+    ).join('');
+    // Store class_id in a hidden input; update scanResults with both id and name
+    return `<select ${base} style="${inputStyle}" onchange="updateScanClassField(this,${i})">${emptyOpt}${classOpts}</select>`;
+  }
+  if(fd.type === 'date'){
+    const iso = parseDob(val) || '';
+    const rawHint = (!iso && val) ? `<div style="font-size:11px;color:var(--red);margin-top:2px">স্ক্যান: "${val}" — সঠিক তারিখ দিন</div>` : '';
+    return `<input type="date" value="${iso}" ${base}
+      style="${inputStyle}"
+      onfocus="this.style.borderColor='var(--blue)'"
+      onblur="this.style.borderColor='${borderColor}'">${rawHint}`;
+  }
+  if(fd.type === 'phone'){
+    const en = toBengaliToEnglish(val||'');
+    return `<input type="tel" value="${en}" ${base}
+      oninput="this.value=toBengaliToEnglish(this.value);updateScanResult(this)"
+      inputmode="numeric" placeholder="01XXXXXXXXX"
+      style="${inputStyle}"
+      onfocus="this.style.borderColor='var(--blue)'"
+      onblur="this.style.borderColor='${borderColor}'">`;
+  }
+  if(fd.type === 'number'){
+    const en = toBengaliToEnglish(val||'');
+    return `<input type="number" value="${en}" ${base}
+      oninput="this.value=toBengaliToEnglish(this.value);updateScanResult(this)"
+      inputmode="decimal"
+      style="${inputStyle}"
+      onfocus="this.style.borderColor='var(--blue)'"
+      onblur="this.style.borderColor='${borderColor}'">`;
+  }
+  // default text
+  const safeVal = (val||'').toString().replace(/"/g,'&quot;');
+  return `<input type="text" value="${safeVal}" ${base}
+    placeholder="${fd.required?'আবশ্যিক':''}"
+    style="${inputStyle}"
+    onfocus="this.style.borderColor='var(--blue)'"
+    onblur="this.style.borderColor='${borderColor}'">`;
+}
+
+function renderScanPreview(){
+  document.getElementById('scanPreviewMsg').textContent = scanResults.length + 'টি ফর্ম স্ক্যান সম্পন্ন। তথ্য যাচাই করুন — ভুল থাকলে সরাসরি edit করুন।';
+  document.getElementById('scanPreviewCards').innerHTML = scanResults.map((s,i) => {
+    // Pre-process: convert phone + numbers to English digits in the data object
+    if(s.mobile) s.mobile = toBengaliToEnglish(s.mobile);
+    if(s.fee_amount) s.fee_amount = toBengaliToEnglish(String(s.fee_amount));
+    // Normalize dob → ISO for storage (will be put in date input)
+    // notun_puraton: normalize
+    if(s.notun_puraton && s.notun_puraton.includes('পুর')) s.notun_puraton = 'পুরাতন';
+    else if(s.notun_puraton) s.notun_puraton = 'নতুন';
+    else s.notun_puraton = 'নতুন';
+
+    // Auto-match class and store _classId if not already set
+    if(!s._classId && s.desired_class && scanClasses.length){
+      const dn = normalizeClassName(s.desired_class);
+      const mc = scanClasses.find(c=>normalizeClassName(c.name)===dn)
+               || scanClasses.find(c=>normalizeClassName(c.name).includes(dn)||dn.includes(normalizeClassName(c.name)));
+      if(mc){ s._classId = mc.id; s.desired_class = mc.name; }
+    }
+
+    const hasErr = !s.name || s._err;
+    const fields = SCAN_FIELDS.map(fd => `
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:10px;font-weight:700;color:${fd.required&&!s[fd.f]?'var(--red)':'var(--text-3)'};text-transform:uppercase;letter-spacing:.04em">
+          ${fd.label}${fd.required?' *':''}${fd.required&&!s[fd.f]?' ⚠':''}
+        </label>
+        ${scanFieldInput(fd, s[fd.f], i)}
+      </div>`).join('');
+    return `
+      <div style="border:1.5px solid ${hasErr?'var(--red)':'var(--border)'};border-radius:14px;overflow:hidden;background:white">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:${hasErr?'#FEF3C7':'var(--surface)'};border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:700;color:var(--text)">🎓 শিক্ষার্থী ${i+1}</span>
+          ${hasErr?'<span style="font-size:11px;font-weight:600;color:var(--red);background:#FEE2E2;padding:2px 8px;border-radius:20px">তথ্য পূরণ করুন</span>':'<span style="font-size:11px;font-weight:600;color:var(--green);background:var(--green-l);padding:2px 8px;border-radius:20px">✓ ঠিক আছে</span>'}
+        </div>
+        <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${fields}
+        </div>
+      </div>`;
+  }).join('');
+}
+function updateScanResult(inp){
+  const i = +inp.dataset.i;
+  const f = inp.dataset.f;
+  scanResults[i][f] = inp.value;
+}
+function updateScanClassField(sel, i){
+  const opt = sel.options[sel.selectedIndex];
+  scanResults[i]._classId = sel.value;
+  scanResults[i].desired_class = opt ? opt.dataset.name : '';
+}
+
+function cleanStr(v){ if(typeof v!=='string') return v; let s=''; for(let i=0;i<v.length;i++){ const c=v.charCodeAt(i); if(c!==0) s+=v[i]; } return s.trim(); }
+function cleanObj(obj){
+  if(!obj) return obj;
+  const out = {};
+  for(const k in obj) out[k] = (obj[k] && typeof obj[k]==='object') ? cleanObj(obj[k]) : cleanStr(obj[k]);
+  return out;
+}
+
+async function confirmScanAdd(){
+  const btn = document.getElementById('scanActionBtn');
+  btn.textContent = '⏳ যোগ করা হচ্ছে...';
+  btn.disabled = true;
+  let added = 0;
+  const instId = currentInstitution?.id || localStorage.getItem('selected_institution_id');
+  for(const s of scanResults){
+    if(!s.name || s._err) continue;
+    try {
+      // Use class selected in preview dropdown (s._classId), fall back to fuzzy match
+      let matchedClass = null;
+      if(s._classId){
+        matchedClass = (scanClasses||[]).find(c => c.id === s._classId) || null;
+      }
+      if(!matchedClass && s.desired_class){
+        const desiredNorm = normalizeClassName(s.desired_class);
+        matchedClass = (scanClasses||[]).find(c => normalizeClassName(c.name) === desiredNorm)
+          || (scanClasses||[]).find(c => normalizeClassName(c.name).includes(desiredNorm) || desiredNorm.includes(normalizeClassName(c.name)));
+      }
+      const classData = { data: matchedClass || null };
+      const combinedAddress = [s.present_address_village, s.present_address_post, s.present_address_upazila, s.present_address_district].filter(Boolean).join(', ');
+      const extraData = {
+        form_no: s.form_no || null,
+        dakhila_no: s.dakhila_no || null,
+        notun_puraton: s.notun_puraton || null,
+        gender: s.gender || null,
+        shikkha_borsho_hijri: (currentInstitution ? getAcademicYearLabels(currentInstitution).ar : null) || s.shikkha_borsho_hijri || null,
+        shikkha_borsho_english: (currentInstitution ? getAcademicYearLabels(currentInstitution).en : null) || s.shikkha_borsho_english || null,
+        dept: s.dept || null,
+        fee_amount: s.fee_amount ? parseFloat(toBengaliToEnglish(String(s.fee_amount))) : null,
+        present_address: { village: s.present_address_village||'', post: s.present_address_post||'', upazila: s.present_address_upazila||'', district: s.present_address_district||'' },
+        permanent_address: { village: s.permanent_address_village||'', post: s.permanent_address_post||'', upazila: s.permanent_address_upazila||'', district: s.permanent_address_district||'' },
+        guardian_name: s.guardian_name || null,
+        student_relation: s.student_relation || null,
+        prev_institution: s.prev_institution || null,
+        prev_class: s.prev_class || null,
+        source: 'scan'
+      };
+      const baseRow = {
+        institution_id: instId,
+        full_name: s.name,
+        class_id: classData?.data?.id || null,
+        class_name: s.desired_class || null,
+        date_of_birth: parseDob(s.dob),
+        phone: toBengaliToEnglish(s.mobile||'') || null,
+        address: combinedAddress || null,
+        roll_number: null,
+        is_active: true,
+      };
+      // Sanitize all data through JSON round-trip to remove null bytes
+      function sanitizeForDB(obj){
+        return JSON.parse(JSON.stringify(obj).replace(/\\u0000/g,'').replace(/\x00/g,''));
+      }
+      const insertRow = sanitizeForDB({ ...baseRow, extra_data: extraData });
+      let { error } = await sb.from('students').insert(insertRow);
+      if(error && error.code === 'PGRST204'){
+        const { extra_data: _ed, ...rowWithout } = insertRow;
+        const r2 = await sb.from('students').insert(sanitizeForDB(rowWithout));
+        error = r2.error;
+      }
+      if(error) throw error;
+      // Add father as guardian
+      if(s.father_name){
+        const { data: inserted } = await sb.from('students').select('id').eq('institution_id', instId).eq('full_name', s.name).order('created_at', {ascending:false}).limit(1).single();
+        if(inserted) await sb.from('guardians').insert({student_id: inserted.id, full_name: s.father_name, relation: 'পিতা', whatsapp_number: s.mobile||'', phone: s.mobile||''});
+        if(inserted && s.mother_name) await sb.from('guardians').insert({student_id: inserted.id, full_name: s.mother_name, relation: 'মাতা', whatsapp_number: '', phone: ''});
+      }
+      added++;
+    } catch(e){ console.error(e); }
+  }
+  closeScanModal();
+  if(typeof loadStudents === 'function') loadStudents();
+  alert(added + ' জন শিক্ষার্থী সফলভাবে যোগ হয়েছে ✓');
+}
+</script>
+</body>
+</html>

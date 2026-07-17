@@ -1,0 +1,477 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষক উপস্থিতি — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --border:#E2E8F0;--surface:#F8FAFF;--white:#fff;--bg:#F1F5F9;
+}
+html,body{min-height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+body{display:flex;flex-direction:column;align-items:center;padding:0;min-height:100vh}
+
+.header{width:100%;background:linear-gradient(135deg,#0A1628,#1A3570);color:white;padding:20px 24px 16px;text-align:center}
+.header-inst{font-size:18px;font-weight:900;letter-spacing:-.3px}
+.header-sub{font-size:12px;opacity:.5;margin-top:3px}
+
+.wrap{width:100%;max-width:420px;padding:20px 16px;flex:1;display:flex;flex-direction:column;gap:14px}
+
+/* Time */
+.time-card{background:white;border-radius:18px;padding:20px;text-align:center;border:1px solid var(--border)}
+.time-big{font-size:40px;font-weight:900;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.time-date{font-size:13px;color:var(--text-3);margin-top:4px;font-weight:600}
+
+/* Status card */
+.status-card{border-radius:16px;padding:16px 18px;border:2px solid;display:flex;align-items:center;gap:14px;transition:all .3s}
+.status-card.neutral{background:var(--surface);border-color:var(--border)}
+.status-card.checking{background:#FFF7ED;border-color:#FDBA74}
+.status-card.inside{background:var(--green-l);border-color:#6EE7B7}
+.status-card.outside{background:var(--red-l);border-color:#FCA5A5}
+.status-card.error{background:#FFF7ED;border-color:#FDBA74}
+.status-icon{font-size:28px;flex-shrink:0}
+.status-title{font-size:15px;font-weight:800}
+.status-sub{font-size:12px;color:var(--text-2);margin-top:2px;line-height:1.4}
+
+/* Teacher info */
+.teacher-card{background:white;border-radius:14px;padding:14px 16px;border:1px solid var(--border)}
+.teacher-label{font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.teacher-name{font-size:16px;font-weight:800;color:var(--text)}
+.teacher-sub{font-size:12px;color:var(--text-2);margin-top:2px}
+
+/* Today record */
+.today-card{background:white;border-radius:14px;padding:14px 16px;border:1px solid var(--border)}
+.today-title{font-size:12px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.today-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.today-row:last-child{border-bottom:none}
+.today-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-in{background:var(--green)}
+.dot-out{background:var(--red)}
+.dot-none{background:var(--border)}
+.today-time{font-size:13px;font-weight:700;color:var(--text)}
+.today-label{font-size:11px;color:var(--text-2)}
+.today-badge{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.badge-inside{background:var(--green-l);color:var(--green)}
+.badge-outside{background:var(--red-l);color:var(--red)}
+
+/* Buttons */
+.btn-checkin{width:100%;padding:20px;border-radius:18px;border:none;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.01em}
+.btn-checkin:disabled{opacity:.5;cursor:not-allowed}
+.btn-in{background:var(--green);color:white;box-shadow:0 6px 20px rgba(5,150,105,.3)}
+.btn-in:not(:disabled):hover{background:#047857;transform:translateY(-2px);box-shadow:0 10px 28px rgba(5,150,105,.4)}
+.btn-out{background:var(--red);color:white;box-shadow:0 6px 20px rgba(220,38,38,.3)}
+.btn-out:not(:disabled):hover{background:#B91C1C;transform:translateY(-2px);box-shadow:0 10px 28px rgba(220,38,38,.4)}
+.btn-disabled-msg{font-size:12px;color:var(--text-3);text-align:center;font-weight:600;padding:4px 0}
+
+/* Processing overlay */
+.processing{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;flex-direction:column;align-items:center;justify-content:center;color:white;gap:16px;text-align:center}
+.processing.show{display:flex}
+.spin{width:48px;height:48px;border:4px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing-text{font-size:16px;font-weight:700}
+.processing-sub{font-size:13px;opacity:.7}
+
+/* Result banner */
+.result-banner{border-radius:16px;padding:18px;text-align:center;display:none}
+.result-banner.show{display:block}
+.result-banner.success{background:var(--green-l);border:2px solid #6EE7B7}
+.result-banner.fail{background:var(--red-l);border:2px solid #FCA5A5}
+.result-banner-icon{font-size:36px;margin-bottom:8px}
+.result-banner-title{font-size:18px;font-weight:900}
+.result-banner-sub{font-size:13px;color:var(--text-2);margin-top:4px}
+
+.logout-btn{background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;font-family:inherit;padding:8px;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inst" id="instName">Protishthan</div>
+  <div class="header-sub" id="instSub">শিক্ষক উপস্থিতি সিস্টেম</div>
+</div>
+
+<div class="wrap">
+
+  <!-- Clock -->
+  <div class="time-card">
+    <div class="time-big" id="clockTime">--:--:--</div>
+    <div class="time-date" id="clockDate">—</div>
+  </div>
+
+  <!-- Teacher info -->
+  <div class="teacher-card" id="teacherCard" style="display:none">
+    <div class="teacher-label">শিক্ষক</div>
+    <div class="teacher-name" id="teacherName">—</div>
+    <div class="teacher-sub" id="teacherSub">—</div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-card neutral" id="statusCard">
+    <div class="status-icon" id="statusIcon">📱</div>
+    <div>
+      <div class="status-title" id="statusTitle">প্রস্তুত</div>
+      <div class="status-sub" id="statusSub">নিচের বাটনে চাপুন</div>
+    </div>
+  </div>
+
+  <!-- Result banner (shown after success/fail) -->
+  <div class="result-banner" id="resultBanner">
+    <div class="result-banner-icon" id="resultIcon"></div>
+    <div class="result-banner-title" id="resultTitle"></div>
+    <div class="result-banner-sub" id="resultSub"></div>
+  </div>
+
+  <!-- Today's record -->
+  <div class="today-card" id="todayCard">
+    <div class="today-title">আজকের রেকর্ড</div>
+    <div class="today-row">
+      <div class="today-dot dot-none" id="inDot"></div>
+      <div>
+        <div class="today-time" id="inTime">—</div>
+        <div class="today-label">ক্লাস শুরু</div>
+      </div>
+      <div class="today-badge badge-inside" id="inBadge" style="display:none"></div>
+    </div>
+    <div class="today-row">
+      <div class="today-dot dot-none" id="outDot"></div>
+      <div>
+        <div class="today-time" id="outTime">—</div>
+        <div class="today-label">ক্লাস শেষ</div>
+      </div>
+      <div class="today-badge" id="outBadge" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- MAIN BUTTONS -->
+  <button class="btn-checkin btn-in" id="btnCheckin" onclick="triggerAttendance('checkin')" disabled>
+    ✅ ক্লাস শুরু (Check In)
+  </button>
+  <button class="btn-checkin btn-out" id="btnCheckout" onclick="triggerAttendance('checkout')" disabled>
+    🔴 ক্লাস শেষ (Check Out)
+  </button>
+  <div class="btn-disabled-msg" id="btnMsg">লোড হচ্ছে...</div>
+
+  <button class="logout-btn" onclick="doLogout()">লগআউট করুন</button>
+</div>
+
+<!-- Processing Overlay -->
+<div class="processing" id="processingOverlay">
+  <div class="spin"></div>
+  <div class="processing-text" id="processingText">Location নেওয়া হচ্ছে...</div>
+  <div class="processing-sub" id="processingSub">একটু অপেক্ষা করুন</div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-teacher' } }
+);
+
+const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const BN_DAYS = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+
+let currentUser = null;
+let currentInstitution = null;
+let todayRecord = null; // {checkin_time, checkout_time, ...}
+const PENDING_KEY = '_tc_pending_action';
+const PENDING_TS_KEY = '_tc_pending_ts';
+
+// ---- CLOCK ----
+function startClock(){
+  function tick(){
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clockTime').textContent = toBn(`${h}:${m}:${s}`);
+    const dateStr = `${BN_DAYS[now.getDay()]}, ${toBn(now.getDate())} ${BN_MONTHS[now.getMonth()]} ${toBn(now.getFullYear())}`;
+    document.getElementById('clockDate').textContent = dateStr;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ---- HAVERSINE DISTANCE (meters) ----
+function haversine(lat1, lng1, lat2, lng2){
+  const R = 6371000;
+  const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1)*Math.PI/180, Δλ = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ---- INIT ----
+async function init(){
+  startClock();
+
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href = 'login.html'; return; }
+
+  currentUser = session.user;
+  const meta = currentUser.user_metadata || {};
+
+  // Load institution
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', currentUser.email).maybeSingle();
+  if(!inst){
+    setStatus('error','⚠️','প্রতিষ্ঠান পাওয়া যায়নি','Settings এ প্রতিষ্ঠান তৈরি করুন');
+    return;
+  }
+  currentInstitution = inst;
+  document.getElementById('instName').textContent = inst.name || 'Protishthan';
+
+  // Show teacher card
+  const teacherName = meta.principal_name || meta.full_name || currentUser.email;
+  document.getElementById('teacherName').textContent = teacherName;
+  document.getElementById('teacherSub').textContent = currentUser.email;
+  document.getElementById('teacherCard').style.display = 'block';
+
+  // Check geo-fence configured
+  if(!inst.geo_lat || !inst.geo_lng){
+    setStatus('error','⚠️','Geo-fence Set হয়নি','Principal কে Settings এ Location Set করতে বলুন');
+    document.getElementById('btnMsg').textContent = 'Principal কে Geo-fence Setup করতে বলুন';
+    return;
+  }
+
+  // Load today's record
+  await loadTodayRecord();
+
+  // ---- CHECK FOR PENDING ACTION (after page refresh) ----
+  const pendingAction = localStorage.getItem(PENDING_KEY);
+  const pendingTs = parseInt(localStorage.getItem(PENDING_TS_KEY) || '0');
+  const isRecent = (Date.now() - pendingTs) < 20000; // within 20 seconds
+
+  if(pendingAction && isRecent){
+    localStorage.removeItem(PENDING_KEY);
+    localStorage.removeItem(PENDING_TS_KEY);
+    // Page was refreshed intentionally — now get fresh GPS and process
+    await processAttendanceAfterRefresh(pendingAction);
+  } else {
+    // Normal load — just show buttons
+    localStorage.removeItem(PENDING_KEY);
+    localStorage.removeItem(PENDING_TS_KEY);
+    updateButtonState();
+  }
+}
+
+// ---- BUTTON: first click stores intent and refreshes page ----
+function triggerAttendance(action){
+  // Disable button immediately to prevent double-click
+  document.getElementById('btnCheckin').disabled = true;
+  document.getElementById('btnCheckout').disabled = true;
+  document.getElementById('btnMsg').textContent = '⏳ পেজ রিফ্রেশ হচ্ছে...';
+
+  // Store pending action
+  localStorage.setItem(PENDING_KEY, action);
+  localStorage.setItem(PENDING_TS_KEY, Date.now().toString());
+
+  // Refresh page — this clears all cached GPS and ensures fresh location
+  window.location.reload();
+}
+
+// ---- AFTER REFRESH: get fresh GPS, validate, save ----
+async function processAttendanceAfterRefresh(action){
+  if(!navigator.geolocation){
+    setStatus('error','❌','GPS সাপোর্ট নেই','এই browser এ GPS কাজ করে না');
+    updateButtonState();
+    return;
+  }
+
+  showProcessing(true, 'তাজা Location নেওয়া হচ্ছে...', 'একটু অপেক্ষা করুন');
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude, longitude, accuracy } = pos.coords;
+      showProcessing(true, 'Location যাচাই হচ্ছে...', `Accuracy: ${Math.round(accuracy)} মিটার`);
+
+      const instLat = currentInstitution.geo_lat;
+      const instLng = currentInstitution.geo_lng;
+      const radius  = currentInstitution.geo_radius_meters || 100;
+      const dist    = haversine(latitude, longitude, instLat, instLng);
+      const inside  = dist <= radius;
+
+      showProcessing(false);
+
+      if(!inside){
+        // OUTSIDE — block completely
+        setStatus('outside','🔴','প্রতিষ্ঠান এলাকার বাইরে',`আপনি ${toBn(Math.round(dist))} মিটার দূরে আছেন। প্রতিষ্ঠানের ভেতরে এসে আবার চেষ্টা করুন।`);
+        showResult(false,
+          action === 'checkin' ? 'Check In হয়নি' : 'Check Out হয়নি',
+          `আপনি প্রতিষ্ঠান থেকে ${toBn(Math.round(dist))} মিটার দূরে। শুধু প্রতিষ্ঠানের ভেতরে থাকলেই কাজ করবে।`
+        );
+        updateButtonState();
+        return;
+      }
+
+      // INSIDE — save to Supabase
+      showProcessing(true, 'উপস্থিতি সেভ হচ্ছে...', '');
+
+      const now = new Date().toISOString();
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      let error;
+      if(action === 'checkin'){
+        if(todayRecord){
+          // Update existing row
+          ({ error } = await sb.from('teacher_checkins')
+            .update({ checkin_time: now, checkin_lat: latitude, checkin_lng: longitude,
+                      distance_meters: Math.round(dist), is_within_radius: true, gps_accuracy: Math.round(accuracy), status: 'present' })
+            .eq('id', todayRecord.id));
+        } else {
+          ({ error } = await sb.from('teacher_checkins').insert({
+            institution_id: currentInstitution.id,
+            teacher_email: currentUser.email,
+            teacher_name: (currentUser.user_metadata?.principal_name || currentUser.email),
+            date: todayStr,
+            checkin_time: now,
+            checkin_lat: latitude, checkin_lng: longitude,
+            distance_meters: Math.round(dist),
+            is_within_radius: true,
+            gps_accuracy: Math.round(accuracy),
+            status: 'present'
+          }));
+        }
+      } else {
+        // checkout
+        if(todayRecord){
+          ({ error } = await sb.from('teacher_checkins')
+            .update({ checkout_time: now, checkout_lat: latitude, checkout_lng: longitude })
+            .eq('id', todayRecord.id));
+        } else {
+          showResult(false,'Check Out হয়নি','আগে Check In করুন');
+          updateButtonState(); return;
+        }
+      }
+
+      showProcessing(false);
+
+      if(error){
+        setStatus('error','⚠️','সমস্যা হয়েছে', error.message);
+        updateButtonState(); return;
+      }
+
+      // Reload today's record
+      await loadTodayRecord();
+      setStatus('inside','✅','প্রতিষ্ঠানের ভেতরে',`${toBn(Math.round(dist))} মিটার দূরে — উপস্থিতি নিশ্চিত হয়েছে`);
+
+      const timeStr = new Date().toLocaleTimeString('bn-BD', {hour:'2-digit', minute:'2-digit'});
+      showResult(true,
+        action === 'checkin' ? '✅ Check In সফল!' : '✅ Check Out সফল!',
+        `সময়: ${timeStr} | দূরত্ব: ${toBn(Math.round(dist))} মিটার`
+      );
+      updateButtonState();
+    },
+    (err) => {
+      showProcessing(false);
+      setStatus('error','❌','GPS পাওয়া যায়নি', err.code === 1 ? 'Browser কে Location permission দিন' : 'GPS সংকেত দুর্বল, আবার চেষ্টা করুন');
+      updateButtonState();
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+// ---- LOAD TODAY RECORD ----
+async function loadTodayRecord(){
+  const todayStr = new Date().toISOString().split('T')[0];
+  const { data } = await sb.from('teacher_checkins')
+    .select('*')
+    .eq('institution_id', currentInstitution.id)
+    .eq('teacher_email', currentUser.email)
+    .eq('date', todayStr)
+    .maybeSingle();
+  todayRecord = data;
+  renderTodayRecord();
+}
+
+function renderTodayRecord(){
+  const fmt = isoStr => {
+    if(!isoStr) return '—';
+    const d = new Date(isoStr);
+    return toBn(d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}));
+  };
+
+  if(todayRecord?.checkin_time){
+    document.getElementById('inTime').textContent = fmt(todayRecord.checkin_time);
+    document.getElementById('inDot').className = 'today-dot dot-in';
+    document.getElementById('inBadge').style.display = 'block';
+    document.getElementById('inBadge').textContent = todayRecord.is_within_radius ? '✓ ভেতরে' : '✗ বাইরে';
+    document.getElementById('inBadge').className = 'today-badge ' + (todayRecord.is_within_radius ? 'badge-inside' : 'badge-outside');
+  }
+  if(todayRecord?.checkout_time){
+    document.getElementById('outTime').textContent = fmt(todayRecord.checkout_time);
+    document.getElementById('outDot').className = 'today-dot dot-out';
+    document.getElementById('outBadge').style.display = 'block';
+    document.getElementById('outBadge').textContent = '✓ Check Out';
+    document.getElementById('outBadge').className = 'today-badge badge-inside';
+  }
+}
+
+// ---- BUTTON STATE ----
+function updateButtonState(){
+  const inBtn  = document.getElementById('btnCheckin');
+  const outBtn = document.getElementById('btnCheckout');
+  const msg    = document.getElementById('btnMsg');
+
+  if(!currentInstitution?.geo_lat){
+    inBtn.disabled = outBtn.disabled = true;
+    msg.textContent = 'Geo-fence Setup হয়নি';
+    return;
+  }
+
+  const hasCheckin  = !!todayRecord?.checkin_time;
+  const hasCheckout = !!todayRecord?.checkout_time;
+
+  if(!hasCheckin){
+    inBtn.disabled = false;
+    outBtn.disabled = true;
+    msg.textContent = 'প্রতিষ্ঠানে ঢুকে Check In করুন';
+  } else if(hasCheckin && !hasCheckout){
+    inBtn.disabled = true;
+    outBtn.disabled = false;
+    msg.textContent = 'যাওয়ার সময় Check Out করুন';
+  } else {
+    inBtn.disabled = outBtn.disabled = true;
+    msg.textContent = 'আজকের উপস্থিতি সম্পূর্ণ হয়েছে ✓';
+  }
+}
+
+// ---- UI HELPERS ----
+function setStatus(type, icon, title, sub){
+  const card = document.getElementById('statusCard');
+  card.className = 'status-card ' + type;
+  document.getElementById('statusIcon').textContent = icon;
+  document.getElementById('statusTitle').textContent = title;
+  document.getElementById('statusSub').textContent = sub;
+}
+
+function showResult(success, title, sub){
+  const banner = document.getElementById('resultBanner');
+  banner.className = 'result-banner show ' + (success ? 'success' : 'fail');
+  document.getElementById('resultIcon').textContent = success ? '✅' : '🚫';
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+  banner.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function showProcessing(show, text='', sub=''){
+  const el = document.getElementById('processingOverlay');
+  el.className = 'processing' + (show ? ' show' : '');
+  if(text) document.getElementById('processingText').textContent = text;
+  if(sub)  document.getElementById('processingSub').textContent = sub;
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+init();
+</script>
+</body>
+</html>

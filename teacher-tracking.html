@@ -1,0 +1,823 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষক ট্র্যাকিং — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --orange:#EA580C;--orange-l:#FFF7ED;
+  --r:10px;--rl:16px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{padding:22px 20px 16px}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px}
+.nav-badge.green{background:var(--green)}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.topbar-back{display:flex;align-items:center;gap:6px;color:var(--text-2);text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:8px;transition:background .2s}
+.topbar-back:hover{background:var(--bg)}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white}
+.btn-outline{background:white;color:var(--text-2);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.content{padding:24px 28px;flex:1}
+
+/* TAB BAR */
+.tab-bar{display:flex;gap:4px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px}
+.tab{flex:1;padding:8px 14px;border-radius:9px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.tab.active{background:var(--blue);color:white;box-shadow:0 2px 8px rgba(26,86,219,.3)}
+
+/* DATE + TEACHER FILTER */
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.filter-label{font-size:12px;font-weight:600;color:var(--text-2)}
+.filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--blue)}
+.filter-date{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);outline:none}
+.filter-date:focus{border-color:var(--blue)}
+.live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
+.topbar-row1,.topbar-row2,.mobile-live,.mobile-actions{display:none}
+.tab-bar-wrap{display:contents}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+
+/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.s-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px}
+.s-card-num{font-size:28px;font-weight:800;line-height:1.1}
+.s-card-label{font-size:12px;color:var(--text-2);margin-top:4px;font-weight:500}
+.s-card-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* LIVE STATUS TABLE */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:24px}
+.table-head-row{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-head-title{font-size:14px;font-weight:700}
+table.track-table{width:100%;border-collapse:collapse}
+table.track-table th{background:#F8FAFC;padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+table.track-table td{padding:14px 16px;font-size:13px;border-bottom:1px solid #F8FAFC;vertical-align:middle}
+table.track-table tr:last-child td{border-bottom:none}
+table.track-table tr.row-outside td{background:#FFF7ED}
+table.track-table tr.row-absent td{background:#F8FAFC}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-green{background:#22c55e}
+.dot-orange{background:#f97316}
+.dot-grey{background:#cbd5e1}
+.dot-red{background:#ef4444}
+.badge-sm{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.b-green{background:var(--green-l);color:var(--green)}
+.b-orange{background:var(--orange-l);color:var(--orange)}
+.b-grey{background:#F1F5F9;color:#64748b}
+.b-red{background:var(--red-l);color:var(--red)}
+.duration{font-size:12px;color:var(--text-2);font-weight:500}
+
+/* TIMELINE */
+.timeline-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:24px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding:12px 0;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:36px;bottom:-12px;width:2px;background:var(--border)}
+.tl-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;z-index:1}
+.tl-icon.green{background:var(--green-l)}
+.tl-icon.red{background:var(--red-l)}
+.tl-icon.blue{background:var(--blue-light)}
+.tl-icon.amber{background:var(--amber-l)}
+.tl-icon.grey{background:#F1F5F9}
+.tl-body{flex:1;padding-top:4px}
+.tl-name{font-size:13px;font-weight:600;color:var(--text)}
+.tl-detail{font-size:12px;color:var(--text-2);margin-top:2px}
+.tl-time{font-size:11px;color:var(--text-3);font-weight:600;margin-top:3px}
+.tl-empty{text-align:center;padding:32px;color:var(--text-3);font-size:13px}
+
+/* MONTHLY CALENDAR */
+.monthly-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:24px}
+.month-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.month-nav{display:flex;align-items:center;gap:12px}
+.month-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.month-btn:hover{border-color:var(--blue);color:var(--blue)}
+.month-title{font-size:15px;font-weight:700}
+.month-stats{display:flex;gap:16px}
+.mstat{font-size:12px;font-weight:600}
+.mstat span{font-weight:400;color:var(--text-2)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-name{text-align:center;font-size:11px;font-weight:700;color:var(--text-3);padding:6px 0}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:default;position:relative;gap:2px}
+.cal-day.present{background:var(--green-l);color:var(--green)}
+.cal-day.absent{background:var(--red-l);color:var(--red)}
+.cal-day.partial{background:var(--amber-l);color:var(--amber)}
+.cal-day.holiday{background:var(--purple-l);color:var(--purple)}
+.cal-day.future{background:transparent;color:var(--text-3)}
+.cal-day.empty{background:transparent}
+.cal-day.today-mark{outline:2px solid var(--blue);outline-offset:1px}
+.cal-day-num{font-size:12px;font-weight:700;line-height:1}
+.cal-day-hrs{font-size:9px;font-weight:500;line-height:1}
+
+/* MONTHLY REPORT TABLE */
+.report-table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:24px}
+table.report-table{width:100%;border-collapse:collapse}
+table.report-table th{background:#F8FAFC;padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+table.report-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid #F8FAFC}
+table.report-table tr:last-child td{border-bottom:none}
+.pct-bar{height:6px;background:var(--border);border-radius:3px;width:80px;overflow:hidden;display:inline-block;margin-left:8px;vertical-align:middle}
+.pct-fill{height:100%;border-radius:3px;background:var(--green)}
+
+/* LOADING */
+.loading-box{text-align:center;padding:48px;color:var(--text-3);font-size:13px}
+
+/* PRINT */
+@media print{
+  .sidebar,.topbar,.tab-bar,.filter-bar,.btn,.month-btn{display:none!important}
+  .main{margin-left:0!important}
+  .content{padding:16px!important}
+  body{background:white}
+  .table-wrap,.monthly-wrap,.report-table-wrap,.timeline-wrap{box-shadow:none;border:1px solid #ddd}
+}
+
+@media(max-width:900px){
+  .summary-grid{grid-template-columns:1fr 1fr}
+}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.more-sheet-overlay.show{opacity:1;pointer-events:all}
+.more-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 8px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:75vh;overflow-y:auto;z-index:301}
+.more-sheet-overlay.show .more-sheet{transform:translateY(0)}
+.more-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:6px auto 16px}
+.more-sheet-title{font-size:14px;font-weight:700;color:var(--text);padding:0 10px 12px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 6px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:14px;text-decoration:none;color:var(--text-2)}
+.more-sheet-item:active{background:var(--surface)}
+.more-sheet-icon{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center}
+.more-sheet-label{font-size:11px;font-weight:600;text-align:center;line-height:1.3}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;min-width:0;width:100%;overflow-x:hidden}
+  .content{padding:12px 14px calc(86px + 14px);overflow-x:hidden}
+  .bottom-nav{display:flex!important}
+  html,body{overflow-x:hidden;max-width:100vw}
+  /* Topbar: row1 = back+title+live, row2 = action buttons */
+  .topbar{
+    flex-direction:column!important;
+    align-items:stretch!important;
+    height:auto!important;
+    padding:0!important;
+    gap:0!important;
+  }
+  .topbar > .topbar-back,
+  .topbar > .topbar-title,
+  .topbar-right{display:none!important}
+  .topbar-row1{display:flex!important;align-items:center;gap:8px;padding:10px 14px 8px;border-bottom:1px solid var(--border)}
+  .topbar-row2{display:flex!important;align-items:center;gap:8px;padding:8px 14px;background:#FAFBFF}
+  .mobile-live{display:flex!important;align-items:center;gap:5px;font-size:11px;color:var(--green);font-weight:700;white-space:nowrap;flex-shrink:0}
+  .mobile-actions{display:flex!important;gap:6px;flex:1}
+  .mobile-actions .btn{flex:1;justify-content:center;padding:7px 0!important;font-size:12px!important;border-radius:8px}
+  .summary-grid{grid-template-columns:1fr 1fr!important;gap:10px}
+  .s-card{padding:14px 16px}
+  .s-card-num{font-size:22px}
+  /* Tab bar: pill style, horizontal scroll, compact */
+  .tab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:0;padding:0;border:none;border-radius:0;background:transparent;margin-bottom:14px}
+  .tab{white-space:nowrap;flex:none;padding:9px 14px;font-size:12px;border-radius:0;border-bottom:2.5px solid transparent;background:transparent;color:var(--text-3)}
+  .tab.active{background:transparent;color:var(--blue);border-bottom-color:var(--blue);box-shadow:none}
+  .tab-bar-wrap{display:block!important;border-bottom:1px solid var(--border);margin:0 -14px 14px;overflow:hidden}
+  .filter-bar{gap:8px}
+  .filter-select,.filter-date{font-size:12px;padding:6px 8px}
+  table.track-table th,table.track-table td{padding:8px 10px!important;font-size:12px!important}
+  .table-wrap{overflow-x:auto}
+  table.track-table{min-width:520px}
+  table.report-table th,table.report-table td{padding:8px 10px!important;font-size:12px!important}
+  .report-table-wrap{overflow-x:auto}
+  table.report-table{min-width:480px}
+  .month-stats{flex-wrap:wrap;gap:8px}
+  .cal-day-num{font-size:10px}
+  .cal-day-hrs{font-size:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Protish<span>than</span></div>
+    <div class="inst" id="sideInst">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>ড্যাশবোর্ড</span></a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span> <span class="nav-badge green">Live</span></a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span></a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span></a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span></a>
+    <a class="nav-item active" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span></a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span></a>
+    <div class="sidebar-section">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস</span></a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span></a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span> <span class="nav-badge green">New</span></a>
+    <a class="nav-item" href="calendar.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span>
+      <span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span></a>
+    <div class="sidebar-section">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span></a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>Website</span></a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span></a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>সেটিংস</span></a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="sideAvatar">A</div>
+      <div><div class="user-name" id="sideName">Admin</div><div class="user-role">Admin · <span id="sideLogout" style="color:#F87171;cursor:pointer">লগআউট</span></div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <!-- Desktop layout (hidden wrappers on mobile) -->
+    <a class="topbar-back" href="teachers.html">← শিক্ষক/স্টাফ</a>
+    <div class="topbar-title">📍 শিক্ষক ট্র্যাকিং</div>
+    <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:600">
+        <div class="live-dot"></div> Live
+      </div>
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-primary" onclick="refreshAll()">🔄 Refresh</button>
+    </div>
+    <!-- Mobile rows -->
+    <div class="topbar-row1">
+      <a class="topbar-back" href="teachers.html" style="padding:4px 6px;font-size:12px">← শিক্ষক/স্টাফ</a>
+      <div class="topbar-title" style="font-size:14px">📍 শিক্ষক ট্র্যাকিং</div>
+      <div class="mobile-live"><div class="live-dot"></div>Live</div>
+    </div>
+    <div class="topbar-row2">
+      <div class="mobile-actions">
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-primary" onclick="refreshAll()">🔄 Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar-wrap">
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('today')" id="tab-today">📅 আজকের অবস্থা</button>
+      <button class="tab" onclick="switchTab('timeline')" id="tab-timeline">🕐 ঘটনার ক্রম</button>
+      <button class="tab" onclick="switchTab('monthly')" id="tab-monthly">📆 মাসিক ক্যালেন্ডার</button>
+      <button class="tab" onclick="switchTab('report')" id="tab-report">📊 মাসিক রিপোর্ট</button>
+    </div>
+    </div>
+
+    <!-- ══ TAB: TODAY ══ -->
+    <div id="pane-today">
+      <!-- Summary -->
+      <div class="summary-grid" id="summaryGrid">
+        <div class="s-card"><div class="s-card-num" id="sumPresent" style="color:var(--green)">—</div><div class="s-card-label">✅ আজ এসেছেন</div></div>
+        <div class="s-card"><div class="s-card-num" id="sumAbsent" style="color:var(--red)">—</div><div class="s-card-label">❌ আসেননি</div></div>
+        <div class="s-card"><div class="s-card-num" id="sumOutside" style="color:var(--orange)">—</div><div class="s-card-label">🔴 এখন বাইরে</div><div class="s-card-sub">Check In করেছেন কিন্তু বাইরে</div></div>
+        <div class="s-card"><div class="s-card-num" id="sumAvgHrs" style="color:var(--purple)">—</div><div class="s-card-label">⏱ গড় সময়</div><div class="s-card-sub">চেক ইন → চেক আউট</div></div>
+      </div>
+
+      <!-- Live Table -->
+      <div class="table-wrap">
+        <div class="table-head-row">
+          <span class="table-head-title">আজকের Live উপস্থিতি</span>
+          <span style="font-size:12px;color:var(--text-3)" id="lastUpdated">—</span>
+        </div>
+        <table class="track-table">
+          <thead>
+            <tr>
+              <th>শিক্ষক</th>
+              <th>অবস্থা</th>
+              <th>চেক ইন</th>
+              <th>চেক আউট</th>
+              <th>মোট সময়</th>
+              <th>এখন</th>
+            </tr>
+          </thead>
+          <tbody id="todayTbody">
+            <tr><td colspan="6" class="loading-box">লোড হচ্ছে...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ TAB: TIMELINE ══ -->
+    <div id="pane-timeline" style="display:none">
+      <div class="filter-bar">
+        <span class="filter-label">তারিখ:</span>
+        <input type="date" class="filter-date" id="tlDate" onchange="loadTimeline()">
+        <span class="filter-label">শিক্ষক:</span>
+        <select class="filter-select" id="tlTeacher" onchange="loadTimeline()">
+          <option value="">সব শিক্ষক</option>
+        </select>
+      </div>
+      <div class="timeline-wrap">
+        <div class="table-head-row" style="padding-bottom:12px">
+          <span class="table-head-title">🕐 ঘটনার ক্রম</span>
+        </div>
+        <div class="timeline" id="timelineList">
+          <div class="tl-empty">লোড হচ্ছে...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: MONTHLY CALENDAR ══ -->
+    <div id="pane-monthly" style="display:none">
+      <div class="filter-bar">
+        <span class="filter-label">শিক্ষক:</span>
+        <select class="filter-select" id="calTeacher" onchange="loadMonthly()">
+          <option value="">শিক্ষক বেছে নিন</option>
+        </select>
+      </div>
+      <div class="monthly-wrap">
+        <div class="month-header">
+          <div class="month-nav">
+            <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+            <div class="month-title" id="monthTitle">—</div>
+            <button class="month-btn" onclick="changeMonth(1)">›</button>
+          </div>
+          <div class="month-stats">
+            <div class="mstat" style="color:var(--green)"><span id="mPresent">০</span> উপস্থিত</div>
+            <div class="mstat" style="color:var(--red)"><span id="mAbsent">০</span> অনুপস্থিত</div>
+            <div class="mstat" style="color:var(--purple)"><span id="mPct">০%</span> হার</div>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <div class="tl-empty">শিক্ষক বেছে নিন</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: REPORT ══ -->
+    <div id="pane-report" style="display:none">
+      <div class="filter-bar">
+        <span class="filter-label">মাস:</span>
+        <input type="month" class="filter-date" id="reportMonth" onchange="loadReport()">
+      </div>
+      <div class="report-table-wrap">
+        <div class="table-head-row">
+          <span class="table-head-title">📊 মাসিক সারসংক্ষেপ</span>
+          <button class="btn btn-outline" style="font-size:12px;padding:6px 12px" onclick="window.print()">🖨️ Print</button>
+        </div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>শিক্ষক</th>
+              <th>মোট উপস্থিতি</th>
+              <th>অনুপস্থিতি</th>
+              <th>গড় সময়</th>
+              <th>দেরিতে আসা</th>
+              <th>উপস্থিতির হার</th>
+            </tr>
+          </thead>
+          <tbody id="reportTbody">
+            <tr><td colspan="6" class="loading-box">মাস বেছে নিন</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+const fmtTime = iso => iso ? toBn(iso.slice(11,16)) : '—';
+const fmtDuration = (inIso, outIso) => {
+  if(!inIso) return '—';
+  const end = outIso ? new Date(outIso) : new Date();
+  const mins = Math.round((end - new Date(inIso)) / 60000);
+  if(mins < 0) return '—';
+  const h = Math.floor(mins/60), m = mins%60;
+  return h > 0 ? `${toBn(h)}ঘ ${toBn(m)}মি` : `${toBn(m)}মি`;
+};
+
+let inst = null;
+let allTeachers = [];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let refreshTimer = null;
+
+// ── INIT ──
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const { data: instData } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(!instData){ window.location.href='dashboard.html'; return; }
+  inst = instData;
+  document.getElementById('sideInst').textContent = inst.name || '';
+  const name = inst.principal_name || session.user.email.split('@')[0];
+  document.getElementById('sideName').textContent = name;
+  document.getElementById('sideAvatar').textContent = name[0]?.toUpperCase() || 'A';
+  document.getElementById('sideLogout').onclick = async()=>{ await sb.auth.signOut(); window.location.href='login.html'; };
+
+  const { data: teachers } = await sb.from('teachers').select('id,full_name,email').eq('institution_id', inst.id).eq('is_active', true).order('full_name');
+  allTeachers = teachers || [];
+
+  // Populate teacher dropdowns
+  const opts = allTeachers.map(t=>`<option value="${t.email}">${t.full_name}</option>`).join('');
+  document.getElementById('tlTeacher').innerHTML += opts;
+  document.getElementById('calTeacher').innerHTML = '<option value="">শিক্ষক বেছে নিন</option>' + opts;
+
+  // Set default dates
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('tlDate').value = today;
+  document.getElementById('reportMonth').value = today.slice(0,7);
+
+  // Set month calendar
+  const mn = new Date();
+  calYear = mn.getFullYear(); calMonth = mn.getMonth();
+  updateMonthTitle();
+
+  await loadToday();
+  startAutoRefresh();
+}
+
+function startAutoRefresh(){
+  if(refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(()=>{
+    const activeTab = document.querySelector('.tab.active')?.id;
+    if(activeTab === 'tab-today') loadToday();
+    if(activeTab === 'tab-timeline') loadTimeline();
+  }, 5000);
+}
+
+async function refreshAll(){ await loadToday(); }
+
+// ── TAB SWITCH ──
+function switchTab(tab){
+  ['today','timeline','monthly','report'].forEach(t=>{
+    document.getElementById('pane-'+t).style.display = t===tab ? '' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='timeline') loadTimeline();
+  if(tab==='monthly') loadMonthly();
+  if(tab==='report') loadReport();
+}
+
+// ── TODAY TAB ──
+async function loadToday(){
+  if(!inst) return;
+  const today = new Date().toISOString().split('T')[0];
+
+  const [{ data: checkins }, { data: locLogs }] = await Promise.all([
+    sb.from('teacher_checkins').select('*').eq('institution_id', inst.id).eq('date', today),
+    sb.from('teacher_location_logs').select('teacher_email,is_inside,logged_at').eq('institution_id', inst.id).eq('date', today).order('logged_at',{ascending:false})
+  ]);
+
+  // Latest location state per teacher
+  const latestLoc = {};
+  (locLogs||[]).forEach(l => {
+    if(!latestLoc[l.teacher_email]) latestLoc[l.teacher_email] = l.is_inside;
+  });
+
+  const ciMap = {};
+  (checkins||[]).forEach(c => { ciMap[c.teacher_email] = c; });
+
+  let present=0, absent=0, outside=0, totalMins=0, countWithTime=0;
+  let rows = '';
+
+  for(const t of allTeachers){
+    const ci = ciMap[t.email];
+    const hasIn = !!ci?.checkin_time;
+    const hasOut = !!ci?.checkout_time;
+    const locState = latestLoc[t.email]; // true=inside, false=outside, null/undefined=unknown
+
+    let rowClass='', dotCls='dot-grey', badgeTxt='আসেননি', badgeCls='b-grey', nowTxt='—', nowCls='';
+
+    if(hasIn){
+      present++;
+      dotCls='dot-green'; badgeTxt='✅ এসেছেন'; badgeCls='b-green';
+      if(hasOut){
+        nowTxt='চলে গেছেন'; nowCls='b-grey';
+      } else if(locState===false){
+        outside++;
+        dotCls='dot-orange'; nowTxt='🔴 বাইরে'; nowCls='b-orange'; rowClass='row-outside';
+      } else {
+        nowTxt='🟢 ভেতরে'; nowCls='b-green';
+      }
+      const mins = ci.checkin_time ? Math.round((new Date(ci.checkout_time||new Date()) - new Date(ci.checkin_time))/60000) : 0;
+      if(mins>0){ totalMins+=mins; countWithTime++; }
+    } else {
+      absent++;
+      rowClass='row-absent';
+    }
+
+    rows += `<tr class="${rowClass}">
+      <td><span class="status-dot ${dotCls}"></span><strong>${t.full_name}</strong></td>
+      <td><span class="badge-sm ${badgeCls}">${badgeTxt}</span></td>
+      <td>${fmtTime(ci?.checkin_time)}</td>
+      <td>${fmtTime(ci?.checkout_time)}</td>
+      <td class="duration">${hasIn ? fmtDuration(ci.checkin_time, ci.checkout_time) : '—'}</td>
+      <td>${nowTxt ? `<span class="badge-sm ${nowCls}">${nowTxt}</span>` : '—'}</td>
+    </tr>`;
+  }
+
+  document.getElementById('todayTbody').innerHTML = rows || '<tr><td colspan="6" class="loading-box">কোনো শিক্ষক নেই</td></tr>';
+  document.getElementById('sumPresent').textContent = toBn(present);
+  document.getElementById('sumAbsent').textContent = toBn(absent);
+  document.getElementById('sumOutside').textContent = toBn(outside);
+  const avg = countWithTime ? Math.round(totalMins/countWithTime) : 0;
+  document.getElementById('sumAvgHrs').textContent = avg ? `${toBn(Math.floor(avg/60))}ঘ ${toBn(avg%60)}মি` : '—';
+  document.getElementById('lastUpdated').textContent = 'আপডেট: ' + toBn(new Date().toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'}));
+}
+
+// ── TIMELINE TAB ──
+async function loadTimeline(){
+  if(!inst) return;
+  const date = document.getElementById('tlDate').value;
+  const teacher = document.getElementById('tlTeacher').value;
+  const list = document.getElementById('timelineList');
+  list.innerHTML = '<div class="tl-empty">লোড হচ্ছে...</div>';
+
+  let ciQuery = sb.from('teacher_checkins').select('teacher_name,teacher_email,checkin_time,checkout_time').eq('institution_id',inst.id).eq('date',date);
+  let llQuery = sb.from('teacher_location_logs').select('teacher_name,teacher_email,logged_at,is_inside').eq('institution_id',inst.id).eq('date',date);
+  if(teacher){ ciQuery=ciQuery.eq('teacher_email',teacher); llQuery=llQuery.eq('teacher_email',teacher); }
+
+  const [{ data: cis }, { data: logs }] = await Promise.all([ciQuery, llQuery]);
+
+  const events = [];
+  (cis||[]).forEach(c=>{
+    if(c.checkin_time) events.push({time:c.checkin_time, type:'checkin', name:c.teacher_name});
+    if(c.checkout_time) events.push({time:c.checkout_time, type:'checkout', name:c.teacher_name});
+  });
+  (logs||[]).forEach(l=>{
+    events.push({time:l.logged_at, type: l.is_inside===null?'loc_off': l.is_inside?'loc_in':'loc_out', name:l.teacher_name});
+  });
+  events.sort((a,b)=>new Date(b.time)-new Date(a.time));
+
+  if(!events.length){ list.innerHTML='<div class="tl-empty">এই দিনে কোনো তথ্য নেই</div>'; return; }
+
+  const iconMap = {
+    checkin: {cls:'green', emoji:'✅', label:'প্রতিষ্ঠানে এসেছেন'},
+    checkout: {cls:'blue', emoji:'🚪', label:'আজকের সময় শেষ'},
+    loc_in: {cls:'green', emoji:'📍', label:'বাহির থেকে প্রতিষ্ঠানে ফিরেছেন'},
+    loc_out: {cls:'red', emoji:'🔴', label:'প্রতিষ্ঠানের বাইরে গেছেন'},
+    loc_off: {cls:'grey', emoji:'⚠️', label:'লোকেশন বন্ধ করেছেন'},
+  };
+
+  list.innerHTML = events.map(e=>{
+    const m = iconMap[e.type]||{cls:'grey',emoji:'•',label:e.type};
+    return `<div class="tl-item">
+      <div class="tl-icon ${m.cls}">${m.emoji}</div>
+      <div class="tl-body">
+        <div class="tl-name">${e.name||'শিক্ষক'}</div>
+        <div class="tl-detail">${m.label}</div>
+        <div class="tl-time">${fmtTime(e.time)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MONTHLY CALENDAR TAB ──
+function updateMonthTitle(){
+  const months = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  document.getElementById('monthTitle').textContent = `${months[calMonth]} ${toBn(calYear)}`;
+}
+
+function changeMonth(dir){
+  calMonth += dir;
+  if(calMonth<0){ calMonth=11; calYear--; }
+  if(calMonth>11){ calMonth=0; calYear++; }
+  updateMonthTitle();
+  loadMonthly();
+}
+
+async function loadMonthly(){
+  if(!inst) return;
+  const email = document.getElementById('calTeacher').value;
+  const grid = document.getElementById('calGrid');
+  if(!email){ grid.innerHTML='<div class="tl-empty" style="grid-column:1/-1">শিক্ষক বেছে নিন</div>'; return; }
+
+  const startDate = `${calYear}-${String(calMonth+1).padStart(2,'0')}-01`;
+  const endDate = new Date(calYear, calMonth+1, 0).toISOString().split('T')[0];
+
+  const { data: cis } = await sb.from('teacher_checkins')
+    .select('date,checkin_time,checkout_time')
+    .eq('institution_id',inst.id).eq('teacher_email',email)
+    .gte('date',startDate).lte('date',endDate);
+
+  const ciMap = {};
+  (cis||[]).forEach(c=>{ ciMap[c.date]=c; });
+
+  const dayNames = ['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+  let html = dayNames.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  for(let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
+
+  const today = new Date().toISOString().split('T')[0];
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  let present=0, absent=0;
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ci = ciMap[ds];
+    const isToday = ds===today;
+    const isFuture = ds>today;
+    let cls='future', inner='';
+
+    if(!isFuture){
+      if(ci?.checkin_time){
+        present++;
+        const mins = ci.checkout_time ? Math.round((new Date(ci.checkout_time)-new Date(ci.checkin_time))/60000) : null;
+        cls='present';
+        inner = mins ? `<div class="cal-day-hrs">${toBn(Math.floor(mins/60))}ঘ${toBn(mins%60)}মি</div>` : '';
+      } else {
+        absent++;
+        cls='absent';
+      }
+    }
+    html+=`<div class="cal-day ${cls}${isToday?' today-mark':''}">
+      <div class="cal-day-num">${toBn(d)}</div>${inner}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+  const total = present+absent;
+  document.getElementById('mPresent').textContent = toBn(present);
+  document.getElementById('mAbsent').textContent = toBn(absent);
+  document.getElementById('mPct').textContent = total ? toBn(Math.round(present/total*100))+'%' : '০%';
+}
+
+// ── MONTHLY REPORT TAB ──
+async function loadReport(){
+  if(!inst) return;
+  const month = document.getElementById('reportMonth').value;
+  if(!month) return;
+  const tbody = document.getElementById('reportTbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading-box">লোড হচ্ছে...</td></tr>';
+
+  const startDate = month+'-01';
+  const lastDay = new Date(new Date(month+'-01').getFullYear(), new Date(month+'-01').getMonth()+1,0).getDate();
+  const endDate = month+`-${String(lastDay).padStart(2,'0')}`;
+  const today = new Date().toISOString().split('T')[0];
+  const workDays = Math.min(lastDay, parseInt(today.slice(8,10)));
+
+  const { data: cis } = await sb.from('teacher_checkins')
+    .select('teacher_email,teacher_name,date,checkin_time,checkout_time')
+    .eq('institution_id',inst.id).gte('date',startDate).lte('date',endDate);
+
+  const byTeacher = {};
+  allTeachers.forEach(t=>{ byTeacher[t.email]={name:t.full_name, days:[], totalMins:0, late:0}; });
+  (cis||[]).forEach(c=>{
+    if(!byTeacher[c.teacher_email]) byTeacher[c.teacher_email]={name:c.teacher_name,days:[],totalMins:0,late:0};
+    byTeacher[c.teacher_email].days.push(c.date);
+    if(c.checkin_time&&c.checkout_time){
+      byTeacher[c.teacher_email].totalMins += Math.round((new Date(c.checkout_time)-new Date(c.checkin_time))/60000);
+    }
+  });
+
+  let rows='';
+  for(const email of Object.keys(byTeacher)){
+    const t = byTeacher[email];
+    const pCount = t.days.length;
+    const aCount = Math.max(0, workDays-pCount);
+    const pct = workDays ? Math.round(pCount/workDays*100) : 0;
+    const avgMins = pCount ? Math.round(t.totalMins/pCount) : 0;
+    const avgStr = avgMins ? `${toBn(Math.floor(avgMins/60))}ঘ ${toBn(avgMins%60)}মি` : '—';
+    rows+=`<tr>
+      <td><strong>${t.name}</strong></td>
+      <td style="color:var(--green);font-weight:700">${toBn(pCount)} দিন</td>
+      <td style="color:var(--red);font-weight:700">${toBn(aCount)} দিন</td>
+      <td>${avgStr}</td>
+      <td>${toBn(t.late)} বার</td>
+      <td>
+        <span style="font-weight:700;color:${pct>=75?'var(--green)':pct>=50?'var(--amber)':'var(--red)'}">${toBn(pct)}%</span>
+        <span class="pct-bar"><span class="pct-fill" style="width:${pct}%;background:${pct>=75?'var(--green)':pct>=50?'var(--amber)':'var(--red)'}"></span></span>
+      </td>
+    </tr>`;
+  }
+  tbody.innerHTML = rows || '<tr><td colspan="6" class="loading-box">এই মাসে কোনো তথ্য নেই</td></tr>';
+}
+
+init();
+</script>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item active" href="teacher-tracking.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span><span class="bnav-label">Track</span></a>
+  <a class="bnav-item" href="teachers.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span><span class="bnav-label">শিক্ষক</span></a>
+  <button class="bnav-item" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<!-- MORE SHEET -->
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){document.getElementById('moreSheetOverlay').classList.add('show')}
+document.getElementById('moreSheetOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')})
+</script>
+</body>
+</html>

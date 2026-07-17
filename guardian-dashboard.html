@@ -1,0 +1,1574 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অভিভাবক ড্যাশবোর্ড — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+
+/* TOP HEADER */
+.header{background:linear-gradient(135deg,#0A1628,#1A3570);padding:20px 20px 60px;position:relative;overflow:hidden}
+.header-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px}
+.header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;margin-bottom:20px}
+.logo{font-size:18px;font-weight:900;color:white}
+.logo span{opacity:.5}
+.logout-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.logout-btn:hover{background:rgba(255,255,255,.18)}
+.inbox-btn{position:relative;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.inbox-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;background:#DC2626;border-radius:50%;border:1.5px solid #0A1628}
+
+.greeting{position:relative;z-index:2;text-align:center}
+.greeting-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.greeting h1{font-size:20px;font-weight:800;color:white}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:#34D399;font-size:11px;font-weight:600;padding:4px 12px;border-radius:100px;margin-top:10px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+
+/* CHILD SWITCHER */
+.child-switcher{display:flex;gap:8px;overflow-x:auto;padding:0 4px;margin-top:18px;position:relative;z-index:2}
+.child-switcher::-webkit-scrollbar{display:none}
+.child-chip{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:100px;cursor:pointer;transition:all .2s}
+.child-chip.active{background:white;border-color:white}
+.child-chip-avatar{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700}
+.child-chip.active .child-chip-avatar{background:var(--blue-light);color:var(--blue)}
+.child-chip-name{font-size:12px;font-weight:600;color:white;white-space:nowrap}
+.child-chip.active .child-chip-name{color:var(--text)}
+
+/* MAIN CONTENT */
+.content{padding:0 16px;margin-top:-40px;position:relative;z-index:3;max-width:480px;margin-left:auto;margin-right:auto}
+
+/* PROFILE CARD */
+.profile-card{background:white;border-radius:20px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.1);margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.profile-avatar{width:56px;height:56px;border-radius:16px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0}
+.profile-info{flex:1}
+.profile-name{font-size:16px;font-weight:800;color:var(--text)}
+.profile-meta{font-size:12px;color:var(--text-3);margin-top:2px}
+.profile-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px}
+.status-present{background:var(--green-l);color:var(--green)}
+.status-absent{background:var(--red-l);color:var(--red)}
+.status-unknown{background:var(--surface);color:var(--text-3)}
+
+/* QUICK STATS */
+.quick-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.qstat{background:white;border-radius:14px;padding:14px;text-align:center}
+.qstat-icon{font-size:22px;margin-bottom:6px}
+.qstat-num{font-size:20px;font-weight:800;color:var(--text)}
+.qstat-label{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* SECTION CARDS */
+.section-card{background:white;border-radius:16px;padding:18px;margin-bottom:14px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.section-action{font-size:12px;color:var(--blue);font-weight:600}
+
+/* ATTENDANCE BARS */
+.attend-week{display:flex;gap:6px;align-items:flex-end;height:60px;margin-bottom:8px}
+.attend-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.attend-bar{width:100%;border-radius:4px 4px 0 0;transition:height 1s ease}
+.attend-bar.present{background:var(--green)}
+.attend-bar.absent{background:#F87171}
+.attend-bar.future{background:var(--border)}
+.attend-day-label{font-size:9px;color:var(--text-3)}
+
+/* PLACEHOLDER SECTIONS */
+.placeholder-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.placeholder-row:last-child{border-bottom:none}
+.ph-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ph-text .t{font-size:13px;font-weight:600;color:var(--text)}
+.ph-text .s{font-size:11px;color:var(--text-3);margin-top:1px}
+
+.coming-soon{text-align:center;padding:20px;color:var(--text-3);font-size:12px}
+.empty-feature{text-align:center;padding:24px 16px}
+.empty-feature-ic{width:52px;height:52px;border-radius:14px;background:var(--surface);color:var(--text-3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.empty-feature-t{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-feature-s{font-size:12px;color:var(--text-3);line-height:1.5}
+.hw-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.hw-item:last-child{border-bottom:none}
+.hw-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.hw-subject-pill{background:var(--purple-l);color:var(--purple);font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
+.hw-date{font-size:11px;color:var(--text-3)}
+.hw-text{font-size:13px;color:var(--text);line-height:1.6}
+.hw-audio{width:100%;margin-top:8px;height:36px}
+.hw-img-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.hw-img-thumb-view{width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+
+.empty-state{text-align:center;padding:60px 20px}
+.empty-icon{font-size:56px;margin-bottom:16px}
+.empty-state h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:13px;color:var(--text-2);line-height:1.6}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;padding:8px 0;z-index:50}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;color:var(--text-3)}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{font-size:18px}
+.bnav-label{font-size:10px;font-weight:600}
+
+.content{padding-bottom:80px}
+
+@media(min-width:600px){
+  .content{padding:0 24px;padding-bottom:24px;max-width:600px}
+  .bottom-nav{display:none}
+}
+
+/* TIMELINE CARD - entry/exit */
+.timeline-card{background:linear-gradient(135deg,#0F172A,#1A3570);border-radius:16px;padding:18px;margin-bottom:14px;color:white}
+.timeline-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.timeline-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.timeline-track{position:relative;padding:0 8px}
+.timeline-line{position:absolute;top:18px;left:24px;right:24px;height:2px;background:rgba(255,255,255,.15)}
+.timeline-points{display:flex;justify-content:space-between;position:relative}
+.tpoint{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.tpoint-dot{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;z-index:2}
+.tpoint-dot.done{background:#10B981;border-color:#10B981}
+.tpoint-time{font-size:11px;font-weight:700}
+.tpoint-label{font-size:10px;color:rgba(255,255,255,.5)}
+
+/* STREAK CARD */
+.streak-card{background:linear-gradient(135deg,#F59E0B,#FBBF24);border-radius:16px;padding:18px;margin-bottom:14px;color:white;display:flex;align-items:center;gap:14px}
+.streak-icon{font-size:36px}
+.streak-num{font-size:24px;font-weight:900}
+.streak-label{font-size:12px;opacity:.9}
+
+/* ACHIEVEMENT BADGES */
+.badge-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.badge-row::-webkit-scrollbar{display:none}
+.badge-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:70px}
+.badge-circle{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.badge-locked{background:var(--surface);opacity:.4}
+.badge-unlocked{background:linear-gradient(135deg,var(--blue-light),#DBEAFE)}
+.badge-label{font-size:10px;color:var(--text-2);text-align:center;font-weight:600}
+
+/* MONTHLY CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-header{font-size:9px;color:var(--text-3);text-align:center;font-weight:600;padding-bottom:4px}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.cal-present{background:var(--green);color:white}
+.cal-absent{background:#F87171;color:white}
+.cal-empty{background:var(--surface);color:var(--text-3)}
+.cal-future{background:transparent;color:var(--text-3)}
+
+/* COMPARISON BAR */
+.compare-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.compare-label{font-size:11px;color:var(--text-2);width:70px;flex-shrink:0}
+.compare-track{flex:1;height:8px;background:var(--surface);border-radius:10px;overflow:hidden}
+.compare-fill{height:100%;border-radius:10px;transition:width 1.2s ease}
+.compare-val{font-size:11px;font-weight:700;color:var(--text);width:36px;text-align:right}
+
+/* LIVE CLASS CARD */
+.live-class-card{border-radius:16px;padding:18px;margin-bottom:14px}
+.live-class-card.lc-now{background:linear-gradient(135deg,#064E3B,#065F46);color:white}
+.live-class-card.lc-next{background:linear-gradient(135deg,#1E1B4B,#2D2A6B);color:white}
+.live-class-card.lc-idle{background:white;border:1px solid var(--border)}
+.lc-live-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;background:rgba(52,211,153,.18);color:#34D399;border:1px solid rgba(52,211,153,.3);margin-bottom:10px;letter-spacing:.5px}
+.lc-dot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse 1.5s infinite}
+.lc-next-badge{display:inline-block;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;background:rgba(167,139,250,.2);color:#A78BFA;border:1px solid rgba(167,139,250,.3);margin-bottom:10px}
+.lc-subject{font-size:20px;font-weight:900;margin-bottom:4px;line-height:1.2}
+.lc-meta{font-size:12px;opacity:.7;margin-bottom:12px}
+.lc-progress-track{height:5px;background:rgba(255,255,255,.18);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.lc-progress-fill{height:100%;background:#34D399;border-radius:10px;transition:width .5s ease}
+.lc-footer{font-size:12px;font-weight:700;opacity:.9}
+
+/* ROUTINE LIST */
+.routine-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.routine-item:last-child{border-bottom:none}
+.routine-item.r-now{background:var(--green-l);margin:0 -18px;padding:11px 18px;border-radius:10px;border-bottom:none;margin-bottom:2px}
+.routine-time-col{width:72px;flex-shrink:0}
+.routine-time-start{font-size:12px;font-weight:700;color:var(--text)}
+.routine-time-end{font-size:10.5px;color:var(--text-3)}
+.routine-subj{font-size:13.5px;font-weight:700;color:var(--text)}
+.routine-now-tag{display:inline-block;font-size:9.5px;font-weight:800;padding:2px 7px;background:var(--green);color:white;border-radius:100px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-grid"></div>
+  <div class="header-top">
+    <div class="logo">Protisht<span>han</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="logout-btn" onclick="doLogout()">লগআউট</button>
+      <button class="inbox-btn" onclick="openInbox()" aria-label="ইনবক্স">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+        <span class="inbox-dot" id="gInboxDot" style="display:none"></span>
+      </button>
+      <button class="inbox-btn" onclick="openNotifications()" aria-label="নোটিফিকেশন">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 3.5-1 5-2 6.5h16c-1-1.5-2-3-2-6.5z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>
+        <span class="inbox-dot" id="gNotifDot" style="display:none"></span>
+      </button>
+    </div>
+  </div>
+  <div class="greeting">
+    <div class="greeting-sub" id="instNameHeader">প্রতিষ্ঠান</div>
+    <h1 id="greetingText">স্বাগতম, অভিভাবক</h1>
+    <div class="live-badge"><span class="live-dot"></span> তথ্য সরাসরি Live</div>
+  </div>
+  <div class="child-switcher" id="childSwitcher"></div>
+</div>
+
+<div class="content" id="mainContent">
+  <!-- Filled dynamically -->
+</div>
+
+<div class="bottom-nav">
+  <div class="bnav-item active" onclick="scrollToSection(null,this)"><span class="bnav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9.5 20v-6h5v6"/></svg></span><span class="bnav-label">হোম</span></div>
+  <div class="bnav-item" onclick="scrollToSection('sec-result',this)"><span class="bnav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span><span class="bnav-label">ফলাফল</span></div>
+  <div class="bnav-item" onclick="scrollToSection('sec-fee',this)"><span class="bnav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/></svg></span><span class="bnav-label">ফি</span></div>
+  <div class="bnav-item" onclick="scrollToSection('sec-routine',this)"><span class="bnav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v4M16 3v4"/></svg></span><span class="bnav-label">রুটিন</span></div>
+  <div class="bnav-item" onclick="scrollToSection('sec-homework',this)"><span class="bnav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5v-13z"/></svg></span><span class="bnav-label">আজকের পড়া</span></div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-guardian' } }
+);
+
+let guardianStudents = [];
+function toLocalDateStr(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+let activeStudentIndex = 0;
+
+async function loadHomeworkForChild(){
+  const wrap = document.getElementById('homeworkList');
+  if(!wrap) return;
+  const student = window.currentStudent;
+  if(!student || !student.class_id){
+    wrap.innerHTML = '<div class="empty-feature"><div class="empty-feature-t">হোমওয়ার্ক পাওয়া যায়নি</div></div>';
+    return;
+  }
+  const { data, error } = await sb.from('homework').select('*')
+    .eq('class_id', student.class_id)
+    .order('created_at', {ascending:false}).limit(10);
+
+  if(error || !data || !data.length){
+    wrap.innerHTML = `<div class="empty-feature">
+      <div class="empty-feature-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5v-13z"/></svg></div>
+      <div class="empty-feature-t">এখনো কোনো হোমওয়ার্ক দেওয়া হয়নি</div>
+      <div class="empty-feature-s">শিক্ষক হোমওয়ার্ক দিলে এখানে দেখা যাবে</div>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = data.map(h=>`
+    <div class="hw-item">
+      <div class="hw-item-top">
+        <span class="hw-subject-pill">${escapeHtmlG(h.subject||'বিষয়')}</span>
+        <span class="hw-date">${h.date}</span>
+      </div>
+      ${h.text_content ? `<div class="hw-text">${escapeHtmlG(h.text_content)}</div>` : ''}
+      ${h.voice_url ? vmsgHtml(h.voice_url, 'hw_'+h.id, 'light') : ''}
+      ${(h.image_urls && h.image_urls.length) ? '<div class="hw-img-row">' + h.image_urls.map(u=>'<img src="'+u+'" class="hw-img-thumb-view" onclick="window.open(this.src)">').join('') + '</div>' : ''}
+    </div>
+  `).join('');
+  initPendingVmsgPlayers();
+}
+
+function escapeHtmlG(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function scrollToSection(id, el){
+  document.querySelectorAll('.bnav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(!id){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+  const target = document.getElementById(id);
+  if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function init(){
+  const phone = localStorage.getItem('guardian_phone');
+  if(!phone){ window.location.href='guardian-login.html'; return; }
+
+  const stored = localStorage.getItem('guardian_students');
+  if(!stored){ window.location.href='guardian-login.html'; return; }
+
+  guardianStudents = JSON.parse(stored);
+  if(guardianStudents.length === 0){
+    window.location.href='guardian-login.html';
+    return;
+  }
+
+  renderChildSwitcher();
+  loadChildData(0);
+}
+
+function renderChildSwitcher(){
+  const switcher = document.getElementById('childSwitcher');
+  if(guardianStudents.length <= 1){
+    switcher.style.display = 'none';
+    return;
+  }
+  switcher.innerHTML = guardianStudents.map((g, i)=>{
+    const s = g.students;
+    const initial = (s.full_name||'?').slice(0,1);
+    return `
+    <div class="child-chip ${i===0?'active':''}" id="chip-${i}" data-index="${i}">
+      <div class="child-chip-avatar">${initial}</div>
+      <div class="child-chip-name">${s.full_name}</div>
+    </div>`;
+  }).join('');
+
+  // event delegation — একবারই বাইন্ড হয়, re-render হলেও duplicate listener তৈরি হবে না
+  if(!switcher.dataset.bound){
+    switcher.addEventListener('click', (e)=>{
+      const chip = e.target.closest('.child-chip');
+      if(!chip) return;
+      loadChildData(parseInt(chip.dataset.index));
+    });
+    switcher.dataset.bound = '1';
+  }
+}
+
+let loadChildToken = 0;
+async function loadChildData(index){
+  activeStudentIndex = index;
+  const myToken = ++loadChildToken; // stale request guard
+
+  // Update chip active state
+  document.querySelectorAll('.child-chip').forEach((c,i)=>{
+    c.classList.toggle('active', i===index);
+  });
+
+  const guardianRecord = guardianStudents[index];
+  const student = guardianRecord.students;
+  const institution = student.institutions;
+  window.currentStudent = student;
+  subscribeNotifications();
+  startInboxDotPolling();
+
+  document.getElementById('instNameHeader').textContent = institution ? institution.name : 'প্রতিষ্ঠান';
+
+  // Fetch attendance for this student
+  const today = new Date();
+  const weekAgo = new Date(today); weekAgo.setDate(today.getDate()-6);
+  const { data: attendance } = await sb
+    .from('attendance')
+    .select('*')
+    .eq('student_id', student.id)
+    .gte('date', toLocalDateStr(weekAgo))
+    .order('date', { ascending: true });
+
+  if(myToken !== loadChildToken) return; // newer request already started, discard this stale one
+
+  const todayStr = toLocalDateStr(today);
+  const todayRecord = (attendance||[]).find(a=>a.date===todayStr);
+  const presentCount = (attendance||[]).filter(a=>a.status==='present').length;
+  const totalDays = (attendance||[]).length;
+
+  renderContent(student, todayRecord, attendance||[], presentCount, totalDays);
+  loadLiveClass(student);
+  loadRoutine(student);
+}
+
+function renderContent(student, todayRecord, weekAttendance, presentCount, totalDays){
+  const initial = (student.full_name||'?').slice(0,1);
+  const statusClass = !todayRecord ? 'status-unknown' : (todayRecord.status==='present' ? 'status-present' : 'status-absent');
+  const statusText = !todayRecord ? 'এখনো রেকর্ড নেই' : (todayRecord.status==='present' ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg> আজ উপস্থিত' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg> আজ অনুপস্থিত');
+
+  // Build week chart (Sat-Fri)
+  const dayNames = ['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র'];
+  const today = new Date();
+  let weekBars = '';
+  for(let i=6; i>=0; i--){
+    const d = new Date(today); d.setDate(today.getDate()-i);
+    const dStr = toLocalDateStr(d);
+    const rec = weekAttendance.find(a=>a.date===dStr);
+    const isFuture = d > today;
+    let barClass = 'future', height = 20;
+    if(rec){
+      barClass = rec.status==='present' ? 'present' : 'absent';
+      height = rec.status==='present' ? 50 : 30;
+    }
+    weekBars += `<div class="attend-day">
+      <div class="attend-bar ${barClass}" style="height:${height}px"></div>
+      <div class="attend-day-label">${dayNames[d.getDay()===6?0:d.getDay()+1]}</div>
+    </div>`;
+  }
+
+  // Calculate streak (consecutive present days from today backwards)
+  let streak = 0;
+  const sortedDesc = [...weekAttendance].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  for(const rec of sortedDesc){
+    if(rec.status==='present') streak++;
+    else break;
+  }
+
+  // Entry/exit time from today's record
+  const entryTime = todayRecord && todayRecord.entry_time ? todayRecord.entry_time : null;
+  const exitTime = todayRecord && todayRecord.exit_time ? todayRecord.exit_time : null;
+
+  // Monthly calendar (current month)
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const startOffset = (firstDay.getDay()+1)%7; // shift so Sat=0
+  let calCells = '';
+  for(let i=0;i<startOffset;i++) calCells += '<div class="cal-day cal-empty"></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const cellDate = new Date(year, month, d);
+    const cellStr = toLocalDateStr(cellDate);
+    const rec = weekAttendance.find(a=>a.date===cellStr);
+    let cls = 'cal-future', label = d;
+    if(cellDate > now) cls = 'cal-future';
+    else if(rec) cls = rec.status==='present' ? 'cal-present' : 'cal-absent';
+    else cls = 'cal-empty';
+    calCells += `<div class="cal-day ${cls}">${d.toLocaleString('bn-BD')}</div>`;
+  }
+  const dayHeaders = ['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র'].map(d=>`<div class="cal-day-header">${d}</div>`).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="profile-card">
+      <div class="profile-avatar">${initial}</div>
+      <div class="profile-info">
+        <div class="profile-name">${student.full_name}</div>
+        <div class="profile-meta">${student.class_name||'—'} ${student.roll_number?'· রোল '+student.roll_number:''}</div>
+      </div>
+      <span class="profile-status ${statusClass}">${statusText}</span>
+    </div>
+
+    <div id="liveClassWrap"></div>
+
+    ${streak >= 2 ? `
+    <div class="streak-card">
+      <div class="streak-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 2c2 3-4 5-2 9 0-2 2-3 2-3 1 2 4 3 4 6a6 6 0 1 1-12 0c0-3 2-5 3-7 0 2 1 2 1 2 0-3 2-5 4-7z"/></svg></div>
+      <div>
+        <div class="streak-num">${streak} দিন</div>
+        <div class="streak-label">ধারাবাহিক উপস্থিতি — অভিনন্দন!</div>
+      </div>
+    </div>` : ''}
+
+    <div class="timeline-card">
+      <div class="timeline-head">
+        <div class="timeline-title">⏰ আজকের সময়সূচি</div>
+      </div>
+      <div class="timeline-track">
+        <div class="timeline-line"></div>
+        <div class="timeline-points">
+          <div class="tpoint">
+            <div class="tpoint-dot ${entryTime?'done':''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v18M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7M14 3h3a2 2 0 0 1 2 2v3"/><path d="M16.5 12h4.5m-2-2l2 2-2 2"/></svg></div>
+            <div class="tpoint-time">${entryTime||'—'}</div>
+            <div class="tpoint-label">প্রবেশ</div>
+          </div>
+          <div class="tpoint">
+            <div class="tpoint-dot ${todayRecord?'done':''}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5v-13z"/></svg></div>
+            <div class="tpoint-time">${todayRecord?'ক্লাসে':'—'}</div>
+            <div class="tpoint-label">অবস্থা</div>
+          </div>
+          <div class="tpoint">
+            <div class="tpoint-dot ${exitTime?'done':''}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M9 3H16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9M9 3H6a2 2 0 0 0-2 2v3"/><path d="M11.5 12H21m-2-2l2 2-2 2"/></svg></div>
+            <div class="tpoint-time">${exitTime||'—'}</div>
+            <div class="tpoint-label">প্রস্থান</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-stats">
+      <div class="qstat">
+        <div class="qstat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div>
+        <div class="qstat-num">${presentCount}</div>
+        <div class="qstat-label">এই সপ্তাহে উপস্থিত</div>
+      </div>
+      <div class="qstat">
+        <div class="qstat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v4M16 3v4"/></svg></div>
+        <div class="qstat-num">${totalDays>0?Math.round((presentCount/totalDays)*100):0}%</div>
+        <div class="qstat-label">উপস্থিতির হার</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 21V10M12 21V4M19 21v-7"/></svg> সাপ্তাহিক উপস্থিতি</div>
+      </div>
+      <div class="attend-week">${weekBars}</div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v4M16 3v4"/></svg> মাসিক ক্যালেন্ডার</div>
+        <span class="section-action" id="monthLabel"></span>
+      </div>
+      <div class="cal-grid">
+        ${dayHeaders}
+        ${calCells}
+      </div>
+      <div style="display:flex;gap:14px;margin-top:12px;justify-content:center;font-size:11px;color:var(--text-2)">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--green)"></div> উপস্থিত</div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:#F87171"></div> অনুপস্থিত</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M8 4h8v6a4 4 0 0 1-8 0V4z"/><path d="M8 5H5.5A2.5 2.5 0 0 0 5.5 10H8M16 5h2.5a2.5 2.5 0 0 1 0 5H16"/><path d="M10 14v2.5M14 14v2.5"/><path d="M8 20h8M9.5 16.5h5l.5 3.5h-6z"/></svg> অর্জন</div>
+      </div>
+      <div class="badge-row">
+        <div class="badge-item">
+          <div class="badge-circle ${streak>=1?'badge-unlocked':'badge-locked'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 2c2 3-4 5-2 9 0-2 2-3 2-3 1 2 4 3 4 6a6 6 0 1 1-12 0c0-3 2-5 3-7 0 2 1 2 1 2 0-3 2-5 4-7z"/></svg></div>
+          <div class="badge-label">প্রথম দিন</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-circle ${streak>=3?'badge-unlocked':'badge-locked'}">⭐</div>
+          <div class="badge-label">৩ দিন ধারা</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-circle ${streak>=7?'badge-unlocked':'badge-locked'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 2c2 3-4 5-2 9 0-2 2-3 2-3 1 2 4 3 4 6a6 6 0 1 1-12 0c0-3 2-5 3-7 0 2 1 2 1 2 0-3 2-5 4-7z"/></svg></div>
+          <div class="badge-label">সাপ্তাহিক</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-circle ${presentCount>=totalDays&&totalDays>0?'badge-unlocked':'badge-locked'}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M5 19L19 5M7 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div>
+          <div class="badge-label">পারফেক্ট</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-circle badge-locked"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg></div>
+          <div class="badge-label">মাসিক তারা</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card" id="sec-result">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 4h13l3 3v13H4z"/><path d="M8 9h9M8 13h9M8 17h6"/></svg> পরীক্ষা ও ফলাফল</div>
+      </div>
+      <div class="empty-feature">
+        <div class="empty-feature-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13l3 3v13H4z"/><path d="M8 9h9M8 13h9M8 17h6"/></svg></div>
+        <div class="empty-feature-t">এখনো কোনো ফলাফল প্রকাশিত হয়নি</div>
+        <div class="empty-feature-s">প্রতিষ্ঠান পরীক্ষার ফলাফল প্রকাশ করলে এখানে দেখা যাবে</div>
+      </div>
+    </div>
+
+    <div class="section-card" id="sec-fee">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/></svg> ফি ও পরিশোধ</div>
+      </div>
+      <div class="empty-feature">
+        <div class="empty-feature-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/></svg></div>
+        <div class="empty-feature-t">কোনো বকেয়া ফি নেই</div>
+        <div class="empty-feature-s">ফি নির্ধারণ করা হলে পরিশোধের তথ্য এখানে দেখা যাবে</div>
+      </div>
+    </div>
+
+    <div class="section-card" id="sec-routine">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v4M16 3v4"/></svg> আজকের রুটিন</div>
+      </div>
+      <div id="routineList"><div style="font-size:12px;color:var(--text-3);text-align:center;padding:16px">লোড হচ্ছে...</div></div>
+    </div>
+
+    <div class="section-card" id="sec-homework">
+      <div class="section-head">
+        <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5v-13z"/></svg> আজকের পড়া</div>
+      </div>
+      <div id="homeworkList"></div>
+    </div>
+  `;
+
+  loadHomeworkForChild();
+  const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  const monthLabelEl = document.getElementById('monthLabel');
+  if(monthLabelEl) monthLabelEl.textContent = monthNames[month];
+}
+
+/* ── Live Class & Routine ── */
+const BD_DAYS_G = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
+function getBDNow(){ return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Dhaka'})); }
+function toMinG(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function fmt12G(t){ const [h,m]=t.split(':').map(Number); return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; }
+
+// Cache: DB fetch every 30s, UI re-render every 3s
+let _gSubjCache = null, _gSubjCacheTime = 0, _gSubjClassId = null;
+
+async function loadLiveClass(student){
+  const wrap = document.getElementById('liveClassWrap');
+  if(!wrap || !student?.class_id) return;
+  const nowMs = Date.now();
+  if(!_gSubjCache || _gSubjClassId !== student.class_id || nowMs - _gSubjCacheTime > 30000){
+    const { data } = await sb.from('class_subjects').select('*').eq('class_id', student.class_id);
+    _gSubjCache = data || []; _gSubjCacheTime = nowMs; _gSubjClassId = student.class_id;
+  }
+  const subjects = _gSubjCache;
+  const now = getBDNow();
+  const todayKey = BD_DAYS_G[now.getDay()];
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const todays = (subjects||[])
+    .filter(s => s.start_time && s.days_of_week && s.days_of_week.split(',').map(d=>d.trim()).includes(todayKey))
+    .sort((a,b) => toMinG(a.start_time) - toMinG(b.start_time));
+  let current=null, next=null;
+  for(const s of todays){
+    const st=toMinG(s.start_time), et=s.end_time?toMinG(s.end_time):st+45;
+    if(nowMin>=st && nowMin<et){ current=s; break; }
+    if(nowMin<st && !next) next=s;
+  }
+  if(current){
+    const st=toMinG(current.start_time), et=current.end_time?toMinG(current.end_time):st+45;
+    const rem=et-nowMin, pct=Math.round(((nowMin-st)/(et-st))*100);
+    wrap.innerHTML=`<div class="live-class-card lc-now">
+      <div class="lc-live-badge"><span class="lc-dot"></span> এখন চলছে</div>
+      <div class="lc-subject">${current.subject_name}</div>
+      <div class="lc-meta">${fmt12G(current.start_time)} — ${current.end_time?fmt12G(current.end_time):'?'}</div>
+      <div class="lc-progress-track"><div class="lc-progress-fill" style="width:${pct}%"></div></div>
+      <div class="lc-footer">⏱ ${rem} মিনিট বাকি</div>
+    </div>`;
+  } else if(next){
+    const wait=toMinG(next.start_time)-nowMin;
+    wrap.innerHTML=`<div class="live-class-card lc-next">
+      <div class="lc-next-badge">পরবর্তী ক্লাস</div>
+      <div class="lc-subject">${next.subject_name}</div>
+      <div class="lc-meta">${fmt12G(next.start_time)} এ শুরু হবে</div>
+      <div class="lc-footer">⏳ ${wait} মিনিট পরে</div>
+    </div>`;
+  } else if(!todays.length){
+    wrap.innerHTML=`<div class="live-class-card lc-idle"><div style="font-size:13px;font-weight:700;color:var(--text)">আজ ছুটির দিন</div><div style="font-size:12px;color:var(--text-3);margin-top:4px">কোনো ক্লাস নির্ধারিত নেই</div></div>`;
+  } else {
+    wrap.innerHTML=`<div class="live-class-card lc-idle"><div style="font-size:13px;font-weight:700;color:var(--text)">আজকের সব ক্লাস শেষ</div><div style="font-size:12px;color:var(--text-3);margin-top:4px">আগামীকাল আবার দেখা হবে</div></div>`;
+  }
+}
+
+let _ttgView='today';
+// Uses _gSubjCache already loaded by loadLiveClass (class_subjects)
+
+async function loadRoutine(student){
+  const wrap = document.getElementById('routineList');
+  if(!wrap || !student?.class_id) return;
+  if(!_gSubjCache || _gSubjClassId !== student.class_id){
+    const { data } = await sb.from('class_subjects').select('*').eq('class_id', student.class_id);
+    _gSubjCache=data||[]; _gSubjClassId=student.class_id; _gSubjCacheTime=Date.now();
+  }
+  renderGuardianRoutine();
+}
+
+function escHtmlGR(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderGuardianRoutine(){
+  const wrap = document.getElementById('routineList');
+  if(!wrap) return;
+  const now = getBDNow();
+  const todayLabel = BD_DAYS_G[now.getDay()]; // Bangla label for today
+  const nowMin = now.getHours()*60+now.getMinutes();
+  const subjects = _gSubjCache||[];
+
+  const toggle = `<div style="display:flex;gap:6px;margin-bottom:12px">
+    <button onclick="_ttgView='today';renderGuardianRoutine()" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid ${_ttgView==='today'?'var(--blue)':'var(--border)'};background:${_ttgView==='today'?'var(--blue-light)':'white'};color:${_ttgView==='today'?'var(--blue)':'var(--text-3)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">আজকের ক্লাস</button>
+    <button onclick="_ttgView='week';renderGuardianRoutine()" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid ${_ttgView==='week'?'var(--blue)':'var(--border)'};background:${_ttgView==='week'?'var(--blue-light)':'white'};color:${_ttgView==='week'?'var(--blue)':'var(--text-3)'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">সাপ্তাহিক</button>
+  </div>`;
+
+  if(_ttgView==='today'){
+    const todays=subjects.filter(s=>s.start_time&&s.days_of_week&&s.days_of_week.split(',').map(d=>d.trim()).includes(todayLabel))
+      .sort((a,b)=>toMinG(a.start_time)-toMinG(b.start_time));
+    if(!todays.length){ wrap.innerHTML=toggle+`<div class="empty-feature"><div class="empty-feature-t">আজ কোনো ক্লাস নেই</div></div>`; return; }
+    wrap.innerHTML=toggle+todays.map(s=>{
+      const stMin=toMinG(s.start_time), etMin=s.end_time?toMinG(s.end_time):stMin+45;
+      const isNow=nowMin>=stMin&&nowMin<etMin, isDone=nowMin>=etMin;
+      return `<div class="routine-item${isNow?' r-now':''}">
+        <div class="routine-time-col">
+          <div class="routine-time-start" style="${isDone&&!isNow?'opacity:.4':''}">${fmt12G(s.start_time)}</div>
+          ${s.end_time?`<div class="routine-time-end">${fmt12G(s.end_time)}</div>`:''}
+        </div>
+        <div style="${isDone&&!isNow?'opacity:.5':''}">
+          <div class="routine-subj">${escHtmlGR(s.subject_name)}${isNow?'<span class="routine-now-tag">এখন</span>':isDone?'<span style="font-size:10px;color:var(--text-3);margin-left:6px">শেষ</span>':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    // BD_DAYS_G = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'] — index matches JS getDay()
+    // Display order: শনি(6),রবি(0),সোম(1),মঙ্গল(2),বুধ(3),বৃহঃ(4)
+    const WIDX=[6,0,1,2,3,4], WLABELS=['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহঃ'];
+    const todayIdx=now.getDay();
+    const timeSlots=[...new Set(subjects.filter(s=>s.start_time).map(s=>s.start_time))].sort();
+    if(!timeSlots.length){ wrap.innerHTML=toggle+`<div class="empty-feature"><div class="empty-feature-t">সময়সূচী সেট করা হয়নি</div></div>`; return; }
+    let tbl=`<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:11px">
+      <thead><tr><th style="background:var(--blue);color:white;padding:6px 5px;text-align:center">সময়</th>
+      ${WIDX.map((di,wi)=>`<th style="background:${di===todayIdx?'#1044B0':'var(--blue)'};color:white;padding:6px 4px;text-align:center">${WLABELS[wi]}</th>`).join('')}
+      </tr></thead><tbody>`;
+    timeSlots.forEach((st,pi)=>{
+      const stMin=toMinG(st), endT=subjects.find(s=>s.start_time===st)?.end_time;
+      const etMin=endT?toMinG(endT):stMin+45, isNow=nowMin>=stMin&&nowMin<etMin;
+      tbl+=`<tr${isNow?' style="outline:2px solid var(--green);outline-offset:-1px"':''}>
+        <td style="background:var(--surface);text-align:center;padding:5px 6px;border:1px solid var(--border)">
+          <span style="font-size:11px;font-weight:700;color:var(--blue)">${pi+1}</span>
+          <div style="font-size:9px;color:var(--text-3)">${fmt12G(st)}</div>
+        </td>`;
+      WIDX.forEach((di,wi)=>{
+        const dayLabel=BD_DAYS_G[di];
+        const slot=subjects.find(s=>s.start_time===st&&s.days_of_week&&s.days_of_week.split(',').map(d=>d.trim()).includes(dayLabel));
+        tbl+=`<td style="border:1px solid var(--border);padding:5px 3px;text-align:center;background:${di===todayIdx?'#EFF6FF':'white'}">${slot?`<span style="font-size:11px;font-weight:600;color:var(--blue)">${escHtmlGR(slot.subject_name)}</span>`:`<span style="color:var(--border)">—</span>`}</td>`;
+      });
+      tbl+=`</tr>`;
+    });
+    wrap.innerHTML=toggle+tbl+`</tbody></table></div>`;
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem('guardian_phone');
+  localStorage.removeItem('guardian_students');
+  window.location.href = 'guardian-login.html';
+}
+
+let inboxTeachers = [];
+let currentThreadTeacher = null;
+let currentThreadTeacherName = '';
+let threadMediaRecorder = null;
+let threadAudioChunks = [];
+let threadAudioBlob = null;
+
+let threadPollTimer = null;
+let inboxDotPollTimer = null;
+let threadRealtimeChannel = null;
+
+async function openInbox(){
+  document.getElementById('inboxOverlay').classList.add('show');
+  await inboxShowList();
+  const s = window.currentStudent;
+  if(s){
+    await sb.from('messages').update({read:true}).eq('receiver_type','guardian').eq('receiver_id', s.id).eq('read', false);
+  }
+  document.getElementById('gInboxDot').style.display = 'none';
+}
+function closeInbox(){
+  document.getElementById('inboxOverlay').classList.remove('show');
+  if(threadPollTimer){ clearInterval(threadPollTimer); threadPollTimer = null; }
+  stopThreadRealtime();
+}
+
+function startThreadPolling(){
+  if(threadPollTimer) clearInterval(threadPollTimer);
+  threadPollTimer = setInterval(loadThreadMessages, 3000);
+}
+
+function startThreadRealtime(threadId){
+  stopThreadRealtime();
+  threadRealtimeChannel = sb.channel('thread_rt_'+threadId)
+    .on('postgres_changes',{ event:'INSERT', schema:'public', table:'messages', filter:'thread_id=eq.'+threadId },
+      payload=>{ appendMessage(payload.new); })
+    .subscribe();
+}
+function stopThreadRealtime(){
+  if(threadRealtimeChannel){ sb.removeChannel(threadRealtimeChannel); threadRealtimeChannel=null; }
+}
+
+function appendMessage(m){
+  const wrap = document.getElementById('threadMessages');
+  if(!wrap) return;
+  const mine = m.sender_type === 'guardian' || m.sender_type === 'student' || m.sender_id === window.currentStudent?.id;
+  const time = new Date(m.created_at).toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'});
+  const div = document.createElement('div');
+  div.className = 'msg-bubble ' + (mine?'me':'them');
+  div.innerHTML = (m.type==='voice' ? vmsgHtml(m.voice_url,'msg_'+(m.id||Math.random()),mine?'dark':'light') : escapeHtmlG(m.content||''))
+    + `<div class="msg-time">${time}</div>`;
+  const empty = wrap.querySelector('.empty-feature');
+  if(empty) empty.remove();
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  initPendingVmsgPlayers();
+}
+
+function startInboxDotPolling(){
+  if(inboxDotPollTimer) clearInterval(inboxDotPollTimer);
+  inboxDotPollTimer = setInterval(async ()=>{
+    const s = window.currentStudent;
+    if(!s) return;
+    const { data } = await sb.from('messages').select('id')
+      .eq('receiver_type','guardian').eq('receiver_id', s.id).eq('read', false).limit(1);
+    document.getElementById('gInboxDot').style.display = (data && data.length) ? 'block' : 'none';
+  }, 8000);
+}
+
+async function inboxShowList(){
+  if(threadPollTimer){ clearInterval(threadPollTimer); threadPollTimer = null; }
+  document.getElementById('inboxBackBtn').style.display = 'none';
+  document.getElementById('inboxTitle').textContent = 'ইনবক্স — শিক্ষকগণ';
+  document.getElementById('inboxCallBtn').style.display = 'none';
+  document.getElementById('inboxListView').style.display = 'flex';
+  document.getElementById('inboxThreadView').style.display = 'none';
+
+  const student = window.currentStudent;
+  if(!student || !student.class_id){
+    document.getElementById('inboxList').innerHTML = '<div class="empty-feature"><div class="empty-feature-t">ক্লাস তথ্য পাওয়া যায়নি</div></div>';
+    return;
+  }
+
+  const { data: primaryTeachers } = await sb.from('teachers').select('id,full_name,primary_subject').eq('primary_class_id', student.class_id);
+  const { data: pairs } = await sb.from('teacher_class_subjects').select('teacher_id,subject_name').eq('class_id', student.class_id);
+  let extraTeachers = [];
+  if(pairs && pairs.length){
+    const ids = [...new Set(pairs.map(p=>p.teacher_id))];
+    const { data: t2 } = await sb.from('teachers').select('id,full_name').in('id', ids);
+    extraTeachers = (t2||[]).map(t=>({...t, primary_subject: (pairs.find(p=>p.teacher_id===t.id)||{}).subject_name}));
+  }
+  const map = {};
+  [...(primaryTeachers||[]), ...extraTeachers].forEach(t=>{ map[t.id] = t; });
+  inboxTeachers = Object.values(map);
+
+  document.getElementById('inboxList').innerHTML = inboxTeachers.length ? inboxTeachers.map(t=>`
+    <div class="inbox-item" onclick='openThread(${JSON.stringify(t.id)}, ${JSON.stringify(t.full_name)})'>
+      <div class="inbox-avatar">${escapeHtmlG((t.full_name||'?').charAt(0))}</div>
+      <div class="inbox-item-info">
+        <div class="inbox-item-name">${escapeHtmlG(t.full_name)}</div>
+        <div class="inbox-item-sub">${escapeHtmlG(t.primary_subject||'শিক্ষক')}</div>
+      </div>
+    </div>`).join('') : '<div class="empty-feature"><div class="empty-feature-t">এখনো কোনো শিক্ষক যুক্ত নেই</div></div>';
+}
+
+function getThreadId(teacherId){ return 'thread_' + window.currentStudent.id + '_' + teacherId; }
+
+async function openThread(teacherId, teacherName){
+  currentThreadTeacher = teacherId;
+  currentThreadTeacherName = teacherName;
+  document.getElementById('inboxBackBtn').style.display = 'inline-block';
+  document.getElementById('inboxTitle').textContent = teacherName;
+  document.getElementById('inboxCallBtn').style.display = 'inline-flex';
+  document.getElementById('inboxListView').style.display = 'none';
+  document.getElementById('inboxThreadView').style.display = 'flex';
+  document.getElementById('threadMessages').dataset.loaded = '';
+  // subscribe to teacher's channel so we can broadcast to them
+  gSubscribePeerChannel('teacher_'+teacherId);
+  await loadThreadMessages();
+  startThreadRealtime(getThreadId(teacherId));
+}
+
+async function loadThreadMessages(){
+  const threadId = getThreadId(currentThreadTeacher);
+  const { data } = await sb.from('messages').select('*').eq('thread_id', threadId).order('created_at',{ascending:true});
+  const wrap = document.getElementById('threadMessages');
+  const wasNearBottom = (wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight) < 80;
+  const isFirstLoad = !wrap.dataset.loaded;
+  wrap.innerHTML = (data||[]).map(m=>{
+    const mine = m.sender_type === 'guardian' || m.sender_type === 'student' || m.sender_id === window.currentStudent?.id;
+    const time = new Date(m.created_at).toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="msg-bubble ${mine?'me':'them'}">
+      ${m.type==='voice' ? vmsgHtml(m.voice_url, 'msg_'+(m.id||Math.random()), mine?'dark':'light') : escapeHtmlG(m.content||'')}
+      <div class="msg-time">${time}</div>
+    </div>`;
+  }).join('') || '<div class="empty-feature"><div class="empty-feature-t">এখনো কোনো মেসেজ নেই — নক করুন!</div></div>';
+  if(isFirstLoad || wasNearBottom) wrap.scrollTop = wrap.scrollHeight;
+  wrap.dataset.loaded = '1';
+  initPendingVmsgPlayers();
+}
+
+async function sendThreadMessage(){
+  if(threadAudioBlob){ await sendThreadVoiceMessage(); return; }
+  const input = document.getElementById('threadTextInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const student = window.currentStudent;
+  await sb.from('messages').insert({
+    institution_id: student.institution_id,
+    thread_id: getThreadId(currentThreadTeacher),
+    sender_type: 'guardian', sender_id: student.id,
+    receiver_type: 'teacher', receiver_id: currentThreadTeacher,
+    type: 'text', content: text
+  });
+  await sb.from('notifications').insert({
+    institution_id: student.institution_id,
+    recipient_type: 'teacher', recipient_id: currentThreadTeacher,
+    title: student.full_name + ' এর অভিভাবক মেসেজ পাঠিয়েছেন', body: text.slice(0,60), message: text.slice(0,60)
+  });
+  input.value = '';
+  // realtime will append the new message automatically
+}
+
+async function openNotifications(){
+  document.getElementById('notifOverlay').classList.add('show');
+  const student = window.currentStudent;
+  const { data } = await sb.from('notifications').select('*')
+    .eq('recipient_type','guardian').eq('recipient_id', student.id)
+    .order('created_at',{ascending:false}).limit(30);
+  const wrap = document.getElementById('notifList');
+  wrap.innerHTML = (data||[]).length ? data.map(n=>`
+    <div class="inbox-item">
+      <div class="inbox-avatar">🔔</div>
+      <div class="inbox-item-info">
+        <div class="inbox-item-name">${escapeHtmlG(n.title||'')}</div>
+        <div class="inbox-item-sub">${escapeHtmlG(n.body||'')}</div>
+      </div>
+    </div>`).join('') : '<div class="empty-feature"><div class="empty-feature-t">কোনো নোটিফিকেশন নেই</div></div>';
+
+  await sb.from('notifications').update({read:true}).eq('recipient_type','guardian').eq('recipient_id', student.id).eq('read', false);
+  document.getElementById('gNotifDot').style.display = 'none';
+}
+function closeNotifications(){ document.getElementById('notifOverlay').classList.remove('show'); }
+
+let notifPollTimer = null;
+let notifChannel = null;
+function subscribeNotifications(){
+  const student = window.currentStudent;
+  if(!student) return;
+
+  if(notifChannel){ sb.removeChannel(notifChannel); notifChannel = null; }
+
+  notifChannel = sb.channel('notif_guardian_'+student.id+'_'+Date.now())
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'notifications', filter:'recipient_id=eq.'+student.id}, payload=>{
+      document.getElementById('gNotifDot').style.display = 'block';
+    })
+    .subscribe();
+
+  if(notifPollTimer) clearInterval(notifPollTimer);
+  notifPollTimer = setInterval(async ()=>{
+    const s = window.currentStudent;
+    if(!s) return;
+    const { data, error } = await sb.from('notifications').select('id')
+      .eq('recipient_type','guardian').eq('recipient_id', s.id).eq('read', false);
+    if(error) console.error('NOTIF POLL ERROR:', error);
+    document.getElementById('gNotifDot').style.display = (data && data.length>0) ? 'block' : 'none';
+  }, 15000);
+}
+
+async function toggleThreadVoice(){
+  const btn = document.getElementById('threadVoiceBtn');
+  if(threadMediaRecorder && threadMediaRecorder.state === 'recording'){
+    threadMediaRecorder.stop();
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    threadAudioChunks = [];
+    threadMediaRecorder = new MediaRecorder(stream);
+
+    threadAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = threadAudioCtx.createMediaStreamSource(stream);
+    threadAnalyser = threadAudioCtx.createAnalyser();
+    threadAnalyser.fftSize = 256;
+    source.connect(threadAnalyser);
+
+    document.getElementById('threadVoicePreview').style.display = 'none';
+    document.getElementById('threadTextInput').style.display = 'none';
+    document.getElementById('threadVoiceLiveWrap').style.display = 'flex';
+    drawLiveThreadWaveform();
+
+    threadMediaRecorder.ondataavailable = e => threadAudioChunks.push(e.data);
+    threadMediaRecorder.onstop = async () => {
+      threadAudioBlob = new Blob(threadAudioChunks, {type:'audio/webm'});
+      stream.getTracks().forEach(t=>t.stop());
+      cancelAnimationFrame(threadWaveAnimFrame);
+      clearInterval(threadRecordTimerInterval);
+      btn.classList.remove('recording');
+      document.getElementById('threadVoiceLiveWrap').style.display = 'none';
+      await prepareThreadPlayback();
+    };
+
+    threadMediaRecorder.start();
+    btn.classList.add('recording');
+    threadRecordStartTime = Date.now();
+    threadRecordTimerInterval = setInterval(()=>{
+      const sec = Math.floor((Date.now()-threadRecordStartTime)/1000);
+      document.getElementById('threadVoiceTimerLive').textContent = Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+    }, 500);
+  }catch(e){
+    alert('মাইক্রোফোন অনুমতি দিতে হবে: ' + e.message);
+  }
+}
+
+let threadAudioCtx = null, threadAnalyser = null, threadWaveAnimFrame = null;
+let threadRecordStartTime = 0, threadRecordTimerInterval = null;
+let threadAudioPeaks = [];
+let threadPlaybackAudio = null;
+let threadPlaybackAnimFrame = null;
+let threadWaveHistory = [];
+
+function fitThreadCanvas(canvas){
+  const rect = canvas.getBoundingClientRect();
+  const w = Math.max(40, Math.floor(rect.width));
+  const h = Math.max(20, Math.floor(rect.height || 30));
+  if(canvas.width !== w) canvas.width = w;
+  if(canvas.height !== h) canvas.height = h;
+}
+
+function drawLiveThreadWaveform(){
+  const canvas = document.getElementById('threadWaveCanvas');
+  fitThreadCanvas(canvas);
+  const ctx = canvas.getContext('2d');
+  const dataArr = new Uint8Array(threadAnalyser.fftSize);
+  threadWaveHistory = [];
+  let smoothedLevel = 0;
+  function draw(){
+    threadWaveAnimFrame = requestAnimationFrame(draw);
+    threadAnalyser.getByteTimeDomainData(dataArr);
+    let sumSq = 0;
+    for(let i=0;i<dataArr.length;i++){ const v=(dataArr[i]-128)/128; sumSq += v*v; }
+    const rms = Math.sqrt(sumSq/dataArr.length);
+    smoothedLevel = smoothedLevel*0.7 + rms*0.3;
+    const level = Math.min(1, smoothedLevel*4);
+    const barW = 3, gap = 2;
+    const maxBars = Math.floor(canvas.width/(barW+gap));
+    threadWaveHistory.push(level);
+    if(threadWaveHistory.length > maxBars) threadWaveHistory.shift();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#7C3AED';
+    const startX = canvas.width - threadWaveHistory.length*(barW+gap);
+    threadWaveHistory.forEach((lvl,i)=>{
+      const h = Math.max(3, lvl*canvas.height*0.85);
+      const x = startX + i*(barW+gap);
+      ctx.fillRect(x, (canvas.height-h)/2, barW, h);
+    });
+  }
+  draw();
+}
+
+async function prepareThreadPlayback(){
+  const arrBuf = await threadAudioBlob.arrayBuffer();
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let audioBuffer;
+  try{ audioBuffer = await audioCtx.decodeAudioData(arrBuf); }
+  catch(e){ audioBuffer = null; }
+  if(audioBuffer){
+    const raw = audioBuffer.getChannelData(0);
+    const barCount = 28, blockSize = Math.floor(raw.length/barCount);
+    threadAudioPeaks = [];
+    for(let i=0;i<barCount;i++){
+      let sum = 0;
+      for(let j=0;j<blockSize;j++) sum += Math.abs(raw[i*blockSize+j] || 0);
+      threadAudioPeaks.push(sum/blockSize);
+    }
+    const max = Math.max(...threadAudioPeaks, 0.01);
+    threadAudioPeaks = threadAudioPeaks.map(p=>p/max);
+  } else {
+    threadAudioPeaks = Array.from({length:28}, ()=>0.3+Math.random()*0.5);
+  }
+  threadPlaybackAudio = new Audio(URL.createObjectURL(threadAudioBlob));
+  document.getElementById('threadVoicePreview').style.display = 'flex';
+  drawStaticThreadWaveform(0);
+  threadPlaybackAudio.onended = ()=>{
+    document.getElementById('threadVoicePlayBtn').textContent = '▶';
+    drawStaticThreadWaveform(0);
+  };
+}
+
+function drawStaticThreadWaveform(progress){
+  const canvas = document.getElementById('threadWaveCanvasPreview');
+  fitThreadCanvas(canvas);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const barCount = threadAudioPeaks.length;
+  const barW = canvas.width/barCount;
+  threadAudioPeaks.forEach((p,i)=>{
+    const h = Math.max(3, Math.min(canvas.height*0.85, p*canvas.height*0.85));
+    ctx.fillStyle = (i/barCount <= progress) ? '#7C3AED' : '#C4B5FD';
+    ctx.fillRect(i*barW, (canvas.height-h)/2, Math.max(1,barW-2), h);
+  });
+}
+
+function toggleThreadVoicePlayback(){
+  const playBtn = document.getElementById('threadVoicePlayBtn');
+  if(!threadPlaybackAudio) return;
+  if(threadPlaybackAudio.paused){
+    threadPlaybackAudio.play();
+    playBtn.textContent = '❙❙';
+    const animate = ()=>{
+      if(threadPlaybackAudio.paused) return;
+      drawStaticThreadWaveform(threadPlaybackAudio.currentTime / (threadPlaybackAudio.duration||1));
+      threadPlaybackAnimFrame = requestAnimationFrame(animate);
+    };
+    animate();
+  } else {
+    threadPlaybackAudio.pause();
+    playBtn.textContent = '▶';
+    cancelAnimationFrame(threadPlaybackAnimFrame);
+  }
+}
+
+function discardThreadVoice(){
+  threadAudioBlob = null;
+  threadAudioPeaks = [];
+  if(threadPlaybackAudio){ threadPlaybackAudio.pause(); threadPlaybackAudio = null; }
+  document.getElementById('threadVoicePreview').style.display = 'none';
+  document.getElementById('threadVoiceLiveWrap').style.display = 'none';
+  document.getElementById('threadTextInput').style.display = 'block';
+}
+
+async function sendThreadVoiceMessage(){
+  if(!threadAudioBlob) return;
+    const s2 = window.currentStudent;
+  const fileName = `chat/${s2.id}_${Date.now()}.webm`;
+  const { error: upErr } = await sb.storage.from('voice-notes').upload(fileName, threadAudioBlob);
+  if(upErr){ alert('ভয়েস পাঠানো যায়নি: ' + upErr.message); return; }
+  const { data: pub } = sb.storage.from('voice-notes').getPublicUrl(fileName);
+  await sb.from('messages').insert({
+    institution_id: s2.institution_id,
+    thread_id: getThreadId(currentThreadTeacher),
+    sender_type: 'guardian', sender_id: s2.id,
+    receiver_type: 'teacher', receiver_id: currentThreadTeacher,
+    type: 'voice', voice_url: pub.publicUrl
+  });
+  discardThreadVoice();
+  // realtime will append the voice message automatically
+}
+
+
+let vmsgAudios = {};
+let vmsgThemes = {};
+function vmsgHtml(url, id, theme){
+  vmsgThemes[id] = theme || 'light';
+  vmsgPending.push({id, url});
+  return `<div class="vmsg-player">
+    <button class="vmsg-play" id="vmsgPlay_${id}" onclick="vmsgToggle('${id}','${url}')">&#9654;</button>
+    <canvas class="vmsg-canvas" id="vmsgCanvas_${id}"></canvas>
+    <span class="vmsg-time" id="vmsgTime_${id}">0:00</span>
+  </div>`;
+}
+let vmsgPending = [];
+function initPendingVmsgPlayers(){
+  const list = vmsgPending.slice();
+  vmsgPending = [];
+  list.forEach(({id,url})=>{ vmsgEnsureLoaded(id, url); });
+}
+async function vmsgEnsureLoaded(id, url){
+  if(vmsgAudios[id]) return vmsgAudios[id];
+  const audio = new Audio(url);
+  let peaks = Array.from({length:24},(_,i)=>0.45+0.4*Math.sin(i*0.8));
+  vmsgAudios[id] = { audio, peaks };
+  drawVmsgWave(id, 0);
+  try{
+    const resp = await fetch(url);
+    const buf = await resp.arrayBuffer();
+    const actx = new (window.AudioContext||window.webkitAudioContext)();
+    const decoded = await actx.decodeAudioData(buf);
+    const raw = decoded.getChannelData(0);
+    const barCount = 24, block = Math.floor(raw.length/barCount);
+    let p = [];
+    for(let i=0;i<barCount;i++){ let s=0; for(let j=0;j<block;j++) s+=Math.abs(raw[i*block+j]||0); p.push(s/block); }
+    const max = Math.max(...p, 0.01);
+    vmsgAudios[id].peaks = p.map(v=>v/max);
+    drawVmsgWave(id, 0);
+  }catch(e){}
+  audio.onended = ()=>{ const b=document.getElementById('vmsgPlay_'+id); if(b) b.innerHTML='&#9654;'; drawVmsgWave(id,0); };
+  return vmsgAudios[id];
+}
+function smoothPeaks(arr){
+  // light moving-average smoothing for a cleaner, flowing look
+  const out = [];
+  for(let i=0;i<arr.length;i++){
+    const a = arr[Math.max(0,i-1)], b = arr[i], c = arr[Math.min(arr.length-1,i+1)];
+    out.push((a+b*2+c)/4);
+  }
+  const max = Math.max(...out, 0.05);
+  return out.map(v=>Math.max(0.18, v/max)); // floor so bars never look "dead"
+}
+function drawVmsgWave(id, progress){
+  const canvas = document.getElementById('vmsgCanvas_'+id);
+  if(!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = Math.max(60, Math.floor(rect.width));
+  const cssH = Math.max(20, Math.floor(rect.height || 26));
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  const rawPeaks = (vmsgAudios[id] && vmsgAudios[id].peaks) || [];
+  const peaks = smoothPeaks(rawPeaks);
+  const theme = vmsgThemes[id] || 'light';
+  const gap = 2.5;
+  const barW = (cssW/peaks.length) - gap;
+  peaks.forEach((p,i)=>{
+    const h = Math.max(3, Math.min(cssH*0.8, p*cssH*0.8));
+    const played = (i/peaks.length) <= progress;
+    ctx.fillStyle = theme==='dark' ? (played?'#fff':'rgba(255,255,255,.42)') : (played?'#7C3AED':'#C9B8F5');
+    const x = i*(barW+gap), y = (cssH-h)/2, r = Math.min(barW,h)/2;
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x,y,barW,h,r); else ctx.rect(x,y,barW,h);
+    ctx.fill();
+  });
+}
+function vmsgFmtTime(s){ s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+async function vmsgToggle(id, url){
+  const rec = await vmsgEnsureLoaded(id, url);
+  const btn = document.getElementById('vmsgPlay_'+id);
+  if(rec.audio.paused){
+    rec.audio.play();
+    if(btn) btn.innerHTML = '&#10074;&#10074;';
+    const anim = ()=>{
+      if(rec.audio.paused) return;
+      drawVmsgWave(id, rec.audio.currentTime/(rec.audio.duration||1));
+      const t = document.getElementById('vmsgTime_'+id);
+      if(t) t.textContent = vmsgFmtTime(rec.audio.currentTime);
+      requestAnimationFrame(anim);
+    };
+    anim();
+  } else {
+    rec.audio.pause();
+    if(btn) btn.innerHTML = '&#9654;';
+  }
+}
+
+init();
+// Auto-refresh: UI every 3s (cache hit), DB every 30s (inside loadLiveClass)
+setInterval(() => {
+  const s = window.currentStudent;
+  if(s){ loadLiveClass(s); loadRoutine(s); }
+}, 3000);
+</script>
+<!-- NOTIFICATIONS MODAL -->
+<div class="inbox-overlay" id="notifOverlay">
+  <div class="inbox-modal">
+    <div class="inbox-modal-head">
+      <div class="inbox-title">নোটিফিকেশন</div>
+      <button class="inbox-close" onclick="closeNotifications()">✕</button>
+    </div>
+    <div id="notifList" class="inbox-list"></div>
+  </div>
+</div>
+
+<!-- INBOX / CHAT MODAL -->
+<div class="inbox-overlay" id="inboxOverlay">
+  <div class="inbox-modal">
+    <div class="inbox-modal-head">
+      <button class="inbox-back" id="inboxBackBtn" onclick="inboxShowList()" style="display:none">←</button>
+      <div class="inbox-title" id="inboxTitle">ইনবক্স</div>
+      <button id="inboxCallBtn" onclick="startAudioCall()" style="display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--green);transition:.2s" title="Audio Call">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6.25 6.25l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.04z"/></svg>
+      </button>
+      <button class="inbox-close" onclick="closeInbox()">✕</button>
+    </div>
+    <div id="inboxListView">
+      <div id="inboxList" class="inbox-list"></div>
+    </div>
+    <div id="inboxThreadView" style="display:none">
+      <div id="threadMessages" class="thread-messages"></div>
+      <div class="thread-input-row" id="threadInputRow">
+        <button class="vr-mic-btn" id="threadVoiceBtn" onclick="toggleThreadVoice()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
+        <input type="text" id="threadTextInput" placeholder="মেসেজ লিখুন..." onkeydown="if(event.key==='Enter')sendThreadMessage()">
+        <div class="vr-live-wrap" id="threadVoiceLiveWrap" style="display:none">
+          <canvas class="vr-canvas" id="threadWaveCanvas"></canvas>
+          <span class="vr-timer" id="threadVoiceTimerLive"></span>
+        </div>
+        <div class="vr-preview" id="threadVoicePreview" style="display:none">
+          <button class="vr-play-btn" id="threadVoicePlayBtn" onclick="toggleThreadVoicePlayback()">▶</button>
+          <canvas class="vr-canvas" id="threadWaveCanvasPreview"></canvas>
+          <button class="vr-discard-btn" onclick="discardThreadVoice()">✕</button>
+        </div>
+        <button class="thread-send-btn" onclick="sendThreadMessage()">পাঠান</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.inbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.inbox-overlay.show{opacity:1;pointer-events:all}
+.inbox-modal{background:white;width:100%;max-width:420px;height:85vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;transform:translateY(20px);transition:transform .25s}
+.inbox-overlay.show .inbox-modal{transform:translateY(0)}
+.inbox-modal-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.inbox-title{font-size:14.5px;font-weight:700;flex:1}
+.inbox-back,.inbox-close{background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-2);padding:4px 8px}
+#inboxListView,#inboxThreadView{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.inbox-list{flex:1;overflow-y:auto;padding:8px}
+.inbox-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;cursor:pointer;transition:background .15s}
+.inbox-item:hover{background:var(--surface)}
+.inbox-avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-l);color:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.inbox-item-info{flex:1;min-width:0}
+.inbox-item-name{font-size:13.5px;font-weight:700;color:var(--text)}
+.inbox-item-sub{font-size:11.5px;color:var(--text-3)}
+.thread-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg-bubble{max-width:75%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.5}
+.msg-bubble.me{background:var(--purple);color:white;align-self:flex-end;border-bottom-right-radius:4px}
+.msg-bubble.them{background:var(--surface);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.vmsg-player{display:flex;align-items:center;gap:8px;min-width:160px}
+.vmsg-play{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;font-size:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.vmsg-canvas{flex:1;height:26px;width:100%;display:block;min-width:80px}
+.vmsg-time{font-size:10.5px;flex-shrink:0;min-width:30px}
+.msg-bubble.me .vmsg-play{background:rgba(255,255,255,.25);color:white}
+.msg-bubble.me .vmsg-time{color:rgba(255,255,255,.85)}
+.msg-bubble.them .vmsg-play{background:var(--purple);color:white}
+.msg-bubble.them .vmsg-time{color:var(--text-2)}
+.hw-item .vmsg-play{background:var(--purple);color:white}
+.hw-item .vmsg-time{color:var(--text-3)}
+
+.msg-bubble audio{width:200px;height:32px}
+.msg-time{font-size:10px;opacity:.6;margin-top:3px}
+.thread-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);align-items:center}
+.thread-voice-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:white;cursor:pointer;flex-shrink:0;font-size:16px}
+.thread-voice-btn.recording{background:#FEF2F2;border-color:#FECACA}
+#threadTextInput{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:100px;font-size:13px;font-family:inherit;outline:none}
+.thread-send-btn{padding:10px 16px;border-radius:100px;border:none;background:var(--purple);color:white;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
+.thread-voice-status{font-size:11px;color:var(--text-3);padding:0 12px 8px;text-align:center}
+.vr-mic-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--purple);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.vr-mic-btn.recording{background:#DC2626;animation:vrPulse2 1.2s infinite}
+@keyframes vrPulse2{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}50%{box-shadow:0 0 0 8px rgba(220,38,38,0)}}
+.vr-live-wrap{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:100px;padding:5px 14px;flex:1;overflow:hidden;height:40px}
+.vr-canvas{flex:1;height:30px;width:100%;display:block}
+.vr-timer{font-size:11.5px;color:var(--text-2);font-weight:600;min-width:34px;flex-shrink:0}
+.vr-preview{display:flex;align-items:center;gap:8px;background:var(--purple-l);border:1.5px solid #DDD6FE;border-radius:100px;padding:5px 10px;overflow:hidden;height:40px;flex:1}
+.vr-play-btn{width:30px;height:30px;border-radius:50%;border:none;background:var(--purple);color:white;cursor:pointer;font-size:11px;flex-shrink:0}
+.vr-discard-btn{width:26px;height:26px;border-radius:50%;border:none;background:white;color:#DC2626;cursor:pointer;font-size:12px;flex-shrink:0}
+
+</style>
+
+<!-- ── CALL OVERLAY ── -->
+<div id="gCallOverlay" style="display:none;position:fixed;inset:0;background:rgba(10,22,40,.92);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:linear-gradient(145deg,#0F2048,#1A3570);border-radius:28px;padding:40px 36px;width:300px;text-align:center;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-60px;left:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(26,86,219,.3),transparent 70%)"></div>
+    <!-- ring animation -->
+    <div id="gCallRing" style="width:90px;height:90px;border-radius:50%;margin:0 auto 14px;position:relative;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.2);animation:gRing 1.5s ease-out infinite"></div>
+      <div style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.2);animation:gRing 1.5s ease-out .5s infinite"></div>
+      <div id="gCallAvatar" style="width:72px;height:72px;border-radius:50%;background:#1A56DB;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;position:relative;z-index:1">র</div>
+    </div>
+    <div id="gCallLabel" style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:5px;letter-spacing:.05em">কল করা হচ্ছে...</div>
+    <div id="gCallName" style="font-size:18px;font-weight:800;color:#fff;margin-bottom:3px">শিক্ষক</div>
+    <div id="gCallTimer" style="font-size:20px;font-weight:700;color:#fff;margin:14px 0 24px;display:none;font-variant-numeric:tabular-nums">00:00</div>
+    <div id="gCallActions" style="display:flex;align-items:center;justify-content:center;gap:24px">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+<style>
+@keyframes gRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+</style>
+
+<script>
+// ── AUDIO CALL (Guardian) ──
+let gCall = { state:'idle', pc:null, localStream:null, seconds:0, timer:null, ringtone:null, isMuted:false, callChannel:null };
+
+const G_ICE = { iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'turn:openrelay.metered.ca:80', username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'}
+]};
+const G_AUDIO = { audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }, video:false };
+let gRemoteAudio = null;
+function gSetupRemoteAudio(stream){
+  if(!gRemoteAudio){ gRemoteAudio = new Audio(); gRemoteAudio.autoplay=true; document.body.appendChild(gRemoteAudio); }
+  gRemoteAudio.srcObject = stream;
+  gRemoteAudio.play().catch(()=>{});
+}
+
+function gInitials(n){ return (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function gFmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+// subscribe to incoming calls — guardian uses student ID as channel key
+function gSubscribeCall(){
+  // wait until currentStudent is loaded
+  const trySubscribe = ()=>{
+    const student = window.currentStudent;
+    if(!student?.id){ setTimeout(trySubscribe, 500); return; }
+    gCall.callChannel = sb.channel('gcalls_guardian_'+student.id)
+      .on('broadcast',{event:'call_offer'},({payload})=>gHandleIncoming(payload))
+      .on('broadcast',{event:'call_answer'},({payload})=>gHandleAnswer(payload))
+      .on('broadcast',{event:'call_ice'},({payload})=>gHandleIce(payload))
+      .on('broadcast',{event:'call_end'},()=>gRemoteEnd())
+      .on('broadcast',{event:'call_reject'},()=>gHandleReject())
+      .subscribe();
+  };
+  trySubscribe();
+}
+gSubscribeCall();
+
+async function startAudioCall(){
+  if(gCall.state!=='idle') return;
+  if(!currentThreadTeacher) return;
+  const student = window.currentStudent;
+  if(!student?.id) return;
+
+  gCall.state='calling';
+  gCall.targetId = currentThreadTeacher; // teacher's record id used as channel key
+  gShowOverlay('outgoing', currentThreadTeacherName);
+
+  try{
+    gCall.localStream = await navigator.mediaDevices.getUserMedia(G_AUDIO);
+    gCall.pc = new RTCPeerConnection(G_ICE);
+    gCall.localStream.getTracks().forEach(t=>gCall.pc.addTrack(t,gCall.localStream));
+    gCall.pc.ontrack = e=>{ if(e.streams[0]) gSetupRemoteAudio(e.streams[0]); };
+    gCall.pc.onicecandidate = e=>{ if(e.candidate) gBroadcast('teacher_'+currentThreadTeacher,'call_ice',{candidate:e.candidate}); };
+    gCall.pc.onconnectionstatechange = ()=>{
+      if(gCall.pc?.connectionState==='connected'){ gStartTimer(); gUpdateOverlay('active'); }
+      if(['disconnected','failed','closed'].includes(gCall.pc?.connectionState)) gEndLocal();
+    };
+    const offer = await gCall.pc.createOffer();
+    await gCall.pc.setLocalDescription(offer);
+    // from = guardian identified by studentId
+    gBroadcast('teacher_'+currentThreadTeacher,'call_offer',{
+      offer,
+      from: 'guardian_'+student.id,
+      fromName: student.guardian_name || 'অভিভাবক',
+      fromRole: 'guardian',
+      studentId: student.id
+    });
+  } catch(e){
+    gCall.state='idle'; gHideOverlay();
+    alert('মাইক্রোফোনের অনুমতি দিন।');
+  }
+}
+
+function gHandleIncoming(data){
+  if(gCall.state!=='idle') return;
+  gCall.state='incoming'; gCall.incomingData=data;
+  gShowOverlay('incoming', data.fromName||'শিক্ষক');
+  gPlayRing();
+}
+
+async function gAcceptCall(){
+  gStopRing();
+  const data = gCall.incomingData; if(!data) return;
+  gCall.state='active'; gUpdateOverlay('active');
+  try{
+    gCall.localStream = await navigator.mediaDevices.getUserMedia(G_AUDIO);
+    gCall.pc = new RTCPeerConnection(G_ICE);
+    gCall.localStream.getTracks().forEach(t=>gCall.pc.addTrack(t,gCall.localStream));
+    gCall.pc.ontrack = e=>{ if(e.streams[0]) gSetupRemoteAudio(e.streams[0]); };
+    gCall.pc.onicecandidate = e=>{ if(e.candidate) gBroadcast(data.from,'call_ice',{candidate:e.candidate}); };
+    gCall.pc.onconnectionstatechange = ()=>{
+      if(gCall.pc?.connectionState==='connected') gStartTimer();
+      if(['disconnected','failed','closed'].includes(gCall.pc?.connectionState)) gEndLocal();
+    };
+    await gCall.pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await gCall.pc.createAnswer();
+    await gCall.pc.setLocalDescription(answer);
+    gBroadcast(data.from,'call_answer',{ answer, from:'guardian_'+window.currentStudent?.id });
+  } catch(e){ gEndLocal(); alert('মাইক্রোফোনের অনুমতি দিন।'); }
+}
+
+async function gHandleAnswer(data){
+  if(!gCall.pc||gCall.state!=='calling') return;
+  await gCall.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+  gCall.state='active'; gUpdateOverlay('active');
+}
+
+async function gHandleIce(data){
+  try{ if(gCall.pc) await gCall.pc.addIceCandidate(new RTCIceCandidate(data.candidate)); }catch{}
+}
+
+function gRejectCall(){
+  gStopRing();
+  if(gCall.incomingData) gBroadcast(gCall.incomingData.from,'call_reject',{});
+  gCall.state='idle'; gCall.incomingData=null; gHideOverlay();
+}
+
+function gHandleReject(){ gEndLocal(); }
+function gRemoteEnd(){ gEndLocal(); }
+
+function gEndCall(){
+  // channel keys use prefix: 'teacher_<id>' or 'guardian_<studentId>'
+  const target = gCall.incomingData?.from || ('teacher_'+currentThreadTeacher);
+  if(target) gBroadcast(target,'call_end',{});
+  gEndLocal();
+}
+
+function gEndLocal(){
+  gStopRing(); gStopTimer();
+  if(gCall.pc){ try{gCall.pc.close();}catch{} gCall.pc=null; }
+  if(gCall.localStream){ gCall.localStream.getTracks().forEach(t=>t.stop()); gCall.localStream=null; }
+  gCall.state='idle'; gCall.incomingData=null; gCall.isMuted=false;
+  gHideOverlay();
+}
+
+function gToggleMute(){
+  gCall.isMuted=!gCall.isMuted;
+  gCall.localStream?.getAudioTracks().forEach(t=>t.enabled=!gCall.isMuted);
+  const btn=document.getElementById('gMuteBtn');
+  if(btn){ btn.style.background=gCall.isMuted?'rgba(220,38,38,.4)':'rgba(255,255,255,.15)'; btn.title=gCall.isMuted?'আনমিউট':'মিউট'; }
+}
+
+// Subscribe to peer's channel so we can broadcast to them
+let gPeerChannel = null;
+function gSubscribePeerChannel(peerKey){
+  if(gPeerChannel) sb.removeChannel(gPeerChannel);
+  gPeerChannel = sb.channel('gcalls_'+peerKey);
+  gPeerChannel.subscribe();
+}
+
+function gBroadcast(channelKey, event, payload){
+  const ch = gPeerChannel && gPeerChannel.topic === 'realtime:gcalls_'+channelKey
+    ? gPeerChannel
+    : (() => { const c = sb.channel('gcalls_'+channelKey); c.subscribe(); return c; })();
+  ch.send({type:'broadcast', event, payload});
+}
+
+// ── OVERLAY UI ──
+function gShowOverlay(type, name){
+  const ov=document.getElementById('gCallOverlay');
+  document.getElementById('gCallName').textContent=name;
+  document.getElementById('gCallAvatar').textContent=gInitials(name);
+  document.getElementById('gCallTimer').style.display='none';
+  ov.style.display='flex';
+  if(type==='incoming'){
+    document.getElementById('gCallLabel').textContent='আসছে কল...';
+    document.getElementById('gCallActions').innerHTML=`
+      <div style="text-align:center;cursor:pointer" onclick="gRejectCall()">
+        <div style="width:58px;height:58px;border-radius:50%;background:#DC2626;display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">বাতিল</div>
+      </div>
+      <div style="text-align:center;cursor:pointer" onclick="gAcceptCall()">
+        <div style="width:58px;height:58px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6.25 6.25l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.04z"/></svg>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">ধরুন</div>
+      </div>`;
+  } else {
+    document.getElementById('gCallLabel').textContent='কল করা হচ্ছে...';
+    document.getElementById('gCallActions').innerHTML=`
+      <div style="text-align:center;cursor:pointer" onclick="gEndCall()">
+        <div style="width:58px;height:58px;border-radius:50%;background:#DC2626;display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">বাতিল</div>
+      </div>`;
+  }
+}
+
+function gUpdateOverlay(state){
+  if(state==='active'){
+    document.getElementById('gCallLabel').textContent='কল চলছে';
+    document.getElementById('gCallTimer').style.display='block';
+    document.getElementById('gCallActions').innerHTML=`
+      <div style="text-align:center;cursor:pointer" onclick="gToggleMute()" id="gMuteBtn">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">মিউট</div>
+      </div>
+      <div style="text-align:center;cursor:pointer" onclick="gEndCall()">
+        <div style="width:58px;height:58px;border-radius:50%;background:#DC2626;display:flex;align-items:center;justify-content:center;margin:0 auto">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">শেষ করুন</div>
+      </div>`;
+  }
+}
+
+function gHideOverlay(){ document.getElementById('gCallOverlay').style.display='none'; }
+
+// ── TIMER ──
+function gStartTimer(){
+  gCall.seconds=0;
+  gCall.timer=setInterval(()=>{ gCall.seconds++; const el=document.getElementById('gCallTimer'); if(el) el.textContent=gFmt(gCall.seconds); },1000);
+}
+function gStopTimer(){ clearInterval(gCall.timer); gCall.seconds=0; const el=document.getElementById('gCallTimer'); if(el) el.textContent='00:00'; }
+
+// ── RINGTONE ──
+let gRingCtx=null, gRingNodes=[];
+function gPlayRing(){
+  try{
+    gRingCtx=new AudioContext();
+    function beep(){ const o=gRingCtx.createOscillator(),g=gRingCtx.createGain(); o.connect(g); g.connect(gRingCtx.destination); o.frequency.value=880; g.gain.setValueAtTime(.3,gRingCtx.currentTime); g.gain.exponentialRampToValueAtTime(.001,gRingCtx.currentTime+.4); o.start(); o.stop(gRingCtx.currentTime+.4); gRingNodes.push(o); }
+    beep(); gRingNodes.push(setInterval(()=>{ if(gCall.state==='incoming') beep(); else gStopRing(); },1500));
+  }catch{}
+}
+function gStopRing(){ gRingNodes.forEach(n=>{ try{n.stop?.();clearInterval(n);}catch{} }); gRingNodes=[]; try{gRingCtx?.close();}catch{} gRingCtx=null; }
+</script>
+
+</body>
+</html>

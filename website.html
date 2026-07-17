@@ -1,0 +1,996 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>প্রতিষ্ঠানের Website — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;
+  --sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.nav-badge.blue{background:var(--blue)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* TOP BAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-sub{font-size:12px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+
+/* CONTENT */
+.content{padding:28px;flex:1;max-width:1200px}
+
+/* ── HERO BANNER ── */
+.hero-banner{background:linear-gradient(135deg,#0F2048 0%,#1A3570 50%,#1044B0 100%);border-radius:20px;padding:36px 40px;display:flex;align-items:center;gap:40px;margin-bottom:32px;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.4),transparent 70%);pointer-events:none}
+.hero-banner::after{content:'';position:absolute;bottom:-80px;left:200px;width:250px;height:250px;background:radial-gradient(circle,rgba(59,111,224,.25),transparent 70%);pointer-events:none}
+.hero-text{flex:1;position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:14px;border:1px solid rgba(255,255,255,.15)}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:#10B981;flex-shrink:0;animation:pulse 2s infinite}
+.hero-title{font-size:28px;font-weight:900;color:#fff;line-height:1.25;margin-bottom:10px;letter-spacing:-.5px}
+.hero-title span{color:#60A5FA}
+.hero-desc{font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;max-width:480px}
+.hero-actions{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--blue);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.4)}
+.btn-outline-white{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none}
+.btn-outline-white:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35)}
+.hero-stats{display:flex;gap:28px;position:relative;z-index:1}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;font-weight:500}
+
+/* ── SUBDOMAIN CARD ── */
+.subdomain-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 24px;margin-bottom:28px;display:flex;align-items:center;gap:16px}
+.subdomain-icon{width:42px;height:42px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue)}
+.subdomain-info{flex:1}
+.subdomain-label{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.subdomain-url{font-size:16px;font-weight:700;color:var(--text);font-family:monospace}
+.subdomain-url span{color:var(--blue)}
+.subdomain-status{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.status-setup{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+.status-live{background:var(--green-l);color:var(--green);border:1px solid #A7F3D0}
+.free-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#7C3AED,#1A56DB);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:100px}
+
+/* ── SECTION HEADING ── */
+.section-head{margin-bottom:18px}
+.section-head h2{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
+.section-head p{font-size:13px;color:var(--text-2)}
+
+/* ── TEMPLATE GRID ── */
+.template-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:32px}
+@media(max-width:900px){.template-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.template-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;min-width:0;width:100%;overflow-x:hidden}
+  .content{padding:0 0 86px;max-width:100%;width:100%;overflow-x:hidden}
+  .topbar{padding:0 14px;height:52px}
+  .topbar-title{font-size:14px}
+  .topbar-sub{display:none}
+
+  /* Hero: full bleed */
+  .hero-banner{flex-direction:column;padding:20px 16px 18px;gap:12px;border-radius:0;margin:0 0 14px;width:100%;box-sizing:border-box}
+  .hero-text{min-width:0;width:100%}
+  .hero-tag{font-size:10px;padding:4px 10px}
+  .hero-title{font-size:19px;letter-spacing:-.3px;word-break:keep-all;overflow-wrap:break-word}
+  .hero-desc{font-size:12px;max-width:100%;overflow-wrap:break-word;line-height:1.5}
+  .hero-actions{gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn-primary,.btn-outline-white{padding:8px 14px;font-size:12px;gap:5px}
+  .hero-stats{gap:0;flex-wrap:nowrap;border-top:1px solid rgba(255,255,255,.1);padding-top:12px;width:100%}
+  .hero-stat{flex:1;text-align:center;min-width:0}
+  .hero-stat-num{font-size:17px}
+  .hero-stat-label{font-size:9px;overflow-wrap:break-word}
+
+  /* Cards with side padding */
+  .subdomain-card{margin:0 12px 14px;padding:12px 14px;gap:10px}
+  .subdomain-info{min-width:0;flex:1;overflow:hidden}
+  .subdomain-url{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+  .subdomain-label{font-size:10px}
+  .free-badge{font-size:10px;padding:4px 8px;flex-shrink:0}
+  .subdomain-status{font-size:10px;padding:3px 8px;flex-shrink:0}
+  .section-head{padding:0 12px;margin-bottom:12px}
+  .section-head h2{font-size:15px}
+  .template-grid{padding:0 12px;gap:10px;margin-bottom:20px}
+  .features-grid{grid-template-columns:1fr 1fr;padding:0 12px;gap:8px;margin-bottom:20px}
+  .pages-grid{grid-template-columns:1fr 1fr;padding:0 12px;gap:8px;margin-bottom:20px}
+  .feature-card,.page-card{padding:12px}
+
+  /* Preview panel full screen */
+  .preview-panel{width:100%;left:0;right:0;border-radius:20px 20px 0 0;bottom:60px;height:calc(100vh - 120px)}
+  .bottom-nav{display:flex!important}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.template-card{background:#fff;border:2px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .22s;position:relative}
+.template-card:hover{border-color:var(--blue);box-shadow:0 8px 30px rgba(26,86,219,.12);transform:translateY(-3px)}
+.template-card.selected{border-color:var(--blue);box-shadow:0 8px 30px rgba(26,86,219,.2)}
+.template-card.selected .tc-check{opacity:1}
+.tc-preview{height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.tc-mini-nav{position:absolute;top:0;left:0;right:0;height:16px;display:flex;align-items:center;padding:0 8px;gap:4px}
+.tc-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.5)}
+.tc-mini-title{font-size:5px;font-weight:700;color:rgba(255,255,255,.8);margin-left:2px;flex:1}
+.tc-mini-links{display:flex;gap:3px}
+.tc-mini-link{width:12px;height:2px;border-radius:1px;background:rgba(255,255,255,.4)}
+.tc-hero-text{position:absolute;bottom:16px;left:10px;right:10px}
+.tc-hero-h{height:5px;border-radius:2px;background:rgba(255,255,255,.85);margin-bottom:4px;width:70%}
+.tc-hero-p{height:3px;border-radius:1px;background:rgba(255,255,255,.4);margin-bottom:2px}
+.tc-hero-p2{height:3px;border-radius:1px;background:rgba(255,255,255,.4);width:60%}
+.tc-check{position:absolute;top:8px;right:8px;width:22px;height:22px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s}
+.tc-check svg{width:12px;height:12px;stroke:#fff;stroke-width:2.5;fill:none}
+.tc-body{padding:10px 12px}
+.tc-name{font-size:12px;font-weight:700;color:var(--text)}
+.tc-style{font-size:10px;color:var(--text-3);margin-top:2px}
+.tc-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.tc-tag{font-size:9px;font-weight:600;padding:2px 6px;border-radius:100px}
+.tag-madrasa{background:#DCFCE7;color:#166534}
+.tag-school{background:#DBEAFE;color:#1D4ED8}
+.tag-college{background:#EDE9FE;color:#6D28D9}
+.tag-coaching{background:#FEF9C3;color:#854D0E}
+.tag-dark{background:#F1F5F9;color:#475569}
+.tag-girls{background:#FCE7F3;color:#9D174D}
+.tag-premium{background:linear-gradient(90deg,#7C3AED,#1A56DB);color:#fff}
+.tag-new{background:#FEF3C7;color:#92400E}
+
+/* ── PREVIEW PANEL ── */
+.preview-panel{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:32px;display:none}
+.preview-panel.show{display:block}
+.preview-top{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.preview-title{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.preview-dots{display:flex;gap:5px}
+.preview-dot{width:10px;height:10px;border-radius:50%}
+.preview-frame{width:100%;height:440px;border:none;display:block;background:#f8f9fa}
+.preview-actions{padding:16px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--surface)}
+.btn-select{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-select:hover{background:var(--blue-dark)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;background:var(--surface);color:var(--text-2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-secondary:hover{background:var(--blue-light);color:var(--blue);border-color:var(--blue)}
+
+/* ── FEATURES ── */
+.features-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+@media(max-width:900px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+.feature-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+.feature-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:18px}
+.feature-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.feature-desc{font-size:11px;color:var(--text-2);line-height:1.5}
+
+/* ── PAGES LIST ── */
+.pages-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px}
+@media(max-width:900px){.pages-grid{grid-template-columns:repeat(2,1fr)}}
+.page-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;transition:.2s}
+.page-card:hover{border-color:var(--blue-mid);background:var(--blue-light)}
+.page-card-icon{font-size:22px;margin-bottom:8px}
+.page-card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.page-card-desc{font-size:11px;color:var(--text-2);line-height:1.4}
+.page-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.ptag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:100px}
+.ptag-auto{background:#DCFCE7;color:#166534}
+.ptag-edit{background:#DBEAFE;color:#1D4ED8}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;min-width:280px;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.12);display:flex;align-items:flex-start;gap:10px;animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.toast.success .toast-icon{background:var(--green-l);color:var(--green)}
+.toast.info .toast-icon{background:var(--blue-light);color:var(--blue)}
+.toast-title{font-size:13px;font-weight:700;color:var(--text)}
+.toast-msg{font-size:12px;color:var(--text-2);margin-top:2px}
+
+/* Animations */
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end}
+.more-sheet-overlay.show{display:flex}
+.more-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:16px 16px 32px;max-height:80vh;overflow-y:auto}
+.more-sheet-handle{width:40px;height:4px;background:#E2E8F0;border-radius:2px;margin:0 auto 16px}
+.more-sheet-title{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:14px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;text-decoration:none;color:#0F172A;background:#F8FAFF;border:1px solid #E2E8F0}
+.more-sheet-icon{width:42px;height:42px;border-radius:12px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;color:#1A56DB}
+.more-sheet-label{font-size:9px;font-weight:600;color:#475569;text-align:center;line-height:1.3}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">প্রতিষ্ঠান<span>.app</span></div>
+    <div class="inst" id="sidebarInstName">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item active" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">—</div>
+      <div>
+        <div class="user-name" id="userNameMain">লোড হচ্ছে...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">প্রতিষ্ঠানের Website</div>
+      <div class="topbar-sub">আপনার প্রতিষ্ঠানের জন্য বিনামূল্যে সুন্দর Website তৈরি করুন</div>
+    </div>
+    <div class="topbar-right">
+      <a id="visitSiteBtn" href="#" target="_blank" style="display:none" class="btn-primary" style="padding:9px 18px;font-size:13px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Website দেখুন
+      </a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" style="max-width:100%;padding:28px">
+
+    <!-- HERO BANNER -->
+    <div class="hero-banner">
+      <div class="hero-text">
+        <div class="hero-tag">
+          <span class="hero-tag-dot"></span>
+          সম্পূর্ণ বিনামূল্যে · চিরকালের জন্য
+        </div>
+        <div class="hero-title">আপনার প্রতিষ্ঠানের<br>নিজস্ব <span>Website</span> পান</div>
+        <div class="hero-desc">
+          ১০টি Premium Template থেকে পছন্দের Design বেছে নিন। আপনার সব ডেটা স্বয়ংক্রিয়ভাবে Website-এ দেখাবে।
+          Click করে যেকোনো তথ্য Edit করুন, Save করলেই Visitor দেখতে পাবে।
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="scrollToTemplates()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Template বেছে নিন
+          </button>
+          <button class="btn-outline-white" onclick="showFeatures()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+            কী কী পাবেন?
+          </button>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">১০টি</div>
+          <div class="hero-stat-label">Premium Template</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">৮টি</div>
+          <div class="hero-stat-label">সুন্দর Page</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">৳০</div>
+          <div class="hero-stat-label">সম্পূর্ণ বিনামূল্যে</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBDOMAIN CARD -->
+    <div class="subdomain-card">
+      <div class="subdomain-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg>
+      </div>
+      <div class="subdomain-info">
+        <div class="subdomain-label">আপনার Website এর ঠিকানা</div>
+        <div class="subdomain-url" id="subdomainDisplay"><span id="instSlug">আপনার-প্রতিষ্ঠান</span>.protishthan.app</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="subdomain-status status-setup" id="websiteStatusBadge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+          Setup প্রয়োজন
+        </span>
+        <span class="free-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          সারাজীবন FREE
+        </span>
+      </div>
+    </div>
+
+    <!-- TEMPLATE SECTION -->
+    <div id="templateSection">
+      <div class="section-head">
+        <h2>Template বেছে নিন</h2>
+        <p>আপনার প্রতিষ্ঠানের ধরন অনুযায়ী পছন্দের Design-এ click করুন — Preview দেখুন, তারপর Select করুন</p>
+      </div>
+
+      <div class="template-grid" id="templateGrid">
+        <!-- Templates will be rendered by JS -->
+      </div>
+    </div>
+
+    <!-- PREVIEW PANEL -->
+    <div class="preview-panel" id="previewPanel">
+      <div class="preview-top">
+        <div class="preview-dots">
+          <div class="preview-dot" style="background:#FF5F57"></div>
+          <div class="preview-dot" style="background:#FEBC2E"></div>
+          <div class="preview-dot" style="background:#28C840"></div>
+        </div>
+        <div class="preview-title" id="previewTitle">Template Preview</div>
+        <button class="btn-secondary" onclick="closePreview()" style="padding:6px 14px;font-size:12px">বন্ধ করুন</button>
+      </div>
+      <div id="previewFrameWrap" style="height:440px;overflow:hidden;position:relative">
+        <div id="previewContent" style="width:100%;height:440px;overflow-y:auto"></div>
+      </div>
+      <div class="preview-actions">
+        <button class="btn-select" id="selectTemplateBtn" onclick="selectTemplate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          এই Template দিয়ে শুরু করুন
+        </button>
+        <button class="btn-secondary" onclick="closePreview()">অন্য Template দেখুন</button>
+        <span id="previewSelectedNote" style="font-size:12px;color:var(--green);font-weight:600;display:none">✓ এটি বর্তমানে নির্বাচিত</span>
+      </div>
+    </div>
+
+    <!-- PAGES INCLUDED -->
+    <div id="pagesSection">
+      <div class="section-head">
+        <h2>Website-এ যা যা থাকবে</h2>
+        <p>প্রতিটি Page আপনার Supabase Data থেকে স্বয়ংক্রিয়ভাবে তৈরি হবে</p>
+      </div>
+      <div class="pages-grid">
+        <div class="page-card">
+          <div class="page-card-icon">🏠</div>
+          <div class="page-card-name">Home Page</div>
+          <div class="page-card-desc">Hero Banner, নোটিস, ক্লাস তালিকা, শিক্ষকমণ্ডলী, Gallery</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span><span class="ptag ptag-edit">Editable</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">📋</div>
+          <div class="page-card-name">About Us</div>
+          <div class="page-card-desc">প্রতিষ্ঠার ইতিহাস, Mission, Vision, Principal বার্তা</div>
+          <div class="page-tags"><span class="ptag ptag-edit">Editable</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">📚</div>
+          <div class="page-card-name">Classes</div>
+          <div class="page-card-desc">ক্লাস তালিকা, মাসিক ফি, শিক্ষার্থী সংখ্যা</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">👨‍🏫</div>
+          <div class="page-card-name">Teachers</div>
+          <div class="page-card-desc">শিক্ষকমণ্ডলীর তালিকা, বিষয়, ছবি</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">📢</div>
+          <div class="page-card-name">Notice Board</div>
+          <div class="page-card-desc">সব নোটিস তারিখ অনুযায়ী, সার্চ সুবিধা</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">🖼️</div>
+          <div class="page-card-name">Gallery</div>
+          <div class="page-card-desc">ছবির অ্যালবাম, অনুষ্ঠানের স্মৃতি</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span><span class="ptag ptag-edit">Upload</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">🏆</div>
+          <div class="page-card-name">Results</div>
+          <div class="page-card-desc">Roll Number দিয়ে Result খোঁজার সুবিধা</div>
+          <div class="page-tags"><span class="ptag ptag-auto">Auto Sync</span></div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-icon">📞</div>
+          <div class="page-card-name">Contact</div>
+          <div class="page-card-desc">মানচিত্র, ফোন, ইমেইল, ভর্তির Inquiry Form</div>
+          <div class="page-tags"><span class="ptag ptag-edit">Editable</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="section-head">
+      <h2>কী কী পাবেন বিনামূল্যে</h2>
+      <p>আন্তর্জাতিক মানের Website Builder — সম্পূর্ণ বাংলায়</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#EEF3FF">🔄</div>
+        <div class="feature-name">Auto Data Sync</div>
+        <div class="feature-desc">Dashboard-এ যা আপডেট করবেন, Website-এ স্বয়ংক্রিয়ভাবে দেখাবে</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ECFDF5">✏️</div>
+        <div class="feature-name">Live Edit</div>
+        <div class="feature-desc">Click করে যেকোনো লেখা বা ছবি সরাসরি বদলান, Save দিলেই হলো</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F5F3FF">📱</div>
+        <div class="feature-name">Mobile Friendly</div>
+        <div class="feature-desc">Mobile, Tablet, Desktop — সব Device-এ সুন্দর দেখাবে</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FFF7ED">🌐</div>
+        <div class="feature-name">নিজস্ব ঠিকানা</div>
+        <div class="feature-desc">yourschool.protishthan.app — মনে রাখার মতো সুন্দর URL</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ECFDF5">🔒</div>
+        <div class="feature-name">SSL সুরক্ষিত</div>
+        <div class="feature-desc">HTTPS সহ সম্পূর্ণ সুরক্ষিত — Visitor-দের বিশ্বাস অর্জন করুন</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FEF9C3">⚡</div>
+        <div class="feature-name">দ্রুত লোড</div>
+        <div class="feature-desc">Optimized Performance — যেকোনো Internet speed-এ দ্রুত খুলবে</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FCE7F3">🎨</div>
+        <div class="feature-name">১০টি Template</div>
+        <div class="feature-desc">স্কুল, মাদ্রাসা, কলেজ, কোচিং — সব ধরনের Design আছে</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F1F5F9">📊</div>
+        <div class="feature-name">Result Page</div>
+        <div class="feature-desc">শিক্ষার্থীরা Roll Number দিয়ে নিজের Result দেখতে পাবে</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST WRAP -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ── CONFIG ──
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+let currentInstitution = null;
+let selectedTemplateId  = null;
+let previewingTemplate  = null;
+
+function toBn(n){ return String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
+
+// ── TEMPLATES DATA ──
+const TEMPLATES = [
+  {
+    id: 'classic-blue',
+    name: 'Classic Blue',
+    style: 'ঐতিহ্যবাহী · স্কুল',
+    tags: ['school'],
+    tagLabels: ['স্কুল'],
+    tagClasses: ['tag-school'],
+    gradient: 'linear-gradient(145deg,#1A56DB,#0EA5E9)',
+    accentColor: '#1A56DB',
+    navBg: '#1A56DB',
+    sectionBg: '#EEF3FF',
+    desc: 'ঐতিহ্যবাহী নীল ডিজাইন — সরকারি ও বেসরকারি স্কুলের জন্য আদর্শ'
+  },
+  {
+    id: 'fresh-green',
+    name: 'Fresh Green',
+    style: 'আধুনিক · মাদ্রাসা',
+    tags: ['madrasa'],
+    tagLabels: ['মাদ্রাসা'],
+    tagClasses: ['tag-madrasa'],
+    gradient: 'linear-gradient(145deg,#065F46,#059669)',
+    accentColor: '#059669',
+    navBg: '#065F46',
+    sectionBg: '#ECFDF5',
+    desc: 'সবুজ ইসলামিক ডিজাইন — মাদ্রাসা ও দ্বীনি প্রতিষ্ঠানের জন্য উপযুক্ত'
+  },
+  {
+    id: 'royal-purple',
+    name: 'Royal Purple',
+    style: 'Premium · কলেজ',
+    tags: ['college', 'premium'],
+    tagLabels: ['কলেজ', 'Premium'],
+    tagClasses: ['tag-college', 'tag-premium'],
+    gradient: 'linear-gradient(145deg,#4C1D95,#7C3AED)',
+    accentColor: '#7C3AED',
+    navBg: '#4C1D95',
+    sectionBg: '#EDE9FE',
+    desc: 'রাজকীয় বেগুনি ডিজাইন — কলেজ ও বিশ্ববিদ্যালয়ের জন্য'
+  },
+  {
+    id: 'warm-red',
+    name: 'Warm Red',
+    style: 'Bold · কোচিং',
+    tags: ['coaching'],
+    tagLabels: ['কোচিং'],
+    tagClasses: ['tag-coaching'],
+    gradient: 'linear-gradient(145deg,#991B1B,#DC2626)',
+    accentColor: '#DC2626',
+    navBg: '#991B1B',
+    sectionBg: '#FEF2F2',
+    desc: 'শক্তিশালী লাল ডিজাইন — কোচিং সেন্টারের জন্য আকর্ষণীয়'
+  },
+  {
+    id: 'dark-elite',
+    name: 'Dark Elite',
+    style: 'Modern Dark · সব',
+    tags: ['premium'],
+    tagLabels: ['Premium', 'New'],
+    tagClasses: ['tag-premium', 'tag-new'],
+    gradient: 'linear-gradient(145deg,#0F172A,#1E3A5F)',
+    accentColor: '#3B82F6',
+    navBg: '#0F172A',
+    sectionBg: '#1E293B',
+    desc: 'অন্ধকার আধুনিক ডিজাইন — যেকোনো প্রিমিয়াম প্রতিষ্ঠানের জন্য'
+  },
+  {
+    id: 'golden',
+    name: 'Golden Prestige',
+    style: 'Prestigious · ইংলিশ মিডিয়াম',
+    tags: ['premium', 'school'],
+    tagLabels: ['Premium'],
+    tagClasses: ['tag-premium'],
+    gradient: 'linear-gradient(145deg,#92400E,#D97706)',
+    accentColor: '#D97706',
+    navBg: '#78350F',
+    sectionBg: '#FFFBEB',
+    desc: 'স্বর্ণালী মর্যাদাপূর্ণ ডিজাইন — ইংরেজি মাধ্যম ও প্রিমিয়াম প্রতিষ্ঠানের জন্য'
+  },
+  {
+    id: 'sky-blue',
+    name: 'Sky Blue',
+    style: 'Clean · আধুনিক',
+    tags: ['school', 'college'],
+    tagLabels: ['স্কুল', 'কলেজ'],
+    tagClasses: ['tag-school', 'tag-college'],
+    gradient: 'linear-gradient(145deg,#0369A1,#0EA5E9)',
+    accentColor: '#0EA5E9',
+    navBg: '#0369A1',
+    sectionBg: '#F0F9FF',
+    desc: 'পরিষ্কার আকাশী ডিজাইন — স্কুল ও কলেজের জন্য সবচেয়ে জনপ্রিয়'
+  },
+  {
+    id: 'rose-pink',
+    name: 'Rose Pink',
+    style: 'Girls School · মেয়েদের',
+    tags: ['girls'],
+    tagLabels: ['Girls School'],
+    tagClasses: ['tag-girls'],
+    gradient: 'linear-gradient(145deg,#9D174D,#EC4899)',
+    accentColor: '#EC4899',
+    navBg: '#831843',
+    sectionBg: '#FDF2F8',
+    desc: 'গোলাপী সুন্দর ডিজাইন — মেয়েদের স্কুল ও মহিলা মাদ্রাসার জন্য'
+  },
+  {
+    id: 'islamic-green',
+    name: 'Islamic Green',
+    style: 'মাদ্রাসা Special',
+    tags: ['madrasa'],
+    tagLabels: ['মাদ্রাসা', 'Special'],
+    tagClasses: ['tag-madrasa', 'tag-premium'],
+    gradient: 'linear-gradient(145deg,#14532D,#166534)',
+    accentColor: '#16A34A',
+    navBg: '#14532D',
+    sectionBg: '#F0FDF4',
+    desc: 'ইসলামিক সবুজ ডিজাইন — কওমি ও আলিয়া মাদ্রাসার জন্য বিশেষভাবে তৈরি'
+  },
+  {
+    id: 'minimal-grey',
+    name: 'Minimal Grey',
+    style: 'Corporate · Professional',
+    tags: ['school', 'college'],
+    tagLabels: ['Professional'],
+    tagClasses: ['tag-dark'],
+    gradient: 'linear-gradient(145deg,#1F2937,#4B5563)',
+    accentColor: '#374151',
+    navBg: '#111827',
+    sectionBg: '#F9FAFB',
+    desc: 'মিনিমাল ধূসর ডিজাইন — কর্পোরেট ও প্রফেশনাল প্রতিষ্ঠানের জন্য'
+  }
+];
+
+// ── RENDER TEMPLATES ──
+function renderTemplates() {
+  const grid = document.getElementById('templateGrid');
+  grid.innerHTML = TEMPLATES.map(t => `
+    <div class="template-card ${selectedTemplateId === t.id ? 'selected' : ''}" id="tc_${t.id}" onclick="previewTemplate('${t.id}')">
+      <div class="tc-preview" style="background:${t.gradient}">
+        <div class="tc-mini-nav" style="background:${t.navBg}">
+          <div class="tc-dot"></div><div class="tc-dot"></div><div class="tc-dot"></div>
+          <div class="tc-mini-title">প্রতিষ্ঠানের নাম</div>
+          <div class="tc-mini-links"><div class="tc-mini-link"></div><div class="tc-mini-link"></div><div class="tc-mini-link"></div></div>
+        </div>
+        <div class="tc-hero-text">
+          <div class="tc-hero-h"></div>
+          <div class="tc-hero-p"></div>
+          <div class="tc-hero-p2"></div>
+        </div>
+        <div class="tc-check">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="tc-name">${t.name}</div>
+        <div class="tc-style">${t.style}</div>
+        <div class="tc-tags">
+          ${t.tagLabels.map((l,i) => `<span class="tc-tag ${t.tagClasses[i]}">${l}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── PREVIEW ──
+async function previewTemplate(id) {
+  previewingTemplate = id;
+  const t = TEMPLATES.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('previewTitle').textContent = t.name + ' — Preview';
+  const isSelected = selectedTemplateId === id;
+  document.getElementById('selectTemplateBtn').style.display = isSelected ? 'none' : '';
+  document.getElementById('previewSelectedNote').style.display = isSelected ? '' : 'none';
+
+  const instName = currentInstitution?.name || 'আপনার প্রতিষ্ঠানের নাম';
+  const instAddress = currentInstitution?.address || currentInstitution?.district || 'ঢাকা, বাংলাদেশ';
+
+  // Fetch real counts (only if institution loaded)
+  let studentCount = 0, teacherCount = 0, classCount = 0;
+  const instId = currentInstitution?.id;
+  if (instId) {
+    const [s, t, c] = await Promise.all([
+      sb.from('students').select('*', { count: 'exact', head: true }).eq('institution_id', instId),
+      sb.from('teachers').select('*', { count: 'exact', head: true }).eq('institution_id', instId),
+      sb.from('classes').select('*', { count: 'exact', head: true }).eq('institution_id', instId),
+    ]);
+    studentCount = s.count || 0;
+    teacherCount = t.count || 0;
+    classCount   = c.count || 0;
+  }
+  const estYear = currentInstitution?.established_year || new Date().getFullYear();
+  const yearsOld = Math.max(1, new Date().getFullYear() - parseInt(estYear));
+  const stats = [
+    [toBn(studentCount)+'জন', 'শিক্ষার্থী'],
+    [toBn(teacherCount)+'জন', 'শিক্ষক/স্টাফ'],
+    [toBn(classCount)+'টি', 'ক্লাস'],
+    [toBn(yearsOld)+' বছর', 'অভিজ্ঞতা'],
+  ];
+  const isDark = id === 'dark-elite';
+  const textColor = isDark ? '#E2E8F0' : '#0F172A';
+  const bgColor = isDark ? '#0F172A' : '#fff';
+  const cardBg = isDark ? '#1E293B' : t.sectionBg;
+  const borderColor = isDark ? '#334155' : '#E2E8F0';
+
+  document.getElementById('previewContent').innerHTML = `
+    <div style="font-family:'Inter','Hind Siliguri',sans-serif;background:${bgColor};color:${textColor};min-height:100%">
+      <!-- NAV -->
+      <nav style="background:${t.navBg};padding:0 24px;height:52px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:10">
+        <div style="font-size:16px;font-weight:900;color:#fff;flex:1">${instName}</div>
+        ${['হোম','ক্লাস','শিক্ষক','নোটিস','Gallery','Contact'].map(l=>`<a style="color:rgba(255,255,255,.75);font-size:12px;text-decoration:none;font-weight:500">${l}</a>`).join('')}
+      </nav>
+      <!-- HERO -->
+      <div style="background:${t.gradient};padding:52px 40px;text-align:center;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:50%"></div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">স্বাগতম</div>
+        <h1 style="font-size:26px;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.3">${instName}</h1>
+        <p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:24px">${instAddress}</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button style="background:#fff;color:${t.accentColor};border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">ভর্তি হোন</button>
+          <button style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">আরও জানুন</button>
+        </div>
+      </div>
+      <!-- STATS -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid ${borderColor}">
+        ${stats.map(([n,l])=>`
+          <div style="padding:20px;text-align:center;border-right:1px solid ${borderColor}">
+            <div style="font-size:22px;font-weight:900;color:${t.accentColor}">${n}</div>
+            <div style="font-size:11px;color:${isDark?'#94A3B8':'#64748B'};margin-top:2px">${l}</div>
+          </div>`).join('')}
+      </div>
+      <!-- NOTICES -->
+      <div style="padding:28px 24px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:4px">সাম্প্রতিক নোটিস</div>
+        <div style="font-size:12px;color:${isDark?'#64748B':'#94A3B8'};margin-bottom:16px">সর্বশেষ আপডেট</div>
+        ${['বার্ষিক পরীক্ষার সময়সূচি প্রকাশিত হয়েছে','নতুন ব্যাচে ভর্তি শুরু হয়েছে','অভিভাবক সমাবেশ আগামী শুক্রবার'].map((n,i)=>`
+          <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+            <div style="width:8px;height:8px;border-radius:50%;background:${t.accentColor};flex-shrink:0"></div>
+            <div style="font-size:12px;font-weight:500;flex:1">${n}</div>
+            <div style="font-size:10px;color:${isDark?'#475569':'#94A3B8'}">আজ</div>
+          </div>`).join('')}
+      </div>
+      <!-- CLASSES -->
+      <div style="padding:0 24px 28px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:4px">ক্লাস তালিকা</div>
+        <div style="font-size:12px;color:${isDark?'#64748B':'#94A3B8'};margin-bottom:16px">সকল ক্লাসের তথ্য</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          ${['ক্লাস ৬','ক্লাস ৭','ক্লাস ৮','ক্লাস ৯','ক্লাস ১০','ক্লাস ১১'].map((c,i)=>`
+            <div style="background:${cardBg};border:1px solid ${borderColor};border-radius:10px;padding:14px;text-align:center">
+              <div style="font-size:14px;font-weight:700">${c}</div>
+              <div style="font-size:10px;color:${isDark?'#475569':'#94A3B8'};margin-top:3px">মাসিক ফি: ৳${(i+1)*200+400}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <!-- FOOTER -->
+      <div style="background:${t.navBg};padding:24px;text-align:center">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">${instName}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">${instAddress} · Powered by Protishthan</div>
+      </div>
+    </div>
+  `;
+
+  const panel = document.getElementById('previewPanel');
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closePreview() {
+  document.getElementById('previewPanel').classList.remove('show');
+  previewingTemplate = null;
+}
+
+async function selectTemplate() {
+  if (!previewingTemplate || !currentInstitution) return;
+  const btn = document.getElementById('selectTemplateBtn');
+  btn.disabled = true;
+  btn.textContent = 'সেভ হচ্ছে...';
+
+  const { error } = await sb.from('institutions')
+    .update({ selected_template: previewingTemplate })
+    .eq('id', currentInstitution.id);
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> এই Template দিয়ে শুরু করুন`;
+
+  if (error) {
+    showToast('error', 'Error', error.message);
+    return;
+  }
+
+  selectedTemplateId = previewingTemplate;
+  currentInstitution.selected_template = selectedTemplateId;
+  renderTemplates();
+  closePreview();
+  applySelectedTemplateUI();
+
+  const t = TEMPLATES.find(x => x.id === selectedTemplateId);
+  showToast('success', 'Template সেভ হয়েছে!', `"${t?.name}" template নির্বাচিত ও সেভ হয়েছে।`);
+}
+
+function applySelectedTemplateUI() {
+  if (!selectedTemplateId) return;
+  const slug = (currentInstitution?.name || 'your-school').toLowerCase().replace(/\s+/g,'-').replace(/[^\w-]/g,'').slice(0,30);
+  const visitBtn = document.getElementById('visitSiteBtn');
+  visitBtn.href = `https://${slug}.protishthan.app`;
+  visitBtn.style.display = '';
+  document.getElementById('websiteStatusBadge').className = 'subdomain-status status-live';
+  document.getElementById('websiteStatusBadge').innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Template নির্বাচিত`;
+}
+
+function scrollToTemplates() {
+  document.getElementById('templateSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showFeatures() {
+  document.querySelector('.features-grid').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── TOAST ──
+function showToast(type, title, msg) {
+  const icons = { success: '✓', info: 'ℹ', error: '✕' };
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<div class="toast-icon">${icons[type]||'ℹ'}</div><div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ── AUTH & INIT ──
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('owner_id', session.user.id).maybeSingle();
+  currentInstitution = inst;
+
+  if (inst) {
+    document.getElementById('sidebarInstName').textContent = inst.name || '—';
+    const slug = (inst.name || 'your-school').toLowerCase().replace(/\s+/g,'-').replace(/[^\w-]/g,'').slice(0,30);
+    document.getElementById('instSlug').textContent = slug;
+    document.getElementById('visitSiteBtn').href = `https://${slug}.protishthan.app`;
+    if (inst.selected_template) {
+      selectedTemplateId = inst.selected_template;
+      applySelectedTemplateUI();
+    }
+  }
+
+  const name = session.user.user_metadata?.full_name || session.user.email || '—';
+  document.getElementById('userNameMain').textContent = name.length > 18 ? name.slice(0,18) + '…' : name;
+  document.getElementById('userAvatar').textContent = name.slice(0,2).toUpperCase();
+
+  renderTemplates();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+init();
+</script>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">হোম</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item active" href="website.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="bnav-label">Website</span></a>
+    <button class="bnav-item" onclick="openMoreSheet()"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span><span>মেনু</span></button>
+</div>
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){ var ov=document.getElementById('moreSheetOverlay'); if(ov) ov.addEventListener('click',function(e){ if(e.target===this) closeMoreSheet(); }); })();
+</script>
+</body>
+</html>

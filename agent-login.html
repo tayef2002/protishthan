@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Login — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
+  --green:#059669;--red:#DC2626;--r:12px;--rl:20px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text)}
+body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+@media (max-width:900px){body{grid-template-columns:1fr}.left{display:none}}
+
+.left{background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden;height:100vh}
+.left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.left-glow{position:absolute;top:20%;left:30%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%);pointer-events:none}
+.logo{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;margin-bottom:36px;position:relative;z-index:2}
+.logo span{opacity:.5}
+.hero-text{position:relative;z-index:2}
+.hero-text h2{font-size:clamp(24px,3vw,36px);font-weight:900;color:white;line-height:1.2;letter-spacing:-1px;margin-bottom:14px}
+.hero-text h2 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-text p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.8;max-width:320px}
+.left-footer{position:relative;z-index:2}
+.left-footer p{font-size:11px;color:rgba(255,255,255,.25)}
+
+.right{display:flex;justify-content:center;align-items:center;padding:24px;height:100vh}
+.right-inner{width:100%;max-width:400px}
+.form-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.form-sub{font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.field input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--blue)}
+.pass-wrap{position:relative}
+.pass-wrap .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;background:none;border:none;display:flex;align-items:center;justify-content:center;padding:4px;color:var(--text-3);transition:color .15s}
+.pass-wrap .eye:hover{color:var(--text-2)}
+.pass-wrap input{padding-right:40px}
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.ok-box{background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:16px;display:none}
+.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;margin-top:6px;position:relative}
+.submit-btn:hover{background:var(--blue-dark)}
+.submit-btn.loading{pointer-events:none;opacity:.7}
+.submit-btn.loading::after{content:'';position:absolute;left:16px;top:50%;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;transform:translateY(-50%);animation:spin .6s linear infinite}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.note{font-size:12px;color:var(--text-3);margin-top:18px;line-height:1.7;text-align:center}
+.note a{color:var(--blue);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="left-grid"></div>
+  <div class="left-glow"></div>
+  <div class="logo">Protisht<span>han</span></div>
+  <div class="hero-text">
+    <h2>Agent <span class="grad">Login</span></h2>
+    <p>আপনার জেলার dashboard-এ ঢুকে প্রতিষ্ঠান ও কমিশন ট্র্যাক করুন।</p>
+  </div>
+  <div class="left-footer"><p>© 2026 Protishthan — Agent Network</p></div>
+</div>
+
+<div class="right">
+  <div class="right-inner">
+    <div class="form-title">Agent লগইন</div>
+    <div class="form-sub">আপনার Agent অ্যাকাউন্টে প্রবেশ করুন</div>
+
+    <div class="err-box" id="errBox"></div>
+    <div class="ok-box" id="okBox"></div>
+
+    <div class="field">
+      <label>ইমেইল</label>
+      <input type="email" id="email" placeholder="you@email.com">
+    </div>
+    <div class="field">
+      <label>পাসওয়ার্ড</label>
+      <div class="pass-wrap">
+        <input type="password" id="password" placeholder="পাসওয়ার্ড">
+        <button type="button" class="eye" id="eyeBtn" onclick="togglePass(this)" aria-label="পাসওয়ার্ড দেখান">
+          <svg id="eyeIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="loginBtn" onclick="doLogin()">লগইন করুন</button>
+    <div class="note">নতুন Agent? <a href="agent-signup.html">সাইন আপ করুন</a></div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-agent' } }
+);
+
+// Auto-redirect if already logged in AND is an agent
+sb.auth.getSession().then(async ({data:{session}})=>{
+  if(session){
+    const { data } = await sb.from('agents').select('id').eq('user_id', session.user.id).maybeSingle();
+    if(data) window.location.href = 'agent-dashboard.html';
+  }
+});
+
+function togglePass(btn){
+  const inp = document.getElementById('password');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  document.getElementById('eyeIconOpen').style.display = inp.type==='password' ? 'block' : 'none';
+  document.getElementById('eyeIconClosed').style.display = inp.type==='password' ? 'none' : 'block';
+}
+function showErr(msg){
+  const box = document.getElementById('errBox');
+  document.getElementById('okBox').style.display='none';
+  box.textContent = msg; box.style.display = msg ? 'block' : 'none';
+}
+function showOk(msg){
+  const box = document.getElementById('okBox');
+  document.getElementById('errBox').style.display='none';
+  box.textContent = msg; box.style.display = msg ? 'block' : 'none';
+}
+
+async function doLogin(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if(!email||!password){ showErr('ইমেইল ও পাসওয়ার্ড দিন।'); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.classList.add('loading');
+  showErr('');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){
+    btn.classList.remove('loading');
+    showErr(error.message==='Invalid login credentials' ? 'ইমেইল বা পাসওয়ার্ড ভুল।' : error.message);
+    return;
+  }
+
+  // Confirm this user is actually an agent (not an institution account)
+  const { data: agentRow } = await sb.from('agents').select('id').eq('user_id', data.user.id).maybeSingle();
+  if(!agentRow){
+    btn.classList.remove('loading');
+    await sb.auth.signOut();
+    showErr('এই অ্যাকাউন্টে কোনো Agent প্রোফাইল পাওয়া যায়নি। এটি Agent login — institution হলে institution login ব্যবহার করুন।');
+    return;
+  }
+
+  btn.classList.remove('loading');
+  showOk('লগইন সফল! ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...');
+  setTimeout(()=>{ window.location.href = 'agent-dashboard.html'; }, 900);
+}
+</script>
+</body>
+</html>

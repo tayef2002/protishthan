@@ -1,0 +1,510 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ক্লাস রুটিন — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-logo{padding:22px 20px 16px}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-icon{width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.content{padding:24px;flex:1}
+
+.rt-controls{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.rt-select{padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--text);background:white;cursor:pointer;outline:none;min-width:180px}
+.rt-select:focus{border-color:var(--blue)}
+.rt-btn{padding:9px 16px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;text-decoration:none}
+.rt-btn-primary{background:var(--blue);color:white}
+.rt-btn-primary:hover{background:var(--blue-dark)}
+.rt-btn-outline{background:white;color:var(--text-2);border:1.5px solid var(--border)}
+.rt-btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+
+/* INFO BANNER */
+.info-banner{background:var(--blue-light);border:1.5px solid rgba(26,86,219,.15);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--blue)}
+.info-banner svg{flex-shrink:0}
+
+/* GRID */
+.rt-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--border);background:white;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.rt-grid{border-collapse:collapse;width:100%;min-width:640px}
+.rt-grid th{background:var(--blue);color:white;font-size:12px;font-weight:700;padding:10px 8px;text-align:center;white-space:nowrap}
+.rt-grid th.day-today{background:#0F44C0}
+.rt-grid th:first-child{background:#0A1628;min-width:100px}
+.rt-grid th:first-child.first{border-radius:14px 0 0 0}
+.rt-grid th.last{border-radius:0 14px 0 0}
+.rt-grid td{border:1px solid var(--border);padding:0;vertical-align:top}
+.rt-grid td.time-col{background:var(--surface);padding:9px 10px;text-align:center;white-space:nowrap}
+.rt-grid td.time-col .pnum{font-size:13px;font-weight:800;color:var(--blue)}
+.rt-grid td.time-col .ptime{font-size:10px;color:var(--text-3);margin-top:2px;line-height:1.4}
+.rt-cell{padding:7px 8px;min-height:68px}
+.rt-cell.filled{background:#F0F7FF}
+.rt-cell.today-col{background:#FAFEFF}
+.rt-cell.filled.today-col{background:#E8F4FF}
+.rt-cell-subject{font-size:12px;font-weight:700;color:var(--blue);line-height:1.3;margin-bottom:3px}
+.rt-cell-teacher{font-size:10.5px;color:var(--text-3)}
+.rt-cell-empty{font-size:11px;color:var(--border);display:flex;align-items:center;justify-content:center;min-height:60px}
+
+/* EMPTY */
+.rt-empty{padding:60px 20px;text-align:center;color:var(--text-3)}
+.rt-empty h3{font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.rt-empty a{color:var(--blue);font-weight:600;text-decoration:none}
+
+/* NO SUBJECT */
+.no-subject-state{background:white;border-radius:14px;border:1px solid var(--border);padding:48px 24px;text-align:center}
+.no-subject-state h3{font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:8px}
+.no-subject-state p{font-size:13px;color:var(--text-3);margin-bottom:20px}
+
+/* LEGEND */
+.legend{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-3)}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+
+@media print{
+  .sidebar,.topbar,.rt-controls,.info-banner,.legend{display:none!important}
+  .main{margin-left:0}
+  .rt-grid th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:white}
+  .content{padding:12px}
+}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Protish<span>than</span></div>
+    <div class="inst" id="instNameSidebar">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item active" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div><div class="user-name" id="userName">Admin</div><div class="user-role">প্রতিষ্ঠান পরিচালক</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+    <div class="topbar-title">ক্লাস রুটিন</div>
+    <div style="flex:1"></div>
+    <button class="rt-btn rt-btn-outline" onclick="window.print()">🖨 প্রিন্ট</button>
+  </div>
+
+  <div class="content">
+
+    <!-- Step guide: how routine works -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="flex:1;min-width:180px;background:white;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+        <div style="width:28px;height:28px;border-radius:8px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--blue)">১</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">বিষয় ও সময় যোগ করুন</div>
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:8px">ক্লাস ব্যবস্থাপনা পেজে গিয়ে প্রতিটি বিষয়ের সময় ও দিন সেট করুন</div>
+          <a href="classes.html" target="_blank" style="font-size:11px;font-weight:600;color:var(--blue);text-decoration:none;background:var(--blue-light);padding:4px 10px;border-radius:6px">ক্লাস পেজ খুলুন ↗</a>
+        </div>
+      </div>
+      <div style="flex:1;min-width:180px;background:white;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+        <div style="width:28px;height:28px;border-radius:8px;background:#F5F3FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--purple)">২</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">শিক্ষক assign করুন</div>
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:8px">শিক্ষক/স্টাফ পেজে গিয়ে কোন শিক্ষক কোন বিষয় পড়াবেন তা যোগ করুন</div>
+          <a href="teachers.html" target="_blank" style="font-size:11px;font-weight:600;color:var(--purple);text-decoration:none;background:#F5F3FF;padding:4px 10px;border-radius:6px">শিক্ষক পেজ খুলুন ↗</a>
+        </div>
+      </div>
+      <div style="flex:1;min-width:180px;background:white;border:1.5px solid #86EFAC;border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px">
+        <div style="width:28px;height:28px;border-radius:8px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--green)">৩</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px">রুটিন তৈরি হয়ে গেছে! ✓</div>
+          <div style="font-size:11px;color:var(--text-3)">নিচে ক্লাস বেছে নিলেই রুটিন আপনাআপনি দেখাবে — আলাদাভাবে কিছু করতে হবে না</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Class selector -->
+    <div style="background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-size:13px;font-weight:700;color:var(--text);white-space:nowrap">📋 কোন ক্লাসের রুটিন দেখবেন?</div>
+      <select class="rt-select" id="classSelect" onchange="loadRoutine()" style="flex:1;min-width:200px">
+        <option value="">— ক্লাস বেছে নিন —</option>
+      </select>
+      <button class="rt-btn rt-btn-outline" onclick="window.print()" style="font-size:12px;white-space:nowrap">🖨 প্রিন্ট</button>
+    </div>
+
+    <div id="debugWrap"></div>
+    <div id="routineWrap">
+      <div style="text-align:center;padding:48px 20px;color:var(--text-3)">
+        <div style="font-size:40px;margin-bottom:12px">📅</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text-2);margin-bottom:6px">উপর থেকে একটি ক্লাস বেছে নিন</div>
+        <div style="font-size:13px">বেছে নিলেই রুটিন দেখাবে</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+// BD Bangla day labels — index matches JS getDay() (0=Sun)
+const BD_DAYS = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
+// Display order: শনি→বৃহঃ (BD school week)
+const DISPLAY_DAYS = ['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহঃ'];
+// JS getDay() index for each display day
+const DISPLAY_DAY_IDX = [6,0,1,2,3,4];
+
+let currentInstitution = null;
+let allTeachers = [];
+let _rtSubjects = null; // cache loaded subjects
+let _rtTeacherMap = {};
+let _rtView = 'week'; // 'today' | 'week'
+
+function toMin(t){ if(!t) return 0; const[h,m]=t.split(':').map(Number); return h*60+m; }
+function fmt12(t){ if(!t) return ''; const[h,m]=t.split(':').map(Number); return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; }
+function esc(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata||{};
+  document.getElementById('userName').textContent = meta.principal_name||'Admin';
+  document.getElementById('userAvatar').textContent = (meta.principal_name||'A')[0];
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(!inst) return;
+  currentInstitution = inst;
+  document.getElementById('instNameSidebar').textContent = inst.name;
+
+  const [{ data: classes }, { data: teachers }] = await Promise.all([
+    sb.from('classes').select('id,name,section').eq('institution_id', inst.id).order('created_at'),
+    sb.from('teachers').select('id,full_name').eq('institution_id', inst.id).eq('is_active', true)
+  ]);
+
+  allTeachers = teachers||[];
+  const sel = document.getElementById('classSelect');
+  (classes||[]).forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = c.name + (c.section?' ('+c.section+')':'');
+    sel.appendChild(o);
+  });
+}
+
+function setView(v){
+  _rtView = v;
+  renderRoutine();
+}
+
+async function loadRoutine(){
+  const classId = document.getElementById('classSelect').value;
+  const wrap = document.getElementById('routineWrap');
+  if(!classId){
+    wrap.innerHTML = '<div class="rt-empty"><h3>ক্লাস নির্বাচন করুন</h3><p>উপরে থেকে ক্লাস বেছে নিন</p></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="rt-empty"><p style="color:var(--text-3)">লোড হচ্ছে...</p></div>';
+  _rtSubjects = null;
+
+  const [{ data: subjects }, { data: teacherLinks }] = await Promise.all([
+    sb.from('class_subjects').select('*').eq('class_id', classId),
+    sb.from('teacher_class_subjects').select('teacher_id,subject_name').eq('class_id', classId)
+  ]);
+
+  if(!subjects?.length){
+    wrap.innerHTML = `<div class="no-subject-state">
+      <h3>এই ক্লাসে কোনো বিষয় যোগ করা হয়নি</h3>
+      <p>বিষয় যোগ করলেই রুটিন স্বয়ংক্রিয়ভাবে তৈরি হবে।</p>
+      <a href="classes.html" target="_blank" class="rt-btn rt-btn-primary" style="display:inline-flex;margin:0 auto">+ বিষয় যোগ করুন ↗</a>
+    </div>`;
+    return;
+  }
+
+  // Build teacher map: subject_name → teacher full_name
+  _rtTeacherMap = {};
+  (teacherLinks||[]).forEach(r=>{
+    const t = allTeachers.find(x=>x.id===r.teacher_id);
+    if(t && r.subject_name) _rtTeacherMap[r.subject_name] = t.full_name;
+  });
+
+  _rtSubjects = subjects;
+  renderRoutine();
+}
+
+function renderRoutine(){
+  const wrap = document.getElementById('routineWrap');
+  if(!_rtSubjects) return;
+  const subjects = _rtSubjects;
+
+  const now = new Date();
+  const todayIdx = now.getDay(); // 0=Sun…6=Sat
+  const todayLabel = BD_DAYS[todayIdx]; // e.g. "রবি"
+  const nowMin = now.getHours()*60 + now.getMinutes();
+
+  // Toggle buttons HTML
+  const toggle = `<div style="display:flex;gap:8px;margin-bottom:16px">
+    <button onclick="setView('today')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid ${_rtView==='today'?'var(--blue)':'var(--border)'};background:${_rtView==='today'?'var(--blue-light)':'white'};color:${_rtView==='today'?'var(--blue)':'var(--text-2)'};font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">📅 আজকের রুটিন</button>
+    <button onclick="setView('week')" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid ${_rtView==='week'?'var(--blue)':'var(--border)'};background:${_rtView==='week'?'var(--blue-light)':'white'};color:${_rtView==='week'?'var(--blue)':'var(--text-2)'};font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">📆 সাপ্তাহিক রুটিন</button>
+  </div>`;
+
+  // Unique time slots sorted
+  const timeSlots = [...new Set(subjects.filter(s=>s.start_time).map(s=>s.start_time))].sort();
+  const noTimeSubjects = subjects.filter(s=>!s.start_time);
+
+  // Build cellMap: "BanglaDay|start_time" → {subject, teacher}
+  // Uses Bangla directly — no English key conversion needed
+  const cellMap = {};
+  subjects.forEach(s=>{
+    if(!s.days_of_week || !s.start_time) return;
+    s.days_of_week.split(',').map(d=>d.trim()).forEach(bnDay=>{
+      cellMap[bnDay+'|'+s.start_time] = {
+        subject: s.subject_name,
+        teacher: _rtTeacherMap[s.subject_name]||null
+      };
+    });
+  });
+
+  // ── TODAY VIEW ──
+  if(_rtView === 'today'){
+    const todays = subjects
+      .filter(s=>s.start_time && s.days_of_week && s.days_of_week.split(',').map(d=>d.trim()).includes(todayLabel))
+      .sort((a,b)=>toMin(a.start_time)-toMin(b.start_time));
+
+    if(!todays.length && !timeSlots.length){
+      wrap.innerHTML = toggle + `<div class="rt-empty"><h3>সময় সেট করা হয়নি</h3><p><a href="classes.html" target="_blank" style="color:var(--blue)">ক্লাস পেজ থেকে বিষয়ে সময় যোগ করুন ↗</a></p></div>`;
+      return;
+    }
+    if(!todays.length){
+      wrap.innerHTML = toggle + `<div class="rt-empty"><h3>আজ (${todayLabel}) কোনো ক্লাস নেই</h3><p>সাপ্তাহিক ট্যাবে পুরো রুটিন দেখুন।</p></div>`;
+      return;
+    }
+
+    let html = toggle + `<div class="rt-wrap" style="border-radius:14px;overflow:hidden">
+      <table style="border-collapse:collapse;width:100%">
+        <thead><tr>
+          <th style="background:#0A1628;color:white;font-size:11px;font-weight:700;padding:10px 12px;width:90px;text-align:center">সময়</th>
+          <th style="background:var(--blue);color:white;font-size:12px;font-weight:700;padding:10px 12px;text-align:left">বিষয়</th>
+          <th style="background:var(--blue);color:white;font-size:12px;font-weight:700;padding:10px 12px;text-align:left">শিক্ষক</th>
+          <th style="background:var(--blue);color:white;font-size:12px;font-weight:700;padding:10px 12px;text-align:center;width:80px">অবস্থা</th>
+        </tr></thead><tbody>`;
+
+    todays.forEach((s, idx)=>{
+      const stMin=toMin(s.start_time), etMin=s.end_time?toMin(s.end_time):stMin+45;
+      const isNow=nowMin>=stMin&&nowMin<etMin, isDone=nowMin>=etMin;
+      const bg = isNow?'#E8F4FF':isDone?'#FAFAFA':'white';
+      const status = isNow
+        ? `<span style="background:var(--green);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">এখন চলছে</span>`
+        : isDone
+        ? `<span style="font-size:11px;color:var(--text-3)">শেষ</span>`
+        : `<span style="font-size:11px;color:var(--text-3)">${idx===todays.findIndex(x=>toMin(x.start_time)>nowMin)?'পরবর্তী':'অপেক্ষায়'}</span>`;
+      html += `<tr style="background:${bg};${isNow?'outline:2px solid var(--green);outline-offset:-1px':''}">
+        <td style="padding:12px 10px;border:1px solid var(--border);text-align:center">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);${isDone&&!isNow?'opacity:.5':''}">${fmt12(s.start_time)}</div>
+          ${s.end_time?`<div style="font-size:10px;color:var(--text-3)">${fmt12(s.end_time)}</div>`:''}
+        </td>
+        <td style="padding:12px 14px;border:1px solid var(--border);${isDone&&!isNow?'opacity:.5':''}">
+          <div style="font-size:13px;font-weight:700;color:var(--blue)">${esc(s.subject_name)}</div>
+        </td>
+        <td style="padding:12px 14px;border:1px solid var(--border);${isDone&&!isNow?'opacity:.5':''}">
+          <div style="font-size:12px;color:var(--text-2)">${esc(_rtTeacherMap[s.subject_name]||'—')}</div>
+        </td>
+        <td style="padding:10px;border:1px solid var(--border);text-align:center">${status}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+    wrap.innerHTML = html;
+    return;
+  }
+
+  // ── WEEK VIEW ──
+  if(!timeSlots.length){
+    wrap.innerHTML = toggle + `<div class="rt-empty"><h3>সময় সেট করা হয়নি</h3><p><a href="classes.html" target="_blank" style="color:var(--blue)">ক্লাস পেজ থেকে বিষয়ে সময় যোগ করুন ↗</a></p></div>`;
+    wrap.innerHTML += noTimeSubjects.length?noTimeBadges(noTimeSubjects):'';
+    return;
+  }
+
+  let html = toggle + `<div class="rt-wrap"><table class="rt-grid">
+    <thead><tr>
+      <th class="first">সময় / দিন</th>
+      ${DISPLAY_DAYS.map((label,wi)=>{
+        const isToday = DISPLAY_DAY_IDX[wi]===todayIdx;
+        return `<th class="${isToday?'day-today':''}">${label}${isToday?' ◀':''}</th>`;
+      }).join('')}
+    </tr></thead><tbody>`;
+
+  timeSlots.forEach((st, idx)=>{
+    const etSubj = subjects.find(s=>s.start_time===st&&s.end_time);
+    const et = etSubj?.end_time;
+    const stMin=toMin(st), etMin=et?toMin(et):stMin+45;
+    const isNow=nowMin>=stMin&&nowMin<etMin;
+    html += `<tr${isNow?' style="outline:2px solid var(--green);outline-offset:-1px"':''}>
+      <td class="time-col">
+        <div class="pnum">${idx+1}</div>
+        <div class="ptime">${fmt12(st)}${et?'<br>'+fmt12(et):''}</div>
+      </td>`;
+    DISPLAY_DAYS.forEach((label,wi)=>{
+      const isToday = DISPLAY_DAY_IDX[wi]===todayIdx;
+      const cell = cellMap[label+'|'+st];
+      if(cell){
+        html += `<td><div class="rt-cell filled${isToday?' today-col':''}">
+          <div class="rt-cell-subject">${esc(cell.subject)}</div>
+          ${cell.teacher?`<div class="rt-cell-teacher">${esc(cell.teacher)}</div>`:''}
+        </div></td>`;
+      } else {
+        html += `<td><div class="rt-cell${isToday?' today-col':''}"><div class="rt-cell-empty">—</div></div></td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+
+  if(noTimeSubjects.length) html += noTimeBadges(noTimeSubjects);
+
+  html += `<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#F0F7FF;border:1px solid #B5D4F4"></div> বিষয় আছে</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8F4FF;border:1px solid #378ADD"></div> আজকের কলাম</div>
+    <div class="legend-item"><div class="legend-dot" style="background:white;border:2px solid var(--green)"></div> এখন চলছে</div>
+  </div>`;
+
+  wrap.innerHTML = html;
+}
+
+function noTimeBadges(noTimeSubjects){
+  return `<div style="margin-top:14px;background:white;border-radius:12px;border:1px solid var(--border);padding:14px 16px">
+    <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">সময় নির্ধারিত নয়</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${noTimeSubjects.map(s=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--text-2)">${esc(s.subject_name)}${_rtTeacherMap[s.subject_name]?'<span style="color:var(--text-3);font-weight:400"> · '+esc(_rtTeacherMap[s.subject_name])+'</span>':''}</span>`).join('')}
+    </div>
+  </div>`;
+}
+
+function esc(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+init();
+</script>
+</body>
+</html>

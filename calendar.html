@@ -1,0 +1,1096 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>একাডেমিক ক্যালেন্ডার — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;--amber:#D97706;--amber-l:#FFFBEB;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.user-name-link{cursor:pointer}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.content{padding:24px 28px;flex:1}
+
+/* STATS STRIP */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:var(--white);border-radius:var(--rl);padding:16px 18px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.stat-mini-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stat-mini-num{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.stat-mini-label{font-size:11px;color:var(--text-3)}
+
+/* WEEKLY OFF PANEL */
+.weekly-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.weekly-panel-title{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0;margin-right:4px}
+.weekly-checks{display:flex;gap:10px;flex-wrap:wrap}
+.wday-label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);cursor:pointer;padding:5px 10px;border:1.5px solid var(--border);border-radius:8px;transition:all .2s;user-select:none}
+.wday-label input{display:none}
+.wday-label.checked{border-color:#94A3B8;background:#F1F5F9;color:var(--text)}
+.weekly-panel-hint{font-size:11px;color:var(--text-3);margin-left:auto}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2)}
+.legend-dot{width:14px;height:14px;border-radius:4px}
+.legend-dot.open{background:#DCFCE7;border:1.5px solid #86EFAC}
+.legend-dot.closed{background:#FEE2E2;border:1.5px solid #FCA5A5}
+.legend-dot.holiday{background:#FEF3C7;border:1.5px solid #FCD34D}
+.legend-dot.weekly_off{background:#E2E8F0;border:1.5px solid #CBD5E1}
+.legend-dot.govt_holiday{background:#EDE9FE;border:1.5px solid #A78BFA}
+
+/* CALENDAR GRID */
+.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-bottom:32px}
+.month-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.month-header{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;padding:12px 16px;font-size:14px;font-weight:800;letter-spacing:.02em}
+.month-subheader{font-size:10px;opacity:.7;margin-top:2px}
+.month-body{padding:10px}
+.day-names{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.day-name{font-size:10px;font-weight:700;color:var(--text-3);text-align:center;padding:4px 0}
+.day-name.weekend{color:var(--red)}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.day-cell{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid transparent;user-select:none}
+.day-cell:hover:not(.empty):not(.outside){filter:brightness(.93)}
+.day-cell.empty{cursor:default}
+.day-cell.outside{background:transparent;color:var(--border);cursor:default}
+.day-cell.open{background:#DCFCE7;color:#166534}
+.day-cell.closed{background:#FEE2E2;color:#991B1B}
+.day-cell.holiday{background:#FEF3C7;color:#92400E}
+.day-cell.weekly_off{background:#E2E8F0;color:#64748B}
+.day-cell.govt_holiday{background:#EDE9FE;color:#5B21B6}
+.day-cell.today{outline:2.5px solid var(--blue);outline-offset:1px}
+.day-cell.past{opacity:.7}
+.day-status-text{font-size:8px;line-height:1;margin-top:1px;font-weight:700}
+.day-num{line-height:1}
+.hijri-day{font-size:8px;line-height:1;font-weight:700;color:#0D9488;opacity:.85;margin-top:1px;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.day-cell.outside .hijri-day{color:#94A3B8}
+.note-row{grid-column:1/-1;padding:4px 8px 6px}
+.note-input-wrap{display:flex;align-items:center;gap:6px;background:var(--blue-light);border-radius:8px;padding:6px 10px;border:1.5px solid var(--blue)}
+.note-input-wrap input{flex:1;border:none;background:transparent;font-size:11px;font-family:inherit;outline:none;color:var(--text)}
+.note-save-btn{font-size:10px;font-weight:700;color:var(--blue);cursor:pointer;white-space:nowrap;background:none;border:none;font-family:inherit;padding:0}
+
+/* SAVING INDICATOR */
+.saving-indicator{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.saving-indicator.show{display:flex}
+.saving-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* PRINT BTN */
+.btn-print{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--white);color:var(--text-2);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-print:hover{border-color:var(--blue);color:var(--blue)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* NO DATES MSG */
+.no-dates-msg{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:48px 24px;text-align:center;color:var(--text-2)}
+.no-dates-msg h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.no-dates-msg p{font-size:13px;color:var(--text-3)}
+.no-dates-msg a{color:var(--blue);text-decoration:underline;cursor:pointer}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding:16px;padding-bottom:90px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:12px 16px;height:auto}
+  .bottom-nav{display:flex!important}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+
+/* DAY ACTION POPUP */
+.day-popup{position:fixed;z-index:9000;background:white;border:1.5px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:14px 16px;min-width:220px;display:none}
+.day-popup.show{display:block}
+.day-popup-date{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px}
+.day-popup-govt{font-size:11px;color:#7C3AED;font-weight:600;margin-bottom:10px;background:#EDE9FE;padding:3px 8px;border-radius:6px;display:inline-block}
+.day-popup-actions{display:flex;flex-direction:column;gap:6px}
+.day-popup-btn{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:left}
+.day-popup-btn:hover{filter:brightness(.95)}
+.day-popup-btn.active{outline:2px solid currentColor;outline-offset:1px}
+.dpb-open{background:#DCFCE7;color:#166534}
+.dpb-closed{background:#FEE2E2;color:#991B1B}
+.dpb-holiday{background:#FEF3C7;color:#92400E}
+.dpb-govt{background:#EDE9FE;color:#5B21B6}
+.dpb-weekly{background:#E2E8F0;color:#64748B}
+.day-popup-divider{height:1px;background:var(--border);margin:4px 0}
+.dpb-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.day-popup-note-wrap{margin-top:8px;display:flex;gap:6px}
+.day-popup-note-input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none;color:var(--text)}
+.day-popup-note-input:focus{border-color:var(--blue)}
+.dpb-save{padding:6px 12px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.day-cell{cursor:pointer}
+.day-cell:hover:not(.empty):not(.outside){filter:brightness(.92);transform:scale(1.04)}
+
+/* ADD HOLIDAY BUTTON */
+.btn-add-holiday{display:flex;align-items:center;gap:6px;padding:9px 18px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-add-holiday:hover{background:var(--blue-dark)}
+
+/* PRINT STYLES */
+@media print{
+  .sidebar,.topbar,.weekly-panel,.legend,.stats-row,.saving-indicator,.bottom-nav,.btn-print,.day-popup,#addHolidayOverlay{display:none!important}
+  .main{margin-left:0}
+  .content{padding:0}
+  .cal-grid{display:none!important}
+  .print-section{display:block!important}
+  body{background:white}
+}
+.print-section{display:none}
+.print-table{width:100%;border-collapse:collapse;font-size:13px}
+.print-table th{background:#1A56DB;color:white;padding:8px 12px;text-align:left;font-weight:700}
+.print-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.print-table tr:nth-child(even) td{background:#F8FAFF}
+.print-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.print-sub{font-size:12px;color:var(--text-3);margin-bottom:16px}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end}
+.more-sheet-overlay.show{display:flex}
+.more-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:16px 16px 32px;max-height:80vh;overflow-y:auto}
+.more-sheet-handle{width:40px;height:4px;background:#E2E8F0;border-radius:2px;margin:0 auto 16px}
+.more-sheet-title{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:14px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;text-decoration:none;color:#0F172A;background:#F8FAFF;border:1px solid #E2E8F0}
+.more-sheet-icon{width:42px;height:42px;border-radius:12px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;color:#1A56DB}
+.more-sheet-label{font-size:9px;font-weight:600;color:#475569;text-align:center;line-height:1.3}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item active" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name user-name-link" id="userName" onclick="window.location.href='settings.html'">Loading...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="event.stopPropagation();doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">একাডেমিক ক্যালেন্ডার</div>
+    </div>
+    <div class="topbar-right">
+      <span id="yearLabel" style="font-size:12px;color:var(--text-3);font-weight:600"></span>
+      <button class="btn-print" onclick="doPrint()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        ছুটির তালিকা প্রিন্ট
+      </button>
+    </div>
+  </div>
+
+  <div class="content" id="mainContent">
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:#EEF3FF">📅</div>
+        <div><div class="stat-mini-num" id="statTotal">—</div><div class="stat-mini-label">মোট কার্যদিবস</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:#ECFDF5">✅</div>
+        <div><div class="stat-mini-num" id="statDone">—</div><div class="stat-mini-label">আজ পর্যন্ত হয়েছে</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:#FFFBEB">⏳</div>
+        <div><div class="stat-mini-num" id="statLeft">—</div><div class="stat-mini-label">বাকি আছে</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:#FEF2F2">🏖️</div>
+        <div><div class="stat-mini-num" id="statHol">—</div><div class="stat-mini-label">মোট ছুটি</div></div>
+      </div>
+    </div>
+
+    <!-- WEEKLY OFF PANEL -->
+    <div class="weekly-panel">
+      <div class="weekly-panel-title">সাপ্তাহিক ছুটির দিন:</div>
+      <div class="weekly-checks" id="weeklyChecks"></div>
+      <div class="weekly-panel-hint">পরিবর্তন করলে সব দিন আপডেট হবে</div>
+    </div>
+
+    <!-- LEGEND + ADD BUTTON -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot open"></div> চালু</div>
+      <div class="legend-item"><div class="legend-dot closed"></div> বন্ধ</div>
+      <div class="legend-item"><div class="legend-dot holiday"></div> প্রতিষ্ঠান ছুটি</div>
+      <div class="legend-item"><div class="legend-dot govt_holiday"></div> সরকারি বন্ধ</div>
+      <div class="legend-item"><div class="legend-dot weekly_off"></div> সাপ্তাহিক ছুটি</div>
+      <div style="margin-left:auto">
+        <button class="btn-add-holiday" onclick="openAddHolidayModal()">+ ছুটি যোগ করুন</button>
+      </div>
+    </div>
+
+    <!-- DAY ACTION POPUP -->
+    <div class="day-popup" id="dayPopup">
+      <div class="day-popup-date" id="popupDateLabel"></div>
+      <div class="day-popup-govt" id="popupGovtLabel" style="display:none"></div>
+      <div class="day-popup-actions" id="popupActions"></div>
+      <div class="day-popup-note-wrap" id="popupNoteWrap" style="display:none">
+        <input class="day-popup-note-input" id="popupNoteInput" placeholder="কারণ লিখুন (যেমন: পরীক্ষার ছুটি)..." maxlength="100">
+        <button class="dpb-save" onclick="savePopupNote()">✓</button>
+      </div>
+    </div>
+
+    <!-- ADD HOLIDAY MODAL OVERLAY -->
+    <div id="addHolidayOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8000;align-items:center;justify-content:center">
+      <div style="background:white;border-radius:18px;padding:28px 28px 24px;min-width:340px;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,.22)">
+        <div style="font-size:17px;font-weight:800;margin-bottom:20px">ছুটি যোগ করুন</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-3);display:block;margin-bottom:4px">শুরুর তারিখ</label>
+            <input type="date" id="ahStartDate" style="width:100%;padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:inherit;outline:none">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--text-3);display:block;margin-bottom:4px">শেষের তারিখ</label>
+            <input type="date" id="ahEndDate" style="width:100%;padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:inherit;outline:none">
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:11px;font-weight:700;color:var(--text-3);display:block;margin-bottom:6px">ধরন</label>
+          <div style="display:flex;gap:8px">
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600">
+              <input type="radio" name="ahType" value="closed" checked style="accent-color:var(--red)"> <span style="color:#991B1B">বন্ধ</span>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600">
+              <input type="radio" name="ahType" value="holiday" style="accent-color:#D97706"> <span style="color:#92400E">প্রতিষ্ঠান ছুটি</span>
+            </label>
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="font-size:11px;font-weight:700;color:var(--text-3);display:block;margin-bottom:4px">কারণ / বিবরণ</label>
+          <input type="text" id="ahNote" placeholder="যেমন: বার্ষিক পরীক্ষার পর ছুটি, ক্রীড়া প্রতিযোগিতা..." maxlength="100" style="width:100%;padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:inherit;outline:none">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button onclick="closeAddHolidayModal()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:white;font-family:inherit">বাতিল</button>
+          <button onclick="confirmAddHoliday()" style="flex:2;padding:10px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">ছুটি সংরক্ষণ করুন</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="cal-grid" id="calGrid"></div>
+
+    <!-- PRINT SECTION (hidden, shown on print) -->
+    <div class="print-section" id="printSection"></div>
+  </div>
+</div>
+
+<!-- SAVING INDICATOR -->
+<div class="saving-indicator" id="savingIndicator">
+  <div class="saving-dot"></div>
+  <span id="savingText">সংরক্ষণ হচ্ছে...</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><span class="bnav-label">হোম</span></a>
+  <a class="bnav-item" href="attendance.html"><div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item" href="students.html"><div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></div><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item active" href="calendar.html"><div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><span class="bnav-label">ক্যালেন্ডার</span></a>
+    <button class="bnav-item" onclick="openMoreSheet()"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span><span>মেনু</span></button>
+</nav>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+// ---- GLOBALS ----
+let currentInstitution = null;
+let calendarDaysMap = new Map(); // "YYYY-MM-DD" -> {status, note, id}
+let weeklyOffDays = new Set([5]); // Friday default (0=Sun,1=Mon,...,6=Sat)
+const hijriCache = new Map(); // "YYYY-MM-DD" -> hijri day number (string)
+
+async function loadHijriForMonth(year, month){
+  const key = `${year}-${month}`;
+  if(loadHijriForMonth._fetched && loadHijriForMonth._fetched.has(key)) return;
+  if(!loadHijriForMonth._fetched) loadHijriForMonth._fetched = new Set();
+  loadHijriForMonth._fetched.add(key);
+  try{
+    const res = await fetch(`https://api.aladhan.com/v1/gToHCalendar/${month+1}/${year}?adjustment=-1`);
+    const json = await res.json();
+    if(json.code===200 && json.data){
+      json.data.forEach(item=>{
+        const g = item.gregorian;
+        const h = item.hijri;
+        const ds = `${g.year}-${String(g.month.number).padStart(2,'0')}-${String(g.day).padStart(2,'0')}`;
+        hijriCache.set(ds, h.day);
+      });
+    }
+  } catch(e){ /* silent — show nothing if offline */ }
+}
+
+async function loadAllHijriMonths(){
+  if(!academicStart || !academicEnd) return;
+  const promises = [];
+  const cur = new Date(academicStart.getFullYear(), academicStart.getMonth(), 1);
+  const end = new Date(academicEnd.getFullYear(), academicEnd.getMonth(), 1);
+  while(cur <= end){
+    promises.push(loadHijriForMonth(cur.getFullYear(), cur.getMonth()));
+    cur.setMonth(cur.getMonth()+1);
+  }
+  await Promise.all(promises);
+}
+let academicStart = null;
+let academicEnd = null;
+let activeNoteDate = null; // date string with note input open
+let savingTimer = null;
+
+// Bengali digit conversion
+const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6 + parseInt(d)));
+
+// Bengali month names
+const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const BN_DAYS_SHORT = ['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+const BN_DAYS_FULL = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+
+// Status cycle (govt_holiday excluded from manual cycle — pre-loaded only)
+const STATUS_CYCLE = ['open','closed','holiday','weekly_off'];
+const STATUS_LABELS = {open:'',closed:'বন্ধ',holiday:'ছুটি',weekly_off:'সা.ছুটি',govt_holiday:'সরকারি'};
+
+// ---- BANGLADESH GOVT HOLIDAYS 2026 ----
+const BD_GOVT_HOLIDAYS_2026 = [
+  {date:'2026-02-04', name:'শব-ই-বরাত'},
+  {date:'2026-02-21', name:'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস'},
+  {date:'2026-03-17', name:'জাতীয় শিশু দিবস'},
+  {date:'2026-03-19', name:'ঈদুল ফিতর (পূর্বের দিন)'},
+  {date:'2026-03-20', name:'ঈদুল ফিতর'},
+  {date:'2026-03-21', name:'ঈদুল ফিতর (পরের দিন)'},
+  {date:'2026-03-26', name:'স্বাধীনতা ও জাতীয় দিবস'},
+  {date:'2026-04-14', name:'পহেলা বৈশাখ (বাংলা নববর্ষ)'},
+  {date:'2026-05-01', name:'মে দিবস'},
+  {date:'2026-05-01', name:'বুদ্ধ পূর্ণিমা'},
+  {date:'2026-05-26', name:'ঈদুল আযহা (পূর্বের দিন)'},
+  {date:'2026-05-27', name:'ঈদুল আযহা'},
+  {date:'2026-05-28', name:'ঈদুল আযহা (পরের দিন)'},
+  {date:'2026-06-26', name:'পবিত্র আশুরা'},
+  {date:'2026-08-05', name:'জুলাই গণঅভ্যুত্থান দিবস'},
+  {date:'2026-08-26', name:'ঈদে মিলাদুন্নবী (সা.)'},
+  {date:'2026-10-20', name:'দুর্গাপূজা (নবমী)'},
+  {date:'2026-10-21', name:'দুর্গাপূজা / বিজয়া দশমী'},
+  {date:'2026-12-16', name:'বিজয় দিবস'},
+  {date:'2026-12-25', name:'বড়দিন (যীশু খ্রিষ্টের জন্মদিন)'},
+];
+// Build quick lookup map
+const GOVT_HOLIDAY_MAP = new Map(BD_GOVT_HOLIDAYS_2026.map(h => [h.date, h.name]));
+
+// ---- INIT ----
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata || {};
+  document.getElementById('userName').textContent = meta.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (meta.principal_name||'Admin').slice(0,1);
+  document.getElementById('instNameSidebar').textContent = meta.institution_name || 'আপনার প্রতিষ্ঠান';
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(!inst){
+    document.getElementById('calGrid').innerHTML = '<div class="no-dates-msg"><h3>প্রতিষ্ঠান পাওয়া যায়নি</h3><p><a href="settings.html">Settings</a> থেকে প্রতিষ্ঠানের তথ্য যোগ করুন।</p></div>';
+    return;
+  }
+  currentInstitution = inst;
+  document.getElementById('instNameSidebar').textContent = inst.name;
+  document.getElementById('yearLabel').textContent = inst.academic_year_label || '';
+
+  // Build academic range — use exact dates if available, else fall back to month settings
+  if(inst.academic_start_date && inst.academic_end_date){
+    academicStart = new Date(inst.academic_start_date);
+    academicEnd   = new Date(inst.academic_end_date);
+  } else if(inst.academic_year_start_month && inst.academic_year_en){
+    const sy = parseInt(inst.academic_year_en);
+    const sm = parseInt(inst.academic_year_start_month) - 1;
+    const em = parseInt(inst.academic_year_end_month || inst.academic_year_start_month) - 1;
+    const ey = em >= sm ? sy : sy + 1;
+    academicStart = new Date(sy, sm, 1);
+    academicEnd   = new Date(ey, em + 1, 0); // last day of end month
+  } else {
+    document.getElementById('calGrid').innerHTML = '<div class="no-dates-msg"><h3>একাডেমিক বছরের তারিখ নেই</h3><p><a href="settings.html">Settings</a> পেজ থেকে একাডেমিক বছরের শুরু ও শেষ তারিখ নির্ধারণ করুন।</p></div>';
+    return;
+  }
+  academicStart.setHours(0,0,0,0);
+  academicEnd.setHours(0,0,0,0);
+
+  // Build weekly off checkboxes
+  buildWeeklyOffPanel();
+
+  // Load saved calendar days
+  await loadCalendarDays();
+
+  // Render calendar (first pass, then reload with Hijri)
+  renderCalendar();
+  loadAllHijriMonths().then(()=>renderCalendar());
+  updateStats();
+}
+
+// ---- WEEKLY OFF PANEL ----
+function buildWeeklyOffPanel(){
+  const container = document.getElementById('weeklyChecks');
+  container.innerHTML = '';
+  BN_DAYS_FULL.forEach((name, idx) => {
+    const checked = weeklyOffDays.has(idx);
+    const lbl = document.createElement('label');
+    lbl.className = 'wday-label' + (checked ? ' checked' : '');
+    lbl.dataset.idx = idx;
+    lbl.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleWeeklyOff(${idx}, this.checked)"> ${name}`;
+    container.appendChild(lbl);
+  });
+}
+
+async function toggleWeeklyOff(dayIdx, isChecked){
+  const lbl = document.querySelector(`.wday-label[data-idx="${dayIdx}"]`);
+  if(lbl) lbl.classList.toggle('checked', isChecked);
+
+  if(isChecked) weeklyOffDays.add(dayIdx);
+  else weeklyOffDays.delete(dayIdx);
+
+  // Apply to all matching days in academic year
+  showSaving(true, 'সাপ্তাহিক ছুটি আপডেট হচ্ছে...');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(academicStart);
+  const upserts = [];
+  while(d <= academicEnd){
+    if(d.getDay() === dayIdx){
+      const ds = dateStr(d);
+      const existing = calendarDaysMap.get(ds);
+      const newStatus = isChecked ? 'weekly_off' : 'open';
+      // Only change if currently weekly_off (removing) or not yet weekly_off (adding)
+      if(isChecked && (!existing || existing.status !== 'weekly_off')){
+        calendarDaysMap.set(ds, {...(existing||{}), status: 'weekly_off', note: existing?.note||null});
+        upserts.push({institution_id: currentInstitution.id, date: ds, status: 'weekly_off', note: existing?.note||null});
+      } else if(!isChecked && existing && existing.status === 'weekly_off'){
+        calendarDaysMap.set(ds, {...existing, status: 'open'});
+        upserts.push({institution_id: currentInstitution.id, date: ds, status: 'open', note: null});
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+  if(upserts.length){
+    // Batch upsert in chunks of 100
+    for(let i=0;i<upserts.length;i+=100){
+      await sb.from('calendar_days').upsert(upserts.slice(i,i+100), {onConflict:'institution_id,date'});
+    }
+  }
+  showSaving(false);
+  renderCalendar();
+  updateStats();
+}
+
+// ---- LOAD CALENDAR DAYS ----
+async function loadCalendarDays(){
+  const { data, error } = await sb.from('calendar_days')
+    .select('*')
+    .eq('institution_id', currentInstitution.id);
+  if(error){ console.error(error); return; }
+  calendarDaysMap.clear();
+  (data||[]).forEach(row => {
+    calendarDaysMap.set(row.date, {status: row.status, note: row.note, id: row.id});
+  });
+  // Infer weekly off days from existing data
+  // (keep Friday as default, but also detect others)
+}
+
+// ---- RENDER CALENDAR ----
+function renderCalendar(){
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Iterate month by month starting from academic start
+  const cur = new Date(academicStart.getFullYear(), academicStart.getMonth(), 1);
+  const endMonth = new Date(academicEnd.getFullYear(), academicEnd.getMonth(), 1);
+  let currentMonthCard = null;
+
+  while(cur <= endMonth){
+    const card = buildMonthCard(cur, today);
+    const isCurrent = cur.getFullYear() === today.getFullYear() && cur.getMonth() === today.getMonth();
+    if(isCurrent){
+      card.style.outline = '2.5px solid var(--blue)';
+      card.style.outlineOffset = '2px';
+      currentMonthCard = card;
+    }
+    grid.appendChild(card);
+    cur.setMonth(cur.getMonth()+1);
+  }
+
+  // Scroll to current month after render
+  if(currentMonthCard){
+    setTimeout(() => currentMonthCard.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+  }
+}
+
+function buildMonthCard(monthDate, today){
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  const card = document.createElement('div');
+  card.className = 'month-card';
+  card.innerHTML = `<div class="month-header">${BN_MONTHS[month]} ${toBn(year)}</div>`;
+
+  const body = document.createElement('div');
+  body.className = 'month-body';
+
+  // Day names row
+  const namesRow = document.createElement('div');
+  namesRow.className = 'day-names';
+  BN_DAYS_SHORT.forEach((n,i) => {
+    const d = document.createElement('div');
+    d.className = 'day-name' + (i===0 || i===6 ? ' weekend' : '');
+    d.textContent = n;
+    namesRow.appendChild(d);
+  });
+  body.appendChild(namesRow);
+
+  // Days grid wrapper
+  const daysWrap = document.createElement('div');
+  daysWrap.className = 'days-grid';
+  daysWrap.id = `month-${year}-${month}`;
+
+  // Empty cells before first day
+  for(let i=0;i<firstDay;i++){
+    const empty = document.createElement('div');
+    empty.className = 'day-cell empty';
+    daysWrap.appendChild(empty);
+  }
+
+  for(let day=1; day<=daysInMonth; day++){
+    const cellDate = new Date(year, month, day);
+    cellDate.setHours(0,0,0,0);
+    const ds = dateStr(cellDate);
+    const isInRange = cellDate >= academicStart && cellDate <= academicEnd;
+    const isToday = cellDate.getTime() === today.getTime();
+    const isPast = cellDate < today;
+
+    const dayCell = document.createElement('div');
+
+    if(!isInRange){
+      dayCell.className = 'day-cell outside';
+      const hOut = hijriCache.get(ds);
+      dayCell.innerHTML = `<span class="day-num">${toBn(day)}</span>${hOut?`<span class="hijri-day">${hOut}</span>`:''}`;
+    } else {
+      const saved = calendarDaysMap.get(ds);
+      const isWeeklyOff = weeklyOffDays.has(cellDate.getDay());
+      const isGovtHol = GOVT_HOLIDAY_MAP.has(ds);
+      const defaultStatus = isGovtHol ? 'govt_holiday' : (isWeeklyOff ? 'weekly_off' : 'open');
+      const status = saved ? saved.status : defaultStatus;
+      const govtHolName = GOVT_HOLIDAY_MAP.get(ds);
+      dayCell.className = `day-cell ${status}${isToday ? ' today' : ''}${isPast && !isToday ? ' past' : ''}`;
+      dayCell.dataset.date = ds;
+      dayCell.dataset.status = status;
+      if(govtHolName) dayCell.title = govtHolName;
+      const hIn = hijriCache.get(ds);
+      dayCell.innerHTML = `<span class="day-num">${toBn(day)}</span>${hIn?`<span class="hijri-day">${hIn}</span>`:''}`+
+        `${STATUS_LABELS[status]?`<span class="day-status-text">${STATUS_LABELS[status]}</span>`:''}`;
+
+      dayCell.onclick = (e) => openDayPopup(e, ds, cellDate);
+    }
+    daysWrap.appendChild(dayCell);
+  }
+
+  body.appendChild(daysWrap);
+
+  card.appendChild(body);
+  return card;
+}
+
+// ---- DAY POPUP ----
+let popupCurrentDs = null;
+let popupCurrentDate = null;
+
+function openDayPopup(e, ds, cellDate){
+  e.stopPropagation();
+  const popup = document.getElementById('dayPopup');
+  const isGovtHol = GOVT_HOLIDAY_MAP.has(ds);
+  const govtName = GOVT_HOLIDAY_MAP.get(ds);
+  const isWeekOff = weeklyOffDays.has(cellDate.getDay());
+  const defaultStatus = isGovtHol ? 'govt_holiday' : (isWeekOff ? 'weekly_off' : 'open');
+  const saved = calendarDaysMap.get(ds) || {status: defaultStatus, note: null};
+  const currentStatus = saved.status;
+  popupCurrentDs = ds;
+  popupCurrentDate = cellDate;
+
+  // Date label
+  const dt = cellDate;
+  const hijriDay = hijriCache.get(ds);
+  const hijriSuffix = hijriDay ? ` · ${hijriDay} হিজরি` : '';
+  document.getElementById('popupDateLabel').innerHTML =
+    `${toBn(dt.getDate())} ${BN_MONTHS[dt.getMonth()]} ${toBn(dt.getFullYear())} — ${BN_DAYS_FULL[dt.getDay()]}${hijriDay?` <span style="color:#0D9488;font-size:11px;font-weight:700">(${hijriDay} হিজরি)</span>`:''}`;
+
+
+  // Govt holiday label
+  const govtLbl = document.getElementById('popupGovtLabel');
+  if(isGovtHol && currentStatus === 'govt_holiday'){
+    govtLbl.textContent = '🏛 ' + (govtName || 'সরকারি বন্ধ');
+    govtLbl.style.display = 'inline-block';
+  } else {
+    govtLbl.style.display = 'none';
+  }
+
+  // Build action buttons
+  const actions = document.getElementById('popupActions');
+  const btns = [
+    {status:'open',     label:'চালু রাখুন',       cls:'dpb-open'},
+    {status:'closed',   label:'বন্ধ করুন',        cls:'dpb-closed'},
+    {status:'holiday',  label:'প্রতিষ্ঠান ছুটি',  cls:'dpb-holiday'},
+  ];
+  if(isGovtHol){
+    btns.push({status:'govt_holiday', label:'সরকারি বন্ধ (পুনরুদ্ধার)', cls:'dpb-govt'});
+  }
+  actions.innerHTML = btns.map(b => `
+    <button class="day-popup-btn ${b.cls}${currentStatus===b.status?' active':''}" onclick="applyDayStatus('${b.status}')">
+      ${currentStatus===b.status ? '✓ ' : ''}${b.label}
+    </button>`).join('');
+
+  // Note field
+  const noteWrap = document.getElementById('popupNoteWrap');
+  const noteInput = document.getElementById('popupNoteInput');
+  if(currentStatus === 'closed' || currentStatus === 'holiday'){
+    noteWrap.style.display = 'flex';
+    noteInput.value = saved.note || '';
+  } else {
+    noteWrap.style.display = 'none';
+    noteInput.value = '';
+  }
+
+  // Position popup near click
+  popup.style.display = 'block';
+  const rect = e.target.closest('.day-cell').getBoundingClientRect();
+  let top = rect.bottom + 6 + window.scrollY;
+  let left = rect.left + window.scrollX;
+  if(left + 240 > window.innerWidth) left = window.innerWidth - 250;
+  if(top + 260 > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - 270;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+  popup.classList.add('show');
+}
+
+async function applyDayStatus(newStatus){
+  if(!popupCurrentDs) return;
+  const cellDate = popupCurrentDate;
+  const ds = popupCurrentDs;
+  const saved = calendarDaysMap.get(ds) || {note: null};
+  const needNote = newStatus === 'closed' || newStatus === 'holiday';
+
+  calendarDaysMap.set(ds, {...saved, status: newStatus});
+
+  // Update cell on page
+  const cell = document.querySelector(`[data-date="${ds}"]`);
+  if(cell){
+    const today = new Date(); today.setHours(0,0,0,0);
+    const isPast = cellDate < today;
+    const isToday = cellDate.getTime() === today.getTime();
+    cell.className = `day-cell ${newStatus}${isToday?' today':''}${isPast&&!isToday?' past':''}`;
+    cell.dataset.status = newStatus;
+    cell.innerHTML = `<span class="day-num">${toBn(cellDate.getDate())}</span>${STATUS_LABELS[newStatus]?`<span class="day-status-text">${STATUS_LABELS[newStatus]}</span>`:''}`;
+  }
+
+  // Show/hide note
+  const noteWrap = document.getElementById('popupNoteWrap');
+  const noteInput = document.getElementById('popupNoteInput');
+  if(needNote){
+    noteWrap.style.display = 'flex';
+    noteInput.value = saved.note || '';
+    noteInput.focus();
+    // Re-highlight active button
+    document.querySelectorAll('#popupActions .day-popup-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent.includes(STATUS_LABELS[newStatus]||'') || b.onclick?.toString().includes(newStatus));
+    });
+  } else {
+    noteWrap.style.display = 'none';
+    closeDayPopup();
+    await upsertDay(ds, newStatus, saved.note || null);
+    updateStats();
+  }
+}
+
+async function savePopupNote(){
+  if(!popupCurrentDs) return;
+  const note = document.getElementById('popupNoteInput').value.trim() || null;
+  const saved = calendarDaysMap.get(popupCurrentDs) || {};
+  calendarDaysMap.set(popupCurrentDs, {...saved, note});
+  closeDayPopup();
+  await upsertDay(popupCurrentDs, saved.status, note);
+  updateStats();
+  showToast('সংরক্ষিত হয়েছে ✓');
+}
+
+function closeDayPopup(){
+  const popup = document.getElementById('dayPopup');
+  popup.classList.remove('show');
+  popup.style.display = 'none';
+  popupCurrentDs = null;
+  popupCurrentDate = null;
+}
+
+// Close popup on outside click
+document.addEventListener('click', (e) => {
+  const popup = document.getElementById('dayPopup');
+  if(popup && popup.classList.contains('show') && !popup.contains(e.target)){
+    closeDayPopup();
+  }
+});
+
+// ---- ADD HOLIDAY MODAL ----
+function openAddHolidayModal(){
+  const overlay = document.getElementById('addHolidayOverlay');
+  overlay.style.display = 'flex';
+  // Default: today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('ahStartDate').value = today;
+  document.getElementById('ahEndDate').value = today;
+  document.getElementById('ahNote').value = '';
+}
+
+function closeAddHolidayModal(){
+  document.getElementById('addHolidayOverlay').style.display = 'none';
+}
+
+async function confirmAddHoliday(){
+  const startStr = document.getElementById('ahStartDate').value;
+  const endStr   = document.getElementById('ahEndDate').value;
+  const type     = document.querySelector('input[name="ahType"]:checked')?.value || 'closed';
+  const note     = document.getElementById('ahNote').value.trim() || null;
+
+  if(!startStr || !endStr){ showToast('তারিখ নির্বাচন করুন'); return; }
+
+  const start = new Date(startStr); start.setHours(0,0,0,0);
+  const end   = new Date(endStr);   end.setHours(0,0,0,0);
+  if(end < start){ showToast('শেষের তারিখ শুরুর পরে হতে হবে'); return; }
+
+  closeAddHolidayModal();
+  showSaving(true, 'ছুটি যোগ হচ্ছে...');
+
+  const upserts = [];
+  const d = new Date(start);
+  while(d <= end){
+    const ds = dateStr(d);
+    if(d >= academicStart && d <= academicEnd){
+      calendarDaysMap.set(ds, {status: type, note});
+      upserts.push({institution_id: currentInstitution.id, date: ds, status: type, note});
+      // Update cell
+      const cell = document.querySelector(`[data-date="${ds}"]`);
+      if(cell){
+        const today = new Date(); today.setHours(0,0,0,0);
+        const isPast = d < today;
+        const isToday = d.getTime() === today.getTime();
+        cell.className = `day-cell ${type}${isToday?' today':''}${isPast&&!isToday?' past':''}`;
+        cell.dataset.status = type;
+        cell.innerHTML = `<span class="day-num">${toBn(d.getDate())}</span><span class="day-status-text">${STATUS_LABELS[type]||''}</span>`;
+      }
+    }
+    d.setDate(d.getDate()+1);
+  }
+
+  for(let i=0;i<upserts.length;i+=100){
+    await sb.from('calendar_days').upsert(upserts.slice(i,i+100), {onConflict:'institution_id,date'});
+  }
+  showSaving(false);
+  updateStats();
+  showToast(`${toBn(upserts.length)} দিন ছুটি যোগ হয়েছে ✓`);
+}
+
+async function upsertDay(ds, status, note){
+  showSaving(true);
+  const { error } = await sb.from('calendar_days').upsert(
+    {institution_id: currentInstitution.id, date: ds, status, note: note||null},
+    {onConflict: 'institution_id,date'}
+  );
+  if(error) console.error(error);
+  showSaving(false, '✓ সংরক্ষিত হয়েছে');
+}
+
+// ---- STATS ----
+function updateStats(){
+  if(!academicStart || !academicEnd) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let totalOpen=0, doneOpen=0, leftOpen=0, totalOff=0;
+  const d = new Date(academicStart);
+  while(d <= academicEnd){
+    const ds = dateStr(d);
+    const saved = calendarDaysMap.get(ds);
+    const isGovtH = GOVT_HOLIDAY_MAP.has(ds);
+    const isWeekOff = weeklyOffDays.has(d.getDay());
+    const defStatus = isGovtH ? 'govt_holiday' : (isWeekOff ? 'weekly_off' : 'open');
+    const status = saved ? saved.status : defStatus;
+    if(status === 'open'){
+      totalOpen++;
+      if(d <= today) doneOpen++;
+      if(d > today) leftOpen++;
+    } else {
+      totalOff++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+
+  document.getElementById('statTotal').textContent = toBn(totalOpen);
+  document.getElementById('statDone').textContent = toBn(doneOpen);
+  document.getElementById('statLeft').textContent = toBn(leftOpen);
+  document.getElementById('statHol').textContent = toBn(totalOff);
+}
+
+// ---- PRINT ----
+function doPrint(){
+  // Build print content
+  const offDays = [];
+  // Collect saved days
+  calendarDaysMap.forEach((val, ds) => {
+    if(['closed','holiday','govt_holiday'].includes(val.status)){
+      const gName = GOVT_HOLIDAY_MAP.get(ds);
+      offDays.push({date: ds, status: val.status, note: val.note || gName || null});
+    }
+  });
+  // Also add govt holidays not yet saved (within academic range)
+  GOVT_HOLIDAY_MAP.forEach((name, ds) => {
+    const d = new Date(ds); d.setHours(0,0,0,0);
+    if(d >= academicStart && d <= academicEnd && !calendarDaysMap.has(ds)){
+      offDays.push({date: ds, status: 'govt_holiday', note: name});
+    }
+  });
+  offDays.sort((a,b) => a.date.localeCompare(b.date));
+
+  const inst = currentInstitution;
+  const printEl = document.getElementById('printSection');
+  printEl.innerHTML = `
+    <div class="print-title">${inst.name || 'প্রতিষ্ঠানের নাম'}</div>
+    <div class="print-sub">একাডেমিক বর্ষ: ${inst.academic_year_label || ''} · ছুটির তালিকা</div>
+    <table class="print-table">
+      <thead><tr><th>#</th><th>তারিখ</th><th>দিন</th><th>ধরন</th><th>কারণ</th></tr></thead>
+      <tbody>
+        ${offDays.map((row,i) => {
+          const dt = new Date(row.date);
+          const dayName = BN_DAYS_FULL[dt.getDay()];
+          const dateFormatted = `${toBn(dt.getDate())} ${BN_MONTHS[dt.getMonth()]} ${toBn(dt.getFullYear())}`;
+          const typeName = row.status === 'govt_holiday' ? 'সরকারি বন্ধ' : row.status === 'closed' ? 'বন্ধ' : 'ছুটি';
+          return `<tr><td>${toBn(i+1)}</td><td>${dateFormatted}</td><td>${dayName}</td><td>${typeName}</td><td>${row.note||'—'}</td></tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+
+  window.print();
+}
+
+// ---- HELPERS ----
+function dateStr(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+let savingHideTimer = null;
+function showSaving(show, text){
+  const el = document.getElementById('savingIndicator');
+  const txt = document.getElementById('savingText');
+  if(show){
+    txt.textContent = text || 'সংরক্ষণ হচ্ছে...';
+    el.classList.add('show');
+    if(savingHideTimer) clearTimeout(savingHideTimer);
+  } else {
+    txt.textContent = text || '✓ সংরক্ষিত';
+    savingHideTimer = setTimeout(() => el.classList.remove('show'), 1500);
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+init();
+</script>
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){ var ov=document.getElementById('moreSheetOverlay'); if(ov) ov.addEventListener('click',function(e){ if(e.target===this) closeMoreSheet(); }); })();
+</script>
+</body>
+</html>

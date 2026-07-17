@@ -1,0 +1,1454 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>সিলেবাস ট্র্যাকিং — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --orange:#EA580C;--orange-l:#FFF7ED;
+  --r:10px;--rl:16px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+body{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{padding:22px 20px 16px}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px}
+.nav-badge.green{background:var(--green)}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700}
+.topbar-right{margin-left:auto;display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+.content{padding:24px 28px;flex:1}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.scard{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px}
+.scard-num{font-size:26px;font-weight:800;line-height:1}
+.scard-label{font-size:12px;color:var(--text-2);margin-top:5px;font-weight:500}
+
+/* SYLLABUS GRID */
+.syl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.syl-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:box-shadow .2s}
+.syl-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.syl-card-head{padding:16px 18px 12px;border-bottom:1px solid var(--border)}
+.syl-class-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--blue-light);color:var(--blue);margin-bottom:6px}
+.syl-subject{font-size:15px;font-weight:700;color:var(--text)}
+.syl-teacher{font-size:12px;color:var(--text-2);margin-top:2px}
+.syl-book{font-size:11px;color:var(--text-3);margin-top:2px}
+.syl-card-body{padding:14px 18px}
+.progress-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-size:12px;color:var(--text-2);font-weight:500}
+.progress-pct{font-size:13px;font-weight:700}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.fill-green{background:var(--green)}
+.fill-amber{background:var(--amber)}
+.fill-red{background:var(--red)}
+.fill-blue{background:var(--blue)}
+.syl-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.st-green{background:var(--green-l);color:var(--green)}
+.st-amber{background:var(--amber-l);color:var(--amber)}
+.st-red{background:var(--red-l);color:var(--red)}
+.st-blue{background:var(--blue-light);color:var(--blue)}
+.st-grey{background:#F1F5F9;color:#64748b}
+.syl-card-foot{padding:10px 18px;border-top:1px solid var(--border);display:flex;gap:8px}
+.goal-chip{font-size:11px;padding:3px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-2);font-weight:500}
+.goal-chip.active{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:64px 32px;color:var(--text-3)}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-size:16px;font-weight:700;color:var(--text-2);margin-bottom:8px}
+.empty-sub{font-size:13px;line-height:1.6}
+
+/* MODAL OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;padding-top:max(20px,env(safe-area-inset-top,0px)+48px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px;width:100%;max-width:620px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-lg{max-width:780px}
+.modal-head{padding:28px 24px 0;flex-shrink:0}
+.modal-title{font-size:17px;font-weight:800;color:var(--text)}
+.modal-sub{font-size:13px;color:var(--text-2);margin-top:3px}
+.modal-steps{display:flex;gap:0;margin-top:16px;border-bottom:2px solid var(--border);padding-bottom:0}
+.step-tab{flex:1;text-align:center;padding:10px 8px;font-size:12px;font-weight:600;color:var(--text-3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.step-tab.done{color:var(--green)}
+.step-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}.modal-body::-webkit-scrollbar{width:4px}.modal-body::-webkit-scrollbar-track{background:transparent}.modal-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:10px}.modal-body::-webkit-scrollbar-button{display:none}.modal-body::-webkit-scrollbar{width:4px}.modal-body::-webkit-scrollbar-track{background:transparent}.modal-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:10px}.modal-body::-webkit-scrollbar-button{display:none}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-detail{height:88vh}
+
+/* FORM */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{resize:vertical;min-height:80px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-hint{font-size:11px;color:var(--text-3);margin-top:4px}
+
+/* CLASS DAYS */
+.days-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.day-toggle{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--white);color:var(--text-2);user-select:none}
+.day-toggle.on{background:var(--blue);border-color:var(--blue);color:white}
+
+/* UPLOAD AREA */
+.upload-area{border:2px dashed var(--border);border-radius:14px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.upload-area:hover,.upload-area.dragover{border-color:var(--blue);background:var(--blue-light)}
+.upload-area input[type="file"]:not([style*="display:none"]){position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{font-size:36px;margin-bottom:10px}
+.upload-title{font-size:14px;font-weight:700;color:var(--text)}
+.upload-sub{font-size:12px;color:var(--text-2);margin-top:4px}
+.upload-preview{width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-top:12px;display:none}
+
+/* AI EXTRACT */
+.ai-btn{width:100%;padding:13px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.ai-btn:disabled{opacity:.6;cursor:not-allowed}
+.ai-status{text-align:center;padding:12px;font-size:13px;color:var(--text-2);display:none}
+
+/* CHAPTER TABLE */
+.ch-table{width:100%;border-collapse:collapse;margin-top:12px}
+.ch-table th{background:#F8FAFC;padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--text-3);border-bottom:1px solid var(--border)}
+.ch-table td{padding:9px 12px;font-size:13px;border-bottom:1px solid #F8FAFC}
+.ch-table td input{border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;width:100%;font-family:inherit}
+.ch-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px}
+.add-ch-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface);border:1.5px dashed var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;margin-top:10px;transition:all .2s}
+.add-ch-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* GOALS */
+.goal-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;position:relative}
+.goal-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.goal-type-tabs{display:flex;gap:4px;background:var(--border);border-radius:8px;padding:3px}
+.gtype{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;color:var(--text-2);transition:all .2s;border:none;background:transparent;font-family:inherit}
+.gtype.active{background:var(--white);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.goal-pct-row{display:flex;align-items:center;gap:10px}
+.goal-pct-input{width:90px}
+.goal-preview{font-size:12px;color:var(--text-2);background:var(--blue-light);padding:8px 12px;border-radius:8px;margin-top:10px;line-height:1.5}
+.del-goal{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:var(--text-3);font-size:18px;transition:color .2s}
+.del-goal:hover{color:var(--red)}
+.add-goal-btn{width:100%;padding:10px;background:transparent;border:2px dashed var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .2s}
+.add-goal-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* DETAIL MODAL */
+.detail-tabs{display:flex;gap:4px;background:#F1F5F9;border-radius:10px;padding:4px;margin-bottom:20px}
+.dtab{flex:1;padding:7px 4px;border-radius:8px;border:none;background:transparent;font-size:11px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:inherit;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap}
+.dtab svg{flex-shrink:0}
+.dtab.active{background:var(--white);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ch-progress-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ch-progress-row:last-child{border-bottom:none}
+.ch-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ch-info{flex:1;min-width:0}
+.ch-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-pages{font-size:11px;color:var(--text-3);margin-top:1px}
+.ch-pbar{height:5px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
+.ch-pfill{height:100%;border-radius:3px;background:var(--green)}
+.ch-action{flex-shrink:0}
+.mark-btn{padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--white);color:var(--text-2);transition:all .2s}
+.mark-btn:hover{border-color:var(--green);color:var(--green)}
+.mark-btn.done{background:var(--green-l);border-color:var(--green);color:var(--green)}
+
+/* PACE INFO */
+.pace-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.pace-title{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.pace-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-auto-rows:1fr}
+.pace-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center}
+.pace-val{font-size:16px;font-weight:800;color:var(--text)}
+.pace-lbl{font-size:11px;color:var(--text-2);margin-top:2px}
+
+/* PROGRESS LOG */
+.log-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.log-date{font-size:12px;font-weight:700;color:var(--text-2);min-width:80px}
+.log-text{font-size:13px;color:var(--text)}
+.log-note{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* LOADING */
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#0F172A;color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:999;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none;font-size:10px;font-weight:600}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+
+/* MOBILE */
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding:16px;padding-bottom:90px}
+  .bottom-nav{display:flex!important}
+  html,body{overflow-x:hidden;max-width:100vw}
+  .topbar{padding:0 16px;height:52px}
+  .topbar-title{font-size:14px}
+  .stats-row{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-card{padding:14px}
+  .stat-num{font-size:22px}
+  .syl-grid{grid-template-columns:1fr}
+  /* Modal full-screen on mobile — sits above bottom nav */
+  .overlay{align-items:flex-end;padding:0;padding-bottom:60px}
+  .modal{border-radius:20px 20px 0 0;max-height:calc(100vh - 60px);max-width:100%}
+  .modal-detail{height:calc(100vh - 130px)}
+  .modal-head{padding:16px 16px 0}
+  .modal-body{padding:16px}
+  .modal-tabs{gap:0}
+  .modal-tab{font-size:12px;padding:10px 8px}
+  .ch-table{font-size:12px}
+  .ch-table th,.ch-table td{padding:7px 6px}
+  .ch-table td input{padding:4px 6px;font-size:12px}
+  .upload-area{padding:20px 16px}
+  .goal-row{flex-direction:column;gap:8px}
+  .btn{padding:10px 16px;font-size:13px}
+  .toast{bottom:80px;right:12px;left:12px;text-align:center}
+}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end}
+.more-sheet-overlay.show{display:flex}
+.more-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:16px 16px 32px;max-height:80vh;overflow-y:auto}
+.more-sheet-handle{width:40px;height:4px;background:#E2E8F0;border-radius:2px;margin:0 auto 16px}
+.more-sheet-title{font-size:15px;font-weight:800;color:#0F172A;margin-bottom:14px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;text-decoration:none;color:#0F172A;background:#F8FAFF;border:1px solid #E2E8F0}
+.more-sheet-icon{width:42px;height:42px;border-radius:12px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;color:#1A56DB}
+.more-sheet-label{font-size:9px;font-weight:600;color:#475569;text-align:center;line-height:1.3}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Protish<span>than</span></div>
+    <div class="inst" id="sideInst">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item active" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="sideAvatar">A</div>
+      <div><div class="user-name" id="sideName">Admin</div><div class="user-role">Admin · <span id="sideLogout" style="color:#F87171;cursor:pointer">লগআউট</span></div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📚 সিলেবাস ট্র্যাকিং</div>
+    <div class="topbar-right">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+        নতুন সিলেবাস
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="scard"><div class="scard-num" id="statTotal" style="color:var(--blue)">০</div><div class="scard-label">মোট সিলেবাস</div></div>
+      <div class="scard"><div class="scard-num" id="statOnTrack" style="color:var(--green)">০</div><div class="scard-label">✅ On Track</div></div>
+      <div class="scard"><div class="scard-num" id="statBehind" style="color:var(--amber)">০</div><div class="scard-label">🟡 পিছিয়ে আছে</div></div>
+      <div class="scard"><div class="scard-num" id="statCritical" style="color:var(--red)">০</div><div class="scard-label">🔴 Critical</div></div>
+    </div>
+
+    <!-- SYLLABUS GRID -->
+    <div id="sylGrid" class="syl-grid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">📚</div>
+        <div class="empty-title">লোড হচ্ছে...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD SYLLABUS MODAL ══════════ -->
+<div class="overlay" id="addOverlay">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title">নতুন সিলেবাস যোগ করুন</div>
+      <div class="modal-sub">৩টি ধাপে সিলেবাস সেটআপ করুন</div>
+      <div class="modal-steps">
+        <div class="step-tab active" id="stepTab1">① বিষয় ও ক্লাস</div>
+        <div class="step-tab" id="stepTab2">② অধ্যায় সেটআপ</div>
+        <div class="step-tab" id="stepTab3">③ Goal নির্ধারণ</div>
+      </div>
+    </div>
+    <div class="modal-body" id="addModalBody">
+      <!-- Step 1 content injected by JS -->
+    </div>
+    <div id="addErrBar" style="display:none;background:#FEF2F2;border-top:1px solid #FECACA;padding:10px 24px;font-size:13px;font-weight:600;color:var(--red)"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="addBackBtn" onclick="addStepBack()" style="display:none">← পিছনে</button>
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn btn-ghost" onclick="closeAddModal()">বাতিল</button>
+        <button class="btn btn-primary" id="addNextBtn" onclick="addStepNext()">পরবর্তী →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DETAIL MODAL ══════════ -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal modal-lg modal-detail">
+    <div class="modal-head">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div class="modal-title" id="detailTitle">বিষয়</div>
+          <div class="modal-sub" id="detailSub">ক্লাস · শিক্ষক</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="closeDetailModal()">✕ বন্ধ করুন</button>
+      </div>
+      <div style="margin-top:14px">
+        <div class="detail-tabs">
+          <button class="dtab active" onclick="detailTab('overview')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>সারসংক্ষেপ</button>
+          <button class="dtab" onclick="detailTab('chapters')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>অধ্যায়</button>
+          <button class="dtab" onclick="detailTab('goals')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Goals</button>
+          <button class="dtab" onclick="detailTab('log')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>লগ</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body" id="detailBody">
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS MARK MODAL -->
+<div class="overlay" id="markOverlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div class="modal-title" id="markTitle">অগ্রগতি আপডেট করুন</div>
+      <div class="modal-sub" id="markSub"></div>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>এখন পর্যন্ত মোট কত পৃষ্ঠা পড়ানো হয়েছে?</label>
+        <input type="number" id="markPages" placeholder="যেমন: ২৮" min="1">
+        <div class="field-hint" id="markPagesHint"></div>
+      </div>
+      <div class="field">
+        <label>এই অধ্যায় কি সম্পূর্ণ হয়েছে?</label>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0">
+            <input type="radio" name="chDone" value="yes"> হ্যাঁ, সম্পূর্ণ
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;text-transform:none;letter-spacing:0">
+            <input type="radio" name="chDone" value="no" checked> না, চলছে
+          </label>
+        </div>
+      </div>
+      <div class="field" id="partialField">
+        <label>এই অধ্যায় কত % শেষ হয়েছে?</label>
+        <input type="range" id="chPercent" min="5" max="95" step="5" value="50" oninput="document.getElementById('chPctVal').textContent=this.value+'%'">
+        <div style="text-align:center;font-size:14px;font-weight:700;color:var(--blue)" id="chPctVal">৫০%</div>
+      </div>
+      <div class="field">
+        <label>নোট (ঐচ্ছিক)</label>
+        <textarea id="markNote" placeholder="যেমন: ব্যাকরণ অংশ বাকি আছে..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeMarkModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveProgress()">💾 সেভ করুন</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+const GROQ_KEY = '';
+const toBn = s => String(s).replace(/\d/g, d => String.fromCharCode(0x09E6+parseInt(d)));
+
+let inst = null, allClasses = [], allTeachers = [], allSyllabuses = [];
+let addStep = 1, addData = {}, chapters = [], goals = [];
+let currentSylId = null, markSylId = null, markChapterId = null;
+const DAY_NAMES = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
+const DAY_NAMES_FULL = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+const DAY_NAMES_DB   = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি']; // matches classes.html storage
+
+// ── INIT ──
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const { data: instData } = await sb.from('institutions').select('*').eq('email',session.user.email).maybeSingle();
+  if(!instData){ window.location.href='dashboard.html'; return; }
+  inst = instData;
+  document.getElementById('sideInst').textContent = inst.name||'';
+  const nm = inst.principal_name||session.user.email.split('@')[0];
+  document.getElementById('sideName').textContent = nm;
+  document.getElementById('sideAvatar').textContent = nm[0]?.toUpperCase()||'A';
+  document.getElementById('sideLogout').onclick = async()=>{ await sb.auth.signOut(); window.location.href='login.html'; };
+
+  const [{ data: cls },{ data: tch }] = await Promise.all([
+    sb.from('classes').select('id,name').eq('institution_id',inst.id).order('name'),
+    sb.from('teachers').select('id,full_name').eq('institution_id',inst.id).eq('is_active',true).order('full_name')
+  ]);
+  allClasses = cls||[]; allTeachers = tch||[];
+  await loadSyllabuses();
+}
+
+// ── LOAD SYLLABUSES ──
+async function loadSyllabuses(){
+  const { data } = await sb.from('syllabuses').select('*').eq('institution_id',inst.id).order('created_at',{ascending:false});
+  allSyllabuses = data||[];
+  if(!allSyllabuses.length){ renderEmpty(); return; }
+  await renderGrid();
+}
+
+async function renderGrid(){
+  const grid = document.getElementById('sylGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-3)">লোড হচ্ছে...</div>';
+  let total=0,onTrack=0,behind=0,critical=0;
+  let cards = '';
+  for(const s of allSyllabuses){
+    total++;
+    const [{ data: chs },{ data: goals },{ data: prog }] = await Promise.all([
+      sb.from('syllabus_chapters').select('*').eq('syllabus_id',s.id).order('sort_order'),
+      sb.from('syllabus_goals').select('*').eq('syllabus_id',s.id).order('sort_order'),
+      sb.from('syllabus_progress').select('pages_covered_total').eq('syllabus_id',s.id).order('created_at',{ascending:false}).limit(1)
+    ]);
+    const covered = prog?.[0]?.pages_covered_total||0;
+    const total_pages = s.total_pages||1;
+    const pct = Math.min(100, Math.round(covered/total_pages*100));
+    const activeGoal = getActiveGoal(goals||[]);
+    const {status, statusLabel, fillCls} = calcStatus(pct, activeGoal, s);
+    if(status==='on_track') onTrack++;
+    else if(status==='behind') behind++;
+    else if(status==='critical') critical++;
+
+    const goalChips = (goals||[]).map(g=>`<span class="goal-chip${g.id===activeGoal?.id?' active':''}">${g.goal_name}</span>`).join('');
+    cards += `<div class="syl-card" onclick="openDetail('${s.id}')">
+      <div class="syl-card-head">
+        <div class="syl-class-badge">${s.class_name||'ক্লাস'}</div>
+        <div class="syl-subject">${s.subject_name}</div>
+        <div class="syl-teacher">👨‍🏫 ${s.teacher_name||'—'}</div>
+        <div class="syl-book">📖 ${s.book_name||'—'} · মোট ${toBn(total_pages)} পৃষ্ঠা</div>
+      </div>
+      <div class="syl-card-body">
+        <div class="progress-row">
+          <span class="progress-label">সামগ্রিক অগ্রগতি</span>
+          <span class="progress-pct" style="color:${pct>=75?'var(--green)':pct>=40?'var(--amber)':'var(--red)'}">${toBn(pct)}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill ${fillCls}" style="width:${pct}%"></div></div>
+        ${activeGoal?(()=>{const goalPct=Math.min(100,Math.round(activeGoal.target_percent?pct/activeGoal.target_percent*100:0));return`
+          <div class="progress-row">
+            <span class="progress-label">🎯 ${activeGoal.goal_name} · ${daysLeft(activeGoal.end_date)} দিন বাকি</span>
+            <span class="progress-pct" style="color:${goalPct>=100?'var(--green)':goalPct>=60?'var(--blue)':'var(--amber)'}">${toBn(goalPct)}% of goal</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill fill-blue" style="width:${goalPct}%"></div></div>
+        `})():''}
+        <span class="syl-status ${status==='on_track'?'st-green':status==='ahead'?'st-blue':status==='behind'?'st-amber':status==='critical'?'st-red':'st-grey'}">${statusLabel}</span>
+      </div>
+      ${goalChips?`<div class="syl-card-foot">${goalChips}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('statTotal').textContent = toBn(total);
+  document.getElementById('statOnTrack').textContent = toBn(onTrack);
+  document.getElementById('statBehind').textContent = toBn(behind);
+  document.getElementById('statCritical').textContent = toBn(critical);
+  grid.innerHTML = cards;
+}
+
+function renderEmpty(){
+  document.getElementById('sylGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+    <div class="empty-icon">📚</div>
+    <div class="empty-title">এখনো কোনো সিলেবাস নেই</div>
+    <div class="empty-sub">উপরের "নতুন সিলেবাস" বাটন চেপে শুরু করুন।<br>Groq AI দিয়ে সূচিপত্র থেকে অধ্যায় auto-extract হবে।</div>
+  </div>`;
+}
+
+function getActiveGoal(goals){
+  const today = new Date().toISOString().split('T')[0];
+  return goals.find(g=>g.end_date>=today) || goals[goals.length-1] || null;
+}
+
+function calcStatus(pct, activeGoal, syl){
+  if(!activeGoal) return {status:'no_goal',statusLabel:'Goal নেই',fillCls:'fill-blue'};
+  const today = new Date().toISOString().split('T')[0];
+  const start = activeGoal.start_date||syl.created_at?.split('T')[0]||today;
+  const totalDays = Math.max(1,(new Date(activeGoal.end_date)-new Date(start))/86400000);
+  const elapsed = Math.max(0,(new Date(today)-new Date(start))/86400000);
+  const expectedPct = Math.min(activeGoal.target_percent, Math.round(activeGoal.target_percent*elapsed/totalDays));
+  const diff = pct - expectedPct;
+  if(diff>=0) return {status:'on_track',statusLabel:'✅ On Track',fillCls:'fill-green'};
+  if(diff>=-10) return {status:'behind',statusLabel:'🟡 সামান্য পিছিয়ে',fillCls:'fill-amber'};
+  return {status:'critical',statusLabel:'🔴 Critical',fillCls:'fill-red'};
+}
+
+function daysLeft(dateStr){
+  const d = Math.ceil((new Date(dateStr)-new Date())/86400000);
+  return toBn(Math.max(0,d));
+}
+
+// ── ADD MODAL ──
+function openAddModal(){
+  addStep=1; addData={}; chapters=[]; goals=[];
+  renderAddStep();
+  document.getElementById('addOverlay').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('addOverlay').classList.remove('open'); }
+
+function renderAddStep(){
+  ['stepTab1','stepTab2','stepTab3'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.className = 'step-tab' + (i+1<addStep?' done':i+1===addStep?' active':'');
+  });
+  document.getElementById('addBackBtn').style.display = addStep>1?'':'none';
+  document.getElementById('addNextBtn').textContent = addStep===3?'✅ সেভ করুন':'পরবর্তী →';
+  if(addStep===1) renderStep1();
+  else if(addStep===2) renderStep2();
+  else renderStep3();
+}
+
+function renderStep1(){
+  const clsOpts = allClasses.map(c=>`<option value="${c.id}" data-name="${c.name}">${c.name}</option>`).join('');
+  const tchOpts = allTeachers.map(t=>`<option value="${t.id}" data-name="${t.full_name}">${t.full_name}</option>`).join('');
+  const defaultDays = addData.class_days||[];
+  const daysHtml = DAY_NAMES.map((d,i)=>`<span class="day-toggle${defaultDays.includes(i)?' on':''}" data-day="${i}" onclick="toggleDay(this)">${d}</span>`).join('');
+  document.getElementById('addModalBody').innerHTML = `
+    <div class="field">
+      <label>ক্লাস *</label>
+      <select id="f_class" onchange="onClassChange(this)"><option value="">বেছে নিন</option>${clsOpts}</select>
+    </div>
+    <div class="field">
+      <label>বিষয় *</label>
+      <select id="f_subject" onchange="onSubjectChange(this)">
+        <option value="">— আগে ক্লাস বেছে নিন —</option>
+      </select>
+      <div class="field-hint" id="subjectHint" style="color:var(--blue)"></div>
+    </div>
+    <div class="field" id="teacherField">
+      <label>শিক্ষক</label>
+      <div id="teacherAutoBox" style="padding:10px 14px;background:#F8FAFF;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text-3)">বিষয় বেছে নিলে auto-fill হবে</div>
+      <input type="hidden" id="f_teacher_id">
+      <input type="hidden" id="f_teacher_name">
+    </div>
+    <div class="field">
+      <label>মোট পৃষ্ঠা সংখ্যা *</label>
+      <input id="f_pages" type="number" placeholder="যেমন: ১০০" value="${addData.total_pages||''}">
+      <div class="field-hint">সূচিপত্রের শেষ পৃষ্ঠা নম্বর দিন — পরের ধাপে AI এটা verify করবে</div>
+    </div>
+    <div class="field">
+      <label>সাপ্তাহিক class কোন কোন দিন?</label>
+      <div class="days-grid" id="daysGrid">${daysHtml}</div>
+      <div class="field-hint" id="daysHint">${defaultDays.length?`নির্বাচিত: ${defaultDays.length} দিন/সপ্তাহ`:'বিষয় বেছে নিলে auto-fill হবে'}</div>
+    </div>`;
+  if(addData.class_id){
+    document.getElementById('f_class').value = addData.class_id;
+    onClassChange(document.getElementById('f_class'), addData.subject_name);
+  }
+  if(addData.teacher_id) document.getElementById('f_teacher').value = addData.teacher_id;
+}
+
+async function onClassChange(sel, keepSubject){
+  const classId = sel.value;
+  const subSel = document.getElementById('f_subject');
+  if(!classId){ subSel.innerHTML='<option value="">— আগে ক্লাস বেছে নিন —</option>'; return; }
+  subSel.innerHTML='<option value="">লোড হচ্ছে...</option>';
+  const { data } = await sb.from('class_subjects').select('*').eq('class_id',classId).order('subject_name');
+  const subjects = data||[];
+  if(!subjects.length){
+    subSel.innerHTML='<option value="">এই ক্লাসে কোনো বিষয় নেই — classes.html থেকে যোগ করুন</option>';
+    document.getElementById('subjectHint').textContent='';
+    return;
+  }
+  subSel.innerHTML=`<option value="">বিষয় বেছে নিন</option>`+subjects.map(s=>`<option value="${s.id}" data-name="${s.subject_name}" data-days="${s.days_of_week||''}">${s.subject_name}</option>`).join('');
+  document.getElementById('subjectHint').textContent=`✅ ${subjects.length}টি বিষয় পাওয়া গেছে`;
+  if(keepSubject){
+    const opt = [...subSel.options].find(o=>o.dataset.name===keepSubject);
+    if(opt) subSel.value=opt.value;
+  }
+}
+
+async function onSubjectChange(sel){
+  const opt = sel.options[sel.selectedIndex];
+  if(!opt||!opt.value) return;
+  const subjectName = opt.dataset.name;
+  const classId = document.getElementById('f_class').value;
+
+  // Auto-fill days from subject's days_of_week (stored as "রবি,সোম,মঙ্গল,..." string)
+  const daysStr = opt.dataset.days||'';
+  const dayNames = daysStr ? daysStr.split(',').map(d=>d.trim()).filter(Boolean) : [];
+  if(dayNames.length){
+    document.querySelectorAll('.day-toggle').forEach(el=>{
+      const idx = parseInt(el.dataset.day);
+      el.classList.toggle('on', dayNames.includes(DAY_NAMES[idx]));
+    });
+    document.getElementById('daysHint').textContent=`নির্বাচিত: ${dayNames.length} দিন/সপ্তাহ (বিষয় থেকে auto-fill)`;
+  }
+
+  // Auto-fetch teacher from teacher_class_subjects
+  const box = document.getElementById('teacherAutoBox');
+  box.textContent='🔍 শিক্ষক খোঁজা হচ্ছে...';
+  document.getElementById('f_teacher_id').value='';
+  document.getElementById('f_teacher_name').value='';
+
+  const { data: tcsRows } = await sb.from('teacher_class_subjects')
+    .select('teacher_id')
+    .eq('class_id', classId)
+    .eq('subject_name', subjectName);
+
+  if(tcsRows&&tcsRows.length){
+    const tId = tcsRows[0].teacher_id;
+    const teacher = allTeachers.find(t=>t.id===tId);
+    if(teacher){
+      box.innerHTML=`<span style="color:var(--green);font-weight:700">👨‍🏫 ${teacher.full_name}</span> <span style="color:var(--text-3);font-size:11px">(auto-assigned)</span>`;
+      document.getElementById('f_teacher_id').value = teacher.id;
+      document.getElementById('f_teacher_name').value = teacher.full_name;
+    } else {
+      box.textContent='শিক্ষক পাওয়া যায়নি — teachers.html থেকে সেটআপ করুন';
+    }
+  } else {
+    box.innerHTML=`<span style="color:var(--text-3)">এই বিষয়ের জন্য কোনো শিক্ষক নেই</span>`;
+  }
+  document.getElementById('subjectHint').textContent=`✅ ${subjectName} বেছে নেওয়া হয়েছে`;
+}
+
+function toggleDay(el){
+  el.classList.toggle('on');
+  const selected = [...document.querySelectorAll('.day-toggle.on')].map(e=>parseInt(e.dataset.day));
+  document.getElementById('daysHint').textContent = `নির্বাচিত: ${selected.length} দিন/সপ্তাহ`;
+}
+
+function renderStep2(){
+  document.getElementById('addModalBody').innerHTML = `
+    <div class="field" id="uploadSection">
+      <label>বইয়ের সূচিপত্রের ছবি তুলুন</label>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('imgFileInput').click()" style="cursor:pointer">
+        <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none" onchange="onImagesSelect(event)">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">ছবি বেছে নিন বা এখানে রাখুন</div>
+        <div class="upload-sub">১টি করে ছবি দিন — extract এর পর পরের ছবি যোগ করুন</div>
+      </div>
+      <div id="imgPreviewRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+      <div id="imgCount" style="font-size:12px;color:var(--text-2);margin-top:4px"></div>
+    </div>
+    <button class="ai-btn" id="extractBtn" onclick="extractChapters()" disabled style="display:none">
+      ✨ ছবি থেকে অধ্যায়গুলো বের করুন
+    </button>
+    <button class="ai-btn" id="addMoreBtn" onclick="showUploadMore()" style="display:none;background:var(--green)">
+      📷 পরের পাতার ছবি যোগ করুন
+    </button>
+    <div class="ai-status" id="aiStatus" style="display:none"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:700">অধ্যায়ের তালিকা</span>
+      <button class="add-ch-btn" onclick="addChapterRow()">+ নিজে যোগ করুন</button>
+    </div>
+    <table class="ch-table" id="chTable">
+      <thead><tr><th>#</th><th>অধ্যায়ের নাম</th><th>শুরুর পৃষ্ঠা</th><th>শেষ পৃষ্ঠা</th><th></th></tr></thead>
+      <tbody id="chTbody">${renderChapterRows()}</tbody>
+    </table>`;
+}
+
+function showUploadMore(){
+  // Show upload area again, hide addMore button
+  document.getElementById('uploadSection').style.display = '';
+  document.getElementById('addMoreBtn').style.display = 'none';
+  document.getElementById('imgPreviewRow').innerHTML = '';
+  document.getElementById('imgCount').textContent = '';
+  document.getElementById('aiStatus').style.display = 'none';
+  // Keep only successfully processed images for context, clear preview
+  // New images will be appended on top
+  const processedOnly = uploadedImages.filter((_,i)=>processedImageIndices.has(i));
+  uploadedImages = processedOnly;
+  processedImageIndices = new Set(processedOnly.map((_,i)=>i));
+  // Open file picker immediately
+  document.getElementById('imgFileInput').click();
+}
+
+let uploadedImages = []; // [{dataUrl, base64}]
+let processedImageIndices = new Set(); // track successfully processed image indices
+
+function readFileAsDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function onImagesSelect(e){
+  const files = [...e.target.files];
+  if(!files.length) return;
+  e.target.value = ''; // reset so same file can be added again
+  const previewRow = document.getElementById('imgPreviewRow');
+  const countEl = document.getElementById('imgCount');
+  countEl.textContent = '⏳ ছবি যোগ হচ্ছে...';
+  countEl.style.color = 'var(--text-2)';
+
+  for(let i=0; i<files.length; i++){
+    try{
+      const dataUrl = await readFileAsDataUrl(files[i]);
+      const imgIndex = uploadedImages.length;
+      uploadedImages.push({ dataUrl, base64: dataUrl.split(',')[1] });
+      const thumb = document.createElement('div');
+      thumb.id = `imgThumb_${imgIndex}`;
+      thumb.style.cssText = 'position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--border);flex-shrink:0';
+      thumb.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover">
+        <button onclick="removeImage(${imgIndex})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(220,38,38,.9);border:none;color:white;font-size:11px;cursor:pointer;line-height:1;padding:0">✕</button>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:white;font-size:11px;font-weight:700;text-align:center;padding:2px" id="imgNum_${imgIndex}">${toBn(imgIndex+1)}</div>`;
+      previewRow.appendChild(thumb);
+    }catch(err){
+      countEl.textContent = `⚠️ একটি ছবি লোড হয়নি`;
+      countEl.style.color = 'var(--amber)';
+    }
+  }
+  refreshImgCount();
+}
+
+function removeImage(idx){
+  uploadedImages.splice(idx,1);
+  // Rebuild processedImageIndices after removal (indices shift down)
+  const newProcessed = new Set();
+  processedImageIndices.forEach(i=>{ if(i < idx) newProcessed.add(i); else if(i > idx) newProcessed.add(i-1); });
+  processedImageIndices = newProcessed;
+  const previewRow = document.getElementById('imgPreviewRow');
+  previewRow.innerHTML = '';
+  uploadedImages.forEach((img, i)=>{
+    const thumb = document.createElement('div');
+    thumb.id = `imgThumb_${i}`;
+    thumb.style.cssText = 'position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--border);flex-shrink:0';
+    thumb.innerHTML = `<img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover">
+      <button onclick="removeImage(${i})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(220,38,38,.9);border:none;color:white;font-size:11px;cursor:pointer;line-height:1;padding:0">✕</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:white;font-size:11px;font-weight:700;text-align:center;padding:2px">${toBn(i+1)}</div>`;
+    previewRow.appendChild(thumb);
+  });
+  refreshImgCount();
+}
+
+function refreshImgCount(){
+  const unprocessed = uploadedImages.filter((_,i)=>!processedImageIndices.has(i)).length;
+  const countEl = document.getElementById('imgCount');
+  const btn = document.getElementById('extractBtn');
+  if(!countEl || !btn) return;
+  if(unprocessed > 0){
+    countEl.textContent = `✅ ${toBn(unprocessed)}টি নতুন ছবি প্রস্তুত`;
+    countEl.style.color = 'var(--green)';
+    btn.style.display = '';
+    btn.disabled = false;
+    btn.innerHTML = `✨ ছবি থেকে অধ্যায়গুলো বের করুন`;
+  } else if(uploadedImages.length > 0){
+    countEl.textContent = '';
+    btn.style.display = 'none';
+  } else {
+    countEl.textContent = '';
+    btn.style.display = 'none';
+    btn.disabled = true;
+  }
+}
+
+async function extractOneImage(dataUrl, imgNum, total, prevChapterCount, prevLastPage){
+  const status = document.getElementById('aiStatus');
+  status.textContent = `⏳ ছবি ${toBn(imgNum)}/${toBn(total)} পড়া হচ্ছে...`;
+
+  const continuationNote = imgNum > 1
+    ? `\n\n## গুরুত্বপূর্ণ — এটি ক্রমিক সূচিপত্রের ${imgNum} নম্বর ছবি:
+- আগের ছবিতে মোট ${prevChapterCount}টি অধ্যায় পাওয়া গেছে, শেষ পৃষ্ঠা ছিল ${prevLastPage}
+- এই ছবিতে পৃষ্ঠা নম্বর ${prevLastPage} এর চেয়ে বড় হবে (যেমন ${prevLastPage+1}, ${prevLastPage+2}...)
+- অধ্যায় ক্রম নম্বর ${prevChapterCount} এর পরে চলবে
+- এই ছবিতে দেখা সব শিরোনাম ও পেজ নম্বর extract করো — কোনোটা বাদ দিও না`
+    : '';
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+GROQ_KEY,'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'meta-llama/llama-4-scout-17b-16e-instruct',
+      messages:[{role:'user',content:[
+        {type:'image_url',image_url:{url:dataUrl}},
+        {type:'text',text:`তুমি একটি বাংলা বইয়ের সূচিপত্রের ছবি দেখছ (ছবি ${imgNum} / মোট ${total}টি ছবি)।
+
+তোমার কাজ: ছবিতে দেখা প্রতিটি শিরোনাম ও পৃষ্ঠা নম্বর সঠিকভাবে বের করা।
+
+## পৃষ্ঠা নম্বর চেনার নিয়ম (গুরুত্বপূর্ণ):
+- সূচিপত্রে প্রতিটি লাইনে বাম দিকে শিরোনাম এবং ডান দিকে পৃষ্ঠা নম্বর থাকে
+- ডান দিকের সংখ্যাটাই হলো সেই অধ্যায়ের পৃষ্ঠা নম্বর
+- বাম দিকের সংখ্যা (১, ২, ৩...) হলো অধ্যায়ের ক্রম নম্বর — এটা পৃষ্ঠা নম্বর নয়
+- বাংলা সংখ্যা: ০=0, ১=1, ২=2, ৩=3, ৪=4, ৫=5, ৬=6, ৭=7, ৮=8, ৯=9
+- উদাহরণ: "৩. তারাবীহর সালাত আদায় করা ... ১১" মানে chapter_name="তারাবীহর সালাত আদায় করা", start_page=11, end_page=11
+
+## শিরোনাম লেখার নিয়ম:
+- শিরোনামের আগে থাকা ক্রম নম্বর (যেমন "৩.", "১২.") বাদ দিয়ে শুধু শিরোনামটা নাও
+- বোল্ড বা বড় হেডার শিরোনামগুলোও include করো (যেমন "রমযানের বিশেষ আমল")
+- দুই লাইনে লেখা শিরোনাম একসাথে জুড়ে দাও (যেমন "শেষ দশকে ইবাদতের মাত্রা বাড়িয়ে দেওয়া এবং রাত্রি জাগরণ")
+- বাংলা OCR সতর্কতা: "বেজুর" আসলে "খেজুর", "সাহর" আসলে "সাহির" — সঠিক বানান ব্যবহার করো
+
+## end_page নির্ধারণ:
+- সূচিপত্রে সাধারণত end_page দেওয়া থাকে না, তাই start_page = end_page দাও
+- যদি স্পষ্টভাবে আলাদা end_page লেখা থাকে তবে সেটা দাও${continuationNote}
+
+## আউটপুট:
+শুধু JSON array দাও, অন্য কোনো কথা না:
+[{"chapter_name":"রমযান ইবাদতের ভরা বসন্ত","start_page":5,"end_page":5},{"chapter_name":"চাঁদ দেখা","start_page":7,"end_page":7}]`}
+      ]}],
+      max_tokens:2000,temperature:0.1
+    })
+  });
+  const json = await res.json();
+  if(json.error) throw new Error(json.error.message || JSON.stringify(json.error));
+  const text = json.choices?.[0]?.message?.content||'[]';
+  const match = text.match(/\[[\s\S]*\]/);
+  if(!match) return [];
+  const normalized = match[0].replace(/[০-৯]/g, d => String.fromCharCode(d.charCodeAt(0) - 0x09E6 + 48));
+  const arr = JSON.parse(normalized);
+  return arr.filter(c=>c.chapter_name).map(c=>({
+    chapter_name: c.chapter_name,
+    start_page: parseInt(c.start_page)||1,
+    end_page: parseInt(c.end_page)||1
+  }));
+}
+
+async function extractChapters(){
+  if(!uploadedImages.length){ showAddErr('আগে ছবি বেছে নিন'); return; }
+  const btn = document.getElementById('extractBtn');
+  const status = document.getElementById('aiStatus');
+  btn.disabled = true;
+  status.style.display = 'block';
+  status.style.color = 'var(--text-2)';
+  // Only process images not yet successfully processed
+  const toProcess = uploadedImages.map((img,i)=>i).filter(i=>!processedImageIndices.has(i));
+  if(!toProcess.length){
+    showAddErr('সব ছবি ইতিমধ্যে পড়া হয়েছে। নতুন ছবি যোগ করুন।');
+    btn.disabled = false;
+    btn.innerHTML = '✨ আবার চেষ্টা করুন';
+    return;
+  }
+  let failed = 0;
+  // Context from already-saved chapters
+  const existingNames = new Set(chapters.map(c=>c.chapter_name));
+  const existingLastPage = chapters.length ? Math.max(...chapters.map(c=>c.end_page||0)) : 0;
+  let newlyExtracted = [];
+
+  for(let idx=0; idx<toProcess.length; idx++){
+    const i = toProcess[idx];
+    btn.innerHTML = `<div class="spin"></div> ছবি ${toBn(idx+1)}/${toBn(toProcess.length)} পড়া হচ্ছে...`;
+    if(idx > 0) await new Promise(r => setTimeout(r, 1500));
+    let retries = 2;
+    while(retries >= 0){
+      try{
+        const prevCount = chapters.length + newlyExtracted.length;
+        const prevLastPage = newlyExtracted.length
+          ? Math.max(...newlyExtracted.map(c=>c.end_page||0))
+          : existingLastPage;
+        const result = await extractOneImage(uploadedImages[i].dataUrl, i+1, uploadedImages.length, prevCount, prevLastPage);
+        const fresh = result.filter(c=>!existingNames.has(c.chapter_name));
+        fresh.forEach(c=>existingNames.add(c.chapter_name));
+        newlyExtracted = newlyExtracted.concat(fresh);
+        processedImageIndices.add(i);
+        status.textContent = `✅ ছবি ${toBn(i+1)}: ${toBn(fresh.length)}টি নতুন অধ্যায় পাওয়া গেছে`;
+        break;
+      }catch(err){
+        retries--;
+        if(retries >= 0){
+          status.textContent = `🔄 ছবি ${toBn(i+1)} আবার চেষ্টা করা হচ্ছে... (${err.message||err})`;
+          await new Promise(r => setTimeout(r, 3000));
+        } else {
+          failed++;
+          status.textContent = `⚠️ ছবি ${toBn(i+1)} পড়া যায়নি: ${err.message||err}`;
+          status.style.color = 'var(--amber)';
+        }
+      }
+    }
+  }
+  // Append new chapters to existing
+  const merged = [...chapters, ...newlyExtracted];
+  chapters = merged.map((c,i)=>({...c, sort_order:i}));
+  document.getElementById('chTbody').innerHTML = renderChapterRows();
+  if(chapters.length){
+    status.textContent = `✅ মোট ${toBn(chapters.length)}টি অধ্যায় পাওয়া গেছে${failed?` (${toBn(failed)}টি ছবি পড়া যায়নি)`:''}। প্রয়োজনে নিজে ঠিক করে নিন।`;
+    status.style.color = 'var(--green)';
+  } else {
+    status.textContent = '❌ কোনো অধ্যায় পাওয়া যায়নি — নিচে নিজে লিখুন।';
+    status.style.color = 'var(--red)';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '✨ আবার চেষ্টা করুন';
+
+  // After extraction: hide upload area, show "Add More" button
+  const successCount = toProcess.filter(i=>processedImageIndices.has(i)).length;
+  if(successCount > 0){
+    const uploadSection = document.getElementById('uploadSection');
+    const addMoreBtn = document.getElementById('addMoreBtn');
+    if(uploadSection) uploadSection.style.display = 'none';
+    btn.style.display = 'none';
+    if(addMoreBtn) addMoreBtn.style.display = '';
+  }
+}
+
+function renderChapterRows(){
+  if(!chapters.length) return `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:20px;font-size:13px">ছবির বোতাম চাপুন, অথবা "+ নিজে যোগ করুন" দিয়ে অধ্যায় লিখুন</td></tr>`;
+  return chapters.map((c,i)=>`<tr>
+    <td style="color:var(--text-3);font-weight:700">${toBn(i+1)}</td>
+    <td><input value="${c.chapter_name}" onchange="chapters[${i}].chapter_name=this.value" style="width:100%;min-width:160px"></td>
+    <td><input type="number" value="${c.start_page}" onchange="chapters[${i}].start_page=parseInt(this.value)" style="width:70px"></td>
+    <td><input type="number" value="${c.end_page}" onchange="chapters[${i}].end_page=parseInt(this.value)" style="width:70px"></td>
+    <td><button class="ch-del" onclick="removeChapter(${i})">✕</button></td>
+  </tr>`).join('');
+}
+
+function addChapterRow(){
+  const last = chapters[chapters.length-1];
+  chapters.push({chapter_name:'',start_page:(last?.end_page||0)+1,end_page:(last?.end_page||0)+10,sort_order:chapters.length});
+  document.getElementById('chTbody').innerHTML = renderChapterRows();
+}
+function removeChapter(i){ chapters.splice(i,1); document.getElementById('chTbody').innerHTML = renderChapterRows(); }
+
+function renderStep3(){
+  document.getElementById('addModalBody').innerHTML = `
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:16px;background:var(--blue-light);padding:12px;border-radius:10px;line-height:1.6">
+      📌 যত ইচ্ছা Goal যোগ করুন। পরীক্ষা, মাস, তারিখ বা custom — যেকোনো ধরনে।<br>
+      Goal গুলো cumulative — Goal ২ মানে মোট শুরু থেকে ওই %.
+    </div>
+    <div id="goalsList">${renderGoalCards()}</div>
+    <button class="add-goal-btn" onclick="addGoal()">+ আরেকটি Goal যোগ করুন</button>`;
+}
+
+function renderGoalCards(){
+  if(!goals.length){
+    goals.push({goal_name:'১ম পরীক্ষা',goal_type:'exam',target_percent:35,end_date:'',start_date:''});
+  }
+  return goals.map((g,i)=>`<div class="goal-card" id="goalCard${i}">
+    <button class="del-goal" onclick="removeGoal(${i})">✕</button>
+    <div class="goal-card-head">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:6px">GOAL ${toBn(i+1)}</div>
+        <input style="border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;width:70%"
+          placeholder="Goal এর নাম যেমন: ১ম পরীক্ষা"
+          value="${g.goal_name}" onchange="goals[${i}].goal_name=this.value">
+      </div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div class="goal-type-tabs">
+        <button class="gtype${g.goal_type==='exam'?' active':''}" onclick="setGoalType(${i},'exam',this)">📝 পরীক্ষা</button>
+        <button class="gtype${g.goal_type==='month'?' active':''}" onclick="setGoalType(${i},'month',this)">📅 মাস</button>
+        <button class="gtype${g.goal_type==='date_range'?' active':''}" onclick="setGoalType(${i},'date_range',this)">📆 তারিখ</button>
+        <button class="gtype${g.goal_type==='custom'?' active':''}" onclick="setGoalType(${i},'custom',this)">✏️ Custom</button>
+      </div>
+    </div>
+    ${renderGoalDateField(g,i)}
+    <div class="field-row" style="margin-top:10px">
+      <div class="field">
+        <label>লক্ষ্য (মোটের কত %)</label>
+        <div class="goal-pct-row">
+          <input class="goal-pct-input" type="number" min="1" max="100" value="${g.target_percent}"
+            onchange="goals[${i}].target_percent=parseInt(this.value);updateGoalPreview(${i})">
+          <span style="font-size:14px;font-weight:700;color:var(--blue)">%</span>
+        </div>
+      </div>
+    </div>
+    <div class="goal-preview" id="goalPreview${i}">
+      ${getGoalPreview(g,i)}
+    </div>
+  </div>`).join('');
+}
+
+function renderGoalDateField(g,i){
+  if(g.goal_type==='exam'||g.goal_type==='custom')
+    return `<div class="field"><label>Deadline তারিখ</label><input type="date" value="${g.end_date||''}" onchange="goals[${i}].end_date=this.value;updateGoalPreview(${i})"></div>`;
+  if(g.goal_type==='month')
+    return `<div class="field"><label>মাস বেছে নিন</label><input type="month" value="${g.end_date?.slice(0,7)||''}" onchange="const d=new Date(this.value+'-01');d.setMonth(d.getMonth()+1);d.setDate(0);goals[${i}].end_date=d.toISOString().split('T')[0];updateGoalPreview(${i})"></div>`;
+  return `<div class="field-row"><div class="field"><label>শুরুর তারিখ</label><input type="date" value="${g.start_date||''}" onchange="goals[${i}].start_date=this.value"></div><div class="field"><label>শেষ তারিখ</label><input type="date" value="${g.end_date||''}" onchange="goals[${i}].end_date=this.value;updateGoalPreview(${i})"></div></div>`;
+}
+
+function setGoalType(i,type,btn){
+  goals[i].goal_type=type;
+  btn.closest('.goal-type-tabs').querySelectorAll('.gtype').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('goalCard'+i).outerHTML = renderGoalCards().split('</div>\n').filter((_,idx)=>idx===i).join('</div>');
+  document.getElementById('goalsList').innerHTML = renderGoalCards();
+}
+
+function getGoalPreview(g,i){
+  if(!g.end_date) return 'Deadline তারিখ দিলে daily pace দেখাবে';
+  const days = Math.ceil((new Date(g.end_date)-new Date())/86400000);
+  if(days<=0) return '⚠️ তারিখ অতিক্রান্ত হয়েছে';
+  const totalPages = addData.total_pages||parseInt(document.getElementById('f_pages')?.value)||100;
+  const targetPages = Math.round(totalPages*g.target_percent/100);
+  const classDays = [...document.querySelectorAll('.day-toggle.on')].length||6;
+  const teachingDays = Math.round(days*classDays/7);
+  const perDay = teachingDays>0?(targetPages/teachingDays).toFixed(1):0;
+  return `📄 ${toBn(targetPages)} পৃষ্ঠা শেষ করতে হবে · ${toBn(days)} দিন বাকি · প্রতি class এ ${toBn(perDay)} পৃষ্ঠা`;
+}
+
+function updateGoalPreview(i){ const el=document.getElementById('goalPreview'+i); if(el) el.innerHTML=getGoalPreview(goals[i],i); }
+function addGoal(){ goals.push({goal_name:`Goal ${goals.length+1}`,goal_type:'custom',target_percent:70,end_date:'',start_date:''}); document.getElementById('goalsList').innerHTML=renderGoalCards(); }
+function removeGoal(i){ if(goals.length<=1){showToast('কমপক্ষে ১টি Goal রাখুন');return;} goals.splice(i,1); document.getElementById('goalsList').innerHTML=renderGoalCards(); }
+
+function showAddErr(msg){
+  const bar = document.getElementById('addErrBar');
+  if(!bar){ showToast(msg); return; }
+  bar.textContent = '⚠️ ' + msg;
+  bar.style.display = 'block';
+  setTimeout(()=>{ bar.style.display='none'; }, 4000);
+}
+function hideAddErr(){ const b=document.getElementById('addErrBar'); if(b) b.style.display='none'; }
+
+async function addStepNext(){
+  hideAddErr();
+  if(addStep===1){
+    const classEl = document.getElementById('f_class');
+    const subjectEl = document.getElementById('f_subject');
+    const pages = parseInt(document.getElementById('f_pages').value);
+    if(!classEl.value){ showAddErr('ক্লাস বেছে নিন'); classEl.style.borderColor='var(--red)'; return; }
+    classEl.style.borderColor='';
+    if(!subjectEl.value){ showAddErr('বিষয় বেছে নিন'); subjectEl.style.borderColor='var(--red)'; return; }
+    subjectEl.style.borderColor='';
+    if(!pages||pages<1){ showAddErr('মোট পৃষ্ঠা সংখ্যা দিন'); document.getElementById('f_pages').style.borderColor='var(--red)'; return; }
+    document.getElementById('f_pages').style.borderColor='';
+    const subjectName = subjectEl.options[subjectEl.selectedIndex].dataset.name||subjectEl.value;
+    const selDays = [...document.querySelectorAll('.day-toggle.on')].map(e=>parseInt(e.dataset.day));
+    addData = {
+      subject_name: subjectName,
+      book_name: '',
+      total_pages: pages,
+      class_id: classEl.value,
+      class_name: classEl.options[classEl.selectedIndex].dataset.name,
+      teacher_id: document.getElementById('f_teacher_id').value||null,
+      teacher_name: document.getElementById('f_teacher_name').value||null,
+      class_days: selDays
+    };
+    addStep=2; renderAddStep();
+  } else if(addStep===2){
+    // Sync chapters from inputs
+    const rows = document.querySelectorAll('#chTbody tr');
+    const valid = chapters.filter(c=>c.chapter_name&&c.end_page>=c.start_page);
+    if(!valid.length){ showAddErr('কমপক্ষে ১টি অধ্যায় যোগ করুন'); return; }
+    chapters = valid;
+    if(chapters.length){
+      addData.total_pages = Math.max(addData.total_pages, chapters[chapters.length-1].end_page);
+    }
+    addStep=3; renderAddStep();
+  } else {
+    await saveSyllabus();
+  }
+}
+
+function addStepBack(){ addStep--; renderAddStep(); }
+
+async function saveSyllabus(){
+  const btn = document.getElementById('addNextBtn');
+  btn.disabled=true; btn.innerHTML='<div class="spin"></div> সেভ হচ্ছে...';
+  try{
+    const { data: syl, error } = await sb.from('syllabuses').insert({
+      institution_id: inst.id,
+      subject_name: addData.subject_name,
+      book_name: addData.book_name,
+      class_id: addData.class_id,
+      class_name: addData.class_name,
+      teacher_id: addData.teacher_id,
+      teacher_name: addData.teacher_name,
+      total_pages: addData.total_pages,
+      class_days: addData.class_days,
+      academic_year: new Date().getFullYear().toString()
+    }).select().single();
+    if(error) throw error;
+
+    if(chapters.length){
+      await sb.from('syllabus_chapters').insert(chapters.map((c,i)=>({...c,syllabus_id:syl.id,sort_order:i})));
+    }
+    if(goals.length){
+      const validGoals = goals.filter(g=>g.goal_name&&g.end_date&&g.target_percent);
+      if(validGoals.length){
+        await sb.from('syllabus_goals').insert(validGoals.map((g,i)=>({
+          syllabus_id: syl.id,
+          sort_order: i,
+          goal_name: g.goal_name,
+          goal_type: g.goal_type||'exam',
+          target_percent: g.target_percent,
+          start_date: g.start_date||null,
+          end_date: g.end_date||null
+        })));
+      }
+    }
+    showToast('✅ সিলেবাস সেভ হয়েছে!');
+    closeAddModal();
+    await loadSyllabuses();
+  }catch(err){
+    showToast('❌ Error: '+err.message);
+  }
+  btn.disabled=false; btn.innerHTML='✅ সেভ করুন';
+}
+
+// ── DETAIL MODAL ──
+let detailSyl=null, detailChapters=[], detailGoals=[], detailProgress=[];
+
+async function openDetail(id){
+  currentSylId=id;
+  const syl = allSyllabuses.find(s=>s.id===id);
+  if(!syl) return;
+  detailSyl=syl;
+  document.getElementById('detailTitle').textContent = syl.subject_name;
+  document.getElementById('detailSub').textContent = `${syl.class_name||''} · ${syl.teacher_name||'—'} · ${syl.book_name||''}`;
+  document.getElementById('detailOverlay').classList.add('open');
+  const [{ data: chs },{ data: gls },{ data: prg }] = await Promise.all([
+    sb.from('syllabus_chapters').select('*').eq('syllabus_id',id).order('sort_order'),
+    sb.from('syllabus_goals').select('*').eq('syllabus_id',id).order('sort_order'),
+    sb.from('syllabus_progress').select('*').eq('syllabus_id',id).order('created_at',{ascending:false})
+  ]);
+  detailChapters=chs||[]; detailGoals=gls||[]; detailProgress=prg||[];
+  detailTab('overview');
+  document.querySelectorAll('.dtab').forEach((t,i)=>t.classList.toggle('active',i===0));
+}
+function closeDetailModal(){ document.getElementById('detailOverlay').classList.remove('open'); }
+
+function detailTab(tab){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  event?.target?.classList.add('active');
+  const body = document.getElementById('detailBody');
+  const covered = detailProgress[0]?.pages_covered_total||0;
+  const total = detailSyl.total_pages||1;
+  const pct = Math.min(100,Math.round(covered/total*100));
+
+  if(tab==='overview'){
+    const activeGoal = getActiveGoal(detailGoals);
+    const daysLeftNum = activeGoal?Math.max(0,Math.ceil((new Date(activeGoal.end_date)-new Date())/86400000)):0;
+    const daysLeftVal = activeGoal?toBn(daysLeftNum):'—';
+    const teachingDaysLeft = activeGoal?Math.round(daysLeftNum*(detailSyl.class_days?.length||6)/7):0;
+    const pagesLeft = activeGoal?Math.round(total*activeGoal.target_percent/100)-covered:0;
+    const perDay = teachingDaysLeft>0?(Math.max(0,pagesLeft)/teachingDaysLeft).toFixed(1):'—';
+    body.innerHTML=`
+      <div class="pace-box">
+        <div class="pace-title">📊 সামগ্রিক অগ্রগতি</div>
+        <div class="progress-row" style="margin-bottom:6px">
+          <span class="progress-label">সম্পন্ন</span>
+          <span class="progress-pct">${toBn(covered)}/${toBn(total)} পৃষ্ঠা (${toBn(pct)}%)</span>
+        </div>
+        <div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill fill-green" style="width:${pct}%"></div></div>
+        <div class="pace-grid">
+          <div class="pace-item"><div class="pace-val">${toBn(covered)}</div><div class="pace-lbl">পৃষ্ঠা পড়ানো হয়েছে</div></div>
+          <div class="pace-item"><div class="pace-val">${toBn(Math.max(0,total-covered))}</div><div class="pace-lbl">পৃষ্ঠা বাকি</div></div>
+          <div class="pace-item"><div class="pace-val">${activeGoal?daysLeftVal+'দিন':'—'}</div><div class="pace-lbl">Goal Deadline</div></div>
+          <div class="pace-item"><div class="pace-val">${perDay}</div><div class="pace-lbl">প্রতি class এ পৃষ্ঠা দরকার</div></div>
+        </div>
+      </div>
+      ${activeGoal?`<div style="background:var(--amber-l);border:1px solid var(--amber);border-radius:10px;padding:12px;font-size:13px;color:var(--amber);font-weight:600">
+        🎯 সক্রিয় Goal: ${activeGoal.goal_name} — ${toBn(activeGoal.target_percent)}% by ${activeGoal.end_date}
+      </div>`:''}`;
+  } else if(tab==='chapters'){
+    body.innerHTML = detailChapters.length?detailChapters.map(c=>{
+      const chPct = covered>=c.end_page?100:covered<c.start_page?0:Math.round((covered-c.start_page+1)/(c.end_page-c.start_page+1)*100);
+      const isDone = covered>=c.end_page;
+      return `<div class="ch-progress-row">
+        <div class="ch-icon" style="background:${isDone?'var(--green-l)':chPct>0?'var(--amber-l)':'#F1F5F9'}">${isDone?'✅':chPct>0?'📖':'⬜'}</div>
+        <div class="ch-info">
+          <div class="ch-name">${c.chapter_name}</div>
+          <div class="ch-pages">পৃষ্ঠা ${toBn(c.start_page)}–${toBn(c.end_page)} · ${toBn(c.end_page-c.start_page+1)} পৃষ্ঠা</div>
+          <div class="ch-pbar"><div class="ch-pfill" style="width:${chPct}%"></div></div>
+        </div>
+        <div class="ch-action">
+          <button class="mark-btn${isDone?' done':''}" onclick="openMarkModal('${detailSyl.id}','${c.id}','${c.chapter_name}',${c.end_page})">
+            ${isDone?'✅ সম্পূর্ণ':'📝 আপডেট'}
+          </button>
+        </div>
+      </div>`;
+    }).join(''):`<div class="tl-empty" style="text-align:center;padding:32px;color:var(--text-3)">কোনো অধ্যায় নেই</div>`;
+  } else if(tab==='goals'){
+    const goalCards = detailGoals.map((g,gi)=>`
+      <div class="goal-card" style="position:relative">
+        <button onclick="deleteDetailGoal('${g.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-3)">✕</button>
+        <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:6px">${g.goal_type?.toUpperCase()||'GOAL'}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${g.goal_name}</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">Deadline: ${g.end_date||'—'} · লক্ষ্য: ${toBn(g.target_percent)}%</div>
+        <div class="progress-row"><span class="progress-label">অগ্রগতি</span><span class="progress-pct">${toBn(Math.min(100,Math.round(pct/(g.target_percent||1)*100)))}% of goal</span></div>
+        <div class="progress-bar"><div class="progress-fill fill-blue" style="width:${Math.min(100,pct/(g.target_percent||1)*100)}%"></div></div>
+      </div>`).join('');
+    body.innerHTML = `
+      ${goalCards||'<div style="text-align:center;padding:24px 32px 8px;color:var(--text-3)">কোনো Goal নেই</div>'}
+      <div style="padding:16px">
+        <div style="background:var(--bg-2);border-radius:12px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">➕ নতুন Goal যোগ করুন</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            ${[['১ম পরীক্ষা',25],['২য় পরীক্ষা',50],['৩য় পরীক্ষা',75],['ফাইনাল',100],['অর্ধেক',50],['সম্পূর্ণ',100]].map(([n,p])=>`
+              <button onclick="document.getElementById('ng_name').value='${n}';document.getElementById('ng_pct').value=${p}" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit">${n} · ${p}%</button>
+            `).join('')}
+          </div>
+          <div class="field" style="margin-bottom:10px">
+            <input id="ng_name" placeholder="Goal এর নাম (যেমন: ১ম পরীক্ষা)" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="field">
+              <label style="font-size:11px;color:var(--text-3);font-weight:600">লক্ষ্য %</label>
+              <input id="ng_pct" type="number" min="1" max="100" value="100" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)">
+            </div>
+            <div class="field">
+              <label style="font-size:11px;color:var(--text-3);font-weight:600">Deadline</label>
+              <input id="ng_date" type="date" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)">
+            </div>
+          </div>
+          <button onclick="saveDetailGoal()" style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:700;cursor:pointer">✅ Goal সেভ করুন</button>
+        </div>
+      </div>`;
+  } else if(tab==='log'){
+    body.innerHTML = detailProgress.length?detailProgress.slice(0,20).map(p=>`
+      <div class="log-item">
+        <div class="log-date">${p.date}</div>
+        <div><div class="log-text">পৃষ্ঠা ${toBn(p.pages_covered_total)} পর্যন্ত · ${toBn(Math.min(100,Math.round(p.pages_covered_total/total*100)))}%</div>
+        ${p.note?`<div class="log-note">💬 ${p.note}</div>`:''}</div>
+      </div>`).join(''):`<div style="text-align:center;padding:32px;color:var(--text-3)">কোনো progress log নেই</div>`;
+  }
+}
+
+async function saveDetailGoal(){
+  const name = document.getElementById('ng_name')?.value?.trim();
+  const pct  = parseInt(document.getElementById('ng_pct')?.value)||100;
+  const date = document.getElementById('ng_date')?.value||null;
+  if(!name){ showToast('Goal এর নাম দিন'); return; }
+  const btn = document.querySelector('[onclick="saveDetailGoal()"]');
+  if(btn){ btn.disabled=true; btn.textContent='সেভ হচ্ছে...'; }
+  const { data, error } = await sb.from('syllabus_goals').insert({
+    syllabus_id: detailSyl.id,
+    sort_order: detailGoals.length,
+    goal_name: name,
+    goal_type: 'custom',
+    target_percent: pct,
+    end_date: date||null,
+    start_date: null
+  }).select().single();
+  if(error){
+    showToast('Error: ' + (error.message||JSON.stringify(error)));
+    if(btn){ btn.disabled=false; btn.textContent='✅ Goal সেভ করুন'; }
+    return;
+  }
+  detailGoals.push(data);
+  showToast('✅ Goal সেভ হয়েছে!');
+  detailTab('goals');
+}
+
+async function deleteDetailGoal(goalId){
+  if(!confirm('এই Goal মুছে ফেলবেন?')) return;
+  await sb.from('syllabus_goals').delete().eq('id', goalId);
+  detailGoals = detailGoals.filter(g=>g.id!==goalId);
+  detailTab('goals');
+}
+
+// ── MARK PROGRESS MODAL ──
+let markSylData={};
+function openMarkModal(sylId, chId, chName, chEndPage){
+  markSylId=sylId; markChapterId=chId;
+  markSylData={chEndPage};
+  document.getElementById('markTitle').textContent = 'অগ্রগতি আপডেট';
+  document.getElementById('markSub').textContent = `📖 ${chName}`;
+  const lastCovered = detailProgress[0]?.pages_covered_total||0;
+  document.getElementById('markPages').value = lastCovered||'';
+  document.getElementById('markPagesHint').textContent = `এখন পর্যন্ত: ${toBn(lastCovered)} পৃষ্ঠা · এই অধ্যায় শেষ: ${toBn(chEndPage)} পৃষ্ঠা`;
+  document.querySelectorAll('input[name="chDone"]').forEach(r=>{ r.checked=r.value==='no'; });
+  document.getElementById('partialField').style.display='block';
+  document.querySelectorAll('input[name="chDone"]').forEach(r=>r.addEventListener('change',()=>{
+    document.getElementById('partialField').style.display = r.value==='yes'&&r.checked?'none':'block';
+  }));
+  document.getElementById('markOverlay').classList.add('open');
+}
+function closeMarkModal(){ document.getElementById('markOverlay').classList.remove('open'); }
+
+async function saveProgress(){
+  const pages = parseInt(document.getElementById('markPages').value);
+  if(!pages||pages<1){ showToast('পৃষ্ঠা সংখ্যা দিন'); return; }
+  const isDone = document.querySelector('input[name="chDone"]:checked')?.value==='yes';
+  const chPct = isDone?100:parseInt(document.getElementById('chPercent').value);
+  const note = document.getElementById('markNote').value.trim();
+  const finalPages = isDone?markSylData.chEndPage:pages;
+  const { error } = await sb.from('syllabus_progress').insert({
+    syllabus_id: markSylId,
+    chapter_id: markChapterId,
+    date: new Date().toISOString().split('T')[0],
+    pages_covered_total: finalPages,
+    chapter_percent: chPct,
+    is_chapter_complete: isDone,
+    note: note||null,
+    marked_by: inst?.principal_name||'Teacher'
+  });
+  if(error){ showToast('❌ '+error.message); return; }
+  showToast('✅ অগ্রগতি সেভ হয়েছে!');
+  closeMarkModal();
+  await openDetail(markSylId);
+  await loadSyllabuses();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+init();
+</script>
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item active" href="syllabus.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span><span class="bnav-label">সিলেবাস</span></a>
+  <a class="bnav-item" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <button class="bnav-item" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16M16 17h2a2 2 0 0 0 0-4h-2"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5M9 14h6M9 18h4"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2M10 15h4"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+(function(){ var ov=document.getElementById('moreSheetOverlay'); if(ov) ov.addEventListener('click',function(e){ if(e.target===this) closeMoreSheet(); }); })();
+</script>
+</body>
+</html>

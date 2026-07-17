@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অনলাইন ক্লাসে যোগ দিন — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;background:#0A1628;color:white;overflow:hidden}
+
+/* ── LOBBY ── */
+#lobby{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#0A1628,#0F2048,#1A3570);z-index:20;transition:opacity .5s}
+#lobby.hidden{opacity:0;pointer-events:none}
+.lobby-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(26,86,219,.2),transparent 70%);pointer-events:none}
+.lobby-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:40px 36px;width:100%;max-width:440px;text-align:center;position:relative;z-index:1;margin:16px}
+
+.inst-logo{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:white;margin:0 auto 16px}
+.inst-name{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;margin-bottom:4px}
+.inst-loc{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:24px}
+.divider{height:1px;background:rgba(255,255,255,.1);margin-bottom:24px}
+.class-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.class-name{font-size:20px;font-weight:800;color:white;margin-bottom:8px}
+
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;font-size:12px;font-weight:700;padding:4px 14px;border-radius:100px;margin-bottom:28px}
+.live-dot{width:7px;height:7px;background:#EF4444;border-radius:50%;animation:pulse 1.2s infinite}
+.not-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#FCD34D;font-size:12px;font-weight:700;padding:4px 14px;border-radius:100px;margin-bottom:28px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.name-wrap{margin-bottom:16px;text-align:left}
+.name-wrap label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px}
+.name-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;color:white;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s}
+.name-input::placeholder{color:rgba(255,255,255,.25)}
+.name-input:focus{border-color:rgba(26,86,219,.7);background:rgba(26,86,219,.1)}
+.name-input.err{border-color:#EF4444}
+
+.btn-join{width:100%;padding:16px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);color:white;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-join:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(26,86,219,.4)}
+.btn-join:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.join-note{font-size:11px;color:rgba(255,255,255,.3);margin-top:14px;line-height:1.6}
+
+.spin{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CLASS ROOM ── */
+#classRoom{position:fixed;inset:0;display:none;flex-direction:column;background:#0D1117}
+
+/* Top bar */
+.room-bar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(0,0,0,.7);border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.room-inst{font-size:13px;font-weight:800;color:white}
+.room-class{font-size:11px;color:rgba(255,255,255,.4)}
+.room-bar-mid{flex:1;display:flex;justify-content:center}
+.live-chip{display:flex;align-items:center;gap:5px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.25);color:#FCA5A5;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px}
+.room-user{font-size:12px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);padding:4px 12px;border-radius:8px}
+
+/* Main area: video + sidebar */
+.room-body{flex:1;display:flex;min-height:0}
+
+/* YouTube video area */
+.video-area{flex:1;position:relative;background:#000}
+#ytFrame{width:100%;height:100%;border:none;display:block}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.video-placeholder .vp-icon{font-size:48px}
+.video-placeholder p{font-size:14px;color:rgba(255,255,255,.4);text-align:center;line-height:1.7;padding:0 32px}
+
+/* Right sidebar */
+.room-sidebar{width:280px;background:#111827;border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;flex-shrink:0}
+.rs-section{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.rs-title{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+
+/* Status card */
+.status-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 14px}
+.status-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.status-row:last-child{margin-bottom:0}
+.status-val{font-weight:700;font-size:12px}
+.status-badge{padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700}
+.sb-watching{background:rgba(16,185,129,.15);color:#4ADE80}
+.sb-raised{background:rgba(245,158,11,.15);color:#FCD34D}
+.sb-approved{background:rgba(26,86,219,.2);color:#93C5FD}
+.sb-speaking{background:rgba(239,68,68,.15);color:#FCA5A5;animation:badge-pulse 1.5s infinite}
+@keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Hand raise button */
+.handraise-area{padding:0 16px 14px;text-align:center}
+.btn-hand{width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;border:none;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-hand.raise{background:linear-gradient(135deg,#D97706,#F59E0B);color:white}
+.btn-hand.raise:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(217,119,6,.4)}
+.btn-hand.lower{background:rgba(239,68,68,.2);border:1.5px solid rgba(239,68,68,.3);color:#FCA5A5}
+.btn-hand:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.hand-hint{font-size:11px;color:rgba(255,255,255,.25);margin-top:8px;line-height:1.5}
+
+/* Speaking mode: mic controls */
+.speaking-area{padding:0 16px 14px}
+.mic-card{background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.3);border-radius:12px;padding:14px;text-align:center}
+.mic-card .label{font-size:11px;font-weight:700;color:#FCA5A5;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.mic-wave{font-size:28px;margin-bottom:8px;animation:wave 0.8s ease-in-out infinite alternate}
+@keyframes wave{from{transform:scale(1)}to{transform:scale(1.2)}}
+.btn-mic-toggle{width:100%;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:rgba(239,68,68,.4);color:white;margin-top:8px}
+.btn-mic-toggle:hover{background:rgba(239,68,68,.6)}
+.btn-leave-speak{width:100%;padding:9px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1.5px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);margin-top:6px}
+
+/* Invisible audio element */
+#remoteAudio{display:none}
+
+/* Mobile */
+@media(max-width:700px){
+  .room-sidebar{display:none}
+  .room-bar .room-user{display:none}
+}
+@media(max-width:480px){
+  .lobby-card{padding:28px 22px;margin:12px}
+  .inst-name{font-size:18px}
+  .btn-join{font-size:14px;padding:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOBBY ══ -->
+<div id="lobby">
+  <div class="lobby-glow"></div>
+  <div class="lobby-card" id="lobbyCard">
+    <div style="text-align:center">
+      <div class="spin" style="width:36px;height:36px;border-width:3px;margin:0 auto 14px"></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.4)">লোড হচ্ছে...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLASS ROOM ══ -->
+<div id="classRoom">
+  <div class="room-bar">
+    <div>
+      <div class="room-inst" id="roomInstName"></div>
+      <div class="room-class" id="roomClassName"></div>
+    </div>
+    <div class="room-bar-mid">
+      <div class="live-chip"><span style="width:6px;height:6px;background:#EF4444;border-radius:50%;animation:pulse 1.2s infinite;display:inline-block"></span> Live</div>
+    </div>
+    <div class="room-user" id="roomUserName"></div>
+  </div>
+
+  <div class="room-body">
+    <!-- YouTube player -->
+    <div class="video-area">
+      <div class="video-placeholder" id="videoPlaceholder">
+        <div class="vp-icon">📺</div>
+        <p>শিক্ষক এখনো YouTube stream শুরু করেননি।<br>অপেক্ষা করুন...</p>
+      </div>
+      <iframe id="ytFrame" style="display:none" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="room-sidebar">
+      <div class="rs-section">
+        <div class="rs-title">আপনার অবস্থা</div>
+        <div class="status-card">
+          <div class="status-row">
+            <span>নাম</span>
+            <span class="status-val" id="statusName" style="color:rgba(255,255,255,.8)">—</span>
+          </div>
+          <div class="status-row">
+            <span>অবস্থা</span>
+            <span class="status-val"><span class="status-badge" id="statusBadge">—</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hand raise -->
+      <div class="rs-section" id="handraiseSection">
+        <div class="rs-title">হাত তোলা</div>
+        <div class="handraise-area" style="padding:0">
+          <button class="btn-hand raise" id="btnHand" onclick="toggleHandRaise()">
+            🖐 হাত তুলুন
+          </button>
+          <div class="hand-hint" id="handHint">শিক্ষকের সাথে কথা বলতে চাইলে হাত তুলুন।</div>
+        </div>
+      </div>
+
+      <!-- Speaking controls (shown when approved) -->
+      <div class="rs-section" id="speakingSection" style="display:none">
+        <div class="rs-title">আপনি এখন বলছেন</div>
+        <div class="speaking-area" style="padding:0">
+          <div class="mic-card">
+            <div class="label">🎙 মাইক সক্রিয়</div>
+            <div class="mic-wave">🔊</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4)">শিক্ষক ও সবাই শুনতে পাচ্ছেন</div>
+            <button class="btn-mic-toggle" id="btnMicToggle" onclick="toggleMic()">🔇 মাইক বন্ধ করুন</button>
+            <button class="btn-leave-speak" onclick="leaveSpeaking()">হাত নামান</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invisible audio -->
+      <audio id="remoteAudio" autoplay playsinline></audio>
+
+      <!-- Chat section -->
+      <div class="rs-section" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:0">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:12px 16px 6px;border-top:1px solid rgba(255,255,255,.06)">💬 চ্যাট</div>
+        <div id="studentChatBox" style="flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:6px;min-height:80px;max-height:200px">
+          <div style="font-size:11px;color:rgba(255,255,255,.2);text-align:center">শিক্ষকের মেসেজ এখানে দেখাবে</div>
+        </div>
+        <div style="padding:8px 12px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:6px">
+          <input id="studentChatInput" placeholder="মেসেজ লিখুন..." maxlength="200"
+            style="flex:1;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;color:white;font-size:12px;font-family:inherit;outline:none"
+            onkeydown="if(event.key==='Enter')sendStudentChat()">
+          <button onclick="sendStudentChat()" style="padding:7px 12px;background:#1A56DB;border:none;color:white;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  SUPABASE
+// ════════════════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+// ════════════════════════════════════════════════════════
+//  ICE
+// ════════════════════════════════════════════════════════
+const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' },
+];
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let S = {
+  classId:    null,
+  classData:  null,
+  instData:   null,
+  myName:     '',
+  myPeerId:   null,         // unique ID for this student tab
+  status:     'watching',   // watching | raised | approved | speaking
+  channel:    null,
+  pc:         null,
+  localStream:null,
+  micEnabled: true,
+};
+
+// ════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════
+async function init() {
+  const code = new URLSearchParams(location.search).get('c');
+  if (!code) { showError('লিঙ্কটি সঠিক নয়।'); return; }
+
+  // Find class by short code (first 8 chars of UUID)
+  const { data: classes } = await sb.from('classes').select('*');
+  const cls = (classes || []).find(c => c.id.slice(0, 8) === code || c.id.startsWith(code));
+  if (!cls) { showError('ক্লাসটি খুঁজে পাওয়া যায়নি।'); return; }
+  S.classData = cls;
+  S.classId   = cls.id;
+
+  // Get institution
+  const { data: inst } = await sb.from('institutions').select('*').eq('id', cls.institution_id).maybeSingle();
+  if (!inst) { showError('প্রতিষ্ঠান খুঁজে পাওয়া যায়নি।'); return; }
+  S.instData = inst;
+
+  // Check if class is live right now
+  const { data: sess } = await sb.from('live_sessions')
+    .select('*').eq('class_id', cls.id).eq('status', 'live')
+    .order('started_at', { ascending: false }).limit(1).maybeSingle();
+
+  showLobby(inst, cls, sess);
+}
+
+// ════════════════════════════════════════════════════════
+//  LOBBY
+// ════════════════════════════════════════════════════════
+function showLobby(inst, cls, sess) {
+  const firstLetter = inst.name?.[0] || 'প';
+  const loc = [inst.upazila, inst.district].filter(Boolean).join(', ');
+  const isLive = !!sess;
+
+  const badgeHtml = isLive
+    ? `<div style="margin-bottom:20px"><span class="live-badge"><span class="live-dot"></span>Live ক্লাস চলছে</span></div>`
+    : `<div style="margin-bottom:20px"><span class="not-live-badge">⏳ ক্লাস শুরু হয়নি</span></div>`;
+
+  document.getElementById('lobbyCard').innerHTML = `
+    <div class="inst-logo">${firstLetter}</div>
+    <div class="inst-name">${inst.name}</div>
+    <div class="inst-loc">${loc}</div>
+    <div class="divider"></div>
+    <div class="class-label">অনলাইন ক্লাস</div>
+    <div class="class-name">${cls.name}</div>
+    ${badgeHtml}
+    <div class="name-wrap">
+      <label>আপনার নাম লিখুন</label>
+      <input class="name-input" id="nameInput" type="text" placeholder="যেমন: মোঃ রফিক উদ্দিন" maxlength="40" autofocus>
+    </div>
+    <button class="btn-join" id="joinBtn" onclick="joinClass()" ${!isLive ? 'disabled' : ''}>
+      ${isLive
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg> ক্লাসে যোগ দিন`
+        : `⏳ ক্লাস শুরুর অপেক্ষায়`
+      }
+    </button>
+    <div class="join-note">কোনো অ্যাপ বা একাউন্ট লাগবে না। শুধু নাম লিখে যোগ দিন।</div>
+  `;
+
+  document.getElementById('nameInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') joinClass();
+  });
+
+  // If not live, poll every 15s for class to start
+  if (!isLive) {
+    setTimeout(() => location.reload(), 15000);
+  }
+
+  // Store session embed URL for later
+  if (sess?.youtube_embed_url) S._embedUrl = sess.youtube_embed_url;
+}
+
+// ════════════════════════════════════════════════════════
+//  JOIN
+// ════════════════════════════════════════════════════════
+function joinClass() {
+  const inp = document.getElementById('nameInput');
+  const name = inp?.value?.trim();
+  if (!name) { inp?.classList.add('err'); inp?.focus(); return; }
+
+  S.myName   = name;
+  S.myPeerId = 'peer_' + Math.random().toString(36).slice(2, 10);
+
+  const btn = document.getElementById('joinBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spin"></div>';
+
+  setTimeout(() => {
+    document.getElementById('lobby').classList.add('hidden');
+    openClassRoom();
+  }, 400);
+}
+
+// ════════════════════════════════════════════════════════
+//  CLASS ROOM
+// ════════════════════════════════════════════════════════
+function openClassRoom() {
+  const cr = document.getElementById('classRoom');
+  cr.style.display = 'flex';
+
+  document.getElementById('roomInstName').textContent  = S.instData.name;
+  document.getElementById('roomClassName').textContent = S.classData.name;
+  document.getElementById('roomUserName').textContent  = S.myName;
+  document.getElementById('statusName').textContent    = S.myName;
+
+  setStatus('watching');
+
+  // Load YouTube embed if already have it
+  loadYouTube(S._embedUrl);
+
+  // Subscribe to Supabase Realtime channel for this class
+  setupSignalingChannel();
+}
+
+function loadYouTube(url) {
+  if (!url) return;
+  const frame = document.getElementById('ytFrame');
+  const placeholder = document.getElementById('videoPlaceholder');
+  const sep = url.includes('?') ? '&' : '?';
+  frame.src = url + sep + 'autoplay=1';
+  frame.style.display = 'block';
+  placeholder.style.display = 'none';
+}
+
+// ════════════════════════════════════════════════════════
+//  SUPABASE REALTIME — SIGNALING
+// ════════════════════════════════════════════════════════
+function setupSignalingChannel() {
+  const channelId = `classroom:${S.classId}`;
+  S.channel = sb.channel(channelId, { config: { broadcast: { self: false } } });
+
+  S.channel
+    .on('broadcast', { event: 'webrtc_offer' }, ({ payload }) => {
+      if (payload.peerId === S.myPeerId) handleOffer(payload.offer);
+    })
+    .on('broadcast', { event: 'video_offer' }, ({ payload }) => {
+      if (payload.peerId === S.myPeerId) handleVideoOffer(payload.offer);
+    })
+    .on('broadcast', { event: 'ice_candidate_teacher' }, ({ payload }) => {
+      if (payload.peerId !== S.myPeerId) return;
+      if (payload.isViewer) { if (S.viewerPc) try { S.viewerPc.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch {} }
+      else addIce(payload.candidate);
+    })
+    .on('broadcast', { event: 'hand_raise_response' }, ({ payload }) => {
+      if (payload.peerId !== S.myPeerId) return;
+      if (payload.status === 'rejected') { onRejected(); }
+      if (payload.status === 'removed')  { onRemoved(); }
+    })
+    .on('broadcast', { event: 'session_ended' }, () => {
+      alert('শিক্ষক ক্লাস শেষ করেছেন। ধন্যবাদ!');
+      location.reload();
+    })
+    // Teacher chat → show to student
+    .on('broadcast', { event: 'chat_message' }, ({ payload }) => {
+      showStudentChat(payload.sender, payload.text, payload.ts);
+    })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        // Announce presence to teacher
+        broadcast('student_join', { name: S.myName, peerId: S.myPeerId });
+      }
+    });
+
+  // Leave announcement on page close
+  window.addEventListener('beforeunload', () => {
+    broadcast('student_leave', { peerId: S.myPeerId });
+  });
+}
+
+function broadcast(event, payload) {
+  S.channel?.send({ type: 'broadcast', event, payload });
+}
+
+// ════════════════════════════════════════════════════════
+//  HAND RAISE
+// ════════════════════════════════════════════════════════
+function toggleHandRaise() {
+  if (S.status === 'watching') {
+    raiseHand();
+  } else if (S.status === 'raised') {
+    lowerHand();
+  }
+}
+
+function raiseHand() {
+  setStatus('raised');
+  broadcast('hand_raise', {
+    name:     S.myName,
+    peerId:   S.myPeerId,
+    raisedAt: Date.now(),
+  });
+}
+
+function lowerHand() {
+  setStatus('watching');
+  broadcast('hand_raise_cancel', { peerId: S.myPeerId });
+}
+
+function onRejected() {
+  setStatus('watching');
+  // Brief visual feedback
+  const hint = document.getElementById('handHint');
+  hint.textContent = 'এবার অনুমোদন হয়নি। আবার হাত তুলুন।';
+  hint.style.color = '#FCA5A5';
+  setTimeout(() => {
+    hint.textContent = 'শিক্ষকের সাথে কথা বলতে চাইলে হাত তুলুন।';
+    hint.style.color = '';
+  }, 4000);
+}
+
+function onRemoved() {
+  leaveSpeaking(true);
+}
+
+// ════════════════════════════════════════════════════════
+//  WebRTC — STUDENT SIDE (Answer creator)
+// ════════════════════════════════════════════════════════
+// ── Video-only offer from teacher (for all watching students) ──
+async function handleVideoOffer(offer) {
+  if (S.viewerPc) { try { S.viewerPc.close(); } catch {} }
+  const pc = new RTCPeerConnection({ iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+  ]});
+  S.viewerPc = pc;
+
+  const viewerStream = new MediaStream();
+  let viewerAudio = document.getElementById('viewerAudioEl');
+  if (!viewerAudio) {
+    viewerAudio = document.createElement('audio');
+    viewerAudio.id = 'viewerAudioEl';
+    viewerAudio.autoplay = true;
+    viewerAudio.style.display = 'none';
+    document.body.appendChild(viewerAudio);
+  }
+  pc.ontrack = (e) => {
+    viewerStream.addTrack(e.track);
+    viewerAudio.srcObject = viewerStream;
+    if (e.track.kind === 'video') {
+      let liveVid = document.getElementById('teacherLiveVideo');
+      if (!liveVid) {
+        liveVid = document.createElement('video');
+        liveVid.id = 'teacherLiveVideo';
+        liveVid.autoplay = true;
+        liveVid.playsinline = true;
+        liveVid.muted = true;
+        liveVid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;display:block';
+        const frame = document.getElementById('ytFrame');
+        frame.parentNode.insertBefore(liveVid, frame);
+      }
+      liveVid.srcObject = viewerStream;
+      document.getElementById('ytFrame').style.display = 'none';
+      const ph = document.getElementById('videoPlaceholder');
+      if (ph) ph.style.display = 'none';
+    }
+  };
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) broadcast('ice_candidate_student_viewer', { peerId: S.myPeerId, candidate: e.candidate });
+  };
+
+  await pc.setRemoteDescription(new RTCSessionDescription(offer));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  broadcast('video_answer', { peerId: S.myPeerId, answer });
+}
+
+async function handleOffer(offer) {
+  setStatus('approved');
+
+  // Get mic access
+  try {
+    S.localStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+      video: false,
+    });
+  } catch (e) {
+    alert('মাইক অ্যাক্সেস করা যায়নি: ' + e.message);
+    leaveSpeaking(true);
+    return;
+  }
+
+  // Create peer connection
+  S.pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+
+  // Add local mic track
+  S.localStream.getTracks().forEach(t => S.pc.addTrack(t, S.localStream));
+
+  // Receive teacher video + audio
+  const speakerStream = new MediaStream();
+  // Single audio element always ready
+  let teacherAudio = document.getElementById('teacherAudioEl');
+  if (!teacherAudio) {
+    teacherAudio = document.createElement('audio');
+    teacherAudio.id = 'teacherAudioEl';
+    teacherAudio.autoplay = true;
+    teacherAudio.style.display = 'none';
+    document.body.appendChild(teacherAudio);
+  }
+  S.pc.ontrack = (e) => {
+    speakerStream.addTrack(e.track);
+    // Always keep audio element updated
+    teacherAudio.srcObject = speakerStream;
+    if (e.track.kind === 'video') {
+      const frame = document.getElementById('ytFrame');
+      const placeholder = document.getElementById('videoPlaceholder');
+      let liveVid = document.getElementById('teacherLiveVideo');
+      if (!liveVid) {
+        liveVid = document.createElement('video');
+        liveVid.id = 'teacherLiveVideo';
+        liveVid.autoplay = true;
+        liveVid.playsinline = true;
+        liveVid.muted = true; // video muted — audio plays via teacherAudio element
+        liveVid.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;display:block';
+        frame.parentNode.insertBefore(liveVid, frame);
+      }
+      liveVid.srcObject = speakerStream;
+      frame.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'none';
+    }
+  };
+
+  // Send ICE candidates to teacher
+  S.pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      broadcast('ice_candidate_student', {
+        peerId:    S.myPeerId,
+        candidate: e.candidate,
+      });
+    }
+  };
+
+  S.pc.onconnectionstatechange = () => {
+    if (['disconnected', 'failed', 'closed'].includes(S.pc.connectionState)) {
+      leaveSpeaking(true);
+    }
+  };
+
+  // Set remote offer, create answer
+  await S.pc.setRemoteDescription(new RTCSessionDescription(offer));
+  const answer = await S.pc.createAnswer();
+  await S.pc.setLocalDescription(answer);
+
+  broadcast('webrtc_answer', { peerId: S.myPeerId, answer });
+
+  setStatus('speaking');
+}
+
+async function addIce(candidate) {
+  if (!S.pc) return;
+  try { await S.pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch {}
+}
+
+function toggleMic() {
+  if (!S.localStream) return;
+  const track = S.localStream.getAudioTracks()[0];
+  if (!track) return;
+  track.enabled = !track.enabled;
+  S.micEnabled = track.enabled;
+  const btn = document.getElementById('btnMicToggle');
+  btn.textContent = S.micEnabled ? '🔇 মাইক বন্ধ করুন' : '🎤 মাইক চালু করুন';
+}
+
+function leaveSpeaking(forced = false) {
+  // Close peer connection
+  if (S.pc) { try { S.pc.close(); } catch {} S.pc = null; }
+  if (S.localStream) { S.localStream.getTracks().forEach(t => t.stop()); S.localStream = null; }
+
+  if (!forced) {
+    broadcast('hand_raise_cancel', { peerId: S.myPeerId });
+  }
+
+  setStatus('watching');
+
+  if (forced) {
+    const hint = document.getElementById('handHint');
+    hint.textContent = 'সংযোগ বিচ্ছিন্ন হয়ে গেছে।';
+    hint.style.color = '#FCA5A5';
+    setTimeout(() => {
+      hint.textContent = 'শিক্ষকের সাথে কথা বলতে চাইলে হাত তুলুন।';
+      hint.style.color = '';
+    }, 4000);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  STUDENT CHAT
+// ════════════════════════════════════════════════════════
+function sendStudentChat() {
+  const inp  = document.getElementById('studentChatInput');
+  const text = inp.value.trim();
+  if (!text || !S.channel) return;
+  inp.value = '';
+  broadcast('chat_message', { sender: S.myName, text, ts: Date.now() });
+  showStudentChat(S.myName, text, Date.now(), true);
+}
+
+function showStudentChat(sender, text, ts, own = false) {
+  const box  = document.getElementById('studentChatBox');
+  if (!box) return;
+  const time = new Date(ts).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+  const div  = document.createElement('div');
+  div.style.cssText = `display:flex;flex-direction:${own ? 'row-reverse' : 'row'};gap:6px;animation:slideIn .2s ease`;
+  div.innerHTML = `
+    <div style="width:24px;height:24px;border-radius:6px;background:${own ? '#1A56DB' : '#7C3AED'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0">${sender[0].toUpperCase()}</div>
+    <div style="max-width:170px">
+      <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:2px">${own ? 'আপনি' : sender} · ${time}</div>
+      <div style="background:${own ? 'rgba(26,86,219,.4)' : 'rgba(255,255,255,.07)'};border-radius:8px;padding:6px 9px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.5;word-break:break-word">${text.replace(/</g,'&lt;')}</div>
+    </div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ════════════════════════════════════════════════════════
+//  STATUS UI
+// ════════════════════════════════════════════════════════
+function setStatus(status) {
+  S.status = status;
+
+  const badge      = document.getElementById('statusBadge');
+  const btnHand    = document.getElementById('btnHand');
+  const handHint   = document.getElementById('handHint');
+  const hrSection  = document.getElementById('handraiseSection');
+  const spSection  = document.getElementById('speakingSection');
+
+  // Badge
+  const badges = {
+    watching: ['দেখছেন', 'sb-watching'],
+    raised:   ['হাত তোলা ✋', 'sb-raised'],
+    approved: ['অনুমোদিত ✅', 'sb-approved'],
+    speaking: ['কথা বলছেন 🎙', 'sb-speaking'],
+  };
+  const [label, cls] = badges[status] || ['—', ''];
+  badge.textContent = label;
+  badge.className = 'status-badge ' + cls;
+
+  // Panels
+  if (status === 'speaking') {
+    hrSection.style.display = 'none';
+    spSection.style.display = 'block';
+  } else {
+    hrSection.style.display = 'block';
+    spSection.style.display = 'none';
+  }
+
+  // Hand button
+  if (status === 'watching') {
+    btnHand.className = 'btn-hand raise';
+    btnHand.textContent = '🖐 হাত তুলুন';
+    btnHand.disabled = false;
+    handHint.textContent = 'শিক্ষকের সাথে কথা বলতে চাইলে হাত তুলুন।';
+    handHint.style.color = '';
+  } else if (status === 'raised') {
+    btnHand.className = 'btn-hand lower';
+    btnHand.textContent = '✋ অপেক্ষায় আছেন...';
+    btnHand.disabled = false;
+    handHint.textContent = 'শিক্ষক অনুমোদন দিলে আপনি কথা বলতে পারবেন। আবার ক্লিক করলে হাত নামবে।';
+    handHint.style.color = '';
+  } else if (status === 'approved') {
+    btnHand.className = 'btn-hand lower';
+    btnHand.textContent = '⏳ সংযোগ হচ্ছে...';
+    btnHand.disabled = true;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  ERROR
+// ════════════════════════════════════════════════════════
+function showError(msg) {
+  document.getElementById('lobbyCard').innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:48px;margin-bottom:14px">❌</div>
+      <h2 style="font-size:19px;font-weight:800;margin-bottom:8px">পাওয়া যায়নি</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,.4)">${msg}</p>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

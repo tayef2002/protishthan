@@ -1,0 +1,2216 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অনলাইন ক্লাসরুম — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;--amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;--purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow:hidden}
+body{display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar);flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── IDLE PHASE ── */
+#phase-idle{flex:1;overflow-y:auto;padding:28px}
+/* Recording cards section label */
+#phase-idle > div:last-child > div:first-child > div:first-child{color:rgba(255,255,255,.75)!important}
+#recFilterClass{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.15)!important;color:rgba(255,255,255,.8)!important}
+.idle-hero{background:linear-gradient(135deg,#0A1628,#1A3570,#1A56DB);border-radius:20px;padding:32px 36px;margin-bottom:24px;position:relative;overflow:hidden}
+.idle-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,.07),transparent 70%)}
+.idle-hero h1{font-size:24px;font-weight:900;color:white;margin-bottom:8px}
+.idle-hero p{font-size:13px;color:rgba(255,255,255,.55);max-width:480px;line-height:1.7}
+.arch-pills{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.arch-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.85)}
+
+.classes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.class-card{background:white;border-radius:16px;border:1px solid var(--border);padding:20px;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:16px}
+.class-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(26,86,219,.12);transform:translateY(-2px)}
+.class-avatar{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:white;flex-shrink:0}
+.class-info .name{font-size:15px;font-weight:800;color:var(--text)}
+.class-info .meta{font-size:12px;color:var(--text-3);margin-top:2px}
+.class-card .start-btn{margin-left:auto;padding:8px 16px;background:linear-gradient(135deg,var(--green),#10B981);color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+
+/* ── SETUP MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.modal-bg.show{opacity:1;pointer-events:all}
+.modal-box{background:white;border-radius:20px;width:100%;max-width:540px;transform:scale(.93) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto}
+.modal-bg.show .modal-box{transform:scale(1) translateY(0)}
+.modal-hd{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-hd h2{font-size:19px;font-weight:800}
+.modal-x{width:32px;height:32px;border-radius:8px;background:var(--surface);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
+.modal-body{padding:20px 24px 24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field .hint{font-size:11px;color:var(--text-3);margin-top:4px;line-height:1.5}
+.info-box{background:var(--blue-light);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-2);line-height:1.6;margin-bottom:14px}
+.info-box strong{color:var(--blue)}
+.modal-foot{display:flex;gap:10px}
+.btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);background:white;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-go{flex:2;padding:12px;border:none;background:linear-gradient(135deg,var(--green),#10B981);color:white;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* ── LIVE PHASE (Zoom-style) ── */
+#phase-live{flex:1;display:none;flex-direction:column;overflow:hidden;background:#1C1C1E}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(239,68,68,0)}}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.6);background:rgba(74,222,128,.15)}50%{box-shadow:0 0 0 6px rgba(74,222,128,0);background:rgba(74,222,128,.25)}}
+.mic-speaking{animation:micPulse .6s ease-in-out infinite!important;border-radius:10px!important}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TOP BAR ── */
+.live-topbar{display:flex;align-items:center;gap:12px;padding:8px 20px;background:#111;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;height:48px}
+.live-dot{width:8px;height:8px;background:#EF4444;border-radius:50%;animation:blink 1.2s infinite;flex-shrink:0}
+.live-title{font-size:14px;font-weight:700;color:white;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-timer{font-size:13px;color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;background:rgba(255,255,255,.07);padding:3px 10px;border-radius:6px;flex-shrink:0}
+.live-topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.topbar-chip{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+.topbar-chip:hover{background:rgba(255,255,255,.13)}
+.share-link-mini{font-size:11px;color:rgba(255,255,255,.35);font-family:monospace;background:rgba(255,255,255,.06);padding:4px 10px;border-radius:6px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:none}
+.share-link-mini:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+
+/* ── MAIN BODY ── */
+.live-body{flex:1;display:flex;min-height:0;overflow:hidden}
+
+/* ── VIDEO STAGE ── */
+.video-stage{flex:1;position:relative;background:#0A0A0A;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+
+/* Video tile grid */
+.tile-grid{flex:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:8px;padding:12px;overflow:hidden}
+.tile{position:relative;background:#1E1E2E;border-radius:12px;overflow:hidden;border:2px solid transparent;transition:border-color .2s;min-width:180px;flex:1 1 240px;max-width:480px;aspect-ratio:16/9}
+.tile.speaking-border{border-color:#10B981}
+.tile video{width:100%;height:100%;object-fit:cover;display:block}
+.tile-label{position:absolute;bottom:8px;left:10px;font-size:11px;font-weight:700;color:white;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:6px;display:flex;align-items:center;gap:4px}
+.tile-avatar{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:rgba(255,255,255,.7);background:linear-gradient(135deg,#1A3570,#0F2048)}
+.tile-mic-off{position:absolute;top:8px;right:8px;background:rgba(239,68,68,.8);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+/* Screen share overlay */
+.screen-wrap{flex:1;position:relative;display:none;flex-direction:column}
+.screen-wrap.active{display:flex}
+.screen-video{flex:1;background:#000;object-fit:contain;display:block}
+.screen-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(26,86,219,.9);color:white;font-size:12px;font-weight:700;padding:5px 16px;border-radius:100px}
+.pip-cam{position:absolute;bottom:16px;right:16px;width:200px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,.2);box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.pip-cam video{width:100%;height:100%;object-fit:cover}
+
+/* ── RIGHT PANEL ── */
+.live-panel{width:320px;background:#111;border-left:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;flex-shrink:0;transition:width .25s;overflow:hidden}
+.live-panel.collapsed{width:0;border:none}
+
+/* Panel tabs */
+.panel-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.ptab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.35);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;position:relative}
+.ptab:hover{color:rgba(255,255,255,.6)}
+.ptab.active{color:white;border-bottom-color:#1A56DB}
+.ptab-badge{position:absolute;top:6px;right:8px;background:#EF4444;color:white;font-size:9px;font-weight:800;padding:1px 5px;border-radius:100px;min-width:16px}
+
+/* Panel content */
+.panel-content{flex:1;overflow:hidden;display:none}
+.panel-content.active{display:flex;flex-direction:column}
+
+/* Chat */
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+.chat-msg{display:flex;gap:8px;animation:slideIn .2s ease}
+.chat-msg.own{flex-direction:row-reverse}
+.cm-avatar{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
+.cm-avatar.student{background:linear-gradient(135deg,#7C3AED,#9333EA)}
+.cm-body{max-width:200px}
+.cm-name{font-size:10px;color:rgba(255,255,255,.3);margin-bottom:2px}
+.cm-text{background:rgba(255,255,255,.07);border-radius:10px;padding:7px 10px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.5;word-break:break-word}
+.chat-msg.own .cm-text{background:rgba(26,86,219,.4);text-align:right}
+.chat-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px}
+.chat-input{flex:1;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 12px;color:white;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:rgba(26,86,219,.6)}
+.chat-input::placeholder{color:rgba(255,255,255,.2)}
+.btn-send{padding:8px 14px;background:#1A56DB;border:none;color:white;border-radius:9px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700}
+
+/* Participants */
+.participants-list{flex:1;overflow-y:auto;padding:10px 12px}
+.participants-list::-webkit-scrollbar{width:3px}
+.participants-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+.participant-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;margin-bottom:4px}
+.participant-item:hover{background:rgba(255,255,255,.04)}
+.pi-avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0;background:linear-gradient(135deg,#7C3AED,#9333EA)}
+.pi-avatar.teacher{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
+.pi-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);flex:1}
+.pi-badge{font-size:10px;font-weight:700;background:rgba(26,86,219,.2);color:#93C5FD;padding:2px 7px;border-radius:5px}
+.pi-badge.speaking{background:rgba(16,185,129,.2);color:#4ADE80}
+
+/* Hand raises panel */
+.hr-panel{flex:1;overflow-y:auto;padding:10px 12px}
+.hr-panel::-webkit-scrollbar{width:3px}
+.hr-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+.hr-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:8px 10px;margin-bottom:6px;animation:slideIn .25s ease}
+.hr-avatar{width:30px;height:30px;border-radius:9px;background:rgba(245,158,11,.2);color:#FCD34D;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.hr-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.8);flex:1}
+.hr-time{font-size:10px;color:rgba(255,255,255,.25)}
+.hr-actions{display:flex;gap:5px}
+.btn-approve{padding:4px 10px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3);color:#4ADE80;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-reject{padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-approve:hover{background:rgba(16,185,129,.35)}
+.btn-reject:hover{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:#FCA5A5}
+.hr-empty{text-align:center;padding:24px 10px;font-size:12px;color:rgba(255,255,255,.2)}
+.hr-count-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:.08em}
+
+/* Stream status bar */
+.stream-status-bar{padding:5px 12px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);display:flex;gap:16px;flex-shrink:0}
+.ssb-item{font-size:10px;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:4px}
+.ssb-dot{width:5px;height:5px;border-radius:50%;background:#6B7280}
+.ssb-dot.live{background:#10B981;animation:blink 1.5s infinite}
+.ssb-val{color:rgba(255,255,255,.6);font-weight:600}
+
+/* ── BOTTOM CONTROL BAR (Zoom-style) ── */
+.live-bottombar{display:flex;align-items:center;justify-content:center;padding:10px 20px;background:#111;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;gap:6px;position:relative}
+.ctrl-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 14px;border-radius:10px;border:none;background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;min-width:64px}
+.ctrl-btn:hover{background:rgba(255,255,255,.13);color:white}
+.ctrl-btn.active-red{background:rgba(239,68,68,.25);color:#FCA5A5}
+.ctrl-btn.active-blue{background:rgba(26,86,219,.3);color:#93C5FD}
+.ctrl-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.ctrl-icon svg{width:22px;height:22px}
+.ctrl-sep{width:1px;height:40px;background:rgba(255,255,255,.08);margin:0 4px}
+.ctrl-btn-end{margin-left:auto;padding:10px 24px;background:#DC2626;border:none;color:white;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
+.ctrl-btn-end:hover{background:#B91C1C}
+
+/* Stream status inline elements (keep for JS compatibility) */
+.ss-dot{width:6px;height:6px;border-radius:50%;background:#6B7280;display:inline-block;margin-right:5px}
+.ss-dot.live{background:#10B981;animation:blink 1.5s infinite}
+
+/* ── SNACK ── */
+.snack{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:#0F172A;color:white;padding:10px 22px;border-radius:100px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.snack.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1100px){.live-grid{grid-template-columns:220px 1fr 250px}}
+@media(max-width:900px){.live-grid{grid-template-columns:1fr 240px}}
+@media(max-width:1024px){:root{--sidebar:60px}.sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}.nav-item{justify-content:center;padding:12px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">লোড হচ্ছে...</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item active" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">ব</div>
+      <div>
+        <div class="user-name" id="userName">লোড হচ্ছে...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ IDLE PHASE ══ -->
+  <div id="phase-idle">
+    <div class="idle-hero">
+      <h1>🖥 Protishthan লাইভ ক্লাস</h1>
+      <p>হাজার শিক্ষার্থীর কাছে একসাথে লাইভে পৌঁছান — শূন্য খরচে, শূন্য ঝামেলায়। হাত তুলে শিক্ষার্থীরা সরাসরি কথা বলতে পারবে।</p>
+      <div class="arch-pills">
+        <span class="arch-pill">📡 লাইভ ব্রডকাস্ট</span>
+        <span class="arch-pill">🖐 হাত তোলা সিস্টেম</span>
+        <span class="arch-pill">🔊 লাইভ অডিও</span>
+        <span class="arch-pill">♾ সীমাহীন শিক্ষার্থী</span>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">ক্লাস বেছে নিন</div>
+    <div class="classes-grid" id="classesGrid">
+      <div style="color:var(--text-3);font-size:13px">লোড হচ্ছে...</div>
+    </div>
+
+    <!-- ── PAST RECORDINGS ── -->
+    <div style="margin-top:32px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">📼 পুরনো ক্লাস রেকর্ডিং</div>
+        <select id="recFilterClass" onchange="filterRecordings()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;outline:none;background:white;color:var(--text)">
+          <option value="">সব ক্লাস</option>
+        </select>
+      </div>
+      <div id="recordingsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+        <div style="grid-column:1/-1;color:var(--text-3);font-size:13px;padding:20px 0">লোড হচ্ছে...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ LIVE PHASE (Zoom-style) ══ -->
+  <div id="phase-live">
+
+    <!-- Top bar -->
+    <div class="live-topbar">
+      <div class="live-dot"></div>
+      <div class="live-title" id="liveTitle">ক্লাস চলছে</div>
+      <div class="live-timer" id="liveTimer">00:00:00</div>
+      <div class="live-topbar-right">
+        <button class="share-link-mini" id="shareLinkDisplay" onclick="copyJoinLink()" title="ক্লিক করলে কপি হবে">—</button>
+        <button class="topbar-chip" id="btnCopyLink" onclick="copyJoinLink()" style="gap:6px;display:flex;align-items:center"></button>
+        <button class="topbar-chip" id="btnWaShare" onclick="waShare()" style="gap:6px;display:flex;align-items:center;color:#4ADE80;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.2)"></button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="live-body">
+
+      <!-- Video Stage -->
+      <div class="video-stage">
+
+        <!-- Normal tile grid (camera view) -->
+        <div class="tile-grid" id="tileGrid">
+          <!-- Teacher tile -->
+          <div class="tile" id="teacherTile">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <div class="tile-label">
+              <span id="teacherMicIcon">🎤</span>
+              <span id="teacherNameTile">আপনি (শিক্ষক)</span>
+            </div>
+          </div>
+          <!-- Speaker tiles added dynamically -->
+        </div>
+
+        <!-- Screen share view (hidden until screen shared) -->
+        <div class="screen-wrap" id="screenWrap">
+          <div class="screen-label">🖥 স্ক্রিন শেয়ার চলছে</div>
+          <video id="screenVideo" autoplay muted playsinline class="screen-video"></video>
+          <!-- PiP camera -->
+          <div class="pip-cam">
+            <video id="pipVideo" autoplay muted playsinline></video>
+          </div>
+        </div>
+
+        <!-- Stream status bar -->
+        <div class="stream-status-bar">
+          <div class="ssb-item">
+            <span class="ssb-dot" id="streamDot"></span>
+            <span>সংযোগ:</span>
+            <span class="ssb-val" id="streamStatusTxt">সংযুক্ত নয়</span>
+          </div>
+          <div class="ssb-item">
+            <span>সার্ভার:</span>
+            <span class="ssb-val" id="relayStatusTxt">—</span>
+          </div>
+          <div class="ssb-item">
+            <span>বক্তা:</span>
+            <span class="ssb-val"><span id="activeSpeakerCount">0</span>/5</span>
+          </div>
+          <div class="ssb-item" style="margin-left:auto">
+            <span>👁</span>
+            <span class="ssb-val" id="viewerCount">0</span>
+            <span>জন দেখছেন</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="live-panel" id="livePanel">
+        <div class="panel-tabs">
+          <div class="ptab active" id="tabChat" onclick="switchTab('chat')">💬 চ্যাট<span class="ptab-badge" id="chatBadge" style="display:none">0</span></div>
+          <div class="ptab" id="tabPeople" onclick="switchTab('people')">👥 সদস্য<span class="ptab-badge" id="peopleBadge" style="display:none">0</span></div>
+          <div class="ptab" id="tabHand" onclick="switchTab('hand')">🖐 হাত<span class="ptab-badge" id="handBadge" style="display:none">0</span></div>
+        </div>
+
+        <!-- Chat -->
+        <div class="panel-content active" id="contentChat">
+          <div class="chat-messages" id="chatMessages">
+            <div style="text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,.2)">চ্যাট শুরু করুন</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chatInput" placeholder="মেসেজ লিখুন..." maxlength="200"
+              onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn-send" onclick="sendChat()">➤</button>
+          </div>
+        </div>
+
+        <!-- Participants -->
+        <div class="panel-content" id="contentPeople">
+          <div class="participants-list" id="participantsList">
+            <div class="participant-item">
+              <div class="pi-avatar teacher" id="teacherAvatarPanel">শ</div>
+              <div class="pi-name" id="teacherNamePanel">শিক্ষক</div>
+              <span class="pi-badge">Host</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hand Raises -->
+        <div class="panel-content" id="contentHand">
+          <div class="hr-count-label" id="hrCount">কেউ হাত তোলেনি</div>
+          <div class="hr-panel" id="handRaiseList">
+            <div class="hr-empty">এখন কেউ হাত তোলেনি</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bottom Control Bar (Zoom-style) ── -->
+    <div class="live-bottombar">
+      <button class="ctrl-btn" id="ctrlMic" onclick="toggleMic()">
+        <span class="ctrl-icon" id="ctrlMicIcon"></span>
+        <span id="ctrlMicLabel">মাইক</span>
+      </button>
+      <button class="ctrl-btn" id="ctrlCam" onclick="toggleCam()">
+        <span class="ctrl-icon" id="ctrlCamIcon"></span>
+        <span id="ctrlCamLabel">ক্যামেরা</span>
+      </button>
+      <button class="ctrl-btn" id="ctrlScreen" onclick="toggleScreen()">
+        <span class="ctrl-icon" id="ctrlScreenIcon"></span>
+        <span id="ctrlScreenLabel">স্ক্রিন শেয়ার</span>
+      </button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="ctrlChat" onclick="togglePanel('chat')">
+        <span class="ctrl-icon" id="ctrlChatIcon"></span>
+        <span>চ্যাট</span>
+      </button>
+      <button class="ctrl-btn" id="ctrlPeople" onclick="togglePanel('people')">
+        <span class="ctrl-icon" id="ctrlPeopleIcon"></span>
+        <span id="ctrlPeopleLabel">সদস্য (0)</span>
+      </button>
+      <button class="ctrl-btn" id="ctrlHand" onclick="togglePanel('hand')">
+        <span class="ctrl-icon" id="ctrlHandIcon"></span>
+        <span>হাত তোলা</span>
+      </button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" onclick="toggleRecording()" id="ctrlRec">
+        <span class="ctrl-icon" id="ctrlRecIcon"></span>
+        <span id="ctrlRecLabel">রেকর্ড</span>
+      </button>
+      <button class="ctrl-btn-end" onclick="endClass()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        ক্লাস শেষ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="modal-bg" id="setupModal">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <h2>🖥 ক্লাস শুরু করুন</h2>
+      <button class="modal-x" onclick="closeSetup()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step 1: Connect Google (shown first) -->
+      <div id="stepConnect">
+        <div class="info-box" style="text-align:center;padding:20px 16px">
+          <div style="font-size:36px;margin-bottom:10px">🖥</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">এক ক্লিকে লাইভ ক্লাস শুরু করুন</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.6">
+            আপনার Google অ্যাকাউন্টে sign in করলে<br>
+            লাইভ সেশন <strong>automatically</strong> তৈরি হয়ে যাবে।
+          </div>
+        </div>
+        <div class="field">
+          <label>Video Quality</label>
+          <select id="qualitySelect">
+            <option value="1500k">720p (1.5 Mbps)</option>
+            <option value="2500k" selected>1080p (2.5 Mbps)</option>
+            <option value="4000k">1080p High (4 Mbps)</option>
+          </select>
+        </div>
+        <div class="modal-foot" style="flex-direction:column;gap:8px">
+          <button class="btn-go" onclick="connectGoogle()" id="btnConnectGoogle" style="background:linear-gradient(135deg,#4285F4,#1A73E8)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:6px"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>
+            Google দিয়ে Sign In করুন
+          </button>
+          <button class="btn-cancel" onclick="showManualStep()">ম্যানুয়ালি সংযোগ করুন</button>
+        </div>
+      </div>
+
+      <!-- Step 2a: Auto — creating broadcast -->
+      <div id="stepCreating" style="display:none;text-align:center;padding:16px 0">
+        <div style="font-size:36px;margin-bottom:12px">⚙️</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px" id="creatingLabel">লাইভ সেশন তৈরি হচ্ছে...</div>
+        <div style="font-size:12px;color:var(--text-3)">একটু অপেক্ষা করুন</div>
+        <div style="margin-top:14px;display:flex;justify-content:center">
+          <div style="width:36px;height:36px;border:3px solid #E2E8F0;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite"></div>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      </div>
+
+      <!-- Step 2b: Auto — ready to go -->
+      <div id="stepReady" style="display:none">
+        <div style="background:#ECFDF5;border-radius:12px;padding:14px 16px;margin-bottom:14px;border:1px solid #A7F3D0">
+          <div style="font-size:12px;font-weight:700;color:#059669;margin-bottom:10px">✅ লাইভ সেশন প্রস্তুত!</div>
+          <div style="font-size:11px;color:#065F46;margin-bottom:4px">📺 সেশন:</div>
+          <div style="font-size:12px;font-weight:600;color:#065F46;word-break:break-all;margin-bottom:10px" id="readyBroadcastTitle">—</div>
+          <div style="font-size:11px;color:#065F46;margin-bottom:4px">🔒 সংযোগ কোড:</div>
+          <div style="font-size:12px;font-weight:600;color:#065F46;font-family:monospace" id="readyStreamKey">••••••••</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn-cancel" onclick="closeSetup()">বাতিল</button>
+          <button class="btn-go" onclick="goLive()">🔴 Live শুরু করুন</button>
+        </div>
+      </div>
+
+      <!-- Step 2c: Manual fallback -->
+      <div id="stepManual" style="display:none">
+        <div class="info-box">
+          <strong>ম্যানুয়াল সংযোগের জন্য:</strong><br>
+          আপনার লাইভ ড্যাশবোর্ড থেকে সংযোগ কোড ও ভিডিও লিঙ্ক নিন।
+        </div>
+        <div class="field">
+          <label>সংযোগ কোড <span style="color:var(--red)">*</span></label>
+          <input type="password" id="streamKeyInput" placeholder="xxxx-xxxx-xxxx-xxxx-xxxx">
+        </div>
+        <div class="field">
+          <label>ভিডিও লিঙ্ক <span style="color:var(--red)">*</span></label>
+          <input type="text" id="embedUrlInput" placeholder="https://...embed/VIDEO_ID">
+        </div>
+        <div class="modal-foot">
+          <button class="btn-cancel" onclick="closeSetup()">বাতিল</button>
+          <button class="btn-go" onclick="goLiveManual()">🔴 Live শুরু করুন</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="snack" id="snack"></div>
+
+<!-- ══ CUSTOM VIDEO PLAYER MODAL ══ -->
+<div id="playerModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:0">
+  <!-- Header -->
+  <div style="width:100%;max-width:860px;display:flex;align-items:center;gap:12px;padding:14px 16px 10px">
+    <div>
+      <div id="pmTitle" style="font-size:15px;font-weight:700;color:white;line-height:1.3"></div>
+      <div id="pmMeta" style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px"></div>
+    </div>
+    <button onclick="closePlayer()" style="margin-left:auto;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.1);border:none;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+  </div>
+
+  <!-- Video wrapper -->
+  <div style="width:100%;max-width:860px;padding:0 16px;position:relative">
+    <div id="playerWrap" style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:14px;overflow:hidden">
+      <!-- YouTube iframe goes here -->
+      <div id="ytPlayerContainer" style="position:absolute;inset:-2px"></div>
+      <!-- Overlay: blocks YouTube logo / title clicks, passes clicks to our controls -->
+      <div id="playerClickZone" style="position:absolute;inset:0;z-index:2;cursor:pointer" onclick="togglePlay(event)"></div>
+      <!-- Top overlay: hides YouTube title bar -->
+      <div style="position:absolute;top:0;left:0;right:0;height:52px;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);z-index:3;pointer-events:none"></div>
+      <!-- Bottom-right overlay: hides YouTube logo -->
+      <div style="position:absolute;bottom:0;right:0;width:120px;height:44px;background:rgba(0,0,0,.01);z-index:3;pointer-events:none"></div>
+      <!-- Big play button in center -->
+      <div id="bigPlayBtn" style="position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s">
+        <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom controls -->
+  <div style="width:100%;max-width:860px;padding:10px 16px 16px">
+    <!-- Progress bar -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span id="pmCurrentTime" style="font-size:11px;color:rgba(255,255,255,.5);min-width:36px;text-align:right">0:00</span>
+      <div id="progressBar" style="flex:1;height:5px;background:rgba(255,255,255,.15);border-radius:100px;cursor:pointer;position:relative" onclick="seekTo(event)">
+        <div id="progressFill" style="height:100%;background:var(--blue);border-radius:100px;width:0%;transition:width .5s linear;pointer-events:none"></div>
+        <div id="progressDot" style="position:absolute;top:50%;right:auto;left:0%;transform:translate(-50%,-50%);width:13px;height:13px;background:white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4);pointer-events:none"></div>
+      </div>
+      <span id="pmDuration" style="font-size:11px;color:rgba(255,255,255,.5);min-width:36px">0:00</span>
+    </div>
+    <!-- Buttons row -->
+    <div style="display:flex;align-items:center;gap:12px">
+      <button id="pmPlayBtn" onclick="togglePlay(event)" style="width:42px;height:42px;border-radius:50%;background:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg id="pmPlayIcon" width="16" height="16" viewBox="0 0 24 24" fill="#0F172A"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <!-- Volume -->
+      <button id="pmVolBtn" onclick="toggleMute()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center">
+        <svg id="pmVolIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <input type="range" id="pmVolSlider" min="0" max="100" value="100" oninput="setVolume(this.value)"
+        style="width:80px;accent-color:var(--blue);cursor:pointer">
+      <!-- Spacer -->
+      <div style="flex:1"></div>
+      <!-- Speed -->
+      <select id="pmSpeed" onchange="setSpeed(this.value)" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:white;border-radius:7px;padding:5px 8px;font-size:12px;cursor:pointer;font-family:inherit;outline:none">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+      <!-- Fullscreen -->
+      <button onclick="fsPlayer()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  SUPABASE
+// ════════════════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+// ════════════════════════════════════════════════════════
+//  CONSTANTS
+// ════════════════════════════════════════════════════════
+const RELAY_WS_URL  = 'ws://localhost:8080';
+const MAX_SPEAKERS  = 5;
+const COLORS        = ['#1A56DB','#059669','#7C3AED','#D97706','#DC2626','#0891B2','#9333EA','#16A34A'];
+const ICE_SERVERS   = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' },
+];
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let inst      = null;
+let allClasses = [];
+let allStudents = [];
+
+// Live session state
+let S = {
+  phase:        'idle',   // idle | live
+  sessionId:    null,
+  classId:      null,
+  className:    '',
+  embedUrl:     '',
+  joinLink:     '',
+
+  // Media
+  localStream:  null,   // camera + mic raw
+  screenStream: null,   // screen capture
+  audioCtx:     null,
+  masterDest:   null,   // AudioContext destination (mixed)
+  teacherGain:  null,
+  mediaRecorder:null,
+  relayWs:      null,
+  streamActive: false,
+
+  // Realtime channel (signaling)
+  rtChannel:    null,
+
+  // WebRTC peers: peerId → { pc, name, gainNode, stream }
+  peers:        {},
+
+  // Hand raise queue: [{ id, name, peerId, raisedAt }]
+  handRaises:   [],
+
+  // Timer
+  startTime:    null,
+  timerInterval:null,
+};
+
+// ════════════════════════════════════════════════════════
+//  AUTH + BOOT
+// ════════════════════════════════════════════════════════
+async function boot() {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { location.href = 'login.html'; return; }
+
+  const { data: i } = await sb.from('institutions')
+    .select('*').eq('email', session.user.email).maybeSingle();
+  if (!i) { location.href = 'login.html'; return; }
+  inst = i;
+
+  document.getElementById('instNameSidebar').textContent = inst.name || '';
+  const nm = session.user.user_metadata?.principal_name || session.user.email.split('@')[0];
+  document.getElementById('userName').textContent  = nm;
+  document.getElementById('userAvatar').textContent = nm[0].toUpperCase();
+
+  await loadClasses();
+  await loadRecordings();
+}
+
+// ════════════════════════════════════════════════════════
+//  PAST RECORDINGS
+// ════════════════════════════════════════════════════════
+let allRecordings = [];
+
+async function loadRecordings() {
+  const { data } = await sb.from('live_sessions')
+    .select('*')
+    .eq('institution_id', inst.id)
+    .eq('status', 'ended')
+    .not('youtube_embed_url', 'is', null)
+    .order('started_at', { ascending: false });
+
+  allRecordings = (data || []).filter(r => r.youtube_embed_url);
+
+  // Populate class filter
+  const classNames = [...new Set(allRecordings.map(r => r.class_name).filter(Boolean))].sort();
+  const sel = document.getElementById('recFilterClass');
+  classNames.forEach(cn => {
+    const o = document.createElement('option');
+    o.value = cn; o.textContent = cn;
+    sel.appendChild(o);
+  });
+
+  renderRecordingCards(allRecordings);
+}
+
+function filterRecordings() {
+  const cls = document.getElementById('recFilterClass').value;
+  const filtered = cls ? allRecordings.filter(r => r.class_name === cls) : allRecordings;
+  renderRecordingCards(filtered);
+}
+
+function renderRecordingCards(recs) {
+  const grid = document.getElementById('recordingsGrid');
+  if (!recs.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;background:rgba(255,255,255,.04);border-radius:14px;color:rgba(255,255,255,.35);font-size:13px">
+      কোনো রেকর্ডিং পাওয়া যায়নি</div>`;
+    return;
+  }
+  grid.innerHTML = recs.map(r => {
+    const date = r.started_at ? new Date(r.started_at) : null;
+    const dateStr = date ? date.toLocaleDateString('bn-BD', { day:'numeric', month:'short', year:'numeric' }) : '';
+    const timeStr = date ? date.toLocaleTimeString('bn-BD', { hour:'2-digit', minute:'2-digit' }) : '';
+    const duration = r.started_at && r.ended_at
+      ? fmtDuration(new Date(r.ended_at) - new Date(r.started_at))
+      : '';
+    const thumb = getYtThumb(r.youtube_embed_url);
+    return `<div onclick="openPlayer('${r.id}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--blue)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.transform=''">
+      <div style="position:relative;width:100%;padding-top:56.25%;background:#111;overflow:hidden">
+        ${thumb ? `<img src="${thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.85)">` : '<div style="position:absolute;inset:0;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:32px">🎥</div>'}
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%)"></div>
+        <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">${duration}</div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(26,86,219,.85);display:flex;align-items:center;justify-content:center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 14px">
+        <div style="font-size:13px;font-weight:700;color:white;margin-bottom:4px">${r.class_name || 'ক্লাস'}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4)">${dateStr} · ${timeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getYtThumb(embedUrl) {
+  if (!embedUrl) return '';
+  const m = embedUrl.match(/embed\/([^?&]+)/);
+  return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : '';
+}
+
+function getYtVideoId(embedUrl) {
+  if (!embedUrl) return '';
+  const m = embedUrl.match(/embed\/([^?&]+)/);
+  return m ? m[1] : '';
+}
+
+function fmtDuration(ms) {
+  if (!ms || ms < 0) return '';
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+function fmtSecs(s) {
+  if (!s || isNaN(s)) return '0:00';
+  s = Math.floor(s);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  CUSTOM YOUTUBE PLAYER
+// ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+//  CUSTOM PLAYER — postMessage approach (no IFrame API needed)
+// ════════════════════════════════════════════════════════
+let pmVideoId  = null;
+let pmIframe   = null;
+let pmPlaying  = false;
+let pmElapsed  = 0;
+let pmStartAt  = 0;
+let pmTickId   = null;
+let currentRecId = null;
+
+// postMessage helper
+function _ytCmd(func, args) {
+  if (!pmIframe?.contentWindow) return;
+  pmIframe.contentWindow.postMessage(JSON.stringify({ event:'command', func, args: args||[] }), '*');
+}
+
+// Local timer for progress bar (since postMessage callbacks are unreliable without IFrame API)
+function _startTick() {
+  clearInterval(pmTickId);
+  pmStartAt = Date.now() - pmElapsed * 1000;
+  pmTickId = setInterval(() => {
+    pmElapsed = (Date.now() - pmStartAt) / 1000;
+    const fill = document.getElementById('progressFill');
+    const dot  = document.getElementById('progressDot');
+    const cur  = document.getElementById('pmCurrentTime');
+    cur.textContent = fmtSecs(pmElapsed);
+    // progress % unknown without duration — just show time
+  }, 500);
+}
+function _stopTick() { clearInterval(pmTickId); pmTickId = null; }
+
+function _setPlayUI(playing) {
+  pmPlaying = playing;
+  document.getElementById('pmPlayIcon').innerHTML = playing
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5 3 19 12 5 21 5 3"/>';
+  document.getElementById('bigPlayBtn').style.opacity = playing ? '0' : '1';
+  if (playing) _startTick(); else _stopTick();
+}
+
+function openPlayer(recId) {
+  const rec = allRecordings.find(r => r.id === recId);
+  if (!rec) return;
+  currentRecId = recId;
+  pmVideoId = getYtVideoId(rec.youtube_embed_url);
+  if (!pmVideoId) { snack('ভিডিও লিঙ্ক পাওয়া যায়নি'); return; }
+
+  // Header — our DB data, never YouTube's title
+  const date = rec.started_at ? new Date(rec.started_at) : null;
+  document.getElementById('pmTitle').textContent = rec.class_name || 'ক্লাস রেকর্ডিং';
+  document.getElementById('pmMeta').textContent  = date
+    ? date.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})
+      +' · '+date.toLocaleTimeString('bn-BD',{hour:'2-digit',minute:'2-digit'}) : '';
+
+  // Reset UI
+  pmIframe=null; pmPlaying=false; pmElapsed=0;
+  _stopTick();
+  document.getElementById('progressFill').style.width  = '0%';
+  document.getElementById('progressDot').style.left    = '0%';
+  document.getElementById('pmCurrentTime').textContent = '0:00';
+  document.getElementById('pmDuration').textContent    = '0:00';
+  document.getElementById('pmSpeed').value  = '1';
+  document.getElementById('pmVolSlider').value = '100';
+  _setPlayUI(false);
+
+  // Show THUMBNAIL first (no iframe) — big play button on top
+  const container = document.getElementById('ytPlayerContainer');
+  container.innerHTML =
+    `<img src="https://img.youtube.com/vi/${pmVideoId}/hqdefault.jpg"
+       style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.8)">`;
+  document.getElementById('bigPlayBtn').style.opacity = '1';
+
+  document.getElementById('playerModal').style.display = 'flex';
+}
+
+// Called on first click — creates iframe with autoplay=1 (user gesture is active NOW)
+function _spawnIframe(seekSecs) {
+  const container = document.getElementById('ytPlayerContainer');
+  container.innerHTML = '';
+
+  // mute=1 is required for cross-origin iframe autoplay (Chrome blocks sound autoplay)
+  const src = `https://www.youtube.com/embed/${pmVideoId}`
+    + `?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0`
+    + `&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1`
+    + (seekSecs > 0 ? `&start=${Math.floor(seekSecs)}` : '');
+
+  const iframe = document.createElement('iframe');
+  iframe.allow = 'autoplay; encrypted-media';
+  // pointer-events:none keeps all clicks going to our overlay
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none';
+  iframe.src = src;
+  container.appendChild(iframe);
+  pmIframe = iframe;
+  pmElapsed = seekSecs || 0;
+  _setPlayUI(true);   // optimistic — autoplay=1 will play immediately
+}
+
+function togglePlay(e) {
+  if (e) e.stopPropagation();
+  if (!pmVideoId) return;
+  if (!pmIframe) {
+    // First click — spawn iframe with autoplay; user gesture is live RIGHT NOW
+    _spawnIframe(0);
+    return;
+  }
+  if (pmPlaying) {
+    _ytCmd('pauseVideo');
+    _setPlayUI(false);
+  } else {
+    _ytCmd('playVideo');
+    _setPlayUI(true);
+  }
+}
+
+function toggleMute() {
+  const icon = document.getElementById('pmVolIcon');
+  const muted = icon.style.opacity === '.3';
+  _ytCmd(muted ? 'unMute' : 'mute');
+  icon.style.opacity = muted ? '1' : '.3';
+}
+
+function setVolume(val) {
+  _ytCmd('setVolume', [parseInt(val)]);
+  document.getElementById('pmVolIcon').style.opacity = parseInt(val) === 0 ? '.3' : '1';
+}
+
+function setSpeed(val) { _ytCmd('setPlaybackRate', [parseFloat(val)]); }
+
+function seekTo(e) {
+  const bar  = document.getElementById('progressBar');
+  const rect = bar.getBoundingClientRect();
+  const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const secs = pct * pmElapsed / Math.max(pct, 0.01); // rough
+  if (!pmIframe) { _spawnIframe(Math.floor(secs)); return; }
+  _ytCmd('seekTo', [secs, true]);
+  pmElapsed = secs;
+}
+
+function fsPlayer() {
+  const w = document.getElementById('playerWrap');
+  if (w.requestFullscreen) w.requestFullscreen();
+  else if (w.webkitRequestFullscreen) w.webkitRequestFullscreen();
+}
+
+function closePlayer() {
+  _stopTick();
+  if (pmIframe) { pmIframe.src = ''; pmIframe = null; }
+  document.getElementById('ytPlayerContainer').innerHTML = '';
+  document.getElementById('playerModal').style.display = 'none';
+  pmPlaying = false; pmVideoId = null; currentRecId = null;
+}
+
+// Close on backdrop click
+document.getElementById('playerModal').addEventListener('click', function(e) {
+  if (e.target === this) closePlayer();
+});
+
+async function loadClasses() {
+  const [{ data: cls }, { data: stu }] = await Promise.all([
+    sb.from('classes').select('*').eq('institution_id', inst.id).order('name'),
+    sb.from('students').select('id,class_id').eq('institution_id', inst.id).eq('is_active', true)
+  ]);
+  allClasses  = cls  || [];
+  allStudents = stu  || [];
+  renderClassGrid();
+}
+
+function renderClassGrid() {
+  const grid = document.getElementById('classesGrid');
+  if (!allClasses.length) {
+    grid.innerHTML = '<div style="color:var(--text-3);font-size:13px">কোনো ক্লাস নেই। আগে ক্লাস তৈরি করুন।</div>';
+    return;
+  }
+  grid.innerHTML = allClasses.map((c, i) => {
+    const cnt = allStudents.filter(s => s.class_id === c.id).length;
+    const col = COLORS[i % COLORS.length];
+    return `
+    <div class="class-card">
+      <div class="class-avatar" style="background:${col}">${c.name[0]}</div>
+      <div class="class-info">
+        <div class="name">${c.name}</div>
+        <div class="meta">${cnt} জন শিক্ষার্থী</div>
+      </div>
+      <button class="start-btn" onclick="openSetup('${c.id}','${c.name.replace(/'/g,"\\'")}')">
+        ▶ শুরু করুন
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  GOOGLE OAUTH + YOUTUBE API
+//  ⚠️  আপনার Google Cloud Console থেকে OAuth Client ID নিন:
+//      console.cloud.google.com → APIs & Services → Credentials
+//      → Create OAuth Client ID (Web Application)
+//      → Authorized JS origins: আপনার domain
+// ════════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = '807939921004-rl5gf9c81fknuc4sgss79mqfsg3eks3i.apps.googleusercontent.com';
+const YT_SCOPE = 'https://www.googleapis.com/auth/youtube';
+
+let googleAccessToken = null;
+let ytBroadcastData   = null;
+
+// ── SVG Icon Library ─────────────────────────────────────
+const IC = {
+  mic:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
+  micOff:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
+  cam:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`,
+  camOff:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  screen:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8l3 3-3 3"/></svg>`,
+  screenStop:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><line x1="5" y1="6" x2="19" y2="16"/></svg>`,
+  chat:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  people:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  hand:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>`,
+  record:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8" fill="currentColor" opacity=".15"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>`,
+  recordStop:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" opacity=".8"/></svg>`,
+  end:       `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.79 4.79C6.94 2.64 9.9 1.31 13.17 1.31c6.53 0 11.62 5.57 10.65 12.31-.23 1.62-.85 3.13-1.77 4.42l-1.49-1.49c.66-.98 1.1-2.12 1.27-3.37C23.8 7.98 19.46 3.31 14 3.31c-2.74 0-5.2 1.08-7.02 2.83L9 8.16H3V2.16l1.79 2.63zM19.21 19.21C17.06 21.36 14.1 22.69 10.83 22.69c-6.53 0-11.62-5.57-10.65-12.31.23-1.62.85-3.13 1.77-4.42l1.49 1.49c-.66.98-1.1 2.12-1.27 3.37C1.2 16.02 5.54 20.69 11 20.69c2.74 0 5.2-1.08 7.02-2.83L15 15.84H21v6l-1.79-2.63z"/></svg>`,
+  link:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+  wa:        `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>`,
+  google:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>`,
+};
+
+// ── Token persistence ─────────────────────────────────────
+function saveToken(token, expiresIn) {
+  try {
+    localStorage.setItem('pt_yt_token', JSON.stringify({
+      token,
+      expiresAt: Date.now() + (expiresIn || 3600) * 1000 - 120000, // 2min buffer
+    }));
+  } catch {}
+}
+
+function loadToken() {
+  try {
+    const d = JSON.parse(localStorage.getItem('pt_yt_token') || '{}');
+    if (d.token && d.expiresAt > Date.now()) return d.token;
+  } catch {}
+  return null;
+}
+
+function clearToken() {
+  localStorage.removeItem('pt_yt_token');
+}
+
+// ── Google Sign In ────────────────────────────────────────
+function connectGoogle() {
+  const btn = document.getElementById('btnConnectGoogle');
+  btn.disabled = true;
+  btn.innerHTML = '<div style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px"></div>সংযুক্ত হচ্ছে...';
+
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope:     YT_SCOPE,
+    callback:  (resp) => {
+      if (resp.error) {
+        snack('Google Sign In ব্যর্থ: ' + resp.error);
+        btn.disabled = false;
+        btn.innerHTML = IC.google + ' Google দিয়ে Sign In করুন';
+        clearToken();
+        return;
+      }
+      googleAccessToken = resp.access_token;
+      saveToken(resp.access_token, resp.expires_in);
+      createYouTubeBroadcast();
+    },
+  });
+  client.requestAccessToken({ prompt: '' }); // '' = silent if already authorized
+}
+
+// ── Create YouTube Broadcast + Stream automatically ──────
+async function createYouTubeBroadcast() {
+  showStep('creating');
+  setCreatingLabel('লাইভ সেশন তৈরি হচ্ছে...');
+
+  const quality = document.getElementById('qualitySelect').value;
+  const resolution = quality === '1500k' ? '720p' : '1080p';
+  const title = `${inst?.name || 'Protishthan'} — ${pendingClassName}`;
+  const scheduledStart = new Date(Date.now() + 5000).toISOString(); // 5s from now
+
+  try {
+    // 1️⃣  Create liveBroadcast
+    const broadcastRes = await ytAPI('POST', 'liveBroadcasts?part=id,snippet,status,contentDetails', {
+      snippet: {
+        title,
+        scheduledStartTime: scheduledStart,
+        description:        `অনলাইন ক্লাস — ${pendingClassName} — Protishthan`,
+      },
+      status: {
+        privacyStatus:           'unlisted',   // শুধু link জানলে দেখা যাবে
+        selfDeclaredMadeForKids: false,
+      },
+      contentDetails: {
+        enableAutoStart:    true,
+        enableAutoStop:     true,
+        latencyPreference:  'ultraLow',
+        monitorStream:      { enableMonitorStream: false },
+      },
+    });
+    const broadcastId = broadcastRes.id;
+    setCreatingLabel('Stream তৈরি হচ্ছে...');
+
+    // 2️⃣  Create liveStream (gets RTMP key)
+    const streamRes = await ytAPI('POST', 'liveStreams?part=id,snippet,cdn,status', {
+      snippet: { title },
+      cdn: {
+        ingestionType: 'rtmp',
+        resolution,
+        frameRate:     '30fps',
+      },
+    });
+    const streamId      = streamRes.id;
+    const ingestion     = streamRes.cdn.ingestionInfo;
+    const streamKey     = ingestion.streamName;
+    const rtmpBase      = ingestion.ingestionAddress;   // rtmp://a.rtmp.youtube.com/live2
+    const rtmpUrl       = rtmpBase + '/' + streamKey;
+    const embedUrl      = 'https://www.youtube.com/embed/' + broadcastId;
+
+    setCreatingLabel('সংযোগ প্রস্তুত করা হচ্ছে...');
+
+    // 3️⃣  Bind stream to broadcast
+    await ytAPI('POST', `liveBroadcasts/bind?id=${broadcastId}&streamId=${streamId}&part=id`, null);
+
+    // Store for goLive()
+    ytBroadcastData = { broadcastId, streamId, streamKey, rtmpUrl, embedUrl };
+
+    // Show ready step
+    document.getElementById('readyBroadcastTitle').textContent = title;
+    document.getElementById('readyStreamKey').textContent      = streamKey.slice(0, 4) + '-••••-••••';
+    showStep('ready');
+
+  } catch (e) {
+    snack('সংযোগ ত্রুটি: ' + e.message);
+    showStep('connect');
+    document.getElementById('btnConnectGoogle').disabled = false;
+  }
+}
+
+// ── YouTube API helper ───────────────────────────────────
+async function ytAPI(method, endpoint, body) {
+  const url = 'https://www.googleapis.com/youtube/v3/' + endpoint;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Authorization': 'Bearer ' + googleAccessToken,
+      'Content-Type':  'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || res.statusText);
+  }
+  if (res.status === 204) return {};
+  return res.json();
+}
+
+// ── Transition broadcast to live (called after stream is active) ─
+async function transitionBroadcastLive() {
+  if (!ytBroadcastData || !googleAccessToken) return;
+  try {
+    await ytAPI('POST', `liveBroadcasts/transition?broadcastStatus=live&id=${ytBroadcastData.broadcastId}&part=id,status`, null);
+  } catch (e) {
+    // Not critical — YouTube auto-transitions when stream data arrives
+    console.warn('Broadcast transition:', e.message);
+  }
+}
+
+// ── Modal step switching ─────────────────────────────────
+function showStep(step) {
+  ['stepConnect','stepCreating','stepReady','stepManual'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  const map = { connect:'stepConnect', creating:'stepCreating', ready:'stepReady', manual:'stepManual' };
+  document.getElementById(map[step] || 'stepConnect').style.display = 'block';
+}
+function setCreatingLabel(txt) {
+  document.getElementById('creatingLabel').textContent = txt;
+}
+function showManualStep() { showStep('manual'); }
+
+// ════════════════════════════════════════════════════════
+//  SETUP MODAL
+// ════════════════════════════════════════════════════════
+let pendingClassId = null, pendingClassName = '';
+
+function openSetup(classId, className) {
+  pendingClassId   = classId;
+  pendingClassName = className;
+  ytBroadcastData  = null;
+  document.getElementById('setupModal').classList.add('show');
+
+  // ── Check stored token — skip sign-in if still valid ──
+  const stored = loadToken();
+  if (stored) {
+    googleAccessToken = stored;
+    // Show "auto connecting" and directly create broadcast
+    showStep('creating');
+    setCreatingLabel('সংযোগ তৈরি হচ্ছে...');
+    createYouTubeBroadcast();
+    return;
+  }
+
+  // No stored token — show sign-in step
+  showStep('connect');
+  const btn = document.getElementById('btnConnectGoogle');
+  btn.disabled = false;
+  btn.innerHTML = IC.google + ' Google দিয়ে Sign In করুন';
+}
+function closeSetup() {
+  document.getElementById('setupModal').classList.remove('show');
+}
+
+// ── Auto flow (after YouTube broadcast is created) ───────
+async function goLive() {
+  if (!ytBroadcastData) { snack('আগে সংযোগ করুন'); return; }
+  const quality = document.getElementById('qualitySelect').value;
+
+  closeSetup();
+  await _startLive(ytBroadcastData.streamKey, ytBroadcastData.rtmpUrl, ytBroadcastData.embedUrl, quality);
+
+  // After stream data starts flowing (~10-15s), transition broadcast to live
+  setTimeout(() => transitionBroadcastLive(), 15000);
+}
+
+// ── Manual flow (fallback) ───────────────────────────────
+async function goLiveManual() {
+  const streamKey = document.getElementById('streamKeyInput').value.trim();
+  const embedUrl  = document.getElementById('embedUrlInput').value.trim();
+  const quality   = document.getElementById('qualitySelect').value;
+  if (!streamKey) { snack('সংযোগ কোড দিন'); return; }
+  if (!embedUrl)  { snack('ভিডিও লিঙ্ক দিন'); return; }
+  closeSetup();
+  const rtmpUrl = 'rtmp://a.rtmp.youtube.com/live2/' + streamKey;
+  await _startLive(streamKey, rtmpUrl, embedUrl, quality);
+}
+
+// ── Shared live start logic ──────────────────────────────
+async function _startLive(streamKey, rtmpUrl, embedUrl, quality) {
+  S.classId   = pendingClassId;
+  S.className = pendingClassName;
+  S.embedUrl  = embedUrl;
+
+  // Save session to Supabase
+  const { data: sess, error: sessErr } = await sb.from('live_sessions').insert({
+    institution_id:    inst?.id || null,
+    class_id:          S.classId,
+    class_name:        S.className,
+    youtube_embed_url: embedUrl,
+    status:            'live',
+    started_at:        new Date().toISOString(),
+  }).select().single();
+  if (sessErr) console.error('live_sessions insert error:', sessErr);
+  S.sessionId = sess?.id || ('local_' + Date.now());
+
+  S.joinLink = window.location.origin + '/join.html?c=' + pendingClassId.slice(0, 8);
+
+  switchToLive();
+  await setupMedia();
+  setupAudioMixer();
+  setupRealtimeChannel();
+  connectRelayAndStream(rtmpUrl, quality);  // pass full rtmpUrl
+
+  snack('🔴 ক্লাস শুরু হয়েছে! শিক্ষার্থীদের লিঙ্ক শেয়ার করুন।');
+}
+
+// ════════════════════════════════════════════════════════
+//  PHASE SWITCH
+// ════════════════════════════════════════════════════════
+function switchToLive() {
+  S.phase = 'live';
+  document.getElementById('phase-idle').style.display = 'none';
+  document.getElementById('phase-live').style.display = 'flex';
+  document.getElementById('liveTitle').textContent = '🔴 ' + S.className;
+
+  // Share link
+  document.getElementById('shareLinkDisplay').textContent = S.joinLink;
+
+  // Teacher name in tile
+  const nm = document.getElementById('userName').textContent || 'শিক্ষক';
+  document.getElementById('teacherNameTile').textContent = nm + ' (আপনি)';
+
+  // Timer
+  S.startTime = Date.now();
+  S.timerInterval = setInterval(updateTimer, 1000);
+
+  // Init bottom bar icons
+  document.getElementById('ctrlMicIcon').innerHTML    = IC.mic;
+  document.getElementById('ctrlCamIcon').innerHTML    = IC.cam;
+  document.getElementById('ctrlScreenIcon').innerHTML = IC.screen;
+  document.getElementById('ctrlChatIcon').innerHTML   = IC.chat;
+  document.getElementById('ctrlPeopleIcon').innerHTML = IC.people;
+  document.getElementById('ctrlHandIcon').innerHTML   = IC.hand;
+  document.getElementById('ctrlRecIcon').innerHTML    = IC.record;
+
+  // Init top bar buttons
+  document.getElementById('btnCopyLink').innerHTML = IC.link + ' লিঙ্ক কপি';
+  document.getElementById('btnWaShare').innerHTML  = IC.wa   + ' WhatsApp';
+
+  // Init panel
+  switchTab('chat');
+  renderSpeakerSlots();
+  updateParticipantsList();
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - S.startTime) / 1000);
+  const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+  const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+  const s = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('liveTimer').textContent = `${h}:${m}:${s}`;
+}
+
+// ════════════════════════════════════════════════════════
+//  MEDIA CAPTURE
+// ════════════════════════════════════════════════════════
+async function setupMedia() {
+  try {
+    S.localStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal:1280 }, height: { ideal:720 }, frameRate: { ideal:30 } },
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
+    });
+    document.getElementById('localVideo').srcObject = S.localStream;
+    updateMediaBtns();
+  } catch (e) {
+    snack('ক্যামেরা/মাইক অ্যাক্সেস করা যায়নি: ' + e.message);
+  }
+}
+
+function toggleMic() {
+  if (!S.localStream) return;
+  const track = S.localStream.getAudioTracks()[0];
+  if (track) {
+    track.enabled = !track.enabled;
+    updateMediaBtns();
+    snack(track.enabled ? '🎤 মাইক চালু' : '🔇 মাইক বন্ধ');
+  }
+}
+
+function toggleCam() {
+  if (!S.localStream) return;
+  const track = S.localStream.getVideoTracks()[0];
+  if (track) {
+    track.enabled = !track.enabled;
+    updateMediaBtns();
+    snack(track.enabled ? '📷 ক্যামেরা চালু' : '🚫 ক্যামেরা বন্ধ');
+  }
+}
+
+
+function updateMediaBtns() {
+  const mic = S.localStream?.getAudioTracks()[0];
+  const cam = S.localStream?.getVideoTracks()[0];
+  const micBtn = document.getElementById('btnMic');
+  const camBtn = document.getElementById('btnCam');
+  if (mic) { micBtn.classList.toggle('active', !mic.enabled); micBtn.querySelector('.mc-icon').textContent = mic.enabled ? '🎤' : '🔇'; }
+  if (cam) { camBtn.classList.toggle('active', !cam.enabled); camBtn.querySelector('.mc-icon').textContent = cam.enabled ? '📷' : '🚫'; }
+}
+
+// ════════════════════════════════════════════════════════
+//  WEB AUDIO API MIXER
+// ════════════════════════════════════════════════════════
+function setupAudioMixer() {
+  S.audioCtx  = new AudioContext();
+  S.masterDest = S.audioCtx.createMediaStreamDestination();
+
+  if (S.localStream) {
+    const src = S.audioCtx.createMediaStreamSource(S.localStream);
+    S.teacherGain = S.audioCtx.createGain();
+    S.teacherGain.gain.value = 1.0;
+    src.connect(S.teacherGain);
+    S.teacherGain.connect(S.masterDest);
+
+    // Mic level analyser for animation
+    const analyser = S.audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    src.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const micBtn = document.getElementById('ctrlMic');
+    (function checkLevel() {
+      requestAnimationFrame(checkLevel);
+      analyser.getByteFrequencyData(data);
+      const avg = data.reduce((a, b) => a + b, 0) / data.length;
+      const speaking = avg > 8;
+      const micOn = S.localStream?.getAudioTracks()[0]?.enabled !== false;
+      micBtn?.classList.toggle('mic-speaking', speaking && micOn);
+    })();
+  }
+}
+
+// Add a student's remote audio track to the mixer + play locally
+function addStudentToMixer(peerId, remoteStream) {
+  // Play student audio through teacher's speakers
+  let audioEl = document.getElementById('studentAudio_' + peerId);
+  if (!audioEl) {
+    audioEl = document.createElement('audio');
+    audioEl.id = 'studentAudio_' + peerId;
+    audioEl.autoplay = true;
+    audioEl.style.display = 'none';
+    document.body.appendChild(audioEl);
+  }
+  audioEl.srcObject = remoteStream;
+
+  // Also mix into recording/relay output
+  if (S.audioCtx && S.masterDest) {
+    const src  = S.audioCtx.createMediaStreamSource(remoteStream);
+    const gain = S.audioCtx.createGain();
+    gain.gain.value = 1.2;
+    src.connect(gain);
+    gain.connect(S.masterDest);
+    if (S.peers[peerId]) S.peers[peerId].gainNode = gain;
+    if (S.streamActive) restartRecording();
+  }
+}
+
+// Remove student audio from mixer
+function removeStudentFromMixer(peerId) {
+  const peer = S.peers[peerId];
+  if (peer?.gainNode) {
+    try { peer.gainNode.disconnect(); } catch {}
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  RELAY SERVER + MEDIA RECORDER → YouTube RTMP
+// ════════════════════════════════════════════════════════
+function connectRelayAndStream(rtmpUrl, quality) {
+  updateRelayStatus('সংযুক্ত হচ্ছে...');
+
+  const ws = new WebSocket(RELAY_WS_URL);
+  S.relayWs = ws;
+
+  ws.onopen = () => {
+    updateRelayStatus('সংযুক্ত ✓');
+    ws.send(JSON.stringify({
+      type:      'start',
+      sessionId: S.sessionId,
+      rtmpUrl,
+      videoBr:   quality,
+      audioBr:   '128k',
+      fps:       30,
+    }));
+  };
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'ready') {
+      updateRelayStatus('চলছে ✓');
+      startMediaRecorder();
+    }
+    if (msg.type === 'ended')  { S.streamActive = false; updateStreamDot(false); }
+    if (msg.type === 'error')  { snack('সার্ভার ত্রুটি: ' + msg.msg); updateRelayStatus('Error'); }
+    if (msg.type === 'stopped'){ updateRelayStatus('বন্ধ'); }
+  };
+
+  ws.onerror = () => { updateRelayStatus('—'); };
+  ws.onclose = () => { if (S.phase === 'live') updateRelayStatus('সংযোগ বিচ্ছিন্ন'); };
+}
+
+function startMediaRecorder() {
+  if (S.mediaRecorder) { try { S.mediaRecorder.stop(); } catch {} }
+
+  // Build the combined stream: video track + MIXED audio from AudioContext
+  const videoTrack = S.screenStream
+    ? S.screenStream.getVideoTracks()[0]
+    : S.localStream?.getVideoTracks()[0];
+
+  const audioTrack = S.masterDest.stream.getAudioTracks()[0];
+
+  if (!videoTrack || !audioTrack) { snack('মিডিয়া ট্র্যাক পাওয়া যায়নি'); return; }
+
+  const combined = new MediaStream([videoTrack, audioTrack]);
+
+  // Prefer H264 for minimal transcoding; fall back to VP8
+  const mimeTypes = [
+    'video/webm;codecs=h264,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+  ];
+  const mimeType = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+  S.mediaRecorder = new MediaRecorder(combined, {
+    mimeType,
+    videoBitsPerSecond: 2_500_000,
+    audioBitsPerSecond:   128_000,
+  });
+
+  S.mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0 && S.relayWs?.readyState === WebSocket.OPEN) {
+      S.relayWs.send(e.data); // send binary chunk
+    }
+  };
+
+  S.mediaRecorder.onerror = (e) => snack('MediaRecorder error: ' + e.error);
+
+  S.mediaRecorder.start(500); // chunk every 500ms for low latency
+  S.streamActive = true;
+  updateStreamDot(true);
+}
+
+function restartRecording() {
+  if (!S.streamActive || !S.relayWs || S.relayWs.readyState !== WebSocket.OPEN) return;
+  startMediaRecorder();
+}
+
+function updateRelayStatus(txt) {
+  document.getElementById('relayStatusTxt').textContent = txt;
+}
+function updateStreamDot(live) {
+  const dot = document.getElementById('streamDot');
+  const txt = document.getElementById('streamStatusTxt');
+  dot.className = live ? 'ss-dot live' : 'ss-dot';
+  txt.textContent = live ? 'চলছে 🔴' : 'বন্ধ';
+}
+
+// ════════════════════════════════════════════════════════
+//  SUPABASE REALTIME — SIGNALING CHANNEL
+// ════════════════════════════════════════════════════════
+function setupRealtimeChannel() {
+  const channelId = `classroom:${S.classId}`;
+  S.rtChannel = sb.channel(channelId, { config: { broadcast: { self: false } } });
+
+  S.rtChannel
+    .on('broadcast', { event: 'hand_raise' }, ({ payload }) => {
+      handleHandRaise(payload);
+      showBadge('handBadge', S.handRaises.length + 1);
+    })
+    .on('broadcast', { event: 'hand_raise_cancel' }, ({ payload }) => {
+      S.handRaises = S.handRaises.filter(h => h.peerId !== payload.peerId);
+      renderHandRaises();
+    })
+    .on('broadcast', { event: 'webrtc_answer' }, ({ payload }) => {
+      if (S.peers[payload.peerId]) handleAnswer(payload.peerId, payload.answer);
+    })
+    .on('broadcast', { event: 'ice_candidate_student' }, ({ payload }) => {
+      if (S.peers[payload.peerId]) addIceCandidate(payload.peerId, payload.candidate);
+    })
+    // Chat from students
+    .on('broadcast', { event: 'chat_message' }, ({ payload }) => {
+      handleIncomingChat(payload);
+    })
+    // Student presence
+    .on('broadcast', { event: 'student_join' }, ({ payload }) => {
+      handleStudentJoin(payload);
+    })
+    .on('broadcast', { event: 'student_leave' }, ({ payload }) => {
+      handleStudentLeave(payload);
+    })
+    .on('broadcast', { event: 'video_answer' }, ({ payload }) => {
+      const pc = viewerPcs[payload.peerId];
+      if (pc && pc.signalingState !== 'stable') {
+        pc.setRemoteDescription(new RTCSessionDescription(payload.answer));
+      }
+    })
+    .on('broadcast', { event: 'ice_candidate_student_viewer' }, ({ payload }) => {
+      const pc = viewerPcs[payload.peerId];
+      if (pc) try { pc.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch {}
+    })
+    .subscribe();
+}
+
+function broadcast(event, payload) {
+  S.rtChannel?.send({ type: 'broadcast', event, payload });
+}
+
+// ════════════════════════════════════════════════════════
+//  HAND RAISE MANAGEMENT
+// ════════════════════════════════════════════════════════
+function handleHandRaise({ name, peerId, raisedAt }) {
+  // Ignore duplicates
+  if (S.handRaises.find(h => h.peerId === peerId)) return;
+  S.handRaises.push({ name, peerId, raisedAt: raisedAt || Date.now() });
+  renderHandRaises();
+  snack(`🖐 ${name} হাত তুলেছে`);
+}
+
+function renderHandRaises() {
+  const list = document.getElementById('handRaiseList');
+  const cnt  = document.getElementById('hrCount');
+  cnt.textContent = S.handRaises.length ? `${S.handRaises.length} জন` : '';
+
+  if (!S.handRaises.length) {
+    list.innerHTML = '<div class="hr-empty">এখন কেউ হাত তোলেনি</div>';
+    return;
+  }
+  list.innerHTML = S.handRaises.map(h => {
+    const activeSpeakers = Object.keys(S.peers).length;
+    const canApprove = activeSpeakers < MAX_SPEAKERS;
+    return `
+    <div class="hr-item" id="hr-${h.peerId}">
+      <div class="hr-avatar">${h.name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div class="hr-name">${h.name}</div>
+        <div class="hr-time">${timeSince(h.raisedAt)}</div>
+      </div>
+      <div class="hr-actions">
+        ${canApprove
+          ? `<button class="btn-approve" onclick="approveStudent('${h.peerId}','${h.name.replace(/'/g,"\\'")}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> অনুমোদন</button>`
+          : `<button class="btn-approve" disabled style="opacity:.4;cursor:not-allowed">পূর্ণ</button>`}
+        <button class="btn-reject" onclick="rejectStudent('${h.peerId}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rejectStudent(peerId) {
+  S.handRaises = S.handRaises.filter(h => h.peerId !== peerId);
+  broadcast('hand_raise_response', { peerId, status: 'rejected' });
+  renderHandRaises();
+}
+
+// ════════════════════════════════════════════════════════
+//  WebRTC — TEACHER SIDE (Offer creator)
+// ════════════════════════════════════════════════════════
+async function approveStudent(peerId, name) {
+  if (Object.keys(S.peers).length >= MAX_SPEAKERS) {
+    snack('সর্বোচ্চ ৫ জন বক্তা সক্রিয় আছেন'); return;
+  }
+
+  const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  S.peers[peerId] = { pc, name, gainNode: null, stream: null };
+
+  // Handle incoming audio from student
+  pc.ontrack = (e) => {
+    const remoteStream = e.streams[0];
+    S.peers[peerId].stream = remoteStream;
+    addStudentToMixer(peerId, remoteStream);
+    renderSpeakerSlots();
+    snack(`🎙 ${name} এখন কথা বলছেন`);
+  };
+
+  // ICE → send to student via signaling
+  pc.onicecandidate = (e) => {
+    if (e.candidate) {
+      broadcast('ice_candidate_teacher', { peerId, candidate: e.candidate });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    if (['disconnected','failed','closed'].includes(pc.connectionState)) {
+      removePeer(peerId);
+    }
+  };
+
+  // Add teacher video + audio tracks so approved student sees/hears teacher
+  const videoTrack = S.screenStream
+    ? S.screenStream.getVideoTracks()[0]
+    : S.localStream?.getVideoTracks()[0];
+  const audioTrack = S.localStream?.getAudioTracks()[0];
+  const trackStream = new MediaStream([...(videoTrack ? [videoTrack] : []), ...(audioTrack ? [audioTrack] : [])]);
+  if (videoTrack) pc.addTrack(videoTrack, trackStream);
+  if (audioTrack) pc.addTrack(audioTrack, trackStream);
+
+  // Create offer (receive audio from student)
+  const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: false });
+  await pc.setLocalDescription(offer);
+
+  // Remove from hand raise queue
+  S.handRaises = S.handRaises.filter(h => h.peerId !== peerId);
+  renderHandRaises();
+  renderSpeakerSlots();
+
+  // Send offer to student
+  broadcast('webrtc_offer', { peerId, offer });
+  snack(`✅ ${name} কে অনুমোদন দেওয়া হয়েছে`);
+}
+
+async function handleAnswer(peerId, answer) {
+  const peer = S.peers[peerId];
+  if (!peer || peer.pc.signalingState === 'stable') return;
+  await peer.pc.setRemoteDescription(new RTCSessionDescription(answer));
+}
+
+async function addIceCandidate(peerId, candidate) {
+  const peer = S.peers[peerId];
+  if (!peer) return;
+  try { await peer.pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch {}
+}
+
+function removePeer(peerId) {
+  const peer = S.peers[peerId];
+  if (!peer) return;
+  removeStudentFromMixer(peerId);
+  try { peer.pc.close(); } catch {}
+  delete S.peers[peerId];
+  broadcast('hand_raise_response', { peerId, status: 'removed' });
+  renderSpeakerSlots();
+  document.getElementById('activeSpeakerCount').textContent = Object.keys(S.peers).length;
+  if (S.streamActive) restartRecording();
+  snack(`${peer.name} ক্লাস থেকে সরানো হয়েছে`);
+}
+
+// ════════════════════════════════════════════════════════
+//  SPEAKER SLOTS UI
+// ════════════════════════════════════════════════════════
+function renderSpeakerSlots() {
+  const container = document.getElementById('speakerSlots');
+  const peerIds   = Object.keys(S.peers);
+
+  // Render 5 slots
+  let html = '';
+  for (let i = 0; i < MAX_SPEAKERS; i++) {
+    const pid  = peerIds[i];
+    const peer = pid ? S.peers[pid] : null;
+    if (peer) {
+      html += `
+      <div class="speaker-slot active">
+        <div class="slot-avatar live">${peer.name[0].toUpperCase()}</div>
+        <div class="slot-name live">${peer.name}</div>
+        <div class="slot-mic speaking"></div>
+        <button class="btn-mute-slot" onclick="removePeer('${pid}')">সরান</button>
+      </div>`;
+    } else {
+      html += `
+      <div class="speaker-slot">
+        <div class="slot-avatar">${i + 1}</div>
+        <div class="slot-name">খালি</div>
+        <div class="slot-mic"></div>
+      </div>`;
+    }
+  }
+  container.innerHTML = html;
+  document.getElementById('activeSpeakerCount').textContent = peerIds.length;
+}
+
+// ════════════════════════════════════════════════════════
+//  END CLASS
+// ════════════════════════════════════════════════════════
+async function endClass() {
+  if (!confirm('ক্লাস শেষ করবেন?')) return;
+
+  // Notify all students that class has ended
+  broadcast('session_ended', {});
+
+  // Stop all speaker peers
+  Object.keys(S.peers).forEach(pid => {
+    try { S.peers[pid].pc.close(); } catch {}
+    delete S.peers[pid];
+  });
+
+  // Close all viewer peer connections
+  Object.keys(viewerPcs).forEach(pid => {
+    try { viewerPcs[pid].close(); } catch {}
+    delete viewerPcs[pid];
+  });
+
+  // Stop recording
+  if (S.mediaRecorder) { try { S.mediaRecorder.stop(); } catch {} S.mediaRecorder = null; }
+
+  // Tell relay to stop
+  if (S.relayWs?.readyState === WebSocket.OPEN) {
+    S.relayWs.send(JSON.stringify({ type: 'stop' }));
+    S.relayWs.close();
+  }
+
+  // Stop media tracks
+  S.localStream?.getTracks().forEach(t => t.stop());
+  S.screenStream?.getTracks().forEach(t => t.stop());
+
+  // Close AudioContext
+  try { S.audioCtx?.close(); } catch {}
+
+  // Unsubscribe channel
+  S.rtChannel?.unsubscribe();
+
+  // Stop timer
+  clearInterval(S.timerInterval);
+
+  // Update Supabase session
+  if (S.sessionId && !S.sessionId.startsWith('local_')) {
+    await sb.from('live_sessions').update({ status: 'ended', ended_at: new Date().toISOString() }).eq('id', S.sessionId);
+  }
+
+  // Reset state
+  S = { phase:'idle', sessionId:null, classId:null, className:'', embedUrl:'', joinLink:'',
+        localStream:null, screenStream:null, audioCtx:null, masterDest:null, teacherGain:null,
+        mediaRecorder:null, relayWs:null, streamActive:false, rtChannel:null,
+        peers:{}, handRaises:[], startTime:null, timerInterval:null };
+
+  document.getElementById('phase-live').style.display = 'none';
+  document.getElementById('phase-idle').style.display = 'block';
+  snack('ক্লাস শেষ হয়েছে');
+  // Reload recordings so the just-ended session appears
+  setTimeout(loadRecordings, 2000);
+}
+
+// ════════════════════════════════════════════════════════
+//  SHARE
+// ════════════════════════════════════════════════════════
+function copyJoinLink() {
+  navigator.clipboard.writeText(S.joinLink).then(() => snack('লিঙ্ক কপি হয়েছে!'));
+}
+
+function waShare() {
+  const msg = encodeURIComponent(
+    `🎓 *${inst?.name || ''}* — অনলাইন ক্লাস\n📚 ক্লাস: *${S.className}*\n\n🔗 এই লিঙ্কে ক্লিক করে যোগ দিন:\n${S.joinLink}\n\n✅ কোনো অ্যাপ লাগবে না`
+  );
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function timeSince(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60)  return s + 'স আগে';
+  if (s < 3600) return Math.floor(s/60) + 'মি আগে';
+  return Math.floor(s/3600) + 'ঘ আগে';
+}
+
+let _snackTimer;
+function snack(msg) {
+  const el = document.getElementById('snack');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_snackTimer);
+  _snackTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function doLogout() {
+  sb.auth.signOut().then(() => location.href = 'login.html');
+}
+
+// ════════════════════════════════════════════════════════
+//  ZOOM-STYLE UI FUNCTIONS
+// ════════════════════════════════════════════════════════
+
+// ── Panel tabs ───────────────────────────────────────────
+let currentTab = 'chat';
+let panelOpen  = true;
+let unreadChat = 0;
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['chat','people','hand'].forEach(t => {
+    document.getElementById('tab' + t[0].toUpperCase() + t.slice(1))?.classList.toggle('active', t === tab);
+    document.getElementById('content' + t[0].toUpperCase() + t.slice(1))?.classList.toggle('active', t === tab);
+  });
+  // Clear badge for active tab
+  if (tab === 'chat') { unreadChat = 0; hideBadge('chatBadge'); }
+  if (tab === 'hand') hideBadge('handBadge');
+}
+
+function togglePanel(tab) {
+  const panel = document.getElementById('livePanel');
+  if (panelOpen && currentTab === tab) {
+    panel.classList.add('collapsed');
+    panelOpen = false;
+  } else {
+    panel.classList.remove('collapsed');
+    panelOpen = true;
+    switchTab(tab);
+  }
+}
+
+function showBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = count;
+  el.style.display = 'inline';
+}
+function hideBadge(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+// ── Media controls (updated for new UI) ─────────────────
+function updateMediaBtns() {
+  const mic = S.localStream?.getAudioTracks()[0];
+  const cam = S.localStream?.getVideoTracks()[0];
+
+  if (mic) {
+    const off = !mic.enabled;
+    document.getElementById('ctrlMic')?.classList.toggle('active-red', off);
+    document.getElementById('ctrlMicIcon').innerHTML    = off ? IC.micOff : IC.mic;
+    document.getElementById('ctrlMicLabel').textContent = off ? 'মাইক বন্ধ' : 'মাইক';
+    document.getElementById('teacherMicIcon').innerHTML = off ? IC.micOff : IC.mic;
+  }
+  if (cam) {
+    const off = !cam.enabled;
+    document.getElementById('ctrlCam')?.classList.toggle('active-red', off);
+    document.getElementById('ctrlCamIcon').innerHTML    = off ? IC.camOff : IC.cam;
+    document.getElementById('ctrlCamLabel').textContent = off ? 'ক্যামেরা বন্ধ' : 'ক্যামেরা';
+  }
+}
+
+// ── Screen share (updated for new UI) ───────────────────
+async function toggleScreen() {
+  if (S.screenStream) {
+    S.screenStream.getTracks().forEach(t => t.stop());
+    S.screenStream = null;
+    document.getElementById('screenWrap').classList.remove('active');
+    document.getElementById('tileGrid').style.display = 'flex';
+    document.getElementById('ctrlScreen').classList.remove('active-blue');
+    document.getElementById('ctrlScreenIcon').innerHTML    = IC.screen;
+    document.getElementById('ctrlScreenLabel').textContent = 'স্ক্রিন শেয়ার';
+    snack('স্ক্রিন শেয়ার বন্ধ');
+    // Restore camera track in all peer connections (speakers + viewers)
+    const camTrack = S.localStream?.getVideoTracks()[0];
+    if (camTrack) {
+      const allPcs = [...Object.values(S.peers).map(p => p.pc), ...Object.values(viewerPcs)];
+      allPcs.forEach(pc => {
+        const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+        if (sender) sender.replaceTrack(camTrack);
+      });
+    }
+    restartRecording();
+    return;
+  }
+  try {
+    S.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    // Screen video in main area
+    document.getElementById('screenVideo').srcObject = S.screenStream;
+    // PiP camera
+    if (S.localStream) document.getElementById('pipVideo').srcObject = S.localStream;
+    // Switch views
+    document.getElementById('tileGrid').style.display = 'none';
+    document.getElementById('screenWrap').classList.add('active');
+    document.getElementById('ctrlScreen').classList.add('active-blue');
+    document.getElementById('ctrlScreenIcon').innerHTML    = IC.screenStop;
+    document.getElementById('ctrlScreenLabel').textContent = 'শেয়ার বন্ধ';
+    S.screenStream.getVideoTracks()[0].onended = () => toggleScreen();
+    // Replace video track in all active peer connections (speakers + viewers)
+    const screenVideoTrack = S.screenStream.getVideoTracks()[0];
+    const allPcs = [...Object.values(S.peers).map(p => p.pc), ...Object.values(viewerPcs)];
+    allPcs.forEach(pc => {
+      const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+      if (sender) sender.replaceTrack(screenVideoTrack);
+    });
+    // Add screen audio to mixer
+    if (S.screenStream.getAudioTracks().length && S.audioCtx) {
+      const src = S.audioCtx.createMediaStreamSource(S.screenStream);
+      src.connect(S.masterDest);
+    }
+    snack('🖥 স্ক্রিন শেয়ার চালু');
+    restartRecording();
+  } catch (e) {
+    snack('স্ক্রিন শেয়ার করা গেলো না');
+  }
+}
+
+// ── Speaker tiles ────────────────────────────────────────
+function renderSpeakerSlots() {
+  const grid = document.getElementById('tileGrid');
+  // Remove old speaker tiles
+  grid.querySelectorAll('.speaker-tile').forEach(el => el.remove());
+
+  const peerIds = Object.keys(S.peers);
+  peerIds.forEach(pid => {
+    const peer = S.peers[pid];
+    const tile = document.createElement('div');
+    tile.className = 'tile speaker-tile speaking-border';
+    tile.id = 'tile-' + pid;
+    tile.innerHTML = `
+      <div class="tile-avatar">${peer.name[0].toUpperCase()}</div>
+      <div class="tile-label">🎙 ${peer.name}</div>
+      <div style="position:absolute;top:8px;right:8px">
+        <button onclick="removePeer('${pid}')" style="background:rgba(239,68,68,.8);border:none;color:white;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer">সরান</button>
+      </div>`;
+    grid.appendChild(tile);
+  });
+
+  document.getElementById('activeSpeakerCount').textContent = peerIds.length;
+  updateParticipantsList();
+}
+
+// ── Participants list ─────────────────────────────────────
+let participants = {}; // peerId → name
+
+function updateParticipantsList() {
+  const list = document.getElementById('participantsList');
+  const myName = document.getElementById('userName').textContent || 'শিক্ষক';
+
+  // Teacher row always first
+  let html = `
+    <div class="participant-item">
+      <div class="pi-avatar teacher">${myName[0].toUpperCase()}</div>
+      <div class="pi-name">${myName}</div>
+      <span class="pi-badge">Host</span>
+    </div>`;
+
+  // Active speakers
+  Object.entries(S.peers).forEach(([pid, peer]) => {
+    html += `
+    <div class="participant-item">
+      <div class="pi-avatar">${peer.name[0].toUpperCase()}</div>
+      <div class="pi-name">${peer.name}</div>
+      <span class="pi-badge speaking">🎙 বলছেন</span>
+    </div>`;
+  });
+
+  // Viewers
+  Object.entries(participants).forEach(([pid, name]) => {
+    if (S.peers[pid]) return; // skip speakers (already shown)
+    html += `
+    <div class="participant-item">
+      <div class="pi-avatar">${name[0].toUpperCase()}</div>
+      <div class="pi-name">${name}</div>
+      <span class="pi-badge">দেখছেন</span>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+  const total = Object.keys(participants).length + 1;
+  document.getElementById('viewerCount').textContent = total;
+  document.getElementById('ctrlPeopleLabel').textContent = `সদস্য (${total})`;
+  showBadge('peopleBadge', total);
+}
+
+// ── CHAT ─────────────────────────────────────────────────
+const chatMessages = [];
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const myName = document.getElementById('userName').textContent || 'শিক্ষক';
+  const msg = { sender: myName, text, ts: Date.now(), own: true };
+  renderChatMsg(msg);
+
+  // Broadcast to students
+  S.rtChannel?.send({ type: 'broadcast', event: 'chat_message', payload: { sender: myName, text, ts: msg.ts } });
+}
+
+function renderChatMsg({ sender, text, ts, own }) {
+  const box  = document.getElementById('chatMessages');
+  const time = new Date(ts).toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+  const div  = document.createElement('div');
+  div.className = 'chat-msg' + (own ? ' own' : '');
+  div.innerHTML = `
+    <div class="cm-avatar ${own ? '' : 'student'}">${sender[0].toUpperCase()}</div>
+    <div class="cm-body">
+      <div class="cm-name">${own ? 'আপনি' : sender} · ${time}</div>
+      <div class="cm-text">${text.replace(/</g,'&lt;')}</div>
+    </div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+
+  // Badge if panel not on chat tab
+  if (currentTab !== 'chat' || !panelOpen) {
+    unreadChat++;
+    showBadge('chatBadge', unreadChat);
+  }
+}
+
+// Handle incoming chat from students (add to setupRealtimeChannel)
+function handleIncomingChat({ sender, text, ts }) {
+  renderChatMsg({ sender, text, ts, own: false });
+  snack(`💬 ${sender}: ${text.slice(0, 30)}${text.length > 30 ? '...' : ''}`);
+}
+
+// Handle student presence
+function handleStudentJoin({ name, peerId }) {
+  if (!participants[peerId]) {
+    participants[peerId] = name;
+    updateParticipantsList();
+    snack(`${name} ক্লাসে যোগ দিয়েছেন`);
+  }
+  // Auto-send video offer to new student so they see camera/screen without raising hand
+  autoSendVideoOffer(peerId);
+}
+
+// Separate lightweight peer connections just for video delivery (one-way: teacher → student)
+const viewerPcs = {};
+
+async function autoSendVideoOffer(peerId) {
+  if (S.phase !== 'live') return;
+  if (viewerPcs[peerId]) { try { viewerPcs[peerId].close(); } catch {} }
+
+  const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  viewerPcs[peerId] = pc;
+
+  // Send current video track
+  const videoTrack = S.screenStream
+    ? S.screenStream.getVideoTracks()[0]
+    : S.localStream?.getVideoTracks()[0];
+  if (videoTrack) pc.addTrack(videoTrack, new MediaStream([videoTrack]));
+
+  // Send teacher mic audio directly
+  const audioTrack = S.localStream?.getAudioTracks()[0];
+  if (audioTrack) pc.addTrack(audioTrack, new MediaStream([audioTrack]));
+
+  pc.onicecandidate = (e) => {
+    if (e.candidate) broadcast('ice_candidate_teacher', { peerId, candidate: e.candidate, isViewer: true });
+  };
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  broadcast('video_offer', { peerId, offer });
+}
+function handleStudentLeave({ peerId }) {
+  if (participants[peerId]) {
+    snack(`${participants[peerId]} ক্লাস ছেড়েছেন`);
+    delete participants[peerId];
+    updateParticipantsList();
+  }
+}
+
+// ── Recording (local) ─────────────────────────────────────
+let localRecorder = null, localChunks = [];
+let isRecording   = false;
+
+function toggleRecording() {
+  if (isRecording) {
+    localRecorder?.stop();
+    isRecording = false;
+    document.getElementById('ctrlRec').classList.remove('active-red');
+    document.getElementById('ctrlRecIcon').innerHTML   = IC.record;
+    document.getElementById('ctrlRecLabel').textContent = 'রেকর্ড';
+    snack('রেকর্ডিং বন্ধ হয়েছে');
+    return;
+  }
+  // Record the mixed stream (if available) or local stream
+  const stream = S.masterDest?.stream || S.localStream;
+  if (!stream) { snack('মিডিয়া পাওয়া যায়নি'); return; }
+
+  localChunks = [];
+  const mime = ['video/webm;codecs=vp9,opus','video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  localRecorder = new MediaRecorder(
+    S.screenStream
+      ? new MediaStream([S.screenStream.getVideoTracks()[0], ...(S.masterDest?.stream.getAudioTracks() || [])])
+      : new MediaStream([...(S.localStream?.getVideoTracks() || []), ...(S.masterDest?.stream.getAudioTracks() || [])]),
+    { mimeType: mime }
+  );
+  localRecorder.ondataavailable = e => { if (e.data.size > 0) localChunks.push(e.data); };
+  localRecorder.onstop = () => {
+    const blob = new Blob(localChunks, { type: 'video/webm' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `class-recording-${Date.now()}.webm`;
+    a.click();
+    snack('✅ রেকর্ডিং ডাউনলোড হচ্ছে...');
+  };
+  localRecorder.start(1000);
+  isRecording = true;
+  document.getElementById('ctrlRec').classList.add('active-red');
+  document.getElementById('ctrlRecIcon').innerHTML   = IC.recordStop;
+  document.getElementById('ctrlRecLabel').textContent = 'বন্ধ করুন';
+  snack('রেকর্ডিং শুরু হয়েছে');
+}
+
+// ════════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════════
+boot();
+</script>
+</body>
+</html>

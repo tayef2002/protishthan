@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>প্রতিষ্ঠানের বিস্তারিত — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-light:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+}
+html,body{min-height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
+nav a.logo{font-size:20px;font-weight:900;color:var(--blue);text-decoration:none}
+nav a.logo span{color:var(--text);opacity:.5}
+nav a.back{font-size:14px;font-weight:600;color:var(--text-2);text-decoration:none;display:flex;align-items:center;gap:6px}
+
+.wrap{max-width:880px;margin:0 auto;padding:32px 5% 80px}
+
+.state-box{text-align:center;padding:80px 20px;color:var(--text-3)}
+.state-box .ic{font-size:40px;margin-bottom:14px}
+
+.detail-card{display:none}
+.detail-card.show{display:block}
+
+.hero{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:20px}
+.hero-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:16px}
+.hero-logo{width:64px;height:64px;border-radius:14px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+.hero-name{font-size:22px;font-weight:800;margin-bottom:6px}
+.hero-loc{font-size:13px;color:var(--text-2)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hbadge{font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px}
+.hbadge-blue{background:var(--blue-light);color:var(--blue-dark)}
+.hbadge-green{background:var(--green-light);color:var(--green)}
+.hbadge-amber{background:var(--amber-l);color:var(--amber)}
+.hbadge-gray{background:var(--surface);color:var(--text-2)}
+.hbadge-prn{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-family:'Inter',sans-serif;letter-spacing:.02em}
+
+.cta-row{display:flex;gap:10px;margin-top:18px}
+.cta-btn{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.cta-primary{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white}
+.cta-secondary{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+
+.sec{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px}
+.sec h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-item{background:var(--surface);border-radius:10px;padding:11px 14px}
+.info-item .k{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+.info-item .v{font-size:14px;font-weight:600}
+.chip-list{display:flex;flex-wrap:wrap;gap:6px}
+.chip-tag{background:var(--blue-light);color:var(--blue-dark);font-size:12px;font-weight:700;padding:4px 11px;border-radius:100px}
+.desc-text{font-size:14px;color:var(--text-2);line-height:1.7;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap}
+
+.contact-note{background:var(--blue-light);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--blue-dark);line-height:1.6}
+
+.notice-row{background:var(--amber-l);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.notice-row .t{font-weight:700;font-size:13.5px;color:var(--amber)}
+.notice-row .b{font-size:12.5px;color:var(--text-2);margin-top:4px;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word}
+
+.pub-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.pub-gallery .gimg-wrap{border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;background:var(--surface)}
+.pub-gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .3s}
+.pub-gallery .gimg-wrap:hover img{transform:scale(1.06)}
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+.lightbox-overlay.show{display:flex}
+.lightbox-overlay img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px}
+.lightbox-close{position:absolute;top:18px;right:24px;color:white;font-size:32px;cursor:pointer;line-height:1}
+@media(max-width:600px){
+  .pub-gallery{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+
+.testi-row{background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.testi-row .name{font-weight:700;font-size:13px}
+.testi-row .msg{font-size:13px;color:var(--text-2);margin-top:4px;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word}
+
+.inquiry-form{display:flex;flex-direction:column;gap:10px}
+.inquiry-form input,.inquiry-form textarea{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;resize:vertical}
+.inquiry-submit{padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.inquiry-success{background:var(--green-light);color:var(--green);border-radius:12px;padding:14px 16px;font-size:13.5px;font-weight:600;text-align:center}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr}
+  .hero-top{flex-direction:column;align-items:center;text-align:center}
+  .cta-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Protisht<span>han</span></a>
+  <a href="directory.html" class="back">← তথ্যভান্ডারে ফিরে যান</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="state-box" id="loadingState">
+    <div class="ic">⏳</div>
+    <div>তথ্য লোড হচ্ছে...</div>
+  </div>
+
+  <div class="state-box" id="notFoundState" style="display:none">
+    <div class="ic">🔍</div>
+    <div>এই প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</div>
+    <div style="margin-top:16px"><a href="directory.html" style="color:var(--blue);font-weight:600;text-decoration:none">তথ্যভান্ডারে ফিরে যান →</a></div>
+  </div>
+
+  <div class="detail-card" id="detailCard">
+
+    <div class="hero">
+      <div class="hero-top">
+        <div class="hero-logo" id="heroLogo">🏫</div>
+        <div>
+          <div class="hero-name" id="heroName">—</div>
+          <div class="hero-loc" id="heroLoc">📍 —</div>
+        </div>
+      </div>
+      <div class="hero-badges" id="heroBadges"></div>
+
+      <div class="cta-row">
+        <button class="cta-btn cta-primary" id="websiteBtn">🌐 ওয়েবসাইট দেখুন</button>
+        <a class="cta-btn cta-secondary" id="whatsappBtn" href="#" target="_blank">💬 WhatsApp এ যোগাযোগ</a>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>📋 মৌলিক তথ্য</h3>
+      <div class="info-grid">
+        <div class="info-item"><div class="k">প্রতিষ্ঠার সাল</div><div class="v" id="vFounding">—</div></div>
+        <div class="info-item"><div class="k">শিক্ষার্থী সংখ্যা</div><div class="v" id="vStudents">—</div></div>
+        <div class="info-item"><div class="k">শিক্ষক সংখ্যা</div><div class="v" id="vTeachers">—</div></div>
+        <div class="info-item"><div class="k">সেশন শুরুর মাস</div><div class="v" id="vSession">—</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="mediumSec">
+      <h3>🎓 মাধ্যম / বোর্ড</h3>
+      <div class="chip-list" id="vMedium"></div>
+    </div>
+
+    <div class="sec">
+      <h3>📚 শ্রেণি ও ভর্তি</h3>
+      <div class="info-grid">
+        <div class="info-item"><div class="k">শ্রেণি রেঞ্জ</div><div class="v" id="vClassRange">—</div></div>
+        <div class="info-item"><div class="k">ছাত্র/ছাত্রী</div><div class="v" id="vGender">—</div></div>
+        <div class="info-item"><div class="k">ভর্তি স্ট্যাটাস</div><div class="v" id="vAdmission">—</div></div>
+        <div class="info-item"><div class="k">মাসিক ফি</div><div class="v" id="vFee">—</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="facilitySec">
+      <h3>🏢 সুযোগ-সুবিধা</h3>
+      <div class="chip-list" id="vFacilities"></div>
+    </div>
+
+    <div class="sec" id="noticeSec" style="display:none">
+      <h3>📢 নোটিস</h3>
+      <div id="vNotices"></div>
+    </div>
+
+    <div class="sec" id="gallerySec" style="display:none">
+      <h3>🖼️ গ্যালারি</h3>
+      <div class="pub-gallery" id="vGallery"></div>
+    </div>
+
+    <div class="sec" id="achievementSec">
+      <h3>🏆 অর্জন / বিশেষত্ব</h3>
+      <div class="chip-list" id="vAchievements"></div>
+    </div>
+
+    <div class="sec" id="descSec">
+      <h3>📝 প্রতিষ্ঠান সম্পর্কে</h3>
+      <p class="desc-text" id="vDescription"></p>
+    </div>
+
+    <div class="sec" id="testimonialSec" style="display:none">
+      <h3>💬 অভিভাবকদের মতামত</h3>
+      <div id="vTestimonials"></div>
+    </div>
+
+    <div class="sec">
+      <h3>📍 ঠিকানা ও যোগাযোগ</h3>
+      <div class="info-grid">
+        <div class="info-item"><div class="k">জেলা / উপজেলা</div><div class="v" id="vDistrict">—</div></div>
+        <div class="info-item"><div class="k">ঠিকানা বিবরণ</div><div class="v" id="vAddress">—</div></div>
+      </div>
+    </div>
+
+    <div class="sec" id="inquirySec">
+      <h3>📩 ভর্তির জন্য যোগাযোগ করুন</h3>
+      <div id="inquiryFormWrap" class="inquiry-form">
+        <input type="text" id="inqName" placeholder="আপনার নাম">
+        <input type="text" id="inqPhone" placeholder="ফোন নম্বর">
+        <textarea id="inqMessage" rows="3" placeholder="বার্তা (ঐচ্ছিক)"></textarea>
+        <button class="inquiry-submit" onclick="submitInquiry()">পাঠিয়ে দিন</button>
+      </div>
+      <div id="inquirySuccess" class="inquiry-success" style="display:none">✅ ধন্যবাদ! প্রতিষ্ঠান শীঘ্রই আপনার সাথে যোগাযোগ করবে।</div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img id="lightboxImg" src="" onclick="event.stopPropagation()">
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+const typeIcons = { 'মাদ্রাসা':'🕌', 'স্কুল':'📚', 'কলেজ':'🎓', 'কোচিং সেন্টার':'✏️' };
+
+function escapeHtml(str){
+  if(str===null||str===undefined) return '';
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function chipsHtml(arr, otherVal){
+  const items = Array.isArray(arr) ? arr.slice() : [];
+  if(otherVal) items.push(otherVal);
+  if(items.length === 0) return '<span style="color:var(--text-3);font-size:13px">দেওয়া হয়নি</span>';
+  return items.map(i=>'<span class="chip-tag">'+escapeHtml(i)+'</span>').join('');
+}
+
+async function loadDetail(){
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+
+  if(!slug){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('notFoundState').style.display = 'block';
+    return;
+  }
+
+  let record = null;
+  try{
+    const { data, error } = await sb.from('listing_submissions').select('*').eq('desired_slug', slug).eq('status','approved').limit(1);
+    if(error) throw error;
+    if(data && data.length > 0) record = data[0];
+  }catch(e){
+    console.error('Failed to load institution detail', e);
+  }
+
+  document.getElementById('loadingState').style.display = 'none';
+
+  if(!record){
+    document.getElementById('notFoundState').style.display = 'block';
+    return;
+  }
+
+  document.title = record.institution_name + ' — Protishthan';
+
+  // Track view count (fire-and-forget, doesn't block page rendering)
+  sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{
+    if(error) console.error('View count tracking failed', error);
+  });
+
+  document.getElementById('heroLogo').textContent = typeIcons[record.institution_type] || '🏫';
+  document.getElementById('heroName').textContent = record.institution_name;
+  document.getElementById('heroLoc').textContent = '📍 ' + (record.upazila||'') + ', ' + (record.district||'');
+
+  const badges = [];
+  if(record.prn_number) badges.push('<span class="hbadge hbadge-prn">🆔 PRN-'+String(record.prn_number).padStart(4,'0')+'</span>');
+  if(record.institution_type) badges.push('<span class="hbadge hbadge-blue">'+escapeHtml(record.institution_type)+'</span>');
+  if(record.admission_status === 'খোলা') badges.push('<span class="hbadge hbadge-green">ভর্তি চলছে</span>');
+  else if(record.admission_status === 'সীমিত সিট') badges.push('<span class="hbadge hbadge-amber">সীমিত সিট</span>');
+  else if(record.admission_status === 'বন্ধ') badges.push('<span class="hbadge hbadge-gray">ভর্তি বন্ধ</span>');
+  if(record.founding_year) badges.push('<span class="hbadge hbadge-gray">'+escapeHtml(record.founding_year)+' সালে প্রতিষ্ঠিত</span>');
+  document.getElementById('heroBadges').innerHTML = badges.join('');
+
+  document.getElementById('vFounding').textContent = record.founding_year || 'দেওয়া হয়নি';
+  document.getElementById('vStudents').textContent = record.student_count || 'দেওয়া হয়নি';
+  document.getElementById('vTeachers').textContent = record.teacher_count || 'দেওয়া হয়নি';
+  const sessionDisplay = record.session_start_month === 'অন্য' ? (record.other_session_month||'অন্য') : (record.session_start_month||'দেওয়া হয়নি');
+  document.getElementById('vSession').textContent = sessionDisplay;
+
+  document.getElementById('vMedium').innerHTML = chipsHtml(record.medium, record.other_medium);
+
+  document.getElementById('vClassRange').textContent = record.class_range || 'দেওয়া হয়নি';
+  document.getElementById('vGender').textContent = record.gender_type || 'দেওয়া হয়নি';
+  document.getElementById('vAdmission').textContent = record.admission_status || 'দেওয়া হয়নি';
+  document.getElementById('vFee').textContent = record.fee_range || 'দেওয়া হয়নি';
+
+  document.getElementById('vFacilities').innerHTML = chipsHtml(record.facilities, record.other_facility);
+
+  // Try to resolve the live `institutions` row (editable via admin Public Page panel)
+  // so achievements/description/logo/gallery/notices/testimonials reflect latest edits,
+  // not just the static registration-time snapshot.
+  let inst = null;
+  try{
+    const byName = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle();
+    inst = byName.data;
+    if(!inst && record.institution_name){
+      const fuzzy = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle();
+      inst = fuzzy.data;
+    }
+    if(!inst && record.contact_phone){
+      const byPhone = await sb.from('institutions').select('*').eq('phone', record.contact_phone).limit(1).maybeSingle();
+      inst = byPhone.data;
+    }
+    if(!inst && record.district && record.upazila){
+      const byLoc = await sb.from('institutions').select('*').eq('district', record.district).eq('upazila', record.upazila).limit(1).maybeSingle();
+      inst = byLoc.data;
+    }
+  }catch(e){ console.error('institution resolve failed', e); }
+
+  const liveAchievements = (inst && Array.isArray(inst.achievements) && inst.achievements.length) ? inst.achievements : null;
+  document.getElementById('vAchievements').innerHTML = liveAchievements
+    ? liveAchievements.map(a=>'<span class="chip-tag">'+escapeHtml(a)+'</span>').join('')
+    : chipsHtml(record.achievements, record.other_achievement);
+
+  const liveDescription = (inst && inst.description) ? inst.description : record.description;
+  if(liveDescription){
+    document.getElementById('vDescription').textContent = liveDescription;
+  } else {
+    document.getElementById('descSec').style.display = 'none';
+  }
+
+  if(inst && inst.logo_url){
+    document.getElementById('heroLogo').innerHTML = '<img src="'+inst.logo_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px">';
+  }
+
+  if(inst && inst.id){
+    window.__resolvedInstitutionId = inst.id;
+    loadPublicGallery(inst.id);
+    loadPublicNotices(inst.id);
+    loadPublicTestimonials(inst.id);
+  } else {
+    document.getElementById('inquirySec').style.display = 'none';
+  }
+
+  document.getElementById('vDistrict').textContent = (record.upazila||'') + ', ' + (record.district||'');
+  document.getElementById('vAddress').textContent = record.address_note || 'দেওয়া হয়নি';
+
+  const websiteBtn = document.getElementById('websiteBtn');
+  websiteBtn.onclick = function(){
+    alert('এই প্রতিষ্ঠান এখনও Protishthan-এ সম্পূর্ণভাবে যোগ দেয়নি। আমাদের এজেন্ট শীঘ্রই তাদের সাথে যোগাযোগ করবেন।');
+  };
+
+  const whatsappBtn = document.getElementById('whatsappBtn');
+  if(record.contact_phone){
+    whatsappBtn.href = 'https://wa.me/88' + record.contact_phone;
+  } else {
+    whatsappBtn.style.display = 'none';
+  }
+
+  document.getElementById('detailCard').classList.add('show');
+}
+
+async function loadPublicGallery(institutionId){
+  const { data } = await sb.from('institution_gallery').select('*').eq('institution_id', institutionId).order('created_at',{ascending:false});
+  if(!data || !data.length) return;
+  document.getElementById('gallerySec').style.display = 'block';
+  document.getElementById('vGallery').innerHTML = data.map(g=>'<div class="gimg-wrap" onclick="openLightbox(\''+g.image_url+'\')"><img src="'+g.image_url+'" loading="lazy"></div>').join('');
+}
+
+async function loadPublicNotices(institutionId){
+  const { data } = await sb.from('institution_notices').select('*').eq('institution_id', institutionId).eq('is_active', true).order('created_at',{ascending:false});
+  if(!data || !data.length) return;
+  document.getElementById('noticeSec').style.display = 'block';
+  document.getElementById('vNotices').innerHTML = data.map(n=>
+    '<div class="notice-row"><div class="t">'+escapeHtml(n.title)+'</div>'+(n.body?'<div class="b">'+escapeHtml(n.body)+'</div>':'')+'</div>'
+  ).join('');
+}
+
+async function loadPublicTestimonials(institutionId){
+  const { data } = await sb.from('institution_testimonials').select('*').eq('institution_id', institutionId).order('created_at',{ascending:false});
+  if(!data || !data.length) return;
+  document.getElementById('testimonialSec').style.display = 'block';
+  document.getElementById('vTestimonials').innerHTML = data.map(t=>
+    '<div class="testi-row"><div class="name">'+escapeHtml(t.author_name)+' <span style="color:#F59E0B">'+'★'.repeat(t.rating||5)+'</span></div><div class="msg">"'+escapeHtml(t.message)+'"</div></div>'
+  ).join('');
+}
+
+async function submitInquiry(){
+  const institutionId = window.__resolvedInstitutionId;
+  const name = document.getElementById('inqName').value.trim();
+  const phone = document.getElementById('inqPhone').value.trim();
+  const message = document.getElementById('inqMessage').value.trim();
+  if(!name || !phone){
+    alert('নাম ও ফোন নম্বর দুটোই দিন।');
+    return;
+  }
+  if(!institutionId){
+    alert('এই প্রতিষ্ঠানের জন্য এই মুহূর্তে আবেদন গ্রহণ করা সম্ভব হচ্ছে না।');
+    return;
+  }
+  const { error } = await sb.from('institution_inquiries').insert({
+    institution_id: institutionId, guardian_name: name, phone, message: message || null
+  });
+  if(error){ alert('দুঃখিত, কিছু ভুল হয়েছে। আবার চেষ্টা করুন।'); return; }
+  document.getElementById('inquiryFormWrap').style.display = 'none';
+  document.getElementById('inquirySuccess').style.display = 'block';
+}
+
+function openLightbox(url){
+  document.getElementById('lightboxImg').src = url;
+  document.getElementById('lightboxOverlay').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightboxOverlay').classList.remove('show');
+}
+
+loadDetail();
+</script>
+</body>
+</html>

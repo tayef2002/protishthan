@@ -1,0 +1,1512 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষক/স্টাফ — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--rxl:20px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR (same as dashboard/students) */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-glow{position:absolute;top:-100px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(26,86,219,.35),transparent 70%);pointer-events:none}
+.sidebar-logo{padding:22px 20px 16px;position:relative;z-index:1}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+.user-logout-link{color:#F87171;cursor:pointer;text-decoration:underline}
+.user-name-link{cursor:pointer}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:8px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar{width:4px}.sidebar-nav::-webkit-scrollbar-track{background:transparent}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px}.sidebar-nav::-webkit-scrollbar-button{display:none}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;min-height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn-add{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.content{padding:24px 28px;flex:1}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:var(--white);border-radius:var(--rl);padding:16px 18px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.stat-mini-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.stat-mini-num{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.stat-mini-label{font-size:11px;color:var(--text-3)}
+
+/* SEARCH + FILTER BAR */
+.filter-bar{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);padding:14px 16px;display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-3)}
+.filter-select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:white;cursor:pointer;outline:none}
+
+/* TEACHER GRID */
+.teacher-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.teacher-card{background:var(--white);border-radius:var(--rl);border:1px solid var(--border);padding:18px;transition:all .25s}
+.teacher-card:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(26,86,219,.1);transform:translateY(-2px)}
+.tc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.tc-avatar{width:46px;height:46px;border-radius:12px;background:var(--purple-l);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.tc-name{font-size:14px;font-weight:700;color:var(--text)}
+.tc-meta{font-size:11px;color:var(--text-3);margin-top:1px}
+.tc-status{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px}
+.tc-status.active{background:var(--green-l);color:var(--green)}
+.tc-status.inactive{background:var(--surface);color:var(--text-3)}
+.tc-details{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:12px}
+.tc-detail-row{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.tc-detail-label{color:var(--text-3)}
+.tc-detail-val{color:var(--text-2);font-weight:600}
+.tc-actions{display:flex;gap:8px;margin-top:12px}
+.tc-btn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:white;color:var(--text-2);transition:all .2s;font-family:inherit}
+.tc-btn:hover{border-color:var(--blue);color:var(--blue)}
+.tc-btn.danger:hover{border-color:var(--red);color:var(--red)}
+.tc-btn.primary{background:var(--blue-light);color:var(--blue);border-color:rgba(26,86,219,.2)}
+.tc-btn.primary:hover{background:var(--blue);color:white}
+
+/* ── CLASS WIZARD ── */
+.cw-overlay{position:fixed;inset:0;background:rgba(10,22,40,.55);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.cw-overlay.show{opacity:1;pointer-events:all}
+.cw-card{background:white;border-radius:20px;width:min(500px,96vw);max-height:90vh;overflow:hidden;display:flex;flex-direction:column;transform:translateY(24px) scale(.97);transition:transform .25s cubic-bezier(.32,.72,0,1)}
+.cw-overlay.show .cw-card{transform:translateY(0) scale(1)}
+.cw-head{padding:20px 22px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
+.cw-teacher-badge{display:flex;align-items:center;gap:10px}
+.cw-avatar{width:38px;height:38px;border-radius:10px;background:rgba(26,86,219,.15);color:var(--blue);font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cw-teacher-name{font-size:13px;font-weight:700;color:var(--text)}
+.cw-teacher-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.cw-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.cw-close:hover{background:var(--bg);border-color:var(--text-3)}
+.cw-progress{padding:14px 22px 0;flex-shrink:0}
+.cw-prog-bar{height:3px;background:var(--border);border-radius:100px;overflow:hidden}
+.cw-prog-fill{height:100%;background:var(--blue);border-radius:100px;transition:width .3s ease}
+.cw-prog-label{font-size:10px;color:var(--text-3);margin-top:5px}
+.cw-body{padding:22px;overflow-y:auto;flex:1}
+.cw-step{display:none}
+.cw-step.active{display:block}
+.cw-q{font-size:18px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:6px}
+.cw-hint{font-size:12px;color:var(--text-3);margin-bottom:18px;line-height:1.5}
+.cw-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s;background:white}
+.cw-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.cw-select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:white;cursor:pointer;transition:border-color .2s}
+.cw-select:focus{border-color:var(--blue)}
+.cw-subject-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.cw-subject-row{display:flex;gap:8px;align-items:center}
+.cw-subject-row .cw-input{flex:1;margin:0}
+.cw-remove-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;color:var(--text-3);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.cw-remove-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.cw-add-subject-btn{display:flex;align-items:center;gap:6px;padding:9px 14px;border:1.5px dashed var(--border);border-radius:10px;background:white;color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;transition:all .2s}
+.cw-add-subject-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.cw-time-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cw-time-label{font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px}
+.cw-yn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.cw-yn-btn{padding:14px;border:2px solid var(--border);border-radius:12px;background:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-2);transition:all .2s;text-align:center}
+.cw-yn-btn:hover,.cw-yn-btn.sel{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.cw-yn-btn.sel-no{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.cw-summary{display:flex;flex-direction:column;gap:10px}
+.cw-sum-card{border:1px solid var(--border);border-radius:12px;padding:14px}
+.cw-sum-class{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.cw-sum-row{font-size:12px;color:var(--text-2);margin-top:4px;display:flex;gap:6px;align-items:center}
+.cw-sum-badge{display:inline-block;background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px}
+.cw-footer{padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:white}
+.cw-btn-back{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:white;color:var(--text-2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.cw-btn-back:hover{border-color:var(--blue);color:var(--blue)}
+.cw-btn-next{flex:2;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.cw-btn-next:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,86,219,.3)}
+.cw-btn-next:disabled{opacity:.55;pointer-events:none}
+.cw-saving-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY STATE */
+.empty-state{grid-column:1/-1;text-align:center;padding:64px 24px;background:var(--white);border-radius:var(--rl);border:1px dashed var(--border)}
+.empty-icon{font-size:56px;margin-bottom:16px}
+.empty-state h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal-card{background:white;border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.92) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.modal-overlay.show .modal-card{transform:scale(1) translateY(0)}
+.modal-head{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--surface);border:none;cursor:pointer;font-size:16px;color:var(--text-2);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:20px 24px}
+.modal-section-title{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px}
+.modal-section-title:first-child{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{margin-bottom:0}
+.form-field.full{grid-column:1/-1}
+.form-field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+.form-field input,.form-field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--text)}
+.form-field input:focus,.form-field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
+.form-hint{font-size:11px;color:var(--text-3);margin-top:4px}
+.class-check-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--border);border-radius:100px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;background:white;color:var(--text-2)}
+.class-check-chip:hover{border-color:var(--blue)}
+.class-check-chip.checked{background:var(--blue-light);border-color:var(--blue);color:var(--blue-dark)}
+.class-check-chip input{display:none}
+.reveal-field{animation:revealSlide .35s ease}
+@keyframes revealSlide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.add-class-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;padding:10px;background:var(--surface);border-radius:9px;animation:revealSlide .25s ease}
+.add-class-row select{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.add-class-row select:focus{border-color:var(--blue)}
+.add-class-row .add-subject-select{margin-top:7px}
+.add-class-row .rm-row-btn{flex-shrink:0;width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border);background:white;color:var(--text-3);cursor:pointer;font-size:14px;margin-top:1px}
+.add-class-row .rm-row-btn:hover{border-color:var(--red);color:var(--red)}
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px}
+.chip-btn{padding:7px 13px;border:1.5px solid var(--border);border-radius:100px;background:white;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--text-2);transition:all .15s}
+.chip-btn:hover{border-color:var(--blue)}
+.chip-btn.selected{border-color:var(--blue);background:var(--blue);color:white}
+.modal-footer{padding:16px 24px 24px;display:flex;gap:10px}
+.btn-cancel{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-cancel:hover{border-color:var(--text-3)}
+.btn-save{flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;position:relative}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.btn-save.loading .btn-text{display:none}
+.btn-save .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+.btn-save.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CREDENTIALS SUCCESS MODAL */
+.cred-box{background:var(--surface);border:1.5px dashed var(--blue);border-radius:12px;padding:18px;text-align:center;margin:16px 0}
+.cred-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.cred-row:last-child{border-bottom:none}
+.cred-label{font-size:12px;color:var(--text-3);font-weight:600}
+.cred-val{font-size:16px;font-weight:800;color:var(--blue);letter-spacing:.5px;font-family:monospace}
+
+@media(max-width:1024px){
+  :root{--sidebar:60px}
+  .sidebar-logo .name,.sidebar-logo .inst,.nav-item span:not(.nav-icon),.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+
+/* ===== MOBILE BOTTOM NAV ===== */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding-bottom:86px}
+  .bottom-nav{display:flex!important}
+}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
+.bnav-item.active{color:var(--blue)}
+.bnav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.bnav-label{font-size:10px;font-weight:600}
+.more-sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.more-sheet-overlay.show{opacity:1;pointer-events:all}
+.more-sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:10px 8px calc(16px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:75vh;overflow-y:auto;z-index:301}
+.more-sheet-overlay.show .more-sheet{transform:translateY(0)}
+.more-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:100px;margin:6px auto 16px}
+.more-sheet-title{font-size:14px;font-weight:700;color:var(--text);padding:0 10px 12px}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 6px}
+.more-sheet-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 4px;border-radius:14px;text-decoration:none;color:var(--text-2)}
+.more-sheet-item:active{background:var(--surface)}
+.more-sheet-icon{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center}
+.more-sheet-label{font-size:11px;font-weight:600;text-align:center;line-height:1.3}
+
+
+
+/* ===== MOBILE TOPBAR FIX (v3) ===== */
+@media(max-width:768px){
+  .topbar{
+    flex-wrap:wrap!important;
+    justify-content:space-between!important;
+    height:auto!important;
+    padding:12px 16px!important;
+    row-gap:10px!important;
+  }
+  .topbar-title{font-size:15px!important;margin-bottom:0!important;width:auto!important}
+  .topbar-right{
+    margin-left:0!important;
+    margin-top:0!important;
+    width:auto!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+  }
+  .topbar-right .btn-add{padding:8px 13px!important;font-size:12px!important}
+  .content{padding-top:12px!important}
+}
+
+@media(max-width:768px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  table{font-size:10.5px!important}
+  table th,table td{padding:6px 4px!important}
+}
+
+@media(max-width:600px){
+  .stats-grid,.stats-row,.fin-stats,.qa-grid{min-width:0}
+  .stat-card,.stat-mini,.fin-stat,.qa-card{min-width:0;overflow:hidden}
+  .stat-num,.stat-mini-num,.fin-stat-num{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card,.table-card,.content > div{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-glow"></div>
+  <div class="sidebar-logo">
+    <div class="name">Protisht<span>han</span></div>
+    <div class="inst" id="instNameSidebar">আপনার প্রতিষ্ঠান</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">মূল মেনু</div>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" href="attendance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
+      <span>উপস্থিতি</span>
+      <span class="nav-badge green">Live</span>
+    </a>
+    <a class="nav-item" href="students.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span>
+      <span>শিক্ষার্থী</span>
+    </a>
+    <a class="nav-item" href="guardians.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></span>
+      <span>অভিভাবক</span>
+    </a>
+    <a class="nav-item active" href="teachers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></span>
+      <span>শিক্ষক/স্টাফ</span>
+    </a>
+    <a class="nav-item" href="teacher-tracking.html" style="padding-left:28px;font-size:12px">
+      <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></span>
+      <span>Track</span>
+    </a>
+    <a class="nav-item" href="classes.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></span>
+      <span>ক্লাস ব্যবস্থাপনা</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">একাডেমিক</div>
+    <a class="nav-item" href="syllabus.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7M9 15h4"/></svg></span>
+      <span>সিলেবাস ট্র্যাকিং</span>
+    </a>
+    <a class="nav-item" href="exam.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></span>
+      <span>পরীক্ষা ও Result</span>
+    </a>
+    <a class="nav-item" href="classroom.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l5-3-5-3v6z"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></span>
+      <span>অনলাইন ক্লাস</span>
+      <span class="nav-badge green" style="font-size:9px;padding:1px 5px">New</span>
+    </a>
+    <a class="nav-item" href="calendar.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1"/></svg></span><span>আমাদের ক্যালেন্ডার</span></a>
+    <a class="nav-item" href="routine.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+      <span>ক্লাস রুটিন</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/><path d="M6.5 9h1M6.5 12h1"/></svg></span>
+      <span>Library</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">আর্থিক</div>
+    <a class="nav-item" href="finance.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+      <span>হিসাব বিভাগ</span>
+    </a>
+    <a class="nav-item" href="vouchers.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span>ভাউচার</span>
+    </a>
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></span>
+      <span>Reports</span>
+    </a>
+    <div class="sidebar-section" style="margin-top:8px">টুলস</div>
+    <a class="nav-item" href="custom-paper.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span><span>কাস্টম ডকুমেন্ট</span></a>
+    <a class="nav-item" href="registration-form.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></span><span>ভর্তি ফর্ম</span></a>
+    <a class="nav-item" href="id-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M14 15h3"/></svg></span><span>আইডি কার্ড</span></a>
+    <a class="nav-item" href="bulk-notice.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M15 9.5a3 3 0 0 1 0 5"/><path d="M3 10.5v3a1 1 0 0 0 1 1h1.5l4 3v-11l-4 3H4a1 1 0 0 0-1 1z"/></svg></span><span>বাল্ক নোটিশ</span></a>
+    <a class="nav-item" href="admit-card.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>প্রবেশপত্র</span></a>
+    <div class="sidebar-section" style="margin-top:8px">যোগাযোগ</div>
+    <a class="nav-item" href="chat.html"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>বার্তা ও কল</span></a>
+    <div class="sidebar-section" style="margin-top:8px">সেটিংস</div>
+    <a class="nav-item" href="website.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></span>
+      <span>প্রতিষ্ঠানের Website</span>
+      <span class="nav-badge" style="background:var(--blue)">Free</span>
+    </a>
+    <a class="nav-item" href="public-page.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></span>
+      <span>Public Page</span>
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></span>
+      <span>Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">এ</div>
+      <div>
+        <div class="user-name user-name-link" id="userName" onclick="window.location.href='settings.html'">Loading...</div>
+        <div class="user-role">Admin · <span class="user-logout-link" onclick="event.stopPropagation();doLogout()">লগআউট</span></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title">শিক্ষক/স্টাফ ব্যবস্থাপনা</div></div>
+    <div class="topbar-right">
+      <button class="btn-add" onclick="openModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন শিক্ষক</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--purple-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg>‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+        <div><div class="stat-mini-num" id="totalTeachers">০</div><div class="stat-mini-label">মোট শিক্ষক</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--green-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div>
+        <div><div class="stat-mini-num" id="activeTeachers">০</div><div class="stat-mini-label">সক্রিয়</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--amber-l)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 5h6v15H4z"/><path d="M11 5h6a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6"/></svg></div>
+        <div><div class="stat-mini-num" id="totalClassesCovered">০</div><div class="stat-mini-label">ক্লাস কভার</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon" style="background:var(--blue-light)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+        <div><div class="stat-mini-num" id="totalSalary">৳০</div><div class="stat-mini-label">মোট মাসিক হাদিয়া</div></div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+        <input type="text" id="searchInput" placeholder="নাম, বিষয় বা ক্লাস দিয়ে খুঁজুন..." oninput="filterTeachers()">
+      </div>
+      <select class="filter-select" id="statusFilter" onchange="filterTeachers()">
+        <option value="">সব স্ট্যাটাস</option>
+        <option value="active">সক্রিয়</option>
+        <option value="inactive">নিষ্ক্রিয়</option>
+      </select>
+    </div>
+
+    <!-- TEACHER GRID -->
+    <div class="teacher-grid" id="teacherGrid">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg>‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+        <h3>কোনো শিক্ষক এখনো যোগ করা হয়নি</h3>
+        <p>প্রথম শিক্ষক যোগ করে শুরু করুন</p>
+        <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন শিক্ষক যোগ করুন</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD/EDIT TEACHER MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">নতুন শিক্ষক যোগ করুন</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-title">শিক্ষক/স্টাফের তথ্য</div>
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>পূর্ণ নাম *</label>
+          <input type="text" id="fFullName" placeholder="যেমন: মোঃ রফিকুল ইসলাম">
+        </div>
+        <div class="form-field full">
+          <label>ফোন নম্বর * <span style="color:var(--text-3);font-weight:500">(এই নম্বর দিয়েই তিনি লগইন করবেন)</span></label>
+          <input type="tel" id="fPhone" placeholder="01XXXXXXXXX" maxlength="11">
+        </div>
+        <div class="form-field full">
+          <label>পদবি</label>
+          <div class="chip-grid" id="designationGrid"></div>
+          <div id="moreDesignationWrap" style="margin-top:8px;display:none">
+            <button type="button" class="chip-btn" style="border-style:dashed" onclick="showMoreDesignations()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> আরো অপশন দেখুন</button>
+          </div>
+          <input type="text" id="fDesignationOther" placeholder="পদবি লিখুন" style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:13px">
+        </div>
+        <div class="form-field full">
+          <label>মাসিক হাদিয়া (৳)</label>
+          <input type="number" id="fSalary" placeholder="">
+        </div>
+        <div class="form-field full">
+          <label>কোন ক্লাসের প্রথম শিক্ষক?</label>
+          <select id="fPrimaryClass" onchange="onPrimaryClassChange()">
+            <option value="">নির্বাচন করুন</option>
+          </select>
+          <div class="form-hint">যেই ক্লাসের ১ম পিরিয়ড/প্রথম attendance তিনি নেবেন। ক্লাস তালিকায় না থাকলে আগে <a href="classes.html" style="color:var(--blue);font-weight:600">ক্লাস ব্যবস্থাপনা</a> পেজে ক্লাস তৈরি করুন।</div>
+        </div>
+        <div class="form-field full reveal-field" id="primarySubjectWrap" style="display:none">
+          <label>এই ক্লাসে কোন বিষয় পড়াবেন? (১ম পিরিয়ড)</label>
+          <select id="fPrimarySubject" onchange="onPrimarySubjectChange()">
+            <option value="">নির্বাচন করুন</option>
+          </select>
+          <div class="form-hint" id="noSubjectHint" style="display:none">এই ক্লাসে এখনো কোনো বিষয় যুক্ত করা হয়নি — <a href="classes.html" style="color:var(--blue);font-weight:600">ক্লাস ব্যবস্থাপনা</a> পেজে গিয়ে এই ক্লাস কার্ডে বিষয় যুক্ত করুন।</div>
+        </div>
+        <div class="form-field full reveal-field" id="moreClassesWrap" style="display:none">
+          <label>আরো কোন কোন ক্লাসে পড়ান? (ঐচ্ছিক)</label>
+          <div id="additionalClassRows"></div>
+          <button type="button" class="chip-btn" style="border-style:dashed" onclick="addAdditionalClassRow()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> আরো একটি ক্লাস যুক্ত করুন</button>
+          <div class="form-hint">একজন শিক্ষক একাধিক ক্লাসে, ভিন্ন ভিন্ন বিষয়ে পড়াতে পারবেন।</div>
+        </div>
+      </div>
+
+      <div class="modal-section-title" id="loginSectionTitle">লগইন তথ্য</div>
+      <div id="loginSection" style="background:var(--surface);border-radius:10px;padding:14px">
+        <div style="font-size:13px;color:var(--text-2);line-height:1.7">
+          🆔 সেভ করার পর একটি <b>৫-সংখ্যার Teacher ID</b> স্বয়ংক্রিয়ভাবে তৈরি হবে।<br>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg> শিক্ষক/স্টাফ <b>এই Teacher ID + তার ফোন নম্বর</b> দিয়েই লগইন করতে পারবেন — আলাদা পাসওয়ার্ড সেট করার দরকার নেই।
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">বাতিল</button>
+      <button class="btn-save" id="saveBtn" onclick="saveTeacher()"><span class="btn-text">সেভ করুন</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- CREDENTIALS SUCCESS MODAL -->
+<div class="modal-overlay" id="credModalOverlay">
+  <div class="modal-card" style="max-width:400px">
+    <div class="modal-head">
+      <div class="modal-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg> শিক্ষক/স্টাফ যোগ হয়েছে</div>
+      <button class="modal-close" onclick="closeCredModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:8px">এই Teacher ID তাকে জানিয়ে দিন — তিনি তার <b>ফোন নম্বরকে পাসওয়ার্ড হিসেবে ব্যবহার করে</b> teacher-login পেজ থেকে লগইন করতে পারবেন।</p>
+      <div class="cred-box">
+        <div class="cred-row"><span class="cred-label">Teacher ID</span><span class="cred-val" id="credTeacherId">—</span></div>
+        <div class="cred-row"><span class="cred-label">পাসওয়ার্ড (ফোন নম্বর)</span><span class="cred-val" id="credPassword">—</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" onclick="closeCredModal()"><span class="btn-text">ঠিক আছে, বুঝেছি</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-overlay" id="toastOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s">
+  <div class="toast-card" style="background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.2);margin:0 20px">
+    <div class="toast-icon-wrap" id="toastIconWrap" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px"><span id="toastIconEmoji"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span></div>
+    <div class="toast-title" id="toastTitle" style="font-size:18px;font-weight:800;margin-bottom:6px">সফল!</div>
+    <div class="toast-msg" id="toastMsg" style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:18px"></div>
+    <button onclick="closeToast()" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">ঠিক আছে</button>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+let currentInstitution = null;
+let allTeachers = [];
+let allClasses = [];
+let editTeacherId = null;
+
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showToast(type, title, msg){
+  document.getElementById('toastIconWrap').style.background = type==='success' ? 'var(--green-l)' : 'var(--red-l)';
+  document.getElementById('toastIconEmoji').innerHTML = type==='success' ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>';
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastOverlay').classList.add('show');
+}
+function closeToast(){ document.getElementById('toastOverlay').classList.remove('show'); }
+function closeCredModal(){ document.getElementById('credModalOverlay').classList.remove('show'); }
+
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+  const meta = session.user.user_metadata || {};
+  document.getElementById('userName').textContent = meta.principal_name || 'Admin';
+  document.getElementById('userAvatar').textContent = (meta.principal_name||'A').slice(0,1);
+  document.getElementById('instNameSidebar').textContent = meta.institution_name || 'আপনার প্রতিষ্ঠান';
+
+  const { data: inst } = await sb.from('institutions').select('*').eq('email', session.user.email).maybeSingle();
+  if(inst){
+    currentInstitution = inst;
+    document.getElementById('instNameSidebar').textContent = inst.name;
+    loadTeachers();
+    loadClasses();
+    loadSubjects();
+    loadTeacherClassSubjects();
+  } else {
+    document.getElementById('emptyState').innerHTML = `
+      <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z"/><path d="M12 10v4M12 17.5h.01"/></svg>️</div>
+      <h3>প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</h3>
+      <p>আপনার account এ প্রতিষ্ঠানের তথ্য সংযুক্ত নেই।</p>
+    `;
+  }
+}
+
+async function loadTeachers(){
+  if(!currentInstitution) return;
+  const { data, error } = await sb.from('teachers').select('*').eq('institution_id', currentInstitution.id).order('created_at',{ascending:false});
+  if(error){ console.error(error); return; }
+  allTeachers = data || [];
+  renderTeachers(allTeachers);
+  updateStats();
+}
+
+async function loadClasses(){
+  if(!currentInstitution) return;
+  const { data, error } = await sb.from('classes').select('*').eq('institution_id', currentInstitution.id);
+  if(error){ console.error(error); return; }
+  allClasses = data || [];
+  renderTeachers(allTeachers); // re-render so class names show up once classes load
+  updateStats();
+}
+
+let allSubjects = [];
+async function loadSubjects(){
+  const { data, error } = await sb.from('class_subjects').select('*');
+  if(error){ console.error(error); return; }
+  allSubjects = data || [];
+}
+
+function subjectsForClass(classId){
+  return allSubjects.filter(s=>s.class_id===classId);
+}
+
+let allTeacherClassSubjects = [];
+async function loadTeacherClassSubjects(){
+  if(!currentInstitution) return;
+  const { data, error } = await sb.from('teacher_class_subjects').select('*');
+  if(error){ console.error(error); return; }
+  allTeacherClassSubjects = data || [];
+}
+
+const COMMON_DESIGNATIONS = ['প্রধান শিক্ষক/পরিচালক','সহকারী শিক্ষক','অফিস সহকারী','হিসাবরক্ষক','লাইব্রেরিয়ান','দারোয়ান','পিয়ন','আয়া','রাঁধুনি','ড্রাইভার'];
+const MADRASHA_DESIGNATIONS = ['হিফজ শিক্ষক','ক্বারী','মুহাদ্দিস','মুফতি','ইমাম','মুয়াজ্জিন'];
+let designationExpanded = false;
+
+function buildDesignationChips(values){
+  return values.map(v=>`<button type="button" class="chip-btn" data-val="${v}" onclick="selectSingleChip(this,'designationGrid','fDesignationOther')">${v}</button>`).join('')
+    + `<button type="button" class="chip-btn" data-val="অন্য" onclick="selectSingleChip(this,'designationGrid','fDesignationOther')">অন্য</button>`;
+}
+
+function renderDesignationChips(forceExpand){
+  const grid = document.getElementById('designationGrid');
+  const moreWrap = document.getElementById('moreDesignationWrap');
+  const instType = currentInstitution ? currentInstitution.institution_type : null;
+
+  designationExpanded = !!forceExpand;
+
+  if(instType === 'মাদ্রাসা'){
+    // Madrasha institutions see everything directly, no need to hide anything
+    grid.innerHTML = buildDesignationChips([...COMMON_DESIGNATIONS, ...MADRASHA_DESIGNATIONS]);
+    moreWrap.style.display = 'none';
+  } else if(designationExpanded){
+    grid.innerHTML = buildDesignationChips([...COMMON_DESIGNATIONS, ...MADRASHA_DESIGNATIONS]);
+    moreWrap.style.display = 'none';
+  } else {
+    // School/college/coaching, or unknown type: show common only, with an option to reveal more
+    grid.innerHTML = buildDesignationChips(COMMON_DESIGNATIONS);
+    moreWrap.style.display = 'block';
+  }
+}
+
+function showMoreDesignations(){
+  const currentVal = getChipValue('designationGrid','fDesignationOther');
+  renderDesignationChips(true);
+  if(currentVal) setChipValue('designationGrid','fDesignationOther', currentVal);
+}
+
+function classesForTeacher(teacherId){
+  const primaryNames = allClasses.filter(c=>c.teacher_id===teacherId).map(c=>c.name);
+  const additionalNames = allTeacherClassSubjects.filter(r=>r.teacher_id===teacherId).map(r=>{
+    const cls = allClasses.find(c=>c.id===r.class_id);
+    return cls ? (r.subject_name ? `${cls.name} (${r.subject_name})` : cls.name) : null;
+  }).filter(Boolean);
+  return [...new Set([...primaryNames, ...additionalNames])];
+}
+
+function updateStats(){
+  const total = allTeachers.length;
+  const active = allTeachers.filter(t=>t.is_active).length;
+  const classesCovered = new Set(allClasses.filter(c=>c.teacher_id).map(c=>c.name));
+  const totalSalary = allTeachers.reduce((sum,t)=> sum + (parseFloat(t.monthly_salary)||0), 0);
+  document.getElementById('totalTeachers').textContent = total;
+  document.getElementById('activeTeachers').textContent = active;
+  document.getElementById('totalClassesCovered').textContent = classesCovered.size;
+  document.getElementById('totalSalary').textContent = '৳' + Math.round(totalSalary).toLocaleString('en-IN');
+}
+
+function renderTeachers(list){
+  const grid = document.getElementById('teacherGrid');
+  if(!list.length){
+    grid.innerHTML = `<div class="empty-state" id="emptyState">
+      <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg>‍<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg></div>
+      <h3>কোনো শিক্ষক পাওয়া যায়নি</h3>
+      <p>প্রথম শিক্ষক যোগ করে শুরু করুন</p>
+      <button class="btn-add" onclick="openModal()" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg> নতুন শিক্ষক যোগ করুন</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = list.map(t=>{
+    const initial = (t.full_name||'?').slice(0,1);
+    const myClasses = classesForTeacher(t.id);
+    const classText = myClasses.length ? myClasses.join(', ') : 'নিযুক্ত করা হয়নি';
+    const primaryClassObj = allClasses.find(c=>c.id===t.primary_class_id);
+    const primaryLabel = primaryClassObj ? (primaryClassObj.name + (t.primary_subject ? (' — '+t.primary_subject) : '')) : null;
+    return `<div class="teacher-card">
+      <div class="tc-top">
+        <div class="tc-avatar">${escapeHtml(initial)}</div>
+        <div>
+          <div class="tc-name">${escapeHtml(t.full_name)}</div>
+          <div class="tc-meta">${escapeHtml(t.teacher_code||'-')}</div>
+        </div>
+        <div class="tc-status ${t.is_active?'active':'inactive'}">${t.is_active?'সক্রিয়':'নিষ্ক্রিয়'}</div>
+      </div>
+      <div class="tc-details">
+        <div class="tc-detail-row"><span class="tc-detail-label">পদবি</span><span class="tc-detail-val">${escapeHtml(t.designation||'-')}</span></div>
+        ${primaryLabel ? `<div class="tc-detail-row"><span class="tc-detail-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9z"/><path d="M9.5 17a2.5 2.5 0 0 0 5 0"/></svg> প্রথম ক্লাস</span><span class="tc-detail-val">${escapeHtml(primaryLabel)}</span></div>` : ''}
+        <div class="tc-detail-row"><span class="tc-detail-label">সব ক্লাস</span><span class="tc-detail-val">${escapeHtml(classText)}</span></div>
+        <div class="tc-detail-row"><span class="tc-detail-label">ফোন</span><span class="tc-detail-val">${escapeHtml(t.phone||'-')}</span></div>
+        <div class="tc-detail-row"><span class="tc-detail-label">মাসিক হাদিয়া</span><span class="tc-detail-val">৳${Math.round(t.monthly_salary||0).toLocaleString('en-IN')}</span></div>
+      </div>
+      <div class="tc-actions">
+        <button class="tc-btn" onclick="openEditModal('${t.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>️ Edit</button>
+        <button class="tc-btn primary" onclick="openClassWizard('${t.id}','${escapeHtml(t.full_name)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg> Class Setup</button>
+        <button class="tc-btn ${t.is_active?'danger':''}" onclick="toggleActive('${t.id}', ${!t.is_active})">${t.is_active?'⏸ নিষ্ক্রিয় করুন':'▶️ সক্রিয় করুন'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterTeachers(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const status = document.getElementById('statusFilter').value;
+  let filtered = allTeachers;
+  if(q){
+    filtered = filtered.filter(t =>
+      (t.full_name||'').toLowerCase().includes(q) ||
+      (t.designation||'').toLowerCase().includes(q) ||
+      classesForTeacher(t.id).join(' ').toLowerCase().includes(q)
+    );
+  }
+  if(status === 'active') filtered = filtered.filter(t=>t.is_active);
+  if(status === 'inactive') filtered = filtered.filter(t=>!t.is_active);
+  renderTeachers(filtered);
+}
+
+function selectSingleChip(btn, gridId, otherInputId){
+  document.querySelectorAll('#'+gridId+' .chip-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const otherInput = document.getElementById(otherInputId);
+  if(btn.dataset.val === 'অন্য'){
+    otherInput.style.display = 'block';
+    otherInput.focus();
+  } else {
+    otherInput.style.display = 'none';
+    otherInput.value = '';
+  }
+}
+
+function getChipValue(gridId, otherInputId){
+  const selected = document.querySelector('#'+gridId+' .chip-btn.selected');
+  if(!selected) return '';
+  if(selected.dataset.val === 'অন্য') return document.getElementById(otherInputId).value.trim();
+  return selected.dataset.val;
+}
+
+function setChipValue(gridId, otherInputId, value){
+  document.querySelectorAll('#'+gridId+' .chip-btn').forEach(b=>b.classList.remove('selected'));
+  const otherInput = document.getElementById(otherInputId);
+  otherInput.style.display = 'none';
+  otherInput.value = '';
+  if(!value) return;
+  const match = document.querySelector(`#${gridId} .chip-btn[data-val="${value}"]`);
+  if(match){
+    match.classList.add('selected');
+  } else {
+    const otherBtn = document.querySelector(`#${gridId} .chip-btn[data-val="অন্য"]`);
+    if(otherBtn) otherBtn.classList.add('selected');
+    otherInput.style.display = 'block';
+    otherInput.value = value;
+  }
+}
+
+let additionalRows = []; // [{ rowId, classId, subject }]
+let rowIdCounter = 0;
+
+function getUsedSubjectsForClass(classId, excludeRowId){
+  const primaryId = document.getElementById('fPrimaryClass').value;
+  const primarySubject = document.getElementById('fPrimarySubject').value;
+  const used = [];
+  if(primaryId === classId && primarySubject) used.push(primarySubject);
+  additionalRows.forEach(r=>{
+    if(r.rowId !== excludeRowId && r.classId === classId && r.subject) used.push(r.subject);
+  });
+  return used;
+}
+
+function renderAdditionalClassRows(){
+  const container = document.getElementById('additionalClassRows');
+  if(!additionalRows.length){
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = additionalRows.map(row=>{
+    const allSubjectsForRowClass = row.classId ? subjectsForClass(row.classId) : [];
+    const usedSubjects = row.classId ? getUsedSubjectsForClass(row.classId, row.rowId) : [];
+    const subjects = allSubjectsForRowClass.filter(s => !usedSubjects.includes(s.subject_name) || s.subject_name === row.subject);
+    return `<div class="add-class-row" data-row-id="${row.rowId}">
+      <div style="flex:1">
+        <select onchange="onAdditionalRowClassChange('${row.rowId}', this.value)">
+          <option value="">ক্লাস নির্বাচন করুন</option>
+          ${allClasses.map(c=>`<option value="${c.id}" ${c.id===row.classId?'selected':''}>${escapeHtml(c.section ? c.name+' ('+c.section+')' : c.name)}</option>`).join('')}
+        </select>
+        ${row.classId ? `<select class="add-subject-select" onchange="onAdditionalRowSubjectChange('${row.rowId}', this.value)">
+          <option value="">কোন বিষয় পড়াবেন?</option>
+          ${subjects.map(s=>`<option value="${escapeHtml(s.subject_name)}" ${s.subject_name===row.subject?'selected':''}>${escapeHtml(s.subject_name)}${(s.start_time&&s.end_time)?' ('+s.start_time+'-'+s.end_time+')':''}</option>`).join('')}
+        </select>${!subjects.length ? '<div class="form-hint">এই ক্লাসে নতুন কোনো বিষয় বাকি নেই বা এখনো বিষয় যুক্ত করা হয়নি — ক্লাস ব্যবস্থাপনা পেজে গিয়ে যুক্ত করুন।</div>' : ''}` : ''}
+      </div>
+      <button type="button" class="rm-row-btn" onclick="removeAdditionalClassRow('${row.rowId}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>`;
+  }).join('');
+}
+
+function addAdditionalClassRow(){
+  additionalRows.push({ rowId: 'row'+(++rowIdCounter), classId: '', subject: '' });
+  renderAdditionalClassRows();
+}
+
+function removeAdditionalClassRow(rowId){
+  additionalRows = additionalRows.filter(r=>r.rowId!==rowId);
+  renderAdditionalClassRows();
+}
+
+function onAdditionalRowClassChange(rowId, classId){
+  const row = additionalRows.find(r=>r.rowId===rowId);
+  if(row){ row.classId = classId; row.subject = ''; }
+  renderAdditionalClassRows();
+}
+
+function onAdditionalRowSubjectChange(rowId, subject){
+  const row = additionalRows.find(r=>r.rowId===rowId);
+  if(row) row.subject = subject;
+}
+
+function getAdditionalClassSubjectPairs(){
+  return additionalRows.filter(r=>r.classId).map(r=>({ class_id: r.classId, subject_name: r.subject || null }));
+}
+
+function populatePrimaryClassOptions(selectedId){
+  const sel = document.getElementById('fPrimaryClass');
+  sel.innerHTML = '<option value="">নির্বাচন করুন (ঐচ্ছিক — যদি ক্লাস পড়ান)</option>' +
+    allClasses.map(c=>`<option value="${c.id}">${escapeHtml(c.section ? c.name+' ('+c.section+')' : c.name)}</option>`).join('');
+  sel.value = selectedId || '';
+}
+
+function onPrimaryClassChange(){
+  const classId = document.getElementById('fPrimaryClass').value;
+  const subjectWrap = document.getElementById('primarySubjectWrap');
+  const moreWrap = document.getElementById('moreClassesWrap');
+  const subjectSel = document.getElementById('fPrimarySubject');
+  const noSubjectHint = document.getElementById('noSubjectHint');
+
+  moreWrap.style.display = 'none';
+
+  if(!classId){
+    subjectWrap.style.display = 'none';
+    renderAdditionalClassRows();
+    return;
+  }
+
+  const subjects = subjectsForClass(classId);
+  subjectSel.innerHTML = '<option value="">নির্বাচন করুন</option>' + subjects.map(s=>`<option value="${escapeHtml(s.subject_name)}">${escapeHtml(s.subject_name)}${(s.start_time&&s.end_time)?' ('+s.start_time+'-'+s.end_time+')':''}</option>`).join('');
+  noSubjectHint.style.display = subjects.length ? 'none' : 'block';
+  subjectWrap.style.display = 'block';
+  subjectWrap.classList.remove('reveal-field');
+  requestAnimationFrame(()=>subjectWrap.classList.add('reveal-field'));
+
+  renderAdditionalClassRows();
+}
+
+function onPrimarySubjectChange(){
+  const moreWrap = document.getElementById('moreClassesWrap');
+  moreWrap.style.display = 'block';
+  moreWrap.classList.remove('reveal-field');
+  requestAnimationFrame(()=>moreWrap.classList.add('reveal-field'));
+  renderAdditionalClassRows();
+}
+
+function openModal(){
+  editTeacherId = null;
+  document.getElementById('modalTitle').textContent = 'নতুন শিক্ষক/স্টাফ যোগ করুন';
+  document.getElementById('fFullName').value = '';
+  document.getElementById('fPhone').value = '';
+  renderDesignationChips(false);
+  document.getElementById('fSalary').value = '';
+  populatePrimaryClassOptions('');
+  document.getElementById('primarySubjectWrap').style.display = 'none';
+  document.getElementById('moreClassesWrap').style.display = 'none';
+  additionalRows = [];
+  renderAdditionalClassRows();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function openEditModal(id){
+  const t = allTeachers.find(x=>x.id===id);
+  if(!t) return;
+  editTeacherId = id;
+  document.getElementById('modalTitle').textContent = 'শিক্ষক/স্টাফের তথ্য সম্পাদনা';
+  document.getElementById('fFullName').value = t.full_name||'';
+  document.getElementById('fPhone').value = t.phone||'';
+  const isMadrashaDesignation = MADRASHA_DESIGNATIONS.includes(t.designation);
+  renderDesignationChips(isMadrashaDesignation);
+  setChipValue('designationGrid','fDesignationOther', t.designation||'');
+  document.getElementById('fSalary').value = t.monthly_salary||'';
+
+  const primaryClassId = t.primary_class_id || '';
+  populatePrimaryClassOptions(primaryClassId);
+
+  const existingPairs = allTeacherClassSubjects.filter(r=>r.teacher_id===t.id);
+  additionalRows = existingPairs.map(r=>({ rowId: 'row'+(++rowIdCounter), classId: r.class_id, subject: r.subject_name || '' }));
+
+  if(primaryClassId){
+    const subjects = subjectsForClass(primaryClassId);
+    const subjectSel = document.getElementById('fPrimarySubject');
+    subjectSel.innerHTML = '<option value="">নির্বাচন করুন</option>' + subjects.map(s=>`<option value="${escapeHtml(s.subject_name)}">${escapeHtml(s.subject_name)}${(s.start_time&&s.end_time)?' ('+s.start_time+'-'+s.end_time+')':''}</option>`).join('');
+    subjectSel.value = t.primary_subject || '';
+    document.getElementById('noSubjectHint').style.display = subjects.length ? 'none' : 'block';
+    document.getElementById('primarySubjectWrap').style.display = 'block';
+    document.getElementById('moreClassesWrap').style.display = 'block';
+  } else {
+    document.getElementById('primarySubjectWrap').style.display = 'none';
+    document.getElementById('moreClassesWrap').style.display = additionalRows.length ? 'block' : 'none';
+  }
+  renderAdditionalClassRows();
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+async function syncTeacherPrimaryClass(teacherId, primaryClassId){
+  // Clear teacher_id from any class previously marked primary for this teacher, then set the new one
+  const previousPrimaryIds = allClasses.filter(c=>c.teacher_id===teacherId).map(c=>c.id);
+  const toClear = previousPrimaryIds.filter(id => id !== primaryClassId);
+  if(toClear.length){
+    await sb.from('classes').update({ teacher_id: null }).in('id', toClear);
+  }
+  if(primaryClassId){
+    await sb.from('classes').update({ teacher_id: teacherId }).eq('id', primaryClassId);
+  }
+}
+
+async function syncAdditionalClassSubjects(teacherId, pairs){
+  // Upsert only — never delete existing rows (wizard/teacher-side saves must not be wiped)
+  if(pairs.length){
+    const rows = pairs.map(p=>({ teacher_id: teacherId, class_id: p.class_id, subject_name: p.subject_name }));
+    const { error } = await sb.from('teacher_class_subjects').upsert(rows, {onConflict:'teacher_id,class_id,subject_name'});
+    // fallback: insert individually ignoring duplicates if constraint missing
+    if(error){
+      for(const row of rows){
+        await sb.from('teacher_class_subjects').insert(row).then(()=>{}).catch(()=>{});
+      }
+    }
+  }
+}
+
+async function saveTeacher(){
+  const fullName = document.getElementById('fFullName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const designation = getChipValue('designationGrid','fDesignationOther');
+  const salary = parseFloat(document.getElementById('fSalary').value) || 0;
+  const primaryClassId = document.getElementById('fPrimaryClass').value || null;
+  const primarySubject = document.getElementById('fPrimarySubject').value || null;
+  const additionalPairs = getAdditionalClassSubjectPairs();
+
+  if(!fullName || !phone){
+    showToast('error','তথ্য অসম্পূর্ণ','নাম ও ফোন নম্বর আবশ্যক।');
+    return;
+  }
+  if(!/^01[0-9]{9}$/.test(phone)){
+    showToast('error','ফোন নম্বর ভুল','সঠিক ফোন নম্বর দিন (01XXXXXXXXX)।');
+    return;
+  }
+
+  const btn = document.getElementById('saveBtn');
+  btn.classList.add('loading');
+
+  try{
+    if(editTeacherId){
+      // EDIT existing teacher (no login changes)
+      const { error } = await sb.from('teachers').update({
+        full_name: fullName, phone, designation,
+        monthly_salary: salary,
+        primary_class_id: primaryClassId, primary_subject: primarySubject
+      }).eq('id', editTeacherId);
+      if(error) throw error;
+
+      await syncTeacherPrimaryClass(editTeacherId, primaryClassId);
+      await syncAdditionalClassSubjects(editTeacherId, additionalPairs);
+
+      btn.classList.remove('loading');
+      closeModal();
+      showToast('success','আপডেট হয়েছে','শিক্ষক/স্টাফের তথ্য সফলভাবে আপডেট হয়েছে।');
+      await loadClasses();
+      await loadTeacherClassSubjects();
+      loadTeachers();
+
+    } else {
+      // CREATE new teacher: generate 5-digit Teacher ID, synthetic email, auth account (password = phone number), then teachers row
+      const { data: codeData, error: codeErr } = await sb.rpc('next_teacher_id');
+      if(codeErr) throw codeErr;
+      const teacherCode = codeData;
+      const syntheticEmail = teacherCode + '@protishthan-teacher.internal';
+
+      const { data: authData, error: authError } = await sb.auth.signUp({
+        email: syntheticEmail, password: phone,
+        options:{ data:{ role:'teacher', teacher_code: teacherCode, full_name: fullName } }
+      });
+      if(authError) throw authError;
+
+      const { data: newTeacher, error: insertErr } = await sb.from('teachers').insert({
+        institution_id: currentInstitution.id,
+        user_id: authData.user ? authData.user.id : null,
+        teacher_code: teacherCode,
+        full_name: fullName, phone, designation,
+        monthly_salary: salary,
+        primary_class_id: primaryClassId, primary_subject: primarySubject,
+        email: syntheticEmail, is_active: true
+      }).select().single();
+      if(insertErr) throw insertErr;
+
+      if(newTeacher){
+        await syncTeacherPrimaryClass(newTeacher.id, primaryClassId);
+        await syncAdditionalClassSubjects(newTeacher.id, additionalPairs);
+      }
+
+      btn.classList.remove('loading');
+      closeModal();
+      document.getElementById('credTeacherId').textContent = teacherCode;
+      document.getElementById('credPassword').textContent = phone;
+      document.getElementById('credModalOverlay').classList.add('show');
+      await loadClasses();
+      await loadTeacherClassSubjects();
+      loadTeachers();
+    }
+  }catch(e){
+    btn.classList.remove('loading');
+    showToast('error','সমস্যা হয়েছে', e.message || 'অজানা সমস্যা।');
+  }
+}
+
+
+async function toggleActive(id, newStatus){
+  try{
+    const { error } = await sb.from('teachers').update({ is_active: newStatus }).eq('id', id);
+    if(error) throw error;
+    loadTeachers();
+  }catch(e){
+    showToast('error','সমস্যা হয়েছে', e.message);
+  }
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+init();
+</script>
+
+<!-- ══════════ CLASS SETUP WIZARD ══════════ -->
+<div class="cw-overlay" id="cwOverlay">
+  <div class="cw-card">
+
+    <!-- Head -->
+    <div class="cw-head">
+      <div class="cw-teacher-badge">
+        <div class="cw-avatar" id="cwAvatar">?</div>
+        <div>
+          <div class="cw-teacher-name" id="cwTeacherName">—</div>
+          <div class="cw-teacher-sub" id="cwTeacherSub">Class Setup</div>
+        </div>
+      </div>
+      <button class="cw-close" onclick="closeClassWizard()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <!-- Progress -->
+    <div class="cw-progress">
+      <div class="cw-prog-bar"><div class="cw-prog-fill" id="cwProgFill" style="width:10%"></div></div>
+      <div class="cw-prog-label" id="cwProgLabel">ধাপ ১</div>
+    </div>
+
+    <!-- Body: Steps -->
+    <div class="cw-body">
+
+      <!-- Step 1: Class select/input -->
+      <div class="cw-step active" id="cwStep1">
+        <div class="cw-q" id="cwStep1Q">আপনি কোন ক্লাসের প্রথম শিক্ষক?</div>
+        <div class="cw-hint" id="cwStep1Hint">এই ক্লাসের attendance ও রুটিনে আপনি প্রথমে দেখাবেন।</div>
+        <!-- Case A: dropdown -->
+        <select class="cw-select" id="cwClassSelect" style="display:none">
+          <option value="">ক্লাস নির্বাচন করুন…</option>
+        </select>
+        <!-- Case B: text -->
+        <input type="text" class="cw-input" id="cwClassInput" placeholder="যেমন: ৬ষ্ঠ শ্রেণী" style="display:none">
+        <div style="margin-top:10px;font-size:12px;color:var(--text-3)" id="cwClassExistNote" style="display:none"></div>
+      </div>
+
+      <!-- Step 2: Subjects -->
+      <div class="cw-step" id="cwStep2">
+        <div class="cw-q">এই ক্লাসে আপনি কোন Subject পড়ান?</div>
+        <div class="cw-hint">একাধিক Subject থাকলে সবগুলো যোগ করুন।</div>
+        <div class="cw-subject-list" id="cwSubjectList"></div>
+        <button class="cw-add-subject-btn" onclick="cwAddSubjectRow()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M12 8v8M8 12h8"/></svg>
+          আরো Subject যোগ করুন
+        </button>
+      </div>
+
+      <!-- Step 3: Time -->
+      <div class="cw-step" id="cwStep3">
+        <div class="cw-q" id="cwStep3Q">এই ক্লাসের সময় কত?</div>
+        <div class="cw-hint">ক্লাস শুরু ও শেষের সময় দিন।</div>
+        <div class="cw-time-grid">
+          <div>
+            <div class="cw-time-label">শুরুর সময়</div>
+            <input type="time" class="cw-input" id="cwStartTime">
+          </div>
+          <div>
+            <div class="cw-time-label">শেষের সময়</div>
+            <input type="time" class="cw-input" id="cwEndTime">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: More classes? -->
+      <div class="cw-step" id="cwStep4">
+        <div class="cw-q" id="cwStep4Q">আপনি কি আরো কোনো ক্লাসে পড়ান?</div>
+        <div class="cw-hint" id="cwStep4Hint"></div>
+        <div class="cw-yn-row">
+          <button class="cw-yn-btn" id="cwYesBtn" onclick="cwYesMore()">
+            <div style="font-size:22px;margin-bottom:4px">📚</div>
+            হ্যাঁ, আরো ক্লাস আছে
+          </button>
+          <button class="cw-yn-btn" id="cwNoBtn" onclick="cwNoMore()">
+            <div style="font-size:22px;margin-bottom:4px">✅</div>
+            না, এটাই শেষ
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 5: Summary -->
+      <div class="cw-step" id="cwStep5">
+        <div class="cw-q">সব ঠিক আছে?</div>
+        <div class="cw-hint">নিচে আপনার দেওয়া তথ্য দেখুন। Save করলে সব পেজে আপডেট হয়ে যাবে।</div>
+        <div class="cw-summary" id="cwSummary"></div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="cw-footer">
+      <button class="cw-btn-back" id="cwBackBtn" onclick="cwBack()">← পেছনে</button>
+      <button class="cw-btn-next" id="cwNextBtn" onclick="cwNext()">
+        <span id="cwNextLabel">পরবর্তী →</span>
+        <div class="cw-saving-spin" id="cwSpin"></div>
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- ══════════ END CLASS WIZARD ══════════ -->
+
+<div class="bottom-nav">
+  <a class="bnav-item" href="dashboard.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="bnav-label">Dashboard</span></a>
+  <a class="bnav-item" href="attendance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><span class="bnav-label">উপস্থিতি</span></a>
+  <a class="bnav-item" href="students.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4-9 4-9-4 9-4z"/><path d="M7 11v5c0 1.5 2.5 3 5 3s5-1.5 5-3v-5"/></svg></span><span class="bnav-label">শিক্ষার্থী</span></a>
+  <a class="bnav-item" href="finance.html"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="bnav-label">হিসাব</span></a>
+  <button class="bnav-item" onclick="openMoreSheet()" type="button"><span class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span class="bnav-label">মেনু</span></button>
+</div>
+
+<div class="more-sheet-overlay" id="moreSheetOverlay">
+  <div class="more-sheet">
+    <div class="more-sheet-handle"></div>
+    <div class="more-sheet-title">সব মেনু</div>
+    <div class="more-sheet-grid">
+      <a class="more-sheet-item" href="dashboard.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div><div class="more-sheet-label">ড্যাশবোর্ড</div></a>
+      <a class="more-sheet-item" href="attendance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></div><div class="more-sheet-label">উপস্থিতি</div></a>
+      <a class="more-sheet-item" href="students.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="more-sheet-label">শিক্ষার্থী</div></a>
+      <a class="more-sheet-item" href="guardians.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 20c0-2.6-1.7-4.6-4-5.3"/></svg></div><div class="more-sheet-label">অভিভাবক</div></a>
+      <a class="more-sheet-item" href="teachers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5"/></svg></div><div class="more-sheet-label">শিক্ষক/স্টাফ</div></a>
+      <a class="more-sheet-item" href="teacher-tracking.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 1 8 8c0 5.25-8 13-8 13S4 15.25 4 10a8 8 0 0 1 8-8z"/></svg></div><div class="more-sheet-label">Track</div></a>
+      <a class="more-sheet-item" href="classes.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6M9 11h1M9 7h1M14 11h1M14 7h1"/></svg></div><div class="more-sheet-label">ক্লাস</div></a>
+      <a class="more-sheet-item" href="syllabus.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h13.4"/><path d="M8 3v16M16 17h2a2 2 0 0 0 0-4h-2"/><path d="M16 8h2a2 2 0 0 0 0-4h-2"/></svg></div><div class="more-sheet-label">সিলেবাস</div></a>
+      <a class="more-sheet-item" href="exam.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3l1-2z"/><path d="M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">পরীক্ষা ও Result</div></a>
+      <a class="more-sheet-item" href="classroom.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="more-sheet-label">অনলাইন ক্লাস</div></a>
+      <a class="more-sheet-item" href="calendar.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M7.5 13.5h1v1h-1zM11.5 13.5h1v1h-1zM15.5 13.5h1v1h-1z"/></svg></div><div class="more-sheet-label">কালেন্ডার</div></a>
+      <a class="more-sheet-item" href="routine.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M9 4v5M15 4v5M9 14h6M9 18h4"/></svg></div><div class="more-sheet-label">ক্লাস রুটিন</div></a>
+      <a class="more-sheet-item" href="finance.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2M10 15h4"/></svg></div><div class="more-sheet-label">হিসাব বিভাগ</div></a>
+      <a class="more-sheet-item" href="vouchers.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-2-1.3L14 21l-2-1.3L10 21l-2-1.3L6 21z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div><div class="more-sheet-label">ভাউচার</div></a>
+      <a class="more-sheet-item" href="website.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 20h20M8 17v3M16 17v3"/></svg></div><div class="more-sheet-label">Website</div></a>
+      <a class="more-sheet-item" href="chat.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="more-sheet-label">Chat</div></a>
+      <a class="more-sheet-item" href="public-page.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9z"/></svg></div><div class="more-sheet-label">Public Page</div></a>
+      <a class="more-sheet-item" href="settings.html"><div class="more-sheet-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 12.9a7.6 7.6 0 0 0 0-1.8l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.5-.9L15 3.6H9l-.5 2.7a7.6 7.6 0 0 0-1.5.9l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 1.8l-2 1.5 2 3.4 2.4-1c.45.36.96.66 1.5.9L9 20.4h6l.5-2.7c.54-.24 1.05-.54 1.5-.9l2.4 1 2-3.4z"/></svg></div><div class="more-sheet-label">Settings</div></a>
+    </div>
+  </div>
+</div>
+<script>
+function openMoreSheet(){ document.getElementById('moreSheetOverlay').classList.add('show'); }
+function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList.remove('show'); }
+
+/* ══════════════════════════════════════
+   CLASS SETUP WIZARD
+══════════════════════════════════════ */
+const CW = {
+  teacherId: null,
+  teacherName: '',
+  caseB: false,          // true = no pre-existing classes
+  entries: [],           // [{classId, className, subjects:['বাংলা',...], startTime, endTime}]
+  currentEntry: null,    // entry being built right now
+  currentStep: 1,
+  isFirstClass: true,    // tracks whether this is Q1 or subsequent loops
+};
+
+function openClassWizard(tid, tname){
+  CW.teacherId = tid;
+  CW.teacherName = tname;
+  CW.entries = [];
+  CW.currentEntry = null;
+  CW.currentStep = 1;
+  CW.isFirstClass = true;
+
+  // Detect Case A vs B
+  CW.caseB = allClasses.length === 0;
+
+  // Set teacher badge
+  document.getElementById('cwAvatar').textContent = (tname||'?').slice(0,1);
+  document.getElementById('cwTeacherName').textContent = tname;
+  document.getElementById('cwTeacherSub').textContent = CW.caseB ? 'নতুন ক্লাস তৈরি করবেন' : allClasses.length + 'টি ক্লাস উপলব্ধ';
+
+  cwSetupStep1(true);
+  cwGoStep(1);
+  document.getElementById('cwOverlay').classList.add('show');
+}
+
+function closeClassWizard(){
+  document.getElementById('cwOverlay').classList.remove('show');
+}
+
+function cwSetupStep1(isFirst){
+  const q = document.getElementById('cwStep1Q');
+  const hint = document.getElementById('cwStep1Hint');
+  const sel = document.getElementById('cwClassSelect');
+  const inp = document.getElementById('cwClassInput');
+
+  if(isFirst){
+    q.textContent = 'আপনি কোন ক্লাসের প্রথম শিক্ষক?';
+    hint.textContent = 'এই ক্লাসের attendance ও রুটিনে আপনি প্রথমে দেখাবেন।';
+  } else {
+    q.textContent = 'এরপর আপনি আর কোন ক্লাসে পড়ান?';
+    hint.textContent = 'পরবর্তী ক্লাস নির্বাচন করুন।';
+  }
+
+  if(CW.caseB){
+    sel.style.display = 'none';
+    inp.style.display = 'block';
+    inp.value = '';
+    inp.placeholder = 'যেমন: ৬ষ্ঠ শ্রেণী';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    sel.style.display = 'block';
+    // populate dropdown (exclude already selected)
+    const usedIds = CW.entries.map(e=>e.classId);
+    sel.innerHTML = '<option value="">ক্লাস নির্বাচন করুন…</option>' +
+      allClasses
+        .filter(c => !usedIds.includes(c.id))
+        .map(c=>`<option value="${c.id}">${escapeHtml(c.name+(c.section?' ('+c.section+')':''))}</option>`)
+        .join('');
+  }
+}
+
+function cwInitSubjects(){
+  const list = document.getElementById('cwSubjectList');
+  list.innerHTML = '';
+  cwAddSubjectRow();
+}
+
+function cwAddSubjectRow(){
+  const list = document.getElementById('cwSubjectList');
+  const idx = list.children.length;
+  const row = document.createElement('div');
+  row.className = 'cw-subject-row';
+  row.innerHTML = `
+    <input type="text" class="cw-input cw-subj-inp" placeholder="যেমন: গণিত" style="flex:1;margin:0">
+    ${idx > 0 ? `<button class="cw-remove-btn" onclick="this.parentElement.remove()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>` : ''}
+  `;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function cwGoStep(n){
+  CW.currentStep = n;
+  // hide all
+  document.querySelectorAll('.cw-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('cwStep'+n).classList.add('active');
+
+  // progress
+  const pct = {1:15, 2:40, 3:65, 4:80, 5:100}[n] || 15;
+  document.getElementById('cwProgFill').style.width = pct+'%';
+
+  const entryCount = CW.entries.length + 1;
+  const labels = {
+    1: `ক্লাস ${entryCount} — প্রশ্ন ১: ক্লাস`,
+    2: `ক্লাস ${entryCount} — প্রশ্ন ২: Subject`,
+    3: `ক্লাস ${entryCount} — প্রশ্ন ৩: সময়`,
+    4: 'আরো ক্লাস?',
+    5: 'চূড়ান্ত সারসংক্ষেপ'
+  };
+  document.getElementById('cwProgLabel').textContent = labels[n]||'';
+
+  // back/next labels
+  const backBtn = document.getElementById('cwBackBtn');
+  const nextBtn = document.getElementById('cwNextBtn');
+  const nextLabel = document.getElementById('cwNextLabel');
+
+  backBtn.style.display = (n === 1) ? 'none' : '';
+  nextBtn.style.display = (n === 4) ? 'none' : '';
+
+  if(n === 5) nextLabel.textContent = '✅ Save করুন';
+  else nextLabel.textContent = 'পরবর্তী →';
+
+  if(n === 2) cwInitSubjects();
+  if(n === 4) cwSetupStep4();
+  if(n === 5) cwBuildSummary();
+}
+
+function cwSetupStep4(){
+  const done = CW.currentEntry;
+  const className = done ? done.className : '';
+  document.getElementById('cwStep4Hint').textContent =
+    `"${className}" যোগ করা হয়েছে। আপনি কি আরো কোনো ক্লাসে পড়ান?`;
+}
+
+function cwYesMore(){
+  document.getElementById('cwYesBtn').classList.add('sel');
+  document.getElementById('cwNoBtn').classList.remove('sel','sel-no');
+  CW.isFirstClass = false;
+  cwSetupStep1(false);
+  setTimeout(()=>cwGoStep(1), 120);
+}
+
+function cwNoMore(){
+  document.getElementById('cwNoBtn').classList.add('sel-no');
+  document.getElementById('cwYesBtn').classList.remove('sel');
+  setTimeout(()=>cwGoStep(5), 120);
+}
+
+function cwBuildSummary(){
+  const html = CW.entries.map((e,i)=>`
+    <div class="cw-sum-card">
+      <div class="cw-sum-class">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg>
+        ${i===0?'<span style="font-size:10px;background:var(--blue);color:white;padding:1px 7px;border-radius:100px">১ম</span>':''} ${escapeHtml(e.className)}
+      </div>
+      ${e.subjects.map(s=>`
+        <div class="cw-sum-row">
+          <span class="cw-sum-badge">${escapeHtml(s)}</span>
+          ${e.startTime ? `<span style="color:var(--text-3)">${e.startTime} — ${e.endTime||'?'}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  document.getElementById('cwSummary').innerHTML = html;
+}
+
+function cwBack(){
+  if(CW.currentStep === 2) cwGoStep(1);
+  else if(CW.currentStep === 3) cwGoStep(2);
+  else if(CW.currentStep === 5) cwGoStep(4);
+}
+
+function cwNext(){
+  const step = CW.currentStep;
+
+  if(step === 1){
+    // Collect class
+    let classId = null, className = '';
+    if(CW.caseB){
+      className = document.getElementById('cwClassInput').value.trim();
+      if(!className){ alert('ক্লাসের নাম লিখুন'); return; }
+    } else {
+      classId = document.getElementById('cwClassSelect').value;
+      if(!classId){ alert('একটি ক্লাস নির্বাচন করুন'); return; }
+      const cls = allClasses.find(c=>c.id===classId);
+      className = cls ? (cls.name+(cls.section?' ('+cls.section+')':'')) : '';
+    }
+    CW.currentEntry = { classId, className, subjects:[], startTime:'', endTime:'' };
+    cwGoStep(2);
+  }
+
+  else if(step === 2){
+    // Collect subjects
+    const inputs = document.querySelectorAll('#cwSubjectList .cw-subj-inp');
+    const subjects = Array.from(inputs).map(i=>i.value.trim()).filter(Boolean);
+    if(!subjects.length){ alert('অন্তত একটি Subject লিখুন'); return; }
+    CW.currentEntry.subjects = subjects;
+    cwGoStep(3);
+  }
+
+  else if(step === 3){
+    // Collect times
+    CW.currentEntry.startTime = document.getElementById('cwStartTime').value;
+    CW.currentEntry.endTime = document.getElementById('cwEndTime').value;
+    CW.entries.push({...CW.currentEntry});
+    CW.currentEntry = null;
+    cwGoStep(4);
+  }
+
+  else if(step === 5){
+    cwSaveAll();
+  }
+}
+
+async function cwSaveAll(){
+  const nextBtn = document.getElementById('cwNextBtn');
+  const spin = document.getElementById('cwSpin');
+  const label = document.getElementById('cwNextLabel');
+  nextBtn.disabled = true;
+  spin.style.display = 'block';
+  label.textContent = 'সেভ হচ্ছে…';
+
+  try {
+    const instId = currentInstitution?.id;
+    if(!instId) throw new Error('Institution not found');
+
+    for(let i=0; i<CW.entries.length; i++){
+      const entry = CW.entries[i];
+      let classId = entry.classId;
+
+      // Case B: create class first
+      if(!classId){
+        const existing = allClasses.find(c=>c.name.trim()===entry.className.trim());
+        if(existing){
+          classId = existing.id;
+        } else {
+          const {data:newCls, error:clsErr} = await sb.from('classes').insert({
+            name: entry.className,
+            institution_id: instId
+          }).select().single();
+          if(clsErr) throw clsErr;
+          classId = newCls.id;
+          allClasses.push(newCls);
+        }
+      }
+
+      // Save each subject to class_subjects (with time)
+      for(const subj of entry.subjects){
+        await sb.from('class_subjects').upsert({
+          class_id: classId,
+          subject_name: subj,
+          start_time: entry.startTime || null,
+          end_time: entry.endTime || null
+        }, {onConflict:'class_id,subject_name'});
+
+        // Save teacher-class-subject mapping
+        await sb.from('teacher_class_subjects').upsert({
+          teacher_id: CW.teacherId,
+          class_id: classId,
+          subject_name: subj
+        }, {onConflict:'teacher_id,class_id,subject_name'});
+      }
+
+      // First entry = primary class
+      if(i === 0){
+        await sb.from('teachers').update({
+          primary_class_id: classId,
+          primary_subject: entry.subjects[0]
+        }).eq('id', CW.teacherId);
+
+        await sb.from('classes').update({
+          teacher_id: CW.teacherId
+        }).eq('id', classId);
+      }
+    }
+
+    // Reload data
+    await loadData();
+    closeClassWizard();
+
+  } catch(err){
+    console.error(err);
+    alert('সেভ করতে সমস্যা হয়েছে: ' + err.message);
+    nextBtn.disabled = false;
+    spin.style.display = 'none';
+    label.textContent = '✅ Save করুন';
+  }
+}
+
+// Close on backdrop click
+document.getElementById('cwOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeClassWizard();
+});
+(function(){
+  var ov = document.getElementById('moreSheetOverlay');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===this) closeMoreSheet(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1883 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Document — Protishthan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<!-- Bengali & Official Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@100..900&family=Noto+Sans+Bengali:wght@100..900&family=Tiro+Bangla:ital@0;1&family=Baloo+Da+2:wght@400;500;600;700;800&family=Anek+Bangla:wght@100..800&family=Mukta+Mahee:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
+<link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet">
+<link href="https://fonts.maateen.me/siyam-rupali/font.css" rel="stylesheet">
+<link href="https://fonts.maateen.me/nikosh/font.css" rel="stylesheet">
+<link href="https://fonts.maateen.me/mitra/font.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1d26;--surface:#222632;--surface-2:#2a2f40;--surface-3:#313749;
+  --border:#3a4060;--border-2:#4a5070;
+  --text:#e0e4f0;--text-2:#8a90a8;--text-3:#4a5070;
+  --blue:#4a80f0;--blue-bg:rgba(74,128,240,.13);
+  --gold:#e8a020;--gold-bg:rgba(232,160,32,.12);
+  --green:#3ab870;--green-bg:rgba(58,184,112,.1);
+  --purple:#9060f0;--purple-bg:rgba(144,96,240,.12);
+  --red:#e05555;--red-bg:rgba(224,85,85,.1);
+  --top-h:48px;--left-w:58px;--right-w:224px;
+}
+@media(prefers-color-scheme:light){
+  :root{--bg:#eceef8;--surface:#fff;--surface-2:#f4f6ff;--surface-3:#eceef8;--border:#d0d4e8;--border-2:#b8c0d8;--text:#141828;--text-2:#505870;--text-3:#a0a8c0;--blue:#2a60d0;--blue-bg:rgba(42,96,208,.09);--gold:#b07010;--gold-bg:rgba(176,112,16,.09);}
+}
+:root[data-theme=dark]{--bg:#1a1d26;--surface:#222632;--surface-2:#2a2f40;--surface-3:#313749;--border:#3a4060;--border-2:#4a5070;--text:#e0e4f0;--text-2:#8a90a8;--text-3:#4a5070;--blue:#4a80f0;--blue-bg:rgba(74,128,240,.13);--gold:#e8a020;--gold-bg:rgba(232,160,32,.12);}
+:root[data-theme=light]{--bg:#eceef8;--surface:#fff;--surface-2:#f4f6ff;--surface-3:#eceef8;--border:#d0d4e8;--border-2:#b8c0d8;--text:#141828;--text-2:#505870;--text-3:#a0a8c0;--blue:#2a60d0;--blue-bg:rgba(42,96,208,.09);--gold:#b07010;--gold-bg:rgba(176,112,16,.09);}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:13px;height:100dvh;overflow:hidden;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
+
+/* ── Topbar ── */
+.topbar{height:var(--top-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px;padding:0 10px;flex-shrink:0;z-index:100;overflow-x:auto;overflow-y:hidden}
+.topbar::-webkit-scrollbar{display:none}
+.tb-brand{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap;margin-right:4px}
+.tb-brand span{color:var(--blue)}
+.tb-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 2px}
+.tb-btn{padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:.12s;flex-shrink:0}
+.tb-btn:hover:not(:disabled){border-color:var(--blue);color:var(--text)}
+.tb-btn:disabled{opacity:.35;cursor:default}
+.tb-btn.gold{background:var(--gold-bg);border-color:var(--gold);color:var(--gold)}
+.tb-btn.green{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.tb-btn.blue{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.tb-btn.purple{background:var(--purple-bg);border-color:var(--purple);color:var(--purple)}
+.tb-spacer{flex:1;min-width:4px}
+.size-chips{display:flex;gap:3px;flex-shrink:0}
+.size-chip{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);font-size:11px;font-weight:800;color:var(--text-3);cursor:pointer;transition:.12s}
+.size-chip.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+.zoom-ctrl{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.zoom-val{font-size:11px;font-weight:700;color:var(--text-2);min-width:36px;text-align:center}
+.inst-badge{display:none;align-items:center;gap:5px;padding:3px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;flex-shrink:0}
+.inst-badge img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+.inst-badge-name{font-size:11px;font-weight:700;color:var(--text);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Context toolbar ── */
+.ctx-toolbar{height:36px;background:var(--surface);border-bottom:1px solid transparent;display:flex;align-items:center;gap:3px;padding:0 12px;flex-shrink:0;overflow-x:auto;visibility:hidden;pointer-events:none;}
+.ctx-toolbar.visible{visibility:visible;pointer-events:auto;border-bottom-color:var(--border);}
+.ctx-btn{padding:4px 8px;border-radius:5px;border:1px solid transparent;background:none;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.12s;white-space:nowrap;display:flex;align-items:center}
+.ctx-btn:hover{background:var(--surface-3);color:var(--text)}
+.ctx-btn.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.ctx-sep{width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0}
+.ctx-size{width:36px;padding:3px 5px;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;text-align:center;font-family:inherit;outline:none}
+.ctx-color{width:28px;height:24px;padding:2px;border:1px solid var(--border);border-radius:5px;cursor:pointer;background:var(--surface-2)}
+
+/* ── Main body ── */
+.main-body{flex:1;display:flex;overflow:hidden}
+
+/* ── Left palette ── */
+.left-panel{width:var(--left-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;flex-shrink:0;overflow-y:auto}
+.left-panel::-webkit-scrollbar{display:none}
+.pal-btn{width:42px;height:42px;border-radius:9px;border:1px solid transparent;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-family:inherit;color:var(--text-2);transition:.12s;font-size:10px;padding:0}
+.pal-btn:hover{background:var(--surface-3);color:var(--text);border-color:var(--border)}
+.pal-btn.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.pal-btn.danger:hover{color:var(--red);border-color:var(--red);background:var(--red-bg)}
+.pal-icon{font-size:16px;line-height:1}
+.pal-lbl{font-size:8px;font-weight:700;letter-spacing:.3px}
+.pal-sep{width:28px;height:1px;background:var(--border);margin:3px 0}
+
+/* ── Canvas area ── */
+.canvas-area{flex:1;overflow:auto;background:var(--bg);background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:20px 20px;}
+#stageWrap{display:inline-block;min-width:100%;min-height:100%;}
+#stage{display:flex;flex-direction:row;align-items:center;padding:200px 900px 600px;gap:72px;transform-origin:top left;position:relative;width:fit-content;}
+
+/* ── Paper ── */
+.page-sheet{box-shadow:0 6px 40px rgba(0,0,0,.4);border-radius:2px;position:relative;flex-shrink:0;overflow:hidden;transition:width .2s;background:#ffffff;cursor:default;}
+.page-sheet.A5{width:559px;min-height:794px}
+.page-sheet.A4{width:794px;min-height:1123px}
+.page-sheet.pg-active{outline:2px solid var(--blue);outline-offset:2px;}
+.page-label{text-align:center;color:var(--text-2);font-size:11px;font-weight:600;letter-spacing:.04em;margin-top:-60px;margin-bottom:0;user-select:none;pointer-events:none;}
+.page-col{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.page-add-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:2px dashed var(--border);border-radius:10px;color:var(--text-2);font-size:12px;font-family:inherit;cursor:pointer;width:56px;height:80px;transition:border-color .15s,color .15s,background .15s;flex-shrink:0;}
+.page-add-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(59,111,224,.06);}
+.paper-watermark{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;z-index:0}
+.paper-watermark img{max-width:60%;max-height:60%;object-fit:contain}
+
+/* ── Snap guides ── */
+.snap-h,.snap-v{position:absolute;background:var(--blue);pointer-events:none;z-index:200;display:none}
+.snap-h{left:0;right:0;height:1px}
+.snap-v{top:0;bottom:0;width:1px}
+
+/* ── Elements ── */
+.cd-el{position:absolute;cursor:move;touch-action:none}
+.cd-el.selected .el-inner{outline:2px solid var(--blue);outline-offset:1px}
+.el-inner{width:100%;height:100%;overflow:hidden;box-sizing:border-box;position:relative;z-index:1}
+.el-text-c{width:100%;height:100%;outline:none;word-break:break-word;white-space:pre-wrap;overflow:hidden;cursor:text;font-family:'SolaimanLipi','SulamanILipi','Noto Serif Bengali','Vrinda','Nirmala UI',serif}
+.el-text-c[contenteditable=true]{cursor:text;background:rgba(74,128,240,.04)}
+
+/* Data table */
+.el-tbl{width:100%;border-collapse:collapse;font-family:'SulamanILipi','Noto Serif Bengali',serif}
+.el-tbl th{padding:4px 6px;font-size:11px;font-weight:700;text-align:center;border:1px solid;cursor:pointer;position:relative;white-space:nowrap}
+.el-tbl td{padding:3px 6px;font-size:11px;border:1px solid;text-align:center}
+.col-field-chip{display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:rgba(255,255,255,.2);margin-left:3px;vertical-align:middle}
+.col-pick-hint{font-size:8px;opacity:.6;font-weight:400;display:block;font-style:italic}
+
+/* Resize handles */
+.rh-wrap{position:absolute;inset:-5px;pointer-events:none;z-index:50}
+.rh{position:absolute;width:10px;height:10px;background:white;border:2px solid var(--blue);border-radius:2px;pointer-events:all;z-index:51}
+.rh.nw{top:0;left:0;cursor:nwse-resize}.rh.n{top:0;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.rh.ne{top:0;right:0;cursor:nesw-resize}.rh.e{right:0;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.rh.se{bottom:0;right:0;cursor:nwse-resize}.rh.s{bottom:0;left:50%;transform:translateX(-50%);cursor:ns-resize}
+.rh.sw{bottom:0;left:0;cursor:nesw-resize}.rh.w{left:0;top:50%;transform:translateY(-50%);cursor:ew-resize}
+
+/* ── Right panel ── */
+.right-panel{width:var(--right-w);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.right-panel::-webkit-scrollbar{width:4px}
+.right-panel::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
+.rp-head{padding:11px 14px 9px;font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);flex-shrink:0}
+.rp-sec{padding:12px 14px;border-bottom:1px solid var(--border)}
+.rp-stitle{font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px}
+.rp-row{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.rp-lbl{font-size:11px;color:var(--text-2);min-width:46px;flex-shrink:0}
+.rp-inp{flex:1;padding:5px 7px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;min-width:0;transition:border-color .12s}
+.rp-inp:focus{border-color:var(--blue)}
+.rp-inp[type=color]{padding:2px 3px;height:28px;cursor:pointer;min-width:32px;flex:0 0 36px}
+.rp-inp[type=number]{-moz-appearance:textfield}
+.rp-inp[type=number]::-webkit-inner-spin-button{display:none}
+.rp-empty{padding:24px 16px;text-align:center;font-size:12px;color:var(--text-3);line-height:1.8}
+.rp-del{width:100%;padding:8px;border-radius:7px;border:1px solid var(--red);background:var(--red-bg);color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:2px;transition:.12s}
+.rp-del:hover{background:rgba(224,85,85,.2)}
+.seg-row{display:flex;gap:3px}
+.seg-btn{flex:1;padding:5px 4px;border-radius:5px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);font-size:11.5px;cursor:pointer;font-family:inherit;text-align:center;transition:.12s}
+.seg-btn.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+
+/* ── Modals ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:680px;width:100%;max-height:85dvh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.modal-title{font-size:15px;font-weight:800;flex:1}
+.modal-close{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-body{overflow-y:auto;padding:16px 20px;flex:1}.modal-body::-webkit-scrollbar{width:4px}.modal-body::-webkit-scrollbar-track{background:transparent}.modal-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:10px}.modal-body::-webkit-scrollbar-button{display:none}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
+.modal-sec-title{font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px}
+.tmpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.tmpl-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 12px;cursor:pointer;transition:.15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.tmpl-card:hover{border-color:var(--blue);background:var(--blue-bg);transform:translateY(-2px)}
+.tmpl-icon{font-size:28px;line-height:1}
+.tmpl-name{font-size:12px;font-weight:700;color:var(--text)}
+.tmpl-desc{font-size:10px;color:var(--text-3);line-height:1.4}
+.save-tmpl-row{display:flex;gap:8px;margin-bottom:16px}
+.save-tmpl-inp{flex:1;padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.save-tmpl-inp:focus{border-color:var(--blue)}
+.saved-tmpl-list{display:flex;flex-direction:column;gap:6px}
+.saved-tmpl-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.12s}
+.saved-tmpl-item:hover{border-color:var(--blue)}
+.saved-tmpl-item .del{margin-left:auto;color:var(--red);font-size:14px;padding:2px 6px;border-radius:4px}
+
+/* Repeat Print Modal */
+.rpt-field-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.rpt-field-preview{flex:1;font-size:11px;color:var(--text);background:var(--surface-3);padding:3px 7px;border-radius:5px;font-family:'SulamanILipi','Noto Serif Bengali',serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rpt-field-arrow{color:var(--text-3);font-size:12px;flex-shrink:0}
+.rpt-field-select{padding:5px 7px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:inherit;outline:none;min-width:120px}
+.rpt-field-select:focus{border-color:var(--blue)}
+
+/* Col field popup */
+.col-popup{display:none;position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:600;min-width:180px;overflow:hidden}
+.col-popup.open{display:block}
+.col-popup-head{padding:8px 12px;font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.col-popup-item{padding:8px 12px;font-size:12px;color:var(--text-2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:.1s}
+.col-popup-item:hover{background:var(--surface-3);color:var(--text)}
+.col-popup-item.active{color:var(--blue);background:var(--blue-bg)}
+.col-popup-src{padding:8px 12px 6px;font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:1px;text-transform:uppercase}
+
+/* Toast */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-size:12px;font-weight:600;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.3);opacity:0;transition:all .25s;z-index:700;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Loading overlay */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{color:white;font-size:14px;font-weight:600}
+
+/* Bottom bar */
+.bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--surface);border-top:1px solid var(--border);z-index:200;align-items:center;justify-content:space-around;padding:0 6px}
+.bb-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;border-radius:8px;border:none;background:none;color:var(--text-3);font-size:9px;font-weight:700;font-family:inherit;cursor:pointer;min-width:36px}
+.bb-btn .bbi{font-size:18px;line-height:1}
+.bb-btn.active{color:var(--blue)}
+
+/* Props sheet */
+.props-sheet{display:none;position:fixed;bottom:58px;left:0;right:0;background:var(--surface);border-top:2px solid var(--border);border-radius:16px 16px 0 0;padding:0 14px 16px;z-index:195;max-height:55dvh;overflow-y:auto;transform:translateY(100%);transition:transform .26s cubic-bezier(.32,.72,0,1)}
+.props-sheet.open{transform:translateY(0)}
+.ps-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 12px;cursor:pointer}
+
+@media(max-width:680px){
+  :root{--left-w:0px;--right-w:0px}
+  .left-panel,.right-panel{display:none}
+  .bottom-bar{display:flex}
+  .props-sheet{display:block}
+  .canvas-area{padding:20px 10px 80px}
+  .tb-brand{display:none}
+}
+
+/* ── Home Screen ── */
+#homeScreen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;background:#0f1117;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;overflow:hidden}
+.hs-topbar{height:52px;background:#161824;border-bottom:1px solid #2a2d3e;display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.hs-logo{font-size:15px;font-weight:800;color:#e0e4f0;display:flex;align-items:center;gap:8px}
+.hs-logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#4a80f0,#6366f1);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.hs-topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.hs-skip{padding:6px 14px;border-radius:7px;border:1px solid #2a2d3e;background:transparent;color:#6b7280;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.hs-skip:hover{border-color:#4a80f0;color:#e0e4f0}
+.hs-body{flex:1;display:flex;overflow:hidden}
+.hs-left{width:280px;background:#161824;border-right:1px solid #1e2135;display:flex;flex-direction:column;padding:28px 20px;flex-shrink:0;gap:8px}
+.hs-app-name{font-size:22px;font-weight:800;color:#e0e4f0;letter-spacing:-.5px;margin-bottom:4px}
+.hs-app-sub{font-size:12px;color:#5a6080;margin-bottom:20px}
+.hs-new-btn{width:100%;padding:13px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#4a80f0,#6366f1);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;box-shadow:0 4px 16px rgba(74,128,240,.35)}
+.hs-new-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(74,128,240,.45)}
+.hs-sec-label{font-size:10px;font-weight:800;color:#3a4060;letter-spacing:2px;text-transform:uppercase;margin-top:16px;margin-bottom:8px}
+.hs-size-opts{display:flex;gap:8px}
+.hs-size-opt{flex:1;padding:10px 8px;border-radius:8px;border:1px solid #2a2d3e;background:#0f1117;color:#8a90a8;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:.15s}
+.hs-size-opt:hover,.hs-size-opt.active{border-color:#4a80f0;background:rgba(74,128,240,.1);color:#4a80f0}
+.hs-main{flex:1;overflow-y:auto;padding:28px 28px 40px;display:flex;flex-direction:column;gap:32px}
+.hs-main::-webkit-scrollbar{width:5px}
+.hs-main::-webkit-scrollbar-thumb{background:#2a2d3e;border-radius:3px}
+.hs-section-title{font-size:13px;font-weight:800;color:#e0e4f0;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.hs-section-title::after{content:'';flex:1;height:1px;background:#1e2135}
+.hs-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.hs-card{background:#161824;border:1px solid #1e2135;border-radius:10px;padding:14px 12px 12px;cursor:pointer;transition:.18s;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.hs-card:hover{border-color:#4a80f0;background:#1a1f35;transform:translateY(-2px);box-shadow:0 6px 24px rgba(74,128,240,.2)}
+.hs-card-thumb{width:100%;aspect-ratio:0.7;background:#fff;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.hs-card-thumb-inner{width:80%;height:80%;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center}
+.hs-card-page-line{width:80%;height:2px;background:#e0e4f0;border-radius:1px;opacity:.4}
+.hs-card-page-line.thick{height:4px;width:55%;opacity:.6}
+.hs-card-info{display:flex;flex-direction:column;gap:3px}
+.hs-card-name{font-size:11px;font-weight:700;color:#c0c8e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hs-card-meta{font-size:9px;color:#404868;font-weight:600}
+.hs-card-del{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:4px;background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.25);color:#e05555;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;font-family:inherit;line-height:1}
+.hs-card:hover .hs-card-del{display:flex}
+.hs-empty{padding:32px 20px;text-align:center;color:#303550;font-size:12px;font-weight:600;background:#0f1117;border:1px dashed #1e2135;border-radius:10px}
+.hs-empty-icon{font-size:28px;margin-bottom:8px;opacity:.4}
+
+/* ── Built-in template cards ── */
+.hs-builtin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.hs-bi-card{background:#161824;border:1px solid #1e2135;border-radius:10px;cursor:pointer;transition:.18s;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.hs-bi-card:hover{border-color:var(--accent,#4a80f0);transform:translateY(-2px);box-shadow:0 6px 24px rgba(74,128,240,.2)}
+.hs-bi-thumb{width:100%;aspect-ratio:.7;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;position:relative}
+.hs-bi-thumb svg{width:100%;height:100%}
+.hs-bi-info{padding:8px 10px 10px;display:flex;flex-direction:column;gap:2px}
+.hs-bi-name{font-size:11px;font-weight:700;color:#c0c8e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hs-bi-desc{font-size:9px;color:#404868;font-weight:600}
+
+/* ── Save Template Dialog ── */
+#saveTmplDialog{display:none;position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.65);align-items:center;justify-content:center}
+#saveTmplDialog.open{display:flex}
+.std-card{background:#222632;border:1px solid #3a4060;border-radius:14px;width:320px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.std-head{padding:16px 18px;border-bottom:1px solid #3a4060;display:flex;align-items:center;justify-content:space-between}
+.std-title{font-size:14px;font-weight:800;color:#e0e4f0}
+.std-close{width:26px;height:26px;border-radius:6px;border:1px solid #3a4060;background:#2a2f40;color:#8a90a8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.std-body{padding:16px 18px}
+.std-inp{width:100%;padding:9px 12px;background:#1a1d26;border:1px solid #3a4060;border-radius:8px;color:#e0e4f0;font-size:13px;font-family:inherit;outline:none;margin-bottom:14px;transition:border-color .12s}
+.std-inp:focus{border-color:#4a80f0}
+.std-actions{display:flex;gap:8px}
+.std-save{flex:1;padding:9px;border-radius:8px;border:none;background:#4a80f0;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.12s}
+.std-save:hover{background:#3a70e0}
+.std-cancel{padding:9px 14px;border-radius:8px;border:1px solid #3a4060;background:transparent;color:#8a90a8;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.12s}
+.std-cancel:hover{border-color:#8a90a8;color:#e0e4f0}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <button class="tb-btn" onclick="showHomeScreen()" title="হোম / টেমপ্লেট" style="padding:5px 8px;gap:4px;flex-shrink:0">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1.5 7.5L7.5 2l6 5.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><rect x="3" y="7.5" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="5.5" y="10" width="4" height="3.5" rx=".5" fill="currentColor" opacity=".3"/></svg>
+    হোম
+  </button>
+  <div class="tb-sep"></div>
+  <span class="tb-brand">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:inline-block;vertical-align:middle;margin-right:4px"><rect x="2" y="1" width="10" height="14" rx="1.5" fill="currentColor" opacity=".18"/><rect x="2" y="1" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="4.5" y1="10" x2="7.5" y2="10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg><span>Custom</span> Doc
+  </span>
+  <div class="inst-badge" id="instBadge"><span class="inst-badge-name" id="instBadgeName"></span></div>
+  <div class="tb-sep"></div>
+  <div class="size-chips">
+    <div class="size-chip active" onclick="setPageSize('A5')">A5</div>
+    <div class="size-chip" onclick="setPageSize('A4')">A4</div>
+  </div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn blue" onclick="showTemplateModal()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="4" y="1" width="8" height="10" rx="1" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.2"/><line x1="5.5" y1="4.5" x2="9.5" y2="4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="6.5" x2="9.5" y2="6.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="8.5" x2="8" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    Templates
+  </button>
+  <button class="tb-btn" onclick="quickSaveTemplate()" style="background:#6366f1;color:#fff;border-color:#6366f1">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="4" y="1.5" width="6" height="4" rx=".5" fill="currentColor" opacity=".3" stroke="currentColor" stroke-width="1"/><rect x="3.5" y="8" width="7" height="4" rx=".5" stroke="currentColor" stroke-width="1.1"/></svg>
+    Save Template
+  </button>
+  <button class="tb-btn purple" onclick="showRepeatModal()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7A4.5 4.5 0 007 11.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M11.5 7A4.5 4.5 0 007 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="9.5,2 11.5,2.5 11,4.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="4.5,12 2.5,11.5 3,9.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+    Repeat
+  </button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn green" onclick="syncAllTables()" id="syncBtn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 009.5-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12 7a5 5 0 00-9.5 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><polyline points="10,2.5 11.5,5 9,5.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="4,11.5 2.5,9 5,8.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Sync
+  </button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="undo()" id="undoBtn" disabled title="Undo (Ctrl+Z)">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 5.5H8a3.5 3.5 0 010 7H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="5,2.5 2.5,5.5 5,8.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="tb-btn" onclick="redo()" id="redoBtn" disabled title="Redo (Ctrl+Y)">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.5 5.5H6a3.5 3.5 0 000 7h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9,2.5 11.5,5.5 9,8.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="tb-spacer"></div>
+  <div class="zoom-ctrl">
+    <button class="tb-btn" onclick="adjustZoom(-.1)" style="padding:5px 8px;font-size:14px;font-weight:700;line-height:1">−</button>
+    <div class="zoom-val" id="zoomLbl">100%</div>
+    <button class="tb-btn" onclick="adjustZoom(.1)" style="padding:5px 8px;font-size:14px;font-weight:700;line-height:1">+</button>
+  </div>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="exportPNG()" title="Export as PNG">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor"/><polyline points="1.5,9.5 4.5,6.5 6.5,8.5 9,6 12.5,9.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    PNG
+  </button>
+  <button class="tb-btn gold" onclick="printDoc()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="1.5" width="8" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="3" y="8" width="8" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M3 6H1.5A.5.5 0 001 6.5v4A.5.5 0 001.5 11H3" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M11 6h1.5a.5.5 0 01.5.5v4a.5.5 0 01-.5.5H11" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="10.5" cy="7.5" r=".7" fill="currentColor"/><line x1="5" y1="9.5" x2="9" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="11" x2="8" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+    Print
+  </button>
+</div>
+
+<!-- Context toolbar -->
+<div class="ctx-toolbar" id="ctxToolbar">
+  <button class="ctx-btn" id="ctxBold" onclick="ctxToggle('fontWeight','bold','normal')" style="font-weight:800;font-size:13px;letter-spacing:-.5px">B</button>
+  <button class="ctx-btn" id="ctxItalic" onclick="ctxToggle('italic',true,false)" style="font-style:italic;font-size:13px;font-family:Georgia,serif">I</button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-btn" onclick="ctxSize(-1)" style="font-size:11px;letter-spacing:-.5px">A<span style="font-size:9px;vertical-align:super">−</span></button>
+  <input class="ctx-size" id="ctxSizeInput" type="number" min="6" max="120" onchange="setEP('fontSize',+this.value)">
+  <button class="ctx-btn" onclick="ctxSize(1)" style="font-size:11px;letter-spacing:-.5px">A<span style="font-size:9px;vertical-align:super">+</span></button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-btn" id="ctxAlL" onclick="setEP('textAlign','left')" title="Align Left">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="2" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="6" x2="9" y2="6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="12" x2="8" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctx-btn" id="ctxAlC" onclick="setEP('textAlign','center')" title="Center">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="2" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="4" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="4.5" y1="12" x2="9.5" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  </button>
+  <button class="ctx-btn" id="ctxAlR" onclick="setEP('textAlign','right')" title="Align Right">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="2" y1="3" x2="12" y2="3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="5" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="6" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+  </button>
+  <div class="ctx-sep"></div>
+  <select class="ctx-size" style="width:120px" id="ctxFont" onchange="setEP('fontFamily',this.value)"></select>
+  <div class="ctx-sep"></div>
+  <input class="ctx-color" id="ctxColor" type="color" value="#000000" oninput="setEP('color',this.value)">
+</div>
+
+<div class="main-body">
+  <!-- Left palette -->
+  <div class="left-panel">
+    <button class="pal-btn active" id="toolSelect" onclick="setTool('select')" title="Select (V)">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M5 2L5 17L8.5 13.5L11.5 20L13.5 19L10.5 12.5L15.5 12.5L5 2Z" fill="currentColor" stroke="currentColor" stroke-width=".5" stroke-linejoin="round"/></svg>
+      <span class="pal-lbl">Select</span>
+    </button>
+    <div class="pal-sep"></div>
+    <button class="pal-btn" onclick="addEl('text')" title="Text (T)">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3.5 5.5V3.5H18.5V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="3.5" x2="11" y2="18.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="7.5" y1="18.5" x2="14.5" y2="18.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span class="pal-lbl">Text</span>
+    </button>
+    <button class="pal-btn" onclick="addEl('rect')" title="Rectangle">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="4.5" width="16" height="13" rx="1.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+      <span class="pal-lbl">Box</span>
+    </button>
+    <button class="pal-btn" onclick="addEl('line')" title="Line">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="3.5" y1="18.5" x2="18.5" y2="3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="3.5" cy="18.5" r="1.5" fill="currentColor"/><circle cx="18.5" cy="3.5" r="1.5" fill="currentColor"/></svg>
+      <span class="pal-lbl">Line</span>
+    </button>
+    <button class="pal-btn" onclick="addEl('table')" title="Table">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2.5" y="3.5" width="17" height="15" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><line x1="2.5" y1="8" x2="19.5" y2="8" stroke="currentColor" stroke-width="1.4"/><line x1="9" y1="8" x2="9" y2="18.5" stroke="currentColor" stroke-width="1.2"/><line x1="14.5" y1="8" x2="14.5" y2="18.5" stroke="currentColor" stroke-width="1.2"/><rect x="2.5" y="3.5" width="17" height="4.5" rx="1.5" fill="currentColor" opacity=".2"/></svg>
+      <span class="pal-lbl">Table</span>
+    </button>
+    <button class="pal-btn" onclick="addEl('image')" title="Image">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2.5" y="3.5" width="17" height="15" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="7" cy="8" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/><polyline points="2.5,15.5 7.5,10.5 11,14 14.5,10 19.5,15.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="pal-lbl">Image</span>
+    </button>
+    <button class="pal-btn" onclick="addEl('qr')" title="QR Code">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2.5" y="2.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="4.5" y="4.5" width="3" height="3" fill="currentColor"/><rect x="12.5" y="2.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="14.5" y="4.5" width="3" height="3" fill="currentColor"/><rect x="2.5" y="12.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="4.5" y="14.5" width="3" height="3" fill="currentColor"/><rect x="12.5" y="12.5" width="2.5" height="2.5" fill="currentColor"/><rect x="17" y="12.5" width="2.5" height="2.5" fill="currentColor"/><rect x="12.5" y="17" width="2.5" height="2.5" fill="currentColor"/><rect x="17" y="17" width="2.5" height="2.5" fill="currentColor"/></svg>
+      <span class="pal-lbl">QR</span>
+    </button>
+    <div class="pal-sep"></div>
+    <button class="pal-btn" onclick="duplicateSelected()" title="Duplicate (Ctrl+D)">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="7" y="7" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5 15H4a1.5 1.5 0 01-1.5-1.5V4A1.5 1.5 0 014 2.5h9.5A1.5 1.5 0 0115 4v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>
+      <span class="pal-lbl">Copy</span>
+    </button>
+    <button class="pal-btn danger" onclick="deleteSelected()" title="Delete (Del)">
+      <svg class="pal-icon" width="22" height="22" viewBox="0 0 22 22" fill="none"><polyline points="3.5,5.5 18.5,5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 5.5V4a1 1 0 011-1h4a1 1 0 011 1v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M5.5 5.5l1 12a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5l1-12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/><line x1="9" y1="9.5" x2="9" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="13" y1="9.5" x2="13" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span class="pal-lbl">Del</span>
+    </button>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-area" id="canvasArea">
+    <div id="stageWrap"><div id="stage"></div></div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="right-panel">
+    <div class="rp-head">Properties</div>
+    <div id="rpBody"><div class="rp-empty">← Element select করো<br>অথবা left থেকে add করো</div></div>
+  </div>
+</div>
+
+<!-- Bottom bar -->
+<div class="bottom-bar">
+  <button class="bb-btn active" id="bbSelect" onclick="setTool('select')"><span class="bbi">↖</span>Select</button>
+  <button class="bb-btn" onclick="addEl('text')"><span class="bbi">T</span>Text</button>
+  <button class="bb-btn" onclick="addEl('table')"><span class="bbi">⊞</span>Table</button>
+  <button class="bb-btn" onclick="showRepeatModal()"><span class="bbi">🔁</span>Repeat</button>
+  <button class="bb-btn" onclick="showTemplateModal()"><span class="bbi">📋</span>Tmpl</button>
+  <button class="bb-btn" onclick="printDoc()"><span class="bbi">🖨</span>Print</button>
+</div>
+
+<!-- Mobile props sheet -->
+<div class="props-sheet" id="propsSheet">
+  <div class="ps-handle" onclick="closePropsSheet()"></div>
+  <div id="propsSheetBody"></div>
+</div>
+
+<!-- Template Modal -->
+<div class="modal-overlay" id="tmplModal" onclick="if(event.target===this)closeTmplModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">📋 Templates</span>
+      <button class="modal-close" onclick="closeTmplModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-sec-title">Built-in Templates</div>
+      <div class="tmpl-grid" id="builtinGrid"></div>
+      <div class="modal-sec-title">Current Document Save করো</div>
+      <div class="save-tmpl-row">
+        <input class="save-tmpl-inp" id="tmplNameInp" placeholder="Template এর নাম লিখুন…">
+        <button class="tb-btn blue" onclick="saveCurrentTemplate()">💾 Save</button>
+      </div>
+      <div class="modal-sec-title">Saved Templates</div>
+      <div class="saved-tmpl-list" id="savedTmplList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Repeat Print Modal -->
+<div class="modal-overlay" id="repeatModal" onclick="if(event.target===this)closeRepeatModal()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <span class="modal-title">🔁 Repeat Print — Mail Merge</span>
+      <button class="modal-close" onclick="closeRepeatModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:14px;line-height:1.7">প্রতিটি ছাত্র/শিক্ষকের জন্য আলাদা copy তৈরি হবে। Text element এর content স্বয়ংক্রিয়ভাবে fill হবে।</p>
+      <div class="modal-sec-title">Data Source</div>
+      <div class="rp-row" style="margin-bottom:16px">
+        <span class="rp-lbl">Source</span>
+        <select class="rp-inp" id="rptSource" onchange="renderRepeatFields()">
+          <option value="students">ছাত্র-ছাত্রী</option>
+          <option value="teachers">শিক্ষকমণ্ডলী</option>
+        </select>
+      </div>
+      <div class="modal-sec-title">Field Mapping — Text Elements</div>
+      <p style="font-size:11px;color:var(--text-3);margin-bottom:10px">প্রতিটি text element কোন data দিয়ে fill হবে সেটা বেছে নাও।</p>
+      <div id="rptFields"></div>
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="tb-btn purple" style="flex:1;justify-content:center;padding:10px" onclick="runRepeatPrint()">🖨 সব জনের জন্য Print করো</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Col field popup -->
+<div class="col-popup" id="colPopup">
+  <div class="col-popup-head">Field বেছে নাও</div>
+  <div id="colPopupItems"></div>
+</div>
+
+<!-- Toast + Loading -->
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-msg" id="loadingMsg">কাজ চলছে…</div>
+</div>
+
+<!-- Hidden inputs -->
+<input type="file" id="imgInput" accept="image/*" style="display:none" onchange="onImgUpload(event)">
+<input type="file" id="wmInput" accept="image/*" style="display:none" onchange="onWmUpload(event)">
+
+<!-- Home Screen -->
+<div id="homeScreen">
+  <div class="hs-topbar">
+    <div class="hs-logo">
+      <div class="hs-logo-icon">📄</div>
+      Custom Doc — Protishthan
+    </div>
+    <div class="hs-topbar-right">
+      <button class="hs-skip" onclick="hideHomeScreen()">এড়িয়ে যান ×</button>
+    </div>
+  </div>
+  <div class="hs-body">
+    <div class="hs-left">
+      <div class="hs-app-name">Custom Document</div>
+      <div class="hs-app-sub">ড্র্যাগ-অ্যান্ড-ড্রপ ডকুমেন্ট এডিটর</div>
+      <button class="hs-new-btn" onclick="startNewDocument()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        নতুন ডকুমেন্ট
+      </button>
+      <div class="hs-sec-label">পেজ সাইজ</div>
+      <div class="hs-size-opts">
+        <div class="hs-size-opt active" id="hsSizeA5" onclick="hsSetSize('A5')">A5</div>
+        <div class="hs-size-opt" id="hsSizeA4" onclick="hsSetSize('A4')">A4</div>
+      </div>
+    </div>
+    <div class="hs-main" id="hsMain">
+      <div>
+        <div class="hs-section-title">✨ প্রস্তুত টেমপ্লেট</div>
+        <div class="hs-builtin-grid" id="hsBuiltinGrid"></div>
+      </div>
+      <div>
+        <div class="hs-section-title">সাম্প্রতিক ডকুমেন্ট</div>
+        <div class="hs-card-grid" id="hsRecentGrid"></div>
+      </div>
+      <div>
+        <div class="hs-section-title">সংরক্ষিত টেমপ্লেট</div>
+        <div class="hs-card-grid" id="hsTmplGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Save Template Dialog -->
+<div id="saveTmplDialog" onclick="if(event.target===this)closeSaveTmplDialog()">
+  <div class="std-card">
+    <div class="std-head">
+      <span class="std-title">টেমপ্লেট সেভ করুন</span>
+      <button class="std-close" onclick="closeSaveTmplDialog()">✕</button>
+    </div>
+    <div class="std-body">
+      <input class="std-inp" id="stdNameInp" placeholder="টেমপ্লেটের নাম লিখুন…">
+      <div class="std-actions">
+        <button class="std-save" onclick="doSaveTemplate()">সেভ করুন</button>
+        <button class="std-cancel" onclick="closeSaveTmplDialog()">বাতিল</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  SUPABASE
+// ══════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+let INST = null;
+
+async function loadInstitution(){
+  try{
+    const {data:{user}}=await sb.auth.getUser(); if(!user) return;
+    const {data:inst}=await sb.from('institutions').select('*').eq('email',user.email).maybeSingle();
+    if(inst){INST=inst;showInstBadge();return;}
+    const {data:teacher}=await sb.from('teachers').select('institution_id,institutions(*)').eq('email',user.email).maybeSingle();
+    if(teacher?.institutions){INST=teacher.institutions;showInstBadge();}
+  }catch(e){}
+}
+
+function showInstBadge(){
+  if(!INST) return;
+  const badge=document.getElementById('instBadge');
+  document.getElementById('instBadgeName').textContent=INST.name||'';
+  badge.style.display='flex';
+  if(INST.logo_url){
+    const img=document.createElement('img'); img.src=INST.logo_url;
+    img.style.cssText='width:22px;height:22px;border-radius:50%;object-fit:cover;margin-right:2px';
+    badge.insertBefore(img,badge.firstChild);
+  }
+  const btn=document.createElement('button'); btn.className='tb-btn'; btn.style.cssText='font-size:10px;padding:3px 6px'; btn.textContent='+ Header'; btn.onclick=insertInstHeader; badge.appendChild(btn);
+}
+
+function insertInstHeader(){
+  if(!INST) return;
+  const ps=PAGE_PX[S.pageSize];
+  if(INST.logo_url) S.elements.push({id:'el'+(S.nextId++),type:'image',x:Math.round(ps.w/2-30),y:8,w:60,h:60,props:{src:INST.logo_url,fit:'contain'}});
+  S.elements.push({id:'el'+(S.nextId++),type:'text',x:20,y:INST.logo_url?72:16,w:ps.w-40,h:34,props:{content:INST.name||'প্রতিষ্ঠানের নাম',fontSize:20,fontWeight:'bold',textAlign:'center',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}});
+  const yr=INST.academic_year_label||'';
+  if(yr) S.elements.push({id:'el'+(S.nextId++),type:'text',x:20,y:INST.logo_url?108:52,w:ps.w-40,h:22,props:{content:yr+(INST.upazila?' | '+INST.upazila:''),fontSize:12,fontWeight:'normal',textAlign:'center',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}});
+  pushHist(); renderAll(); renderProps(); toast('প্রতিষ্ঠানের হেডার যোগ হয়েছে ✓');
+}
+
+// ══════════════════════════════════════════════
+//  DATA SOURCES
+// ══════════════════════════════════════════════
+const DATA_SOURCES={
+  students:{
+    label:'ছাত্র-ছাত্রী',
+    fields:[
+      {key:'serial',label:'ক্রমিক',auto:true},{key:'name',label:'নাম'},
+      {key:'roll_no',label:'রোল নম্বর'},{key:'class',label:'শ্রেণি'},
+      {key:'guardian_name',label:'অভিভাবকের নাম'},{key:'guardian_phone',label:'মোবাইল'},{key:'blank',label:'(ফাঁকা)'},
+    ],
+    mergeFields:[
+      {key:'serial',label:'ক্রমিক'},{key:'name',label:'নাম'},
+      {key:'roll_no',label:'রোল নম্বর'},{key:'class',label:'শ্রেণি'},
+      {key:'guardian_name',label:'অভিভাবকের নাম'},{key:'guardian_phone',label:'মোবাইল'},
+      {key:'academic_year',label:'শিক্ষাবর্ষ'},
+    ],
+    query:async(instId)=>{
+      const {data}=await sb.from('students').select('id,name,roll_no,guardian_name,guardian_phone,classes(name)').eq('institution_id',instId).order('roll_no');
+      return (data||[]).map((r,i)=>({serial:BN(i+1),name:r.name||'',roll_no:BN(r.roll_no||i+1),class:r.classes?.name||'',guardian_name:r.guardian_name||'',guardian_phone:r.guardian_phone||'',blank:'',academic_year:INST?.academic_year_label||''}));
+    }
+  },
+  teachers:{
+    label:'শিক্ষকমণ্ডলী',
+    fields:[
+      {key:'serial',label:'ক্রমিক',auto:true},{key:'name',label:'নাম'},
+      {key:'subject',label:'বিষয়'},{key:'phone',label:'মোবাইল'},{key:'blank',label:'(ফাঁকা)'},
+    ],
+    mergeFields:[
+      {key:'serial',label:'ক্রমিক'},{key:'name',label:'নাম'},
+      {key:'subject',label:'বিষয়'},{key:'phone',label:'মোবাইল'},
+    ],
+    query:async(instId)=>{
+      const {data}=await sb.from('teachers').select('id,name,subject,phone').eq('institution_id',instId);
+      return (data||[]).map((r,i)=>({serial:BN(i+1),name:r.name||'',subject:r.subject||'',phone:r.phone||'',blank:''}));
+    }
+  },
+};
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const S={
+  pageSize:'A5', zoom:1,
+  pages:[{id:'pg1',bg:'#ffffff',wmUrl:'',wmOpacity:.08,elements:[]}],
+  pgIdx:0,
+  nextId:1, selectedId:null, tool:'select',
+  get elements(){return this.pages[this.pgIdx].elements;},
+  set elements(v){this.pages[this.pgIdx].elements=v;},
+  get paperBg(){return this.pages[this.pgIdx].bg;},
+  set paperBg(v){this.pages[this.pgIdx].bg=v;},
+  get watermarkUrl(){return this.pages[this.pgIdx].wmUrl;},
+  set watermarkUrl(v){this.pages[this.pgIdx].wmUrl=v;},
+  get watermarkOpacity(){return this.pages[this.pgIdx].wmOpacity;},
+  set watermarkOpacity(v){this.pages[this.pgIdx].wmOpacity=v;},
+};
+const HIST=[]; let histIdx=-1;
+const PAGE_PX={A5:{w:559,h:794},A4:{w:794,h:1123}};
+function BN(n){return String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);}
+
+// ── Font Registry ──
+const FONTS=[
+  {key:'solaiman',  label:'Solaiman Lipi',     stack:"'SolaimanLipi','SulamanILipi','Noto Serif Bengali','Vrinda',serif"},
+  {key:'kalpurush', label:'Kalpurush',          stack:"'Kalpurush','Noto Serif Bengali','Vrinda',serif"},
+  {key:'siyam',     label:'Siyam Rupali',       stack:"'SiyamRupali','Noto Serif Bengali',serif"},
+  {key:'nikosh',    label:'Nikosh',             stack:"'Nikosh','Noto Serif Bengali',serif"},
+  {key:'mitra',     label:'Mitra',              stack:"'Mitra','Noto Serif Bengali',serif"},
+  {key:'noto-serif',label:'Noto Serif Bengali', stack:"'Noto Serif Bengali',serif"},
+  {key:'noto-sans', label:'Noto Sans Bengali',  stack:"'Noto Sans Bengali',sans-serif"},
+  {key:'hind',      label:'Hind Siliguri',      stack:"'Hind Siliguri','Noto Sans Bengali',sans-serif"},
+  {key:'tiro',      label:'Tiro Bangla',        stack:"'Tiro Bangla','Noto Serif Bengali',serif"},
+  {key:'baloo',     label:'Baloo Da 2',         stack:"'Baloo Da 2','Noto Sans Bengali',sans-serif"},
+  {key:'anek',      label:'Anek Bangla',        stack:"'Anek Bangla','Noto Sans Bengali',sans-serif"},
+  {key:'mukta',     label:'Mukta Mahee',        stack:"'Mukta Mahee','Noto Sans Bengali',sans-serif"},
+  {key:'sans',      label:'Sans Serif',         stack:"system-ui,-apple-system,'Segoe UI',sans-serif"},
+  {key:'serif',     label:'Serif',              stack:"Georgia,'Times New Roman',serif"},
+  {key:'mono',      label:'Monospace',          stack:"'Courier New',Courier,monospace"},
+];
+function getFontStack(key){return (FONTS.find(f=>f.key===key)||FONTS[0]).stack;}
+function fontOptionsHTML(cur){return FONTS.map(f=>`<option value="${f.key}"${f.key===cur?' selected':''}>${f.label}</option>`).join('');}
+
+// ══════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════
+let _docId=null, _autoSaveTimer=null, _badgeTimer=null;
+function pushHist(){
+  HIST.splice(histIdx+1);
+  HIST.push(JSON.stringify({pages:S.pages,pgIdx:S.pgIdx}));
+  if(HIST.length>60) HIST.shift(); else histIdx++;
+  syncHistBtns();
+  // Immediate synchronous save on every change
+  _doAutoSave(true); // true = suppress badge (debounce badge separately)
+  clearTimeout(_badgeTimer);
+  _badgeTimer=setTimeout(()=>_showSavedBadge(),600);
+}
+function _doAutoSave(suppressBadge){
+  try{
+    if(!_docId) _docId='doc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    const name=(INST&&INST.name)?INST.name:'নামহীন ডকুমেন্ট';
+    const docs=getRecentDocs();
+    const idx=docs.findIndex(d=>d.id===_docId);
+    const entry={id:_docId,name,timestamp:Date.now(),pages:JSON.parse(JSON.stringify(S.pages)),pageSize:S.pageSize,zoom:S.zoom};
+    if(idx>=0) docs[idx]=entry; else docs.unshift(entry);
+    while(docs.length>8) docs.pop();
+    localStorage.setItem('cd_recent_docs',JSON.stringify(docs));
+    if(!suppressBadge) _showSavedBadge();
+  }catch(e){}
+}
+// Small floating "saved" badge
+let _savedBadgeTimer=null;
+function _showSavedBadge(){
+  let b=document.getElementById('_savedBadge');
+  if(!b){
+    b=document.createElement('div');b.id='_savedBadge';
+    b.style.cssText='position:fixed;bottom:20px;right:24px;background:#1a2236;border:1px solid #2d4a8a;color:#7db4ff;font-size:12px;font-weight:600;padding:7px 14px;border-radius:20px;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.4)';
+    b.innerHTML='<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#4ade80" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 4.5" stroke="#4ade80" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> সেভ হয়েছে';
+    document.body.appendChild(b);
+  }
+  b.style.opacity='1';
+  clearTimeout(_savedBadgeTimer);
+  _savedBadgeTimer=setTimeout(()=>{b.style.opacity='0';},1800);
+}
+function restoreHist(snap){const h=JSON.parse(snap);S.pages=h.pages;S.pgIdx=h.pgIdx||0;}
+function undo(){if(histIdx<=0)return;histIdx--;restoreHist(HIST[histIdx]);S.selectedId=null;renderAll();renderProps();syncHistBtns();}
+function redo(){if(histIdx>=HIST.length-1)return;histIdx++;restoreHist(HIST[histIdx]);S.selectedId=null;renderAll();renderProps();syncHistBtns();}
+function syncHistBtns(){document.getElementById('undoBtn').disabled=histIdx<=0;document.getElementById('redoBtn').disabled=histIdx>=HIST.length-1;}
+
+// ══════════════════════════════════════════════
+//  TOOL / SIZE / ZOOM
+// ══════════════════════════════════════════════
+function setTool(t){S.tool=t;document.getElementById('toolSelect')?.classList.toggle('active',t==='select');document.getElementById('bbSelect')?.classList.toggle('active',t==='select');}
+function setPageSize(sz){S.pageSize=sz;document.querySelectorAll('.size-chip').forEach(c=>c.classList.toggle('active',c.textContent===sz));renderAll();}
+function adjustZoom(d){S.zoom=Math.min(3.5,Math.max(.1,Math.round((S.zoom+d)*10)/10));applyZoom();document.getElementById('zoomLbl').textContent=Math.round(S.zoom*100)+'%';}
+function applyZoom(){const st=document.getElementById('stage');if(!st)return;st.style.transform=`scale(${S.zoom})`;st.style.transformOrigin='top left';const wr=document.getElementById('stageWrap');if(wr){wr.style.width=(st.offsetWidth*S.zoom)+'px';wr.style.height=(st.offsetHeight*S.zoom)+'px';void wr.offsetWidth;}}
+function scrollToPage(pi){
+  requestAnimationFrame(()=>{
+    const ca=document.getElementById('canvasArea');
+    const sh=document.getElementById('page-'+(pi??S.pgIdx));
+    if(!ca||!sh)return;
+    const scrollX=sh.offsetLeft*S.zoom-(ca.clientWidth-sh.offsetWidth*S.zoom)/2;
+    const scrollY=sh.offsetTop*S.zoom-(ca.clientHeight-sh.offsetHeight*S.zoom)/2;
+    ca.scrollTo({left:Math.max(0,scrollX),top:Math.max(0,scrollY),behavior:'instant'});
+  });
+}
+
+// ══════════════════════════════════════════════
+//  ADD ELEMENT
+// ══════════════════════════════════════════════
+function addEl(type){
+  const ps=PAGE_PX[S.pageSize];
+  const DEF={
+    text: {w:220,h:44,props:{content:'লেখা লিখুন',fontSize:16,fontWeight:'normal',textAlign:'left',color:'#000000',fontFamily:'solaiman',italic:false,lineHeight:1.5,dataField:''}},
+    rect: {w:200,h:120,props:{bg:'#ffffff',borderColor:'#000000',borderWidth:1,borderRadius:0,borderStyle:'solid'}},
+    line: {w:320,h:2,props:{color:'#000000',lineWidth:1,lineStyle:'solid'}},
+    image:{w:120,h:120,props:{src:'',fit:'contain'}},
+    table:{w:460,h:180,props:{cols:[{label:'ক্রমিক',field:'serial',width:50},{label:'নাম',field:'name',width:180},{label:'শ্রেণি',field:'class',width:80},{label:'রোল',field:'roll_no',width:70}],rows:[{serial:'১',name:'নমুনা নাম',class:'সপ্তম',roll_no:'১'},{serial:'২',name:'নমুনা নাম',class:'সপ্তম',roll_no:'২'},{serial:'৩',name:'নমুনা নাম',class:'সপ্তম',roll_no:'৩'}],dataSource:'students',headerBg:'#003366',headerColor:'#ffffff',rowBg:'#ffffff',altRowBg:'#f0f4ff',borderColor:'#b0b8d8',fontSize:11,headerFontSize:12,fontFamily:'serif'}},
+    qr:   {w:120,h:120,props:{qrText:'https://protishthan.com',qrDataUrl:'',qrColor:'#000000',qrBg:'#ffffff'}},
+  };
+  const d=DEF[type]; if(!d) return;
+  const el={id:'el'+(S.nextId++),type,x:Math.round(ps.w/2-d.w/2),y:Math.round(ps.h/3-d.h/2),w:d.w,h:d.h,props:JSON.parse(JSON.stringify(d.props))};
+  S.elements.push(el);
+  S.selectedId=el.id;
+  if(type==='qr') generateQR(el.id,el.props.qrText,el.props.qrColor,el.props.qrBg);
+  pushHist(); renderAll(); renderProps();
+  if(type==='image') document.getElementById('imgInput').click();
+}
+
+// ══════════════════════════════════════════════
+//  DUPLICATE (Ctrl+D)
+// ══════════════════════════════════════════════
+function duplicateSelected(){
+  if(!S.selectedId) return;
+  const src=S.elements.find(e=>e.id===S.selectedId); if(!src) return;
+  const copy=JSON.parse(JSON.stringify(src));
+  copy.id='el'+(S.nextId++);
+  copy.x+=16; copy.y+=16;
+  S.elements.push(copy);
+  S.selectedId=copy.id;
+  pushHist(); renderAll(); renderProps();
+  toast('Element duplicate হয়েছে ✓');
+}
+
+// ══════════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════════
+function deleteSelected(){
+  if(!S.selectedId) return;
+  S.elements=S.elements.filter(e=>e.id!==S.selectedId);
+  S.selectedId=null;
+  pushHist(); renderAll(); renderProps();
+}
+
+// ══════════════════════════════════════════════
+//  QR CODE GENERATION
+// ══════════════════════════════════════════════
+function generateQR(elId,text,dark,light){
+  if(typeof QRCode==='undefined') return;
+  QRCode.toDataURL(text||' ',{width:300,margin:1,color:{dark:dark||'#000000',light:light||'#ffffff'}},(err,url)=>{
+    if(err) return;
+    const el=S.elements.find(e=>e.id===elId); if(!el) return;
+    el.props.qrDataUrl=url;
+    const dom=document.querySelector(`.cd-el[data-id="${elId}"] img.qr-img`);
+    if(dom) dom.src=url;
+  });
+}
+
+// ══════════════════════════════════════════════
+//  PAPER BACKGROUND & WATERMARK
+// ══════════════════════════════════════════════
+function applyPaperBg(){
+  const sheet=document.getElementById('page-'+S.pgIdx); if(!sheet) return;
+  sheet.style.background=S.paperBg;
+  const wm=sheet.querySelector('.paper-watermark'); if(!wm) return;
+  if(S.watermarkUrl){
+    wm.innerHTML=`<img src="${S.watermarkUrl}" style="opacity:${S.watermarkOpacity};max-width:60%;max-height:60%;object-fit:contain;pointer-events:none">`;
+  } else { wm.innerHTML=''; }
+}
+
+function setPaperBg(color){S.paperBg=color;applyPaperBg();pushHist();}
+function setWatermarkOpacity(v){S.watermarkOpacity=v;applyPaperBg();pushHist();}
+function onWmUpload(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{S.watermarkUrl=ev.target.result;applyPaperBg();pushHist();renderProps();};
+  reader.readAsDataURL(file); e.target.value='';
+}
+function removeWatermark(){S.watermarkUrl='';applyPaperBg();pushHist();renderProps();}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderAll(){
+  const stage=document.getElementById('stage'); if(!stage) return;
+  stage.innerHTML='';
+  S.pages.forEach((pg,pi)=>{
+    const sheet=document.createElement('div');
+    sheet.className=`page-sheet ${S.pageSize}${pi===S.pgIdx?' pg-active':''}`;
+    sheet.style.background=pg.bg;
+    sheet.dataset.pgIdx=pi;
+    sheet.id='page-'+pi;
+    // Snap guides
+    const sh=document.createElement('div');sh.className='snap-h';sh.id='snapH-'+pi;sheet.appendChild(sh);
+    const sv=document.createElement('div');sv.className='snap-v';sv.id='snapV-'+pi;sheet.appendChild(sv);
+    // Watermark
+    const wm=document.createElement('div');wm.className='paper-watermark';
+    if(pg.wmUrl)wm.innerHTML=`<img src="${pg.wmUrl}" style="opacity:${pg.wmOpacity};max-width:60%;max-height:60%;object-fit:contain;pointer-events:none">`;
+    sheet.appendChild(wm);
+    // Elements
+    pg.elements.forEach(el=>sheet.appendChild(buildDOM(el)));
+    const col=document.createElement('div');col.className='page-col';
+    col.appendChild(sheet);
+    const lbl=document.createElement('div');lbl.className='page-label';lbl.textContent=`— পৃষ্ঠা ${BN(pi+1)} —`;
+    col.appendChild(lbl);
+    stage.appendChild(col);
+  });
+  // Add page button — to the right of the last page in the row
+  const ab=document.createElement('button');ab.className='page-add-btn';
+  ab.innerHTML=`<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+  ab.title='নতুন পৃষ্ঠা যোগ করুন';
+  ab.onclick=addPage;
+  stage.appendChild(ab);
+  updateCtxToolbar();
+  requestAnimationFrame(applyZoom);
+}
+
+function addPage(){
+  S.pages.push({id:'pg'+(S.nextId++),bg:'#ffffff',wmUrl:'',wmOpacity:.08,elements:[]});
+  S.pgIdx=S.pages.length-1; S.selectedId=null;
+  pushHist(); renderAll(); renderProps();
+  setTimeout(()=>{const sh=document.getElementById('page-'+S.pgIdx);if(sh)sh.scrollIntoView({behavior:'smooth',block:'center'});},80);
+  toast(`পৃষ্ঠা ${BN(S.pgIdx+1)} যোগ হয়েছে ✓`);
+}
+
+function buildDOM(el){
+  const div=document.createElement('div');
+  div.className='cd-el'+(el.id===S.selectedId?' selected':'');
+  div.dataset.id=el.id;
+  div.style.cssText=`left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
+  div.innerHTML=buildInner(el);
+  if(el.id===S.selectedId){
+    const hw=document.createElement('div'); hw.className='rh-wrap';
+    ['nw','n','ne','e','se','s','sw','w'].forEach(d=>{
+      const rh=document.createElement('div'); rh.className='rh '+d; rh.dataset.h=d; hw.appendChild(rh);
+    });
+    div.appendChild(hw);
+  }
+  return div;
+}
+
+function buildInner(el){
+  const p=el.props;
+  const ff=getFontStack(p.fontFamily||'solaiman');
+  switch(el.type){
+    case 'text':
+      return `<div class="el-inner"><div class="el-text-c" style="font-size:${p.fontSize}px;font-weight:${p.fontWeight};font-style:${p.italic?'italic':'normal'};text-align:${p.textAlign};color:${p.color};font-family:${ff};line-height:${p.lineHeight||1.5}">${esc(p.content)}</div></div>`;
+    case 'rect':
+      return `<div class="el-inner" style="background:${p.bg};border:${p.borderWidth}px ${p.borderStyle} ${p.borderColor};border-radius:${p.borderRadius}px"></div>`;
+    case 'line':
+      return `<div class="el-inner" style="display:flex;align-items:center"><hr style="width:100%;border:none;border-top:${p.lineWidth}px ${p.lineStyle} ${p.color};margin:0"></div>`;
+    case 'image':
+      return p.src?`<div class="el-inner"><img src="${p.src}" style="width:100%;height:100%;object-fit:${p.fit};display:block"></div>`:`<div class="el-inner" style="border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-3)">🖼 Image</div>`;
+    case 'table': return buildTableInner(el);
+    case 'qr':
+      return p.qrDataUrl
+        ?`<div class="el-inner" style="background:${p.qrBg};display:flex;align-items:center;justify-content:center"><img class="qr-img" src="${p.qrDataUrl}" style="max-width:100%;max-height:100%;object-fit:contain"></div>`
+        :`<div class="el-inner" style="background:${p.qrBg};border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3)">▦ QR</div>`;
+  }
+  return '';
+}
+
+function buildTableInner(el){
+  const p=el.props; const isSel=(el.id===S.selectedId);
+  const ff=getFontStack(p.fontFamily||'solaiman');
+  let html=`<div class="el-inner" style="overflow:auto"><table class="el-tbl" style="border-color:${p.borderColor};font-family:${ff}"><thead><tr>`;
+  p.cols.forEach((col,ci)=>{
+    const fDef=getFieldDef(p.dataSource,col.field); const fLabel=fDef?fDef.label:col.field;
+    html+=isSel
+      ?`<th style="background:${p.headerBg};color:${p.headerColor};border-color:${p.borderColor};font-size:${p.headerFontSize}px;width:${col.width}px" onclick="openColPicker(event,'${el.id}',${ci})">${esc(col.label)}<span class="col-field-chip">${fLabel}</span><span class="col-pick-hint">▾ click</span></th>`
+      :`<th style="background:${p.headerBg};color:${p.headerColor};border-color:${p.borderColor};font-size:${p.headerFontSize}px;width:${col.width}px">${esc(col.label)}</th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+  p.rows.forEach((row,ri)=>{
+    html+=`<tr style="background:${ri%2===0?p.rowBg:p.altRowBg}">`;
+    p.cols.forEach(col=>{ html+=`<td style="font-size:${p.fontSize}px;border-color:${p.borderColor}">${esc(row[col.field]||'')}</td>`; });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  return html;
+}
+
+function getFieldDef(source,fieldKey){const src=DATA_SOURCES[source];if(!src)return null;return src.fields.find(f=>f.key===fieldKey)||null;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ══════════════════════════════════════════════
+//  LIGHTWEIGHT SELECTION (no full re-render)
+// ══════════════════════════════════════════════
+function setSelected(id){
+  S.selectedId=id;
+  document.querySelectorAll('.cd-el').forEach(d=>{
+    const isSel=d.dataset.id===id;
+    d.classList.toggle('selected',isSel);
+    const hw=d.querySelector('.rh-wrap');
+    if(isSel&&!hw){
+      const hwNew=document.createElement('div');hwNew.className='rh-wrap';
+      ['nw','n','ne','e','se','s','sw','w'].forEach(dir=>{
+        const rh=document.createElement('div');rh.className='rh '+dir;rh.dataset.h=dir;hwNew.appendChild(rh);
+      });
+      d.appendChild(hwNew);
+    } else if(!isSel&&hw){hw.remove();}
+  });
+  renderProps();updateCtxToolbar();
+}
+
+// ══════════════════════════════════════════════
+//  POINTER — DRAG, RESIZE & SNAP GUIDES
+// ══════════════════════════════════════════════
+let drag=null;
+const SNAP_THRESH=6;
+
+function initPointer(){
+  const ca=document.getElementById('canvasArea');
+
+  ca.addEventListener('pointerdown',e=>{
+    closeColPopup();
+    const rh=e.target.closest('.rh'); const elDiv=e.target.closest('.cd-el');
+    const sheet=e.target.closest('.page-sheet');
+    // Switch active page
+    if(sheet&&sheet.dataset.pgIdx!==undefined){
+      const pi=+sheet.dataset.pgIdx;
+      if(pi!==S.pgIdx){
+        S.pgIdx=pi;
+        // Lightweight page switch — just update active class, no full re-render
+        document.querySelectorAll('.page-sheet').forEach(s=>s.classList.toggle('pg-active',+s.dataset.pgIdx===pi));
+        renderProps();
+        return;
+      }
+    }
+    if(rh&&elDiv){
+      const id=elDiv.dataset.id; const el=S.elements.find(x=>x.id===id); if(!el)return;
+      e.preventDefault();
+      drag={mode:'resize',id,h:rh.dataset.h,sx:e.clientX,sy:e.clientY,ox:el.x,oy:el.y,ow:el.w,oh:el.h};
+      ca.setPointerCapture(e.pointerId); return;
+    }
+    if(elDiv){
+      const id=elDiv.dataset.id; const el=S.elements.find(x=>x.id===id); if(!el)return;
+      if(S.selectedId!==id) setSelected(id);
+      e.preventDefault();
+      drag={mode:'drag',id,sx:e.clientX,sy:e.clientY,ox:el.x,oy:el.y};
+      ca.setPointerCapture(e.pointerId); return;
+    }
+    // Click on empty canvas or empty page — just deselect, NO renderAll
+    if(S.selectedId){setSelected(null);}
+  });
+
+  ca.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const dX=(e.clientX-drag.sx)/S.zoom, dY=(e.clientY-drag.sy)/S.zoom;
+    const el=S.elements.find(x=>x.id===drag.id); if(!el) return;
+    if(drag.mode==='drag'){
+      el.x=Math.round(drag.ox+dX); el.y=Math.round(drag.oy+dY);
+      checkSnapGuides(el);
+    } else {
+      let nx=drag.ox,ny=drag.oy,nw=drag.ow,nh=drag.oh,h=drag.h;
+      if(h.includes('e')) nw=Math.max(12,drag.ow+dX);
+      if(h.includes('s')) nh=Math.max(4,drag.oh+dY);
+      if(h.includes('w')){nw=Math.max(12,drag.ow-dX);nx=drag.ox+drag.ow-nw;}
+      if(h.includes('n')){nh=Math.max(4,drag.oh-dY);ny=drag.oy+drag.oh-nh;}
+      el.x=Math.round(nx);el.y=Math.round(ny);el.w=Math.round(nw);el.h=Math.round(nh);
+      hideSnapGuides();
+    }
+    const dom=document.querySelector(`.cd-el[data-id="${el.id}"]`);
+    if(dom){dom.style.left=el.x+'px';dom.style.top=el.y+'px';dom.style.width=el.w+'px';dom.style.height=el.h+'px';}
+  });
+
+  ca.addEventListener('pointerup',()=>{
+    if(!drag)return;
+    const id=drag.id; drag=null;
+    hideSnapGuides(); pushHist();
+    // Refresh just the moved element's inner (table col pickers etc) without full rebuild
+    const el=S.elements.find(x=>x.id===id);
+    if(el){const dom=document.querySelector(`.cd-el[data-id="${id}"]`);if(dom)dom.innerHTML=buildInner(el)+(S.selectedId===id?'<div class="rh-wrap">'+['nw','n','ne','e','se','s','sw','w'].map(d=>`<div class="rh ${d}" data-h="${d}"></div>`).join('')+'</div>':'');}
+    renderProps();
+  });
+
+  ca.addEventListener('dblclick',e=>{
+    const elDiv=e.target.closest('.cd-el.selected'); if(!elDiv)return;
+    const id=elDiv.dataset.id; const el=S.elements.find(x=>x.id===id);
+    if(!el||el.type!=='text')return;
+    const c=elDiv.querySelector('.el-text-c'); if(!c)return;
+    c.contentEditable='true'; c.focus();
+    const r=document.createRange(); r.selectNodeContents(c);
+    const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    function finishEdit(){c.contentEditable='false';el.props.content=c.textContent||'';pushHist();renderAll();renderProps();}
+    c.addEventListener('blur',finishEdit,{once:true});
+    c.addEventListener('keydown',ev=>{if(ev.key==='Escape'){ev.preventDefault();c.blur();}},{once:true});
+  });
+
+  ca.addEventListener('scroll',()=>closeColPopup());
+}
+
+// ── Snap Guides ──
+function checkSnapGuides(el){
+  const others=S.elements.filter(e=>e.id!==el.id);
+  let showH=false,showV=false,snapHY=null,snapVX=null;
+
+  const elMidX=el.x+el.w/2, elMidY=el.y+el.h/2;
+  const elR=el.x+el.w, elB=el.y+el.h;
+  const ps=PAGE_PX[S.pageSize]; const pageMidX=ps.w/2, pageMidY=ps.h/2;
+
+  // Check against page center
+  if(Math.abs(elMidX-pageMidX)<SNAP_THRESH){el.x=Math.round(pageMidX-el.w/2);snapVX=pageMidX;showV=true;}
+  if(Math.abs(elMidY-pageMidY)<SNAP_THRESH){el.y=Math.round(pageMidY-el.h/2);snapHY=pageMidY;showH=true;}
+
+  // Check against other elements
+  for(const o of others){
+    const oMidX=o.x+o.w/2, oMidY=o.y+o.h/2, oR=o.x+o.w, oB=o.y+o.h;
+    // Vertical alignment (x axes)
+    if(!showV){
+      if(Math.abs(el.x-o.x)<SNAP_THRESH){el.x=o.x;snapVX=o.x;showV=true;}
+      else if(Math.abs(elMidX-oMidX)<SNAP_THRESH){el.x=Math.round(oMidX-el.w/2);snapVX=oMidX;showV=true;}
+      else if(Math.abs(elR-oR)<SNAP_THRESH){el.x=oR-el.w;snapVX=oR;showV=true;}
+      else if(Math.abs(el.x-oR)<SNAP_THRESH){el.x=oR;snapVX=oR;showV=true;}
+    }
+    // Horizontal alignment (y axes)
+    if(!showH){
+      if(Math.abs(el.y-o.y)<SNAP_THRESH){el.y=o.y;snapHY=o.y;showH=true;}
+      else if(Math.abs(elMidY-oMidY)<SNAP_THRESH){el.y=Math.round(oMidY-el.h/2);snapHY=oMidY;showH=true;}
+      else if(Math.abs(elB-oB)<SNAP_THRESH){el.y=oB-el.h;snapHY=oB;showH=true;}
+    }
+  }
+
+  const snapH=document.getElementById('snapH-'+S.pgIdx); const snapV=document.getElementById('snapV-'+S.pgIdx);
+  if(snapH){if(showH&&snapHY!=null){snapH.style.display='block';snapH.style.top=snapHY+'px';}else{snapH.style.display='none';}}
+  if(snapV){if(showV&&snapVX!=null){snapV.style.display='block';snapV.style.left=snapVX+'px';}else{snapV.style.display='none';}}
+}
+function hideSnapGuides(){const h=document.getElementById('snapH-'+S.pgIdx);const v=document.getElementById('snapV-'+S.pgIdx);if(h)h.style.display='none';if(v)v.style.display='none';}
+
+// ══════════════════════════════════════════════
+//  CONTEXT TOOLBAR
+// ══════════════════════════════════════════════
+function updateCtxToolbar(){
+  const el=S.elements.find(e=>e.id===S.selectedId);
+  const tb=document.getElementById('ctxToolbar');
+  if(!el||el.type!=='text'){tb.classList.remove('visible');return;}
+  tb.classList.add('visible'); const p=el.props;
+  document.getElementById('ctxBold').classList.toggle('active',p.fontWeight==='bold'||p.fontWeight==='600');
+  document.getElementById('ctxItalic').classList.toggle('active',!!p.italic);
+  document.getElementById('ctxSizeInput').value=p.fontSize||16;
+  document.getElementById('ctxAlL').classList.toggle('active',p.textAlign==='left');
+  document.getElementById('ctxAlC').classList.toggle('active',p.textAlign==='center');
+  document.getElementById('ctxAlR').classList.toggle('active',p.textAlign==='right');
+  const cf=document.getElementById('ctxFont');cf.innerHTML=fontOptionsHTML(p.fontFamily||'solaiman');
+  document.getElementById('ctxColor').value=p.color||'#000000';
+}
+function ctxToggle(key,onVal,offVal){const el=S.elements.find(e=>e.id===S.selectedId);if(!el)return;el.props[key]=(el.props[key]===onVal)?offVal:onVal;pushHist();renderAll();renderProps();}
+function ctxSize(d){const el=S.elements.find(e=>e.id===S.selectedId);if(!el||el.type!=='text')return;el.props.fontSize=Math.max(6,Math.min(120,(el.props.fontSize||16)+d));pushHist();renderAll();renderProps();}
+
+// ══════════════════════════════════════════════
+//  PROPERTIES PANEL
+// ══════════════════════════════════════════════
+function renderProps(){
+  const el=S.elements.find(e=>e.id===S.selectedId);
+  const html=el?propsHTML(el):canvasPropsHTML();
+  document.getElementById('rpBody').innerHTML=html;
+  document.getElementById('propsSheetBody').innerHTML=el?propsHTML(el):'';
+  updateCtxToolbar();
+}
+
+function canvasPropsHTML(){
+  return `<div class="rp-sec">
+    <div class="rp-stitle">Canvas / Paper</div>
+    <div class="rp-row"><span class="rp-lbl">Bg Color</span><input class="rp-inp" type="color" value="${S.paperBg}" oninput="S.paperBg=this.value;applyPaperBg()"><button class="seg-btn" style="flex:0 0 auto;padding:5px 8px" onclick="setPaperBg('#ffffff')">Reset</button></div>
+    <div class="rp-stitle" style="margin-top:8px">Watermark</div>
+    ${S.watermarkUrl?`<div class="rp-row"><img src="${S.watermarkUrl}" style="width:48px;height:48px;object-fit:contain;border:1px solid var(--border);border-radius:4px"><button class="rp-del" style="flex:1;margin:0" onclick="removeWatermark()">✕ Remove</button></div>`:''}
+    <div class="rp-row"><button class="seg-btn" style="flex:1;padding:7px" onclick="document.getElementById('wmInput').click()">🖼 Watermark Image</button></div>
+    ${S.watermarkUrl?`<div class="rp-row"><span class="rp-lbl">Opacity</span><input class="rp-inp" type="range" min="0.02" max="0.4" step="0.01" value="${S.watermarkOpacity}" oninput="setWatermarkOpacity(+this.value)"></div>`:''}
+  </div>
+  <div class="rp-empty" style="padding-top:12px">← Element select করো</div>`;
+}
+
+function propsHTML(el){
+  const p=el.props;
+  let h=`<div class="rp-sec">
+    <div class="rp-stitle">Position &amp; Size</div>
+    <div class="rp-row"><span class="rp-lbl">X</span><input class="rp-inp" type="number" value="${el.x}" onchange="setP('x',+this.value)"><span class="rp-lbl" style="min-width:18px;text-align:center">Y</span><input class="rp-inp" type="number" value="${el.y}" onchange="setP('y',+this.value)"></div>
+    <div class="rp-row"><span class="rp-lbl">W</span><input class="rp-inp" type="number" value="${el.w}" onchange="setP('w',+this.value)"><span class="rp-lbl" style="min-width:18px;text-align:center">H</span><input class="rp-inp" type="number" value="${el.h}" onchange="setP('h',+this.value)"></div>
+  </div>`;
+
+  if(el.type==='text'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">Text</div>
+      <div class="rp-row"><span class="rp-lbl">Size</span><input class="rp-inp" type="number" value="${p.fontSize}" onchange="setEP('fontSize',+this.value)"><span class="rp-lbl" style="min-width:24px;text-align:center">Color</span><input class="rp-inp" type="color" value="${p.color}" oninput="setEP('color',this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">Font</span><select class="rp-inp" onchange="setEP('fontFamily',this.value)">${fontOptionsHTML(p.fontFamily||'solaiman')}</select></div>
+      <div class="rp-row"><span class="rp-lbl">Weight</span><div class="seg-row" style="flex:1"><button class="seg-btn${p.fontWeight==='normal'?' active':''}" onclick="setEP('fontWeight','normal')">Normal</button><button class="seg-btn${p.fontWeight==='600'?' active':''}" onclick="setEP('fontWeight','600')">Semi</button><button class="seg-btn${p.fontWeight==='bold'?' active':''}" onclick="setEP('fontWeight','bold')">Bold</button></div></div>
+      <div class="rp-row"><span class="rp-lbl">Align</span><div class="seg-row" style="flex:1"><button class="seg-btn${p.textAlign==='left'?' active':''}" onclick="setEP('textAlign','left')">⬅</button><button class="seg-btn${p.textAlign==='center'?' active':''}" onclick="setEP('textAlign','center')">↔</button><button class="seg-btn${p.textAlign==='right'?' active':''}" onclick="setEP('textAlign','right')">➡</button></div></div>
+      <div class="rp-row"><span class="rp-lbl">Italic</span><div class="seg-row" style="flex:1"><button class="seg-btn${!p.italic?' active':''}" onclick="setEP('italic',false)">Normal</button><button class="seg-btn${p.italic?' active':''}" onclick="setEP('italic',true)"><em>Italic</em></button></div></div>
+      <div class="rp-row"><span class="rp-lbl">Line H.</span><input class="rp-inp" type="number" step="0.1" min="1" max="3" value="${p.lineHeight||1.5}" onchange="setEP('lineHeight',+this.value)"></div>
+    </div>
+    <div class="rp-sec"><div class="rp-stitle">🔁 Mail Merge Field</div>
+      <div class="rp-row"><span class="rp-lbl" style="min-width:36px">Field</span>
+        <select class="rp-inp" onchange="setEP('dataField',this.value)">
+          <option value="" ${!p.dataField?'selected':''}>— (নির্দিষ্ট নয়)</option>
+          ${(DATA_SOURCES.students.mergeFields).map(f=>`<option value="students.${f.key}" ${p.dataField==='students.'+f.key?'selected':''}>${f.label} (ছাত্র)</option>`).join('')}
+          ${(DATA_SOURCES.teachers.mergeFields).map(f=>`<option value="teachers.${f.key}" ${p.dataField==='teachers.'+f.key?'selected':''}>${f.label} (শিক্ষক)</option>`).join('')}
+        </select>
+      </div>
+      ${p.dataField?`<p style="font-size:10px;color:var(--green);line-height:1.5">✓ Repeat Print এ এই field দিয়ে fill হবে</p>`:''}
+    </div>`;
+  }
+
+  if(el.type==='rect'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">Box Style</div>
+      <div class="rp-row"><span class="rp-lbl">Fill</span><input class="rp-inp" type="color" value="${p.bg}" oninput="setEP('bg',this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">Border</span><input class="rp-inp" type="color" value="${p.borderColor}" oninput="setEP('borderColor',this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">B.Width</span><input class="rp-inp" type="number" value="${p.borderWidth}" min="0" max="20" onchange="setEP('borderWidth',+this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">Radius</span><input class="rp-inp" type="number" value="${p.borderRadius}" min="0" onchange="setEP('borderRadius',+this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">Style</span><select class="rp-inp" onchange="setEP('borderStyle',this.value)"><option value="solid" ${p.borderStyle==='solid'?'selected':''}>Solid</option><option value="dashed" ${p.borderStyle==='dashed'?'selected':''}>Dashed</option><option value="dotted" ${p.borderStyle==='dotted'?'selected':''}>Dotted</option><option value="double" ${p.borderStyle==='double'?'selected':''}>Double</option></select></div>
+    </div>`;
+  }
+
+  if(el.type==='line'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">Line Style</div>
+      <div class="rp-row"><span class="rp-lbl">Color</span><input class="rp-inp" type="color" value="${p.color}" oninput="setEP('color',this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">Width</span><input class="rp-inp" type="number" value="${p.lineWidth}" min="1" max="20" onchange="setEP('lineWidth',+this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">Style</span><select class="rp-inp" onchange="setEP('lineStyle',this.value)"><option value="solid" ${p.lineStyle==='solid'?'selected':''}>Solid</option><option value="dashed" ${p.lineStyle==='dashed'?'selected':''}>Dashed</option><option value="dotted" ${p.lineStyle==='dotted'?'selected':''}>Dotted</option><option value="double" ${p.lineStyle==='double'?'selected':''}>Double</option></select></div>
+    </div>`;
+  }
+
+  if(el.type==='image'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">Image</div>
+      <div class="rp-row"><span class="rp-lbl">Fit</span><select class="rp-inp" onchange="setEP('fit',this.value)"><option value="contain" ${p.fit==='contain'?'selected':''}>Contain</option><option value="cover" ${p.fit==='cover'?'selected':''}>Cover</option><option value="fill" ${p.fit==='fill'?'selected':''}>Stretch</option></select></div>
+      <button class="seg-btn" style="width:100%;padding:7px;margin-top:4px" onclick="document.getElementById('imgInput').click()">📁 Change Image</button>
+    </div>`;
+  }
+
+  if(el.type==='qr'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">QR Code</div>
+      <div class="rp-row"><span class="rp-lbl">Text</span><input class="rp-inp" value="${esc(p.qrText)}" onchange="setEPAndQR('qrText',this.value)" placeholder="URL বা text"></div>
+      <div class="rp-row"><span class="rp-lbl">Color</span><input class="rp-inp" type="color" value="${p.qrColor||'#000000'}" oninput="setEPAndQR('qrColor',this.value)"><span class="rp-lbl" style="min-width:28px;text-align:center">Bg</span><input class="rp-inp" type="color" value="${p.qrBg||'#ffffff'}" oninput="setEPAndQR('qrBg',this.value)"></div>
+      <p style="font-size:10px;color:var(--text-3);line-height:1.5;margin-top:4px">Mail Merge তে QR text এ student name / roll দিতে পারো</p>
+    </div>`;
+  }
+
+  if(el.type==='table'){
+    h+=`<div class="rp-sec"><div class="rp-stitle">Data Source</div>
+      <div class="rp-row"><span class="rp-lbl">Source</span><select class="rp-inp" onchange="setEP('dataSource',this.value)">${Object.keys(DATA_SOURCES).map(k=>`<option value="${k}" ${p.dataSource===k?'selected':''}>${DATA_SOURCES[k].label}</option>`).join('')}</select></div>
+      <button class="seg-btn" style="width:100%;padding:8px;border-color:var(--green);color:var(--green);background:var(--green-bg)" onclick="syncSingleTable('${el.id}')">🔄 Sync from Supabase</button>
+    </div>
+    <div class="rp-sec"><div class="rp-stitle">Table Style</div>
+      <div class="rp-row"><span class="rp-lbl">H.Bg</span><input class="rp-inp" type="color" value="${p.headerBg}" oninput="setEP('headerBg',this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">H.Text</span><input class="rp-inp" type="color" value="${p.headerColor}" oninput="setEP('headerColor',this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">Row Bg</span><input class="rp-inp" type="color" value="${p.rowBg}" oninput="setEP('rowBg',this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">Alt Bg</span><input class="rp-inp" type="color" value="${p.altRowBg}" oninput="setEP('altRowBg',this.value)"></div>
+      <div class="rp-row"><span class="rp-lbl">Border</span><input class="rp-inp" type="color" value="${p.borderColor}" oninput="setEP('borderColor',this.value)"><span class="rp-lbl" style="min-width:36px;text-align:center">Font</span><input class="rp-inp" type="number" value="${p.fontSize}" min="6" max="20" onchange="setEP('fontSize',+this.value)"></div>
+    </div>
+    <div class="rp-sec"><div class="rp-stitle">Columns</div>
+      ${p.cols.map((col,ci)=>`<div class="rp-row" style="gap:4px;margin-bottom:5px"><input class="rp-inp" style="flex:1.2;min-width:0" value="${esc(col.label)}" placeholder="Header" onchange="setColLabel('${el.id}',${ci},this.value)"><input class="rp-inp" style="width:44px;flex:0 0 44px;min-width:0" type="number" value="${col.width}" min="20" onchange="setColWidth('${el.id}',${ci},+this.value)"><button class="seg-btn" style="flex:0 0 18px;padding:4px 3px;font-size:10px" onclick="delCol('${el.id}',${ci})">✕</button></div>`).join('')}
+      <button class="seg-btn" style="width:100%;padding:6px" onclick="addCol('${el.id}')">+ Column</button>
+    </div>`;
+  }
+
+  h+=`<div class="rp-sec"><div class="rp-stitle">Layer</div>
+    <div class="seg-row"><button class="seg-btn" onclick="moveLayer(1)">↑ Forward</button><button class="seg-btn" onclick="moveLayer(-1)">↓ Back</button></div>
+    <div class="seg-row" style="margin-top:5px"><button class="seg-btn" onclick="duplicateSelected()">⧉ Duplicate</button></div>
+  </div>
+  <div class="rp-sec"><button class="rp-del" onclick="deleteSelected()">🗑 Delete Element</button></div>`;
+  return h;
+}
+
+function setP(key,val){const el=S.elements.find(e=>e.id===S.selectedId);if(!el)return;el[key]=val;pushHist();renderAll();renderProps();}
+function setEP(key,val){const el=S.elements.find(e=>e.id===S.selectedId);if(!el)return;el.props[key]=val;pushHist();renderAll();renderProps();}
+function setEPAndQR(key,val){const el=S.elements.find(e=>e.id===S.selectedId);if(!el||el.type!=='qr')return;el.props[key]=val;generateQR(el.id,el.props.qrText,el.props.qrColor,el.props.qrBg);pushHist();renderAll();renderProps();}
+function moveLayer(dir){const i=S.elements.findIndex(e=>e.id===S.selectedId);if(i<0)return;const j=i+dir;if(j<0||j>=S.elements.length)return;[S.elements[i],S.elements[j]]=[S.elements[j],S.elements[i]];pushHist();renderAll();renderProps();}
+
+// Table column management
+function setColLabel(elId,ci,val){const el=S.elements.find(e=>e.id===elId);if(!el)return;el.props.cols[ci].label=val;pushHist();renderAll();renderProps();}
+function setColWidth(elId,ci,val){const el=S.elements.find(e=>e.id===elId);if(!el)return;el.props.cols[ci].width=Math.max(20,val);pushHist();renderAll();renderProps();}
+function addCol(elId){const el=S.elements.find(e=>e.id===elId);if(!el)return;el.props.cols.push({label:'কলাম',field:'blank',width:80});el.props.rows.forEach(r=>r.blank='');pushHist();renderAll();renderProps();}
+function delCol(elId,ci){const el=S.elements.find(e=>e.id===elId);if(!el||el.props.cols.length<=1)return;el.props.cols.splice(ci,1);pushHist();renderAll();renderProps();}
+
+// Col field popup
+let colPickState=null;
+function openColPicker(event,elId,colIdx){
+  event.stopPropagation();
+  const el=S.elements.find(e=>e.id===elId);if(!el)return;
+  const src=DATA_SOURCES[el.props.dataSource]||DATA_SOURCES.students;
+  colPickState={elId,colIdx};
+  const popup=document.getElementById('colPopup');
+  const items=document.getElementById('colPopupItems');
+  const curField=el.props.cols[colIdx].field;
+  items.innerHTML=`<div class="col-popup-src">Source: ${src.label}</div>`+src.fields.map(f=>`<div class="col-popup-item${f.key===curField?' active':''}" onclick="applyColField('${f.key}','${f.label}')">${f.label}</div>`).join('');
+  popup.style.left=Math.min(event.clientX,window.innerWidth-200)+'px';
+  popup.style.top=Math.min(event.clientY+4,window.innerHeight-200)+'px';
+  popup.classList.add('open');
+}
+function applyColField(fieldKey,fieldLabel){if(!colPickState)return;const el=S.elements.find(e=>e.id===colPickState.elId);if(!el)return;el.props.cols[colPickState.colIdx].field=fieldKey;el.props.cols[colPickState.colIdx].label=fieldLabel;closeColPopup();pushHist();renderAll();renderProps();}
+function closeColPopup(){document.getElementById('colPopup').classList.remove('open');colPickState=null;}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#colPopup')&&!e.target.closest('.el-tbl th'))closeColPopup();});
+
+// ══════════════════════════════════════════════
+//  DATA SYNC
+// ══════════════════════════════════════════════
+async function syncSingleTable(elId){
+  if(!INST){toast('⚠ লগইন নেই');return;}
+  const el=S.elements.find(e=>e.id===elId);if(!el||el.type!=='table')return;
+  const src=DATA_SOURCES[el.props.dataSource];if(!src){toast('⚠ Unknown source');return;}
+  showLoading('Data লোড হচ্ছে…');
+  const rows=await src.query(INST.id);
+  el.props.rows=rows; hideLoading();
+  pushHist();renderAll();renderProps();
+  toast(`✓ ${BN(rows.length)} টি row sync হয়েছে`);
+}
+async function syncAllTables(){
+  if(!INST){toast('⚠ লগইন নেই');return;}
+  const tables=S.elements.filter(e=>e.type==='table');
+  if(!tables.length){toast('⚠ কোনো table নেই');return;}
+  showLoading('সব table sync হচ্ছে…');
+  for(const el of tables) await syncSingleTable(el.id);
+  hideLoading();
+}
+
+// ══════════════════════════════════════════════
+//  REPEAT PRINT / MAIL MERGE
+// ══════════════════════════════════════════════
+function showRepeatModal(){
+  renderRepeatFields();
+  document.getElementById('repeatModal').classList.add('open');
+}
+function closeRepeatModal(){document.getElementById('repeatModal').classList.remove('open');}
+
+function renderRepeatFields(){
+  const source=document.getElementById('rptSource')?.value||'students';
+  const textEls=S.elements.filter(e=>e.type==='text');
+  const src=DATA_SOURCES[source];
+  const container=document.getElementById('rptFields');
+  if(!container)return;
+  if(!textEls.length){container.innerHTML='<p style="font-size:12px;color:var(--text-3)">Document এ কোনো text element নেই।</p>';return;}
+  container.innerHTML=textEls.map((el,i)=>`
+    <div class="rpt-field-row">
+      <div class="rpt-field-preview" title="${el.props.content}">${el.props.content.substring(0,30)||'(empty)'}…</div>
+      <span class="rpt-field-arrow">→</span>
+      <select class="rpt-field-select" id="rptMap_${el.id}" data-elid="${el.id}">
+        <option value="">— (অপরিবর্তিত)</option>
+        ${src.mergeFields.map(f=>`<option value="${f.key}" ${el.props.dataField===source+'.'+f.key?'selected':''}>${f.label}</option>`).join('')}
+      </select>
+    </div>`).join('');
+  // Pre-select based on stored dataField
+  textEls.forEach(el=>{
+    const sel=document.getElementById(`rptMap_${el.id}`);
+    if(sel&&el.props.dataField&&el.props.dataField.startsWith(source+'.')){
+      sel.value=el.props.dataField.split('.')[1];
+    }
+  });
+}
+
+async function runRepeatPrint(){
+  if(!INST){toast('⚠ Supabase লগইন নেই');return;}
+  const source=document.getElementById('rptSource').value;
+  const src=DATA_SOURCES[source];
+  showLoading('Data লোড হচ্ছে…');
+  const rows=await src.query(INST.id);
+  if(!rows.length){hideLoading();toast('⚠ কোনো data নেই');return;}
+
+  // Read mapping
+  const mapping={};
+  document.querySelectorAll('[id^="rptMap_"]').forEach(sel=>{
+    if(sel.value) mapping[sel.dataset.elid]=sel.value;
+  });
+
+  hideLoading();
+  closeRepeatModal();
+
+  const ps=PAGE_PX[S.pageSize];
+  const ff=`'SulamanILipi','Noto Serif Bengali','Vrinda',serif`;
+
+  const pages=rows.map(row=>{
+    const pageEls=S.elements.map(el=>{
+      let content=null;
+      if(el.type==='text'&&mapping[el.id]){content=row[mapping[el.id]]||'';}
+      const elToRender=content!==null?{...el,props:{...el.props,content}}:el;
+      return renderElForPrint(elToRender,ps);
+    }).join('');
+    return `<div class="page">${pageEls}</div>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>Repeat Print</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
+@font-face{font-family:'SulamanILipi';src:local('SulamanILipi'),local('Sulaiman');}
+*{box-sizing:border-box;margin:0;padding:0}
+@page{size:${S.pageSize};margin:0}
+.page{position:relative;width:${ps.w}px;height:${ps.h}px;background:${S.paperBg};overflow:hidden;page-break-after:always}
+${S.watermarkUrl?`.page::after{content:'';position:absolute;inset:0;background:url('${S.watermarkUrl}') center/60% no-repeat;opacity:${S.watermarkOpacity};pointer-events:none}`:''}
+</style></head><body>
+${pages}
+<script>window.onload=()=>{setTimeout(()=>window.print(),300)}<\/script>
+</body></html>`;
+
+  const w=window.open('','_blank');
+  if(!w){alert('Popup blocked!');return;}
+  w.document.write(html);w.document.close();
+  toast(`✓ ${BN(rows.length)} জনের জন্য print তৈরি হচ্ছে`);
+}
+
+// ══════════════════════════════════════════════
+//  IMAGE / WATERMARK UPLOAD
+// ══════════════════════════════════════════════
+function onImgUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{const el=S.elements.find(e=>e.id===S.selectedId);if(el&&el.type==='image'){el.props.src=ev.target.result;pushHist();renderAll();renderProps();}};
+  reader.readAsDataURL(file);e.target.value='';
+}
+
+// ══════════════════════════════════════════════
+//  PRINT & EXPORT
+// ══════════════════════════════════════════════
+function renderElForPrint(el,ps){
+  const p=el.props;
+  const ff=p.fontFamily==='serif'?`'SulamanILipi','Noto Serif Bengali','Vrinda',serif`:`system-ui,sans-serif`;
+  let inner='';
+  switch(el.type){
+    case 'text': inner=`<div style="font-size:${p.fontSize}px;font-weight:${p.fontWeight};font-style:${p.italic?'italic':'normal'};text-align:${p.textAlign};color:${p.color};font-family:${ff};line-height:${p.lineHeight||1.5};width:100%;height:100%;overflow:hidden;word-break:break-word;white-space:pre-wrap">${esc(p.content)}</div>`; break;
+    case 'rect': inner=`<div style="width:100%;height:100%;background:${p.bg};border:${p.borderWidth}px ${p.borderStyle} ${p.borderColor};border-radius:${p.borderRadius}px"></div>`; break;
+    case 'line': inner=`<hr style="width:100%;border:none;border-top:${p.lineWidth}px ${p.lineStyle} ${p.color};margin:0">`; break;
+    case 'image': inner=p.src?`<img src="${p.src}" style="width:100%;height:100%;object-fit:${p.fit};display:block">`:'' ; break;
+    case 'qr': inner=p.qrDataUrl?`<img src="${p.qrDataUrl}" style="max-width:100%;max-height:100%;object-fit:contain">`:'' ; break;
+    case 'table':
+      const tff=p.fontFamily==='serif'?ff:`system-ui,sans-serif`;
+      let th=p.cols.map(c=>`<th style="background:${p.headerBg};color:${p.headerColor};border:1px solid ${p.borderColor};padding:4px 6px;font-size:${p.headerFontSize}px;font-family:${tff}">${esc(c.label)}</th>`).join('');
+      let trs=p.rows.map((row,ri)=>`<tr>${p.cols.map(col=>`<td style="background:${ri%2===0?p.rowBg:p.altRowBg};border:1px solid ${p.borderColor};padding:3px 6px;font-size:${p.fontSize}px;font-family:${tff};text-align:center">${esc(row[col.field]||'')}</td>`).join('')}</tr>`).join('');
+      inner=`<table style="width:100%;border-collapse:collapse"><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+      break;
+  }
+  return `<div style="position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;overflow:hidden">${inner}</div>`;
+}
+
+function printDoc(){
+  const ps=PAGE_PX[S.pageSize];
+  const elHtml=S.elements.map(el=>renderElForPrint(el,ps)).join('');
+  const wmStyle=S.watermarkUrl?`.paper::after{content:'';position:absolute;inset:0;background:url('${S.watermarkUrl}') center/60% no-repeat;opacity:${S.watermarkOpacity};pointer-events:none}`:'';
+  const html=`<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>Document</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
+@font-face{font-family:'SulamanILipi';src:local('SulamanILipi'),local('Sulaiman');}
+*{box-sizing:border-box;margin:0;padding:0}
+@page{size:${S.pageSize};margin:0}
+html,body{width:${ps.w}px;height:${ps.h}px;overflow:hidden;background:white}
+.paper{position:relative;width:${ps.w}px;height:${ps.h}px;background:${S.paperBg};overflow:hidden}
+${wmStyle}
+</style></head><body>
+<div class="paper">${elHtml}</div>
+<script>window.onload=()=>{setTimeout(()=>window.print(),200)}<\/script>
+</body></html>`;
+  const w=window.open('','_blank');if(!w){alert('Popup blocked!');return;}
+  w.document.write(html);w.document.close();
+}
+
+async function exportPNG(){
+  if(typeof html2canvas==='undefined'){toast('⚠ html2canvas লোড হয়নি');return;}
+  showLoading('PNG তৈরি হচ্ছে…');
+  const paper=document.getElementById('page-'+S.pgIdx);
+  if(!paper){hideLoading();toast('⚠ পৃষ্ঠা পাওয়া যায়নি');return;}
+  try{
+    const canvas=await html2canvas(paper,{scale:2,useCORS:true,allowTaint:true,backgroundColor:S.paperBg});
+    const link=document.createElement('a');
+    link.download=`page-${S.pgIdx+1}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    toast('✓ PNG download হয়েছে');
+  }catch(e){
+    toast('⚠ Export এ সমস্যা হয়েছে');
+  }
+  hideLoading();
+}
+
+// ══════════════════════════════════════════════
+//  TEMPLATES
+// ══════════════════════════════════════════════
+const BUILT_IN=[
+  {name:'নোটিশ',icon:'📢',desc:'বিজ্ঞপ্তি / Notice',color:'#1a4080',bg:'#e8f0ff',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><rect x="4" y="4" width="76" height="112" rx="2" fill="none" stroke="#1a4080" stroke-width="1.5"/><rect x="4" y="4" width="76" height="22" rx="2" fill="#1a4080"/><text x="42" y="19" font-size="8" font-weight="bold" fill="#fff" text-anchor="middle" font-family="serif">বিজ্ঞপ্তি</text><line x1="10" y1="32" x2="74" y2="32" stroke="#1a4080" stroke-width=".5"/><rect x="10" y="36" width="40" height="2" rx="1" fill="#ccc"/><rect x="10" y="42" width="64" height="2" rx="1" fill="#ddd"/><rect x="10" y="48" width="60" height="2" rx="1" fill="#ddd"/><rect x="10" y="54" width="64" height="2" rx="1" fill="#ddd"/><rect x="10" y="60" width="50" height="2" rx="1" fill="#ddd"/><rect x="10" y="68" width="64" height="2" rx="1" fill="#ddd"/><rect x="10" y="74" width="55" height="2" rx="1" fill="#ddd"/><rect x="44" y="96" width="30" height="2" rx="1" fill="#bbb"/><rect x="44" y="102" width="24" height="2" rx="1" fill="#bbb"/></svg>`,make:(ps)=>[
+    {type:'rect',x:10,y:10,w:ps.w-20,h:ps.h-20,props:{bg:'#ffffff',borderColor:'#003366',borderWidth:2,borderRadius:4,borderStyle:'solid'}},
+    {type:'text',x:30,y:28,w:ps.w-60,h:36,props:{content:'বিজ্ঞপ্তি',fontSize:24,fontWeight:'bold',textAlign:'center',color:'#003366',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:30,y:70,w:ps.w-60,h:2,props:{color:'#003366',lineWidth:2,lineStyle:'solid'}},
+    {type:'text',x:30,y:82,w:140,h:20,props:{content:'তারিখ: ____/____/______',fontSize:11,fontWeight:'normal',textAlign:'left',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'text',x:30,y:110,w:ps.w-60,h:220,props:{content:'এতদ্বারা সকলকে জানানো যাচ্ছে যে,\n\n\n\n\n\n\nউপরোক্ত বিষয়ে সকলের সদয় দৃষ্টি আকর্ষণ করা হলো।',fontSize:13,fontWeight:'normal',textAlign:'left',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.8,dataField:''}},
+    {type:'line',x:30,y:340,w:ps.w-60,h:1,props:{color:'#cccccc',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:ps.w-160,y:360,w:130,h:60,props:{content:'প্রধান শিক্ষক\n(স্বাক্ষর ও সীলমোহর)',fontSize:11,fontWeight:'normal',textAlign:'center',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+  ]},
+  {name:'প্রবেশপত্র',icon:'🎫',desc:'Admit Card',color:'#7a3010',bg:'#fff3e0',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><rect x="4" y="4" width="76" height="54" rx="3" fill="#fff3e0" stroke="#8b4513" stroke-width="1.5"/><text x="42" y="19" font-size="7" font-weight="bold" fill="#8b4513" text-anchor="middle" font-family="serif">পরীক্ষার প্রবেশপত্র</text><line x1="10" y1="23" x2="74" y2="23" stroke="#8b4513" stroke-width=".5"/><rect x="10" y="27" width="35" height="2" rx="1" fill="#c8a070"/><rect x="10" y="33" width="30" height="2" rx="1" fill="#c8a070"/><rect x="10" y="39" width="28" height="2" rx="1" fill="#c8a070"/><rect x="55" y="26" width="18" height="18" rx="1" fill="#e0c090" stroke="#8b4513" stroke-width=".5"/><rect x="4" y="64" width="76" height="52" rx="2" fill="none" stroke="#ddd" stroke-width="1"/><rect x="10" y="70" width="50" height="2" rx="1" fill="#ddd"/><rect x="10" y="76" width="64" height="2" rx="1" fill="#ddd"/><rect x="10" y="82" width="45" height="2" rx="1" fill="#ddd"/></svg>`,make:(ps)=>[
+    {type:'rect',x:10,y:10,w:ps.w-20,h:200,props:{bg:'#f8f0e0',borderColor:'#8b4513',borderWidth:2,borderRadius:6,borderStyle:'solid'}},
+    {type:'text',x:20,y:24,w:ps.w-40,h:32,props:{content:'পরীক্ষার প্রবেশপত্র',fontSize:20,fontWeight:'bold',textAlign:'center',color:'#8b4513',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:20,y:60,w:ps.w-40,h:1,props:{color:'#8b4513',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:30,y:72,w:ps.w/2-40,h:20,props:{content:'পরীক্ষার্থীর নাম:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.name'}},
+    {type:'text',x:30,y:96,w:ps.w/2-40,h:20,props:{content:'শ্রেণি:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.class'}},
+    {type:'text',x:30,y:120,w:ps.w/2-40,h:20,props:{content:'রোল নম্বর:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.roll_no'}},
+    {type:'text',x:30,y:150,w:ps.w-60,h:20,props:{content:'পরীক্ষার তারিখ: __________ থেকে __________',fontSize:12,fontWeight:'normal',textAlign:'left',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'qr',x:ps.w-120,y:66,w:100,h:100,props:{qrText:'Student ID',qrDataUrl:'',qrColor:'#000000',qrBg:'#f8f0e0'}},
+  ]},
+  {name:'তালিকা',icon:'📊',desc:'ছাত্র তালিকা',color:'#003366',bg:'#e8f0ff',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><text x="42" y="14" font-size="7" font-weight="bold" fill="#003366" text-anchor="middle" font-family="serif">ছাত্র-ছাত্রীর তালিকা</text><line x1="8" y1="18" x2="76" y2="18" stroke="#003366" stroke-width="1.2"/><rect x="8" y="21" width="68" height="9" rx="1" fill="#003366"/><text x="14" y="28" font-size="5" fill="#fff" font-family="sans-serif">ক্রমিক</text><text x="32" y="28" font-size="5" fill="#fff" font-family="sans-serif">নাম</text><text x="60" y="28" font-size="5" fill="#fff" font-family="sans-serif">মোবাইল</text><rect x="8" y="30" width="68" height="7" fill="#f0f4ff"/><rect x="8" y="37" width="68" height="7" fill="#fff"/><rect x="8" y="44" width="68" height="7" fill="#f0f4ff"/><rect x="8" y="51" width="68" height="7" fill="#fff"/><rect x="8" y="58" width="68" height="7" fill="#f0f4ff"/><rect x="8" y="65" width="68" height="7" fill="#fff"/><rect x="8" y="72" width="68" height="7" fill="#f0f4ff"/><rect x="8" y="21" width="68" height="58" rx="1" fill="none" stroke="#b0b8d8" stroke-width=".5"/></svg>`,make:(ps)=>[
+    {type:'text',x:20,y:16,w:ps.w-40,h:36,props:{content:'ছাত্র-ছাত্রীর তালিকা',fontSize:20,fontWeight:'bold',textAlign:'center',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:20,y:56,w:ps.w-40,h:1,props:{color:'#003366',lineWidth:2,lineStyle:'solid'}},
+    {type:'table',x:20,y:68,w:ps.w-40,h:280,props:{cols:[{label:'ক্রমিক',field:'serial',width:50},{label:'নাম',field:'name',width:ps.w-260},{label:'শ্রেণি',field:'class',width:70},{label:'রোল',field:'roll_no',width:60},{label:'মোবাইল',field:'guardian_phone',width:90}],rows:[{serial:'১',name:'',class:'',roll_no:'',guardian_phone:''},{serial:'২',name:'',class:'',roll_no:'',guardian_phone:''},{serial:'৩',name:'',class:'',roll_no:'',guardian_phone:''}],dataSource:'students',headerBg:'#003366',headerColor:'#ffffff',rowBg:'#ffffff',altRowBg:'#f0f4ff',borderColor:'#b0b8d8',fontSize:11,headerFontSize:12,fontFamily:'serif'}},
+  ]},
+  {name:'সার্টিফিকেট',icon:'🏆',desc:'Certificate / পুরস্কার সনদ',color:'#8b6914',bg:'#fffde8',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fffef0"/><rect x="3" y="3" width="78" height="114" rx="3" fill="none" stroke="#c0960c" stroke-width="2"/><rect x="7" y="7" width="70" height="106" rx="2" fill="none" stroke="#c0960c" stroke-width=".5"/><text x="42" y="28" font-size="10" font-weight="bold" fill="#8b4513" text-anchor="middle" font-family="serif">সার্টিফিকেট</text><line x1="18" y1="33" x2="66" y2="33" stroke="#c0960c" stroke-width=".8"/><text x="42" y="46" font-size="5.5" fill="#555" text-anchor="middle" font-family="serif" font-style="italic">এতদ্বারা প্রদান করা যাচ্ছে যে</text><rect x="16" y="52" width="52" height="3" rx="1.5" fill="#c0960c" opacity=".3"/><text x="42" y="64" font-size="7.5" font-weight="bold" fill="#003366" text-anchor="middle" font-family="serif">প্রাপকের নাম</text><rect x="22" y="68" width="40" height="2" rx="1" fill="#ddd"/><rect x="26" y="74" width="32" height="2" rx="1" fill="#ddd"/><rect x="12" y="98" width="22" height="2" rx="1" fill="#bbb"/><rect x="50" y="98" width="22" height="2" rx="1" fill="#bbb"/><text x="23" y="107" font-size="5" fill="#888" text-anchor="middle">তারিখ</text><text x="61" y="107" font-size="5" fill="#888" text-anchor="middle">প্রধান শিক্ষক</text></svg>`,make:(ps)=>[
+    {type:'rect',x:14,y:14,w:ps.w-28,h:ps.h-28,props:{bg:'#fffef0',borderColor:'#c0960c',borderWidth:4,borderRadius:8,borderStyle:'double'}},
+    {type:'rect',x:24,y:24,w:ps.w-48,h:ps.h-48,props:{bg:'transparent',borderColor:'#c0960c',borderWidth:1,borderRadius:5,borderStyle:'solid'}},
+    {type:'text',x:40,y:60,w:ps.w-80,h:40,props:{content:'সার্টিফিকেট',fontSize:32,fontWeight:'bold',textAlign:'center',color:'#8b4513',fontFamily:'serif',italic:false,lineHeight:1.2,dataField:''}},
+    {type:'line',x:60,y:108,w:ps.w-120,h:1,props:{color:'#c0960c',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:60,y:130,w:ps.w-120,h:20,props:{content:'এতদ্বারা প্রদান করা যাচ্ছে যে',fontSize:14,fontWeight:'normal',textAlign:'center',color:'#333333',fontFamily:'serif',italic:true,lineHeight:1.4,dataField:''}},
+    {type:'text',x:60,y:168,w:ps.w-120,h:32,props:{content:'প্রাপকের নাম',fontSize:22,fontWeight:'bold',textAlign:'center',color:'#003366',fontFamily:'serif',italic:false,lineHeight:1.2,dataField:'students.name'}},
+    {type:'text',x:60,y:210,w:ps.w-120,h:80,props:{content:'শ্রেণি:       | রোল নম্বর:\n\nউপরোক্ত পুরস্কারে ভূষিত হয়েছেন।',fontSize:13,fontWeight:'normal',textAlign:'center',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.8,dataField:''}},
+    {type:'text',x:60,y:ps.h-120,w:130,h:60,props:{content:'তারিখ:\n_______________',fontSize:12,fontWeight:'normal',textAlign:'center',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+    {type:'text',x:ps.w-210,y:ps.h-120,w:150,h:60,props:{content:'প্রধান শিক্ষক\n_______________',fontSize:12,fontWeight:'normal',textAlign:'center',color:'#333333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+  ]},
+  {name:'ফি রশিদ',icon:'🧾',desc:'Fee Receipt',color:'#145a32',bg:'#e8f8f0',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><rect x="4" y="4" width="76" height="112" rx="2" fill="none" stroke="#145a32" stroke-width="1.2"/><rect x="4" y="4" width="76" height="20" rx="2" fill="#145a32"/><text x="42" y="17" font-size="7" font-weight="bold" fill="#fff" text-anchor="middle" font-family="serif">বেতন রশিদ</text><line x1="10" y1="30" x2="74" y2="30" stroke="#145a32" stroke-width=".5"/><rect x="10" y="34" width="40" height="2" rx="1" fill="#aaa"/><rect x="10" y="40" width="35" height="2" rx="1" fill="#aaa"/><line x1="10" y1="48" x2="74" y2="48" stroke="#ddd" stroke-width=".5"/><rect x="10" y="52" width="64" height="7" rx="1" fill="#e8f8f0"/><rect x="10" y="61" width="64" height="7" rx="1" fill="#fff"/><rect x="10" y="68" width="64" height="7" rx="1" fill="#e8f8f0"/><rect x="10" y="75" width="64" height="7" rx="1" fill="#fff"/><line x1="10" y1="86" x2="74" y2="86" stroke="#145a32" stroke-width=".7"/><rect x="40" y="89" width="34" height="3" rx="1.5" fill="#145a32" opacity=".4"/><text x="12" y="95" font-size="5" fill="#555">মোট =</text><text x="74" y="95" font-size="5.5" font-weight="bold" fill="#145a32" text-anchor="end">৳ ৫০০</text></svg>`,make:(ps)=>[
+    {type:'rect',x:10,y:10,w:ps.w-20,h:ps.h-20,props:{bg:'#ffffff',borderColor:'#145a32',borderWidth:1,borderRadius:4,borderStyle:'solid'}},
+    {type:'rect',x:10,y:10,w:ps.w-20,h:40,props:{bg:'#145a32',borderColor:'#145a32',borderWidth:0,borderRadius:4,borderStyle:'solid'}},
+    {type:'text',x:30,y:18,w:ps.w-60,h:28,props:{content:'বেতন রশিদ',fontSize:20,fontWeight:'bold',textAlign:'center',color:'#ffffff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:20,y:58,w:ps.w-40,h:1,props:{color:'#145a32',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:22,y:65,w:160,h:20,props:{content:'শিক্ষার্থীর নাম:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#222',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.name'}},
+    {type:'text',x:22,y:88,w:160,h:20,props:{content:'শ্রেণি:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#222',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.class'}},
+    {type:'text',x:22,y:111,w:160,h:20,props:{content:'রোল নম্বর:',fontSize:12,fontWeight:'bold',textAlign:'left',color:'#222',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.roll_no'}},
+    {type:'line',x:20,y:138,w:ps.w-40,h:1,props:{color:'#ddd',lineWidth:1,lineStyle:'solid'}},
+    {type:'table',x:20,y:145,w:ps.w-40,h:160,props:{cols:[{label:'বিবরণ',field:'blank',width:ps.w-200},{label:'পরিমাণ (৳)',field:'blank',width:100}],rows:[{blank:'জানুয়ারি বেতন'},{blank:'পরিবহন'},{blank:'পরীক্ষা ফি'}],dataSource:'',headerBg:'#145a32',headerColor:'#ffffff',rowBg:'#ffffff',altRowBg:'#e8f8f0',borderColor:'#b0d8b0',fontSize:12,headerFontSize:12,fontFamily:'serif'}},
+    {type:'line',x:20,y:312,w:ps.w-40,h:1,props:{color:'#145a32',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:ps.w-200,y:320,w:170,h:24,props:{content:'মোট = ৳ ___________',fontSize:14,fontWeight:'bold',textAlign:'right',color:'#145a32',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'text',x:22,y:ps.h-110,w:130,h:50,props:{content:'তারিখ:\n_______________',fontSize:11,fontWeight:'normal',textAlign:'center',color:'#333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+    {type:'text',x:ps.w-182,y:ps.h-110,w:150,h:50,props:{content:'ক্যাশিয়ার\n_______________',fontSize:11,fontWeight:'normal',textAlign:'center',color:'#333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+  ]},
+  {name:'আইডি কার্ড',icon:'🪪',desc:'ID Card',color:'#1a237e',bg:'#e8eaff',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><rect x="8" y="20" width="68" height="80" rx="5" fill="#1a237e"/><rect x="8" y="20" width="68" height="22" rx="5" fill="#283593"/><text x="42" y="35" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle" font-family="sans-serif">STUDENT ID CARD</text><rect x="30" y="48" width="24" height="28" rx="2" fill="#fff" opacity=".2"/><text x="42" y="67" font-size="8" fill="#fff" text-anchor="middle">👤</text><rect x="16" y="82" width="52" height="3" rx="1.5" fill="#fff" opacity=".7"/><rect x="22" y="88" width="40" height="2" rx="1" fill="#fff" opacity=".4"/><rect x="26" y="93" width="32" height="2" rx="1" fill="#fff" opacity=".4"/></svg>`,make:(ps)=>{
+    const cardW=ps.w-40, cardH=180, cardX=20, cardY=20;
+    return [
+      {type:'rect',x:cardX,y:cardY,w:cardW,h:cardH,props:{bg:'#1a237e',borderColor:'#283593',borderWidth:2,borderRadius:8,borderStyle:'solid'}},
+      {type:'rect',x:cardX,y:cardY,w:cardW,h:44,props:{bg:'#283593',borderColor:'transparent',borderWidth:0,borderRadius:8,borderStyle:'solid'}},
+      {type:'text',x:cardX+10,y:cardY+10,w:cardW-20,h:28,props:{content:'ছাত্র পরিচয়পত্র',fontSize:15,fontWeight:'bold',textAlign:'center',color:'#ffffff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+      {type:'rect',x:cardX+12,y:cardY+52,w:70,h:90,props:{bg:'rgba(255,255,255,0.15)',borderColor:'rgba(255,255,255,0.4)',borderWidth:1,borderRadius:4,borderStyle:'solid'}},
+      {type:'text',x:cardX+92,y:cardY+52,w:cardW-110,h:20,props:{content:'নাম:',fontSize:11,fontWeight:'bold',textAlign:'left',color:'#ffffff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.name'}},
+      {type:'text',x:cardX+92,y:cardY+76,w:cardW-110,h:20,props:{content:'শ্রেণি:',fontSize:11,fontWeight:'bold',textAlign:'left',color:'#e0e4ff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.class'}},
+      {type:'text',x:cardX+92,y:cardY+100,w:cardW-110,h:20,props:{content:'রোল:',fontSize:11,fontWeight:'bold',textAlign:'left',color:'#e0e4ff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.roll_no'}},
+      {type:'text',x:cardX+92,y:cardY+124,w:cardW-110,h:20,props:{content:'মোবাইল:',fontSize:10,fontWeight:'normal',textAlign:'left',color:'#c0c8ff',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:'students.guardian_phone'}},
+    ];
+  }},
+  {name:'প্রশংসাপত্র',icon:'📜',desc:'Transfer Certificate',color:'#4a148c',bg:'#f3e5ff',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fefefe"/><rect x="3" y="3" width="78" height="114" rx="2" fill="none" stroke="#4a148c" stroke-width="1.5"/><line x1="7" y1="7" x2="77" y2="7" stroke="#4a148c" stroke-width=".4"/><line x1="7" y1="113" x2="77" y2="113" stroke="#4a148c" stroke-width=".4"/><text x="42" y="22" font-size="7" font-weight="bold" fill="#4a148c" text-anchor="middle" font-family="serif">প্রশংসাপত্র</text><line x1="14" y1="26" x2="70" y2="26" stroke="#7b1fa2" stroke-width=".6"/><rect x="12" y="31" width="60" height="2" rx="1" fill="#ddd"/><rect x="12" y="37" width="60" height="2" rx="1" fill="#ddd"/><rect x="12" y="43" width="45" height="2" rx="1" fill="#ddd"/><rect x="12" y="52" width="60" height="2" rx="1" fill="#ddd"/><rect x="12" y="58" width="55" height="2" rx="1" fill="#ddd"/><rect x="12" y="64" width="60" height="2" rx="1" fill="#ddd"/><rect x="12" y="70" width="40" height="2" rx="1" fill="#ddd"/><line x1="12" y1="82" x2="72" y2="82" stroke="#ddd" stroke-width=".5"/><rect x="12" y="88" width="26" height="2" rx="1" fill="#bbb"/><rect x="46" y="88" width="26" height="2" rx="1" fill="#bbb"/><rect x="16" y="93" width="18" height="2" rx="1" fill="#ccc"/><rect x="50" y="93" width="18" height="2" rx="1" fill="#ccc"/></svg>`,make:(ps)=>[
+    {type:'rect',x:10,y:10,w:ps.w-20,h:ps.h-20,props:{bg:'#ffffff',borderColor:'#4a148c',borderWidth:2,borderRadius:4,borderStyle:'solid'}},
+    {type:'text',x:30,y:28,w:ps.w-60,h:34,props:{content:'প্রশংসাপত্র',fontSize:24,fontWeight:'bold',textAlign:'center',color:'#4a148c',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:30,y:68,w:ps.w-60,h:1,props:{color:'#7b1fa2',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:30,y:82,w:ps.w-60,h:200,props:{content:'এতদ্বারা প্রমাণিত হচ্ছে যে,\n\nনাম:\n\nপিতার নাম:\n\nশ্রেণি:              রোল নম্বর:\n\nউক্ত শিক্ষার্থী এই বিদ্যালয়ে ______ থেকে ______ সাল পর্যন্ত অধ্যয়ন করেছে এবং তার আচরণ, শৃঙ্খলা ও নিষ্ঠা সর্বদা প্রশংসনীয় ছিল।',fontSize:12,fontWeight:'normal',textAlign:'left',color:'#000000',fontFamily:'serif',italic:false,lineHeight:2.0,dataField:''}},
+    {type:'line',x:30,y:310,w:ps.w-60,h:1,props:{color:'#ddd',lineWidth:1,lineStyle:'solid'}},
+    {type:'text',x:30,y:326,w:130,h:60,props:{content:'তারিখ:\n_______________',fontSize:11,fontWeight:'normal',textAlign:'center',color:'#333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+    {type:'text',x:ps.w-190,y:326,w:150,h:60,props:{content:'প্রধান শিক্ষক\n_______________',fontSize:11,fontWeight:'normal',textAlign:'center',color:'#333',fontFamily:'serif',italic:false,lineHeight:1.6,dataField:''}},
+  ]},
+  {name:'উপস্থিতি',icon:'📅',desc:'Attendance Sheet',color:'#00695c',bg:'#e0f2f1',thumb:`<svg viewBox="0 0 84 120" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="120" fill="#fff"/><text x="42" y="13" font-size="6.5" font-weight="bold" fill="#00695c" text-anchor="middle" font-family="serif">উপস্থিতি তালিকা</text><line x1="6" y1="17" x2="78" y2="17" stroke="#00695c" stroke-width="1"/><rect x="6" y="19" width="72" height="8" rx="1" fill="#00695c"/><text x="16" y="25.5" font-size="4.5" fill="#fff" font-family="sans-serif">নাম</text><text x="44" y="25.5" font-size="4" fill="#fff" font-family="sans-serif">১ ২ ৩ ৪ ৫</text><rect x="6" y="27" width="72" height="6" fill="#e0f2f1"/><rect x="6" y="33" width="72" height="6" fill="#fff"/><rect x="6" y="39" width="72" height="6" fill="#e0f2f1"/><rect x="6" y="45" width="72" height="6" fill="#fff"/><rect x="6" y="51" width="72" height="6" fill="#e0f2f1"/><rect x="6" y="57" width="72" height="6" fill="#fff"/><rect x="6" y="63" width="72" height="6" fill="#e0f2f1"/><rect x="6" y="69" width="72" height="6" fill="#fff"/><rect x="6" y="19" width="72" height="56" rx="1" fill="none" stroke="#b2dfdb" stroke-width=".5"/></svg>`,make:(ps)=>[
+    {type:'text',x:20,y:16,w:ps.w-40,h:36,props:{content:'উপস্থিতি তালিকা',fontSize:20,fontWeight:'bold',textAlign:'center',color:'#000000',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'line',x:20,y:56,w:ps.w-40,h:2,props:{color:'#00695c',lineWidth:2,lineStyle:'solid'}},
+    {type:'text',x:20,y:64,w:300,h:20,props:{content:'শ্রেণি: __________ মাস: __________',fontSize:12,fontWeight:'normal',textAlign:'left',color:'#000',fontFamily:'serif',italic:false,lineHeight:1.4,dataField:''}},
+    {type:'table',x:20,y:90,w:ps.w-40,h:320,props:{cols:[{label:'ক্রমিক',field:'serial',width:50},{label:'নাম',field:'name',width:ps.w-430},{label:'১',field:'blank',width:24},{label:'২',field:'blank',width:24},{label:'৩',field:'blank',width:24},{label:'৪',field:'blank',width:24},{label:'৫',field:'blank',width:24},{label:'মোট',field:'blank',width:50}],rows:[{serial:'১',name:'',blank:''},{serial:'২',name:'',blank:''},{serial:'৩',name:'',blank:''},{serial:'৪',name:'',blank:''}],dataSource:'students',headerBg:'#00695c',headerColor:'#ffffff',rowBg:'#ffffff',altRowBg:'#e0f2f1',borderColor:'#b2dfdb',fontSize:11,headerFontSize:11,fontFamily:'serif'}},
+  ]},
+];
+
+function showTemplateModal(){
+  const grid=document.getElementById('builtinGrid');
+  grid.innerHTML=BUILT_IN.map((t,i)=>`<div class="tmpl-card" onclick="loadBuiltInTemplate(${i})"><div class="tmpl-icon">${t.icon}</div><div class="tmpl-name">${t.name}</div><div class="tmpl-desc">${t.desc}</div></div>`).join('');
+  renderSavedTemplateList();
+  document.getElementById('tmplModal').classList.add('open');
+}
+function closeTmplModal(){document.getElementById('tmplModal').classList.remove('open');}
+
+function loadBuiltInFromHome(i){
+  const ps=PAGE_PX[_hsPendingSize||S.pageSize];
+  const tmpl=BUILT_IN[i]; if(!tmpl) return;
+  S.pageSize=_hsPendingSize||S.pageSize;
+  S.pages=[{id:'pg1',bg:'#ffffff',wmUrl:'',wmOpacity:.08,elements:[]}];
+  S.pgIdx=0; _docId=null;
+  const baseId=1;
+  const made=typeof tmpl.make==='function'?tmpl.make(ps):[];
+  S.elements=made.map((el,j)=>({...el,id:'el'+(baseId+j),props:JSON.parse(JSON.stringify(el.props))}));
+  S.nextId=baseId+S.elements.length; S.selectedId=null;
+  S.elements.filter(e=>e.type==='qr').forEach(e=>generateQR(e.id,e.props.qrText,e.props.qrColor,e.props.qrBg));
+  document.querySelectorAll('.size-chip').forEach(c=>c.classList.toggle('active',c.textContent===S.pageSize));
+  hideHomeScreen();
+  setTimeout(()=>toast(`"${tmpl.name}" template লোড হয়েছে ✓`),300);
+}
+
+function loadBuiltInTemplate(i){
+  const ps=PAGE_PX[S.pageSize]; const tmpl=BUILT_IN[i]; const baseId=S.nextId;
+  S.elements=tmpl.make(ps).map((el,j)=>({...el,id:'el'+(baseId+j),props:JSON.parse(JSON.stringify(el.props))}));
+  S.nextId=baseId+S.elements.length; S.selectedId=null;
+  // Generate QR for any qr elements
+  S.elements.filter(e=>e.type==='qr').forEach(e=>generateQR(e.id,e.props.qrText,e.props.qrColor,e.props.qrBg));
+  pushHist();renderAll();renderProps();closeTmplModal();
+  toast(`"${tmpl.name}" template লোড হয়েছে ✓`);
+}
+
+function getSavedTemplates(){try{return JSON.parse(localStorage.getItem('cd_templates')||'[]');}catch(e){return[];}}
+function saveCurrentTemplate(){
+  const name=document.getElementById('tmplNameInp').value.trim();if(!name){document.getElementById('tmplNameInp').focus();return;}
+  const templates=getSavedTemplates();
+  templates.push({name,elements:JSON.parse(JSON.stringify(S.elements)),pageSize:S.pageSize,paperBg:S.paperBg,savedAt:Date.now()});
+  localStorage.setItem('cd_templates',JSON.stringify(templates));
+  document.getElementById('tmplNameInp').value='';
+  renderSavedTemplateList();toast(`"${name}" সেভ হয়েছে ✓`);
+}
+function loadSavedTemplate(idx){
+  const templates=getSavedTemplates(); const tmpl=templates[idx];if(!tmpl)return;
+  S.elements=JSON.parse(JSON.stringify(tmpl.elements));
+  if(tmpl.pageSize)setPageSize(tmpl.pageSize);
+  if(tmpl.paperBg)S.paperBg=tmpl.paperBg;
+  S.selectedId=null;
+  S.nextId=S.elements.reduce((mx,e)=>Math.max(mx,parseInt(e.id.replace('el',''))||0),0)+1;
+  pushHist();renderAll();renderProps();closeTmplModal();toast(`"${tmpl.name}" লোড হয়েছে ✓`);
+}
+function deleteSavedTemplate(idx,e){
+  e.stopPropagation();const templates=getSavedTemplates();const name=templates[idx].name;
+  templates.splice(idx,1);localStorage.setItem('cd_templates',JSON.stringify(templates));
+  renderSavedTemplateList();toast(`"${name}" মুছে গেছে`);
+}
+function renderSavedTemplateList(){
+  const templates=getSavedTemplates(); const list=document.getElementById('savedTmplList');
+  list.innerHTML=templates.length
+    ?templates.map((t,i)=>`<div class="saved-tmpl-item" onclick="loadSavedTemplate(${i})"><span>📄</span><span style="font-size:12px;font-weight:600;flex:1">${t.name}</span><span style="font-size:10px;color:var(--text-3)">${t.pageSize||'A5'}</span><button class="del" onclick="deleteSavedTemplate(${i},event)">✕</button></div>`).join('')
+    :'<div style="font-size:12px;color:var(--text-3);padding:8px 0">কোনো saved template নেই।</div>';
+}
+
+// ══════════════════════════════════════════════
+//  TOAST & LOADING
+// ══════════════════════════════════════════════
+let toastTimer=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
+function showLoading(msg){document.getElementById('loadingMsg').textContent=msg||'কাজ চলছে…';document.getElementById('loadingOverlay').classList.add('show');}
+function hideLoading(){document.getElementById('loadingOverlay').classList.remove('show');}
+
+// Mobile sheet
+function openPropsSheet(){renderProps();document.getElementById('propsSheet').classList.add('open');}
+function closePropsSheet(){document.getElementById('propsSheet').classList.remove('open');}
+
+// ══════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  const tag=e.target.tagName; const ce=e.target.contentEditable==='true';
+  if(ce||tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA') return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();clearTimeout(_autoSaveTimer);_doAutoSave();return;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();return;}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.shiftKey&&e.key==='z'))){e.preventDefault();redo();return;}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();duplicateSelected();return;}
+  if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected();return;}
+  if(e.key==='Escape'){S.selectedId=null;closeColPopup();renderAll();renderProps();return;}
+  const el=S.elements.find(x=>x.id===S.selectedId);
+  if(el&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){
+    e.preventDefault();
+    const d=e.shiftKey?10:1;
+    if(e.key==='ArrowLeft')el.x-=d;if(e.key==='ArrowRight')el.x+=d;
+    if(e.key==='ArrowUp')el.y-=d;if(e.key==='ArrowDown')el.y+=d;
+    pushHist();renderAll();
+  }
+});
+
+// ══════════════════════════════════════════════
+//  CTRL+WHEEL ZOOM (canvas only, no browser zoom)
+// ══════════════════════════════════════════════
+// ── Cursor-centered smooth zoom ──
+let _zoomTarget=1,_zoomRaf=null,_anchorX=0,_anchorY=0,_curX=0,_curY=0;
+document.getElementById('canvasArea').addEventListener('wheel',e=>{
+  if(!e.ctrlKey&&!e.metaKey) return;
+  e.preventDefault();
+  const ca=document.getElementById('canvasArea');
+  const caRect=ca.getBoundingClientRect();
+  const cursorX=e.clientX-caRect.left;
+  const cursorY=e.clientY-caRect.top;
+  // Capture anchor ONCE per gesture (when no animation running)
+  if(!_zoomRaf){
+    _anchorX=(ca.scrollLeft+cursorX)/S.zoom; // content point under cursor
+    _anchorY=(ca.scrollTop+cursorY)/S.zoom;
+    _curX=cursorX; _curY=cursorY;
+    _zoomTarget=S.zoom;
+  }
+  const factor=e.deltaY<0?1.12:1/1.12;
+  _zoomTarget=Math.min(3.5,Math.max(0.1,_zoomTarget*factor));
+  if(_zoomRaf) return;
+  const lbl=document.getElementById('zoomLbl');
+  function tick(){
+    const diff=_zoomTarget-S.zoom;
+    S.zoom=Math.abs(diff)<0.003?_zoomTarget:S.zoom+diff*0.3;
+    applyZoom();
+    // Keep anchor point pinned under cursor every frame
+    ca.scrollLeft=_anchorX*S.zoom-_curX;
+    ca.scrollTop=_anchorY*S.zoom-_curY;
+    lbl.textContent=Math.round(S.zoom*100)+'%';
+    if(Math.abs(_zoomTarget-S.zoom)<0.003){_zoomRaf=null;return;}
+    _zoomRaf=requestAnimationFrame(tick);
+  }
+  _zoomRaf=requestAnimationFrame(tick);
+},{passive:false});
+
+// ══════════════════════════════════════════════
+//  RECENT DOCS
+// ══════════════════════════════════════════════
+function getRecentDocs(){try{return JSON.parse(localStorage.getItem('cd_recent_docs')||'[]');}catch(e){return[];}}
+
+// ══════════════════════════════════════════════
+//  SAVE TEMPLATE DIALOG
+// ══════════════════════════════════════════════
+let _savedTmplName = null; // set after first save; used for quick re-save
+
+function _renderStdCards(){
+  const box = document.getElementById('stdTmplCards'); if(!box) return;
+  const templates = getSavedTemplates();
+  if(!templates.length){box.innerHTML='';return;}
+  box.innerHTML = '<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">সংরক্ষিত টেমপ্লেট</div>'
+    + templates.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="8" height="11" rx="1" stroke="currentColor" stroke-width="1.2"/><line x1="4" y1="4" x2="8" y2="4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="6" x2="8" y2="6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+      <span style="flex:1;font-size:12px;font-weight:600;color:var(--text)">${t.name}</span>
+      <span style="font-size:10px;color:var(--text-3)">${t.pageSize||'A5'}</span>
+      <button onclick="event.stopPropagation();_stdOverwrite(${i})" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--blue);color:var(--blue);background:none;cursor:pointer;font-family:inherit">আপডেট</button>
+      <button onclick="event.stopPropagation();_stdDelete(${i})" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--red);color:var(--red);background:none;cursor:pointer;font-family:inherit">মুছুন</button>
+    </div>`).join('');
+}
+function _stdOverwrite(idx){
+  const templates=getSavedTemplates();if(!templates[idx])return;
+  const t=templates[idx];
+  t.elements=JSON.parse(JSON.stringify(S.elements));
+  t.pageSize=S.pageSize;t.paperBg=S.paperBg;t.savedAt=Date.now();
+  localStorage.setItem('cd_templates',JSON.stringify(templates));
+  _savedTmplName=t.name;
+  toast(`"${t.name}" আপডেট হয়েছে ✓`);
+  _renderStdCards();
+}
+function _stdDelete(idx){
+  const templates=getSavedTemplates();templates.splice(idx,1);
+  localStorage.setItem('cd_templates',JSON.stringify(templates));
+  _renderStdCards();
+}
+function openSaveTemplateDialog(){
+  const name = _savedTmplName || (INST&&INST.name ? INST.name : '');
+  document.getElementById('stdNameInp').value = name;
+  _renderStdCards();
+  document.getElementById('saveTmplDialog').classList.add('open');
+  setTimeout(()=>document.getElementById('stdNameInp').focus(),80);
+}
+function closeSaveTmplDialog(){document.getElementById('saveTmplDialog').classList.remove('open');}
+function doSaveTemplate(){
+  const name=document.getElementById('stdNameInp').value.trim();
+  if(!name){document.getElementById('stdNameInp').focus();return;}
+  const templates=getSavedTemplates();
+  // If same name exists, overwrite
+  const existing=templates.findIndex(t=>t.name===name);
+  const entry={name,elements:JSON.parse(JSON.stringify(S.elements)),pageSize:S.pageSize,paperBg:S.paperBg,savedAt:Date.now()};
+  if(existing>=0) templates[existing]=entry; else templates.push(entry);
+  localStorage.setItem('cd_templates',JSON.stringify(templates));
+  _savedTmplName=name;
+  _renderStdCards();
+  toast(`"${name}" সেভ হয়েছে ✓`);
+  renderSavedTemplateList&&renderSavedTemplateList();
+}
+// Quick save: if already saved once, re-save silently; else open dialog
+function quickSaveTemplate(){
+  if(_savedTmplName){
+    const templates=getSavedTemplates();
+    const idx=templates.findIndex(t=>t.name===_savedTmplName);
+    const entry={name:_savedTmplName,elements:JSON.parse(JSON.stringify(S.elements)),pageSize:S.pageSize,paperBg:S.paperBg,savedAt:Date.now()};
+    if(idx>=0) templates[idx]=entry; else templates.push(entry);
+    localStorage.setItem('cd_templates',JSON.stringify(templates));
+    toast(`"${_savedTmplName}" সেভ হয়েছে ✓`);
+    renderSavedTemplateList&&renderSavedTemplateList();
+  } else {
+    openSaveTemplateDialog();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  HOME SCREEN
+// ══════════════════════════════════════════════
+let _hsPendingSize='A5';
+
+function hsSetSize(sz){
+  _hsPendingSize=sz;
+  document.getElementById('hsSizeA5').classList.toggle('active',sz==='A5');
+  document.getElementById('hsSizeA4').classList.toggle('active',sz==='A4');
+}
+
+function renderHomeScreen(){
+  // Built-in templates
+  const bGrid=document.getElementById('hsBuiltinGrid');
+  if(bGrid){
+    bGrid.innerHTML=BUILT_IN.map((t,i)=>`
+      <div class="hs-bi-card" onclick="loadBuiltInFromHome(${i})" style="--accent:${t.color}">
+        <div class="hs-bi-thumb">${t.thumb}</div>
+        <div class="hs-bi-info">
+          <div class="hs-bi-name">${t.name}</div>
+          <div class="hs-bi-desc">${t.desc}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Recent docs
+  const recent=getRecentDocs();
+  const rGrid=document.getElementById('hsRecentGrid');
+  if(recent.length===0){
+    rGrid.innerHTML='<div class="hs-empty"><div class="hs-empty-icon">🗒️</div>কোনো সাম্প্রতিক ডকুমেন্ট নেই</div>';
+  } else {
+    rGrid.innerHTML=recent.map((doc,i)=>{
+      const dt=new Date(doc.timestamp);
+      const dateStr=dt.toLocaleDateString('bn-BD',{day:'numeric',month:'short'});
+      return `<div class="hs-card" onclick="loadRecentDoc(${i})">
+        <div class="hs-card-thumb">
+          <div class="hs-card-thumb-inner">
+            <div class="hs-card-page-line thick"></div>
+            <div class="hs-card-page-line"></div>
+            <div class="hs-card-page-line"></div>
+            <div class="hs-card-page-line" style="width:45%"></div>
+          </div>
+        </div>
+        <div class="hs-card-info">
+          <div class="hs-card-name" title="${doc.name}">${doc.name}</div>
+          <div class="hs-card-meta">${doc.pageSize||'A5'} · ${dateStr}</div>
+        </div>
+        <button class="hs-card-del" onclick="deleteRecentDoc(${i},event)" title="সরিয়ে দাও">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Saved templates
+  const templates=getSavedTemplates();
+  const tGrid=document.getElementById('hsTmplGrid');
+  if(templates.length===0){
+    tGrid.innerHTML='<div class="hs-empty"><div class="hs-empty-icon">📋</div>কোনো সংরক্ষিত টেমপ্লেট নেই</div>';
+  } else {
+    tGrid.innerHTML=templates.map((t,i)=>{
+      const dt=new Date(t.savedAt||0);
+      const dateStr=dt.toLocaleDateString('bn-BD',{day:'numeric',month:'short'});
+      return `<div class="hs-card" onclick="loadTmplFromHome(${i})">
+        <div class="hs-card-thumb" style="background:#f0f4ff">
+          <div class="hs-card-thumb-inner">
+            <div style="font-size:22px;opacity:.4">📋</div>
+          </div>
+        </div>
+        <div class="hs-card-info">
+          <div class="hs-card-name" title="${t.name}">${t.name}</div>
+          <div class="hs-card-meta">${t.pageSize||'A5'} · ${dateStr}</div>
+        </div>
+        <button class="hs-card-del" onclick="deleteTmplFromHome(${i},event)" title="মুছুন">✕</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function showHomeScreen(){
+  renderHomeScreen();
+  document.getElementById('homeScreen').style.display='flex';
+}
+
+function hideHomeScreen(){
+  document.getElementById('homeScreen').style.display='none';
+  renderAll();
+  pushHist();
+  loadInstitution();
+  scrollToPage(0);
+}
+
+function startNewDocument(){
+  // Reset to fresh state with chosen size
+  S.pageSize=_hsPendingSize;
+  S.pages=[{id:'pg1',bg:'#ffffff',wmUrl:'',wmOpacity:.08,elements:[]}];
+  S.pgIdx=0;
+  S.nextId=1;
+  S.selectedId=null;
+  _docId=null; // new doc gets new id on next pushHist
+  document.querySelectorAll('.size-chip').forEach(c=>c.classList.toggle('active',c.textContent===S.pageSize));
+  hideHomeScreen();
+}
+
+function loadRecentDoc(i){
+  const docs=getRecentDocs(); const doc=docs[i]; if(!doc) return;
+  _docId=doc.id;
+  S.pages=JSON.parse(JSON.stringify(doc.pages));
+  if(doc.pageSize){S.pageSize=doc.pageSize;document.querySelectorAll('.size-chip').forEach(c=>c.classList.toggle('active',c.textContent===S.pageSize));}
+  if(doc.zoom) S.zoom=doc.zoom;
+  S.pgIdx=0; S.selectedId=null;
+  let maxId=0;
+  S.pages.forEach(pg=>{
+    (pg.elements||[]).forEach(e=>{
+      const n=parseInt((e.id||'').replace('el',''))||0;
+      if(n>maxId) maxId=n;
+    });
+  });
+  S.nextId=maxId+1;
+  hideHomeScreen();
+  setTimeout(()=>toast('ডকুমেন্ট লোড হয়েছে ✓'),300);
+}
+
+function deleteRecentDoc(i,ev){
+  ev.stopPropagation();
+  const docs=getRecentDocs();
+  docs.splice(i,1);
+  localStorage.setItem('cd_recent_docs',JSON.stringify(docs));
+  renderHomeScreen();
+}
+
+function loadTmplFromHome(i){
+  const templates=getSavedTemplates(); const tmpl=templates[i]; if(!tmpl) return;
+  S.elements=JSON.parse(JSON.stringify(tmpl.elements));
+  if(tmpl.pageSize) setPageSize(tmpl.pageSize);
+  if(tmpl.paperBg) S.paperBg=tmpl.paperBg;
+  S.selectedId=null;
+  S.nextId=S.elements.reduce((mx,e)=>Math.max(mx,parseInt(e.id.replace('el',''))||0),0)+1;
+  _docId=null;
+  hideHomeScreen();
+  toast(`"${tmpl.name}" লোড হয়েছে ✓`);
+}
+
+function deleteTmplFromHome(i,ev){
+  ev.stopPropagation();
+  const templates=getSavedTemplates();
+  const name=templates[i].name;
+  templates.splice(i,1);
+  localStorage.setItem('cd_templates',JSON.stringify(templates));
+  renderHomeScreen();
+  renderSavedTemplateList();
+  toast(`"${name}" মুছে গেছে`);
+}
+
+// Escape key closes home screen
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('homeScreen').style.display!=='none'){
+    hideHomeScreen();
+  }
+},{capture:true});
+
+// ══════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════
+initPointer();
+showHomeScreen();
+</script>
+</body>
+</html>

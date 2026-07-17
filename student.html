@@ -1,0 +1,762 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ছাত্র ব্যবস্থাপনা — Protishthan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --green:#059669;--green-l:#ECFDF5;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --r:10px;--rl:16px;--sidebar:240px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+body{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:linear-gradient(170deg,#0A1628,#0F2048,#1A3570);height:100vh;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-logo{padding:22px 20px 16px}
+.sidebar-logo .name{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px}
+.sidebar-logo .name span{opacity:.4}
+.sidebar-logo .inst{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:0 16px 12px}
+.sidebar-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(26,86,219,.5);color:white;font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue);border-radius:0 3px 3px 0;margin-left:8px}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-nav{flex:1;overflow-y:auto;padding-bottom:8px}
+.sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.08)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s}
+.user-card:hover{background:rgba(255,255,255,.08)}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:rgba(26,86,219,.6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-role{font-size:10px;color:rgba(255,255,255,.35)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.content{padding:20px 24px;flex:1}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px}
+.stat-num{font-size:28px;font-weight:800;color:var(--text);line-height:1}
+.stat-lbl{font-size:12px;color:var(--text-3);margin-top:4px}
+.stat-card.blue .stat-num{color:var(--blue)}
+.stat-card.green .stat-num{color:var(--green)}
+.stat-card.amber .stat-num{color:var(--amber)}
+
+/* SEARCH + FILTER BAR */
+.bar{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.search-wrap input{border:none;background:none;outline:none;font-family:inherit;font-size:13px;color:var(--text);width:100%}
+.search-wrap input::placeholder{color:var(--text-3)}
+.filter-select{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:13px;color:var(--text-2);background:var(--bg);outline:none;cursor:pointer}
+
+/* ADD BUTTON + DROPDOWN */
+.add-wrap{position:relative}
+.btn-add{display:flex;align-items:center;gap:7px;padding:9px 18px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.add-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--rl);box-shadow:0 12px 40px rgba(0,0,0,.12);width:240px;z-index:200;overflow:hidden;display:none}
+.add-menu.open{display:block}
+.add-menu-title{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;padding:12px 16px 6px}
+.add-option{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.add-option:last-child{border-bottom:none}
+.add-option:hover:not(.disabled){background:var(--blue-light)}
+.add-option.disabled{opacity:.45;cursor:not-allowed}
+.add-option-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.add-option-icon.blue{background:var(--blue-light)}
+.add-option-icon.green{background:var(--green-l)}
+.add-option-icon.gray{background:var(--bg)}
+.add-option-text .title{font-size:13px;font-weight:600;color:var(--text)}
+.add-option-text .sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.soon-badge{margin-left:auto;font-size:9px;font-weight:700;background:var(--bg);color:var(--text-3);border:1px solid var(--border);padding:2px 7px;border-radius:100px;white-space:nowrap}
+
+/* STUDENT TABLE */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.table-head-title{font-size:14px;font-weight:700;color:var(--text)}
+.student-table{width:100%;border-collapse:collapse}
+.student-table th{background:var(--surface);font-size:11.5px;color:var(--text-2);font-weight:700;padding:10px 14px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.student-table th:first-child{text-align:center;width:48px}
+.student-table td{padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border);text-align:right;vertical-align:middle}
+.student-table td:first-child{text-align:center}
+.student-table tr:last-child td{border-bottom:none}
+.student-table tr:hover td{background:var(--surface)}
+.student-avatar{width:32px;height:32px;border-radius:8px;background:var(--blue-light);color:var(--blue);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.class-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:var(--purple-l);color:var(--purple)}
+.status-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px}
+.status-badge.active{background:var(--green-l);color:var(--green)}
+.status-badge.new{background:var(--blue-light);color:var(--blue)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:64px 24px;color:var(--text-3)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.empty-state .title{font-size:16px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.empty-state .sub{font-size:13px}
+
+/* MODAL OVERLAY */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.2)}
+.modal-large{max-width:900px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:700;color:var(--text)}
+.modal-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:background .15s}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:22px;overflow-y:auto;flex:1}.modal-body::-webkit-scrollbar{width:4px}.modal-body::-webkit-scrollbar-track{background:transparent}.modal-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:10px}.modal-body::-webkit-scrollbar-button{display:none}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* FORM FIELDS */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.field-grid.cols-1{grid-template-columns:1fr}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-group label{font-size:12px;font-weight:600;color:var(--text-2)}
+.field-group input,.field-group select,.field-group textarea{border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s}
+.field-group input:focus,.field-group select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* SCAN MODAL STATES */
+.scan-state{display:none}
+.scan-state.active{display:block}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:16px;padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:var(--blue-light)}
+.upload-zone .icon{font-size:40px;margin-bottom:12px}
+.upload-zone .title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.upload-zone .sub{font-size:13px;color:var(--text-3)}
+.upload-zone input{display:none}
+.uploaded-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.uploaded-item{display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.uploaded-item .img-preview{width:44px;height:44px;border-radius:6px;object-fit:cover;background:var(--bg)}
+.uploaded-item .file-name{font-size:12px;font-weight:600;color:var(--text);flex:1}
+.uploaded-item .file-size{font-size:11px;color:var(--text-3)}
+.uploaded-item .remove-btn{width:24px;height:24px;border:none;background:var(--red-l);color:var(--red);border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+
+/* PROCESSING STATE */
+.processing-box{text-align:center;padding:40px 24px}
+.processing-box .spin{width:56px;height:56px;border:4px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing-box .title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.processing-box .sub{font-size:13px;color:var(--text-3)}
+.progress-bar{height:6px;background:var(--border);border-radius:100px;margin-top:20px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-mid));border-radius:100px;transition:width .3s;width:0%}
+
+/* PREVIEW TABLE */
+.preview-info{display:flex;align-items:center;gap:10px;background:var(--green-l);border:1px solid rgba(5,150,105,.2);border-radius:10px;padding:10px 14px;margin-bottom:16px}
+.preview-info .icon{font-size:18px}
+.preview-info .text{font-size:13px;color:var(--green);font-weight:500}
+.preview-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.preview-table{width:100%;border-collapse:collapse;min-width:800px}
+.preview-table th{background:var(--surface);font-size:11px;font-weight:700;color:var(--text-2);padding:9px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+.preview-table th:first-child{text-align:center;width:36px}
+.preview-table td{padding:8px 10px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);text-align:right;vertical-align:middle}
+.preview-table tr:last-child td{border-bottom:none}
+.preview-table td input{border:none;background:none;outline:none;font-family:inherit;font-size:12px;color:var(--text);width:100%;text-align:right}
+.preview-table td input:focus{background:var(--blue-light);border-radius:4px;padding:2px 4px}
+.preview-table td.warn{background:var(--amber-l)}
+.preview-table td.warn input{background:transparent}
+.row-num{font-size:11px;font-weight:700;color:var(--text-3);text-align:center}
+
+/* BTN VARIANTS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(26,86,219,.3)}
+.btn-secondary{background:var(--white);color:var(--text-2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface)}
+.btn-green{background:var(--green);color:white}
+.btn-green:hover{background:#047857}
+.btn-danger{background:var(--red-l);color:var(--red);border:1px solid rgba(220,38,38,.2)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Protishthan<span>.com</span></div>
+    <div class="inst">প্রতিষ্ঠান ম্যানেজমেন্ট</div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-section">মূল মেনু</div>
+  <nav class="sidebar-nav">
+    <a href="exam.html" class="nav-item"><span class="nav-icon">📝</span> পরীক্ষা ও Result</a>
+    <a href="student.html" class="nav-item active"><span class="nav-icon">👥</span> ছাত্র ব্যবস্থাপনা</a>
+    <a href="#" class="nav-item"><span class="nav-icon">📊</span> উপস্থিতি</a>
+    <a href="#" class="nav-item"><span class="nav-icon">💰</span> ফি ম্যানেজমেন্ট</a>
+    <a href="#" class="nav-item"><span class="nav-icon">🌐</span> প্রতিষ্ঠানের ওয়েবসাইট</a>
+    <div class="sidebar-divider" style="margin-top:8px"></div>
+    <div class="sidebar-section">সেটিংস</div>
+    <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> প্রতিষ্ঠান সেটিং</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">ট</div>
+      <div>
+        <div class="user-name">Tayef</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">👥 ছাত্র ব্যবস্থাপনা</div>
+    <div class="topbar-right">
+      <div class="add-wrap">
+        <button class="btn-add" onclick="toggleAddMenu()">
+          ＋ ছাত্র যোগ করুন ▾
+        </button>
+        <div class="add-menu" id="addMenu">
+          <div class="add-menu-title">যোগ করার পদ্ধতি</div>
+          <div class="add-option" onclick="openManualModal()">
+            <div class="add-option-icon blue">✍️</div>
+            <div class="add-option-text">
+              <div class="title">ম্যানুয়ালি যোগ করুন</div>
+              <div class="sub">তথ্য টাইপ করে যোগ</div>
+            </div>
+          </div>
+          <div class="add-option" onclick="openScanModal()">
+            <div class="add-option-icon green">📷</div>
+            <div class="add-option-text">
+              <div class="title">ভর্তি ফর্ম স্ক্যান</div>
+              <div class="sub">ফর্মের ছবি থেকে auto</div>
+            </div>
+          </div>
+          <div class="add-option disabled">
+            <div class="add-option-icon gray">📋</div>
+            <div class="add-option-text">
+              <div class="title">বাল্ক তালিকা স্ক্যান</div>
+              <div class="sub">রেজিস্টার পাতার ছবি</div>
+            </div>
+            <span class="soon-badge">শীঘ্রই</span>
+          </div>
+          <div class="add-option disabled">
+            <div class="add-option-icon gray">📊</div>
+            <div class="add-option-text">
+              <div class="title">Excel / CSV আমদানি</div>
+              <div class="sub">স্প্রেডশিট থেকে</div>
+            </div>
+            <span class="soon-badge">শীঘ্রই</span>
+          </div>
+          <div class="add-option disabled">
+            <div class="add-option-icon gray">🔗</div>
+            <div class="add-option-text">
+              <div class="title">QR কোড রেজিস্ট্রেশন</div>
+              <div class="sub">ছাত্র নিজেই পূরণ করে</div>
+            </div>
+            <span class="soon-badge">শীঘ্রই</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-lbl">মোট ছাত্র</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-num" id="statNew">0</div>
+        <div class="stat-lbl">নতুন এই বছর</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-num" id="statClass">0</div>
+        <div class="stat-lbl">মোট শ্রেণী</div>
+      </div>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="bar">
+      <div class="search-wrap">
+        🔍
+        <input type="text" id="searchInput" placeholder="নাম, পিতার নাম, দাখিলা নং দিয়ে খুঁজুন..." oninput="filterStudents()">
+      </div>
+      <select class="filter-select" id="filterClass" onchange="filterStudents()">
+        <option value="">সব শ্রেণী</option>
+      </select>
+      <select class="filter-select" id="filterType" onchange="filterStudents()">
+        <option value="">নতুন / পুরাতন</option>
+        <option value="নতুন">নতুন</option>
+        <option value="পুরাতন">পুরাতন</option>
+      </select>
+    </div>
+
+    <!-- STUDENT TABLE -->
+    <div class="table-wrap">
+      <div class="table-head">
+        <div class="table-head-title">ছাত্রের তালিকা</div>
+        <div style="font-size:12px;color:var(--text-3)" id="countLabel">০ জন ছাত্র</div>
+      </div>
+      <div id="tableContainer">
+        <div class="empty-state">
+          <div class="icon">👥</div>
+          <div class="title">এখনো কোনো ছাত্র নেই</div>
+          <div class="sub">উপরের "ছাত্র যোগ করুন" বাটনে ক্লিক করুন</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MANUAL ADD MODAL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="manualModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">✍️ ম্যানুয়ালি ছাত্র যোগ করুন</div>
+      <button class="modal-close" onclick="closeManualModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="section-label">ছাত্রের তথ্য</div>
+      <div class="field-grid">
+        <div class="field-group" style="grid-column:span 2">
+          <label>ছাত্র/ছাত্রীর নাম *</label>
+          <input type="text" id="m_name" placeholder="পুরো নাম লিখুন">
+        </div>
+        <div class="field-group">
+          <label>জন্ম তারিখ</label>
+          <input type="text" id="m_dob" placeholder="দিন/মাস/বছর">
+        </div>
+        <div class="field-group">
+          <label>দাখিলা নং</label>
+          <input type="text" id="m_dakhila" placeholder="ভর্তি নম্বর">
+        </div>
+        <div class="field-group">
+          <label>শ্রেণী / জামাত *</label>
+          <input type="text" id="m_class" placeholder="যেমন: হিফজ, দাওরা, ৭ম">
+        </div>
+        <div class="field-group">
+          <label>বিভাগ</label>
+          <input type="text" id="m_dept" placeholder="বিভাগ">
+        </div>
+        <div class="field-group">
+          <label>নতুন / পুরাতন</label>
+          <select id="m_type">
+            <option value="নতুন">নতুন</option>
+            <option value="পুরাতন">পুরাতন</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>শিক্ষাবর্ষ (ইং)</label>
+          <input type="text" id="m_year" placeholder="যেমন: ২০২৫">
+        </div>
+      </div>
+      <div class="section-label">পারিবারিক তথ্য</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>পিতার নাম *</label>
+          <input type="text" id="m_father" placeholder="পিতার নাম">
+        </div>
+        <div class="field-group">
+          <label>মাতার নাম</label>
+          <input type="text" id="m_mother" placeholder="মাতার নাম">
+        </div>
+        <div class="field-group">
+          <label>মোবাইল নং</label>
+          <input type="text" id="m_mobile" placeholder="অভিভাবকের নম্বর">
+        </div>
+        <div class="field-group">
+          <label>অভিভাবকের সম্পর্ক</label>
+          <input type="text" id="m_relation" placeholder="পিতা / মাতা / অন্য">
+        </div>
+        <div class="field-group" style="grid-column:span 2">
+          <label>বর্তমান ঠিকানা</label>
+          <input type="text" id="m_address" placeholder="গ্রাম, ডাক, উপজেলা, জেলা">
+        </div>
+      </div>
+      <div class="section-label">পূর্ববর্তী তথ্য</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>পূর্ব প্রতিষ্ঠানের নাম</label>
+          <input type="text" id="m_prev_inst" placeholder="আগের প্রতিষ্ঠান">
+        </div>
+        <div class="field-group">
+          <label>পূর্বের শ্রেণী</label>
+          <input type="text" id="m_prev_class" placeholder="আগে কোন ক্লাসে ছিল">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeManualModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveManualStudent()">✓ যোগ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCAN MODAL -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="scanModal">
+  <div class="modal modal-large">
+    <div class="modal-head">
+      <div class="modal-title">📷 ভর্তি ফর্ম স্ক্যান</div>
+      <button class="modal-close" onclick="closeScanModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- STATE 1: UPLOAD -->
+      <div class="scan-state active" id="stateUpload">
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+          <div class="icon">📂</div>
+          <div class="title">ফর্মের ছবি আপলোড করুন</div>
+          <div class="sub">ক্লিক করুন অথবা ছবি টেনে আনুন<br>JPG, PNG সাপোর্টেড — একসাথে অনেকগুলো দেওয়া যাবে</div>
+          <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+        </div>
+        <div class="uploaded-list" id="uploadedList"></div>
+      </div>
+
+      <!-- STATE 2: PROCESSING -->
+      <div class="scan-state" id="stateProcessing">
+        <div class="processing-box">
+          <div class="spin"></div>
+          <div class="title" id="processTitle">ছবি বিশ্লেষণ করা হচ্ছে...</div>
+          <div class="sub" id="processSub">AI হাতের লেখা পড়ছে, একটু অপেক্ষা করুন</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text-3)" id="progressText">০ / ০ ফর্ম</div>
+        </div>
+      </div>
+
+      <!-- STATE 3: PREVIEW -->
+      <div class="scan-state" id="statePreview">
+        <div class="preview-info">
+          <span class="icon">✅</span>
+          <span class="text" id="previewMsg">স্ক্যান সম্পন্ন। তথ্য যাচাই করুন — ভুল থাকলে সরাসরি edit করুন।</span>
+        </div>
+        <div class="preview-scroll">
+          <table class="preview-table" id="previewTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ছাত্রের নাম</th>
+                <th>পিতার নাম</th>
+                <th>জন্ম তারিখ</th>
+                <th>শ্রেণী</th>
+                <th>মোবাইল</th>
+                <th>নতুন/পুরাতন</th>
+                <th>দাখিলা নং</th>
+              </tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-foot" id="scanFooter">
+      <!-- Buttons change per state -->
+      <button class="btn btn-secondary" onclick="closeScanModal()">বাতিল</button>
+      <button class="btn btn-primary" id="scanNextBtn" onclick="handleScanNext()">➜ স্ক্যান শুরু করুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════
+let students = JSON.parse(localStorage.getItem('protishthan_students') || '[]');
+let scanFiles = [];
+let scannedData = [];
+let currentScanState = 'upload';
+
+function saveStudents() {
+  localStorage.setItem('protishthan_students', JSON.stringify(students));
+}
+
+// ═══════════════════════════════════════
+// RENDER STUDENT TABLE
+// ═══════════════════════════════════════
+function renderStudents(list) {
+  const container = document.getElementById('tableContainer');
+  const countLabel = document.getElementById('countLabel');
+  countLabel.textContent = list.length + ' জন ছাত্র';
+
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">👥</div><div class="title">কোনো ছাত্র পাওয়া যায়নি</div><div class="sub">অনুসন্ধান পরিবর্তন করুন বা নতুন ছাত্র যোগ করুন</div></div>`;
+    return;
+  }
+
+  const rows = list.map((s, i) => {
+    const initials = (s.name || '?').charAt(0);
+    return `<tr>
+      <td><div class="student-avatar">${initials}</div></td>
+      <td><strong>${s.name || '—'}</strong><div style="font-size:11px;color:var(--text-3)">${s.dakhila_no || ''}</div></td>
+      <td>${s.father_name || '—'}</td>
+      <td><span class="class-badge">${s.desired_class || '—'}</span></td>
+      <td>${s.mobile || '—'}</td>
+      <td>${s.dob || '—'}</td>
+      <td><span class="status-badge ${s.notun_puraton === 'নতুন' ? 'new' : 'active'}">${s.notun_puraton || 'নতুন'}</span></td>
+      <td><button onclick="deleteStudent(${students.indexOf(s)})" style="border:none;background:var(--red-l);color:var(--red);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px">মুছুন</button></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<table class="student-table">
+    <thead><tr>
+      <th></th><th>নাম</th><th>পিতার নাম</th><th>শ্রেণী</th><th>মোবাইল</th><th>জন্ম তারিখ</th><th>ধরন</th><th></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = students.length;
+  const newCount = students.filter(s => s.notun_puraton === 'নতুন').length;
+  document.getElementById('statNew').textContent = newCount;
+  const classes = [...new Set(students.map(s => s.desired_class).filter(Boolean))];
+  document.getElementById('statClass').textContent = classes.length;
+
+  // Update class filter
+  const sel = document.getElementById('filterClass');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">সব শ্রেণী</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = current;
+}
+
+function filterStudents() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cls = document.getElementById('filterClass').value;
+  const typ = document.getElementById('filterType').value;
+  const filtered = students.filter(s => {
+    const matchQ = !q || (s.name||'').toLowerCase().includes(q) || (s.father_name||'').toLowerCase().includes(q) || (s.dakhila_no||'').includes(q);
+    const matchC = !cls || s.desired_class === cls;
+    const matchT = !typ || s.notun_puraton === typ;
+    return matchQ && matchC && matchT;
+  });
+  renderStudents(filtered);
+}
+
+function deleteStudent(idx) {
+  if (!confirm('এই ছাত্রকে মুছে দেবেন?')) return;
+  students.splice(idx, 1);
+  saveStudents();
+  updateStats();
+  filterStudents();
+}
+
+// ═══════════════════════════════════════
+// ADD MENU
+// ═══════════════════════════════════════
+function toggleAddMenu() {
+  document.getElementById('addMenu').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.add-wrap')) document.getElementById('addMenu').classList.remove('open');
+});
+
+// ═══════════════════════════════════════
+// MANUAL MODAL
+// ═══════════════════════════════════════
+function openManualModal() {
+  document.getElementById('addMenu').classList.remove('open');
+  document.getElementById('manualModal').classList.add('open');
+}
+function closeManualModal() {
+  document.getElementById('manualModal').classList.remove('open');
+}
+function saveManualStudent() {
+  const name = document.getElementById('m_name').value.trim();
+  if (!name) { alert('ছাত্রের নাম দিন'); return; }
+  const student = {
+    id: Date.now(),
+    name,
+    dob: document.getElementById('m_dob').value,
+    dakhila_no: document.getElementById('m_dakhila').value,
+    desired_class: document.getElementById('m_class').value,
+    dept: document.getElementById('m_dept').value,
+    notun_puraton: document.getElementById('m_type').value,
+    shikkha_borsho_english: document.getElementById('m_year').value,
+    father_name: document.getElementById('m_father').value,
+    mother_name: document.getElementById('m_mother').value,
+    mobile: document.getElementById('m_mobile').value,
+    student_relation: document.getElementById('m_relation').value,
+    present_address: document.getElementById('m_address').value,
+    prev_institution: document.getElementById('m_prev_inst').value,
+    prev_class: document.getElementById('m_prev_class').value,
+    source: 'manual',
+    added_at: new Date().toISOString()
+  };
+  students.unshift(student);
+  saveStudents();
+  updateStats();
+  filterStudents();
+  closeManualModal();
+  // Reset
+  ['m_name','m_dob','m_dakhila','m_class','m_dept','m_year','m_father','m_mother','m_mobile','m_relation','m_address','m_prev_inst','m_prev_class'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ═══════════════════════════════════════
+// SCAN MODAL
+// ═══════════════════════════════════════
+function openScanModal() {
+  document.getElementById('addMenu').classList.remove('open');
+  scanFiles = [];
+  scannedData = [];
+  switchScanState('upload');
+  document.getElementById('uploadedList').innerHTML = '';
+  document.getElementById('scanModal').classList.add('open');
+}
+function closeScanModal() {
+  document.getElementById('scanModal').classList.remove('open');
+}
+
+function switchScanState(state) {
+  currentScanState = state;
+  ['stateUpload','stateProcessing','statePreview'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const btn = document.getElementById('scanNextBtn');
+  if (state === 'upload') {
+    document.getElementById('stateUpload').classList.add('active');
+    btn.textContent = '➜ স্ক্যান শুরু করুন';
+    btn.onclick = handleScanNext;
+  } else if (state === 'processing') {
+    document.getElementById('stateProcessing').classList.add('active');
+    btn.textContent = '⏳ প্রক্রিয়া চলছে...';
+    btn.onclick = null;
+    btn.disabled = true;
+  } else if (state === 'preview') {
+    document.getElementById('statePreview').classList.add('active');
+    btn.textContent = '✓ সব ছাত্র যোগ করুন (' + scannedData.length + ' জন)';
+    btn.onclick = confirmAddAll;
+    btn.disabled = false;
+    btn.className = 'btn btn-green';
+  }
+}
+
+// FILE HANDLING
+function handleFiles(files) {
+  Array.from(files).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    scanFiles.push(f);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const item = document.createElement('div');
+      item.className = 'uploaded-item';
+      item.innerHTML = `<img class="img-preview" src="${e.target.result}"><div class="file-name">${f.name}</div><div class="file-size">${(f.size/1024).toFixed(0)} KB</div><button class="remove-btn" onclick="removeFile(this,'${f.name}')">✕</button>`;
+      document.getElementById('uploadedList').appendChild(item);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function removeFile(btn, name) {
+  scanFiles = scanFiles.filter(f => f.name !== name);
+  btn.closest('.uploaded-item').remove();
+}
+function dragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function dragLeave(e) { document.getElementById('dropZone').classList.remove('drag'); }
+function dropFiles(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+
+async function handleScanNext() {
+  if (scanFiles.length === 0) { alert('আগে ছবি আপলোড করুন'); return; }
+  switchScanState('processing');
+  scannedData = [];
+  const total = scanFiles.length;
+
+  for (let i = 0; i < total; i++) {
+    document.getElementById('progressText').textContent = (i+1) + ' / ' + total + ' ফর্ম';
+    document.getElementById('processTitle').textContent = 'ফর্ম ' + (i+1) + ' বিশ্লেষণ করা হচ্ছে...';
+    const pct = Math.round(((i+1)/total)*100);
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    try {
+      const b64 = await fileToBase64(scanFiles[i]);
+      const result = await scanForm(b64, scanFiles[i].type);
+      if (result) scannedData.push(result);
+    } catch(e) {
+      console.error('Scan error:', e);
+      scannedData.push({ name: '(পড়া যায়নি)', father_name: '', desired_class: '', mobile: '', dob: '', notun_puraton: 'নতুন', dakhila_no: '', _error: true });
+    }
+  }
+
+  renderPreview();
+  switchScanState('preview');
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = e => res(e.target.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function scanForm(base64, mimeType) {
+  const res = await fetch('/api/scan-form', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ image: base64, mimeType })
+  });
+  if (!res.ok) throw new Error('API error');
+  const data = await res.json();
+  return data.student;
+}
+
+function renderPreview() {
+  const tbody = document.getElementById('previewBody');
+  document.getElementById('previewMsg').textContent = scannedData.length + 'টি ফর্ম স্ক্যান সম্পন্ন। তথ্য যাচাই করুন — ভুল থাকলে সরাসরি edit করুন।';
+  tbody.innerHTML = scannedData.map((s, i) => `
+    <tr class="${s._error ? 'warn' : ''}">
+      <td class="row-num">${i+1}</td>
+      <td class="${!s.name ? 'warn' : ''}"><input value="${s.name||''}" data-idx="${i}" data-field="name" onchange="updateScanned(this)"></td>
+      <td><input value="${s.father_name||''}" data-idx="${i}" data-field="father_name" onchange="updateScanned(this)"></td>
+      <td><input value="${s.dob||''}" data-idx="${i}" data-field="dob" onchange="updateScanned(this)"></td>
+      <td><input value="${s.desired_class||''}" data-idx="${i}" data-field="desired_class" onchange="updateScanned(this)"></td>
+      <td><input value="${s.mobile||''}" data-idx="${i}" data-field="mobile" onchange="updateScanned(this)"></td>
+      <td><input value="${s.notun_puraton||'নতুন'}" data-idx="${i}" data-field="notun_puraton" onchange="updateScanned(this)"></td>
+      <td><input value="${s.dakhila_no||''}" data-idx="${i}" data-field="dakhila_no" onchange="updateScanned(this)"></td>
+    </tr>`).join('');
+}
+
+function updateScanned(input) {
+  const idx = parseInt(input.dataset.idx);
+  const field = input.dataset.field;
+  scannedData[idx][field] = input.value;
+  if (input.value.trim()) input.closest('td').classList.remove('warn');
+}
+
+function confirmAddAll() {
+  const toAdd = scannedData.map(s => ({
+    ...s,
+    id: Date.now() + Math.random(),
+    source: 'scan',
+    added_at: new Date().toISOString()
+  }));
+  students.unshift(...toAdd);
+  saveStudents();
+  updateStats();
+  filterStudents();
+  closeScanModal();
+  alert(toAdd.length + ' জন ছাত্র সফলভাবে যোগ হয়েছে ✓');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+updateStats();
+filterStudents();
+</script>
+</body>
+</html>
