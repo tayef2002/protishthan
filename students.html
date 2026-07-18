@@ -1433,8 +1433,11 @@ async function handleExcelImport(event){
           // extra fields
           const dakhilaNo = (row['দাখিলা নং']||row['dakhila_no']||'').toString().trim();
           const notunPuraton = (row['নতুন/পুরাতন']||row['notun_puraton']||'').toString().trim();
-          const hijri = (row['শিক্ষাবর্ষ হিজরি']||row['shikkha_borsho_hijri']||'').toString().trim();
-          const english = (row['শিক্ষাবর্ষ ইংরেজি']||row['shikkha_borsho_english']||'').toString().trim();
+          // শিক্ষাবর্ষ: file থেকে নাও, না থাকলে settings থেকে
+          const hijri = (row['শিক্ষাবর্ষ হিজরি']||row['shikkha_borsho_hijri']||'').toString().trim()
+                        || (currentInstitution.academic_year_ar ? String(currentInstitution.academic_year_ar) : '');
+          const english = (row['শিক্ষাবর্ষ ইংরেজি']||row['shikkha_borsho_english']||'').toString().trim()
+                          || (currentInstitution.academic_year_en ? String(currentInstitution.academic_year_en) : '');
           const dept = (row['বিভাগ']||row['dept']||'').toString().trim();
           const feeAmt = (row['মাসিক ফি']||row['fee_amount']||'').toString().trim();
           const guardianName = (row['অভিভাবকের নাম']||row['guardian_name']||'').toString().trim();
