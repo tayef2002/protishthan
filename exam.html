@@ -2028,7 +2028,7 @@ function renderQInputs(){
       marks: el.querySelector('.q-main-marks')?.value||'',
       hasSub: el.querySelector('.q-sub-area')?.style.display!=='none',
       fmt: el.dataset.fmt||'bn', mandN: el.dataset.mandN||'',
-      type: el.dataset.type||'text', mathOp: el.dataset.mathOp||'+', mathLayout: el.dataset.mathLayout||'stack',
+      type: el.dataset.type||'text', mathOp: el.dataset.mathOp||'+', mathLayout: el.dataset.mathLayout||'stack', forceBreak: el.dataset.forceBreak==='true',
       mathText: el.querySelector('.q-math-text')?.value||'',
       gridRows: parseInt(document.getElementById('qGridRows'+idx)?.value)||2,
       gridCols: parseInt(document.getElementById('qGridCols'+idx)?.value)||5,
@@ -2042,6 +2042,7 @@ function renderQInputs(){
     const idx=i+1; const ex=existing[idx]||{};
     const fmt=ex.fmt||'bn'; const mandN=ex.mandN||'';
     const type=ex.type||'text'; const mathOp=ex.mathOp||'+'; const mathLayout=ex.mathLayout||'stack';
+    const forceBreak=ex.forceBreak||false;
     const subOpen=ex.hasSub?'':'display:none';
     const isMath=type==='math-col';
     const subRows=(ex.subs&&ex.subs.length?ex.subs:[{text:'',marks:''},{text:'',marks:''},{text:'',marks:''}]).map((s,si)=>buildSubRow(fmt,si,s.text,s.marks,idx)).join('');
@@ -2050,11 +2051,12 @@ function renderQInputs(){
     const mathColsHtml=(ex.mathCols&&ex.mathCols.length?ex.mathCols:[{n1:'',n2:'',layout:_defLayout},{n1:'',n2:'',layout:_defLayout},{n1:'',n2:'',layout:_defLayout}]).map((c,si)=>buildMathColItem(idx,si,c.n1,c.n2,mathOp,c.layout||_defLayout)).join('');
     const opBtns=['+','-','×','÷'].map(op=>`<button type="button" class="q-math-op-btn${mathOp===op?' active':''}" onclick="setMathOp(${idx},'${op}')">${op==='+'?'+ যোগ':op==='-'?'− বিয়োগ':op==='×'?'× গুণ':'÷ ভাগ'}</button>`).join('');
     const addBtnsHtml=mathOp==='÷'?`<div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="addMathCol(${idx},'div')" class="q-math-add-btn">২৩)২০( কলাম</button><button type="button" onclick="addMathCol(${idx},'inline')" class="q-math-add-btn" style="border-color:var(--blue);color:var(--blue)">↔ পাশাপাশি</button></div>`:`<div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="addMathCol(${idx},'stack')" class="q-math-add-btn">↕ উপরে-নিচে</button><button type="button" onclick="addMathCol(${idx},'inline')" class="q-math-add-btn" style="border-color:var(--blue);color:var(--blue)">↔ পাশাপাশি</button></div>`;
-    return `<div class="q-item" data-idx="${idx}" data-fmt="${fmt}" data-mand-n="${mandN}" data-type="${type}" data-math-op="${mathOp}">
+    return `<div class="q-item" data-idx="${idx}" data-fmt="${fmt}" data-mand-n="${mandN}" data-type="${type}" data-math-op="${mathOp}" data-force-break="${forceBreak}">
       <div class="q-item-head">
         <span class="q-num-badge">${BN_NUMS[idx]} নং প্রশ্ন</span>
         <span class="q-marks-pill" id="qMarksLabel${idx}">${ex.marks?'মার্ক: '+ex.marks:'মার্ক: ?'}</span>
         <button type="button" class="q-sub-toggle" style="${isMath?'display:none':''}" onclick="toggleSubQ(${idx})">+ উপ-প্রশ্ন যোগ করুন</button>
+        <button type="button" id="qBreakBtn${idx}" onclick="toggleForceBreak(${idx})" title="এই প্রশ্নটি নতুন পেজে শুরু করো" style="margin-left:auto;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid ${forceBreak?'var(--blue)':'var(--border)'};background:${forceBreak?'var(--blue)':'var(--surface)'};color:${forceBreak?'#fff':'var(--text-2)'};font-family:inherit">⏎ নতুন পেজ</button>
       </div>
       <div class="q-type-row">
         <button type="button" class="q-type-btn${(!type||type==='text')?' active':''}" onclick="setQType(${idx},'text')">📝 সাধারণ</button>
@@ -2201,6 +2203,7 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
   const getL2=(fmt,si)=>fmt==='en'?(EN_A2[si]||String.fromCharCode(65+si)):fmt==='num'?(BN_SN2[si]||String(si+1)):(BN_ALPHA[si]||String(si+1));
 
   const questionsHtml = (d.questions||[]).map(q=>{
+    const breakDiv = q.forceBreak ? '<div class="qp-force-break"></div>' : '';
     const qNum = BN_Q2[q.idx]||BN(q.idx);
     const type = q.type||'text';
     if(type==='math-col'){
@@ -2215,21 +2218,21 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
       });
       const inlineG=inlineItems.length?`<div class="qp-math-inline-group">${inlineItems.join('')}</div>`:'';
       const colsHtml=op==='÷'?divItems.join(''):(stackItems.join('')+inlineG);
-      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
     }
     if(type==='grid-table'){
       const gRows=q.gridRows||2,gCols=q.gridCols||5,cells=q.gridCells||[];
       let tbl='<table class="qp-qtable">';
       for(let r=0;r<gRows;r++){tbl+='<tr>';for(let c=0;c<gCols;c++){tbl+=`<td>${(cells[r]&&cells[r][c])||''}</td>`;}tbl+='</tr>';}
       tbl+='</table>';
-      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
     }
     if(type==='fill-box'){
       const raw=q.text||''; const hasMk=raw.includes('[_]');
       const txt=raw.replace(/\[_\]/g,'<span class="qp-ans-box"></span>');
-      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
     }
-    let h=`<div class="qp-q" data-qidx="${q.idx}">`;
+    let h=breakDiv+`<div class="qp-q" data-qidx="${q.idx}">`;
     if(q.subs&&q.subs.length){
       const fmt=q.fmt||'bn';
       h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
@@ -2325,7 +2328,8 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;bac
 .page-inner .content-pad{padding:0 8mm;}.page-inner .h-row.padded{padding:0 20mm;}.page-inner .h-line{margin:4px 0 14px;}
 .a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
 .a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
-@media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;background:#fff;padding:0;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;box-shadow:none;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;}.page-card,.page-lbl,#a4-measure{display:none;}@page{size:${pageSize};margin:0;}}
+.qp-force-break{display:none;}
+@media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;background:#fff;padding:0;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;box-shadow:none;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;}.page-card,.page-lbl,#a4-measure{display:none;}.qp-force-break{display:block;page-break-before:always;height:0;margin:0;padding:0;}@page{size:${pageSize};margin:0;}}
 </style></head><body>${isA4 && isPreview ? `<div id="a4-measure"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div id="pages-wrap"></div>` : body}
 <script>
 var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'},isPreview=${isPreview?'true':'false'};
@@ -2381,6 +2385,15 @@ function fitLayout(){
     }
     var inst1=m.querySelector('.h-inst');
     if(inst1)fitInstEl(inst1,42);
+    // Apply forced page-break spacing
+    m.querySelectorAll('.qp-force-break').forEach(function(br){
+      br.style.display='block';
+      br.style.height='0';
+      var y=br.offsetTop;
+      var pageNum=Math.floor(y/PH);
+      var gap=(pageNum+1)*PH - y;
+      if(gap>4 && gap<PH){ br.style.height=gap+'px'; }
+    });
     buildPreviewPages(m.scrollHeight);
   } else {
     // A5 preview: fit A5 sheets
@@ -2550,6 +2563,21 @@ function _updatePadLabel(){
     btn.style.color = _manualPadPx === null ? 'var(--text-2)' : '#fff';
     btn.style.borderColor = _manualPadPx === null ? 'var(--border)' : 'var(--blue)';
   }
+}
+
+function toggleForceBreak(idx){
+  const el = document.querySelector(`.q-item[data-idx="${idx}"]`);
+  if(!el) return;
+  const cur = el.dataset.forceBreak === 'true';
+  el.dataset.forceBreak = cur ? 'false' : 'true';
+  const btn = document.getElementById('qBreakBtn'+idx);
+  if(btn){
+    const on = !cur;
+    btn.style.border = '1.5px solid '+(on?'var(--blue)':'var(--border)');
+    btn.style.background = on ? 'var(--blue)' : 'var(--surface)';
+    btn.style.color = on ? '#fff' : 'var(--text-2)';
+  }
+  schedulePreview();
 }
 
 function togglePreviewMoveMode(){
@@ -3153,7 +3181,8 @@ function collectQPData(){
       gridCells=getGridCells(idx);
     }
     const mathLayout2=el.dataset.mathLayout||'stack';
-    questions.push({idx,text,marks,subs,fmt,mandN,type,mathOp,mathCols,mathText,mathLayout:mathLayout2,gridRows,gridCols,gridCells});
+    const forceBreak = el.dataset.forceBreak === 'true';
+    questions.push({idx,text,marks,subs,fmt,mandN,type,mathOp,mathCols,mathText,mathLayout:mathLayout2,gridRows,gridCols,gridCells,forceBreak});
   });
   const paperSize = document.querySelector('input[name="qpPaperSize"]:checked')?.value || 'A5';
   const presentationMark = document.getElementById('qpPresentationChk').checked
@@ -3182,7 +3211,7 @@ async function generateQPaper(mode){
     const makeItems = (paperId) => d.questions.map(q=>({
       paper_id: paperId, question_number: q.idx,
       question_text: q.text||'', marks: q.marks ? parseInt(q.marks) : null,
-      sub_questions: (q.subs.length || (q.type&&q.type!=='text')) ? {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[]} : null
+      sub_questions: {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[],forceBreak:q.forceBreak||false}
     }));
 
     if(_editingPaperId){
@@ -3860,6 +3889,10 @@ async function editQP(paperId){
       if(item){
         item.dataset.fmt = sqFmt;
         item.dataset.mandN = sqMandN||'';
+        const sqForceBreak = sqIsNew ? (sq.forceBreak||false) : false;
+        item.dataset.forceBreak = sqForceBreak ? 'true' : 'false';
+        const _fb = document.getElementById('qBreakBtn'+it.question_number);
+        if(_fb){ _fb.style.border='1.5px solid '+(sqForceBreak?'var(--blue)':'var(--border)'); _fb.style.background=sqForceBreak?'var(--blue)':'var(--surface)'; _fb.style.color=sqForceBreak?'#fff':'var(--text-2)'; }
         // update format buttons
         item.querySelectorAll('.q-fmt-btn').forEach(b=>b.classList.remove('active'));
         const fmtBtn = [...item.querySelectorAll('.q-fmt-btn')].find(b=>b.getAttribute('onclick')?.includes(`'${sqFmt}'`));
