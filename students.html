@@ -1402,20 +1402,22 @@ async function handleExcelImport(event){
 
       for(const row of rows){
         const name = (row['নাম'] || row['Name'] || row['name'] || '').toString().trim();
-        const className = (row['ক্লাস'] || row['Class'] || row['class'] || '').toString().trim();
+        const className = (row['শ্রেণী'] || row['ক্লাস'] || row['Class'] || row['class'] || '').toString().trim();
         const roll = (row['রোল'] || row['Roll'] || row['roll'] || '').toString().trim();
-        const gender = (row['লিঙ্গ'] || row['Gender'] || row['gender'] || 'male').toString().toLowerCase().includes('মেয়ে') || (row['Gender']||'').toLowerCase()==='female' ? 'female' : 'male';
+        const genderRaw = (row['লিঙ্গ'] || row['Gender'] || row['gender'] || '').toString().trim();
+        const gender = genderRaw.includes('মেয়ে') || genderRaw.toLowerCase()==='female' ? 'female' : 'male';
         const address = (row['ঠিকানা'] || row['Address'] || row['address'] || '').toString().trim();
         const fatherName = (row['পিতার নাম'] || row['Father Name'] || row['father_name'] || '').toString().trim();
-        const fatherWa = (row['পিতার নম্বর'] || row['Father WhatsApp'] || row['father_whatsapp'] || '').toString().trim();
+        const rawFatherWa = (row['পিতার মোবাইল'] || row['পিতার নম্বর'] || row['Father WhatsApp'] || row['father_whatsapp'] || '').toString().trim();
+        const fatherWa = normalizeBDPhone(rawFatherWa);
         const motherName = (row['মাতার নাম'] || row['Mother Name'] || row['mother_name'] || '').toString().trim();
-        const motherWa = (row['মাতার নম্বর'] || row['Mother WhatsApp'] || row['mother_whatsapp'] || '').toString().trim();
+        const rawMotherWa = (row['মাতার মোবাইল'] || row['মাতার নম্বর'] || row['Mother WhatsApp'] || row['mother_whatsapp'] || '').toString().trim();
+        const motherWa = normalizeBDPhone(rawMotherWa);
+        const dob = parseDob(row['জন্মতারিখ'] || row['dob'] || '');
 
         if(!name || !className){ failCount++; continue; }
-        if(!fatherWa && !motherWa){ failCount++; continue; }
 
         try{
-          // Find or auto-create the matching class so this row links to a real class_id
           let matchedClass = allClassOptions.find(c => c.name.toLowerCase() === className.toLowerCase());
           let classId = matchedClass ? matchedClass.id : null;
           if(!classId){
@@ -1425,15 +1427,16 @@ async function handleExcelImport(event){
 
           const { data: student, error: stuErr } = await sb.from('students').insert({
             institution_id: currentInstitution.id, full_name: name, class_name: className, class_id: classId,
-            roll_number: roll, gender: gender, address: address || null, is_active: true
+            roll_number: roll || null, gender: gender, address: address || null,
+            date_of_birth: dob || null, is_active: true
           }).select().single();
           if(stuErr) throw stuErr;
 
-          if(fatherName && /^01[0-9]{9}$/.test(fatherWa)){
-            await sb.from('guardians').insert({student_id: student.id, full_name: fatherName, relation: 'পিতা', whatsapp_number: fatherWa, phone: fatherWa});
+          if(fatherName){
+            await sb.from('guardians').insert({student_id: student.id, full_name: fatherName, relation: 'পিতা', whatsapp_number: fatherWa||'', phone: fatherWa||''});
           }
-          if(motherName && /^01[0-9]{9}$/.test(motherWa)){
-            await sb.from('guardians').insert({student_id: student.id, full_name: motherName, relation: 'মাতা', whatsapp_number: motherWa, phone: motherWa});
+          if(motherName){
+            await sb.from('guardians').insert({student_id: student.id, full_name: motherName, relation: 'মাতা', whatsapp_number: motherWa||'', phone: motherWa||''});
           }
           successCount++;
         }catch(err){
