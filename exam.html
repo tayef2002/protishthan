@@ -1968,7 +1968,7 @@ function renderQInputs(){
         <textarea class="q-textarea q-main-text" placeholder="প্রশ্নটি লিখুন — নম্বর দেওয়ার দরকার নেই, auto যোগ হবে..." oninput="updateMarksLabel(${idx})">${escapeHtml(ex.text||'')}</textarea>
         <div class="voice-btn-row">
           <span style="font-size:12px;font-weight:600;color:var(--text)">মোট মার্ক:</span>
-          <input class="qp-input q-main-marks" type="number" style="width:72px;padding:7px 8px;min-height:unset;box-sizing:border-box" placeholder="যেমন: ৩০" value="${escapeHtml(ex.marks||'')}" oninput="updateMarksLabel(${idx});autoDistrib(${idx})">
+          <input class="qp-input q-main-marks" type="number" style="width:72px;padding:7px 8px;min-height:unset;box-sizing:border-box" placeholder="যেমন: ৩০" value="${escapeHtml(ex.marks||'')}" oninput="onManualMark(${idx})">
           <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
             <button type="button" class="ar-edit-btn" title="সম্পাদনা করুন" onclick="toggleArEdit(this)">✏️</button>
             <button type="button" class="tashkeel-btn" title="Arabic হরকত যোগ করুন (تشكيل)" onclick="addTashkeel(this)">تٌ</button>
@@ -2033,6 +2033,19 @@ function updateMarksLabel(idx){
   if(el) el.textContent = marks ? `মার্ক: ${marks}` : 'মার্ক: ?';
 }
 
+function onManualMark(idx){
+  const item = document.querySelector(`.q-item[data-idx="${idx}"]`);
+  if(!item) return;
+  const inp = item.querySelector('.q-main-marks');
+  if(inp && inp.value !== '') {
+    item.dataset.manual = '1';
+  } else {
+    delete item.dataset.manual;
+  }
+  updateMarksLabel(idx);
+  autoDistrib(idx);
+}
+
 function autoDistributeMarks(){
   const fullMark = (_qpMark==='__custom__'||_qpMark===null)
     ? parseFloat(document.getElementById('qpFullMark').value)||0
@@ -2052,6 +2065,7 @@ function autoDistributeMarks(){
   const divideBy = mandQ > 0 ? mandQ : totalQ;
   const perQ = Math.round((effectiveMark / divideBy) * 10) / 10;
   document.querySelectorAll('.q-item').forEach(item=>{
+    if(item.dataset.manual === '1') return;
     const idx = item.dataset.idx;
     const inp = item.querySelector('.q-main-marks');
     if(inp){ inp.value = perQ; updateMarksLabel(parseInt(idx)); }
