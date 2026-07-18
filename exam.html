@@ -683,12 +683,11 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
           <div id="qpPreviewToolbar">
             <span style="font-size:13px;font-weight:700;color:var(--text)">👁 লাইভ প্রিভিউ</span>
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-              <!-- Selected Q label -->
-              <span id="qpSelLabel" style="display:none;font-size:11.5px;font-weight:700;color:var(--blue);background:var(--blue-light,#e8f0fe);padding:3px 8px;border-radius:6px;"></span>
-              <!-- Move tools (shown when a question is selected) -->
-              <button id="qpMoveUp" onclick="previewMoveQ(-1)" title="উপরে সরাও" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">↑</button>
-              <button id="qpMoveDown" onclick="previewMoveQ(1)" title="নিচে সরাও" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">↓</button>
-              <button id="qpSelClear" onclick="clearPreviewSel()" title="নির্বাচন বাতিল" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer;color:var(--text-2)">✕</button>
+              <!-- Selected Q label + move tools: always visible, disabled when none selected -->
+              <span id="qpSelLabel" style="font-size:11.5px;font-weight:700;color:var(--text-2);background:var(--surface);padding:3px 10px;border-radius:6px;border:1.5px solid var(--border);">প্রশ্নে ক্লিক করুন</span>
+              <button id="qpMoveUp" onclick="previewMoveQ(-1)" title="উপরে সরাও" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer;opacity:.4;">↑</button>
+              <button id="qpMoveDown" onclick="previewMoveQ(1)" title="নিচে সরাও" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer;opacity:.4;">↓</button>
+              <button id="qpSelClear" onclick="clearPreviewSel()" title="নির্বাচন বাতিল" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:11px;cursor:pointer;color:var(--text-2);opacity:.4;">✕</button>
               <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
               <!-- Zoom -->
               <button onclick="changePreviewZoom(-0.1)" title="ছোট করুন" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">−</button>
@@ -2431,15 +2430,12 @@ function setPreviewZoomLabel(scale){
 
 function selectPreviewQ(idx){
   _selectedQIdx = idx;
-  // Show toolbar controls
   const lbl = document.getElementById('qpSelLabel');
   const up  = document.getElementById('qpMoveUp');
   const dn  = document.getElementById('qpMoveDown');
   const clr = document.getElementById('qpSelClear');
-  if(lbl){ lbl.textContent = `✏ ${idx}নং প্রশ্ন`; lbl.style.display=''; }
-  if(up)  up.style.display='';
-  if(dn)  dn.style.display='';
-  if(clr) clr.style.display='';
+  if(lbl){ lbl.textContent = `✏ ${idx}নং প্রশ্ন`; lbl.style.color='var(--blue)'; lbl.style.background='#e8f0fe'; lbl.style.borderColor='var(--blue)'; }
+  [up,dn,clr].forEach(b=>{ if(b){ b.disabled=false; b.style.opacity='1'; b.style.cursor='pointer'; } });
   // Scroll left panel to this q-item and flash highlight
   const item = document.querySelector(`.q-item[data-idx="${idx}"]`);
   if(item){
@@ -2452,8 +2448,10 @@ function selectPreviewQ(idx){
 
 function clearPreviewSel(){
   _selectedQIdx = null;
-  ['qpSelLabel','qpMoveUp','qpMoveDown','qpSelClear'].forEach(id=>{
-    const el = document.getElementById(id); if(el) el.style.display='none';
+  const lbl = document.getElementById('qpSelLabel');
+  if(lbl){ lbl.textContent='প্রশ্নে ক্লিক করুন'; lbl.style.color='var(--text-2)'; lbl.style.background='var(--surface)'; lbl.style.borderColor='var(--border)'; }
+  ['qpMoveUp','qpMoveDown','qpSelClear'].forEach(id=>{
+    const b = document.getElementById(id); if(b){ b.disabled=true; b.style.opacity='.4'; b.style.cursor='default'; }
   });
 }
 
