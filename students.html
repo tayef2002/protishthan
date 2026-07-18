@@ -997,6 +997,8 @@ function normalizeBDPhone(val){
   // +88 or 88 prefix → strip
   if(s.startsWith('+88')) s = s.slice(3);
   else if(s.startsWith('88') && s.length > 11) s = s.slice(2);
+  // Auto-add leading 0 if missing (e.g. 1712345678 → 01712345678)
+  if(s.length === 10 && s.startsWith('1')) s = '0' + s;
   return s;
 }
 
