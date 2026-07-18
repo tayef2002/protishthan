@@ -2143,20 +2143,35 @@ function updateLivePreview(){
   iframe.style.width  = PW + 'px';
   iframe.style.height = PH + 'px';
   iframe.srcdoc = html;
-  // Scale iframe to fit preview panel width, keep exact paper ratio
-  const applyScale = () => {
+  // Scale iframe to fit preview panel width
+  const applyScale = (contentH) => {
+    const h = contentH || PH;
     const outerW = outer.offsetWidth - 8;
     const scale  = Math.min(1, outerW / PW);
     if(scaler){
       scaler.style.width  = PW + 'px';
-      scaler.style.height = PH + 'px';
+      scaler.style.height = h + 'px';
       scaler.style.transform = `scale(${scale})`;
       scaler.style.transformOrigin = 'top left';
-      outer.style.height = Math.round(PH * scale + 8) + 'px';
+      outer.style.height = Math.round(h * scale + 8) + 'px';
     }
+    iframe.style.width  = PW + 'px';
+    iframe.style.height = h + 'px';
   };
-  requestAnimationFrame(applyScale);
-  iframe.onload = applyScale;
+  requestAnimationFrame(()=>applyScale(PH));
+  iframe.onload = () => {
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      const h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, PH);
+      applyScale(h);
+    } catch(e){ applyScale(PH); }
+  };
+  // Listen for height updates from iframe (A4 preview postMessage)
+  window.addEventListener('message', function _pmH(ev){
+    if(ev.data && ev.data.type==='previewHeight'){
+      applyScale(Math.max(ev.data.h, PH));
+    }
+  }, {once: false});
 }
 
 function buildQPrintFullHTML(d, cls, inst, autoPrint){
@@ -2218,12 +2233,11 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint){
   // Inline the print CSS from printQPaper
   const printCSS = document.querySelector('style[data-qp-print]')?.textContent || '';
 
-  // Paper pixel sizes at 96dpi: 1mm = 3.7795px
-  // A4 landscape (297×210mm): 1122×794px  — for A5 (two halves)
-  // A4 portrait  (210×297mm):  794×1122px — for A4 single
+  // Paper pixel sizes at 96dpi (1mm = 3.7795px)
+  // A4-landscape (A5 print): 1122×794px | A4-portrait: 794×1122px
   const isA4 = (d.paperSize||'A5')==='A4';
-  const PW = isA4 ? 794  : 1122;   // paper width px
-  const PH = isA4 ? 1122 : 794;    // paper height px
+  const PW = isA4 ? 794  : 1122;
+  const PH = isA4 ? 1122 : 794;
   const pageSize = isA4 ? 'A4 portrait' : 'A4 landscape';
 
   let body='';
@@ -2233,24 +2247,30 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint){
     body=`<div class="a4-wrap"><div class="a5-sheet" id="sheet1"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div class="a5-divider"></div><div class="a5-sheet" id="sheet2"><div class="h-inst" id="inst2">${instName}</div>${headerRows}${hline}${qBody}</div></div>`;
   }
 
+  // preview=true means no overflow:hidden — show all pages with page-break lines
+  // autoPrint=true means real print window — use print CSS
+  const isPreview = !autoPrint;
+
   return `<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:${PW}px;height:${PH}px;overflow:hidden;background:#fff;}
+html,body{width:${PW}px;background:${isPreview?'#fff':'#fff'};overflow-x:hidden;}
 body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;}
-/* A5: two sheets side by side inside A4 landscape */
+/* A5: two sheets side by side — fixed height always (one page only for A5) */
 .a4-wrap{display:flex;width:${PW}px;height:${PH}px;overflow:hidden;background:#fff;}
 .a5-sheet{width:${PW/2}px;height:${PH}px;padding:83px 26px 30px 26px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
 .a5-divider{width:1px;background:#bbb;flex-shrink:0;align-self:stretch;}
-/* A4: single portrait sheet */
-.a4-single{width:${PW}px;height:${PH}px;padding:106px 53px 53px 53px;overflow:hidden;background:#fff;display:flex;flex-direction:column;}
+/* A4: in preview mode — no height cap, content flows; in print mode — fixed page height */
+.a4-single{width:${PW}px;${isPreview?'min-height:'+PH+'px;':'height:'+PH+'px;overflow:hidden;'}padding:106px 53px 53px 53px;background:#fff;display:flex;flex-direction:column;}
+${isPreview && isA4 ? `.page-break-line{width:100%;height:0;border-top:2px dashed #bbb;margin:0;position:relative;}
+.page-break-line::after{content:'— পরবর্তী পৃষ্ঠা —';position:absolute;left:50%;transform:translateX(-50%);top:-10px;background:#f0f0f0;padding:0 10px;font-size:11px;color:#aaa;font-family:sans-serif;}` : ''}
 .content-pad{padding:0 4mm;}
 .h-inst{text-align:center;font-size:22px;font-weight:900;line-height:1.3;margin-bottom:3px;white-space:nowrap;display:block;width:100%;color:#444;}
 .h-exam{text-align:center;font-size:18px;font-weight:800;margin-bottom:1px;line-height:1.2;color:#555;}
 .h-row{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;margin-bottom:0;line-height:1.3;color:#555;}
 .h-row.padded{padding:0 6mm;}
 .h-line{margin:3px 0 8px;}.h-line-t{border-top:1px solid #000;margin-bottom:2px}.h-line-m{border-top:3px solid #000;margin-bottom:2px}.h-line-b{border-top:1px solid #000}
-.questions-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.questions-wrap{flex:1;display:flex;flex-direction:column;}
 .qp-extra-marks{margin-top:20px;padding-top:0;text-align:center;}
 .qp-extra-row{text-align:center;font-size:12px;font-weight:700;padding:1px 0;}
 .qp-mand-inst{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;}
@@ -2282,12 +2302,40 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;}
 .qp-math-n2{font-size:15px;font-weight:600;line-height:1.1;letter-spacing:.3px;align-self:stretch;text-align:right;white-space:nowrap;padding-bottom:0;border-bottom:1.8px solid #000;margin-bottom:2px}
 .a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
 .a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
-@media print{html,body{width:${pageSize==='A4 portrait'?'210mm':'297mm'};height:${pageSize==='A4 portrait'?'297mm':'210mm'};}.a4-wrap{width:297mm;height:210mm;}.a5-sheet{width:148.5mm;height:210mm;}.a4-single{width:210mm;height:297mm;}@page{size:${pageSize};margin:0;}}
+@media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;min-height:unset;}.page-break-line{display:none;}@page{size:${pageSize};margin:0;}}
 </style></head><body>${body}
 <script>
-var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'};
+var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'},isPreview=${isPreview?'true':'false'};
 function fitInst(){['inst1','inst2'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var mx=isA4?42:26,mn=8,s=mx;el.style.fontSize=s+'px';while(el.scrollWidth>el.offsetWidth&&s>mn){s-=0.5;el.style.fontSize=s+'px';}});}
-function fitLayout(){var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');var minP=isA4?8:0,maxP=isA4?106:83;sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});}
+function fitLayout(){
+  if(!isPreview){
+    // Print mode: shrink to fit one page
+    var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');
+    var minP=isA4?8:0,maxP=isA4?106:83;
+    sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});
+  } else if(isA4){
+    // Preview A4: show page-break lines every PH pixels
+    var sheet=document.querySelector('.a4-single');
+    if(!sheet)return;
+    var totalH=sheet.scrollHeight;
+    var pages=Math.ceil(totalH/PH);
+    // Insert dashed page-break lines
+    var existing=sheet.querySelectorAll('.page-break-line');
+    existing.forEach(function(el){el.remove();});
+    for(var p=1;p<pages;p++){
+      var line=document.createElement('div');
+      line.className='page-break-line';
+      line.style.marginTop=(p*PH - sheet.scrollTop)+'px';
+      // Position absolutely at page boundary
+    }
+    // Simpler: add visual break indicators via background gradient
+    var breakPositions=[];for(var p=1;p<pages;p++)breakPositions.push(p*PH);
+    var gradients=breakPositions.map(function(y){return 'linear-gradient(transparent '+(y-1)+'px,#bbb '+(y-1)+'px,'+'#bbb '+(y+1)+'px,transparent '+(y+1)+'px)';});
+    if(gradients.length) sheet.style.backgroundImage=gradients.join(',');
+    // notify parent of height
+    window.parent.postMessage({type:'previewHeight',h:totalH},'*');
+  }
+}
 function run(){fitInst();fitLayout();}
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{window.onload=run;}
 ${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
