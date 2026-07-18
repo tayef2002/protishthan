@@ -2094,7 +2094,7 @@ function removeSubQ(idx){
   const area = document.getElementById('qSubArea'+idx);
   // Clear all sub-q text inputs
   area.querySelectorAll('.sub-q-input').forEach(el => el.value = '');
-  area.querySelectorAll('.sub-q-marks').forEach(el => el.value = '');
+  area.querySelectorAll('.sub-q-mark').forEach(el => el.value = '');
   // Reset to single empty row
   const wrap = document.getElementById('qSubRows'+idx);
   const firstRow = wrap.querySelector('.sub-q-row');
@@ -2102,7 +2102,7 @@ function removeSubQ(idx){
   allRows.forEach((r, i) => { if(i > 0) r.remove(); });
   if(firstRow){
     firstRow.querySelector('.sub-q-input').value = '';
-    const mk = firstRow.querySelector('.sub-q-marks');
+    const mk = firstRow.querySelector('.sub-q-mark');
     if(mk) mk.value = '';
   }
   // Uncheck mand checkbox
@@ -2478,7 +2478,6 @@ async function generateQPaper(mode){
       const { error: ie } = await sb.from('question_items').insert(makeItems(_editingPaperId));
       if(ie) throw new Error('প্রশ্ন সংরক্ষণে সমস্যা: '+ie.message);
       paper = { id: _editingPaperId };
-      _editingPaperId = null;
     } else {
       const userId = (await sb.auth.getUser()).data.user?.id;
       const { data: newPaper, error } = await sb.from('question_papers').insert({
@@ -2492,6 +2491,7 @@ async function generateQPaper(mode){
       }).select().single();
       if(error) throw new Error('সংরক্ষণে সমস্যা: '+error.message);
       paper = newPaper;
+      _editingPaperId = paper.id;
       const { error: ie } = await sb.from('question_items').insert(makeItems(paper.id));
       if(ie) throw new Error('প্রশ্ন সংরক্ষণে সমস্যা: '+ie.message);
     }
@@ -2940,6 +2940,7 @@ async function reprintQP(paperId){
 }
 
 async function startNewQP(){
+  _editingPaperId = null;
   document.getElementById('qpListWrap').style.display='none';
   document.querySelector('#qpSection > div:first-child').style.display='none';
   document.getElementById('qpBuilderWrap').style.display='block';
@@ -3104,6 +3105,15 @@ async function editQP(paperId){
       const tblWrap=document.getElementById('qGridTable'+qn);
       if(tblWrap) tblWrap.innerHTML=buildGridEditor(sqGridRows,sqGridCols,sqGridCells);
     }
+    // Always reset sub-area first to prevent bleed from previous paper
+    const _qIdx = it.question_number;
+    const _subArea = document.getElementById('qSubArea'+_qIdx);
+    const _subWrap = document.getElementById('qSubRows'+_qIdx);
+    if(_subArea) _subArea.style.display='none';
+    if(_subWrap) _subWrap.innerHTML = buildSubRow('bn', 0, '', '', _qIdx);
+    const _toggleBtn = document.querySelector(`.q-item[data-idx="${_qIdx}"] .q-sub-toggle`);
+    if(_toggleBtn) _toggleBtn.textContent = '+ উপ-প্রশ্ন যোগ করুন';
+
     if(sqItems.length){
       const qIdx = it.question_number;
       const subArea = document.getElementById('qSubArea'+qIdx);
