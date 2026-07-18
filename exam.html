@@ -2335,7 +2335,7 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;bac
 .a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
 .a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
 .qp-force-break{display:none;}
-@media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;background:#fff;padding:0;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;box-shadow:none;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;}.page-card,.page-lbl,#a4-measure{display:none;}.qp-force-break{display:block;page-break-before:always;height:0;margin:0;padding:0;}@page{size:${pageSize};margin:0;}${isA4&&!isPreview?`#print-pages-wrap .a4-single{page-break-after:always;}#a4-measure{display:none!important;}html,body{height:auto!important;overflow:visible!important;}.qp-force-break{display:none!important;}`:""}}
+@media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;background:#fff;padding:0;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;box-shadow:none;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;}.page-card,.page-lbl,#a4-measure{display:none;}.qp-force-break{display:block;page-break-before:always;height:0;margin:0;padding:0;}@page{size:${pageSize};margin:0;}${isA4&&!isPreview?`#print-pages-wrap .page-card{display:block!important;page-break-after:always;}#a4-measure,#pages-wrap{display:none!important;}html,body{height:auto!important;overflow:visible!important;}.qp-force-break{display:none!important;}`:""}}
 </style></head><body>${isA4 ? `<div id="a4-measure"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div id="${isPreview?'pages-wrap':'print-pages-wrap'}"></div>` : body}
 <script>
 var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'},isPreview=${isPreview?'true':'false'};
@@ -2380,7 +2380,7 @@ function buildPrintPages(totalH){
   wrap.innerHTML='';
   for(var p=0;p<pages;p++){
     var sheet=document.createElement('div');
-    sheet.className='a4-single';
+    sheet.className='page-card';
     var inner=document.createElement('div');
     inner.className='page-inner';
     inner.style.top=(-p*PH)+'px';
