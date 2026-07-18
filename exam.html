@@ -2028,7 +2028,7 @@ function renderQInputs(){
       marks: el.querySelector('.q-main-marks')?.value||'',
       hasSub: el.querySelector('.q-sub-area')?.style.display!=='none',
       fmt: el.dataset.fmt||'bn', mandN: el.dataset.mandN||'',
-      type: el.dataset.type||'text', mathOp: el.dataset.mathOp||'+', mathLayout: el.dataset.mathLayout||'stack', forceBreak: el.dataset.forceBreak==='true',
+      type: el.dataset.type||'text', mathOp: el.dataset.mathOp||'+', mathLayout: el.dataset.mathLayout||'stack', forceBreak: el.dataset.forceBreak==='true', spacerBelow: parseInt(el.dataset.spacerBelow||'0')||0,
       mathText: el.querySelector('.q-math-text')?.value||'',
       gridRows: parseInt(document.getElementById('qGridRows'+idx)?.value)||2,
       gridCols: parseInt(document.getElementById('qGridCols'+idx)?.value)||5,
@@ -2043,6 +2043,7 @@ function renderQInputs(){
     const fmt=ex.fmt||'bn'; const mandN=ex.mandN||'';
     const type=ex.type||'text'; const mathOp=ex.mathOp||'+'; const mathLayout=ex.mathLayout||'stack';
     const forceBreak=ex.forceBreak||false;
+    const spacerBelow=ex.spacerBelow||0;
     const subOpen=ex.hasSub?'':'display:none';
     const isMath=type==='math-col';
     const subRows=(ex.subs&&ex.subs.length?ex.subs:[{text:'',marks:''},{text:'',marks:''},{text:'',marks:''}]).map((s,si)=>buildSubRow(fmt,si,s.text,s.marks,idx)).join('');
@@ -2051,7 +2052,7 @@ function renderQInputs(){
     const mathColsHtml=(ex.mathCols&&ex.mathCols.length?ex.mathCols:[{n1:'',n2:'',layout:_defLayout},{n1:'',n2:'',layout:_defLayout},{n1:'',n2:'',layout:_defLayout}]).map((c,si)=>buildMathColItem(idx,si,c.n1,c.n2,mathOp,c.layout||_defLayout)).join('');
     const opBtns=['+','-','×','÷'].map(op=>`<button type="button" class="q-math-op-btn${mathOp===op?' active':''}" onclick="setMathOp(${idx},'${op}')">${op==='+'?'+ যোগ':op==='-'?'− বিয়োগ':op==='×'?'× গুণ':'÷ ভাগ'}</button>`).join('');
     const addBtnsHtml=mathOp==='÷'?`<div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="addMathCol(${idx},'div')" class="q-math-add-btn">২৩)২০( কলাম</button><button type="button" onclick="addMathCol(${idx},'inline')" class="q-math-add-btn" style="border-color:var(--blue);color:var(--blue)">↔ পাশাপাশি</button></div>`:`<div style="display:flex;gap:8px;margin-top:4px"><button type="button" onclick="addMathCol(${idx},'stack')" class="q-math-add-btn">↕ উপরে-নিচে</button><button type="button" onclick="addMathCol(${idx},'inline')" class="q-math-add-btn" style="border-color:var(--blue);color:var(--blue)">↔ পাশাপাশি</button></div>`;
-    return `<div class="q-item" data-idx="${idx}" data-fmt="${fmt}" data-mand-n="${mandN}" data-type="${type}" data-math-op="${mathOp}" data-force-break="${forceBreak}">
+    return `<div class="q-item" data-idx="${idx}" data-fmt="${fmt}" data-mand-n="${mandN}" data-type="${type}" data-math-op="${mathOp}" data-force-break="${forceBreak}" data-spacer-below="${spacerBelow}">
       <div class="q-item-head">
         <span class="q-num-badge">${BN_NUMS[idx]} নং প্রশ্ন</span>
         <span class="q-marks-pill" id="qMarksLabel${idx}">${ex.marks?'মার্ক: '+ex.marks:'মার্ক: ?'}</span>
@@ -2118,6 +2119,12 @@ function renderQInputs(){
         </div>
         <div id="qSubRows${idx}">${subRows}</div>
         <button type="button" onclick="addSubRow(${idx})" style="margin-top:8px;font-size:11.5px;color:var(--blue);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:700">+ আরো উপ-প্রশ্ন</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)">
+        <span style="font-size:11px;color:var(--text-3);font-weight:600">↕ নিচে ফাঁকা:</span>
+        <button type="button" onclick="changeQSpacer(${idx},-1)" style="padding:2px 8px;border:1.5px solid var(--border);border-radius:5px;background:var(--white);font-size:13px;cursor:pointer;line-height:1">−</button>
+        <span id="qSpacerLbl${idx}" style="font-size:11px;font-weight:700;color:${spacerBelow>0?'var(--blue)':'var(--text-3)'};min-width:28px;text-align:center">${spacerBelow>0?spacerBelow+'লা':'০'}</span>
+        <button type="button" onclick="changeQSpacer(${idx},1)" style="padding:2px 8px;border:1.5px solid var(--border);border-radius:5px;background:var(--white);font-size:13px;cursor:pointer;line-height:1">+</button>
       </div>
     </div>`;
   }).join('');
@@ -2204,6 +2211,7 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
 
   const questionsHtml = (d.questions||[]).map(q=>{
     const breakDiv = q.forceBreak ? '<div class="qp-force-break"></div>' : '';
+    const spacerDiv = q.spacerBelow>0 ? `<div class="qp-spacer" style="height:${q.spacerBelow * 24}px;display:block"></div>` : '';
     const qNum = BN_Q2[q.idx]||BN(q.idx);
     const type = q.type||'text';
     if(type==='math-col'){
@@ -2218,19 +2226,19 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
       });
       const inlineG=inlineItems.length?`<div class="qp-math-inline-group">${inlineItems.join('')}</div>`:'';
       const colsHtml=op==='÷'?divItems.join(''):(stackItems.join('')+inlineG);
-      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`+spacerDiv;
     }
     if(type==='grid-table'){
       const gRows=q.gridRows||2,gCols=q.gridCols||5,cells=q.gridCells||[];
       let tbl='<table class="qp-qtable">';
       for(let r=0;r<gRows;r++){tbl+='<tr>';for(let c=0;c<gCols;c++){tbl+=`<td>${(cells[r]&&cells[r][c])||''}</td>`;}tbl+='</tr>';}
       tbl+='</table>';
-      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`+spacerDiv;
     }
     if(type==='fill-box'){
       const raw=q.text||''; const hasMk=raw.includes('[_]');
       const txt=raw.replace(/\[_\]/g,'<span class="qp-ans-box"></span>');
-      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`+spacerDiv;
     }
     let h=breakDiv+`<div class="qp-q" data-qidx="${q.idx}">`;
     if(q.subs&&q.subs.length){
@@ -2240,7 +2248,7 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
     } else {
       h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
     }
-    h+=`</div>`;
+    h+=`</div>`+spacerDiv;
     return h;
   }).join('');
 
@@ -2577,6 +2585,17 @@ function toggleForceBreak(idx){
     btn.style.background = on ? 'var(--blue)' : 'var(--surface)';
     btn.style.color = on ? '#fff' : 'var(--text-2)';
   }
+  schedulePreview();
+}
+
+function changeQSpacer(idx, delta){
+  const el = document.querySelector(`.q-item[data-idx="${idx}"]`);
+  if(!el) return;
+  const cur = parseInt(el.dataset.spacerBelow||'0')||0;
+  const next = Math.max(0, Math.min(30, cur + delta));
+  el.dataset.spacerBelow = next;
+  const lbl = document.getElementById('qSpacerLbl'+idx);
+  if(lbl){ lbl.textContent = next>0 ? next+'লা' : '০'; lbl.style.color = next>0?'var(--blue)':'var(--text-3)'; }
   schedulePreview();
 }
 
@@ -3182,7 +3201,8 @@ function collectQPData(){
     }
     const mathLayout2=el.dataset.mathLayout||'stack';
     const forceBreak = el.dataset.forceBreak === 'true';
-    questions.push({idx,text,marks,subs,fmt,mandN,type,mathOp,mathCols,mathText,mathLayout:mathLayout2,gridRows,gridCols,gridCells,forceBreak});
+    const spacerBelow = parseInt(el.dataset.spacerBelow||'0')||0;
+    questions.push({idx,text,marks,subs,fmt,mandN,type,mathOp,mathCols,mathText,mathLayout:mathLayout2,gridRows,gridCols,gridCells,forceBreak,spacerBelow});
   });
   const paperSize = document.querySelector('input[name="qpPaperSize"]:checked')?.value || 'A5';
   const presentationMark = document.getElementById('qpPresentationChk').checked
@@ -3211,7 +3231,7 @@ async function generateQPaper(mode){
     const makeItems = (paperId) => d.questions.map(q=>({
       paper_id: paperId, question_number: q.idx,
       question_text: q.text||'', marks: q.marks ? parseInt(q.marks) : null,
-      sub_questions: {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[],forceBreak:q.forceBreak||false}
+      sub_questions: {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[],forceBreak:q.forceBreak||false,spacerBelow:q.spacerBelow||0}
     }));
 
     if(_editingPaperId){
@@ -3891,6 +3911,10 @@ async function editQP(paperId){
         item.dataset.mandN = sqMandN||'';
         const sqForceBreak = sqIsNew ? (sq.forceBreak||false) : false;
         item.dataset.forceBreak = sqForceBreak ? 'true' : 'false';
+        const sqSpacer = sqIsNew ? (sq.spacerBelow||0) : 0;
+        item.dataset.spacerBelow = sqSpacer;
+        const _sl = document.getElementById('qSpacerLbl'+it.question_number);
+        if(_sl){ _sl.textContent=sqSpacer>0?sqSpacer+'লা':'০'; _sl.style.color=sqSpacer>0?'var(--blue)':'var(--text-3)'; }
         const _fb = document.getElementById('qBreakBtn'+it.question_number);
         if(_fb){ _fb.style.border='1.5px solid '+(sqForceBreak?'var(--blue)':'var(--border)'); _fb.style.background=sqForceBreak?'var(--blue)':'var(--surface)'; _fb.style.color=sqForceBreak?'#fff':'var(--text-2)'; }
         // update format buttons
