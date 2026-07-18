@@ -2189,7 +2189,7 @@ function delSubRow(btn, idx){
   if(!row) return;
   const wrap = row.parentElement;
   // don't allow deleting if only 1 row left
-  if(wrap.querySelectorAll('.sub-q-row').length <= 1){ xAlert('কমপক্ষে ১টি উপ-প্রশ্ন রাখতে হবে।',{icon:'⚠️',title:'উপ-প্রশ্ন'}); return; }
+  if(wrap.querySelectorAll('.sub-q-row').length <= 1){ removeSubQ(idx); return; }
   row.remove();
   // relabel remaining rows
   const item = document.querySelector(`.q-item[data-idx="${idx}"]`);
