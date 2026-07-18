@@ -1418,7 +1418,12 @@ async function handleExcelImport(event){
         if(!name || !className){ failCount++; continue; }
 
         try{
-          let matchedClass = allClassOptions.find(c => c.name.toLowerCase() === className.toLowerCase());
+          // Normalize Bengali spelling variations for matching (শ্রেনী ↔ শ্রেণী etc.)
+          const normalizeClass = s => s.toLowerCase()
+            .replace(/শ্রেনী/g,'শ্রেণী').replace(/শ্রেনি/g,'শ্রেণী')
+            .replace(/শ্রেণি/g,'শ্রেণী').replace(/শ্রেনি/g,'শ্রেণী')
+            .replace(/\s+/g,' ').trim();
+          let matchedClass = allClassOptions.find(c => normalizeClass(c.name) === normalizeClass(className));
           let classId = matchedClass ? matchedClass.id : null;
           if(!classId){
             const { data: newClass } = await sb.from('classes').insert({ institution_id: currentInstitution.id, name: className }).select().single();
