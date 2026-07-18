@@ -779,7 +779,7 @@ function renderStudentCard(s){
           <div class="sc-name">${s.full_name} ${feeBadge}</div>
           <div class="sc-meta">${s.class_name||'—'} ${s.roll_number?'· রোল '+s.roll_number:''}</div>
         </div>
-        <span class="sc-status none">নতুন</span>
+        <span class="sc-status ${(s.extra_data&&s.extra_data.notun_puraton)==='পুরাতন'?'old':'none'}">${(s.extra_data&&s.extra_data.notun_puraton)||'নতুন'}</span>
       </div>
       <div class="sc-details">
         ${father?'<div class="sc-detail-row"><span class="sc-detail-label">পিতা</span><span class="sc-detail-val">'+father.full_name+' · '+father.whatsapp_number+'</span></div>':''}
