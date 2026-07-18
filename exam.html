@@ -688,6 +688,8 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
               <button id="qpMoveUp" onclick="previewMoveQ(-1)" title="উপরে সরাও" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer;opacity:.4;">↑</button>
               <button id="qpMoveDown" onclick="previewMoveQ(1)" title="নিচে সরাও" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:13px;cursor:pointer;opacity:.4;">↓</button>
               <button id="qpSelClear" onclick="clearPreviewSel()" title="নির্বাচন বাতিল" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:11px;cursor:pointer;color:var(--text-2);opacity:.4;">✕</button>
+              <!-- Move mode toggle -->
+              <button id="qpMoveMode" onclick="togglePreviewMoveMode()" title="প্রশ্ন টেনে সরান" style="padding:4px 11px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-2)">🔀 সরাও</button>
               <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
               <!-- Zoom -->
               <button onclick="changePreviewZoom(-0.1)" title="ছোট করুন" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">−</button>
@@ -2372,85 +2374,103 @@ function fitLayout(){
     window.parent.postMessage({type:'previewHeight',h:${PH}+32},'*');
   }
 }
-var _dragSrc=null, _dropIndicator=null;
+var _dragSrc=null, _moveMode=false;
+
+function setMoveModeUI(active){
+  _moveMode=active;
+  document.querySelectorAll('.qp-q').forEach(function(el){
+    var h=el.querySelector('.qp-drag-handle');
+    if(active){
+      el.style.cursor='grab';
+      el.style.background='rgba(66,133,244,.04)';
+      el.style.outline='1.5px dashed #aad';
+      if(h) h.style.display='inline';
+    } else {
+      el.style.cursor='';
+      el.style.background='';
+      el.style.outline='';
+      if(h) h.style.display='none';
+    }
+  });
+}
+
 function addQInteraction(){
   if(!isPreview) return;
-  // Drop indicator line
-  _dropIndicator=document.createElement('div');
-  _dropIndicator.style.cssText='height:3px;background:#4285f4;border-radius:2px;margin:0;display:none;pointer-events:none;';
-  document.body.appendChild(_dropIndicator);
+  // First page's questions only (avoid duplicates from page clones)
+  var firstCard=document.querySelector('.page-card,.a4-single,.a4-wrap');
+  var qEls=firstCard?firstCard.querySelectorAll('.qp-q'):document.querySelectorAll('.qp-q');
 
-  document.querySelectorAll('.qp-q').forEach(function(el){
+  qEls.forEach(function(el){
     var idx=parseInt(el.dataset.qidx||'0');
     el.style.borderRadius='4px';
-    el.style.transition='background .12s,box-shadow .12s';
+    el.style.transition='background .1s,outline .1s';
     el.style.position='relative';
 
-    // Drag handle
+    // Inline drag handle (inside content, not outside)
     var handle=document.createElement('span');
-    handle.textContent='⠿';
+    handle.className='qp-drag-handle';
+    handle.textContent=' ⠿ ';
     handle.title='ধরে টানুন';
-    handle.style.cssText='position:absolute;left:-18px;top:2px;cursor:grab;font-size:16px;color:#aaa;user-select:none;display:none;line-height:1;';
-    el.appendChild(handle);
+    handle.style.cssText='display:none;cursor:grab;font-size:15px;color:#4285f4;user-select:none;vertical-align:middle;font-weight:400;padding:0 2px;';
+    var firstLine=el.querySelector('.qp-qline,.qp-n');
+    if(firstLine) firstLine.insertBefore(handle, firstLine.firstChild);
+    else el.insertBefore(handle, el.firstChild);
 
-    el.addEventListener('mouseenter',function(){
-      el.style.background='rgba(66,133,244,.07)';
-      handle.style.display='block';
-    });
-    el.addEventListener('mouseleave',function(){
-      if(_dragSrc!==el){ el.style.background=''; handle.style.display='none'; }
-    });
+    // Hover highlight (only when NOT in move mode)
+    el.addEventListener('mouseenter',function(){ if(!_moveMode) el.style.background='rgba(66,133,244,.07)'; });
+    el.addEventListener('mouseleave',function(){ if(!_moveMode && _dragSrc!==el) el.style.background=''; });
 
-    // Click → select
+    // Click → select (only when NOT in move mode)
     el.addEventListener('click',function(e){
-      if(e.target===handle) return;
+      if(_moveMode) return;
+      if(e.target.classList.contains('qp-drag-handle')) return;
       window.parent.postMessage({type:'clickQ',idx:idx},'*');
       document.querySelectorAll('.qp-q').forEach(function(q){q.style.boxShadow='';});
       el.style.boxShadow='0 0 0 2px #4285f4';
-      setTimeout(function(){el.style.boxShadow='';},1500);
+      setTimeout(function(){el.style.boxShadow='';},1400);
     });
 
-    // Drag start from handle
-    handle.addEventListener('mousedown',function(e){
+    // Drag (only handle, or whole el in move mode)
+    function startDrag(e){
+      if(!_moveMode && !e.target.classList.contains('qp-drag-handle')) return;
       e.preventDefault();
       _dragSrc=el;
-      el.style.opacity='.5';
-      el.style.boxShadow='0 2px 12px rgba(66,133,244,.4)';
-      handle.style.cursor='grabbing';
+      el.style.opacity='.45';
+      el.style.boxShadow='0 3px 14px rgba(66,133,244,.35)';
 
       function onMove(ev){
-        var target=document.elementFromPoint(ev.clientX,ev.clientY);
-        var overQ=target&&target.closest?target.closest('.qp-q'):null;
-        document.querySelectorAll('.qp-q').forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
-        if(overQ&&overQ!==_dragSrc){
-          var r=overQ.getBoundingClientRect();
-          var mid=(r.top+r.bottom)/2;
-          if(ev.clientY<mid) overQ.style.borderTop='3px solid #4285f4';
-          else overQ.style.borderBottom='3px solid #4285f4';
+        var t=document.elementFromPoint(ev.clientX,ev.clientY);
+        var over=t&&t.closest?t.closest('.qp-q'):null;
+        qEls.forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
+        if(over&&over!==_dragSrc){
+          var r=over.getBoundingClientRect();
+          if(ev.clientY<(r.top+r.bottom)/2) over.style.borderTop='3px solid #4285f4';
+          else over.style.borderBottom='3px solid #4285f4';
         }
       }
       function onUp(ev){
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
-        el.style.opacity='';
-        el.style.boxShadow='';
-        handle.style.cursor='grab';
-        document.querySelectorAll('.qp-q').forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
-
-        var target=document.elementFromPoint(ev.clientX,ev.clientY);
-        var overQ=target&&target.closest?target.closest('.qp-q'):null;
-        if(overQ&&overQ!==_dragSrc){
-          var fromIdx=parseInt(_dragSrc.dataset.qidx||'0');
-          var toIdx=parseInt(overQ.dataset.qidx||'0');
-          var r=overQ.getBoundingClientRect();
+        el.style.opacity=''; el.style.boxShadow='';
+        qEls.forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
+        var t=document.elementFromPoint(ev.clientX,ev.clientY);
+        var over=t&&t.closest?t.closest('.qp-q'):null;
+        if(over&&over!==_dragSrc){
+          var r=over.getBoundingClientRect();
           var after=ev.clientY>=(r.top+r.bottom)/2;
-          window.parent.postMessage({type:'reorderQ',fromIdx:fromIdx,toIdx:toIdx,after:after},'*');
+          window.parent.postMessage({type:'reorderQ',fromIdx:parseInt(_dragSrc.dataset.qidx||'0'),toIdx:parseInt(over.dataset.qidx||'0'),after:after},'*');
         }
         _dragSrc=null;
       }
       document.addEventListener('mousemove',onMove);
       document.addEventListener('mouseup',onUp);
-    });
+    }
+    el.addEventListener('mousedown', startDrag);
+  });
+
+  // Listen for setMoveMode from parent
+  window.addEventListener('message',function(ev){
+    if(ev.data&&ev.data.type==='setMoveMode') setMoveModeUI(ev.data.active);
   });
 }
 function run(){if(!isPreview)fitInst();fitLayout();addQInteraction();}
@@ -2460,8 +2480,24 @@ ${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
 }
 
 /* ── PREVIEW TOOLBAR TOOLS ── */
-let _previewZoom = null; // null = auto-fit
+let _previewZoom = null;
 let _selectedQIdx = null;
+let _moveModeActive = false;
+
+function togglePreviewMoveMode(){
+  _moveModeActive = !_moveModeActive;
+  const btn = document.getElementById('qpMoveMode');
+  if(btn){
+    btn.style.background = _moveModeActive ? 'var(--blue)' : 'var(--surface)';
+    btn.style.color = _moveModeActive ? '#fff' : 'var(--text-2)';
+    btn.style.borderColor = _moveModeActive ? 'var(--blue)' : 'var(--border)';
+    btn.textContent = _moveModeActive ? '🔀 সরাও (চালু)' : '🔀 সরাও';
+  }
+  const iframe = document.getElementById('qpPreviewIframe');
+  if(iframe && iframe.contentWindow){
+    iframe.contentWindow.postMessage({type:'setMoveMode', active: _moveModeActive}, '*');
+  }
+}
 
 function changePreviewZoom(delta){
   const outer  = document.getElementById('qpPreviewOuter');
