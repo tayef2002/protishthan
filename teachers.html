@@ -989,13 +989,24 @@ async function saveTeacher(){
 
   try{
     if(editTeacherId){
-      // EDIT existing teacher (no login changes)
+      // Get current teacher to check if phone changed
+      const { data: currentTeacher } = await sb.from('teachers').select('phone, auth_user_id').eq('id', editTeacherId).single();
+
       const { error } = await sb.from('teachers').update({
         full_name: fullName, phone, designation,
         monthly_salary: salary,
         primary_class_id: primaryClassId, primary_subject: primarySubject
       }).eq('id', editTeacherId);
       if(error) throw error;
+
+      // If phone changed, update auth password too
+      if(currentTeacher && currentTeacher.phone !== phone && currentTeacher.auth_user_id){
+        await fetch('/api/update-teacher-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentTeacher.auth_user_id, new_password: phone })
+        });
+      }
 
       await syncTeacherPrimaryClass(editTeacherId, primaryClassId);
       await syncAdditionalClassSubjects(editTeacherId, additionalPairs);
