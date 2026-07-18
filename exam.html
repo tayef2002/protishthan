@@ -290,6 +290,36 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
 .btn-gen{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:'Hind Siliguri',sans-serif;margin-top:4px;transition:all .2s}
 .btn-gen:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(26,86,219,.3)}
 
+/* ── SPLIT PANE LAYOUT ── */
+#qpSplitPane{display:flex;gap:20px;align-items:flex-start;}
+#qpEditorPanel{flex:0 0 480px;max-width:480px;}
+#qpPreviewPanel{flex:1;min-width:0;position:sticky;top:16px;}
+#qpPreviewToolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px 12px 0 0;margin-bottom:0;}
+#qpPreviewOuter{border:1.5px solid var(--border);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:#e8e8e8;min-height:200px;position:relative;}
+#qpPreviewScaler{transform-origin:top left;transition:transform .1s;}
+#qpPreviewIframe{display:block;border:none;width:1060px;}
+#qpPreviewEmpty{border:1.5px solid var(--border);border-top:none;border-radius:0 0 12px 12px;background:var(--white);}
+/* Mobile FAB */
+#qpPreviewFab{display:none;position:fixed;bottom:24px;right:20px;z-index:200;padding:12px 20px;background:var(--blue);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Hind Siliguri',sans-serif;box-shadow:0 4px 14px rgba(26,86,219,.4);}
+/* Mobile Preview Sheet */
+#qpMobilePreviewSheet{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.15);max-height:85vh;flex-direction:column;}
+#qpMobilePreviewSheet.open{display:flex;}
+#qpMobilePreviewHeader{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);}
+#qpMobilePreviewBody{flex:1;overflow:auto;background:#e8e8e8;padding:12px;}
+#qpMobilePreviewScaler{transform-origin:top left;}
+#qpMobilePreviewIframe{display:block;border:none;width:1060px;}
+/* Drag handle on q-items */
+.q-drag-handle{cursor:grab;color:var(--text-3);font-size:16px;padding:0 6px;user-select:none;flex-shrink:0;}
+.q-drag-handle:active{cursor:grabbing;}
+.q-item.dragging{opacity:.4;}
+.q-item.drag-over{border-top:3px solid var(--blue);}
+@media(max-width:900px){
+  #qpSplitPane{flex-direction:column;}
+  #qpEditorPanel{flex:none;max-width:100%;width:100%;}
+  #qpPreviewPanel{display:none;}
+  #qpPreviewFab{display:block;}
+}
+
 .qp-list-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:20px}
 .qp-filter-chip{padding:5px 14px;border-radius:100px;border:1.5px solid var(--border);background:white;color:var(--text-2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
 .qp-filter-chip:hover{border-color:var(--blue);color:var(--blue)}
@@ -509,8 +539,10 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
       <div id="qpBuilderWrap" style="display:none">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
           <button onclick="closeQPBuilder()" style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;color:var(--text-2)">← ফিরে যান</button>
-          <div style="font-size:14px;font-weight:800;color:var(--text)">নতুন প্রশ্ন পত্র</div>
+          <div style="font-size:14px;font-weight:800;color:var(--text)" id="qpBuilderTitle">নতুন প্রশ্ন পত্র</div>
         </div>
+        <div id="qpSplitPane">
+        <div id="qpEditorPanel">
 
         <!-- Step 1: Info -->
         <div class="qp-step-card">
@@ -643,6 +675,43 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
         <div style="display:flex;gap:10px;margin-top:4px">
           <button id="qpBtnSave" class="btn-gen" onclick="generateQPaper('save')" style="flex:1;background:linear-gradient(135deg,#16a34a,#15803d)">✓ সংরক্ষণ করুন</button>
           <button id="qpBtnPdf" class="btn-gen" onclick="generateQPaper('pdf')" style="flex:1">⬇ ডাউনলোড</button>
+        </div>
+        </div><!-- /qpEditorPanel -->
+
+        <!-- Right: Live Preview -->
+        <div id="qpPreviewPanel">
+          <div id="qpPreviewToolbar">
+            <span style="font-size:13px;font-weight:700;color:var(--text)">👁 লাইভ প্রিভিউ</span>
+            <button onclick="triggerQPPrint()" style="padding:6px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖨 প্রিন্ট করুন</button>
+          </div>
+          <div id="qpPreviewOuter">
+            <div id="qpPreviewScaler">
+              <iframe id="qpPreviewIframe" frameborder="0" scrolling="no"></iframe>
+            </div>
+          </div>
+          <div id="qpPreviewEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-3);gap:8px">
+            <div style="font-size:36px">📄</div>
+            <div style="font-size:13px;font-weight:600">প্রশ্ন লিখলেই এখানে প্রিভিউ দেখাবে</div>
+          </div>
+        </div><!-- /qpPreviewPanel -->
+        </div><!-- /qpSplitPane -->
+      </div><!-- /qpBuilderWrap -->
+
+      <!-- Mobile Preview FAB -->
+      <button id="qpPreviewFab" onclick="toggleMobilePreview()">📄 প্রিভিউ</button>
+      <!-- Mobile Preview Sheet -->
+      <div id="qpMobilePreviewSheet">
+        <div id="qpMobilePreviewHeader">
+          <span style="font-size:13px;font-weight:700">👁 লাইভ প্রিভিউ</span>
+          <div style="display:flex;gap:8px">
+            <button onclick="triggerQPPrint()" style="padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖨 প্রিন্ট</button>
+            <button onclick="toggleMobilePreview()" style="padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✕</button>
+          </div>
+        </div>
+        <div id="qpMobilePreviewBody">
+          <div id="qpMobilePreviewScaler">
+            <iframe id="qpMobilePreviewIframe" frameborder="0" scrolling="no"></iframe>
+          </div>
         </div>
       </div>
     </div>
@@ -1750,6 +1819,10 @@ async function onQPClassChange(){
   const { data } = await sb.from('class_subjects').select('subject_name').eq('class_id', classId);
   _qpSubjects = [...new Set((data||[]).map(r=>r.subject_name))];
   sel.innerHTML = '<option value="">বিষয় নির্বাচন করুন</option>' + _qpSubjects.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  // Update preview cls cache
+  const _cls = allClasses.find(c=>c.id===classId);
+  _previewCls = _cls ? {name:_cls.name||'',section:_cls.section||''} : null;
+  schedulePreview();
 }
 
 const EN_ALPHA = ['A','B','C','D','E','F','G','H','I','J'];
@@ -2029,12 +2102,235 @@ function renderQInputs(){
   if(!anyExistingMark) autoDistributeMarks();
   // Auto-activate interactive review for textareas that already have Arabic text
   setTimeout(autoActivateArReview, 0);
+  setTimeout(()=>{ initQDrag(); schedulePreview(); }, 0);
 }
 
 function updateMarksLabel(idx){
   const marks = document.querySelector(`.q-item[data-idx="${idx}"] .q-main-marks`)?.value;
   const el = document.getElementById('qMarksLabel'+idx);
   if(el) el.textContent = marks ? `মার্ক: ${marks}` : 'মার্ক: ?';
+}
+
+/* ══ LIVE PREVIEW ══ */
+let _previewInst = null, _previewCls = null, _previewTimer = null;
+
+function schedulePreview(){ clearTimeout(_previewTimer); _previewTimer = setTimeout(updateLivePreview, 450); }
+
+function updateLivePreview(){
+  const d = collectQPData();
+  const isMobile = window.innerWidth <= 900;
+  const iframe = document.getElementById(isMobile ? 'qpMobilePreviewIframe' : 'qpPreviewIframe');
+  const outer  = document.getElementById(isMobile ? 'qpMobilePreviewBody'   : 'qpPreviewOuter');
+  const scaler = document.getElementById(isMobile ? 'qpMobilePreviewScaler' : 'qpPreviewScaler');
+  const empty  = document.getElementById('qpPreviewEmpty');
+  if(!iframe || !outer) return;
+  if(!d || !d.questions || !d.questions.length){
+    if(empty) empty.style.display='flex';
+    iframe.style.display='none';
+    if(scaler) scaler.style.display='none';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  iframe.style.display='block';
+  if(scaler) scaler.style.display='block';
+  const cls  = _previewCls  || {name:'',section:''};
+  const inst = _previewInst || {name:'', upazila:'', district:''};
+  const html = buildQPrintFullHTML(d, cls, inst, false);
+  iframe.srcdoc = html;
+  // Scale to fit outer container
+  requestAnimationFrame(()=>{
+    const outerW = outer.offsetWidth;
+    const scale  = Math.min(1, (outerW - 4) / 1060);
+    if(scaler){
+      scaler.style.transform = `scale(${scale})`;
+      // Set outer height to match scaled content
+      const iframeH = (d.paperSize||'A5')==='A4' ? 1122 : 800;
+      outer.style.minHeight = Math.round(iframeH * scale) + 'px';
+      iframe.style.height = iframeH + 'px';
+    }
+  });
+}
+
+function buildQPrintFullHTML(d, cls, inst, autoPrint){
+  const instName = inst.name||'';
+  const clsName  = cls ? (cls.name+(cls.section?' ('+cls.section+')':'')) : '';
+  const BN = n => String(n).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯');
+  const BN_Q2 = ['','১','২','৩','৪','৫','৬','৭','৮','৯','১০','১১','১২','১৩','১৪','১৫','১৬','১৭','১৮','১৯','২০'];
+  const EN_A2=['A','B','C','D','E','F','G','H','I','J'];
+  const BN_SN2=['১','২','৩','৪','৫','৬','৭','৮','৯','১০'];
+  const getL2=(fmt,si)=>fmt==='en'?(EN_A2[si]||String.fromCharCode(65+si)):fmt==='num'?(BN_SN2[si]||String(si+1)):(BN_ALPHA[si]||String(si+1));
+
+  const questionsHtml = (d.questions||[]).map(q=>{
+    const qNum = BN_Q2[q.idx]||BN(q.idx);
+    const type = q.type||'text';
+    if(type==='math-col'){
+      const op=q.mathOp||'+'; const cols=q.mathCols||[];
+      const mathLabelHtml=`<span class="qp-qtxt">${q.mathText||''}</span>`;
+      const stackItems=[],inlineItems=[],divItems=[];
+      cols.forEach((c,si)=>{
+        const lay=c.layout||(op==='÷'?'div':'stack');
+        if(lay==='div') divItems.push(`<div class="qp-math-item"><span class="qp-math-sn">(${BN_ALPHA[si]||si+1})</span><span class="qp-math-div-expr">${c.n1||''}）${c.n2||''}（</span></div>`);
+        else if(lay==='inline'){ if(op==='÷') divItems.push(`<div class="qp-math-inline-item"><span class="qp-math-sn">(${BN_ALPHA[si]||si+1})</span>&nbsp;<span class="qp-math-inline-expr">${c.n1||''}${op}${c.n2||''}=</span></div>`); else inlineItems.push(`<div class="qp-math-inline-item"><span class="qp-math-sn">(${BN_ALPHA[si]||si+1})</span>&nbsp;<span class="qp-math-inline-expr">${c.n1||''}${op}${c.n2||''}=</span></div>`); }
+        else stackItems.push(`<div class="qp-math-item"><span class="qp-math-sn">(${BN_ALPHA[si]||si+1})</span><div class="qp-math-stack"><div class="qp-math-n1">${c.n1||''}</div><div class="qp-math-n2">${op}${c.n2||''}</div></div></div>`);
+      });
+      const inlineG=inlineItems.length?`<div class="qp-math-inline-group">${inlineItems.join('')}</div>`:'';
+      const colsHtml=op==='÷'?divItems.join(''):(stackItems.join('')+inlineG);
+      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
+    }
+    if(type==='grid-table'){
+      const gRows=q.gridRows||2,gCols=q.gridCols||5,cells=q.gridCells||[];
+      let tbl='<table class="qp-qtable">';
+      for(let r=0;r<gRows;r++){tbl+='<tr>';for(let c=0;c<gCols;c++){tbl+=`<td>${(cells[r]&&cells[r][c])||''}</td>`;}tbl+='</tr>';}
+      tbl+='</table>';
+      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
+    }
+    if(type==='fill-box'){
+      const raw=q.text||''; const hasMk=raw.includes('[_]');
+      const txt=raw.replace(/\[_\]/g,'<span class="qp-ans-box"></span>');
+      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
+    }
+    let h=`<div class="qp-q">`;
+    if(q.subs&&q.subs.length){
+      const fmt=q.fmt||'bn';
+      h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
+      h+='<div class="qp-subs">'+q.subs.map((s,si)=>`<div class="qp-sub-row"><span class="qp-sn">(${getL2(fmt,si)})</span>&nbsp;<span class="qp-stxt">${renderQTxt(s.text)}</span>${s.marks?`<span class="qp-sm">${BN(s.marks)}</span>`:''}</div>`).join('')+'</div>';
+    } else {
+      h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
+    }
+    h+=`</div>`;
+    return h;
+  }).join('');
+
+  const extraMarks=(d.presentationMark||d.handwritingMark)?`<div class="qp-extra-marks">${d.presentationMark?`<div class="qp-extra-row">সুন্দর উপস্থাপনার জন্য-${BN(d.presentationMark)}</div>`:''} ${d.handwritingMark?`<div class="qp-extra-row">সুন্দর হাতের লেখার জন্য-${BN(d.handwritingMark)}</div>`:''}</div>`:'';
+  const mandInst=d.mandQ?`<div class="qp-mand-inst">যে কোনো ${BN(d.mandQ)}টি প্রশ্নের উত্তর দাও</div>`:'';
+  const hline=`<div class="h-line"><div class="h-line-t"></div><div class="h-line-m"></div><div class="h-line-b"></div></div>`;
+  const headerRows=`<div class="content-pad"><div class="h-exam">${d.examName||''}</div><div class="h-row padded"><span>জামাতঃ ${clsName}</span><span>বিষয়ঃ ${d.subject||''}</span></div><div class="h-row"><span>সময়ঃ ${d.time?BN(d.time):'—'}</span><span>পূর্ণমান-${d.fullMark?BN(d.fullMark):'—'}</span></div></div>`;
+  const qBody=`<div class="content-pad questions-wrap">${mandInst}${questionsHtml}${extraMarks}</div>`;
+
+  // Inline the print CSS from printQPaper
+  const printCSS = document.querySelector('style[data-qp-print]')?.textContent || '';
+
+  let body='';
+  if((d.paperSize||'A5')==='A4'){
+    body=`<div class="a4-single" id="sheet1"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div>`;
+  } else {
+    body=`<div class="a4-wrap"><div class="a5-sheet" id="sheet1"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div class="a5-divider"></div><div class="a5-sheet" id="sheet2"><div class="h-inst" id="inst2">${instName}</div>${headerRows}${hline}${qBody}</div></div>`;
+  }
+  const pageSize=(d.paperSize||'A5')==='A4'?'A4 portrait':'A4 landscape';
+  return `<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;background:#e0e0e0;display:flex;justify-content:center;align-items:flex-start;padding:20px;}
+.a4-wrap{display:flex;width:277mm;min-height:190mm;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);}
+.a5-sheet{width:138.5mm;min-height:190mm;padding:22mm 7mm 8mm 7mm;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.a5-divider{width:1px;background:#bbb;flex-shrink:0;align-self:stretch;}
+.content-pad{padding:0 4mm;}
+.a4-single{width:190mm;min-height:270mm;padding:18mm 14mm 14mm 14mm;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);display:flex;flex-direction:column;}
+.h-inst{text-align:center;font-size:22px;font-weight:900;line-height:1.3;margin-bottom:3px;white-space:nowrap;display:block;width:100%;color:#444;}
+.h-exam{text-align:center;font-size:18px;font-weight:800;margin-bottom:1px;line-height:1.2;color:#555;}
+.h-row{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;margin-bottom:0;line-height:1.3;color:#555;}
+.h-row.padded{padding:0 6mm;}
+.h-line{margin:3px 0 8px;}.h-line-t{border-top:1px solid #000;margin-bottom:2px}.h-line-m{border-top:3px solid #000;margin-bottom:2px}.h-line-b{border-top:1px solid #000}
+.questions-wrap{flex:1;display:flex;flex-direction:column;}
+.qp-extra-marks{margin-top:20px;padding-top:0;text-align:center;}
+.qp-extra-row{text-align:center;font-size:12px;font-weight:700;padding:1px 0;}
+.qp-mand-inst{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;}
+.qp-q{margin-bottom:5px;font-size:15px;line-height:1.6;}
+.qp-qline{display:flex;align-items:baseline;}
+.qp-n{font-weight:700;white-space:nowrap;margin-right:4px;flex-shrink:0;}
+.qp-qtxt{flex:1;white-space:pre-wrap;}
+.qp-m{font-size:11px;font-weight:700;margin-left:6px;white-space:nowrap;flex-shrink:0;}
+.qp-subs{margin-left:22px;}
+.qp-sub-row{display:flex;align-items:baseline;margin-bottom:1px;font-size:15px;line-height:1.6;}
+.qp-sn{font-weight:700;min-width:24px;flex-shrink:0;}
+.qp-stxt{flex:1;white-space:pre-wrap;}
+.qp-sm{font-size:13px;font-weight:600;margin-left:4px;white-space:nowrap;flex-shrink:0;}
+.qp-ans-box{display:inline-block;width:50px;height:15px;border:1.5px solid #000;vertical-align:middle;margin:0 3px}
+.qp-math-grid{display:flex;flex-wrap:wrap;gap:8px 36px;margin:6px 0 4px 20px}
+.qp-math-mixed-grid{display:flex;flex-wrap:wrap;gap:8px 28px;margin:2px 0 4px 0;align-items:baseline}
+.qp-math-mixed-grid.div-op-grid{gap:6px 14px}
+.qp-grid-wrap{display:flex;align-items:flex-start;margin-top:4px}
+.qp-n-ghost{visibility:hidden;flex-shrink:0;margin-right:4px}
+.qp-qtable{border-collapse:collapse;border:1.8px solid #000;flex:1;table-layout:fixed;width:100%}
+.qp-qtable td{border:1.8px solid #000;padding:5px 0;font-size:15px;font-weight:600;height:38px;text-align:center;vertical-align:middle;width:1%}
+.qp-math-inline-group{display:flex;flex-direction:column;gap:3px}
+.qp-math-inline-item{display:inline-flex;align-items:baseline;gap:3px;font-size:15px;font-weight:600}
+.qp-math-inline-expr,.qp-math-div-expr{font-size:15px;font-weight:600;letter-spacing:.3px}
+.qp-math-item{display:inline-flex;align-items:baseline;gap:3px}
+.qp-math-sn{font-weight:700;font-size:15px;white-space:nowrap}
+.qp-math-stack{display:inline-flex;flex-direction:column;align-items:flex-end}
+.qp-math-n1{font-size:15px;font-weight:600;line-height:1.1;letter-spacing:.3px;align-self:stretch;text-align:right;white-space:nowrap}
+.qp-math-n2{font-size:15px;font-weight:600;line-height:1.1;letter-spacing:.3px;align-self:stretch;text-align:right;white-space:nowrap;padding-bottom:0;border-bottom:1.8px solid #000;margin-bottom:2px}
+.a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
+.a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
+@media print{body{background:#fff;padding:0;margin:0;display:block;}.a4-wrap{box-shadow:none;width:297mm;height:210mm;overflow:hidden;margin:0;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a5-divider{background:#000;}.a4-single{box-shadow:none;width:210mm;min-height:297mm;margin:0;}@page{size:${pageSize};margin:0;}}
+</style></head><body>${body}
+<script>
+function fitInst(){var isA4=!!document.querySelector('.a4-single');['inst1','inst2'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var mx=isA4?42:26,mn=8,s=mx;el.style.fontSize=s+'px';while(el.scrollWidth>el.offsetWidth&&s>mn){s-=0.5;el.style.fontSize=s+'px';}});}
+function fitLayout(){var isA4=!!document.querySelector('.a4-single');var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');var minP=isA4?8:0,maxP=isA4?106:83;sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){fitInst();fitLayout();});}else{window.onload=function(){fitInst();fitLayout();};}
+${autoPrint?'window.onload=function(){window.print();}':''}
+<\/script></body></html>`;
+}
+
+function triggerQPPrint(){
+  const d = collectQPData();
+  if(!d){ xAlert('প্রথমে প্রশ্ন পত্রের তথ্য পূরণ করুন।',{icon:'⚠️'}); return; }
+  const cls  = _previewCls  || {name:'',section:''};
+  const inst = _previewInst || {name:'',upazila:'',district:''};
+  const html = buildQPrintFullHTML(d, cls, inst, true);
+  const w = window.open('','_blank');
+  if(!w){ xAlert('Popup block করা আছে।',{icon:'🔒'}); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
+function toggleMobilePreview(){
+  const sheet = document.getElementById('qpMobilePreviewSheet');
+  if(!sheet) return;
+  const isOpen = sheet.classList.toggle('open');
+  if(isOpen) updateLivePreview();
+}
+
+/* ── DRAG TO REORDER Q-ITEMS ── */
+function initQDrag(){
+  const wrap = document.getElementById('qpQuestionsWrap');
+  if(!wrap) return;
+  let dragged = null;
+  wrap.querySelectorAll('.q-item').forEach(item=>{
+    item.draggable = true;
+    // Add drag handle if not already there
+    const head = item.querySelector('.q-item-head');
+    if(head && !head.querySelector('.q-drag-handle')){
+      const h = document.createElement('span');
+      h.className = 'q-drag-handle';
+      h.innerHTML = '⠿';
+      h.title = 'টেনে সরান';
+      head.insertBefore(h, head.firstChild);
+    }
+    item.addEventListener('dragstart', e=>{ dragged=item; setTimeout(()=>item.classList.add('dragging'),0); });
+    item.addEventListener('dragend',   ()=>{ dragged=null; item.classList.remove('dragging'); wrap.querySelectorAll('.q-item').forEach(i=>i.classList.remove('drag-over')); reindexQItems(); schedulePreview(); });
+    item.addEventListener('dragover',  e=>{ e.preventDefault(); if(dragged&&dragged!==item){ wrap.querySelectorAll('.q-item').forEach(i=>i.classList.remove('drag-over')); item.classList.add('drag-over'); } });
+    item.addEventListener('drop',      e=>{ e.preventDefault(); if(dragged&&dragged!==item){ const items=[...wrap.querySelectorAll('.q-item')]; const di=items.indexOf(dragged),ti=items.indexOf(item); if(di<ti) item.after(dragged); else item.before(dragged); } });
+  });
+}
+
+function reindexQItems(){
+  const BN_N=['','১','২','৩','৪','৫','৬','৭','৮','৯','১০','১১','১২','১৩','১৪','১৫','১৬','১৭','১৮','১৯','২০'];
+  document.querySelectorAll('#qpQuestionsWrap .q-item').forEach((item,i)=>{
+    const newIdx = i+1;
+    item.dataset.idx = newIdx;
+    const badge = item.querySelector('.q-num-badge');
+    if(badge) badge.textContent = BN_N[newIdx]+'নং প্রশ্ন';
+  });
+}
+
+/* Hook all builder inputs to trigger preview */
+function hookPreviewInputs(){
+  const wrap = document.getElementById('qpBuilderWrap');
+  if(!wrap) return;
+  wrap.addEventListener('input', schedulePreview);
+  wrap.addEventListener('change', schedulePreview);
 }
 
 function insertBox(btn){
@@ -3006,6 +3302,14 @@ async function startNewQP(){
   setSizePick('A5');
   const h = document.getElementById('qpDistribHint'); if(h) h.style.display='none';
   document.getElementById('qpQuestionsWrap').innerHTML='<div style="text-align:center;color:var(--text-3);padding:20px;font-size:13px">উপরে "মোট প্রশ্ন কয়টা?" লিখুন</div>';
+  // Cache cls/inst for live preview
+  _previewCls  = null;
+  _previewInst = currentInstitution ? {name:currentInstitution.name||'',upazila:currentInstitution.upazila||'',district:currentInstitution.district||''} : null;
+  hookPreviewInputs();
+  const previewEmpty = document.getElementById('qpPreviewEmpty');
+  if(previewEmpty) previewEmpty.style.display='flex';
+  const previewIframe = document.getElementById('qpPreviewIframe');
+  if(previewIframe) previewIframe.style.display='none';
 }
 
 let _editingPaperId = null;
@@ -3177,6 +3481,14 @@ async function editQP(paperId){
 
   // Change button text for edit mode
   document.getElementById('qpBtnSave').textContent = '✓ আপডেট করুন';
+
+  // Cache cls/inst for live preview
+  const _editCls = allClasses.find(c=>c.id===paper.class_id);
+  _previewCls  = _editCls ? {name:_editCls.name||'',section:_editCls.section||''} : null;
+  _previewInst = currentInstitution ? {name:currentInstitution.name||'',upazila:currentInstitution.upazila||'',district:currentInstitution.district||''} : null;
+  hookPreviewInputs();
+  initQDrag();
+  schedulePreview();
 }
 
 async function deleteQP(paperId, btn){
