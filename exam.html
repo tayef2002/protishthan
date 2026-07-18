@@ -691,6 +691,13 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
               <!-- Move mode toggle -->
               <button id="qpMoveMode" onclick="togglePreviewMoveMode()" title="প্রশ্ন টেনে সরান" style="padding:4px 11px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-2)">🔀 সরাও</button>
               <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
+              <!-- Top padding control -->
+              <span style="font-size:11px;color:var(--text-2);font-weight:600;">উপর ফাঁকা:</span>
+              <button onclick="changePadding(4)" title="institute name নিচে নামাও" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">▼</button>
+              <span id="qpPadLabel" style="font-size:11px;color:var(--text-2);min-width:38px;text-align:center;font-weight:700;">auto</span>
+              <button onclick="changePadding(-4)" title="institute name উপরে তোলো" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">▲</button>
+              <button onclick="resetPadAuto()" id="qpPadAutoBtn" title="Auto-fit করো" style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:11px;font-weight:700;cursor:pointer;color:var(--text-2);font-family:inherit;">⚡ Auto</button>
+              <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
               <!-- Zoom -->
               <button onclick="changePreviewZoom(-0.1)" title="ছোট করুন" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">−</button>
               <span id="qpZoomLabel" style="font-size:11px;color:var(--text-2);min-width:34px;text-align:center;">100%</span>
@@ -2154,7 +2161,7 @@ function updateLivePreview(){
   const isA4paper = (d.paperSize||'A5')==='A4';
   const PW = isA4paper ? 794 : 1122;
   const PH = isA4paper ? 1122 : 794;
-  const html = buildQPrintFullHTML(d, cls, inst, false);
+  const html = buildQPrintFullHTML(d, cls, inst, false, _manualPadPx);
   iframe.style.width  = PW + 'px';
   iframe.style.height = PH + 'px';
   iframe.srcdoc = html;
@@ -2184,7 +2191,7 @@ function updateLivePreview(){
   // Height/click messages handled by global listener below
 }
 
-function buildQPrintFullHTML(d, cls, inst, autoPrint){
+function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
   const instName = inst.name||'';
   const clsName  = cls ? (cls.name+(cls.section?' ('+cls.section+')':'')) : '';
   const BN = n => String(n).replace(/0/g,'০').replace(/1/g,'১').replace(/2/g,'২').replace(/3/g,'৩').replace(/4/g,'৪').replace(/5/g,'৫').replace(/6/g,'৬').replace(/7/g,'৭').replace(/8/g,'৮').replace(/9/g,'৯');
@@ -2322,6 +2329,7 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;bac
 </style></head><body>${isA4 && isPreview ? `<div id="a4-measure"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div id="pages-wrap"></div>` : body}
 <script>
 var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'},isPreview=${isPreview?'true':'false'};
+var manualPadPx=${(manualPadPx===null||manualPadPx===undefined)?'null':manualPadPx};
 var instHTML=${JSON.stringify(`<div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}`)};
 
 function fitInstEl(el,maxFs){var mn=8,s=maxFs;el.style.fontSize=s+'px';while(el.scrollWidth>el.offsetWidth&&s>mn){s-=0.5;el.style.fontSize=s+'px';}}
@@ -2338,6 +2346,7 @@ function buildPreviewPages(totalH){
     var inner=document.createElement('div');
     inner.className='page-inner';
     inner.style.top=(-p*PH)+'px';
+    if(manualPadPx!==null){inner.style.paddingTop=manualPadPx+'px';}
     inner.innerHTML=instHTML;
     card.appendChild(inner);
     if(pages>1){
@@ -2359,10 +2368,17 @@ function fitLayout(){
   if(!isPreview){
     var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');
     var minP=isA4?8:0,maxP=isA4?106:83;
-    sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});
+    if(manualPadPx!==null){
+      sheets.forEach(function(sheet){sheet.style.paddingTop=manualPadPx+'px';});
+    } else {
+      sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});
+    }
   } else if(isA4){
     var m=document.getElementById('a4-measure');
     if(!m)return;
+    if(manualPadPx!==null){
+      m.style.paddingTop=manualPadPx+'px';
+    }
     var inst1=m.querySelector('.h-inst');
     if(inst1)fitInstEl(inst1,42);
     buildPreviewPages(m.scrollHeight);
@@ -2370,7 +2386,11 @@ function fitLayout(){
     // A5 preview: fit A5 sheets
     var sheets=document.querySelectorAll('.a5-sheet');
     var minP=0,maxP=83;
-    sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var cf=13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>9){cf-=0.5;sheet.style.fontSize=cf+'px';}}});
+    if(manualPadPx!==null){
+      sheets.forEach(function(sheet){sheet.style.paddingTop=manualPadPx+'px';});
+    } else {
+      sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var cf=13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>9){cf-=0.5;sheet.style.fontSize=cf+'px';}}});
+    }
     window.parent.postMessage({type:'previewHeight',h:${PH}+32},'*');
   }
 }
@@ -2490,6 +2510,47 @@ ${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
 let _previewZoom = null;
 let _selectedQIdx = null;
 let _moveModeActive = false;
+let _manualPadPx = null; // null = auto
+
+function changePadding(deltaPx){
+  const d = collectQPData();
+  const isA4p = d && (d.paperSize||'A5')==='A4';
+  const maxP = isA4p ? 106 : 83;
+  const minP = isA4p ? 0 : 0;
+  if(_manualPadPx === null){
+    // start from default max
+    _manualPadPx = maxP;
+  }
+  _manualPadPx = Math.max(minP, Math.min(maxP + 40, _manualPadPx + deltaPx));
+  _updatePadLabel();
+  schedulePreview();
+}
+
+function resetPadAuto(){
+  _manualPadPx = null;
+  _updatePadLabel();
+  schedulePreview();
+}
+
+function _updatePadLabel(){
+  const lbl = document.getElementById('qpPadLabel');
+  const btn = document.getElementById('qpPadAutoBtn');
+  if(lbl){
+    if(_manualPadPx === null){
+      lbl.textContent = 'auto';
+      lbl.style.color = 'var(--text-2)';
+    } else {
+      const mm = Math.round(_manualPadPx / 3.7795);
+      lbl.textContent = mm + 'mm';
+      lbl.style.color = 'var(--blue)';
+    }
+  }
+  if(btn){
+    btn.style.background = _manualPadPx === null ? 'var(--surface)' : 'var(--blue)';
+    btn.style.color = _manualPadPx === null ? 'var(--text-2)' : '#fff';
+    btn.style.borderColor = _manualPadPx === null ? 'var(--border)' : 'var(--blue)';
+  }
+}
 
 function togglePreviewMoveMode(){
   _moveModeActive = !_moveModeActive;
@@ -2619,7 +2680,7 @@ function triggerQPPrint(){
   if(!d){ xAlert('প্রথমে প্রশ্ন পত্রের তথ্য পূরণ করুন।',{icon:'⚠️'}); return; }
   const cls  = _previewCls  || {name:'',section:''};
   const inst = _previewInst || {name:'',upazila:'',district:''};
-  const html = buildQPrintFullHTML(d, cls, inst, true);
+  const html = buildQPrintFullHTML(d, cls, inst, true, _manualPadPx);
   const w = window.open('','_blank');
   if(!w){ xAlert('Popup block করা আছে।',{icon:'🔒'}); return; }
   w.document.write(html);
