@@ -2000,6 +2000,10 @@ function renderQInputs(){
         <div id="qGridTable${idx}">${buildGridEditor(ex.gridRows||2,ex.gridCols||5,ex.gridCells||[])}</div>
       </div>
       <div class="q-sub-area" style="${isMath?'display:none':subOpen}" id="qSubArea${idx}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:11.5px;font-weight:700;color:var(--text-2)">উপ-প্রশ্নের ফরম্যাট</span>
+          <button type="button" onclick="removeSubQ(${idx})" title="উপ-প্রশ্ন বন্ধ করুন" style="font-size:11px;color:var(--red);background:none;border:1px solid var(--red);border-radius:6px;padding:2px 10px;cursor:pointer;font-family:inherit;font-weight:600">✕ বন্ধ করুন</button>
+        </div>
         <div class="q-fmt-row">${fmtBtns}</div>
         <div class="q-mand-row">
           <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text);cursor:pointer">
@@ -2070,6 +2074,32 @@ function toggleSubQ(idx){
   area.style.display = isOpen ? 'none' : '';
   const btn = area.closest('.q-item').querySelector('.q-sub-toggle');
   if(btn) btn.textContent = isOpen ? '+ উপ-প্রশ্ন যোগ করুন' : '− উপ-প্রশ্ন লুকান';
+}
+
+function removeSubQ(idx){
+  const area = document.getElementById('qSubArea'+idx);
+  // Clear all sub-q text inputs
+  area.querySelectorAll('.sub-q-input').forEach(el => el.value = '');
+  area.querySelectorAll('.sub-q-marks').forEach(el => el.value = '');
+  // Reset to single empty row
+  const wrap = document.getElementById('qSubRows'+idx);
+  const firstRow = wrap.querySelector('.sub-q-row');
+  const allRows = wrap.querySelectorAll('.sub-q-row');
+  allRows.forEach((r, i) => { if(i > 0) r.remove(); });
+  if(firstRow){
+    firstRow.querySelector('.sub-q-input').value = '';
+    const mk = firstRow.querySelector('.sub-q-marks');
+    if(mk) mk.value = '';
+  }
+  // Uncheck mand checkbox
+  const chk = document.getElementById('qMandChk'+idx);
+  if(chk){ chk.checked = false; }
+  const mandWrap = document.getElementById('qMandNWrap'+idx);
+  if(mandWrap) mandWrap.style.display = 'none';
+  // Hide area and reset toggle button
+  area.style.display = 'none';
+  const btn = area.closest('.q-item').querySelector('.q-sub-toggle');
+  if(btn) btn.textContent = '+ উপ-প্রশ্ন যোগ করুন';
 }
 
 function setSubFmt(idx, fmt){
