@@ -2550,9 +2550,9 @@ function addQInteraction(){
     if(ev.data&&ev.data.type==='setMoveMode') setMoveModeUI(ev.data.active);
   });
 }
-function run(){if(!isPreview)fitInst();fitLayout();addQInteraction();}
+function run(){if(!isPreview)fitInst();fitLayout();addQInteraction();${autoPrint?'setTimeout(function(){window.print();},400);':'}}
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{window.onload=run;}
-${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
+
 <\/script></body></html>`;
 }
 
