@@ -2206,21 +2206,21 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint){
       });
       const inlineG=inlineItems.length?`<div class="qp-math-inline-group">${inlineItems.join('')}</div>`:'';
       const colsHtml=op==='÷'?divItems.join(''):(stackItems.join('')+inlineG);
-      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
+      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`;
     }
     if(type==='grid-table'){
       const gRows=q.gridRows||2,gCols=q.gridCols||5,cells=q.gridCells||[];
       let tbl='<table class="qp-qtable">';
       for(let r=0;r<gRows;r++){tbl+='<tr>';for(let c=0;c<gCols;c++){tbl+=`<td>${(cells[r]&&cells[r][c])||''}</td>`;}tbl+='</tr>';}
       tbl+='</table>';
-      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
+      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`;
     }
     if(type==='fill-box'){
       const raw=q.text||''; const hasMk=raw.includes('[_]');
       const txt=raw.replace(/\[_\]/g,'<span class="qp-ans-box"></span>');
-      return `<div class="qp-q"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
+      return `<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`;
     }
-    let h=`<div class="qp-q">`;
+    let h=`<div class="qp-q" data-qidx="${q.idx}">`;
     if(q.subs&&q.subs.length){
       const fmt=q.fmt||'bn';
       h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
@@ -2372,32 +2372,88 @@ function fitLayout(){
     window.parent.postMessage({type:'previewHeight',h:${PH}+32},'*');
   }
 }
-function addQClickHandlers(){
+var _dragSrc=null, _dropIndicator=null;
+function addQInteraction(){
   if(!isPreview) return;
-  document.querySelectorAll('.qp-q').forEach(function(el,i){
-    el.style.cursor='pointer';
+  // Drop indicator line
+  _dropIndicator=document.createElement('div');
+  _dropIndicator.style.cssText='height:3px;background:#4285f4;border-radius:2px;margin:0;display:none;pointer-events:none;';
+  document.body.appendChild(_dropIndicator);
+
+  document.querySelectorAll('.qp-q').forEach(function(el){
+    var idx=parseInt(el.dataset.qidx||'0');
     el.style.borderRadius='4px';
-    el.style.transition='background .15s';
-    el.addEventListener('mouseenter',function(){el.style.background='rgba(66,133,244,.08)';});
-    el.addEventListener('mouseleave',function(){el.style.background='';});
-    el.addEventListener('click',function(){
-      // find idx from nearest qp-n text "Xনং"
-      var nEl=el.querySelector('.qp-n');
-      if(!nEl) return;
-      var txt=nEl.textContent||'';
-      var m=txt.match(/([০-৯]+)নং/);
-      if(!m) return;
-      var bnMap={'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
-      var num=parseInt(m[1].replace(/[০-৯]/g,function(c){return bnMap[c]||c;}));
-      if(num) window.parent.postMessage({type:'clickQ',idx:num},'*');
-      // highlight clicked
-      document.querySelectorAll('.qp-q').forEach(function(q){q.style.outline='';});
-      el.style.outline='2px solid #4285f4';
-      setTimeout(function(){el.style.outline='';},1500);
+    el.style.transition='background .12s,box-shadow .12s';
+    el.style.position='relative';
+
+    // Drag handle
+    var handle=document.createElement('span');
+    handle.textContent='⠿';
+    handle.title='ধরে টানুন';
+    handle.style.cssText='position:absolute;left:-18px;top:2px;cursor:grab;font-size:16px;color:#aaa;user-select:none;display:none;line-height:1;';
+    el.appendChild(handle);
+
+    el.addEventListener('mouseenter',function(){
+      el.style.background='rgba(66,133,244,.07)';
+      handle.style.display='block';
+    });
+    el.addEventListener('mouseleave',function(){
+      if(_dragSrc!==el){ el.style.background=''; handle.style.display='none'; }
+    });
+
+    // Click → select
+    el.addEventListener('click',function(e){
+      if(e.target===handle) return;
+      window.parent.postMessage({type:'clickQ',idx:idx},'*');
+      document.querySelectorAll('.qp-q').forEach(function(q){q.style.boxShadow='';});
+      el.style.boxShadow='0 0 0 2px #4285f4';
+      setTimeout(function(){el.style.boxShadow='';},1500);
+    });
+
+    // Drag start from handle
+    handle.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      _dragSrc=el;
+      el.style.opacity='.5';
+      el.style.boxShadow='0 2px 12px rgba(66,133,244,.4)';
+      handle.style.cursor='grabbing';
+
+      function onMove(ev){
+        var target=document.elementFromPoint(ev.clientX,ev.clientY);
+        var overQ=target&&target.closest?target.closest('.qp-q'):null;
+        document.querySelectorAll('.qp-q').forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
+        if(overQ&&overQ!==_dragSrc){
+          var r=overQ.getBoundingClientRect();
+          var mid=(r.top+r.bottom)/2;
+          if(ev.clientY<mid) overQ.style.borderTop='3px solid #4285f4';
+          else overQ.style.borderBottom='3px solid #4285f4';
+        }
+      }
+      function onUp(ev){
+        document.removeEventListener('mousemove',onMove);
+        document.removeEventListener('mouseup',onUp);
+        el.style.opacity='';
+        el.style.boxShadow='';
+        handle.style.cursor='grab';
+        document.querySelectorAll('.qp-q').forEach(function(q){q.style.borderTop='';q.style.borderBottom='';});
+
+        var target=document.elementFromPoint(ev.clientX,ev.clientY);
+        var overQ=target&&target.closest?target.closest('.qp-q'):null;
+        if(overQ&&overQ!==_dragSrc){
+          var fromIdx=parseInt(_dragSrc.dataset.qidx||'0');
+          var toIdx=parseInt(overQ.dataset.qidx||'0');
+          var r=overQ.getBoundingClientRect();
+          var after=ev.clientY>=(r.top+r.bottom)/2;
+          window.parent.postMessage({type:'reorderQ',fromIdx:fromIdx,toIdx:toIdx,after:after},'*');
+        }
+        _dragSrc=null;
+      }
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
     });
   });
 }
-function run(){if(!isPreview)fitInst();fitLayout();addQClickHandlers();}
+function run(){if(!isPreview)fitInst();fitLayout();addQInteraction();}
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{window.onload=run;}
 ${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
 <\/script></body></html>`;
@@ -2501,6 +2557,17 @@ window.addEventListener('message', function(ev){
   }
   if(ev.data.type==='clickQ'){
     selectPreviewQ(ev.data.idx);
+  }
+  if(ev.data.type==='reorderQ'){
+    const wrap = document.getElementById('qpQuestionsWrap');
+    if(!wrap) return;
+    const items = [...wrap.querySelectorAll('.q-item')];
+    const srcEl = items.find(el=>parseInt(el.dataset.idx)===ev.data.fromIdx);
+    const tgtEl = items.find(el=>parseInt(el.dataset.idx)===ev.data.toIdx);
+    if(!srcEl||!tgtEl||srcEl===tgtEl) return;
+    if(ev.data.after) tgtEl.after(srcEl); else tgtEl.before(srcEl);
+    reindexQItems();
+    schedulePreview();
   }
 });
 
