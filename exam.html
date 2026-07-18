@@ -2783,7 +2783,7 @@ function fitLayout(){
   var isA4 = !!document.querySelector('.a4-single');
   var sheets = document.querySelectorAll(isA4 ? '.a4-single' : '.a5-sheet');
   // Safe zone: min top padding 4mm, max 18mm (A5) / 8mm-28mm (A4)
-  var minPadPx = isA4 ? 30 : 15;   // ~8mm / ~4mm in px at 96dpi
+  var minPadPx = isA4 ? 15 : 4;    // ~4mm / ~1mm in px at 96dpi
   var maxPadPx = isA4 ? 106 : 68;  // ~28mm / ~18mm in px at 96dpi
   sheets.forEach(function(sheet){
     // Start from max padding, shrink until content fits
