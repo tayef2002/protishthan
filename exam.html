@@ -2481,9 +2481,10 @@ function previewMoveQ(dir){
 window.addEventListener('message', function(ev){
   if(!ev.data) return;
   if(ev.data.type==='previewHeight'){
-    const outer  = document.getElementById(ev.data.mobile?'qpMobilePreviewBody':'qpPreviewOuter');
-    const scaler = document.getElementById(ev.data.mobile?'qpMobilePreviewScaler':'qpPreviewScaler');
-    const iframe = document.getElementById(ev.data.mobile?'qpMobilePreviewIframe':'qpPreviewIframe');
+    const isMob  = !!ev.data.mobile;
+    const outer  = document.getElementById(isMob?'qpMobilePreviewBody':'qpPreviewOuter');
+    const scaler = document.getElementById(isMob?'qpMobilePreviewScaler':'qpPreviewScaler');
+    const iframe = document.getElementById(isMob?'qpMobilePreviewIframe':'qpPreviewIframe');
     if(!outer||!scaler||!iframe) return;
     const h = ev.data.h;
     const d = collectQPData();
@@ -2491,6 +2492,8 @@ window.addEventListener('message', function(ev){
     const PW = isA4p ? 794 : 1122;
     const outerW = outer.offsetWidth - 8;
     const scale = _previewZoom || Math.min(1, outerW / PW);
+    iframe.style.width  = PW + 'px';
+    iframe.style.height = h + 'px';
     scaler.style.width  = PW + 'px';
     scaler.style.height = h + 'px';
     scaler.style.transform = `scale(${scale})`;
