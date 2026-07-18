@@ -2593,7 +2593,7 @@ function printQPaper({paper, cls, inst, d, autoPrint=false}){
     let html = `<div class="qp-q">`;
     const EN_A=['A','B','C','D','E','F','G','H','I','J'];
     const BN_SN=['১','২','৩','৪','৫','৬','৭','৮','৯','১০'];
-    const getL=(fmt,si)=>fmt==='en'?EN_A[si]:fmt==='num'?BN_SN[si]:BN_ALPHA[si];
+    const getL=(fmt,si)=>fmt==='en'?(EN_A[si]||String.fromCharCode(65+si)):fmt==='num'?(BN_SN[si]||String(si+1)):(BN_ALPHA[si]||String(si+1));
     if(q.subs && q.subs.length){
       const fmt = q.fmt||'bn';
       html += `<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
@@ -2819,18 +2819,27 @@ function fitInst(){
 function fitLayout(){
   var isA4 = !!document.querySelector('.a4-single');
   var sheets = document.querySelectorAll(isA4 ? '.a4-single' : '.a5-sheet');
-  // Safe zone: min top padding 4mm, max 18mm (A5) / 8mm-28mm (A4)
   var minPadPx = isA4 ? 8 : 0;
   var maxPadPx = isA4 ? 106 : 83;
   sheets.forEach(function(sheet){
-    // Start from max padding, shrink until content fits
     sheet.style.paddingTop = maxPadPx + 'px';
     var tries = 0;
-    while(sheet.scrollHeight > sheet.offsetHeight && tries < 80){
+    // Step 1: reduce padding
+    while(sheet.scrollHeight > sheet.offsetHeight && tries < 100){
       var cur = parseFloat(sheet.style.paddingTop) || maxPadPx;
       if(cur <= minPadPx) break;
       sheet.style.paddingTop = Math.max(minPadPx, cur - 1) + 'px';
       tries++;
+    }
+    // Step 2: if still overflowing, reduce font size
+    if(sheet.scrollHeight > sheet.offsetHeight){
+      var minFont = isA4 ? 10 : 9;
+      var curFont = isA4 ? 15 : 13;
+      sheet.style.fontSize = curFont + 'px';
+      while(sheet.scrollHeight > sheet.offsetHeight && curFont > minFont){
+        curFont -= 0.5;
+        sheet.style.fontSize = curFont + 'px';
+      }
     }
   });
 }
