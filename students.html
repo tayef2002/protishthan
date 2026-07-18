@@ -1402,10 +1402,16 @@ async function handleExcelImport(event){
       let successCount = 0;
       let failCount = 0;
 
+      // Auto roll counter per class (based on row order in file)
+      const classRollCounter = {};
+
       for(const row of rows){
         const name = (row['নাম'] || row['Name'] || row['name'] || '').toString().trim();
         const className = (row['শ্রেণী'] || row['ক্লাস'] || row['Class'] || row['class'] || '').toString().trim();
-        const roll = (row['রোল'] || row['Roll'] || row['roll'] || '').toString().trim();
+        // Auto-assign roll based on row order per class (ignore file value)
+        if(!classRollCounter[className]) classRollCounter[className] = 0;
+        classRollCounter[className]++;
+        const roll = String(classRollCounter[className]).padStart(2, '0');
         const genderRaw = (row['লিঙ্গ'] || row['Gender'] || row['gender'] || '').toString().trim();
         const gender = genderRaw.includes('মেয়ে') || genderRaw.toLowerCase()==='female' ? 'female' : 'male';
         const address = (row['ঠিকানা'] || row['Address'] || row['address'] || '').toString().trim();
