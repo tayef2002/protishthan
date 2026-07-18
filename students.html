@@ -61,7 +61,16 @@ body{display:flex}
 .content{padding:24px 28px;flex:1}
 
 /* STATS ROW */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.class-cards-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
+.class-cards-row::-webkit-scrollbar{display:none}
+.cls-card{flex-shrink:0;background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:10px 16px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px}
+.cls-card:hover{border-color:var(--blue);background:var(--blue-light)}
+.cls-card.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.cls-card-count{font-size:20px;font-weight:700;line-height:1;color:var(--blue)}
+.cls-card.active .cls-card-count{color:var(--blue)}
+.cls-card-name{font-size:11px;color:var(--text-2);text-align:center;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis}
+.cls-card.active .cls-card-name{color:var(--blue)}
 .stat-mini{background:var(--white);border-radius:var(--rl);padding:16px 18px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
 .stat-mini-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .stat-mini-num{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px}
@@ -424,6 +433,9 @@ body{display:flex}
       </div>
     </div>
 
+    <!-- CLASS CARDS -->
+    <div class="class-cards-row" id="classCardsRow"></div>
+
     <!-- FILTER BAR -->
     <div class="filter-bar">
       <div class="search-wrap">
@@ -749,6 +761,33 @@ function updateClassFilter(){
   const select = document.getElementById('classFilter');
   const classes = [...new Set(allStudents.map(s=>s.class_name).filter(Boolean))];
   select.innerHTML = '<option value="">সব ক্লাস</option>' + classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+  renderClassCards(classes);
+}
+
+function renderClassCards(classes){
+  const row = document.getElementById('classCardsRow');
+  const active = document.getElementById('classFilter').value;
+  const countMap = {};
+  for(const s of allStudents){ countMap[s.class_name] = (countMap[s.class_name]||0)+1; }
+  const total = allStudents.length;
+  let html = `<div class="cls-card${active===''?' active':''}" onclick="selectClassCard('')">
+    <div class="cls-card-count">${total.toLocaleString('bn')}</div>
+    <div class="cls-card-name">সব</div>
+  </div>`;
+  for(const cls of classes){
+    const cnt = countMap[cls]||0;
+    html += `<div class="cls-card${active===cls?' active':''}" onclick="selectClassCard('${cls.replace(/'/g,"\\'")}')">
+      <div class="cls-card-count">${cnt.toLocaleString('bn')}</div>
+      <div class="cls-card-name">${cls}</div>
+    </div>`;
+  }
+  row.innerHTML = html;
+}
+
+function selectClassCard(cls){
+  document.getElementById('classFilter').value = cls;
+  filterStudents();
+  renderClassCards([...new Set(allStudents.map(s=>s.class_name).filter(Boolean))]);
 }
 
 let allClassOptions = [];
