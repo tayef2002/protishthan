@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
@@ -2422,38 +2422,37 @@ var _dragSrc=null, _moveMode=false;
 var _textMode=false;
 function setTextModeUI(active){
   _textMode=active;
-  document.querySelectorAll('.qp-qtxt,.qp-stxt').forEach(function(el){
+  document.querySelectorAll('.qp-q').forEach(function(el){
     if(active){
       el.contentEditable='true';
+      el.style.outline='2px dashed rgba(74,144,226,0.6)';
+      el.style.borderRadius='4px';
       el.style.cursor='text';
-      el.style.outline='2px dashed #4a90e2';
-      el.style.outlineOffset='2px';
-      el.style.borderRadius='3px';
     } else {
       el.contentEditable='false';
-      el.style.cursor='';
       el.style.outline='';
-      el.style.outlineOffset='';
       el.style.borderRadius='';
+      el.style.cursor='';
     }
   });
 }
+var _textSaveTimer=null;
 document.addEventListener('focusout',function(e){
   if(!_textMode) return;
   var el=e.target;
-  var isQtxt=el.classList&&el.classList.contains('qp-qtxt');
-  var isStxt=el.classList&&el.classList.contains('qp-stxt');
-  if(!isQtxt&&!isStxt) return;
-  var qEl=el.closest('.qp-q');
-  if(!qEl) return;
+  var qEl=(el.dataset&&el.dataset.qidx)?el:(el.closest?el.closest('.qp-q'):null);
+  if(!qEl||!qEl.dataset||!qEl.dataset.qidx) return;
   var qidx=parseInt(qEl.dataset.qidx);
-  // innerText preserves line breaks properly
-  var text=(el.innerText||el.textContent||'').replace(/ /g,' ');
-  if(isQtxt){
-    window.parent.postMessage({type:'editQTxt',idx:qidx,text:text},'*');
-  }
+  clearTimeout(_textSaveTimer);
+  _textSaveTimer=setTimeout(function(){
+    if(document.activeElement&&qEl.contains(document.activeElement)) return;
+    var qtxt=qEl.querySelector('.qp-qtxt');
+    if(qtxt){
+      var text=(qtxt.innerText||qtxt.textContent||'').replace(/ /g,' ');
+      window.parent.postMessage({type:'editQTxt',idx:qidx,text:text},'*');
+    }
+  },150);
 });
-
 function setMoveModeUI(active){
   _moveMode=active;
   // Prevent text selection globally in move mode
