@@ -690,6 +690,8 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
               <button id="qpSelClear" onclick="clearPreviewSel()" title="নির্বাচন বাতিল" disabled style="padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:11px;cursor:pointer;color:var(--text-2);opacity:.4;">✕</button>
               <!-- Move mode toggle -->
               <button id="qpMoveMode" onclick="togglePreviewMoveMode()" title="প্রশ্ন টেনে সরান" style="padding:4px 11px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-2)">🔀 সরাও</button>
+              <!-- Text edit mode -->
+              <button id="qpTextMode" onclick="togglePreviewTextMode()" title="প্রশ্নে click করে Enter দিয়ে জায়গা বাড়ান" style="padding:4px 11px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text-2)">✏ টেক্সট</button>
               <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
               <!-- Top padding control -->
               <span style="font-size:11px;color:var(--text-2);font-weight:600;">উপর ফাঁকা:</span>
@@ -2417,6 +2419,41 @@ function fitLayout(){
 }
 var _dragSrc=null, _moveMode=false;
 
+var _textMode=false;
+function setTextModeUI(active){
+  _textMode=active;
+  document.querySelectorAll('.qp-qtxt,.qp-stxt').forEach(function(el){
+    if(active){
+      el.contentEditable='true';
+      el.style.cursor='text';
+      el.style.outline='2px dashed #4a90e2';
+      el.style.outlineOffset='2px';
+      el.style.borderRadius='3px';
+    } else {
+      el.contentEditable='false';
+      el.style.cursor='';
+      el.style.outline='';
+      el.style.outlineOffset='';
+      el.style.borderRadius='';
+    }
+  });
+}
+document.addEventListener('focusout',function(e){
+  if(!_textMode) return;
+  var el=e.target;
+  var isQtxt=el.classList&&el.classList.contains('qp-qtxt');
+  var isStxt=el.classList&&el.classList.contains('qp-stxt');
+  if(!isQtxt&&!isStxt) return;
+  var qEl=el.closest('.qp-q');
+  if(!qEl) return;
+  var qidx=parseInt(qEl.dataset.qidx);
+  // innerText preserves line breaks properly
+  var text=(el.innerText||el.textContent||'').replace(/ /g,' ');
+  if(isQtxt){
+    window.parent.postMessage({type:'editQTxt',idx:qidx,text:text},'*');
+  }
+});
+
 function setMoveModeUI(active){
   _moveMode=active;
   // Prevent text selection globally in move mode
@@ -2519,6 +2556,7 @@ function addQInteraction(){
   // Listen for setMoveMode from parent
   window.addEventListener('message',function(ev){
     if(ev.data&&ev.data.type==='setMoveMode') setMoveModeUI(ev.data.active);
+    if(ev.data&&ev.data.type==='setTextMode') setTextModeUI(ev.data.active);
   });
 }
 function run(){if(!isPreview)fitInst();fitLayout();addQInteraction();}
@@ -2614,6 +2652,22 @@ function togglePreviewMoveMode(){
   }
 }
 
+let _textModeActive = false;
+function togglePreviewTextMode(){
+  _textModeActive = !_textModeActive;
+  const btn = document.getElementById('qpTextMode');
+  if(btn){
+    btn.style.background = _textModeActive ? 'var(--blue)' : 'var(--surface)';
+    btn.style.color = _textModeActive ? '#fff' : 'var(--text-2)';
+    btn.style.borderColor = _textModeActive ? 'var(--blue)' : 'var(--border)';
+    btn.textContent = _textModeActive ? '✏ টেক্সট (চালু)' : '✏ টেক্সট';
+  }
+  const iframe = document.getElementById('qpPreviewIframe');
+  if(iframe && iframe.contentWindow){
+    iframe.contentWindow.postMessage({type:'setTextMode', active: _textModeActive}, '*');
+  }
+}
+
 function changePreviewZoom(delta){
   const outer  = document.getElementById('qpPreviewOuter');
   const scaler = document.getElementById('qpPreviewScaler');
@@ -2705,9 +2759,20 @@ window.addEventListener('message', function(ev){
     scaler.style.transformOrigin = 'top left';
     outer.style.height = Math.round(h * scale + 8) + 'px';
     setPreviewZoomLabel(scale);
+    // re-apply text mode after iframe reloads
+    if(_textModeActive && iframe && iframe.contentWindow){
+      iframe.contentWindow.postMessage({type:'setTextMode', active: true}, '*');
+    }
   }
   if(ev.data.type==='clickQ'){
-    selectPreviewQ(ev.data.idx);
+    if(!_textModeActive) selectPreviewQ(ev.data.idx);
+  }
+  if(ev.data.type==='editQTxt'){
+    const qItem = document.querySelector(`.q-item[data-idx="${ev.data.idx}"]`);
+    if(!qItem) return;
+    const ta = qItem.querySelector('.q-main-text');
+    if(ta){ ta.value = ev.data.text; updateMarksLabel(ev.data.idx); }
+    schedulePreview();
   }
   if(ev.data.type==='reorderQ'){
     const wrap = document.getElementById('qpQuestionsWrap');
