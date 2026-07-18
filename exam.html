@@ -682,7 +682,21 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
         <div id="qpPreviewPanel">
           <div id="qpPreviewToolbar">
             <span style="font-size:13px;font-weight:700;color:var(--text)">👁 লাইভ প্রিভিউ</span>
-            <button onclick="triggerQPPrint()" style="padding:6px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖨 প্রিন্ট করুন</button>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <!-- Selected Q label -->
+              <span id="qpSelLabel" style="display:none;font-size:11.5px;font-weight:700;color:var(--blue);background:var(--blue-light,#e8f0fe);padding:3px 8px;border-radius:6px;"></span>
+              <!-- Move tools (shown when a question is selected) -->
+              <button id="qpMoveUp" onclick="previewMoveQ(-1)" title="উপরে সরাও" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">↑</button>
+              <button id="qpMoveDown" onclick="previewMoveQ(1)" title="নিচে সরাও" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">↓</button>
+              <button id="qpSelClear" onclick="clearPreviewSel()" title="নির্বাচন বাতিল" style="display:none;padding:4px 9px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:11px;cursor:pointer;color:var(--text-2)">✕</button>
+              <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
+              <!-- Zoom -->
+              <button onclick="changePreviewZoom(-0.1)" title="ছোট করুন" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">−</button>
+              <span id="qpZoomLabel" style="font-size:11px;color:var(--text-2);min-width:34px;text-align:center;">100%</span>
+              <button onclick="changePreviewZoom(0.1)" title="বড় করুন" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--white);font-size:13px;cursor:pointer;">+</button>
+              <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
+              <button onclick="triggerQPPrint()" style="padding:6px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖨 প্রিন্ট</button>
+            </div>
           </div>
           <div id="qpPreviewOuter">
             <div id="qpPreviewScaler">
@@ -2166,12 +2180,7 @@ function updateLivePreview(){
       applyScale(h);
     } catch(e){ applyScale(PH); }
   };
-  // Listen for height updates from iframe (A4 preview postMessage)
-  window.addEventListener('message', function _pmH(ev){
-    if(ev.data && ev.data.type==='previewHeight'){
-      applyScale(Math.max(ev.data.h, PH));
-    }
-  }, {once: false});
+  // Height/click messages handled by global listener below
 }
 
 function buildQPrintFullHTML(d, cls, inst, autoPrint){
@@ -2364,11 +2373,135 @@ function fitLayout(){
     window.parent.postMessage({type:'previewHeight',h:${PH}+32},'*');
   }
 }
-function run(){if(!isPreview)fitInst();fitLayout();}
+function addQClickHandlers(){
+  if(!isPreview) return;
+  document.querySelectorAll('.qp-q').forEach(function(el,i){
+    el.style.cursor='pointer';
+    el.style.borderRadius='4px';
+    el.style.transition='background .15s';
+    el.addEventListener('mouseenter',function(){el.style.background='rgba(66,133,244,.08)';});
+    el.addEventListener('mouseleave',function(){el.style.background='';});
+    el.addEventListener('click',function(){
+      // find idx from nearest qp-n text "Xনং"
+      var nEl=el.querySelector('.qp-n');
+      if(!nEl) return;
+      var txt=nEl.textContent||'';
+      var m=txt.match(/([০-৯]+)নং/);
+      if(!m) return;
+      var bnMap={'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
+      var num=parseInt(m[1].replace(/[০-৯]/g,function(c){return bnMap[c]||c;}));
+      if(num) window.parent.postMessage({type:'clickQ',idx:num},'*');
+      // highlight clicked
+      document.querySelectorAll('.qp-q').forEach(function(q){q.style.outline='';});
+      el.style.outline='2px solid #4285f4';
+      setTimeout(function(){el.style.outline='';},1500);
+    });
+  });
+}
+function run(){if(!isPreview)fitInst();fitLayout();addQClickHandlers();}
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{window.onload=run;}
 ${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
 <\/script></body></html>`;
 }
+
+/* ── PREVIEW TOOLBAR TOOLS ── */
+let _previewZoom = null; // null = auto-fit
+let _selectedQIdx = null;
+
+function changePreviewZoom(delta){
+  const outer  = document.getElementById('qpPreviewOuter');
+  const scaler = document.getElementById('qpPreviewScaler');
+  const iframe = document.getElementById('qpPreviewIframe');
+  if(!outer||!scaler||!iframe) return;
+  // Get current scale from transform
+  const cur = parseFloat((scaler.style.transform||'scale(1)').replace('scale(','')) || 1;
+  const next = Math.min(2, Math.max(0.2, Math.round((cur + delta)*10)/10));
+  _previewZoom = next;
+  scaler.style.transform = `scale(${next})`;
+  scaler.style.transformOrigin = 'top left';
+  const iH = parseInt(iframe.style.height)||794;
+  outer.style.height = Math.round(iH * next + 8) + 'px';
+  document.getElementById('qpZoomLabel').textContent = Math.round(next*100)+'%';
+}
+
+function setPreviewZoomLabel(scale){
+  const lbl = document.getElementById('qpZoomLabel');
+  if(lbl) lbl.textContent = Math.round(scale*100)+'%';
+}
+
+function selectPreviewQ(idx){
+  _selectedQIdx = idx;
+  // Show toolbar controls
+  const lbl = document.getElementById('qpSelLabel');
+  const up  = document.getElementById('qpMoveUp');
+  const dn  = document.getElementById('qpMoveDown');
+  const clr = document.getElementById('qpSelClear');
+  if(lbl){ lbl.textContent = `✏ ${idx}নং প্রশ্ন`; lbl.style.display=''; }
+  if(up)  up.style.display='';
+  if(dn)  dn.style.display='';
+  if(clr) clr.style.display='';
+  // Scroll left panel to this q-item and flash highlight
+  const item = document.querySelector(`.q-item[data-idx="${idx}"]`);
+  if(item){
+    item.scrollIntoView({behavior:'smooth', block:'center'});
+    item.style.transition='box-shadow .2s';
+    item.style.boxShadow='0 0 0 3px var(--blue)';
+    setTimeout(()=>{ item.style.boxShadow=''; }, 1800);
+  }
+}
+
+function clearPreviewSel(){
+  _selectedQIdx = null;
+  ['qpSelLabel','qpMoveUp','qpMoveDown','qpSelClear'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.style.display='none';
+  });
+}
+
+function previewMoveQ(dir){
+  if(_selectedQIdx===null) return;
+  const wrap = document.getElementById('qpQuestionsWrap');
+  const items = [...wrap.querySelectorAll('.q-item')];
+  const cur = items.findIndex(el=>parseInt(el.dataset.idx)===_selectedQIdx);
+  if(cur<0) return;
+  const target = cur + dir;
+  if(target<0||target>=items.length) return;
+  // DOM swap
+  const a = items[cur], b = items[target];
+  if(dir===1) b.after(a); else b.before(a);
+  reindexQItems();
+  // Update selected idx after reindex
+  const newItems = [...wrap.querySelectorAll('.q-item')];
+  const newPos = dir===1 ? target : target;
+  _selectedQIdx = parseInt(newItems[newPos].dataset.idx);
+  selectPreviewQ(_selectedQIdx);
+  schedulePreview();
+}
+
+// Listen for messages from preview iframe (question click)
+window.addEventListener('message', function(ev){
+  if(!ev.data) return;
+  if(ev.data.type==='previewHeight'){
+    const outer  = document.getElementById(ev.data.mobile?'qpMobilePreviewBody':'qpPreviewOuter');
+    const scaler = document.getElementById(ev.data.mobile?'qpMobilePreviewScaler':'qpPreviewScaler');
+    const iframe = document.getElementById(ev.data.mobile?'qpMobilePreviewIframe':'qpPreviewIframe');
+    if(!outer||!scaler||!iframe) return;
+    const h = ev.data.h;
+    const d = collectQPData();
+    const isA4p = d&&(d.paperSize||'A5')==='A4';
+    const PW = isA4p ? 794 : 1122;
+    const outerW = outer.offsetWidth - 8;
+    const scale = _previewZoom || Math.min(1, outerW / PW);
+    scaler.style.width  = PW + 'px';
+    scaler.style.height = h + 'px';
+    scaler.style.transform = `scale(${scale})`;
+    scaler.style.transformOrigin = 'top left';
+    outer.style.height = Math.round(h * scale + 8) + 'px';
+    setPreviewZoomLabel(scale);
+  }
+  if(ev.data.type==='clickQ'){
+    selectPreviewQ(ev.data.idx);
+  }
+});
 
 function triggerQPPrint(){
   const d = collectQPData();
