@@ -2135,29 +2135,28 @@ function updateLivePreview(){
   if(scaler) scaler.style.display='block';
   const cls  = _previewCls  || {name:'',section:''};
   const inst = _previewInst || {name:'', upazila:'', district:''};
+  // Paper pixel dimensions (96dpi): A4-portrait=794×1122, A4-landscape(A5)=1122×794
+  const isA4paper = (d.paperSize||'A5')==='A4';
+  const PW = isA4paper ? 794 : 1122;
+  const PH = isA4paper ? 1122 : 794;
   const html = buildQPrintFullHTML(d, cls, inst, false);
+  iframe.style.width  = PW + 'px';
+  iframe.style.height = PH + 'px';
   iframe.srcdoc = html;
-  // After load: auto-size iframe to content, then scale to fit outer
-  iframe.onload = function(){
-    try {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      const contentH = Math.max(iframeDoc.body.scrollHeight, iframeDoc.documentElement.scrollHeight, 400);
-      iframe.style.height = contentH + 'px';
-      const outerW = outer.offsetWidth;
-      const scale  = Math.min(1, (outerW - 4) / 1060);
-      if(scaler){
-        scaler.style.transform = `scale(${scale})`;
-        scaler.style.height = contentH + 'px';
-        outer.style.minHeight = Math.round(contentH * scale + 16) + 'px';
-      }
-    } catch(e){}
+  // Scale iframe to fit preview panel width, keep exact paper ratio
+  const applyScale = () => {
+    const outerW = outer.offsetWidth - 8;
+    const scale  = Math.min(1, outerW / PW);
+    if(scaler){
+      scaler.style.width  = PW + 'px';
+      scaler.style.height = PH + 'px';
+      scaler.style.transform = `scale(${scale})`;
+      scaler.style.transformOrigin = 'top left';
+      outer.style.height = Math.round(PH * scale + 8) + 'px';
+    }
   };
-  // Initial scale before load
-  requestAnimationFrame(()=>{
-    const outerW = outer.offsetWidth;
-    const scale  = Math.min(1, (outerW - 4) / 1060);
-    if(scaler) scaler.style.transform = `scale(${scale})`;
-  });
+  requestAnimationFrame(applyScale);
+  iframe.onload = applyScale;
 }
 
 function buildQPrintFullHTML(d, cls, inst, autoPrint){
@@ -2219,28 +2218,39 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint){
   // Inline the print CSS from printQPaper
   const printCSS = document.querySelector('style[data-qp-print]')?.textContent || '';
 
+  // Paper pixel sizes at 96dpi: 1mm = 3.7795px
+  // A4 landscape (297×210mm): 1122×794px  — for A5 (two halves)
+  // A4 portrait  (210×297mm):  794×1122px — for A4 single
+  const isA4 = (d.paperSize||'A5')==='A4';
+  const PW = isA4 ? 794  : 1122;   // paper width px
+  const PH = isA4 ? 1122 : 794;    // paper height px
+  const pageSize = isA4 ? 'A4 portrait' : 'A4 landscape';
+
   let body='';
-  if((d.paperSize||'A5')==='A4'){
+  if(isA4){
     body=`<div class="a4-single" id="sheet1"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div>`;
   } else {
     body=`<div class="a4-wrap"><div class="a5-sheet" id="sheet1"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div class="a5-divider"></div><div class="a5-sheet" id="sheet2"><div class="h-inst" id="inst2">${instName}</div>${headerRows}${hline}${qBody}</div></div>`;
   }
-  const pageSize=(d.paperSize||'A5')==='A4'?'A4 portrait':'A4 landscape';
+
   return `<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;background:#e0e0e0;display:flex;justify-content:center;align-items:flex-start;padding:20px;}
-.a4-wrap{display:flex;width:277mm;min-height:190mm;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);}
-.a5-sheet{width:138.5mm;min-height:190mm;padding:22mm 7mm 8mm 7mm;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+html,body{width:${PW}px;height:${PH}px;overflow:hidden;background:#fff;}
+body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;}
+/* A5: two sheets side by side inside A4 landscape */
+.a4-wrap{display:flex;width:${PW}px;height:${PH}px;overflow:hidden;background:#fff;}
+.a5-sheet{width:${PW/2}px;height:${PH}px;padding:83px 26px 30px 26px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
 .a5-divider{width:1px;background:#bbb;flex-shrink:0;align-self:stretch;}
+/* A4: single portrait sheet */
+.a4-single{width:${PW}px;height:${PH}px;padding:106px 53px 53px 53px;overflow:hidden;background:#fff;display:flex;flex-direction:column;}
 .content-pad{padding:0 4mm;}
-.a4-single{width:190mm;min-height:270mm;padding:18mm 14mm 14mm 14mm;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);display:flex;flex-direction:column;}
 .h-inst{text-align:center;font-size:22px;font-weight:900;line-height:1.3;margin-bottom:3px;white-space:nowrap;display:block;width:100%;color:#444;}
 .h-exam{text-align:center;font-size:18px;font-weight:800;margin-bottom:1px;line-height:1.2;color:#555;}
 .h-row{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;margin-bottom:0;line-height:1.3;color:#555;}
 .h-row.padded{padding:0 6mm;}
 .h-line{margin:3px 0 8px;}.h-line-t{border-top:1px solid #000;margin-bottom:2px}.h-line-m{border-top:3px solid #000;margin-bottom:2px}.h-line-b{border-top:1px solid #000}
-.questions-wrap{flex:1;display:flex;flex-direction:column;}
+.questions-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .qp-extra-marks{margin-top:20px;padding-top:0;text-align:center;}
 .qp-extra-row{text-align:center;font-size:12px;font-weight:700;padding:1px 0;}
 .qp-mand-inst{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;}
@@ -2272,13 +2282,15 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;bac
 .qp-math-n2{font-size:15px;font-weight:600;line-height:1.1;letter-spacing:.3px;align-self:stretch;text-align:right;white-space:nowrap;padding-bottom:0;border-bottom:1.8px solid #000;margin-bottom:2px}
 .a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
 .a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
-@media print{body{background:#fff;padding:0;margin:0;display:block;}.a4-wrap{box-shadow:none;width:297mm;height:210mm;overflow:hidden;margin:0;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a5-divider{background:#000;}.a4-single{box-shadow:none;width:210mm;min-height:297mm;margin:0;}@page{size:${pageSize};margin:0;}}
+@media print{html,body{width:${pageSize==='A4 portrait'?'210mm':'297mm'};height:${pageSize==='A4 portrait'?'297mm':'210mm'};}.a4-wrap{width:297mm;height:210mm;}.a5-sheet{width:148.5mm;height:210mm;}.a4-single{width:210mm;height:297mm;}@page{size:${pageSize};margin:0;}}
 </style></head><body>${body}
 <script>
-function fitInst(){var isA4=!!document.querySelector('.a4-single');['inst1','inst2'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var mx=isA4?42:26,mn=8,s=mx;el.style.fontSize=s+'px';while(el.scrollWidth>el.offsetWidth&&s>mn){s-=0.5;el.style.fontSize=s+'px';}});}
-function fitLayout(){var isA4=!!document.querySelector('.a4-single');var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');var minP=isA4?8:0,maxP=isA4?106:83;sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});}
-if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){fitInst();fitLayout();});}else{window.onload=function(){fitInst();fitLayout();};}
-${autoPrint?'window.onload=function(){window.print();}':''}
+var PW=${PW},PH=${PH},isA4=${isA4?'true':'false'};
+function fitInst(){['inst1','inst2'].forEach(function(id){var el=document.getElementById(id);if(!el)return;var mx=isA4?42:26,mn=8,s=mx;el.style.fontSize=s+'px';while(el.scrollWidth>el.offsetWidth&&s>mn){s-=0.5;el.style.fontSize=s+'px';}});}
+function fitLayout(){var sheets=document.querySelectorAll(isA4?'.a4-single':'.a5-sheet');var minP=isA4?8:0,maxP=isA4?106:83;sheets.forEach(function(sheet){sheet.style.paddingTop=maxP+'px';var t=0;while(sheet.scrollHeight>sheet.offsetHeight&&t<100){var c=parseFloat(sheet.style.paddingTop)||maxP;if(c<=minP)break;sheet.style.paddingTop=Math.max(minP,c-1)+'px';t++;}if(sheet.scrollHeight>sheet.offsetHeight){var mf=isA4?10:9,cf=isA4?15:13;sheet.style.fontSize=cf+'px';while(sheet.scrollHeight>sheet.offsetHeight&&cf>mf){cf-=0.5;sheet.style.fontSize=cf+'px';}}});}
+function run(){fitInst();fitLayout();}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(run);}else{window.onload=run;}
+${autoPrint?'window.addEventListener("load",function(){window.print();});':''}
 <\/script></body></html>`;
 }
 
