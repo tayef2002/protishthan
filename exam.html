@@ -2778,10 +2778,30 @@ function fitInst(){
     }
   });
 }
+
+function fitLayout(){
+  var isA4 = !!document.querySelector('.a4-single');
+  var sheets = document.querySelectorAll(isA4 ? '.a4-single' : '.a5-sheet');
+  // Safe zone: min top padding 4mm, max 18mm (A5) / 8mm-28mm (A4)
+  var minPadPx = isA4 ? 30 : 15;   // ~8mm / ~4mm in px at 96dpi
+  var maxPadPx = isA4 ? 106 : 68;  // ~28mm / ~18mm in px at 96dpi
+  sheets.forEach(function(sheet){
+    // Start from max padding, shrink until content fits
+    sheet.style.paddingTop = maxPadPx + 'px';
+    var tries = 0;
+    while(sheet.scrollHeight > sheet.offsetHeight && tries < 80){
+      var cur = parseFloat(sheet.style.paddingTop) || maxPadPx;
+      if(cur <= minPadPx) break;
+      sheet.style.paddingTop = Math.max(minPadPx, cur - 1) + 'px';
+      tries++;
+    }
+  });
+}
+
 if(document.fonts && document.fonts.ready){
-  document.fonts.ready.then(fitInst);
+  document.fonts.ready.then(function(){ fitInst(); fitLayout(); });
 } else {
-  window.onload = fitInst;
+  window.onload = function(){ fitInst(); fitLayout(); };
 }
 <\/script>
 <div class="print-fab" style="position:fixed;bottom:20px;right:20px;z-index:999">
