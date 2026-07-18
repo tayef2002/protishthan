@@ -2137,17 +2137,26 @@ function updateLivePreview(){
   const inst = _previewInst || {name:'', upazila:'', district:''};
   const html = buildQPrintFullHTML(d, cls, inst, false);
   iframe.srcdoc = html;
-  // Scale to fit outer container
+  // After load: auto-size iframe to content, then scale to fit outer
+  iframe.onload = function(){
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const contentH = Math.max(iframeDoc.body.scrollHeight, iframeDoc.documentElement.scrollHeight, 400);
+      iframe.style.height = contentH + 'px';
+      const outerW = outer.offsetWidth;
+      const scale  = Math.min(1, (outerW - 4) / 1060);
+      if(scaler){
+        scaler.style.transform = `scale(${scale})`;
+        scaler.style.height = contentH + 'px';
+        outer.style.minHeight = Math.round(contentH * scale + 16) + 'px';
+      }
+    } catch(e){}
+  };
+  // Initial scale before load
   requestAnimationFrame(()=>{
     const outerW = outer.offsetWidth;
     const scale  = Math.min(1, (outerW - 4) / 1060);
-    if(scaler){
-      scaler.style.transform = `scale(${scale})`;
-      // Set outer height to match scaled content
-      const iframeH = (d.paperSize||'A5')==='A4' ? 1122 : 800;
-      outer.style.minHeight = Math.round(iframeH * scale) + 'px';
-      iframe.style.height = iframeH + 'px';
-    }
+    if(scaler) scaler.style.transform = `scale(${scale})`;
   });
 }
 
