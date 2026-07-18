@@ -2378,17 +2378,24 @@ var _dragSrc=null, _moveMode=false;
 
 function setMoveModeUI(active){
   _moveMode=active;
+  // Prevent text selection globally in move mode
+  document.body.style.userSelect = active ? 'none' : '';
+  document.body.style.webkitUserSelect = active ? 'none' : '';
   document.querySelectorAll('.qp-q').forEach(function(el){
     var h=el.querySelector('.qp-drag-handle');
     if(active){
       el.style.cursor='grab';
       el.style.background='rgba(66,133,244,.04)';
       el.style.outline='1.5px dashed #aad';
+      el.style.userSelect='none';
+      el.style.webkitUserSelect='none';
       if(h) h.style.display='inline';
     } else {
       el.style.cursor='';
       el.style.background='';
       el.style.outline='';
+      el.style.userSelect='';
+      el.style.webkitUserSelect='';
       if(h) h.style.display='none';
     }
   });
