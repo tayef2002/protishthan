@@ -1,56 +1,4 @@
-var _textMode=false;
-function setTextModeUI(active){
-  _textMode=active;
-  document.querySelectorAll('.qp-prespace').forEach(function(zone){
-    if(active){
-      zone.contentEditable='true';
-      zone.style.display='block';
-      zone.style.minHeight='14px';
-      zone.style.outline='2px dashed rgba(74,144,226,0.6)';
-      zone.style.borderRadius='3px';
-      zone.style.cursor='text';
-      zone.style.marginBottom='2px';
-    } else {
-      zone.contentEditable='false';
-      zone.style.display='none';
-      zone.style.marginBottom='';
-    }
-  });
-  document.querySelectorAll('.qp-q').forEach(function(el){
-    if(active){
-      el.contentEditable='true';
-      el.style.outline='1px dashed rgba(74,144,226,0.35)';
-      el.style.cursor='text';
-    } else {
-      el.contentEditable='false';
-      el.style.outline='';
-      el.style.cursor='';
-    }
-  });
-}
-var _textSaveTimer=null;
-document.addEventListener('focusout',function(e){
-  if(!_textMode) return;
-  var el=e.target;
-  if(el.classList&&el.classList.contains('qp-prespace')){
-    var forIdx=parseInt(el.dataset.for);
-    var brCount=(el.innerHTML.match(/<br/gi)||[]).length+(el.innerHTML.match(/<div/gi)||[]).length;
-    window.parent.postMessage({type:'qPrespace',qidx:forIdx,lines:brCount},'*');
-    return;
-  }
-  var qEl=(el.dataset&&el.dataset.qidx)?el:(el.closest?el.closest('.qp-q'):null);
-  if(!qEl||!qEl.dataset||!qEl.dataset.qidx) return;
-  var qidx=parseInt(qEl.dataset.qidx);
-  clearTimeout(_textSaveTimer);
-  _textSaveTimer=setTimeout(function(){
-    if(document.activeElement&&qEl.contains(document.activeElement)) return;
-    var qtxt=qEl.querySelector('.qp-qtxt');
-    if(qtxt){
-      var text=(qtxt.innerText||qtxt.textContent||'').replace(/ /g,' ');
-      window.parent.postMessage({type:'editQTxt',idx:qidx,text:text},'*');
-    }
-  },150);
-});﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
@@ -2266,7 +2214,6 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
   const questionsHtml = (d.questions||[]).map(q=>{
     const breakDiv = q.forceBreak ? '<div class="qp-force-break"></div>' : '';
     const spacerDiv = q.spacerBelow>0 ? `<div class="qp-spacer" style="height:${q.spacerBelow * 24}px;display:block"></div>` : '';
-    const prespaceDiv = `<div class="qp-prespace" data-for="${q.idx}" contenteditable="false"></div>`;
     const qNum = BN_Q2[q.idx]||BN(q.idx);
     const type = q.type||'text';
     if(type==='math-col'){
@@ -2281,21 +2228,21 @@ function buildQPrintFullHTML(d, cls, inst, autoPrint, manualPadPx){
       });
       const inlineG=inlineItems.length?`<div class="qp-math-inline-group">${inlineItems.join('')}</div>`:'';
       const colsHtml=op==='÷'?divItems.join(''):(stackItems.join('')+inlineG);
-      return prespaceDiv+breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`+spacerDiv;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;${mathLabelHtml}${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>${colsHtml?`<div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;<div class="qp-math-mixed-grid${op==='÷'?' div-op-grid':''}">${colsHtml}</div></div>`:''}</div>`+spacerDiv;
     }
     if(type==='grid-table'){
       const gRows=q.gridRows||2,gCols=q.gridCols||5,cells=q.gridCells||[];
       let tbl='<table class="qp-qtable">';
       for(let r=0;r<gRows;r++){tbl+='<tr>';for(let c=0;c<gCols;c++){tbl+=`<td>${(cells[r]&&cells[r][c])||''}</td>`;}tbl+='</tr>';}
       tbl+='</table>';
-      return prespaceDiv+breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`+spacerDiv;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text||'')}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div><div class="qp-grid-wrap"><span class="qp-n qp-n-ghost">${qNum}নং প্রশ্নঃ</span>&nbsp;${tbl}</div></div>`+spacerDiv;
     }
     if(type==='fill-box'){
       const raw=q.text||''; const hasMk=raw.includes('[_]');
       const txt=raw.replace(/\[_\]/g,'<span class="qp-ans-box"></span>');
-      return prespaceDiv+breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`+spacerDiv;
+      return breakDiv+`<div class="qp-q" data-qidx="${q.idx}"><div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${txt}${hasMk?'':'<span class="qp-ans-box"></span>'}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div></div>`+spacerDiv;
     }
-    let h=prespaceDiv+breakDiv+`<div class="qp-q" data-qidx="${q.idx}">`;
+    let h=breakDiv+`<div class="qp-q" data-qidx="${q.idx}">`;
     if(q.subs&&q.subs.length){
       const fmt=q.fmt||'bn';
       h+=`<div class="qp-qline"><span class="qp-n">${qNum}নং প্রশ্নঃ</span>&nbsp;<span class="qp-qtxt">${renderQTxt(q.text)}</span>${q.marks?`<span class="qp-m">${BN(q.marks)}</span>`:''}</div>`;
@@ -2392,7 +2339,6 @@ body{font-family:'Noto Serif Bengali','Vrinda','Nirmala UI',serif;color:#000;bac
 .a4-single .h-inst{font-size:38px;}.a4-single .h-exam{font-size:22px;}.a4-single .h-row{font-size:18px;}
 .a4-single .content-pad{padding:0 8mm;}.a4-single .h-row.padded{padding:0 20mm;}.a4-single .h-line{margin:4px 0 14px;}
 .qp-force-break{display:none;}
-.qp-prespace{display:none;outline:none;min-height:0;}
 @media print{html,body{width:${isA4?'210mm':'297mm'};height:${isA4?'297mm':'210mm'};overflow:hidden;background:#fff;padding:0;}.a4-wrap{width:297mm;height:210mm;overflow:hidden;box-shadow:none;}.a5-sheet{width:148.5mm;height:210mm;overflow:hidden;}.a4-single{width:210mm;height:297mm;overflow:hidden;}.page-card,.page-lbl,#a4-measure{display:none;}.qp-force-break{display:block;page-break-before:always;height:0;margin:0;padding:0;}@page{size:${pageSize};margin:0;}}
 </style></head><body>${isA4 && isPreview ? `<div id="a4-measure"><div class="h-inst" id="inst1">${instName}</div>${headerRows}${hline}${qBody}</div><div id="pages-wrap"></div>` : body}
 <script>
@@ -2826,21 +2772,6 @@ window.addEventListener('message', function(ev){
     if(!qItem) return;
     const ta = qItem.querySelector('.q-main-text');
     if(ta){ ta.value = ev.data.text; updateMarksLabel(ev.data.idx); }
-    schedulePreview();
-  }
-  if(ev.data.type==='qPrespace'){
-    const qidx = ev.data.qidx;
-    const lines = ev.data.lines || 0;
-    // spacer before question qidx = spacerBelow of question qidx-1
-    const prevIdx = qidx - 1;
-    if(prevIdx >= 1){
-      const prevEl = document.querySelector(`.q-item[data-idx="${prevIdx}"]`);
-      if(prevEl){
-        prevEl.dataset.spacerBelow = lines;
-        const lbl = document.getElementById('qSpacerLbl'+prevIdx);
-        if(lbl){ lbl.textContent=lines>0?lines+'লা':'০'; lbl.style.color=lines>0?'var(--blue)':'var(--text-3)'; }
-      }
-    }
     schedulePreview();
   }
   if(ev.data.type==='reorderQ'){
