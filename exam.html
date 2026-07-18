@@ -3229,7 +3229,7 @@ async function generateQPaper(mode){
     const makeItems = (paperId) => d.questions.map(q=>({
       paper_id: paperId, question_number: q.idx,
       question_text: q.text||'', marks: q.marks ? parseInt(q.marks) : null,
-      sub_questions: {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[],forceBreak:q.forceBreak||false,spacerBelow:q.spacerBelow||0}
+      sub_questions: {fmt:q.fmt||'bn',mandN:q.mandN||0,items:q.subs,type:q.type||'text',mathOp:q.mathOp||'+',cols:q.mathCols||[],mathLayout:q.mathLayout||'stack',gridRows:q.gridRows||2,gridCols:q.gridCols||5,gridCells:q.gridCells||[],forceBreak:q.forceBreak||false,spacerBelow:q.spacerBelow||0,...(q.idx===1?{paperPadPx:_manualPadPx}:{})}
     }));
 
     if(_editingPaperId){
@@ -3751,6 +3751,9 @@ async function startNewQP(){
   setSizePick('A5');
   const h = document.getElementById('qpDistribHint'); if(h) h.style.display='none';
   document.getElementById('qpQuestionsWrap').innerHTML='<div style="text-align:center;color:var(--text-3);padding:20px;font-size:13px">উপরে "মোট প্রশ্ন কয়টা?" লিখুন</div>';
+  // Reset layout settings
+  _manualPadPx = null;
+  _updatePadLabel();
   // Cache cls/inst for live preview
   _previewCls  = null;
   _previewInst = currentInstitution ? {name:currentInstitution.name||'',upazila:currentInstitution.upazila||'',district:currentInstitution.district||''} : null;
@@ -3935,6 +3938,16 @@ async function editQP(paperId){
       }
     }
   });
+
+  // Restore layout settings (manual pad stored in first question's sub_questions)
+  const _firstItem = (items||[]).find(it=>it.question_number===1);
+  if(_firstItem && _firstItem.sub_questions && typeof _firstItem.sub_questions === 'object' && !Array.isArray(_firstItem.sub_questions)){
+    const _pp = _firstItem.sub_questions.paperPadPx;
+    _manualPadPx = (_pp !== undefined && _pp !== null) ? _pp : null;
+  } else {
+    _manualPadPx = null;
+  }
+  _updatePadLabel();
 
   // Change button text for edit mode
   document.getElementById('qpBtnSave').textContent = '✓ আপডেট করুন';
