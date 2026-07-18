@@ -1425,10 +1425,47 @@ async function handleExcelImport(event){
             if(newClass){ classId = newClass.id; allClassOptions.push(newClass); }
           }
 
+          // extra fields
+          const dakhilaNo = (row['দাখিলা নং']||row['dakhila_no']||'').toString().trim();
+          const notunPuraton = (row['নতুন/পুরাতন']||row['notun_puraton']||'').toString().trim();
+          const hijri = (row['শিক্ষাবর্ষ হিজরি']||row['shikkha_borsho_hijri']||'').toString().trim();
+          const english = (row['শিক্ষাবর্ষ ইংরেজি']||row['shikkha_borsho_english']||'').toString().trim();
+          const dept = (row['বিভাগ']||row['dept']||'').toString().trim();
+          const feeAmt = (row['মাসিক ফি']||row['fee_amount']||'').toString().trim();
+          const guardianName = (row['অভিভাবকের নাম']||row['guardian_name']||'').toString().trim();
+          const studentRelation = (row['সম্পর্ক']||row['student_relation']||'').toString().trim();
+          const prevInst = (row['আগের প্রতিষ্ঠান']||row['prev_institution']||'').toString().trim();
+          const prevClass = (row['আগের শ্রেণী']||row['prev_class']||'').toString().trim();
+          const presentVillage = (row['বর্তমান গ্রাম']||'').toString().trim();
+          const presentPost = (row['বর্তমান ডাক']||'').toString().trim();
+          const presentUpazila = (row['বর্তমান উপজেলা']||'').toString().trim();
+          const presentDistrict = (row['বর্তমান জেলা']||'').toString().trim();
+          const permVillage = (row['স্থায়ী গ্রাম']||'').toString().trim();
+          const permPost = (row['স্থায়ী ডাক']||'').toString().trim();
+          const permUpazila = (row['স্থায়ী উপজেলা']||'').toString().trim();
+          const permDistrict = (row['স্থায়ী জেলা']||'').toString().trim();
+
+          const combinedAddress = [presentVillage, presentPost, presentUpazila, presentDistrict].filter(Boolean).join(', ') || address || null;
+          const extraData = {
+            dakhila_no: dakhilaNo||null,
+            notun_puraton: notunPuraton||null,
+            shikkha_borsho_hijri: hijri||null,
+            shikkha_borsho_english: english||null,
+            dept: dept||null,
+            fee_amount: feeAmt ? parseFloat(toBengaliToEnglish(feeAmt))||null : null,
+            present_address: { village: presentVillage, post: presentPost, upazila: presentUpazila, district: presentDistrict },
+            permanent_address: { village: permVillage, post: permPost, upazila: permUpazila, district: permDistrict },
+            guardian_name: guardianName||null,
+            student_relation: studentRelation||null,
+            prev_institution: prevInst||null,
+            prev_class: prevClass||null,
+            source: 'excel_import'
+          };
+
           const { data: student, error: stuErr } = await sb.from('students').insert({
             institution_id: currentInstitution.id, full_name: name, class_name: className, class_id: classId,
-            roll_number: roll || null, gender: gender, address: address || null,
-            date_of_birth: dob || null, is_active: true
+            roll_number: roll || null, gender: gender, address: combinedAddress,
+            date_of_birth: dob || null, is_active: true, extra_data: extraData
           }).select().single();
           if(stuErr) throw stuErr;
 
