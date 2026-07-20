@@ -1694,6 +1694,8 @@ function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList
             <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:140px">পিতার মোবাইল</th>
             <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:110px">দাখিলা নং</th>
             <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:100px">ফর্ম নং</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--blue);text-align:center;min-width:60px">রোল নং</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-3);text-align:center;min-width:90px">শিক্ষার্থী ID</th>
             <th style="width:36px;border-bottom:2px solid var(--border)"></th>
           </tr>
         </thead>
@@ -1770,6 +1772,7 @@ document.addEventListener('click', function(e){
 
 // ═══ BULK TABLE ENTRY ═══
 let btRowIdx = 0;
+let btBaseRoll = 0;
 
 function openBulkTableModal(){
   const ov = document.getElementById('bulkTableOverlay');
@@ -1798,12 +1801,33 @@ function openBulkTableModal(){
   }
   // reset table
   btRowIdx = 0;
+  btBaseRoll = 0;
   document.getElementById('btBody').innerHTML = '';
   for(let i=0;i<5;i++) btAddRow();
+  document.getElementById('btClassSelect').onchange = btOnClassChange;
 }
 
 function closeBulkTableModal(){
   document.getElementById('bulkTableOverlay').style.display = 'none';
+}
+
+async function btOnClassChange(){
+  const selVal = document.getElementById('btClassSelect').value;
+  if(!selVal){ btBaseRoll = 0; btRefreshRollDisplay(); return; }
+  const [, className] = selVal.split('||');
+  const { data } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className);
+  btBaseRoll = 0;
+  (data||[]).forEach(s => { const n = parseInt(s.roll_number)||0; if(n > btBaseRoll) btBaseRoll = n; });
+  btRefreshRollDisplay();
+}
+
+function btRefreshRollDisplay(){
+  const rows = document.querySelectorAll('#btBody tr');
+  let pos = 0;
+  rows.forEach(tr => {
+    const rollCell = tr.querySelector('.bt-roll-cell');
+    if(rollCell) rollCell.textContent = btBaseRoll + (++pos);
+  });
 }
 
 function btAddRow(){
@@ -1827,18 +1851,22 @@ function btAddRow(){
         onblur="this.style.background='transparent'"
       ></td>`;
   });
+  html += `<td class="bt-roll-cell" style="padding:6px 10px;border-left:1px solid var(--border);font-size:12px;font-weight:700;color:var(--blue);text-align:center;white-space:nowrap;background:var(--surface);min-width:56px">—</td>`;
+  html += `<td style="padding:6px 10px;border-left:1px solid var(--border);font-size:11px;color:var(--text-3);text-align:center;white-space:nowrap;background:var(--surface)">স্বয়ংক্রিয়</td>`;
   html += `<td style="padding:3px 6px;border-left:1px solid var(--border)">
     <button onclick="btDeleteRow(${idx})" title="সরান" style="width:24px;height:24px;border:none;background:transparent;color:var(--text-3);cursor:pointer;border-radius:5px;font-size:14px;line-height:1" onmouseover="this.style.background='var(--red-l)';this.style.color='var(--red)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-3)'">✕</button>
   </td>`;
   tr.innerHTML = html;
   tbody.appendChild(tr);
   btUpdateCount();
+  btRefreshRollDisplay();
 }
 
 function btDeleteRow(idx){
   const row = document.getElementById('bt-row-' + idx);
   if(row) row.remove();
   btUpdateCount();
+  btRefreshRollDisplay();
 }
 
 function btKeyNav(e, rowIdx, fi){
