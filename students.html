@@ -210,6 +210,10 @@ body{display:flex}
 /* ===== MOBILE (≤768px) ===== */
 @media(max-width:768px){
   html,body{overflow-x:hidden;max-width:100vw}
+  /* Clip overflow at every level so nothing escapes right edge */
+  .main{max-width:100vw!important;overflow-x:hidden!important}
+  .topbar{max-width:100%!important;overflow:hidden!important}
+  .content{max-width:100%!important;overflow-x:hidden!important}
   table{font-size:10.5px!important}
   table th,table td{padding:6px 4px!important}
   #scanPreviewCards [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
@@ -217,11 +221,12 @@ body{display:flex}
 
   /* Topbar: title left, buttons right, single row */
   .topbar{height:56px!important;padding:0 14px!important;flex-wrap:nowrap!important;gap:8px!important}
-  .topbar-title{font-size:14px!important;flex-shrink:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .topbar-right{margin-left:auto!important;flex-shrink:0!important;flex-wrap:nowrap!important;gap:7px!important;width:auto!important}
+  /* min-width:0 is critical — allows flex item to shrink below content width */
+  .topbar-title{font-size:14px!important;flex:1 1 0!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .topbar-right{flex:0 0 auto!important;flex-wrap:nowrap!important;gap:7px!important}
   .btn-full-txt{display:none!important}
   .btn-short-txt{display:inline!important}
-  .topbar-right .btn-add{padding:8px 14px!important;font-size:12.5px!important;white-space:nowrap!important;flex:none!important}
+  .topbar-right .btn-add{padding:8px 12px!important;font-size:12px!important;white-space:nowrap!important;flex:none!important}
   .content{padding-top:12px!important}
 }
 @media(min-width:769px){
