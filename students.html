@@ -757,8 +757,31 @@ async function init(){
   }
 }
 
+async function backfillStudentIds(){
+  if(!currentInstitution) return;
+  const { data: missing } = await sb.from('students')
+    .select('id, student_id')
+    .eq('institution_id', currentInstitution.id)
+    .is('student_id', null);
+  if(!missing || missing.length === 0) return;
+
+  const { data: all } = await sb.from('students')
+    .select('student_id')
+    .eq('institution_id', currentInstitution.id);
+  const usedIds = new Set((all||[]).map(s=>s.student_id).filter(Boolean));
+
+  for(const s of missing){
+    let newSid;
+    do { newSid = String(Math.floor(10000 + Math.random() * 90000)); }
+    while(usedIds.has(newSid));
+    usedIds.add(newSid);
+    await sb.from('students').update({ student_id: newSid }).eq('id', s.id);
+  }
+}
+
 async function loadStudents(){
   if(!currentInstitution) return;
+  backfillStudentIds(); // silently fix missing IDs in background
   const { data, error } = await sb
     .from('students')
     .select('*, guardians(*)')
