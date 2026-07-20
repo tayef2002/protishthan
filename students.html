@@ -1464,13 +1464,23 @@ async function handleExcelImport(event){
       let successCount = 0;
       let failCount = 0;
 
-      // Auto roll counter per class (based on row order in file)
+      // Fetch existing max roll per class from DB so new imports continue from there
       const classRollCounter = {};
+      const { data: existingRolls } = await sb
+        .from('students')
+        .select('class_name, roll_number')
+        .eq('institution_id', currentInstitution.id);
+      (existingRolls || []).forEach(s => {
+        const n = parseInt(s.roll_number) || 0;
+        if (!classRollCounter[s.class_name] || n > classRollCounter[s.class_name]) {
+          classRollCounter[s.class_name] = n;
+        }
+      });
 
       for(const row of rows){
         const name = (row['নাম'] || row['Name'] || row['name'] || '').toString().trim();
         const className = (row['শ্রেণী'] || row['ক্লাস'] || row['Class'] || row['class'] || '').toString().trim();
-        // Auto-assign roll based on row order per class (ignore file value)
+        // Continue roll numbering from the last existing roll in DB
         if(!classRollCounter[className]) classRollCounter[className] = 0;
         classRollCounter[className]++;
         const roll = String(classRollCounter[className]).padStart(2, '0');
