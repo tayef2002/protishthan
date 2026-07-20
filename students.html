@@ -419,6 +419,10 @@ body{display:flex}
             <div style="width:36px;height:36px;border-radius:10px;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📷</div>
             <div><div style="font-size:13px;font-weight:600;color:var(--text)">ভর্তি ফর্ম স্ক্যান</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">ফর্মের ছবি থেকে auto</div></div>
           </div>
+          <div onclick="closeAddMenu();openBulkTableModal()" style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s" onmouseover="this.style.background='#FFF7ED'" onmouseout="this.style.background=''">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📝</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">টেবিল থেকে এন্ট্রি</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">Excel-এর মতো সারিতে টাইপ</div></div>
+          </div>
           <div style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:not-allowed;opacity:.45;border-bottom:1px solid var(--border)">
             <div style="width:36px;height:36px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
             <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">বাল্ক তালিকা স্ক্যান</div><div style="font-size:11px;color:var(--text-3);margin-top:1px">রেজিস্টার পাতার ছবি</div></div>
@@ -1664,6 +1668,50 @@ function closeMoreSheet(){ document.getElementById('moreSheetOverlay').classList
 })();
 </script>
 <!-- ═══════════════════ SCAN MODAL ═══════════════════ -->
+<!-- ═══ BULK TABLE ENTRY MODAL ═══ -->
+<div id="bulkTableOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:600;align-items:center;justify-content:center;padding:16px">
+  <div style="background:white;border-radius:20px;width:100%;max-width:960px;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">📝 টেবিল থেকে এন্ট্রি</div>
+      <button onclick="closeBulkTableModal()" style="width:32px;height:32px;border:none;background:var(--surface);border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text-2)">✕</button>
+    </div>
+    <!-- class selector -->
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap">
+      <label style="font-size:13px;font-weight:600;color:var(--text-2);white-space:nowrap">শ্রেণী:</label>
+      <select id="btClassSelect" style="padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:white;min-width:140px">
+        <option value="">-- শ্রেণী বেছে নিন --</option>
+      </select>
+      <div style="margin-left:auto;font-size:12px;color:var(--text-3)" id="btRowCount">০ টি সারি</div>
+    </div>
+    <!-- table -->
+    <div style="overflow:auto;flex:1;padding:0">
+      <table id="btTable" style="width:100%;border-collapse:collapse;min-width:700px">
+        <thead>
+          <tr style="background:var(--surface);position:sticky;top:0;z-index:2">
+            <th style="width:36px;padding:10px 8px;border-bottom:2px solid var(--border);font-size:11px;font-weight:700;color:var(--text-3);text-align:center">#</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:180px">নাম <span style="color:var(--red)">*</span></th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:160px">পিতার নাম</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:140px">পিতার মোবাইল</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:110px">দাখিলা নং</th>
+            <th style="padding:10px 10px;border-bottom:2px solid var(--border);font-size:12px;font-weight:700;color:var(--text-2);text-align:left;min-width:100px">ফর্ম নং</th>
+            <th style="width:36px;border-bottom:2px solid var(--border)"></th>
+          </tr>
+        </thead>
+        <tbody id="btBody"></tbody>
+      </table>
+    </div>
+    <!-- add row button -->
+    <div style="padding:8px 20px;border-top:1px solid var(--border);flex-shrink:0">
+      <button onclick="btAddRow()" style="padding:6px 14px;border-radius:8px;border:1px dashed var(--border);background:white;color:var(--text-3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-3)'">+ সারি যোগ করুন</button>
+    </div>
+    <!-- footer -->
+    <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0">
+      <button onclick="closeBulkTableModal()" style="padding:9px 18px;border-radius:10px;border:1px solid var(--border);background:white;color:var(--text-2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">বাতিল</button>
+      <button onclick="btSaveAll()" id="btSaveBtn" style="padding:9px 22px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">সব সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
 <div id="scanModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:600;align-items:center;justify-content:center;padding:20px">
   <div style="background:white;border-radius:20px;width:100%;max-width:820px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.22)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
@@ -1719,6 +1767,171 @@ function closeAddMenu(){ document.getElementById('addStudentMenu').style.display
 document.addEventListener('click', function(e){
   if(!e.target.closest('.add-wrap')) closeAddMenu();
 });
+
+// ═══ BULK TABLE ENTRY ═══
+let btRowIdx = 0;
+
+function openBulkTableModal(){
+  const ov = document.getElementById('bulkTableOverlay');
+  ov.style.display = 'flex';
+  // populate class dropdown
+  const sel = document.getElementById('btClassSelect');
+  sel.innerHTML = '<option value="">-- শ্রেণী বেছে নিন --</option>';
+  const classList = window.allClassOptions || [];
+  if(classList.length){
+    classList.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id + '||' + c.name;
+      o.textContent = c.name + (c.section ? (' ('+c.section+')') : '');
+      sel.appendChild(o);
+    });
+  } else {
+    // fallback: load from DB
+    sb.from('classes').select('id,name,section').eq('institution_id', currentInstitution.id).order('created_at',{ascending:true}).then(({data})=>{
+      (data||[]).forEach(c=>{
+        const o=document.createElement('option');
+        o.value=c.id+'||'+c.name;
+        o.textContent=c.name+(c.section?(' ('+c.section+')'):'');
+        sel.appendChild(o);
+      });
+    });
+  }
+  // reset table
+  btRowIdx = 0;
+  document.getElementById('btBody').innerHTML = '';
+  for(let i=0;i<5;i++) btAddRow();
+}
+
+function closeBulkTableModal(){
+  document.getElementById('bulkTableOverlay').style.display = 'none';
+}
+
+function btAddRow(){
+  const tbody = document.getElementById('btBody');
+  const idx = btRowIdx++;
+  const tr = document.createElement('tr');
+  tr.id = 'bt-row-' + idx;
+  tr.style.cssText = 'border-bottom:1px solid var(--border)';
+  tr.dataset.idx = idx;
+  const fields = ['name','father','mobile','dakhila','form_no'];
+  const placeholders = ['শিক্ষার্থীর নাম','পিতার নাম','01XXXXXXXXX','দাখিলা নং','ফর্ম নং'];
+  let html = `<td style="padding:6px 8px;text-align:center;font-size:11px;color:var(--text-3);background:var(--surface);white-space:nowrap">${idx+1}</td>`;
+  fields.forEach((f,fi) => {
+    html += `<td style="padding:3px 4px;border-left:1px solid var(--border)">
+      <input data-row="${idx}" data-field="${f}" data-fi="${fi}"
+        placeholder="${placeholders[fi]}"
+        oninput="btUpdateCount()"
+        onkeydown="btKeyNav(event,${idx},${fi})"
+        style="width:100%;border:none;outline:none;padding:6px 8px;font-size:13px;font-family:inherit;color:var(--text);background:transparent;border-radius:6px"
+        onfocus="this.style.background='#EEF3FF'"
+        onblur="this.style.background='transparent'"
+      ></td>`;
+  });
+  html += `<td style="padding:3px 6px;border-left:1px solid var(--border)">
+    <button onclick="btDeleteRow(${idx})" title="সরান" style="width:24px;height:24px;border:none;background:transparent;color:var(--text-3);cursor:pointer;border-radius:5px;font-size:14px;line-height:1" onmouseover="this.style.background='var(--red-l)';this.style.color='var(--red)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-3)'">✕</button>
+  </td>`;
+  tr.innerHTML = html;
+  tbody.appendChild(tr);
+  btUpdateCount();
+}
+
+function btDeleteRow(idx){
+  const row = document.getElementById('bt-row-' + idx);
+  if(row) row.remove();
+  btUpdateCount();
+}
+
+function btKeyNav(e, rowIdx, fi){
+  const fields = ['name','father','mobile','dakhila','form_no'];
+  if(e.key === 'Tab' && !e.shiftKey){
+    if(fi === fields.length - 1){
+      // last column — go to next row first column
+      e.preventDefault();
+      const nextRow = document.querySelector(`input[data-row="${rowIdx+1}"][data-fi="0"]`);
+      if(nextRow){ nextRow.focus(); } else { btAddRow(); setTimeout(()=>{ const r=document.querySelector(`input[data-row="${btRowIdx-1}"][data-fi="0"]`); if(r) r.focus(); },10); }
+    }
+  } else if(e.key === 'Enter' || e.key === 'ArrowDown'){
+    e.preventDefault();
+    const nextRow = document.querySelector(`input[data-row="${rowIdx+1}"][data-fi="${fi}"]`);
+    if(nextRow){ nextRow.focus(); } else { btAddRow(); setTimeout(()=>{ const r=document.querySelector(`input[data-row="${btRowIdx-1}"][data-fi="${fi}"]`); if(r) r.focus(); },10); }
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    const prevRow = document.querySelector(`input[data-row="${rowIdx-1}"][data-fi="${fi}"]`);
+    if(prevRow) prevRow.focus();
+  }
+}
+
+function btUpdateCount(){
+  const rows = document.querySelectorAll('#btBody tr');
+  let filled = 0;
+  rows.forEach(tr => {
+    const nameInput = tr.querySelector('input[data-field="name"]');
+    if(nameInput && nameInput.value.trim()) filled++;
+  });
+  document.getElementById('btRowCount').textContent = filled + ' টি পূরণ করা';
+}
+
+async function btSaveAll(){
+  const selVal = document.getElementById('btClassSelect').value;
+  if(!selVal){ alert('আগে শ্রেণী বেছে নিন'); return; }
+  const [classId, className] = selVal.split('||');
+
+  const rows = document.querySelectorAll('#btBody tr');
+  const entries = [];
+  rows.forEach(tr => {
+    const name = (tr.querySelector('input[data-field="name"]')?.value||'').trim();
+    if(!name) return;
+    entries.push({
+      name,
+      father: (tr.querySelector('input[data-field="father"]')?.value||'').trim(),
+      mobile: (tr.querySelector('input[data-field="mobile"]')?.value||'').trim(),
+      dakhila: (tr.querySelector('input[data-field="dakhila"]')?.value||'').trim(),
+      form_no: (tr.querySelector('input[data-field="form_no"]')?.value||'').trim(),
+    });
+  });
+
+  if(entries.length === 0){ alert('কমপক্ষে একটি নাম দিন'); return; }
+
+  const btn = document.getElementById('btSaveBtn');
+  btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে...';
+
+  // fetch existing rolls & student IDs
+  const { data: existing } = await sb.from('students').select('roll_number,student_id').eq('institution_id', currentInstitution.id).eq('class_name', className);
+  let maxRoll = 0;
+  const usedSids = new Set();
+  (existing||[]).forEach(s => {
+    const n = parseInt(s.roll_number)||0;
+    if(n > maxRoll) maxRoll = n;
+    if(s.student_id) usedSids.add(s.student_id);
+  });
+
+  let ok=0, fail=0;
+  for(const e of entries){
+    try{
+      maxRoll++;
+      let newSid;
+      do { newSid = String(Math.floor(10000+Math.random()*90000)); } while(usedSids.has(newSid));
+      usedSids.add(newSid);
+
+      const extra = { dakhila_no: e.dakhila||null, form_no: e.form_no||null, source: 'table_entry' };
+      const { data: stu, error: stuErr } = await sb.from('students').insert({
+        institution_id: currentInstitution.id, full_name: e.name,
+        class_name: className, class_id: classId,
+        roll_number: maxRoll, is_active: true,
+        extra_data: extra, student_id: newSid
+      }).select().single();
+      if(stuErr) throw stuErr;
+      if(e.father){
+        await sb.from('guardians').insert({ student_id: stu.id, full_name: e.father, relation: 'পিতা', whatsapp_number: e.mobile||'', phone: e.mobile||'' });
+      }
+      ok++;
+    } catch(_){ fail++; }
+  }
+
+  btn.disabled = false; btn.textContent = 'সব সংরক্ষণ করুন';
+  showToast(ok>0?'success':'error', ok>0?'সফল!':'ব্যর্থ', ok+' জন যোগ হয়েছে'+(fail>0?', '+fail+' জনে সমস্যা':''));
+  if(ok>0){ closeBulkTableModal(); loadStudents(); }
+}
 
 // ═══ SCAN MODAL ═══
 let scanFiles = [];
