@@ -1895,15 +1895,14 @@ async function btSaveAll(){
   const btn = document.getElementById('btSaveBtn');
   btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে...';
 
-  // fetch existing rolls & student IDs
-  const { data: existing } = await sb.from('students').select('roll_number,student_id').eq('institution_id', currentInstitution.id).eq('class_name', className);
+  // fetch max roll for this class only
+  const { data: classStudents } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className);
   let maxRoll = 0;
-  const usedSids = new Set();
-  (existing||[]).forEach(s => {
-    const n = parseInt(s.roll_number)||0;
-    if(n > maxRoll) maxRoll = n;
-    if(s.student_id) usedSids.add(s.student_id);
-  });
+  (classStudents||[]).forEach(s => { const n = parseInt(s.roll_number)||0; if(n > maxRoll) maxRoll = n; });
+
+  // fetch ALL student_ids institution-wide for uniqueness
+  const { data: allSidRows } = await sb.from('students').select('student_id').eq('institution_id', currentInstitution.id);
+  const usedSids = new Set((allSidRows||[]).map(s=>s.student_id).filter(Boolean));
 
   let ok=0, fail=0;
   for(const e of entries){
