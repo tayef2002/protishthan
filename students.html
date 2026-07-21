@@ -750,6 +750,7 @@ async function init(){
   if(inst){
     currentInstitution = inst;
     document.getElementById('instNameSidebar').textContent = inst.name;
+    await fixWrongClassName();
     loadStudents();
     loadClassOptions();
   } else {
@@ -759,6 +760,17 @@ async function init(){
       <p>আপনার account এ প্রতিষ্ঠানের তথ্য সংযুক্ত নেই। Settings থেকে যোগ করুন বা নতুন account খুলুন।</p>
     `;
   }
+}
+
+async function fixWrongClassName(){
+  if(!currentInstitution) return;
+  const { data: classes } = await sb.from('classes').select('id,name').eq('institution_id', currentInstitution.id);
+  if(!classes) return;
+  const wrongClass   = classes.find(c => c.name === '৩য় শ্রেনী');
+  const correctClass = classes.find(c => c.name === '৩য় শ্রেণী');
+  if(!wrongClass || !correctClass) return;
+  await sb.from('students').update({ class_id: correctClass.id, class_name: correctClass.name }).eq('class_id', wrongClass.id);
+  await sb.from('classes').delete().eq('id', wrongClass.id);
 }
 
 async function backfillStudentIds(){
