@@ -764,13 +764,15 @@ async function init(){
 
 async function fixWrongClassName(){
   if(!currentInstitution) return;
-  const { data: classes } = await sb.from('classes').select('id,name').eq('institution_id', currentInstitution.id);
-  if(!classes) return;
-  const wrongClass   = classes.find(c => c.name === '৩য় শ্রেনী');
-  const correctClass = classes.find(c => c.name === '৩য় শ্রেণী');
-  if(!wrongClass || !correctClass) return;
-  await sb.from('students').update({ class_id: correctClass.id, class_name: correctClass.name }).eq('class_id', wrongClass.id);
-  await sb.from('classes').delete().eq('id', wrongClass.id);
+  const WRONG_ID   = 'e74fabb2-839f-41f7-823e-129688634c30';
+  const CORRECT_ID = 'a34b17a7-fe0d-40ca-a97f-af303cd6898c';
+  const CORRECT_NAME = '৩য় শ্রেণী';
+  const { error: moveErr } = await sb.from('students')
+    .update({ class_id: CORRECT_ID, class_name: CORRECT_NAME })
+    .eq('institution_id', currentInstitution.id)
+    .eq('class_id', WRONG_ID);
+  if(moveErr){ console.error('fixWrongClassName move error:', moveErr); return; }
+  await sb.from('classes').delete().eq('id', WRONG_ID);
 }
 
 async function backfillStudentIds(){
