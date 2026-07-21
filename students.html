@@ -764,15 +764,14 @@ async function init(){
 
 async function fixWrongClassName(){
   if(!currentInstitution) return;
-  const WRONG_ID   = 'e74fabb2-839f-41f7-823e-129688634c30';
-  const CORRECT_ID = 'a34b17a7-fe0d-40ca-a97f-af303cd6898c';
-  const CORRECT_NAME = '৩য় শ্রেণী';
-  const { error: moveErr } = await sb.from('students')
-    .update({ class_id: CORRECT_ID, class_name: CORRECT_NAME })
-    .eq('institution_id', currentInstitution.id)
-    .eq('class_id', WRONG_ID);
-  if(moveErr){ console.error('fixWrongClassName move error:', moveErr); return; }
-  await sb.from('classes').delete().eq('id', WRONG_ID);
+  const migrations = [
+    { wrongId: 'e74fabb2-839f-41f7-823e-129688634c30', correctId: 'a34b17a7-fe0d-40ca-a97f-af303cd6898c', correctName: '৩য় শ্রেণী' },
+    { wrongId: '1879feef-866d-48a4-b7cf-ee1ba1db7665', correctId: '135b2fca-e11d-4628-a815-430dd4b5a63d', correctName: 'হিফজ - তাকমীল' },
+  ];
+  for(const m of migrations){
+    await sb.from('students').update({ class_id: m.correctId, class_name: m.correctName }).eq('institution_id', currentInstitution.id).eq('class_id', m.wrongId);
+    await sb.from('classes').delete().eq('id', m.wrongId);
+  }
 }
 
 async function backfillStudentIds(){
