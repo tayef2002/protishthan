@@ -1771,30 +1771,14 @@ async function doFinalizeAttendance(){
 
 let myClasses = [];
 async function loadMyClasses(){
-  const classIds = new Set();
-  const instId = teacher.institution_id;
+  // Always refresh primary_class_id from DB
+  const { data: freshTeacher } = await sb.from('teachers').select('primary_class_id').eq('id', teacher.id).single();
+  if(freshTeacher?.primary_class_id) teacher.primary_class_id = freshTeacher.primary_class_id;
 
-  // Run all 3 queries in parallel for speed
-  const [freshTeacherRes, tcsRes, directRes] = await Promise.all([
-    // 1. Fresh primary_class_id from teachers table
-    sb.from('teachers').select('primary_class_id').eq('id', teacher.id).single(),
-    // 2. All classes from teacher_class_subjects (wizard / edit saves)
-    sb.from('teacher_class_subjects').select('class_id').eq('teacher_id', teacher.id),
-    // 3. Classes where admin directly set teacher_id = this teacher (homeroom / direct assign)
-    instId
-      ? sb.from('classes').select('id').eq('institution_id', instId).eq('teacher_id', teacher.id)
-      : Promise.resolve({ data: [] })
-  ]);
-
-  if(freshTeacherRes.data?.primary_class_id){
-    teacher.primary_class_id = freshTeacherRes.data.primary_class_id;
-    classIds.add(freshTeacherRes.data.primary_class_id);
-  }
-  (tcsRes.data||[]).forEach(p=>{ if(p.class_id) classIds.add(p.class_id); });
-  (directRes.data||[]).forEach(c=>{ if(c.id) classIds.add(c.id); });
-
-  if(classIds.size){
-    const { data, error } = await sb.from('classes').select('*').in('id', Array.from(classIds));
+  // Teacher sees ONLY their primary class
+  const primaryId = teacher.primary_class_id;
+  if(primaryId){
+    const { data, error } = await sb.from('classes').select('*').eq('id', primaryId);
     myClasses = (!error && data) ? data : [];
   } else {
     myClasses = [];
@@ -2679,21 +2663,18 @@ async function loadTeacherRoutine(){
   if(_ttrLoaded){ renderTeacherRoutine(); return; }
   if(!teacher?.id) return;
 
-  // Get classes this teacher is assigned to (primary + additional)
-  const [{ data: tcLinks },{ data: primaryClasses }] = await Promise.all([
-    sb.from('teacher_class_subjects').select('class_id, subject_name').eq('teacher_id', teacher.id),
-    sb.from('classes').select('id,name,section').eq('teacher_id', teacher.id)
-  ]);
+  // Only use primary class — teacher sees their own class only
+  const primaryClassId = teacher.primary_class_id;
+  if(!primaryClassId){ _ttrLoaded=true; renderTeacherRoutine(); return; }
 
-  // Collect all class_ids this teacher touches
-  const classIds = [...new Set([
-    ...(tcLinks||[]).map(r=>r.class_id),
-    ...(primaryClasses||[]).map(c=>c.id)
-  ])];
+  const { data: tcLinks } = await sb.from('teacher_class_subjects')
+    .select('class_id, subject_name')
+    .eq('teacher_id', teacher.id)
+    .eq('class_id', primaryClassId);
 
-  if(!classIds.length){ _ttrLoaded=true; renderTeacherRoutine(); return; }
+  const classIds = [primaryClassId];
 
-  // Load subjects for those classes
+  // Load subjects for primary class only
   const { data: allSubjects } = await sb.from('class_subjects').select('*, classes(name,section)').in('class_id', classIds);
 
   // Build teacher's subject list: only subjects assigned to this teacher via teacher_class_subjects
@@ -3784,30 +3765,32 @@ async function tqpLoadTeacherMeta(){
     }
     return;
   }
-  const [pairsRes, primaryRes, instRes] = await Promise.all([
-    sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id),
-    sb.from('classes').select('id,name,section,institution_id').eq('teacher_id', teacher.id),
-    teacher.institution_id
-      ? sb.from('institutions').select('*').eq('id', teacher.institution_id).maybeSingle()
-      : Promise.resolve({data:null})
+  // Load institution info
+  if(teacher.institution_id){
+    const {data:inst} = await sb.from('institutions').select('*').eq('id', teacher.institution_id).maybeSingle();
+    if(inst) institution = inst;
+  }
+
+  // Teacher sees ONLY their primary class
+  const primaryId = teacher.primary_class_id;
+  if(!primaryId){ _tqpTeacherClasses = []; _tqpTeacherSubjects = {}; return; }
+
+  const [{ data: cls }, { data: pairs }] = await Promise.all([
+    sb.from('classes').select('id,name,section,institution_id').eq('id', primaryId),
+    sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id).eq('class_id', primaryId)
   ]);
-  if(instRes.data) institution = instRes.data;
-  const pairs = pairsRes.data||[];
-  const classIds = [...new Set(pairs.map(r=>r.class_id))];
-  const { data: cls } = classIds.length ? await sb.from('classes').select('id,name,section,institution_id').in('id', classIds) : {data:[]};
-  // fallback: get institution from teacher's class if institution_id was missing
+
   if(!institution){
-    const anyInstId = (primaryRes.data||[]).map(c=>c.institution_id).find(Boolean)
-      || (cls||[]).map(c=>c.institution_id).find(Boolean);
+    const anyInstId = (cls||[]).map(c=>c.institution_id).find(Boolean);
     if(anyInstId){
       const {data:fallbackInst} = await sb.from('institutions').select('*').eq('id', anyInstId).maybeSingle();
       if(fallbackInst){ institution = fallbackInst; if(document.getElementById('sidebarInst')) document.getElementById('sidebarInst').textContent=fallbackInst.name; }
     }
   }
-  const allCls = [...(cls||[]), ...(primaryRes.data||[])];
-  _tqpTeacherClasses = allCls.filter((c,i,a)=>a.findIndex(x=>x.id===c.id)===i);
+
+  _tqpTeacherClasses = cls||[];
   _tqpTeacherSubjects = {};
-  pairs.forEach(r=>{
+  (pairs||[]).forEach(r=>{
     if(!_tqpTeacherSubjects[r.class_id]) _tqpTeacherSubjects[r.class_id]=[];
     if(!_tqpTeacherSubjects[r.class_id].includes(r.subject_name)) _tqpTeacherSubjects[r.class_id].push(r.subject_name);
   });
