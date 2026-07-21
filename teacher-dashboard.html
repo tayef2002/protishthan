@@ -1386,6 +1386,8 @@ async function init(){
 
   // Auto-show class setup wizard if teacher has no class assigned yet
   cswCheckAndShow();
+  // Auto-show student setup wizard if teacher already has a class
+  if(teacher.primary_class_id) sswCheckAndShow();
 }
 
 /* ===== ATTENDANCE MARKING ===== */
@@ -5743,6 +5745,8 @@ async function cswSave(){
     cswClose();
     // Reload classes panel
     await loadMyClasses();
+    // After class setup, trigger student setup wizard
+    await sswCheckAndShow();
 
   } catch(err){
     console.error(err);
@@ -6009,6 +6013,350 @@ document.addEventListener('click', function(e){
 
   document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closePicker(); if(_activeBtn) stopVoice(); } });
 })();
+</script>
+
+<!-- ══════════ STUDENT SETUP WIZARD (SSW) ══════════ -->
+<style>
+.ssw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;display:none;align-items:flex-end;justify-content:center}
+.ssw-overlay.open{display:flex}
+.ssw-card{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.15)}
+.ssw-handle{width:36px;height:4px;background:#E2E8F0;border-radius:100px;margin:12px auto 0}
+.ssw-head{padding:16px 22px 12px;border-bottom:1px solid #F1F5F9}
+.ssw-title{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:2px}
+.ssw-subtitle{font-size:12px;color:#64748B;margin-bottom:10px}
+.ssw-prog{height:4px;background:#E2E8F0;border-radius:100px;overflow:hidden}
+.ssw-prog-fill{height:100%;background:linear-gradient(90deg,#3B5BDB,#7C3AED);border-radius:100px;transition:width .4s}
+.ssw-body{flex:1;overflow-y:auto;padding:0 18px 16px}
+.ssw-step{display:none}
+.ssw-step.active{display:block}
+.ssw-footer{padding:12px 18px;border-top:1px solid #F1F5F9;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.ssw-welcome-icon{font-size:48px;text-align:center;margin:20px 0 12px}
+.ssw-welcome-count{background:#EEF2FF;color:#3B5BDB;border-radius:100px;padding:7px 16px;font-size:13px;font-weight:700;text-align:center;margin-bottom:14px}
+.ssw-welcome-msg{font-size:13px;color:#475569;text-align:center;line-height:1.7;margin-bottom:6px}
+.ssw-start-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B5BDB,#7C3AED);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.ssw-later-btn{width:100%;padding:10px;border:none;background:none;color:#94A3B8;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
+.ssw-progress-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0 6px}
+.ssw-progress-name{font-size:14px;font-weight:700;color:#1a1a2e}
+.ssw-progress-count{font-size:11px;color:#64748B;background:#F1F5F9;border-radius:100px;padding:3px 10px;white-space:nowrap}
+.ssw-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ssw-class-badge{display:inline-flex;align-items:center;gap:5px;background:#EEF2FF;color:#3B5BDB;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700}
+.ssw-roll-badge{display:inline-flex;align-items:center;gap:5px;background:#F0FDF4;color:#16A34A;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700}
+.ssw-section-lbl{font-size:11px;font-weight:700;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase;margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid #F1F5F9}
+.ssw-field{margin-bottom:10px}
+.ssw-field label{display:block;font-size:11px;font-weight:600;color:#475569;margin-bottom:4px}
+.ssw-field input,.ssw-field select{width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#fff;box-sizing:border-box;transition:border .15s}
+.ssw-field input:focus,.ssw-field select:focus{border-color:#3B5BDB;background:#FAFBFF}
+.ssw-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ssw-guardian{background:#F8FAFC;border-radius:11px;padding:12px;margin-bottom:10px;border:1px solid #E2E8F0}
+.ssw-guardian-title{font-size:11px;font-weight:700;color:#475569;margin-bottom:8px}
+.ssw-btn-row{display:flex;gap:8px;align-items:center}
+.ssw-btn-prev{padding:10px 13px;border:1.5px solid #E2E8F0;border-radius:9px;background:#fff;color:#64748B;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.ssw-btn-skip{padding:10px 13px;border:1.5px solid #E2E8F0;border-radius:9px;background:#fff;color:#64748B;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;flex:1}
+.ssw-btn-save{padding:10px 16px;border:none;border-radius:9px;background:linear-gradient(135deg,#3B5BDB,#7C3AED);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex:2;display:flex;align-items:center;justify-content:center;gap:6px}
+.ssw-btn-save:disabled{opacity:.6;cursor:not-allowed}
+.ssw-spin2{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.ssw-done-icon{font-size:56px;text-align:center;margin:28px 0 12px}
+.ssw-done-title{font-size:19px;font-weight:800;color:#1a1a2e;text-align:center;margin-bottom:8px}
+.ssw-done-msg{font-size:13px;color:#64748B;text-align:center;line-height:1.7}
+.ssw-done-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B5BDB,#7C3AED);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px}
+</style>
+
+<div class="ssw-overlay" id="sswOverlay">
+  <div class="ssw-card">
+    <div class="ssw-handle"></div>
+    <div class="ssw-head">
+      <div class="ssw-title" id="sswTitle">শিক্ষার্থী সেটআপ</div>
+      <div class="ssw-subtitle" id="sswSubtitle"></div>
+      <div class="ssw-prog"><div class="ssw-prog-fill" id="sswProgFill" style="width:5%"></div></div>
+    </div>
+    <div class="ssw-body">
+
+      <!-- Step 0: Welcome -->
+      <div class="ssw-step active" id="sswS0">
+        <div class="ssw-welcome-icon" id="sswWelcomeIcon">📋</div>
+        <div class="ssw-welcome-count" id="sswWelcomeCount"></div>
+        <div class="ssw-welcome-msg" id="sswWelcomeMsg"></div>
+      </div>
+
+      <!-- Step 1: Student Form -->
+      <div class="ssw-step" id="sswS1">
+        <div class="ssw-progress-row">
+          <div class="ssw-progress-name" id="sswProgressName"></div>
+          <div class="ssw-progress-count" id="sswProgressCount"></div>
+        </div>
+        <div class="ssw-badges">
+          <span class="ssw-class-badge">🏫 <span id="sswClassBadge"></span></span>
+          <span class="ssw-roll-badge">রোল <span id="sswRollBadge"></span></span>
+        </div>
+        <div class="ssw-section-lbl">শিক্ষার্থীর তথ্য</div>
+        <div class="ssw-field">
+          <label>শিক্ষার্থীর নাম *</label>
+          <input type="text" id="sswName" placeholder="যেমন: রাফিউল ইসলাম">
+        </div>
+        <div class="ssw-row">
+          <div class="ssw-field">
+            <label>লিঙ্গ</label>
+            <select id="sswGender"><option value="male">ছেলে</option><option value="female">মেয়ে</option></select>
+          </div>
+          <div class="ssw-field">
+            <label>জন্ম তারিখ</label>
+            <input type="date" id="sswDob">
+          </div>
+        </div>
+        <div class="ssw-field">
+          <label>ঠিকানা</label>
+          <input type="text" id="sswAddress" placeholder="যেমন: বানিয়াচং, হবিগঞ্জ">
+        </div>
+        <div class="ssw-field">
+          <label>শিক্ষার্থীর ফোন <span style="font-weight:400;color:#94A3B8">(ঐচ্ছিক)</span></label>
+          <input type="tel" id="sswPhone" placeholder="01XXXXXXXXX" inputmode="numeric">
+        </div>
+
+        <div class="ssw-section-lbl">ভর্তির তথ্য <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(ঐচ্ছিক)</span></div>
+        <div class="ssw-row">
+          <div class="ssw-field"><label>দাখিলা নং</label><input type="text" id="sswDakhila" placeholder="যেমন: ১২৩"></div>
+          <div class="ssw-field"><label>নতুন / পুরাতন</label>
+            <select id="sswNotunPuraton"><option value="">নির্বাচন করুন</option><option value="নতুন">নতুন</option><option value="পুরাতন">পুরাতন</option></select>
+          </div>
+          <div class="ssw-field"><label>শিক্ষাবর্ষ (হিজরি)</label><input type="text" id="sswHijri" placeholder="যেমন: ১৪৪৬"></div>
+          <div class="ssw-field"><label>শিক্ষাবর্ষ (ইংরেজি)</label><input type="text" id="sswEnglish" placeholder="যেমন: ২০২৫"></div>
+          <div class="ssw-field"><label>বিভাগ</label><input type="text" id="sswDept" placeholder="যেমন: হিফজ, নূরানী"></div>
+          <div class="ssw-field"><label>ভর্তি ফি (টাকা)</label><input type="number" id="sswFeeAmount" placeholder="যেমন: ৫০০"></div>
+        </div>
+
+        <div class="ssw-section-lbl">বর্তমান ঠিকানা <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(ঐচ্ছিক)</span></div>
+        <div class="ssw-row">
+          <div class="ssw-field"><label>গ্রাম / মহল্লা</label><input type="text" id="sswVillage" placeholder="যেমন: উত্তরপাড়া"></div>
+          <div class="ssw-field"><label>ডাকঘর</label><input type="text" id="sswPost" placeholder="যেমন: বানিয়াচং বাজার"></div>
+          <div class="ssw-field"><label>উপজেলা</label><input type="text" id="sswUpazila" placeholder="যেমন: বানিয়াচং"></div>
+          <div class="ssw-field"><label>জেলা</label><input type="text" id="sswDistrict" placeholder="যেমন: হবিগঞ্জ"></div>
+        </div>
+
+        <div class="ssw-section-lbl">অভিভাবকের তথ্য</div>
+        <div class="ssw-guardian">
+          <div class="ssw-guardian-title">👨 পিতার তথ্য</div>
+          <div class="ssw-row">
+            <div class="ssw-field"><label>পিতার নাম</label><input type="text" id="sswFatherName" placeholder="যেমন: মোঃ করিম"></div>
+            <div class="ssw-field"><label>মোবাইল নম্বর</label><input type="tel" id="sswFatherPhone" placeholder="01XXXXXXXXX" inputmode="numeric"></div>
+          </div>
+        </div>
+        <div class="ssw-guardian">
+          <div class="ssw-guardian-title">👩 মাতার তথ্য</div>
+          <div class="ssw-row">
+            <div class="ssw-field"><label>মাতার নাম</label><input type="text" id="sswMotherName" placeholder="যেমন: রোকেয়া বেগম"></div>
+            <div class="ssw-field"><label>মোবাইল নম্বর</label><input type="tel" id="sswMotherPhone" placeholder="01XXXXXXXXX" inputmode="numeric"></div>
+          </div>
+        </div>
+
+        <div class="ssw-section-lbl">অন্যান্য <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(ঐচ্ছিক)</span></div>
+        <div class="ssw-row">
+          <div class="ssw-field"><label>পূর্ববর্তী প্রতিষ্ঠান</label><input type="text" id="sswPrevInst" placeholder="যেমন: জামিয়া ইসলামিয়া"></div>
+          <div class="ssw-field"><label>পূর্ববর্তী শ্রেণী</label><input type="text" id="sswPrevClass" placeholder="যেমন: প্রথম"></div>
+        </div>
+        <input type="hidden" id="sswEditStudentId">
+        <input type="hidden" id="sswEditFatherId">
+        <input type="hidden" id="sswEditMotherId">
+      </div>
+
+      <!-- Step 2: Done -->
+      <div class="ssw-step" id="sswS2">
+        <div class="ssw-done-icon">✅</div>
+        <div class="ssw-done-title">সেটআপ সম্পন্ন!</div>
+        <div class="ssw-done-msg" id="sswDoneMsg"></div>
+      </div>
+
+    </div>
+    <div class="ssw-footer" id="sswFooter"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════ STUDENT SETUP WIZARD (SSW) ══════════ */
+const SSW = { mode:'add', classId:null, className:'', students:[], idx:0, maxRoll:0, usedSids:new Set(), savedCount:0 };
+
+function sswNormalizePhone(p){
+  if(!p) return '';
+  p = p.replace(/[^\d]/g,'');
+  if(p.startsWith('88') && p.length===13) p=p.slice(2);
+  if(!p.startsWith('0') && p.length===10) p='0'+p;
+  return /^01[0-9]{9}$/.test(p) ? p : p;
+}
+
+async function sswCheckAndShow(){
+  if(!teacher || !teacher.primary_class_id) return;
+  if(localStorage.getItem('ssw_done_'+teacher.id)) return;
+  const {data:cls} = await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
+  if(!cls) return;
+  SSW.classId = cls.id; SSW.className = cls.name;
+  const {data:students} = await sb.from('students').select('*').eq('institution_id',teacher.institution_id).eq('class_id',cls.id).order('roll_number',{ascending:true});
+  SSW.maxRoll = 0;
+  (students||[]).forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
+  if(students && students.length > 0){
+    SSW.mode='review'; SSW.students=students;
+  } else {
+    SSW.mode='add'; SSW.students=[];
+    const {data:sids} = await sb.from('students').select('student_id').eq('institution_id',teacher.institution_id);
+    SSW.usedSids = new Set((sids||[]).map(s=>s.student_id).filter(Boolean));
+  }
+  SSW.idx=0; SSW.savedCount=0;
+  sswShowWelcome();
+}
+
+function sswShowWelcome(){
+  document.getElementById('sswTitle').textContent='শিক্ষার্থী সেটআপ';
+  document.getElementById('sswSubtitle').textContent=SSW.className;
+  document.getElementById('sswProgFill').style.width='5%';
+  document.querySelectorAll('.ssw-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sswS0').classList.add('active');
+  if(SSW.mode==='review'){
+    const c=SSW.students.length;
+    document.getElementById('sswWelcomeIcon').textContent='📋';
+    document.getElementById('sswWelcomeCount').textContent='📚 '+c+' জন শিক্ষার্থী পাওয়া গেছে';
+    document.getElementById('sswWelcomeMsg').textContent='আপনার ক্লাসে '+c+' জন শিক্ষার্থী আছে। প্রতিটির তথ্য একবার দেখুন ও প্রয়োজনে সংশোধন করুন। "Save ও পরবর্তী" চাপলে পরের জন আসবে।';
+  } else {
+    document.getElementById('sswWelcomeIcon').textContent='➕';
+    document.getElementById('sswWelcomeCount').textContent='🏫 '+SSW.className;
+    document.getElementById('sswWelcomeMsg').textContent='এই ক্লাসে এখনো কোনো শিক্ষার্থী যোগ করা হয়নি। আপনি এখন একে একে শিক্ষার্থীদের তথ্য দিতে পারেন। রোল নম্বর ও শিক্ষার্থী ID স্বয়ংক্রিয়ভাবে বসে যাবে।';
+  }
+  document.getElementById('sswFooter').innerHTML='<button class="ssw-start-btn" onclick="sswStartFlow()">শুরু করুন →</button><button class="ssw-later-btn" onclick="sswLater()">এখন নয়, পরে করব</button>';
+  document.getElementById('sswOverlay').classList.add('open');
+}
+
+function sswLater(){ document.getElementById('sswOverlay').classList.remove('open'); }
+
+async function sswStartFlow(){ SSW.idx=0; await sswLoadForm(); }
+
+async function sswLoadForm(){
+  document.querySelectorAll('.ssw-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sswS1').classList.add('active');
+  sswClearForm();
+  const total = SSW.mode==='review' ? SSW.students.length : '?';
+  const prog = SSW.mode==='review' ? Math.round((SSW.idx/SSW.students.length)*85+10) : 50;
+  document.getElementById('sswProgFill').style.width=prog+'%';
+  document.getElementById('sswClassBadge').textContent=SSW.className;
+  if(SSW.mode==='review'){
+    const stu=SSW.students[SSW.idx];
+    document.getElementById('sswProgressCount').textContent=(SSW.idx+1)+'/'+total+' জন';
+    document.getElementById('sswProgressName').textContent=stu.full_name||('রোল '+(stu.roll_number||''));
+    document.getElementById('sswRollBadge').textContent=stu.roll_number||(SSW.idx+1);
+    document.getElementById('sswName').value=stu.full_name||'';
+    document.getElementById('sswGender').value=stu.gender||'male';
+    document.getElementById('sswDob').value=stu.date_of_birth||'';
+    document.getElementById('sswAddress').value=stu.address||'';
+    document.getElementById('sswPhone').value=stu.phone||'';
+    const ex=stu.extra_data||{};
+    document.getElementById('sswDakhila').value=ex.dakhila_no||'';
+    document.getElementById('sswNotunPuraton').value=ex.notun_puraton||'';
+    document.getElementById('sswHijri').value=ex.shikkha_borsho_hijri||'';
+    document.getElementById('sswEnglish').value=ex.shikkha_borsho_english||'';
+    document.getElementById('sswDept').value=ex.dept||'';
+    document.getElementById('sswFeeAmount').value=ex.fee_amount||'';
+    const pa=ex.present_address||{};
+    document.getElementById('sswVillage').value=pa.village||'';
+    document.getElementById('sswPost').value=pa.post||'';
+    document.getElementById('sswUpazila').value=pa.upazila||'';
+    document.getElementById('sswDistrict').value=pa.district||'';
+    document.getElementById('sswPrevInst').value=ex.prev_institution||'';
+    document.getElementById('sswPrevClass').value=ex.prev_class||'';
+    document.getElementById('sswEditStudentId').value=stu.id;
+    const {data:gds}=await sb.from('guardians').select('*').eq('student_id',stu.id);
+    const fa=(gds||[]).find(g=>g.relation==='পিতা');
+    const mo=(gds||[]).find(g=>g.relation==='মাতা');
+    document.getElementById('sswFatherName').value=fa?.full_name||'';
+    document.getElementById('sswFatherPhone').value=fa?.phone||'';
+    document.getElementById('sswMotherName').value=mo?.full_name||'';
+    document.getElementById('sswMotherPhone').value=mo?.phone||'';
+    document.getElementById('sswEditFatherId').value=fa?.id||'';
+    document.getElementById('sswEditMotherId').value=mo?.id||'';
+  } else {
+    const nextRoll=SSW.maxRoll+SSW.idx+1;
+    document.getElementById('sswProgressCount').textContent='রোল '+nextRoll;
+    document.getElementById('sswProgressName').textContent='নতুন শিক্ষার্থী';
+    document.getElementById('sswRollBadge').textContent=nextRoll;
+    document.getElementById('sswEditStudentId').value='';
+    document.getElementById('sswEditFatherId').value='';
+    document.getElementById('sswEditMotherId').value='';
+  }
+  const isFirst=SSW.idx===0;
+  const isLast=SSW.mode==='review'&&SSW.idx===SSW.students.length-1;
+  document.getElementById('sswFooter').innerHTML=`<div class="ssw-btn-row">${!isFirst?'<button class="ssw-btn-prev" onclick="sswPrev()">← আগের</button>':''}<button class="ssw-btn-skip" onclick="sswSkip()">এড়িয়ে যান</button><button class="ssw-btn-save" id="sswSaveBtn" onclick="sswSaveAndNext()">${isLast?'💾 Save ও সম্পন্ন':'💾 Save ও পরবর্তী →'}<span class="ssw-spin2" id="sswSpin2"></span></button></div>`;
+  setTimeout(()=>{ document.getElementById('sswName').focus(); },200);
+}
+
+function sswClearForm(){
+  ['sswName','sswDob','sswAddress','sswPhone','sswDakhila','sswHijri','sswEnglish','sswDept','sswFeeAmount','sswVillage','sswPost','sswUpazila','sswDistrict','sswPrevInst','sswPrevClass','sswFatherName','sswFatherPhone','sswMotherName','sswMotherPhone','sswEditStudentId','sswEditFatherId','sswEditMotherId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('sswGender').value='male';
+  document.getElementById('sswNotunPuraton').value='';
+}
+
+async function sswSaveAndNext(){
+  const name=document.getElementById('sswName').value.trim();
+  if(!name){ document.getElementById('sswName').style.borderColor='#EF4444'; document.getElementById('sswName').focus(); return; }
+  document.getElementById('sswName').style.borderColor='';
+  const btn=document.getElementById('sswSaveBtn');
+  const spin=document.getElementById('sswSpin2');
+  btn.disabled=true; spin.style.display='inline-block';
+  try{
+    const editId=document.getElementById('sswEditStudentId').value;
+    const fatherId=document.getElementById('sswEditFatherId').value;
+    const motherId=document.getElementById('sswEditMotherId').value;
+    const phone=sswNormalizePhone(document.getElementById('sswPhone').value.trim());
+    const fPhone=sswNormalizePhone(document.getElementById('sswFatherPhone').value.trim());
+    const mPhone=sswNormalizePhone(document.getElementById('sswMotherPhone').value.trim());
+    const extraData={
+      dakhila_no:document.getElementById('sswDakhila').value.trim()||null,
+      notun_puraton:document.getElementById('sswNotunPuraton').value||null,
+      shikkha_borsho_hijri:document.getElementById('sswHijri').value.trim()||null,
+      shikkha_borsho_english:document.getElementById('sswEnglish').value.trim()||null,
+      dept:document.getElementById('sswDept').value.trim()||null,
+      fee_amount:document.getElementById('sswFeeAmount').value?parseFloat(document.getElementById('sswFeeAmount').value):null,
+      present_address:{village:document.getElementById('sswVillage').value.trim(),post:document.getElementById('sswPost').value.trim(),upazila:document.getElementById('sswUpazila').value.trim(),district:document.getElementById('sswDistrict').value.trim()},
+      prev_institution:document.getElementById('sswPrevInst').value.trim()||null,
+      prev_class:document.getElementById('sswPrevClass').value.trim()||null,
+    };
+    let studentDbId=editId;
+    if(editId){
+      await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:document.getElementById('sswDob').value||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+    } else {
+      const roll=SSW.maxRoll+SSW.idx+1;
+      let newSid; do{ newSid=String(Math.floor(10000+Math.random()*90000)); }while(SSW.usedSids.has(newSid));
+      SSW.usedSids.add(newSid);
+      const {data:stu,error:stuErr}=await sb.from('students').insert({institution_id:teacher.institution_id,full_name:name,class_name:SSW.className,class_id:SSW.classId,roll_number:roll,gender:document.getElementById('sswGender').value,date_of_birth:document.getElementById('sswDob').value||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,is_active:true,student_id:newSid,extra_data:extraData}).select().single();
+      if(stuErr) throw stuErr;
+      studentDbId=stu.id;
+    }
+    const fn=document.getElementById('sswFatherName').value.trim();
+    const mn=document.getElementById('sswMotherName').value.trim();
+    if(fn){ if(fatherId){ await sb.from('guardians').update({full_name:fn,phone:fPhone,whatsapp_number:fPhone}).eq('id',fatherId); } else { await sb.from('guardians').insert({student_id:studentDbId,full_name:fn,relation:'পিতা',phone:fPhone,whatsapp_number:fPhone}); } }
+    if(mn){ if(motherId){ await sb.from('guardians').update({full_name:mn,phone:mPhone,whatsapp_number:mPhone}).eq('id',motherId); } else { await sb.from('guardians').insert({student_id:studentDbId,full_name:mn,relation:'মাতা',phone:mPhone,whatsapp_number:mPhone}); } }
+    SSW.savedCount++;
+    const isLast=SSW.mode==='review'&&SSW.idx>=SSW.students.length-1;
+    if(isLast||SSW.mode==='add'){ sswShowDone(); } else { SSW.idx++; await sswLoadForm(); }
+  } catch(err){
+    alert('সেভ করতে সমস্যা: '+err.message);
+    btn.disabled=false; spin.style.display='none';
+  }
+}
+
+function sswSkip(){
+  const isLast=SSW.mode==='review'&&SSW.idx>=SSW.students.length-1;
+  if(SSW.mode==='add'||isLast){ sswShowDone(); return; }
+  SSW.idx++; sswLoadForm();
+}
+
+function sswPrev(){ if(SSW.idx>0){ SSW.idx--; sswLoadForm(); } }
+
+function sswShowDone(){
+  document.querySelectorAll('.ssw-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sswS2').classList.add('active');
+  document.getElementById('sswProgFill').style.width='100%';
+  const msg=SSW.mode==='review'?SSW.savedCount+' জন শিক্ষার্থীর তথ্য আপডেট করা হয়েছে।':SSW.savedCount+' জন নতুন শিক্ষার্থী যোগ করা হয়েছে।';
+  document.getElementById('sswDoneMsg').textContent=msg+' এখন Dashboard থেকে সব কিছু দেখতে পারবেন।';
+  document.getElementById('sswFooter').innerHTML='<button class="ssw-done-btn" onclick="sswFinish()">✅ Dashboard-এ যান</button>';
+  localStorage.setItem('ssw_done_'+teacher.id,'1');
+}
+
+function sswFinish(){ document.getElementById('sswOverlay').classList.remove('open'); }
 </script>
 
 </body>
