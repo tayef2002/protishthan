@@ -803,7 +803,7 @@ async function loadStudents(){
     .from('students')
     .select('*, guardians(*)')
     .eq('institution_id', currentInstitution.id)
-    .order('created_at', { ascending: false });
+    .order('roll_number', { ascending: true });
 
   if(error){ console.error(error); return; }
   allStudents = data || [];
