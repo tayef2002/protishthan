@@ -137,6 +137,7 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
 .sch-item.soon{border-color:#FDE68A;box-shadow:0 2px 10px rgba(245,158,11,.1)}
 .sch-item.done{opacity:.48}
 .sch-item.upcoming{border-color:var(--border)}
+.sch-item.rest{background:#FAFAFA;border:1.5px dashed #CBD5E1;opacity:.85}
 .sch-accent{width:5px;flex-shrink:0}
 .sch-item.now .sch-accent{background:var(--green)}
 .sch-item.soon .sch-accent{background:var(--amber)}
@@ -4633,6 +4634,7 @@ function todayDayShort(){ return BD_DAYS_SHORT[getBDDate().getDay()]; }
 function todayDayFull(){  return BD_DAYS_FULL[getBDDate().getDay()]; }
 
 function timeToMin(t){ if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+m; }
+function minToTime(min){ const h=Math.floor(min/60),m=min%60; return (h<10?'0':'')+h+':'+(m<10?'0':'')+m; }
 function nowMinBD(){ const d=getBDDate(); return d.getHours()*60+d.getMinutes(); }
 
 function fmtTime(t){
@@ -4718,7 +4720,41 @@ function renderScheduleList(){
     </div>
     <div class="sch-day-bar"><div class="sch-day-fill" style="width:${pctDay}%"></div></div>`;
 
-  const items = todaySchedule.map(s=>{
+  // Build interleaved list: class items + rest gaps between them
+  const interleaved = [];
+  for(let i=0; i<todaySchedule.length; i++){
+    interleaved.push({_type:'class', ...todaySchedule[i]});
+    if(i < todaySchedule.length-1){
+      const thisEndM  = todaySchedule[i].end_time ? timeToMin(todaySchedule[i].end_time) : timeToMin(todaySchedule[i].start_time)+45;
+      const nextStartM = timeToMin(todaySchedule[i+1].start_time);
+      if(nextStartM > thisEndM){
+        interleaved.push({_type:'rest', start_time: minToTime(thisEndM), end_time: minToTime(nextStartM), _dur: nextStartM-thisEndM});
+      }
+    }
+  }
+
+  const items = interleaved.map(s=>{
+    // ── REST CARD ──
+    if(s._type === 'rest'){
+      const restNow = now >= timeToMin(s.start_time) && now < timeToMin(s.end_time);
+      return `<div class="sch-item rest">
+        <div class="sch-accent" style="background:#CBD5E1"></div>
+        <div class="sch-body">
+          <div class="sch-top-row">
+            <span class="sch-subj" style="color:var(--text-2);font-size:13.5px">বিশ্রাম</span>
+            ${restNow ? '<span class="sch-badge" style="background:#F1F5F9;color:#64748B;border:1px solid #CBD5E1">এখন</span>' : ''}
+          </div>
+          <div class="sch-time-row">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 3"/></svg>
+            ${fmtTime(s.start_time)} – ${fmtTime(s.end_time)}
+            <span class="sch-dur">${s._dur} মিনিট</span>
+          </div>
+        </div>
+        <div class="sch-icon-col" style="opacity:.5">☕</div>
+      </div>`;
+    }
+
+    // ── CLASS CARD ──
     const startM  = timeToMin(s.start_time);
     const endM    = s.end_time ? timeToMin(s.end_time) : startM+45;
     const diff    = startM - now;
