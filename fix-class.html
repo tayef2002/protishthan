@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class Fix</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 60px auto; padding: 20px; background: #f8f9fa; }
+  .card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  h2 { margin: 0 0 8px; font-size: 20px; color: #1a1a2e; }
+  p { color: #666; font-size: 14px; margin: 0 0 24px; }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: #3B5BDB; color: white; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn:disabled { background: #aaa; cursor: not-allowed; }
+  .log { margin-top: 20px; background: #f1f3f5; border-radius: 10px; padding: 16px; font-size: 13px; line-height: 1.8; display: none; white-space: pre-wrap; color: #333; }
+  .ok { color: #2f9e44; font-weight: 700; }
+  .err { color: #c92a2a; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>৩য় শ্রেণী ক্লাস ঠিক করুন</h2>
+  <p>
+    "৩য় শ্রেনী" (ভুল — নী) তে যে সব শিক্ষার্থী আছে তাদের "৩য় শ্রেণী" (সঠিক — ণী) তে সরিয়ে নেবে এবং ভুল class টি মুছে দেবে।
+  </p>
+  <button class="btn" onclick="runFix()">ঠিক করুন</button>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-inst' } }
+);
+
+function log(msg, type) {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.innerHTML += `<span class="${type||''}">${msg}</span>\n`;
+}
+
+async function runFix() {
+  const btn = document.querySelector('.btn');
+  btn.disabled = true;
+  btn.textContent = 'চলছে...';
+
+  // Check login
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { log('❌ লগইন করা নেই। আগে students page থেকে লগইন করুন।', 'err'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+
+  const userId = session.user.id;
+
+  // Get institution
+  const { data: inst } = await sb.from('institutions').select('id,name').eq('owner_id', userId).single();
+  if (!inst) { log('❌ প্রতিষ্ঠান খুঁজে পাওয়া যায়নি।', 'err'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+  log(`প্রতিষ্ঠান: ${inst.name}`);
+
+  // Get all classes
+  const { data: classes } = await sb.from('classes').select('id,name,section').eq('institution_id', inst.id);
+  log(`মোট class: ${classes?.length}`);
+  classes?.forEach(c => log(`  → "${c.name}"${c.section?' ('+c.section+')':''} [id: ${c.id}]`));
+
+  const wrongClass   = classes?.find(c => c.name === '৩য় শ্রেনী');   // ভুল (নী)
+  const correctClass = classes?.find(c => c.name === '৩য় শ্রেণী');  // সঠিক (ণী)
+
+  if (!wrongClass) { log('✅ "৩য় শ্রেনী" (ভুল) class নেই — ইতিমধ্যে ঠিক আছে।', 'ok'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+  if (!correctClass) { log('❌ "৩য় শ্রেণী" (সঠিক) class খুঁজে পাওয়া যায়নি।', 'err'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+
+  log(`\nভুল class id: ${wrongClass.id}`);
+  log(`সঠিক class id: ${correctClass.id}`);
+
+  // Count students in wrong class
+  const { data: wrongStudents } = await sb.from('students').select('id,full_name').eq('class_id', wrongClass.id);
+  log(`\nভুল class-এ শিক্ষার্থী: ${wrongStudents?.length} জন`);
+  wrongStudents?.forEach(s => log(`  → ${s.full_name}`));
+
+  if (wrongStudents?.length > 0) {
+    // Move students
+    const { data: moved, error: moveErr } = await sb.from('students')
+      .update({ class_id: correctClass.id, class_name: correctClass.name })
+      .eq('class_id', wrongClass.id)
+      .select('id,full_name');
+
+    if (moveErr) { log(`❌ Student move error: ${moveErr.message}`, 'err'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+    log(`\n✅ ${moved?.length} জন শিক্ষার্থী "৩য় শ্রেণী"-তে সরানো হয়েছে।`, 'ok');
+  }
+
+  // Delete wrong class
+  const { error: delErr } = await sb.from('classes').delete().eq('id', wrongClass.id);
+  if (delErr) { log(`❌ Class delete error: ${delErr.message}`, 'err'); btn.disabled=false; btn.textContent='ঠিক করুন'; return; }
+
+  log(`✅ "৩য় শ্রেনী" (ভুল) class মুছে ফেলা হয়েছে।`, 'ok');
+  log(`\n🎉 সম্পন্ন! এখন students page-এ যান।`, 'ok');
+  btn.textContent = '✅ সম্পন্ন';
+}
+</script>
+</body>
+</html>
