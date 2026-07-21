@@ -57,10 +57,11 @@ body{display:flex}
 
 .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
 @media (max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
-.stat-card{background:white;border:1px solid var(--border);border-radius:var(--rl);padding:18px}
-.stat-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
-.stat-val{font-size:24px;font-weight:800;letter-spacing:-.5px}
-.stat-lbl{font-size:12px;color:var(--text-2);margin-top:2px}
+.stat-card{background:white;border:1px solid var(--border);border-radius:var(--rl);padding:18px;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.stat-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.stat-val{font-size:22px;font-weight:900;letter-spacing:-.5px;color:var(--text)}
+.stat-lbl{font-size:11.5px;color:var(--text-2);margin-top:3px;font-weight:600}
 
 .card{background:white;border:1px solid var(--border);border-radius:var(--rxl);padding:20px;margin-bottom:20px}
 .btn-add{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 16px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#fff}
@@ -124,27 +125,39 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
 .m-ov-ampm{font-size:13px;font-weight:800;padding:5px 11px;border-radius:100px;background:var(--purple-l);color:var(--purple);border:1px solid #DDD6FE;margin-left:12px;align-self:center;-webkit-text-fill-color:var(--purple)}
 .m-ov-date{font-size:12px;color:var(--text-3);margin-top:6px;font-weight:500}
 @media(max-width:768px){.m-ov-clock-card{display:block}}
-/* Schedule */
-.sch-empty{text-align:center;padding:24px 20px;color:var(--text-3);font-size:13px}
-.sch-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;margin-bottom:7px;background:var(--surface);border:1.5px solid transparent;transition:all .2s}
-.sch-item.now{background:var(--green-l);border-color:#6EE7B7}
-.sch-item.soon{background:var(--amber-l);border-color:#FDE68A}
-.sch-item.done{opacity:.45}
-.sch-time-col{display:flex;flex-direction:column;align-items:flex-end;min-width:68px;flex-shrink:0}
-.sch-st{font-size:12.5px;font-weight:700;color:var(--text)}
-.sch-et{font-size:11px;color:var(--text-3)}
-.sch-bar{width:3px;height:36px;border-radius:100px;background:var(--border);flex-shrink:0}
-.sch-item.now .sch-bar{background:var(--green)}
-.sch-item.soon .sch-bar{background:var(--amber)}
-.sch-item.done .sch-bar{background:#CBD5E1}
-.sch-info{flex:1;min-width:0}
-.sch-subj{font-size:14px;font-weight:700;color:var(--text)}
-.sch-cls{font-size:11.5px;color:var(--text-3);margin-top:1px}
-.sch-badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:100px;white-space:nowrap;flex-shrink:0}
+/* Schedule Cards */
+.sch-empty{text-align:center;padding:32px 20px;color:var(--text-3);font-size:13px}
+.sch-progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sch-ph-label{font-size:12px;font-weight:700;color:var(--text-2)}
+.sch-ph-count{font-size:12px;font-weight:700;color:var(--purple)}
+.sch-day-bar{height:5px;border-radius:100px;background:var(--border);margin-bottom:14px;overflow:hidden}
+.sch-day-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--purple),var(--blue));transition:width .6s}
+.sch-item{display:flex;align-items:stretch;border-radius:14px;margin-bottom:10px;background:white;border:1.5px solid var(--border);overflow:hidden;transition:all .2s}
+.sch-item.now{border-color:#6EE7B7;box-shadow:0 3px 14px rgba(16,185,129,.13)}
+.sch-item.soon{border-color:#FDE68A;box-shadow:0 2px 10px rgba(245,158,11,.1)}
+.sch-item.done{opacity:.48}
+.sch-item.upcoming{border-color:var(--border)}
+.sch-accent{width:5px;flex-shrink:0}
+.sch-item.now .sch-accent{background:var(--green)}
+.sch-item.soon .sch-accent{background:var(--amber)}
+.sch-item.done .sch-accent{background:#CBD5E1}
+.sch-item.upcoming .sch-accent{background:var(--blue)}
+.sch-body{flex:1;padding:12px 13px;min-width:0}
+.sch-top-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.sch-subj{font-size:14.5px;font-weight:800;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sch-time-row{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);font-weight:600;flex-wrap:wrap}
+.sch-cls-chip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:var(--purple-l);color:var(--purple);white-space:nowrap}
+.sch-dur{margin-left:auto;font-size:11px;color:var(--text-3);font-weight:600;white-space:nowrap}
+.sch-progress-wrap{margin-top:8px}
+.sch-progress-bar{height:5px;border-radius:100px;background:rgba(16,185,129,.15);overflow:hidden}
+.sch-progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green),#34D399)}
+.sch-progress-label{font-size:10.5px;color:var(--green);font-weight:700;margin-top:4px}
+.sch-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0}
 .sch-badge.now-b{background:var(--green);color:white}
 .sch-badge.soon-b{background:var(--amber);color:white}
-.sch-badge.done-b{background:var(--surface);color:var(--text-3);border:1px solid var(--border)}
+.sch-badge.done-b{background:#F1F5F9;color:var(--text-3);border:1px solid var(--border)}
 .sch-badge.up-b{background:var(--blue-light);color:var(--blue)}
+.sch-icon-col{display:flex;align-items:center;justify-content:center;padding:10px 14px 10px 6px;flex-shrink:0;font-size:26px;line-height:1}
 
 .hw-card{margin-bottom:18px}
 .cv-action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
@@ -786,49 +799,62 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
     </div>
 
     <!-- CHECK IN / OUT CARD -->
-    <div id="checkinCard" style="background:white;border-radius:18px;border:1.5px solid #E2E8F0;padding:18px;margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">📍 আজকের উপস্থিতি</div>
-
-      <!-- Today record row -->
-      <div style="display:flex;gap:10px;margin-bottom:14px">
-        <div style="flex:1;background:#F8FAFF;border-radius:12px;padding:10px 12px;text-align:center">
-          <div style="font-size:10px;font-weight:700;color:#94A3B8;margin-bottom:4px">ক্লাস শুরু</div>
-          <div style="font-size:17px;font-weight:900;color:#0F172A" id="ciInTime">—</div>
-          <div id="ciInBadge" style="display:none;font-size:10px;font-weight:700;margin-top:3px;padding:2px 6px;border-radius:5px"></div>
-        </div>
-        <div style="flex:1;background:#F8FAFF;border-radius:12px;padding:10px 12px;text-align:center">
-          <div style="font-size:10px;font-weight:700;color:#94A3B8;margin-bottom:4px">ক্লাস শেষ</div>
-          <div style="font-size:17px;font-weight:900;color:#0F172A" id="ciOutTime">—</div>
-          <div id="ciOutBadge" style="display:none;font-size:10px;font-weight:700;margin-top:3px;padding:2px 6px;border-radius:5px;background:#ECFDF5;color:#059669">✓</div>
+    <div id="checkinCard" style="background:white;border-radius:20px;border:1.5px solid #E2E8F0;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.05)">
+      <!-- Gradient header -->
+      <div style="background:linear-gradient(135deg,#0F766E 0%,#059669 100%);padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px">📍</div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:white">আজকের উপস্থিতি</div>
+            <div id="ciStatusMsg" style="font-size:11px;color:rgba(255,255,255,.8);margin-top:1px;font-weight:600">লোড হচ্ছে...</div>
+          </div>
         </div>
       </div>
 
-      <!-- Status msg -->
-      <div id="ciStatusMsg" style="font-size:12px;text-align:center;color:#64748B;margin-bottom:12px;font-weight:600">লোড হচ্ছে...</div>
+      <div style="padding:14px 16px">
+        <!-- Today record row -->
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <div style="flex:1;background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border:1px solid #6EE7B7;border-radius:14px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">🟢 ক্লাস শুরু</div>
+            <div style="font-size:20px;font-weight:900;color:#064E3B;letter-spacing:-.5px" id="ciInTime">—</div>
+            <div id="ciInBadge" style="display:none;font-size:10px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:6px;background:#D1FAE5;color:#059669"></div>
+          </div>
+          <div style="flex:1;background:linear-gradient(135deg,#FFF1F2,#FEE2E2);border:1px solid #FCA5A5;border-radius:14px;padding:12px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">🔴 ক্লাস শেষ</div>
+            <div style="font-size:20px;font-weight:900;color:#7F1D1D;letter-spacing:-.5px" id="ciOutTime">—</div>
+            <div id="ciOutBadge" style="display:none;font-size:10px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:6px;background:#ECFDF5;color:#059669">✓ সম্পন্ন</div>
+          </div>
+        </div>
 
-      <!-- Buttons -->
-      <div style="display:flex;gap:10px">
-        <button id="ciInBtn" onclick="triggerCI('checkin')" disabled
-          style="flex:1;padding:14px;border-radius:14px;border:none;background:#059669;color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;opacity:.5">
-          ✅ Check In
-        </button>
-        <button id="ciOutBtn" onclick="triggerCI('checkout')" disabled
-          style="flex:1;padding:14px;border-radius:14px;border:none;background:#DC2626;color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;opacity:.5">
-          🔴 Check Out
-        </button>
-      </div>
+        <!-- Buttons -->
+        <div style="display:flex;gap:10px">
+          <button id="ciInBtn" onclick="triggerCI('checkin')" disabled
+            style="flex:1;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#059669,#10B981);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;opacity:.5;box-shadow:0 3px 10px rgba(5,150,105,.3)">
+            ✅ Check In
+          </button>
+          <button id="ciOutBtn" onclick="triggerCI('checkout')" disabled
+            style="flex:1;padding:13px;border-radius:14px;border:none;background:linear-gradient(135deg,#DC2626,#EF4444);color:white;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;opacity:.5;box-shadow:0 3px 10px rgba(220,38,38,.3)">
+            🔴 Check Out
+          </button>
+        </div>
 
-      <!-- Processing msg -->
-      <div id="ciProcessing" style="display:none;text-align:center;padding:12px;font-size:13px;font-weight:700;color:#1A56DB">
-        ⏳ Location যাচাই হচ্ছে...
+        <!-- Processing msg -->
+        <div id="ciProcessing" style="display:none;text-align:center;padding:10px;margin-top:10px;font-size:13px;font-weight:700;color:#1A56DB;background:#EFF6FF;border-radius:10px">
+          ⏳ Location যাচাই হচ্ছে...
+        </div>
       </div>
     </div>
 
     <div class="card" style="margin-bottom:18px">
-      <div class="card-head">
+      <div class="card-head" style="margin-bottom:16px">
         <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
-          আজকের সময়সূচী — <span id="schedDay" style="color:var(--purple)">লোড হচ্ছে</span>
+          <div style="width:30px;height:30px;border-radius:9px;background:var(--purple-l);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:800;color:var(--text)">আজকের সময়সূচী</div>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-top:1px"><span id="schedDay">লোড হচ্ছে</span></div>
+          </div>
         </div>
       </div>
       <div id="scheduleList"><div class="sch-empty">লোড হচ্ছে...</div></div>
@@ -4653,50 +4679,95 @@ async function loadTodaySchedule(){
   renderScheduleList();
 }
 
+function _scSubjEmoji(name){
+  const n=(name||'').toLowerCase();
+  if(n.includes('গণিত')||n.includes('math')) return '📐';
+  if(n.includes('বাংলা')) return '📖';
+  if(n.includes('ইংরে')||n.includes('english')) return '🔤';
+  if(n.includes('বিজ্ঞান')||n.includes('science')) return '🔬';
+  if(n.includes('ধর্ম')||n.includes('islam')||n.includes('quran')||n.includes('কুরআন')||n.includes('আরব')||n.includes('হিফ')) return '🕌';
+  if(n.includes('ইতিহাস')||n.includes('history')) return '🏺';
+  if(n.includes('ভূগোল')||n.includes('geo')) return '🌍';
+  if(n.includes('তথ্য')||n.includes('ict')||n.includes('computer')) return '💻';
+  if(n.includes('শরীর')||n.includes('sport')||n.includes('pe')) return '⚽';
+  if(n.includes('সমাজ')) return '🏘️';
+  return '📚';
+}
+
 function renderScheduleList(){
   const listEl = document.getElementById('scheduleList');
   if(!listEl) return;
 
   if(!todaySchedule.length){
-    listEl.innerHTML = '<div class="sch-empty">আজকের জন্য কোনো সময়সূচী নেই। ক্লাসে বিষয় ও সময় যোগ করুন।</div>';
+    listEl.innerHTML = '<div class="sch-empty">আজকের জন্য কোনো সময়সূচী নেই।<br><span style="font-size:12px">ক্লাসে বিষয় ও সময় যোগ করুন।</span></div>';
     return;
   }
 
   const now = nowMinBD();
+  const doneCount = todaySchedule.filter(s=>{
+    const endM = s.end_time ? timeToMin(s.end_time) : timeToMin(s.start_time)+45;
+    return now > endM;
+  }).length;
+  const total = todaySchedule.length;
+  const pctDay = total ? Math.round((doneCount/total)*100) : 0;
 
-  listEl.innerHTML = todaySchedule.map(s=>{
-    const startM = timeToMin(s.start_time);
-    const endM   = s.end_time ? timeToMin(s.end_time) : startM+45;
-    const diff   = startM - now;
+  const header = `
+    <div class="sch-progress-header">
+      <span class="sch-ph-label">মোট ${total}টি ক্লাস</span>
+      <span class="sch-ph-count">${doneCount}/${total} সম্পন্ন</span>
+    </div>
+    <div class="sch-day-bar"><div class="sch-day-fill" style="width:${pctDay}%"></div></div>`;
 
-    let cls='', badge='';
+  const items = todaySchedule.map(s=>{
+    const startM  = timeToMin(s.start_time);
+    const endM    = s.end_time ? timeToMin(s.end_time) : startM+45;
+    const diff    = startM - now;
+    const duration= endM - startM;
+    const emoji   = _scSubjEmoji(s.subject_name);
+    const timeRange = s.end_time ? `${fmtTime(s.start_time)} – ${fmtTime(s.end_time)}` : fmtTime(s.start_time);
+
+    let cls='', badge='', progressHtml='';
     if(now >= startM && now <= endM){
       cls = 'now';
-      badge = `<span class="sch-badge now-b">এখন চলছে · ${endM-now} মিনিট বাকি</span>`;
+      const elapsed   = now - startM;
+      const remaining = endM - now;
+      const pct       = Math.min(100, Math.round((elapsed/duration)*100));
+      badge = `<span class="sch-badge now-b">⏱ ${remaining} মিনিট বাকি</span>`;
+      progressHtml = `<div class="sch-progress-wrap">
+        <div class="sch-progress-bar"><div class="sch-progress-fill" style="width:${pct}%"></div></div>
+        <div class="sch-progress-label">${elapsed} মিনিট হয়েছে · ${remaining} মিনিট বাকি</div>
+      </div>`;
     } else if(diff > 0 && diff <= 15){
-      cls = 'soon';
-      badge = `<span class="sch-badge soon-b">${diff} মিনিট পরে</span>`;
+      cls  = 'soon';
+      badge = `<span class="sch-badge soon-b">⚡ ${diff} মিনিট পরে</span>`;
     } else if(diff > 15){
-      cls = 'upcoming';
-      badge = `<span class="sch-badge up-b">${fmtTime(s.start_time)}</span>`;
+      cls  = 'upcoming';
+      badge = `<span class="sch-badge up-b">🕐 ${fmtTime(s.start_time)}</span>`;
     } else {
-      cls = 'done';
-      badge = `<span class="sch-badge done-b">শেষ</span>`;
+      cls  = 'done';
+      badge = `<span class="sch-badge done-b">✓ শেষ</span>`;
     }
 
     return `<div class="sch-item ${cls}">
-      <div class="sch-time-col">
-        <div class="sch-st">${fmtTime(s.start_time)}</div>
-        ${s.end_time?`<div class="sch-et">${fmtTime(s.end_time)}</div>`:''}
+      <div class="sch-accent"></div>
+      <div class="sch-body">
+        <div class="sch-top-row">
+          <span class="sch-subj">${s.subject_name||''}</span>
+          ${badge}
+        </div>
+        <div class="sch-time-row">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 3"/></svg>
+          ${timeRange}
+          <span class="sch-cls-chip">${s.className}</span>
+          <span class="sch-dur">${duration} মিনিট</span>
+        </div>
+        ${progressHtml}
       </div>
-      <div class="sch-bar"></div>
-      <div class="sch-info">
-        <div class="sch-subj">${s.subject_name||''}</div>
-        <div class="sch-cls">${s.className}</div>
-      </div>
-      ${badge}
+      <div class="sch-icon-col">${emoji}</div>
     </div>`;
   }).join('');
+
+  listEl.innerHTML = header + items;
 }
 
 startLiveClock();
