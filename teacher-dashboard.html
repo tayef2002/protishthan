@@ -6490,7 +6490,7 @@ function sswShowWelcome(){
 
 function sswLater(){ document.getElementById('sswOverlay').classList.remove('open'); }
 
-async function sswStartFlow(){ SSW.idx=0; await sswLoadForm(); }
+async function sswStartFlow(){ SSW.idx=SSW.startIdx||0; await sswLoadForm(); }
 
 async function sswLoadForm(){
   sswInitDobDropdowns();
