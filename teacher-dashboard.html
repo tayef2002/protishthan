@@ -6301,7 +6301,7 @@ document.addEventListener('click', function(e){
         <input type="hidden" id="sswDobDay">
         <input type="hidden" id="sswDobMonth">
         <input type="hidden" id="sswDobYear">
-        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start">
           <div class="ssw-field" style="flex:1;min-width:0;margin-bottom:0">
             <label>দিন</label>
             <button type="button" class="ssw-csel" id="sswDobDayBtn" onclick="sswPickerOpen('day')">
@@ -6323,10 +6323,10 @@ document.addEventListener('click', function(e){
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
             </button>
           </div>
-          <div class="ssw-field" style="width:70px;flex-shrink:0;margin-bottom:0">
-            <label>লিঙ্গ</label>
-            <select id="sswGender"><option value="male">ছেলে</option><option value="female">মেয়ে</option></select>
-          </div>
+        </div>
+        <div class="ssw-field">
+          <label>লিঙ্গ</label>
+          <select id="sswGender"><option value="male">ছেলে</option><option value="female">মেয়ে</option></select>
         </div>
         <div class="ssw-field">
           <label>ঠিকানা</label>
@@ -6639,7 +6639,9 @@ function sswPickerOpen(field){
   }
   const curVal=document.getElementById(_SSWPicker.hiddenId)?.value||'';
   document.getElementById('sswPickerTitle').textContent=title;
-  document.getElementById('sswPickerList').innerHTML=items.map(it=>`<div class="ssw-picker-item${it.val===curVal?' sel':''}" onclick="sswPickerSelect('${it.val}',${JSON.stringify(it.label)})">${it.label}</div>`).join('');
+  const listEl=document.getElementById('sswPickerList');
+  listEl.innerHTML=items.map(it=>`<div class="ssw-picker-item${it.val===curVal?' sel':''}" data-val="${it.val}" data-lbl="${it.label}">${it.label}</div>`).join('');
+  listEl.querySelectorAll('.ssw-picker-item').forEach(el=>el.addEventListener('click',()=>sswPickerSelect(el.dataset.val,el.dataset.lbl)));
   document.getElementById('sswDobDayBtn')?.classList.remove('open');
   document.getElementById('sswDobMonthBtn')?.classList.remove('open');
   document.getElementById('sswDobYearBtn')?.classList.remove('open');
