@@ -931,6 +931,10 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           শিক্ষার্থী আপডেট
         </button>
+        <button onclick="openHistAtt()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;color:#D97706;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#FFFBEB';this.style.borderColor='#D97706'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+          অতীত উপস্থিতি
+        </button>
         <button onclick="showMySubjectsOverview()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;color:#1A56DB;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#EEF3FF';this.style.borderColor='#1A56DB'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           ক্লাস যোগ / সম্পাদনা
@@ -6283,6 +6287,40 @@ document.addEventListener('click', function(e){
 .ssw-csel svg{flex-shrink:0;margin-left:4px;transition:transform .2s}
 .ssw-csel:active,.ssw-csel.open{border-color:#3B5BDB;box-shadow:0 0 0 3px rgba(59,91,219,.08)}
 .ssw-csel.open svg{transform:rotate(180deg)}
+/* Historical Attendance Panel */
+.hist-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;opacity:0;pointer-events:none;transition:opacity .22s}
+.hist-overlay.open{opacity:1;pointer-events:all}
+.hist-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:2001;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.hist-sheet.open{transform:translateY(0)}
+.hist-grip{width:36px;height:4px;background:#E2E8F0;border-radius:2px;margin:12px auto 0;flex-shrink:0}
+.hist-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 10px;border-bottom:1px solid #F1F5F9;flex-shrink:0}
+.hist-title{font-size:16px;font-weight:800;color:#0F172A}
+.hist-sub{font-size:12px;color:#64748B;font-weight:500}
+.hist-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94A3B8;padding:0;line-height:1}
+.hist-body{overflow-y:auto;flex:1;padding:0}
+.hist-month-item{padding:14px 20px;font-size:15px;font-weight:600;color:#1E293B;cursor:pointer;border-bottom:1px solid #F8FAFC;display:flex;align-items:center;justify-content:space-between}
+.hist-month-item:active{background:#F8FAFF}
+.hist-month-item.sel{color:#D97706;background:#FFFBEB}
+.hist-month-item::after{content:'›';font-size:18px;color:#CBD5E1}
+.hist-month-item.sel::after{color:#D97706}
+.hist-back-btn{display:flex;align-items:center;gap:6px;padding:10px 20px;font-size:13px;font-weight:700;color:#64748B;background:none;border:none;cursor:pointer;font-family:inherit}
+.hist-wd-row{padding:14px 20px;background:#FFFBEB;border-bottom:1px solid #FDE68A;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hist-wd-label{font-size:13px;font-weight:700;color:#92400E;white-space:nowrap}
+.hist-wd-inp{width:70px;padding:7px 10px;border:1.5px solid #FCD34D;border-radius:8px;font-size:15px;font-weight:700;text-align:center;font-family:inherit;color:#92400E;background:#fff}
+.hist-wd-hint{font-size:11.5px;color:#B45309}
+.hist-stu-row{padding:12px 20px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hist-stu-info{flex:1;min-width:0}
+.hist-stu-roll{font-size:11px;color:#94A3B8;font-weight:600;display:block}
+.hist-stu-name{font-size:14px;font-weight:700;color:#0F172A;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-stu-inputs{display:flex;gap:8px;flex-shrink:0}
+.hist-inp-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.hist-inp-wrap label{font-size:10px;color:#94A3B8;font-weight:600}
+.hist-inp{width:60px;padding:7px 6px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:15px;font-weight:700;text-align:center;font-family:inherit;color:#0F172A}
+.hist-inp:focus{outline:none;border-color:#D97706;box-shadow:0 0 0 3px rgba(217,119,6,.1)}
+.hist-inp-absent{background:#FEF2F2;border-color:#FECACA;color:#DC2626}
+.hist-footer{padding:14px 20px;border-top:1px solid #F1F5F9;flex-shrink:0}
+.hist-save-btn{width:100%;padding:14px;background:linear-gradient(135deg,#D97706,#F59E0B);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.hist-save-btn:disabled{opacity:.6;cursor:not-allowed}
 .ssw-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;opacity:0;pointer-events:none;transition:opacity .22s}
 .ssw-picker-overlay.open{opacity:1;pointer-events:all}
 .ssw-picker-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:3001;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:65vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
@@ -6721,7 +6759,174 @@ function sswPickerClose(){
   document.getElementById(_SSWPicker.btnId)?.classList.remove('open');
 }
 // ─────────────────────────────────────────────────────────────────────
+
+/* ===== HISTORICAL ATTENDANCE ===== */
+const _HIST_MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+let _histStudents=[], _histExisting={};
+
+async function openHistAtt(){
+  if(!teacher||!teacher.primary_class_id){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
+  const {data:cls}=await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
+  if(!cls){ alert('ক্লাস পাওয়া যায়নি।'); return; }
+  const {data:stuRaw}=await sb.from('students').select('id,full_name,roll_number').eq('institution_id',teacher.institution_id).eq('class_id',cls.id).eq('is_active',true);
+  _histStudents=(stuRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
+  if(!_histStudents.length){ alert('এই ক্লাসে কোনো শিক্ষার্থী নেই।'); return; }
+  document.getElementById('histAttClsName').textContent=cls.name;
+  _histBuildMonthList();
+  document.getElementById('histAttOverlay').classList.add('open');
+  document.getElementById('histAttSheet').classList.add('open');
+}
+
+function _histBuildMonthList(){
+  const now=new Date(); const curY=now.getFullYear(); const curM=now.getMonth()+1;
+  let html='';
+  for(let y=curY;y>=curY-1;y--){
+    const maxM=(y===curY?curM-1:12);
+    const minM=(y===curY-1?1:1);
+    for(let m=maxM;m>=minM;m--){
+      if(m<1) continue;
+      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_HIST_MONTHS[m-1]} ${y}</div>`;
+    }
+  }
+  document.getElementById('histMonthList').innerHTML=html||'<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
+  document.getElementById('histMonthView').style.display='block';
+  document.getElementById('histEntryView').style.display='none';
+}
+
+async function histSelMonth(year,month,el){
+  document.querySelectorAll('.hist-month-item').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('histEntryTitle').textContent=_HIST_MONTHS[month-1]+' '+year;
+  // Load existing data for this month
+  const {data:existing}=await sb.from('monthly_attendance_summary')
+    .select('*').eq('institution_id',teacher.institution_id).eq('year',year).eq('month',month);
+  _histExisting={};
+  (existing||[]).forEach(r=>{ _histExisting[r.student_id]=r; });
+  // Get working days from first record or default 0
+  const sampleWd=(existing&&existing.length)?existing[0].total_working_days:0;
+  document.getElementById('histWorkingDays').value=sampleWd||'';
+  _histRenderStudents();
+  document.getElementById('histMonthView').style.display='none';
+  document.getElementById('histEntryView').style.display='block';
+  document.getElementById('histSaveBtn').onclick=()=>histSave(year,month);
+}
+
+function _histRenderStudents(){
+  const wd=parseInt(document.getElementById('histWorkingDays').value)||0;
+  let html='';
+  _histStudents.forEach(s=>{
+    const ex=_histExisting[s.id];
+    const present=ex?ex.present_days:'';
+    const absent=ex?(ex.total_working_days-ex.present_days):'';
+    html+=`<div class="hist-stu-row">
+      <div class="hist-stu-info">
+        <span class="hist-stu-roll">রোল ${s.roll_number||'-'}</span>
+        <span class="hist-stu-name">${escapeHtml(s.full_name)}</span>
+      </div>
+      <div class="hist-stu-inputs">
+        <div class="hist-inp-wrap">
+          <label>উপস্থিত</label>
+          <input type="number" class="hist-inp" id="histP_${s.id}" value="${present}" min="0" max="${wd||999}" inputmode="numeric" oninput="histAutoAbsent('${s.id}')">
+        </div>
+        <div class="hist-inp-wrap">
+          <label>অনুপস্থিত</label>
+          <input type="number" class="hist-inp hist-inp-absent" id="histA_${s.id}" value="${absent}" readonly>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('histStudentList').innerHTML=html;
+}
+
+function histWorkingDaysChange(){
+  const wd=parseInt(document.getElementById('histWorkingDays').value)||0;
+  _histStudents.forEach(s=>{
+    const pEl=document.getElementById('histP_'+s.id);
+    if(pEl){ pEl.max=wd; histAutoAbsent(s.id); }
+  });
+}
+
+function histAutoAbsent(sid){
+  const wd=parseInt(document.getElementById('histWorkingDays').value)||0;
+  const p=parseInt(document.getElementById('histP_'+sid)?.value)||0;
+  const aEl=document.getElementById('histA_'+sid);
+  if(aEl) aEl.value=Math.max(0,wd-p);
+}
+
+async function histSave(year,month){
+  const wd=parseInt(document.getElementById('histWorkingDays').value)||0;
+  if(!wd){ alert('আগে মোট কার্যদিবস লিখুন।'); document.getElementById('histWorkingDays').focus(); return; }
+  const btn=document.getElementById('histSaveBtn');
+  btn.disabled=true; btn.textContent='সেভ হচ্ছে...';
+  try{
+    const rows=_histStudents.map(s=>{
+      const p=parseInt(document.getElementById('histP_'+s.id)?.value)||0;
+      return {
+        institution_id:teacher.institution_id,
+        class_id:teacher.primary_class_id,
+        student_id:s.id,
+        year,month,
+        total_working_days:wd,
+        present_days:Math.min(p,wd),
+        is_historical:true,
+        created_by:teacher.id
+      };
+    });
+    const {error}=await sb.from('monthly_attendance_summary').upsert(rows,{onConflict:'student_id,year,month'});
+    if(error) throw error;
+    btn.textContent='✅ সেভ হয়েছে!';
+    setTimeout(()=>{ btn.disabled=false; btn.textContent='সেভ করুন'; },2000);
+  }catch(err){
+    console.error(err);
+    alert('সেভ হয়নি: '+err.message);
+    btn.disabled=false; btn.textContent='সেভ করুন';
+  }
+}
+
+function closeHistAtt(){
+  document.getElementById('histAttOverlay').classList.remove('open');
+  document.getElementById('histAttSheet').classList.remove('open');
+}
 </script>
+
+<!-- Historical Attendance Bottom Sheet -->
+<div class="hist-overlay" id="histAttOverlay" onclick="closeHistAtt()"></div>
+<div class="hist-sheet" id="histAttSheet">
+  <div class="hist-grip"></div>
+  <div class="hist-head">
+    <div>
+      <div class="hist-title">অতীত উপস্থিতি</div>
+      <div class="hist-sub" id="histAttClsName"></div>
+    </div>
+    <button class="hist-close" onclick="closeHistAtt()">✕</button>
+  </div>
+
+  <!-- Month selection view -->
+  <div id="histMonthView" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div style="padding:12px 20px 8px;font-size:12px;color:#64748B;font-weight:600;flex-shrink:0">মাস বেছে নিন</div>
+    <div id="histMonthList" style="overflow-y:auto;flex:1"></div>
+  </div>
+
+  <!-- Entry view -->
+  <div id="histEntryView" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div style="flex-shrink:0">
+      <button class="hist-back-btn" onclick="_histBuildMonthList()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        মাস পরিবর্তন করুন
+      </button>
+      <div style="padding:4px 20px 12px;font-size:17px;font-weight:800;color:#0F172A" id="histEntryTitle"></div>
+      <div class="hist-wd-row">
+        <span class="hist-wd-label">মোট কার্যদিবস:</span>
+        <input type="number" class="hist-wd-inp" id="histWorkingDays" min="1" max="31" inputmode="numeric" placeholder="২৬" oninput="histWorkingDaysChange()">
+        <span class="hist-wd-hint">সবার জন্য প্রযোজ্য হবে</span>
+      </div>
+    </div>
+    <div id="histStudentList" style="overflow-y:auto;flex:1"></div>
+    <div class="hist-footer">
+      <button class="hist-save-btn" id="histSaveBtn">সেভ করুন</button>
+    </div>
+  </div>
+</div>
 
 <!-- DOB Custom Picker Bottom Sheet -->
 <div class="ssw-picker-overlay" id="sswPickerOverlay" onclick="sswPickerClose()"></div>
