@@ -6276,7 +6276,7 @@ document.addEventListener('click', function(e){
           <label>শিক্ষার্থীর নাম *</label>
           <input type="text" id="sswName" placeholder="যেমন: রাফিউল ইসলাম">
         </div>
-        <div class="ssw-row">
+        <div class="ssw-row" style="grid-template-columns:1fr 2fr">
           <div class="ssw-field">
             <label>লিঙ্গ</label>
             <select id="sswGender"><option value="male">ছেলে</option><option value="female">মেয়ে</option></select>
@@ -6284,17 +6284,17 @@ document.addEventListener('click', function(e){
           <div class="ssw-field">
             <label>জন্ম তারিখ <span style="font-weight:400;color:#94A3B8">(ঐচ্ছিক)</span></label>
             <div style="display:flex;gap:7px">
-              <select id="sswDobDay" style="flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+              <select id="sswDobDay" style="flex:1;min-width:0;padding:10px 6px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
                 <option value="">দিন</option>
               </select>
-              <select id="sswDobMonth" style="flex:2;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+              <select id="sswDobMonth" style="flex:1;min-width:0;padding:10px 6px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
                 <option value="">মাস</option>
                 <option value="01">জানুয়ারি</option><option value="02">ফেব্রুয়ারি</option><option value="03">মার্চ</option>
                 <option value="04">এপ্রিল</option><option value="05">মে</option><option value="06">জুন</option>
                 <option value="07">জুলাই</option><option value="08">আগস্ট</option><option value="09">সেপ্টেম্বর</option>
                 <option value="10">অক্টোবর</option><option value="11">নভেম্বর</option><option value="12">ডিসেম্বর</option>
               </select>
-              <select id="sswDobYear" style="flex:2;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+              <select id="sswDobYear" style="flex:1;min-width:0;padding:10px 6px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
                 <option value="">সাল</option>
               </select>
             </div>
@@ -6310,10 +6310,10 @@ document.addEventListener('click', function(e){
         </div>
 
         <div class="ssw-section-lbl">ভর্তির তথ্য <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(ঐচ্ছিক)</span></div>
-        <div class="ssw-row">
+        <div class="ssw-row" style="grid-template-columns:2fr 1fr">
           <div class="ssw-field"><label>দাখিলা নং</label><input type="text" id="sswDakhila" placeholder="যেমন: ১২৩"></div>
           <div class="ssw-field"><label>নতুন / পুরাতন</label>
-            <select id="sswNotunPuraton"><option value="">নির্বাচন করুন</option><option value="নতুন">নতুন</option><option value="পুরাতন">পুরাতন</option></select>
+            <select id="sswNotunPuraton"><option value="">বেছে নিন</option><option value="নতুন">নতুন</option><option value="পুরাতন">পুরাতন</option></select>
           </div>
           <div class="ssw-field"><label>শিক্ষাবর্ষ (হিজরি)</label><input type="text" id="sswHijri" placeholder="যেমন: ১৪৪৬"></div>
           <div class="ssw-field"><label>শিক্ষাবর্ষ (ইংরেজি)</label><input type="text" id="sswEnglish" placeholder="যেমন: ২০২৫"></div>
