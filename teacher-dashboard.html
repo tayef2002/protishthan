@@ -6243,6 +6243,27 @@ document.addEventListener('click', function(e){
 .ssw-done-title{font-size:19px;font-weight:800;color:#1a1a2e;text-align:center;margin-bottom:8px}
 .ssw-done-msg{font-size:13px;color:#64748B;text-align:center;line-height:1.7}
 .ssw-done-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B5BDB,#7C3AED);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:20px}
+
+/* ── Custom DOB picker ── */
+.ssw-csel{width:100%;padding:9px 30px 9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;text-align:left;color:#0F172A;position:relative;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;transition:border .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+.ssw-csel .csel-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ssw-csel .csel-lbl.ph{color:#94A3B8}
+.ssw-csel svg{flex-shrink:0;margin-left:4px;transition:transform .2s}
+.ssw-csel:active,.ssw-csel.open{border-color:#3B5BDB;box-shadow:0 0 0 3px rgba(59,91,219,.08)}
+.ssw-csel.open svg{transform:rotate(180deg)}
+.ssw-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;opacity:0;pointer-events:none;transition:opacity .22s}
+.ssw-picker-overlay.open{opacity:1;pointer-events:all}
+.ssw-picker-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:3001;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:65vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.ssw-picker-sheet.open{transform:translateY(0)}
+.ssw-picker-grip{width:36px;height:4px;background:#E2E8F0;border-radius:2px;margin:12px auto 0;flex-shrink:0}
+.ssw-picker-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 10px;border-bottom:1px solid #F1F5F9;flex-shrink:0}
+.ssw-picker-title{font-size:15px;font-weight:800;color:#0F172A}
+.ssw-picker-close{background:none;border:none;font-size:18px;cursor:pointer;color:#94A3B8;padding:0;line-height:1}
+.ssw-picker-list{overflow-y:auto;flex:1;padding:6px 0 10px}
+.ssw-picker-item{padding:13px 20px;font-size:15px;font-weight:500;color:#1E293B;cursor:pointer;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent}
+.ssw-picker-item:active{background:#F8FAFF}
+.ssw-picker-item.sel{color:#3B5BDB;font-weight:700;background:#F0F4FF}
+.ssw-picker-item.sel::after{content:'✓';font-size:15px;color:#3B5BDB}
 </style>
 
 <div class="ssw-overlay" id="sswOverlay">
@@ -6277,24 +6298,30 @@ document.addEventListener('click', function(e){
           <label>শিক্ষার্থীর নাম *</label>
           <input type="text" id="sswName" placeholder="যেমন: রাফিউল ইসলাম">
         </div>
+        <input type="hidden" id="sswDobDay">
+        <input type="hidden" id="sswDobMonth">
+        <input type="hidden" id="sswDobYear">
         <div style="display:flex;gap:8px;margin-bottom:10px;align-items:flex-start">
           <div class="ssw-field" style="flex:1;min-width:0;margin-bottom:0">
             <label>দিন</label>
-            <select id="sswDobDay"><option value="">দিন</option></select>
+            <button type="button" class="ssw-csel" id="sswDobDayBtn" onclick="sswPickerOpen('day')">
+              <span class="csel-lbl ph" id="sswDobDayLbl">দিন</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
           </div>
           <div class="ssw-field" style="flex:2;min-width:0;margin-bottom:0">
             <label>মাস</label>
-            <select id="sswDobMonth">
-              <option value="">মাস</option>
-              <option value="01">জানুয়ারি</option><option value="02">ফেব্রুয়ারি</option><option value="03">মার্চ</option>
-              <option value="04">এপ্রিল</option><option value="05">মে</option><option value="06">জুন</option>
-              <option value="07">জুলাই</option><option value="08">আগস্ট</option><option value="09">সেপ্টেম্বর</option>
-              <option value="10">অক্টোবর</option><option value="11">নভেম্বর</option><option value="12">ডিসেম্বর</option>
-            </select>
+            <button type="button" class="ssw-csel" id="sswDobMonthBtn" onclick="sswPickerOpen('month')">
+              <span class="csel-lbl ph" id="sswDobMonthLbl">মাস</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
           </div>
           <div class="ssw-field" style="flex:1.5;min-width:0;margin-bottom:0">
             <label>সাল</label>
-            <select id="sswDobYear"><option value="">সাল</option></select>
+            <button type="button" class="ssw-csel" id="sswDobYearBtn" onclick="sswPickerOpen('year')">
+              <span class="csel-lbl ph" id="sswDobYearLbl">সাল</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
           </div>
           <div class="ssw-field" style="width:70px;flex-shrink:0;margin-bottom:0">
             <label>লিঙ্গ</label>
@@ -6380,25 +6407,8 @@ function sswNormalizePhone(p){
   return /^01[0-9]{9}$/.test(p) ? p : p;
 }
 
-// ── DOB Dropdown helpers ──────────────────────────────────────────────
-function sswInitDobDropdowns(){
-  const dayEl  = document.getElementById('sswDobDay');
-  const yearEl = document.getElementById('sswDobYear');
-  if(!dayEl || !yearEl || dayEl.options.length > 1) return; // already init
-  for(let d=1; d<=31; d++){
-    const o=document.createElement('option');
-    o.value=String(d).padStart(2,'0');
-    o.textContent=d;
-    dayEl.appendChild(o);
-  }
-  const curY = new Date().getFullYear();
-  for(let y=curY; y>=1990; y--){
-    const o=document.createElement('option');
-    o.value=String(y);
-    o.textContent=y;
-    yearEl.appendChild(o);
-  }
-}
+// ── DOB Picker helpers ────────────────────────────────────────────────
+function sswInitDobDropdowns(){ /* no-op: replaced by custom picker */ }
 function sswGetDob(){
   const d=document.getElementById('sswDobDay')?.value;
   const m=document.getElementById('sswDobMonth')?.value;
@@ -6406,13 +6416,25 @@ function sswGetDob(){
   return (d&&m&&y) ? `${y}-${m}-${d}` : '';
 }
 function sswSetDob(dateStr){
-  if(!dateStr){ ['sswDobDay','sswDobMonth','sswDobYear'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); return; }
+  const _months=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  function _setBtnLbl(btnId,lblId,text,isPlaceholder){
+    const lbl=document.getElementById(lblId); if(!lbl) return;
+    lbl.textContent=text;
+    isPlaceholder ? lbl.classList.add('ph') : lbl.classList.remove('ph');
+  }
+  if(!dateStr){
+    ['sswDobDay','sswDobMonth','sswDobYear'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+    _setBtnLbl('sswDobDayBtn','sswDobDayLbl','দিন',true);
+    _setBtnLbl('sswDobMonthBtn','sswDobMonthLbl','মাস',true);
+    _setBtnLbl('sswDobYearBtn','sswDobYearLbl','সাল',true);
+    return;
+  }
   const parts=dateStr.split('-');
   if(parts.length<3) return;
   const el=id=>document.getElementById(id);
-  if(el('sswDobYear'))  el('sswDobYear').value  = parts[0];
-  if(el('sswDobMonth')) el('sswDobMonth').value  = parts[1];
-  if(el('sswDobDay'))   el('sswDobDay').value    = parts[2];
+  if(el('sswDobYear'))  { el('sswDobYear').value=parts[0];  _setBtnLbl('sswDobYearBtn','sswDobYearLbl',parts[0],false); }
+  if(el('sswDobMonth')) { el('sswDobMonth').value=parts[1]; _setBtnLbl('sswDobMonthBtn','sswDobMonthLbl',_months[parseInt(parts[1])-1]||parts[1],false); }
+  if(el('sswDobDay'))   { el('sswDobDay').value=parts[2];   _setBtnLbl('sswDobDayBtn','sswDobDayLbl',String(parseInt(parts[2])),false); }
 }
 // ─────────────────────────────────────────────────────────────────────
 
@@ -6519,7 +6541,8 @@ async function sswLoadForm(){
 }
 
 function sswClearForm(){
-  ['sswName','sswDobDay','sswDobMonth','sswDobYear','sswAddress','sswPhone','sswDakhila','sswHijri','sswEnglish','sswDept','sswFeeAmount','sswVillage','sswPost','sswUpazila','sswDistrict','sswPrevInst','sswPrevClass','sswFatherName','sswFatherPhone','sswMotherName','sswMotherPhone','sswEditStudentId','sswEditFatherId','sswEditMotherId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  sswSetDob('');
+  ['sswName','sswAddress','sswPhone','sswDakhila','sswHijri','sswEnglish','sswDept','sswFeeAmount','sswVillage','sswPost','sswUpazila','sswDistrict','sswPrevInst','sswPrevClass','sswFatherName','sswFatherPhone','sswMotherName','sswMotherPhone','sswEditStudentId','sswEditFatherId','sswEditMotherId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('sswGender').value='male';
   document.getElementById('sswNotunPuraton').value='';
 }
@@ -6592,7 +6615,64 @@ function sswShowDone(){
 }
 
 function sswFinish(){ document.getElementById('sswOverlay').classList.remove('open'); }
+
+// ── Custom DOB Picker ─────────────────────────────────────────────────
+const _SSWPicker={field:null,hiddenId:null,btnId:null,lblId:null};
+const _MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+
+function sswPickerOpen(field){
+  _SSWPicker.field=field;
+  let items=[], title='';
+  if(field==='day'){
+    title='জন্মদিন বেছে নিন';
+    items=Array.from({length:31},(_,i)=>({val:String(i+1).padStart(2,'0'),label:String(i+1)}));
+    _SSWPicker.hiddenId='sswDobDay'; _SSWPicker.btnId='sswDobDayBtn'; _SSWPicker.lblId='sswDobDayLbl';
+  } else if(field==='month'){
+    title='জন্মমাস বেছে নিন';
+    items=_MONTHS.map((m,i)=>({val:String(i+1).padStart(2,'0'),label:m}));
+    _SSWPicker.hiddenId='sswDobMonth'; _SSWPicker.btnId='sswDobMonthBtn'; _SSWPicker.lblId='sswDobMonthLbl';
+  } else {
+    title='জন্মসাল বেছে নিন';
+    const curY=new Date().getFullYear();
+    items=Array.from({length:curY-1989},(_,i)=>({val:String(curY-i),label:String(curY-i)}));
+    _SSWPicker.hiddenId='sswDobYear'; _SSWPicker.btnId='sswDobYearBtn'; _SSWPicker.lblId='sswDobYearLbl';
+  }
+  const curVal=document.getElementById(_SSWPicker.hiddenId)?.value||'';
+  document.getElementById('sswPickerTitle').textContent=title;
+  document.getElementById('sswPickerList').innerHTML=items.map(it=>`<div class="ssw-picker-item${it.val===curVal?' sel':''}" onclick="sswPickerSelect('${it.val}',${JSON.stringify(it.label)})">${it.label}</div>`).join('');
+  document.getElementById('sswDobDayBtn')?.classList.remove('open');
+  document.getElementById('sswDobMonthBtn')?.classList.remove('open');
+  document.getElementById('sswDobYearBtn')?.classList.remove('open');
+  document.getElementById(_SSWPicker.btnId)?.classList.add('open');
+  document.getElementById('sswPickerOverlay').classList.add('open');
+  document.getElementById('sswPickerSheet').classList.add('open');
+  setTimeout(()=>{ const s=document.querySelector('#sswPickerList .sel'); if(s) s.scrollIntoView({block:'center'}); },80);
+}
+function sswPickerSelect(val,label){
+  document.getElementById(_SSWPicker.hiddenId).value=val;
+  const lbl=document.getElementById(_SSWPicker.lblId);
+  if(lbl){ lbl.textContent=label; lbl.classList.remove('ph'); }
+  document.getElementById(_SSWPicker.btnId)?.classList.remove('open');
+  sswPickerClose();
+}
+function sswPickerClose(){
+  document.getElementById('sswPickerOverlay').classList.remove('open');
+  document.getElementById('sswPickerSheet').classList.remove('open');
+  document.getElementById(_SSWPicker.btnId)?.classList.remove('open');
+}
+// ─────────────────────────────────────────────────────────────────────
 </script>
+
+<!-- DOB Custom Picker Bottom Sheet -->
+<div class="ssw-picker-overlay" id="sswPickerOverlay" onclick="sswPickerClose()"></div>
+<div class="ssw-picker-sheet" id="sswPickerSheet">
+  <div class="ssw-picker-grip"></div>
+  <div class="ssw-picker-head">
+    <span class="ssw-picker-title" id="sswPickerTitle">বেছে নিন</span>
+    <button class="ssw-picker-close" onclick="sswPickerClose()">✕</button>
+  </div>
+  <div class="ssw-picker-list" id="sswPickerList"></div>
+</div>
 
 </body>
 </html>
