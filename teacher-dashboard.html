@@ -6610,7 +6610,8 @@ async function sswSaveAndNext(){
     };
     let studentDbId=editId;
     if(editId){
-      await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+      const {error:updErr}=await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+      if(updErr) throw updErr;
       SSW.students[SSW.idx]={...SSW.students[SSW.idx],full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData};
     } else {
       const roll=SSW.maxRoll+SSW.idx+1;
