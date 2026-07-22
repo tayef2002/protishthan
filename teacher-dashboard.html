@@ -6444,9 +6444,10 @@ async function sswCheckAndShow(){
   const {data:cls} = await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
   if(!cls) return;
   SSW.classId = cls.id; SSW.className = cls.name;
-  const {data:students} = await sb.from('students').select('*').eq('institution_id',teacher.institution_id).eq('class_id',cls.id).order('roll_number',{ascending:true});
+  const {data:studentsRaw} = await sb.from('students').select('*').eq('institution_id',teacher.institution_id).eq('class_id',cls.id);
+  const students = (studentsRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
   SSW.maxRoll = 0;
-  (students||[]).forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
+  students.forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
   if(students && students.length > 0){
     SSW.mode='review'; SSW.students=students;
   } else {
@@ -6494,8 +6495,8 @@ async function sswLoadForm(){
   if(SSW.mode==='review'){
     const stu=SSW.students[SSW.idx];
     document.getElementById('sswProgressCount').textContent=(SSW.idx+1)+'/'+total+' জন';
-    document.getElementById('sswProgressName').textContent=stu.full_name||('রোল '+(SSW.idx+1));
-    document.getElementById('sswRollBadge').textContent=SSW.idx+1;
+    document.getElementById('sswProgressName').textContent=stu.full_name||('রোল '+(stu.roll_number||''));
+    document.getElementById('sswRollBadge').textContent=stu.roll_number||(SSW.idx+1);
     document.getElementById('sswName').value=stu.full_name||'';
     document.getElementById('sswGender').value=stu.gender||'male';
     sswSetDob(stu.date_of_birth||'');
@@ -6574,9 +6575,8 @@ async function sswSaveAndNext(){
     };
     let studentDbId=editId;
     if(editId){
-      const seqRoll=SSW.idx+1;
-      await sb.from('students').update({roll_number:seqRoll,full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
-      SSW.students[SSW.idx]={...SSW.students[SSW.idx],roll_number:seqRoll,full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData};
+      await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+      SSW.students[SSW.idx]={...SSW.students[SSW.idx],full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData};
     } else {
       const roll=SSW.maxRoll+SSW.idx+1;
       let newSid; do{ newSid=String(Math.floor(10000+Math.random()*90000)); }while(SSW.usedSids.has(newSid));
