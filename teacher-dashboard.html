@@ -6610,8 +6610,9 @@ async function sswSaveAndNext(){
     };
     let studentDbId=editId;
     if(editId){
-      const {error:updErr}=await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+      const {data:updData,error:updErr}=await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId).select();
       if(updErr) throw updErr;
+      if(!updData||updData.length===0) throw new Error('সেভ হয়নি (0 rows updated) — Supabase RLS policy চেক করুন। student id: '+editId);
       SSW.students[SSW.idx]={...SSW.students[SSW.idx],full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData};
     } else {
       const roll=SSW.maxRoll+SSW.idx+1;
