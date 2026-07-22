@@ -6282,8 +6282,22 @@ document.addEventListener('click', function(e){
             <select id="sswGender"><option value="male">ছেলে</option><option value="female">মেয়ে</option></select>
           </div>
           <div class="ssw-field">
-            <label>জন্ম তারিখ</label>
-            <input type="date" id="sswDob">
+            <label>জন্ম তারিখ <span style="font-weight:400;color:#94A3B8">(ঐচ্ছিক)</span></label>
+            <div style="display:flex;gap:7px">
+              <select id="sswDobDay" style="flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+                <option value="">দিন</option>
+              </select>
+              <select id="sswDobMonth" style="flex:2;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+                <option value="">মাস</option>
+                <option value="01">জানুয়ারি</option><option value="02">ফেব্রুয়ারি</option><option value="03">মার্চ</option>
+                <option value="04">এপ্রিল</option><option value="05">মে</option><option value="06">জুন</option>
+                <option value="07">জুলাই</option><option value="08">আগস্ট</option><option value="09">সেপ্টেম্বর</option>
+                <option value="10">অক্টোবর</option><option value="11">নভেম্বর</option><option value="12">ডিসেম্বর</option>
+              </select>
+              <select id="sswDobYear" style="flex:2;padding:10px 8px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;color:var(--text)">
+                <option value="">সাল</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="ssw-field">
@@ -6365,6 +6379,42 @@ function sswNormalizePhone(p){
   return /^01[0-9]{9}$/.test(p) ? p : p;
 }
 
+// ── DOB Dropdown helpers ──────────────────────────────────────────────
+function sswInitDobDropdowns(){
+  const dayEl  = document.getElementById('sswDobDay');
+  const yearEl = document.getElementById('sswDobYear');
+  if(!dayEl || !yearEl || dayEl.options.length > 1) return; // already init
+  for(let d=1; d<=31; d++){
+    const o=document.createElement('option');
+    o.value=String(d).padStart(2,'0');
+    o.textContent=d;
+    dayEl.appendChild(o);
+  }
+  const curY = new Date().getFullYear();
+  for(let y=curY; y>=1990; y--){
+    const o=document.createElement('option');
+    o.value=String(y);
+    o.textContent=y;
+    yearEl.appendChild(o);
+  }
+}
+function sswGetDob(){
+  const d=document.getElementById('sswDobDay')?.value;
+  const m=document.getElementById('sswDobMonth')?.value;
+  const y=document.getElementById('sswDobYear')?.value;
+  return (d&&m&&y) ? `${y}-${m}-${d}` : '';
+}
+function sswSetDob(dateStr){
+  if(!dateStr){ ['sswDobDay','sswDobMonth','sswDobYear'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); return; }
+  const parts=dateStr.split('-');
+  if(parts.length<3) return;
+  const el=id=>document.getElementById(id);
+  if(el('sswDobYear'))  el('sswDobYear').value  = parts[0];
+  if(el('sswDobMonth')) el('sswDobMonth').value  = parts[1];
+  if(el('sswDobDay'))   el('sswDobDay').value    = parts[2];
+}
+// ─────────────────────────────────────────────────────────────────────
+
 async function sswCheckAndShow(){
   if(!teacher || !teacher.primary_class_id) return;
   if(localStorage.getItem('ssw_done_'+teacher.id)) return;
@@ -6410,6 +6460,7 @@ function sswLater(){ document.getElementById('sswOverlay').classList.remove('ope
 async function sswStartFlow(){ SSW.idx=0; await sswLoadForm(); }
 
 async function sswLoadForm(){
+  sswInitDobDropdowns();
   document.querySelectorAll('.ssw-step').forEach(s=>s.classList.remove('active'));
   document.getElementById('sswS1').classList.add('active');
   sswClearForm();
@@ -6424,7 +6475,7 @@ async function sswLoadForm(){
     document.getElementById('sswRollBadge').textContent=stu.roll_number||(SSW.idx+1);
     document.getElementById('sswName').value=stu.full_name||'';
     document.getElementById('sswGender').value=stu.gender||'male';
-    document.getElementById('sswDob').value=stu.date_of_birth||'';
+    sswSetDob(stu.date_of_birth||'');
     document.getElementById('sswAddress').value=stu.address||'';
     document.getElementById('sswPhone').value=stu.phone||'';
     const ex=stu.extra_data||{};
@@ -6467,7 +6518,7 @@ async function sswLoadForm(){
 }
 
 function sswClearForm(){
-  ['sswName','sswDob','sswAddress','sswPhone','sswDakhila','sswHijri','sswEnglish','sswDept','sswFeeAmount','sswVillage','sswPost','sswUpazila','sswDistrict','sswPrevInst','sswPrevClass','sswFatherName','sswFatherPhone','sswMotherName','sswMotherPhone','sswEditStudentId','sswEditFatherId','sswEditMotherId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  ['sswName','sswDobDay','sswDobMonth','sswDobYear','sswAddress','sswPhone','sswDakhila','sswHijri','sswEnglish','sswDept','sswFeeAmount','sswVillage','sswPost','sswUpazila','sswDistrict','sswPrevInst','sswPrevClass','sswFatherName','sswFatherPhone','sswMotherName','sswMotherPhone','sswEditStudentId','sswEditFatherId','sswEditMotherId'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('sswGender').value='male';
   document.getElementById('sswNotunPuraton').value='';
 }
@@ -6499,12 +6550,12 @@ async function sswSaveAndNext(){
     };
     let studentDbId=editId;
     if(editId){
-      await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:document.getElementById('sswDob').value||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
+      await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId);
     } else {
       const roll=SSW.maxRoll+SSW.idx+1;
       let newSid; do{ newSid=String(Math.floor(10000+Math.random()*90000)); }while(SSW.usedSids.has(newSid));
       SSW.usedSids.add(newSid);
-      const {data:stu,error:stuErr}=await sb.from('students').insert({institution_id:teacher.institution_id,full_name:name,class_name:SSW.className,class_id:SSW.classId,roll_number:roll,gender:document.getElementById('sswGender').value,date_of_birth:document.getElementById('sswDob').value||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,is_active:true,student_id:newSid,extra_data:extraData}).select().single();
+      const {data:stu,error:stuErr}=await sb.from('students').insert({institution_id:teacher.institution_id,full_name:name,class_name:SSW.className,class_id:SSW.classId,roll_number:roll,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,is_active:true,student_id:newSid,extra_data:extraData}).select().single();
       if(stuErr) throw stuErr;
       studentDbId=stu.id;
     }
