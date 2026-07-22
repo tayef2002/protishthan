@@ -1465,10 +1465,9 @@ async function loadAttendanceForClass(){
 
   const { data, error } = await sb.from('students').select('*')
     .eq('institution_id', teacher.institution_id)
-    .eq('class_id', classId)
-    .order('roll_number',{ascending:true});
+    .eq('class_id', classId);
 
-  attStudents = (!error && data) ? data : [];
+  attStudents = (!error && data) ? data.slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0)) : [];
 
   const { data: existing } = await sb.from('attendance').select('*')
     .eq('class_id', classId)
@@ -2103,11 +2102,11 @@ async function openFeePanel(){
   feePanelCls = cls;
   feeMethodPickerFor = null;
 
-  const { data: students } = await sb.from('students').select('*').eq('class_id', cls.id).order('roll_number');
+  const { data: studentsRaw } = await sb.from('students').select('*').eq('class_id', cls.id);
   const month = new Date().toISOString().slice(0,7);
   feePanelMonth = month;
   const { data: payments } = await sb.from('fee_payments').select('*').eq('class_id', cls.id).eq('month', month);
-  feePanelStudents = students||[];
+  feePanelStudents = (studentsRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
   feePanelPayMap = {};
   (payments||[]).forEach(p=>{ feePanelPayMap[p.student_id] = p; });
   renderFeePanelList();
@@ -2508,14 +2507,13 @@ async function loadClassStudents(){
   const classIds = myClasses.map(c=>c.id);
   const { data, error } = await sb.from('students').select('*')
     .eq('institution_id', teacher.institution_id)
-    .in('class_id', classIds)
-    .order('roll_number',{ascending:true});
+    .in('class_id', classIds);
 
   if(error || !data){
     document.getElementById('classStudentsTable').innerHTML = '<div class="empty-state">তথ্য লোড করা যায়নি।</div>';
     return;
   }
-  allClassStudents = data;
+  allClassStudents = data.slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
   document.getElementById('statStudentCount').textContent = data.length;
 
   if(!data.length){
