@@ -6450,12 +6450,18 @@ async function sswCheckAndShow(){
   students.forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
   if(students && students.length > 0){
     SSW.mode='review'; SSW.students=students;
+    // Resume from where teacher left off
+    const progKey='ssw_prog_'+teacher.id+'_'+cls.id;
+    const lastSaved=parseInt(localStorage.getItem(progKey)||'-1');
+    SSW.startIdx = Math.min(lastSaved+1, students.length-1);
+    // If all done already, start from 0 (re-review)
+    if(lastSaved >= students.length-1) SSW.startIdx=0;
   } else {
-    SSW.mode='add'; SSW.students=[];
+    SSW.mode='add'; SSW.students=[]; SSW.startIdx=0;
     const {data:sids} = await sb.from('students').select('student_id').eq('institution_id',teacher.institution_id);
     SSW.usedSids = new Set((sids||[]).map(s=>s.student_id).filter(Boolean));
   }
-  SSW.idx=0; SSW.savedCount=0;
+  SSW.idx=SSW.startIdx||0; SSW.savedCount=0;
   sswShowWelcome();
 }
 
@@ -6467,9 +6473,12 @@ function sswShowWelcome(){
   document.getElementById('sswS0').classList.add('active');
   if(SSW.mode==='review'){
     const c=SSW.students.length;
+    const si=SSW.startIdx||0;
     document.getElementById('sswWelcomeIcon').textContent='📋';
-    document.getElementById('sswWelcomeCount').textContent='📚 '+c+' জন শিক্ষার্থী পাওয়া গেছে';
-    document.getElementById('sswWelcomeMsg').textContent='আপনার ক্লাসে '+c+' জন শিক্ষার্থী আছে। প্রতিটির তথ্য একবার দেখুন ও প্রয়োজনে সংশোধন করুন। "Save ও পরবর্তী" চাপলে পরের জন আসবে।';
+    document.getElementById('sswWelcomeCount').textContent='📚 '+c+' জন · '+(si>0?si+' জন সম্পন্ন':'এখনো শুরু হয়নি');
+    document.getElementById('sswWelcomeMsg').textContent=si>0
+      ? 'আপনি '+si+' জনের তথ্য আগে সম্পন্ন করেছেন। এখন রোল '+(SSW.students[si]?.roll_number||si+1)+' থেকে শুরু হবে। "← আগের" দিয়ে আগের শিক্ষার্থীও দেখতে পারবেন।'
+      : 'আপনার ক্লাসে '+c+' জন শিক্ষার্থী আছে। প্রতিটির তথ্য একবার দেখুন ও প্রয়োজনে সংশোধন করুন।';
   } else {
     document.getElementById('sswWelcomeIcon').textContent='➕';
     document.getElementById('sswWelcomeCount').textContent='🏫 '+SSW.className;
@@ -6590,6 +6599,12 @@ async function sswSaveAndNext(){
     if(fn){ if(fatherId){ await sb.from('guardians').update({full_name:fn,phone:fPhone,whatsapp_number:fPhone}).eq('id',fatherId); } else { await sb.from('guardians').insert({student_id:studentDbId,full_name:fn,relation:'পিতা',phone:fPhone,whatsapp_number:fPhone}); } }
     if(mn){ if(motherId){ await sb.from('guardians').update({full_name:mn,phone:mPhone,whatsapp_number:mPhone}).eq('id',motherId); } else { await sb.from('guardians').insert({student_id:studentDbId,full_name:mn,relation:'মাতা',phone:mPhone,whatsapp_number:mPhone}); } }
     SSW.savedCount++;
+    if(SSW.mode==='review'){
+      // Save progress so next session resumes from here
+      const progKey='ssw_prog_'+teacher.id+'_'+SSW.classId;
+      const curMax=parseInt(localStorage.getItem(progKey)||'-1');
+      if(SSW.idx>curMax) localStorage.setItem(progKey,String(SSW.idx));
+    }
     const isLast=SSW.mode==='review'&&SSW.idx>=SSW.students.length-1;
     if(isLast||SSW.mode==='add'){ sswShowDone(); } else { SSW.idx++; await sswLoadForm(); }
   } catch(err){
