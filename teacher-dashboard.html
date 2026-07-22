@@ -926,10 +926,16 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
         <div class="page-title">আমার ক্লাস</div>
         <div class="page-sub" id="classViewSub">নিযুক্ত ক্লাসের শিক্ষার্থী তালিকা</div>
       </div>
-      <button onclick="showMySubjectsOverview()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;color:#1A56DB;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#EEF3FF';this.style.borderColor='#1A56DB'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ক্লাস যোগ / সম্পাদনা
-      </button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button onclick="sswOpenManual()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;color:#0F9B6B;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#EDFAF4';this.style.borderColor='#0F9B6B'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          শিক্ষার্থী আপডেট
+        </button>
+        <button onclick="showMySubjectsOverview()" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid #E2E8F0;border-radius:12px;background:#fff;color:#1A56DB;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#EEF3FF';this.style.borderColor='#1A56DB'" onmouseout="this.style.background='#fff';this.style.borderColor='#E2E8F0'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          ক্লাস যোগ / সম্পাদনা
+        </button>
+      </div>
     </div>
 
     <div class="cv-action-row">
@@ -6463,6 +6469,13 @@ function sswSetDob(dateStr){
   if(el('sswDobDay'))   { el('sswDobDay').value=parts[2];   _setBtnLbl('sswDobDayBtn','sswDobDayLbl',String(parseInt(parts[2])),false); }
 }
 // ─────────────────────────────────────────────────────────────────────
+
+async function sswOpenManual(){
+  if(!teacher || !teacher.primary_class_id){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
+  // Clear done flag so SSW opens even if previously marked done
+  localStorage.removeItem('ssw_done_'+teacher.id);
+  await sswCheckAndShow();
+}
 
 async function sswCheckAndShow(){
   if(!teacher || !teacher.primary_class_id) return;
