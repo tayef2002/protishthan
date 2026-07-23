@@ -7038,59 +7038,43 @@ async function _histSwitchClass(classId){
 
 function _histBuildMonthList(){
   const now=new Date(); const curY=now.getFullYear(); const curM=now.getMonth()+1;
-  const startM = parseInt(institution?.academic_year_start_month) || 1;
-  const endM   = parseInt(institution?.academic_year_end_month)   || 12;
-  const wraps  = startM > endM;
+  const startM  = parseInt(institution?.academic_year_start_month) || 1;
+  const enAnchor = parseInt(institution?.academic_year_en) || curY;
+  const arAnchor = parseInt(institution?.academic_year_ar) || 0;
+  const wraps   = startM > (parseInt(institution?.academic_year_end_month) || 12);
 
-  // Current academic year key = the English year when startM of THIS academic year occurred
-  function acYearKey(m,y){ return (wraps && m < startM) ? y-1 : y; }
-  const curAcKey = acYearKey(curM, curY);
+  // Current academic year start year: the English year when startM of THIS year occurred
+  const acStartY = (curM >= startM) ? curY : curY - 1;
+  // If academic year wraps (e.g. March→February), acStartY is the year startM falls in
+  const acEndY   = wraps ? acStartY + 1 : acStartY;
 
-  // Show last 3 complete academic years (oldest first)
-  const YEARS_BACK = 3;
-  const groups = {};
-  for(let i = YEARS_BACK - 1; i >= 0; i--){
-    const yr1 = curAcKey - i;
-    const yr2 = wraps ? yr1 + 1 : yr1;
-    groups[yr1] = [];
-    // Generate all months of this academic year in order
-    for(let pos=0; pos<12; pos++){
-      const m = ((startM - 1 + pos) % 12) + 1;
-      const y = (wraps && m < startM) ? yr2 : yr1;
-      // Skip future months (current month included — teacher enters previous months only)
-      if(y > curY || (y === curY && m >= curM)) continue;
-      groups[yr1].push({y, m});
-    }
-    // Remove empty groups (academic year hasn't started yet or fully in the future)
-    if(!groups[yr1].length) delete groups[yr1];
+  // Hijri year for current academic year from settings anchor
+  const groupHijriYear = (institution?.calendar_type==='arabic' && arAnchor)
+    ? arAnchor + (acStartY - enAnchor)
+    : null;
+
+  // Generate months from academic start month up to and including today's month
+  const months = [];
+  for(let pos = 0; pos < 12; pos++){
+    const m = ((startM - 1 + pos) % 12) + 1;
+    const y = (wraps && m < startM) ? acEndY : acStartY;
+    // Stop once we pass today's month
+    if(y > curY || (y === curY && m > curM)) break;
+    months.push({y, m});
   }
 
-  const groupKeys = Object.keys(groups).sort((a,b)=>a-b);
-
-  if(!groupKeys.length){
+  if(!months.length){
     document.getElementById('histMonthList').innerHTML='<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
     document.getElementById('histMonthView').style.display='block';
     document.getElementById('histEntryView').style.display='none';
     return;
   }
 
-  // Hijri year anchor from institution settings
-  const enAnchor = parseInt(institution?.academic_year_en) || 0;
-  const arAnchor = parseInt(institution?.academic_year_ar) || 0;
-
-  let html='';
-  groupKeys.forEach(key=>{
-    const yr1=parseInt(key), yr2=wraps?yr1+1:yr1;
-    const label = wraps ? `${yr1}–${yr2}` : `${yr1}`;
-    // Hijri year for this group: offset from institution's anchor year
-    let groupHijriYear = null;
-    if(institution?.calendar_type==='arabic'){
-      groupHijriYear = (enAnchor && arAnchor) ? arAnchor + (yr1 - enAnchor) : _getHijriYear(yr1, startM);
-    }
-    html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 20px 4px">${label} শিক্ষাবর্ষ</div>`;
-    groups[key].forEach(({y,m})=>{
-      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this,${groupHijriYear})">${_histMonthLabel(m,y,groupHijriYear)}</div>`;
-    });
+  // Academic year label
+  const label = wraps ? `${acStartY}–${acEndY}` : `${acStartY}`;
+  let html=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 20px 4px">${label} শিক্ষাবর্ষ</div>`;
+  months.forEach(({y,m})=>{
+    html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this,${groupHijriYear})">${_histMonthLabel(m,y,groupHijriYear)}</div>`;
   });
 
   document.getElementById('histMonthList').innerHTML=html;
