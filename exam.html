@@ -1251,7 +1251,7 @@ function selectExamType(btn){
 async function onExamClassChange(){
   const classId = document.getElementById('examClassSelect').value;
   if(!classId){ newExamSubjects=[]; renderExamSubjectsList(); return; }
-  const { data } = await sb.from('teacher_class_subjects').select('subject_name').eq('class_id', classId);
+  const { data } = await sb.from('class_subjects').select('subject_name').eq('class_id', classId).order('id');
   const subjectNames = [...new Set((data||[]).map(r=>r.subject_name))];
   newExamSubjects = subjectNames.map(name=>({ subject: name, full_marks: 100, pass_marks: 33 }));
   renderExamSubjectsList();
