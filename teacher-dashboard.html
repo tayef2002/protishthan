@@ -6539,7 +6539,7 @@ async function sswCheckAndShow(forceOpen=false){
     SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
     // If all done already, start from 0 (re-review)
     if(lastSavedIdx >= students.length-1) SSW.startIdx=0;
-    SSW.dbSavedCount = Math.max(dbProgress, lsProgress);
+    SSW.dbSavedCount = dbProgress;
   } else {
     SSW.mode='add'; SSW.students=[]; SSW.startIdx=0;
     const {data:sids} = await sb.from('students').select('student_id').eq('institution_id',teacher.institution_id);
