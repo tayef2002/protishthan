@@ -6987,14 +6987,15 @@ function _getHijriYear(gYear, gMonth){
   return hy;
 }
 
-function _histMonthLabel(m, y){
+function _histMonthLabel(m, y, hijriYear){
   if(institution?.calendar_type !== 'arabic') return _MONTHS_EN[m-1] + ' ' + y;
   const startM = (institution?.academic_year_start_month || 1) - 1;
   const offset = ((m - 1 - startM + 12) % 12);
   const arabicMonth = _MONTHS_AR[offset];
-  const hijriYear   = _getHijriYear(y, m);
-  const engMonth    = _MONTHS_EN[m-1];
-  return `${arabicMonth} - ${hijriYear} · ${engMonth} - ${y}`;
+  // hijriYear passed from group (calculated once per academic year from its start month)
+  const hy = (hijriYear != null) ? hijriYear : _getHijriYear(y, m);
+  const engMonth = _MONTHS_EN[m-1];
+  return `${arabicMonth} - ${hy} · ${engMonth} - ${y}`;
 }
 
 let _histSelectedClassId = null;
@@ -7080,9 +7081,11 @@ function _histBuildMonthList(){
   groupKeys.forEach(key=>{
     const yr1=parseInt(key), yr2=wraps?yr1+1:yr1;
     const label = wraps ? `${yr1}–${yr2}` : `${yr1}`;
+    // Calculate Hijri year ONCE per academic group using the group's start month & year
+    const groupHijriYear = (institution?.calendar_type==='arabic') ? _getHijriYear(yr1, startM) : null;
     html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 20px 4px">${label} শিক্ষাবর্ষ</div>`;
     groups[key].forEach(({y,m})=>{
-      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_histMonthLabel(m,y)}</div>`;
+      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this,${groupHijriYear})">${_histMonthLabel(m,y,groupHijriYear)}</div>`;
     });
   });
 
@@ -7091,10 +7094,10 @@ function _histBuildMonthList(){
   document.getElementById('histEntryView').style.display='none';
 }
 
-async function histSelMonth(year,month,el){
+async function histSelMonth(year,month,el,hijriYear){
   document.querySelectorAll('.hist-month-item').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('histEntryTitle').textContent=_histMonthLabel(month,year);
+  document.getElementById('histEntryTitle').textContent=_histMonthLabel(month,year,hijriYear);
   // Load existing data for this month
   const {data:existing}=await sb.from('monthly_attendance_summary')
     .select('*').eq('institution_id',teacher.institution_id).eq('year',year).eq('month',month);
