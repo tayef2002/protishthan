@@ -7072,7 +7072,7 @@ function _histBuildMonthList(){
   groupKeys.forEach(key=>{
     const yr1=parseInt(key), yr2=wraps?yr1+1:yr1;
     const label = wraps ? `${yr1}–${yr2}` : `${yr1}`;
-    html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:10px 0 4px">${label} শিক্ষাবর্ষ</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 20px 4px">${label} শিক্ষাবর্ষ</div>`;
     groups[key].forEach(({y,m})=>{
       html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_histMonthLabel(m,y)}</div>`;
     });
