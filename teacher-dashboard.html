@@ -1727,7 +1727,7 @@ async function openRegister(){
   const now = new Date();
   const year = now.getFullYear(), month = now.getMonth();
   const daysInMonth = new Date(year, month+1, 0).getDate();
-  const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  const monthNames = _getMonths();
   const days = [];
   for(let d=1; d<=daysInMonth; d++){ days.push(toLocalDateStr(new Date(year, month, d))); }
 
@@ -2156,7 +2156,8 @@ function effectiveFee(s, cls){
 function renderFeePanelList(){
   const cls = feePanelCls;
   const month = feePanelMonth;
-  const monthLabel = new Date(month+'-01').toLocaleDateString('bn-BD',{month:'long'});
+  const _feeDate=new Date(month+'-01'); const _feeM=_feeDate.getMonth()+1; const _feeY=_feeDate.getFullYear();
+  const monthLabel = _monthLabel(_feeM,_feeY);
   const wrap = document.getElementById('feeList');
   wrap.innerHTML = feePanelStudents.map(s=>{
     const pay = feePanelPayMap[s.id];
@@ -6761,7 +6762,11 @@ function sswPickerClose(){
 // ─────────────────────────────────────────────────────────────────────
 
 /* ===== HISTORICAL ATTENDANCE ===== */
-const _HIST_MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const _MONTHS_EN=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const _MONTHS_AR=['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জুমাদাল উলা','জুমাদাস সানি','রজব','শাবান','রমজান','শাওয়াল','জিলকদ','জিলহজ'];
+function _getMonths(){ return (institution?.calendar_type==='arabic') ? _MONTHS_AR : _MONTHS_EN; }
+function _monthLabel(m,y){ const months=_getMonths(); return months[(m-1)%12] + ' ' + y; }
+const _HIST_MONTHS=_MONTHS_EN; // kept for backward compat — use _getMonths() going forward
 let _histStudents=[], _histExisting={};
 
 async function openHistAtt(){
@@ -6785,7 +6790,7 @@ function _histBuildMonthList(){
     const minM=(y===curY-1?1:1);
     for(let m=maxM;m>=minM;m--){
       if(m<1) continue;
-      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_HIST_MONTHS[m-1]} ${y}</div>`;
+      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_monthLabel(m,y)}</div>`;
     }
   }
   document.getElementById('histMonthList').innerHTML=html||'<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
@@ -6796,7 +6801,7 @@ function _histBuildMonthList(){
 async function histSelMonth(year,month,el){
   document.querySelectorAll('.hist-month-item').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('histEntryTitle').textContent=_HIST_MONTHS[month-1]+' '+year;
+  document.getElementById('histEntryTitle').textContent=_monthLabel(month,year);
   // Load existing data for this month
   const {data:existing}=await sb.from('monthly_attendance_summary')
     .select('*').eq('institution_id',teacher.institution_id).eq('year',year).eq('month',month);
