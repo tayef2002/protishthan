@@ -6645,9 +6645,9 @@ async function sswSwitchClass(classId){
   if(students.length > 0){
     SSW.mode='review'; SSW.students=students;
     const studentIds = students.map(s=>s.id);
-    const {data:guardianRows} = await sb.from('guardians').select('student_id').in('student_id', studentIds);
-    const savedSids = new Set((guardianRows||[]).map(g=>g.student_id));
-    let dbProgress = students.findIndex(s => !savedSids.has(s.id));
+    const {data:reviewedRows} = await sb.from('students').select('id').in('id', studentIds).not('ssw_reviewed_at','is',null);
+    const reviewedSet = new Set((reviewedRows||[]).map(r=>r.id));
+    let dbProgress = students.findIndex(s => !reviewedSet.has(s.id));
     if(dbProgress === -1) dbProgress = students.length;
     const lastSavedIdx = dbProgress - 1;
     SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
@@ -6684,15 +6684,13 @@ async function sswCheckAndShow(forceOpen=false){
     SSW.mode='review'; SSW.students=students;
     // Calculate progress from DB: count students that have guardian records (device-independent)
     const studentIds = students.map(s=>s.id);
-    const {data:guardianRows} = await sb.from('guardians').select('student_id').in('student_id', studentIds);
-    const savedSids = new Set((guardianRows||[]).map(g=>g.student_id));
-    // Find first student without guardian (= not yet reviewed)
-    let dbProgress = students.findIndex(s => !savedSids.has(s.id));
-    if(dbProgress === -1) dbProgress = students.length; // all done
-    // Progress fully DB-based (no localStorage)
+    const {data:reviewedRows} = await sb.from('students').select('id').in('id', studentIds).not('ssw_reviewed_at','is',null);
+    const reviewedSet = new Set((reviewedRows||[]).map(r=>r.id));
+    // Find first student not yet reviewed in SSW
+    let dbProgress = students.findIndex(s => !reviewedSet.has(s.id));
+    if(dbProgress === -1) dbProgress = students.length; // all reviewed
     const lastSavedIdx = dbProgress - 1;
     SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
-    // If all done already, start from 0 (re-review)
     if(lastSavedIdx >= students.length-1) SSW.startIdx=0;
     SSW.dbSavedCount = dbProgress;
   } else {
@@ -6836,7 +6834,7 @@ async function sswSaveAndNext(){
     };
     let studentDbId=editId;
     if(editId){
-      const {data:updData,error:updErr}=await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData}).eq('id',editId).select();
+      const {data:updData,error:updErr}=await sb.from('students').update({full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData,ssw_reviewed_at:new Date().toISOString()}).eq('id',editId).select();
       if(updErr) throw updErr;
       if(!updData||updData.length===0) throw new Error('সেভ হয়নি (0 rows updated) — Supabase RLS policy চেক করুন। student id: '+editId);
       SSW.students[SSW.idx]={...SSW.students[SSW.idx],full_name:name,gender:document.getElementById('sswGender').value,date_of_birth:sswGetDob()||null,address:document.getElementById('sswAddress').value.trim()||null,phone:phone||null,extra_data:extraData};
