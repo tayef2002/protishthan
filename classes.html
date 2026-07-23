@@ -880,7 +880,7 @@ function openEditModal(id){
   feeSetValue('AdmissionFee', c.admission_fee||null);
   feeSetValue('AdmissionFeeOld', c.admission_fee_old||null);
   document.getElementById('fStudentLoginEnabled').checked = !!c.student_login_enabled;
-  modalSubjects = subjectsForClass(c.id).map(s=>({ id: s.id, subject_name: s.subject_name, start_time: s.start_time, end_time: s.end_time, days_of_week: s.days_of_week||null }));
+  modalSubjects = subjectsForClass(c.id).map(s=>({ id: s.id, subject_name: s.subject_name, _original_name: s.subject_name, start_time: s.start_time, end_time: s.end_time, days_of_week: s.days_of_week||null }));
   renderModalSubjectsList();
   document.getElementById('modalOverlay').classList.add('show');
 }
@@ -961,6 +961,13 @@ async function saveClass(){
         days_of_week: s.days_of_week||null
       }).eq('id', s.id);
       if(updErr) throw updErr;
+      // If name changed, sync teacher_class_subjects too
+      if(s._original_name && s._original_name !== s.subject_name){
+        await sb.from('teacher_class_subjects')
+          .update({ subject_name: s.subject_name })
+          .eq('class_id', classId)
+          .eq('subject_name', s._original_name);
+      }
     }
 
     showToast('success', editClassId ? 'আপডেট হয়েছে' : 'তৈরি হয়েছে', editClassId ? 'ক্লাসের তথ্য সফলভাবে আপডেট হয়েছে।' : 'নতুন ক্লাস সফলভাবে তৈরি হয়েছে।');
