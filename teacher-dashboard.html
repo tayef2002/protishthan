@@ -5226,16 +5226,16 @@ async function initCheckin(inst, userEmail, userName){
   }
   await ciLoadToday(userEmail);
 
-  // Check for pending action after refresh
-  const pending = localStorage.getItem(CI_PENDING_KEY);
-  const ts = parseInt(localStorage.getItem(CI_TS_KEY)||'0');
+  // Check for pending action after refresh (sessionStorage: survives reload, clears on tab close)
+  const pending = sessionStorage.getItem(CI_PENDING_KEY);
+  const ts = parseInt(sessionStorage.getItem(CI_TS_KEY)||'0');
   if(pending && (Date.now()-ts)<20000){
-    localStorage.removeItem(CI_PENDING_KEY);
-    localStorage.removeItem(CI_TS_KEY);
+    sessionStorage.removeItem(CI_PENDING_KEY);
+    sessionStorage.removeItem(CI_TS_KEY);
     await ciProcessAfterRefresh(pending, userEmail, userName);
   } else {
-    localStorage.removeItem(CI_PENDING_KEY);
-    localStorage.removeItem(CI_TS_KEY);
+    sessionStorage.removeItem(CI_PENDING_KEY);
+    sessionStorage.removeItem(CI_TS_KEY);
     ciUpdateButtons();
     maybeStartWatch();
   }
@@ -5300,8 +5300,8 @@ function triggerCI(action){
   document.getElementById('ciInBtn').disabled=true;
   document.getElementById('ciOutBtn').disabled=true;
   document.getElementById('ciStatusMsg').textContent='⏳ পেজ রিফ্রেশ হচ্ছে...';
-  localStorage.setItem(CI_PENDING_KEY, action);
-  localStorage.setItem(CI_TS_KEY, Date.now().toString());
+  sessionStorage.setItem(CI_PENDING_KEY, action);
+  sessionStorage.setItem(CI_TS_KEY, Date.now().toString());
   window.location.reload();
 }
 
@@ -6511,14 +6511,13 @@ function sswSetDob(dateStr){
 
 async function sswOpenManual(){
   if(!teacher || !teacher.primary_class_id){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
-  // Clear done flag so SSW opens even if previously marked done
-  localStorage.removeItem('ssw_done_'+teacher.id);
-  await sswCheckAndShow();
+  await sswCheckAndShow(true);
 }
 
-async function sswCheckAndShow(){
+async function sswCheckAndShow(forceOpen=false){
   if(!teacher || !teacher.primary_class_id) return;
-  if(localStorage.getItem('ssw_done_'+teacher.id)) return;
+  // If dismissed this session and not forced, don't auto-show
+  if(!forceOpen && sessionStorage.getItem('ssw_later_'+teacher.id)) return;
   const {data:cls} = await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
   if(!cls) return;
   SSW.classId = cls.id; SSW.className = cls.name;
@@ -6535,11 +6534,8 @@ async function sswCheckAndShow(){
     // Find first student without guardian (= not yet reviewed)
     let dbProgress = students.findIndex(s => !savedSids.has(s.id));
     if(dbProgress === -1) dbProgress = students.length; // all done
-    // Also check localStorage as fallback (in case guardian data wasn't entered)
-    const progKey='ssw_prog_'+teacher.id+'_'+cls.id;
-    const lsProgress=parseInt(localStorage.getItem(progKey)||'-1')+1;
-    // Use whichever is higher
-    const lastSavedIdx = Math.max(dbProgress, lsProgress) - 1;
+    // Progress fully DB-based (no localStorage)
+    const lastSavedIdx = dbProgress - 1;
     SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
     // If all done already, start from 0 (re-review)
     if(lastSavedIdx >= students.length-1) SSW.startIdx=0;
@@ -6577,7 +6573,10 @@ function sswShowWelcome(){
   document.getElementById('sswOverlay').classList.add('open');
 }
 
-function sswLater(){ document.getElementById('sswOverlay').classList.remove('open'); }
+function sswLater(){
+  document.getElementById('sswOverlay').classList.remove('open');
+  sessionStorage.setItem('ssw_later_'+teacher.id,'1');
+}
 
 async function sswStartFlow(){ SSW.idx=SSW.startIdx||0; await sswLoadForm(); }
 
@@ -6692,9 +6691,7 @@ async function sswSaveAndNext(){
     SSW.savedCount++;
     if(SSW.mode==='review'){
       // Save progress so next session resumes from here
-      const progKey='ssw_prog_'+teacher.id+'_'+SSW.classId;
-      const curMax=parseInt(localStorage.getItem(progKey)||'-1');
-      if(SSW.idx>curMax) localStorage.setItem(progKey,String(SSW.idx));
+      // Progress tracked via DB (guardians table) — no localStorage needed
     }
     const isLast=SSW.mode==='review'&&SSW.idx>=SSW.students.length-1;
     if(isLast||SSW.mode==='add'){ sswShowDone(); } else { SSW.idx++; await sswLoadForm(); }
@@ -6719,7 +6716,7 @@ function sswShowDone(){
   const msg=SSW.mode==='review'?SSW.savedCount+' জন শিক্ষার্থীর তথ্য আপডেট করা হয়েছে।':SSW.savedCount+' জন নতুন শিক্ষার্থী যোগ করা হয়েছে।';
   document.getElementById('sswDoneMsg').textContent=msg+' এখন Dashboard থেকে সব কিছু দেখতে পারবেন।';
   document.getElementById('sswFooter').innerHTML='<button class="ssw-done-btn" onclick="sswFinish()">✅ Dashboard-এ যান</button>';
-  localStorage.setItem('ssw_done_'+teacher.id,'1');
+  sessionStorage.setItem('ssw_later_'+teacher.id,'1');
 }
 
 function sswFinish(){ document.getElementById('sswOverlay').classList.remove('open'); }
