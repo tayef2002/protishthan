@@ -6528,12 +6528,22 @@ async function sswCheckAndShow(){
   students.forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
   if(students && students.length > 0){
     SSW.mode='review'; SSW.students=students;
-    // Resume from where teacher left off
+    // Calculate progress from DB: count students that have guardian records (device-independent)
+    const studentIds = students.map(s=>s.id);
+    const {data:guardianRows} = await sb.from('guardians').select('student_id').in('student_id', studentIds);
+    const savedSids = new Set((guardianRows||[]).map(g=>g.student_id));
+    // Find first student without guardian (= not yet reviewed)
+    let dbProgress = students.findIndex(s => !savedSids.has(s.id));
+    if(dbProgress === -1) dbProgress = students.length; // all done
+    // Also check localStorage as fallback (in case guardian data wasn't entered)
     const progKey='ssw_prog_'+teacher.id+'_'+cls.id;
-    const lastSaved=parseInt(localStorage.getItem(progKey)||'-1');
-    SSW.startIdx = Math.min(lastSaved+1, students.length-1);
+    const lsProgress=parseInt(localStorage.getItem(progKey)||'-1')+1;
+    // Use whichever is higher
+    const lastSavedIdx = Math.max(dbProgress, lsProgress) - 1;
+    SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
     // If all done already, start from 0 (re-review)
-    if(lastSaved >= students.length-1) SSW.startIdx=0;
+    if(lastSavedIdx >= students.length-1) SSW.startIdx=0;
+    SSW.dbSavedCount = Math.max(dbProgress, lsProgress);
   } else {
     SSW.mode='add'; SSW.students=[]; SSW.startIdx=0;
     const {data:sids} = await sb.from('students').select('student_id').eq('institution_id',teacher.institution_id);
@@ -6552,10 +6562,11 @@ function sswShowWelcome(){
   if(SSW.mode==='review'){
     const c=SSW.students.length;
     const si=SSW.startIdx||0;
+    const doneCount = SSW.dbSavedCount || si;
     document.getElementById('sswWelcomeIcon').textContent='📋';
-    document.getElementById('sswWelcomeCount').textContent='📚 '+c+' জন · '+(si>0?si+' জন সম্পন্ন':'এখনো শুরু হয়নি');
-    document.getElementById('sswWelcomeMsg').textContent=si>0
-      ? 'আপনি '+si+' জনের তথ্য আগে সম্পন্ন করেছেন। এখন রোল '+(SSW.students[si]?.roll_number||si+1)+' থেকে শুরু হবে। "← আগের" দিয়ে আগের শিক্ষার্থীও দেখতে পারবেন।'
+    document.getElementById('sswWelcomeCount').textContent='📚 '+c+' জন · '+(doneCount>0?doneCount+' জন সম্পন্ন':'এখনো শুরু হয়নি');
+    document.getElementById('sswWelcomeMsg').textContent=doneCount>0
+      ? 'আপনি '+doneCount+' জনের তথ্য আগে সম্পন্ন করেছেন। এখন রোল '+(SSW.students[si]?.roll_number||si+1)+' থেকে শুরু হবে। "← আগের" দিয়ে আগের শিক্ষার্থীও দেখতে পারবেন।'
       : 'আপনার ক্লাসে '+c+' জন শিক্ষার্থী আছে। প্রতিটির তথ্য একবার দেখুন ও প্রয়োজনে সংশোধন করুন।';
   } else {
     document.getElementById('sswWelcomeIcon').textContent='➕';
