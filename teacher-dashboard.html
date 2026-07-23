@@ -1833,15 +1833,28 @@ async function doFinalizeAttendance(){
 
 let myClasses = [];
 async function loadMyClasses(){
-  // Always refresh primary_class_id from DB
+  // Refresh primary_class_id from DB
   const { data: freshTeacher } = await sb.from('teachers').select('primary_class_id').eq('id', teacher.id).single();
   if(freshTeacher?.primary_class_id) teacher.primary_class_id = freshTeacher.primary_class_id;
 
-  // Teacher sees ONLY their primary class
-  const primaryId = teacher.primary_class_id;
-  if(primaryId){
-    const { data, error } = await sb.from('classes').select('*').eq('id', primaryId);
+  // Load ALL classes this teacher is assigned to via teacher_class_subjects
+  const { data: tcsRows } = await sb.from('teacher_class_subjects').select('class_id').eq('teacher_id', teacher.id);
+  const allClassIds = [...new Set((tcsRows||[]).map(r=>r.class_id).filter(Boolean))];
+
+  // Also include primary_class_id if not already in the list
+  if(teacher.primary_class_id && !allClassIds.includes(teacher.primary_class_id)){
+    allClassIds.push(teacher.primary_class_id);
+  }
+
+  if(allClassIds.length){
+    const { data, error } = await sb.from('classes').select('*').in('id', allClassIds);
     myClasses = (!error && data) ? data : [];
+    // Sort: primary class first, then alphabetically
+    myClasses.sort((a,b)=>{
+      if(a.id===teacher.primary_class_id) return -1;
+      if(b.id===teacher.primary_class_id) return 1;
+      return (a.name||'').localeCompare(b.name||'');
+    });
   } else {
     myClasses = [];
   }
