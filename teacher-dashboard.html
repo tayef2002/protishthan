@@ -1833,14 +1833,21 @@ async function doFinalizeAttendance(){
 }
 
 let myClasses = [];
+let _classTeacherIds = new Set(); // class IDs where this teacher is class teacher
+
 async function loadMyClasses(){
   // Refresh primary_class_id from DB
   const { data: freshTeacher } = await sb.from('teachers').select('primary_class_id').eq('id', teacher.id).single();
   if(freshTeacher?.primary_class_id) teacher.primary_class_id = freshTeacher.primary_class_id;
 
-  // Load ALL classes this teacher is assigned to via teacher_class_subjects
-  const { data: tcsRows } = await sb.from('teacher_class_subjects').select('class_id').eq('teacher_id', teacher.id);
+  // Load ALL classes this teacher is assigned to via teacher_class_subjects (with is_class_teacher flag)
+  const { data: tcsRows } = await sb.from('teacher_class_subjects').select('class_id,is_class_teacher').eq('teacher_id', teacher.id);
   const allClassIds = [...new Set((tcsRows||[]).map(r=>r.class_id).filter(Boolean))];
+
+  // Build class teacher set from DB + backward-compat: primary_class_id always counts
+  _classTeacherIds = new Set();
+  (tcsRows||[]).forEach(r=>{ if(r.is_class_teacher && r.class_id) _classTeacherIds.add(r.class_id); });
+  if(teacher.primary_class_id) _classTeacherIds.add(teacher.primary_class_id);
 
   // Also include primary_class_id if not already in the list
   if(teacher.primary_class_id && !allClassIds.includes(teacher.primary_class_id)){
@@ -2146,21 +2153,22 @@ let feePanelMonth = '';
 
 async function openFeePanel(){
   closePanels();
-  if(!myClasses.length) return;
+  const feeClasses = myClasses.filter(c=>_classTeacherIds.has(c.id));
+  if(!feeClasses.length) return;
   document.getElementById('feePanel').style.display = 'block';
   feeMethodPickerFor = null;
 
   const chipsEl = document.getElementById('feeClassChips');
-  if(myClasses.length > 1){
+  if(feeClasses.length > 1){
     chipsEl.style.display = 'flex';
-    const activeCls = feePanelCls && myClasses.find(c=>c.id===feePanelCls.id) ? feePanelCls : myClasses[0];
-    chipsEl.innerHTML = myClasses.map(c=>
+    const activeCls = feePanelCls && feeClasses.find(c=>c.id===feePanelCls.id) ? feePanelCls : feeClasses[0];
+    chipsEl.innerHTML = feeClasses.map(c=>
       `<button class="hw-chip ${c.id===activeCls.id?'active':''}" onclick="selectFeeClass('${c.id}')" style="margin-bottom:4px">${escapeHtml(c.name)}</button>`
     ).join('');
     await _loadFeePanelForClass(activeCls);
   } else {
     chipsEl.style.display = 'none';
-    await _loadFeePanelForClass(myClasses[0]);
+    await _loadFeePanelForClass(feeClasses[0]);
   }
 }
 
@@ -5714,26 +5722,98 @@ async function showMySubjectsOverview(){
     </div>`;
   }
 
+  function renderClassTeacherToggle(cls){
+    const isClassTeacher = _classTeacherIds.has(cls.id);
+    const isPrimaryLocked = cls.id === teacher.primary_class_id;
+    if(isPrimaryLocked){
+      return `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;padding:7px 10px;background:#EEF3FF;border-radius:10px;border:1px solid #C5D0FA">
+        <svg width="13" height="13" fill="none" stroke="#3B5BDB" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-size:11.5px;color:#3B5BDB;font-weight:700">আপনি এই ক্লাসের ক্লাস টিচার (মূল)</span>
+      </div>`;
+    }
+    return `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding:8px 10px;background:${isClassTeacher?'#F0FDF4':'var(--surface)'};border-radius:10px;border:1px solid ${isClassTeacher?'#86EFAC':'var(--border)'}">
+      <div style="display:flex;align-items:center;gap:7px">
+        <svg width="13" height="13" fill="none" stroke="${isClassTeacher?'#16A34A':'var(--text-3)'}" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-size:11.5px;color:${isClassTeacher?'#16A34A':'var(--text-2)'};font-weight:${isClassTeacher?'700':'500'}">
+          ${isClassTeacher ? 'ক্লাস টিচার হিসেবে দায়িত্বপ্রাপ্ত' : 'ক্লাস টিচার নন'}
+        </span>
+      </div>
+      <button onclick="toggleClassTeacher('${cls.id}','${escapeHtml(cls.name)}',${isClassTeacher})"
+        style="position:relative;width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;background:${isClassTeacher?'#16A34A':'#CBD5E1'};transition:background .2s;flex-shrink:0">
+        <span style="position:absolute;top:3px;${isClassTeacher?'right:3px':'left:3px'};width:16px;height:16px;border-radius:50%;background:#fff;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+      </button>
+    </div>`;
+  }
+
   let html = '';
   myClasses.forEach(cls => {
     const clsSubjects = (allSubjects||[]).filter(s=>s.class_id===cls.id);
     const isPrimary = cls.id === teacher.primary_class_id;
     const clsName = cls.name + (cls.section ? ' ('+cls.section+')' : '');
-    html += `<div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    html += `<div style="margin-bottom:22px">
+      <div style="font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.04em;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg>
-        ${escapeHtml(clsName)}${isPrimary ? '<span style="font-size:10px;background:#EEF3FF;color:#3B5BDB;padding:1px 7px;border-radius:6px;margin-left:4px">প্রাথমিক</span>' : ''}
+        ${escapeHtml(clsName)}${isPrimary ? '<span style="font-size:10px;background:#EEF3FF;color:#3B5BDB;padding:1px 7px;border-radius:6px;margin-left:2px">প্রাথমিক</span>' : ''}
         <span style="font-size:10.5px;color:var(--text-3);font-weight:500">(${clsSubjects.length}টি বিষয়)</span>
-      </div>`;
+      </div>
+      ${renderClassTeacherToggle(cls)}
+      <div style="margin-top:10px">`;
     if(!clsSubjects.length){
       html += `<div style="font-size:12.5px;color:var(--text-3);padding:6px 4px;background:var(--surface);border-radius:10px;text-align:center;border:1px dashed var(--border)">এই ক্লাসে কোনো বিষয় যোগ করা হয়নি।</div>`;
     } else {
       html += clsSubjects.map(renderSubject).join('');
     }
-    html += `</div>`;
+    html += `</div></div>`;
   });
 
   body.innerHTML = html;
+}
+
+let _ctPending = null; // {classId, className, newState}
+
+function toggleClassTeacher(classId, className, currentState){
+  _ctPending = {classId, className, newState: !currentState};
+  const popup = document.getElementById('ctConfirmPopup');
+  document.getElementById('ctConfirmTitle').textContent = !currentState
+    ? 'ক্লাস টিচার হিসেবে দায়িত্ব নেবেন?'
+    : 'ক্লাস টিচার পদ থেকে সরে যাবেন?';
+  document.getElementById('ctConfirmClsName').textContent = className;
+  document.getElementById('ctRightsList').style.display = !currentState ? 'block' : 'none';
+  document.getElementById('ctRemoveNote').style.display = !currentState ? 'none' : 'block';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+}
+
+async function ctConfirm(){
+  if(!_ctPending) return;
+  const {classId, newState} = _ctPending;
+  const btn = document.getElementById('ctConfirmBtn');
+  btn.disabled = true; btn.textContent = 'সেভ হচ্ছে...';
+
+  const {error} = await sb.from('teacher_class_subjects')
+    .update({is_class_teacher: newState})
+    .eq('teacher_id', teacher.id)
+    .eq('class_id', classId);
+
+  if(error){
+    btn.disabled = false; btn.textContent = 'নিশ্চিত করুন';
+    alert('সেভ হয়নি। আবার চেষ্টা করুন।');
+    return;
+  }
+
+  if(newState) _classTeacherIds.add(classId);
+  else _classTeacherIds.delete(classId);
+
+  document.getElementById('ctConfirmPopup').style.display = 'none';
+  _ctPending = null;
+  btn.disabled = false; btn.textContent = 'নিশ্চিত করুন';
+  showMySubjectsOverview(); // refresh modal
+}
+
+function ctCancel(){
+  document.getElementById('ctConfirmPopup').style.display = 'none';
+  _ctPending = null;
 }
 
 async function cswOpenForEdit(){
@@ -6554,15 +6634,19 @@ function sswSetDob(dateStr){
 // ─────────────────────────────────────────────────────────────────────
 
 async function sswOpenManual(){
-  if(!teacher || !teacher.primary_class_id){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
+  if(!teacher || !_classTeacherIds.size){ alert('আপনি কোনো ক্লাসের ক্লাস টিচার নন।'); return; }
   await sswCheckAndShow(true);
 }
 
 async function sswCheckAndShow(forceOpen=false){
-  if(!teacher || !teacher.primary_class_id) return;
+  if(!teacher || !_classTeacherIds.size) return;
   // If dismissed this session and not forced, don't auto-show
   if(!forceOpen && sessionStorage.getItem('ssw_later_'+teacher.id)) return;
-  const {data:cls} = await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
+  // Use primary class if it's a class teacher class, else first class teacher class
+  const sswClassId = _classTeacherIds.has(teacher.primary_class_id)
+    ? teacher.primary_class_id
+    : [..._classTeacherIds][0];
+  const {data:cls} = await sb.from('classes').select('id,name').eq('id',sswClassId).maybeSingle();
   if(!cls) return;
   SSW.classId = cls.id; SSW.className = cls.name;
   const {data:studentsRaw} = await sb.from('students').select('*').eq('institution_id',teacher.institution_id).eq('class_id',cls.id);
@@ -6832,8 +6916,9 @@ let _histStudents=[], _histExisting={};
 let _histSelectedClassId = null;
 
 async function openHistAtt(){
-  if(!myClasses.length){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
-  const cls = myClasses.find(c=>c.id===teacher.primary_class_id) || myClasses[0];
+  const histClasses = myClasses.filter(c=>_classTeacherIds.has(c.id));
+  if(!histClasses.length){ alert('আপনি কোনো ক্লাসের ক্লাস টিচার নন।'); return; }
+  const cls = histClasses.find(c=>c.id===teacher.primary_class_id) || histClasses[0];
   await _loadHistAttForClass(cls);
   document.getElementById('histAttOverlay').classList.add('open');
   document.getElementById('histAttSheet').classList.add('open');
@@ -6843,9 +6928,10 @@ async function _loadHistAttForClass(cls){
   _histSelectedClassId = cls.id;
   document.getElementById('histAttClsName').textContent = cls.name;
 
-  if(myClasses.length > 1){
+  const histClasses = myClasses.filter(c=>_classTeacherIds.has(c.id));
+  if(histClasses.length > 1){
     let chipHtml = `<div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 20px 0">`;
-    chipHtml += myClasses.map(c=>
+    chipHtml += histClasses.map(c=>
       `<button class="hw-chip ${c.id===cls.id?'active':''}" onclick="_histSwitchClass('${c.id}')" style="margin-bottom:4px">${escapeHtml(c.name)}</button>`
     ).join('');
     chipHtml += `</div>`;
@@ -6988,6 +7074,52 @@ function closeHistAtt(){
   document.getElementById('histAttSheet').classList.remove('open');
 }
 </script>
+
+<!-- Class Teacher Confirm Popup -->
+<div id="ctConfirmPopup" style="display:none;position:fixed;inset:0;z-index:9999;padding:20px;background:rgba(0,0,0,.45)">
+  <div style="background:var(--card);border-radius:20px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div style="padding:22px 20px 0">
+      <div style="font-size:20px;text-align:center;margin-bottom:8px">🏫</div>
+      <div id="ctConfirmTitle" style="font-size:16px;font-weight:800;color:var(--text);text-align:center;margin-bottom:4px"></div>
+      <div id="ctConfirmClsName" style="font-size:13px;color:var(--blue);font-weight:700;text-align:center;margin-bottom:16px"></div>
+
+      <div id="ctRightsList" style="background:var(--surface);border-radius:14px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:10px">ক্লাস টিচার হিসেবে আপনি পাবেন:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">✅</span>
+            শিক্ষার্থী যোগ ও তথ্য আপডেট
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">✅</span>
+            দৈনিক উপস্থিতি গ্রহণ
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">✅</span>
+            অতীত উপস্থিতি এন্ট্রি
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">✅</span>
+            ফি সংগ্রহ ব্যবস্থাপনা
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">✅</span>
+            শিক্ষার্থী সেটআপ উইজার্ড
+          </div>
+        </div>
+      </div>
+
+      <div id="ctRemoveNote" style="background:#FEF2F2;border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:#DC2626;line-height:1.6">
+        ⚠️ এই ক্লাসের ক্লাস টিচার পদ থেকে সরে গেলে আপনি উপরের সুবিধাগুলো আর পাবেন না।
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;padding:0 20px 20px">
+      <button onclick="ctCancel()" style="flex:1;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--text-2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">বাতিল</button>
+      <button id="ctConfirmBtn" onclick="ctConfirm()" style="flex:2;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">নিশ্চিত করুন</button>
+    </div>
+  </div>
+</div>
 
 <!-- Historical Attendance Bottom Sheet -->
 <div class="hist-overlay" id="histAttOverlay" onclick="closeHistAtt()"></div>
