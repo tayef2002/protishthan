@@ -7038,57 +7038,53 @@ async function _histSwitchClass(classId){
 
 function _histBuildMonthList(){
   const now=new Date(); const curY=now.getFullYear(); const curM=now.getMonth()+1;
-  const startM = institution?.academic_year_start_month || 1;
-  const endM   = institution?.academic_year_end_month   || 12;
+  const startM = parseInt(institution?.academic_year_start_month) || 1;
+  const endM   = parseInt(institution?.academic_year_end_month)   || 12;
   const wraps  = startM > endM;
 
-  function _inAcademicYear(m){ return wraps ? (m>=startM||m<=endM) : (m>=startM&&m<=endM); }
+  // Current academic year key = the English year when startM of THIS academic year occurred
+  function acYearKey(m,y){ return (wraps && m < startM) ? y-1 : y; }
+  const curAcKey = acYearKey(curM, curY);
 
-  // Collect all past months within academic year range (up to 3 years back)
-  const months = [];
-  for(let offset=1; offset<=36; offset++){
-    let m=curM-offset, y=curY;
-    while(m<=0){ m+=12; y--; }
-    if(y < curY-3) break;
-    if(_inAcademicYear(m)) months.push({y,m});
+  // Show last 3 complete academic years (oldest first)
+  const YEARS_BACK = 3;
+  const groups = {};
+  for(let i = YEARS_BACK - 1; i >= 0; i--){
+    const yr1 = curAcKey - i;
+    const yr2 = wraps ? yr1 + 1 : yr1;
+    groups[yr1] = [];
+    // Generate all months of this academic year in order
+    for(let pos=0; pos<12; pos++){
+      const m = ((startM - 1 + pos) % 12) + 1;
+      const y = (wraps && m < startM) ? yr2 : yr1;
+      // Skip future months (current month included — teacher enters previous months only)
+      if(y > curY || (y === curY && m >= curM)) continue;
+      groups[yr1].push({y, m});
+    }
+    // Remove empty groups (academic year hasn't started yet or fully in the future)
+    if(!groups[yr1].length) delete groups[yr1];
   }
 
-  if(!months.length){
+  const groupKeys = Object.keys(groups).sort((a,b)=>a-b);
+
+  if(!groupKeys.length){
     document.getElementById('histMonthList').innerHTML='<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
     document.getElementById('histMonthView').style.display='block';
     document.getElementById('histEntryView').style.display='none';
     return;
   }
 
-  // Group by academic year: key = year when startM occurs
-  function acYearKey(m,y){ return (wraps && m < startM) ? y-1 : y; }
-  const groups={};
-  months.forEach(({y,m})=>{
-    const k=acYearKey(m,y);
-    if(!groups[k]) groups[k]=[];
-    groups[k].push({y,m});
-  });
-
-  // Within each group: sort by academic year position (startM = position 0), oldest first
-  Object.values(groups).forEach(arr=>{
-    arr.sort((a,b)=>((a.m-startM+12)%12)-((b.m-startM+12)%12));
-  });
-
-  // Most recent group first
-  const groupKeys = Object.keys(groups).sort((a,b)=>a-b);
+  // Hijri year anchor from institution settings
+  const enAnchor = parseInt(institution?.academic_year_en) || 0;
+  const arAnchor = parseInt(institution?.academic_year_ar) || 0;
 
   let html='';
   groupKeys.forEach(key=>{
     const yr1=parseInt(key), yr2=wraps?yr1+1:yr1;
     const label = wraps ? `${yr1}–${yr2}` : `${yr1}`;
-    // Calculate Hijri year ONCE per academic group using institution settings as anchor
-    // institution.academic_year_en = current English start year (e.g. 2026)
-    // institution.academic_year_ar = current Hijri start year (e.g. 1447)
-    // For any past/future group: hijriYear = arAnchor + (groupYear - enAnchor)
+    // Hijri year for this group: offset from institution's anchor year
     let groupHijriYear = null;
     if(institution?.calendar_type==='arabic'){
-      const enAnchor = parseInt(institution.academic_year_en) || 0;
-      const arAnchor = parseInt(institution.academic_year_ar) || 0;
       groupHijriYear = (enAnchor && arAnchor) ? arAnchor + (yr1 - enAnchor) : _getHijriYear(yr1, startM);
     }
     html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:12px 20px 4px">${label} শিক্ষাবর্ষ</div>`;
