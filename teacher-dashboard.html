@@ -6633,6 +6633,33 @@ function sswSetDob(dateStr){
 }
 // ─────────────────────────────────────────────────────────────────────
 
+async function sswSwitchClass(classId){
+  SSW.classId = classId;
+  const cls = myClasses.find(c=>c.id===classId);
+  if(!cls) return;
+  SSW.className = cls.name;
+  const {data:studentsRaw} = await sb.from('students').select('*').eq('institution_id',teacher.institution_id).eq('class_id',classId);
+  const students = (studentsRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
+  SSW.maxRoll = 0;
+  students.forEach(s=>{ const n=parseInt(s.roll_number)||0; if(n>SSW.maxRoll) SSW.maxRoll=n; });
+  if(students.length > 0){
+    SSW.mode='review'; SSW.students=students;
+    const studentIds = students.map(s=>s.id);
+    const {data:guardianRows} = await sb.from('guardians').select('student_id').in('student_id', studentIds);
+    const savedSids = new Set((guardianRows||[]).map(g=>g.student_id));
+    let dbProgress = students.findIndex(s => !savedSids.has(s.id));
+    if(dbProgress === -1) dbProgress = students.length;
+    const lastSavedIdx = dbProgress - 1;
+    SSW.startIdx = Math.min(Math.max(lastSavedIdx+1, 0), students.length-1);
+    if(lastSavedIdx >= students.length-1) SSW.startIdx=0;
+    SSW.dbSavedCount = dbProgress;
+  } else {
+    SSW.mode='add'; SSW.students=[]; SSW.startIdx=0;
+  }
+  SSW.idx=SSW.startIdx||0; SSW.savedCount=0;
+  sswShowWelcome();
+}
+
 async function sswOpenManual(){
   if(!teacher || !_classTeacherIds.size){ alert('আপনি কোনো ক্লাসের ক্লাস টিচার নন।'); return; }
   await sswCheckAndShow(true);
@@ -6679,7 +6706,16 @@ async function sswCheckAndShow(forceOpen=false){
 
 function sswShowWelcome(){
   document.getElementById('sswTitle').textContent='শিক্ষার্থী সেটআপ';
-  document.getElementById('sswSubtitle').textContent=SSW.className;
+
+  // Show class switcher chips if teacher is class teacher of multiple classes
+  const ctClasses = myClasses.filter(c=>_classTeacherIds.has(c.id));
+  if(ctClasses.length > 1){
+    document.getElementById('sswSubtitle').innerHTML = ctClasses.map(c=>
+      `<button onclick="sswSwitchClass('${c.id}')" style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;border:1.5px solid ${c.id===SSW.classId?'var(--blue)':'var(--border)'};background:${c.id===SSW.classId?'#EEF3FF':'transparent'};color:${c.id===SSW.classId?'var(--blue)':'var(--text-3)'};font-size:11.5px;font-weight:${c.id===SSW.classId?'700':'500'};cursor:pointer;font-family:inherit;margin-right:5px;margin-bottom:3px">${escapeHtml(c.name)}</button>`
+    ).join('');
+  } else {
+    document.getElementById('sswSubtitle').textContent=SSW.className;
+  }
   document.getElementById('sswProgFill').style.width='5%';
   document.querySelectorAll('.ssw-step').forEach(s=>s.classList.remove('active'));
   document.getElementById('sswS0').classList.add('active');
