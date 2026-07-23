@@ -4738,16 +4738,29 @@ async function loadTodaySchedule(){
   }
 
   const classIds = myClasses.map(c=>c.id);
-  const { data, error } = await sb.from('class_subjects').select('*').in('class_id', classIds);
-  if(error || !data){
+
+  // Only fetch subjects this teacher is assigned to teach
+  const [{ data: tcsRows }, { data: allSubjects, error }] = await Promise.all([
+    sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id).in('class_id', classIds),
+    sb.from('class_subjects').select('*').in('class_id', classIds)
+  ]);
+
+  if(error || !allSubjects){
     if(listEl) listEl.innerHTML = '<div class="sch-empty">সময়সূচী লোড হয়নি।</div>';
     return;
   }
 
+  // Build set of teacher's assigned class+subject pairs
+  const mySubjectKeys = new Set((tcsRows||[]).map(r=>r.class_id+'|'+r.subject_name));
+  // Also include subjects from classes where teacher is class teacher (they teach the whole class)
+  const teacherAssigned = allSubjects.filter(s=>
+    mySubjectKeys.has(s.class_id+'|'+s.subject_name) || _classTeacherIds.has(s.class_id)
+  );
+
   const today = todayDayShort();
-  const filtered = data.filter(s=>{
+  const filtered = teacherAssigned.filter(s=>{
     if(!s.start_time) return false;
-    if(!s.days_of_week) return true; // no day set = every day
+    if(!s.days_of_week) return true;
     return s.days_of_week.split(',').map(d=>d.trim()).includes(today);
   });
 
