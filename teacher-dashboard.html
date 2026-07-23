@@ -6960,6 +6960,35 @@ function _monthLabel(m,y){
 const _HIST_MONTHS=_MONTHS_EN;
 let _histStudents=[], _histExisting={};
 
+function _getHijriYear(gYear, gMonth){
+  // Approximate Hijri year based on known 1 Muharram (start of Hijri year) dates
+  const d = new Date(gYear, gMonth - 1, 15); // mid-month
+  const anchors = [
+    [1444, new Date(2022, 6, 30)],
+    [1445, new Date(2023, 6, 19)],
+    [1446, new Date(2024, 6,  7)],
+    [1447, new Date(2025, 5, 26)],
+    [1448, new Date(2026, 5, 15)],
+    [1449, new Date(2027, 5,  4)],
+    [1450, new Date(2028, 4, 24)],
+  ];
+  let hy = anchors[0][0] - 1;
+  for(const [year, start] of anchors){
+    if(d >= start) hy = year; else break;
+  }
+  return hy;
+}
+
+function _histMonthLabel(m, y){
+  if(institution?.calendar_type !== 'arabic') return _MONTHS_EN[m-1] + ' ' + y;
+  const startM = (institution?.academic_year_start_month || 1) - 1;
+  const offset = ((m - 1 - startM + 12) % 12);
+  const arabicMonth = _MONTHS_AR[offset];
+  const hijriYear   = _getHijriYear(y, m);
+  const engMonth    = _MONTHS_EN[m-1];
+  return `${arabicMonth} - ${hijriYear} · ${engMonth} - ${y}`;
+}
+
 let _histSelectedClassId = null;
 
 async function openHistAtt(){
@@ -7002,26 +7031,54 @@ function _histBuildMonthList(){
   const now=new Date(); const curY=now.getFullYear(); const curM=now.getMonth()+1;
   const startM = institution?.academic_year_start_month || 1;
   const endM   = institution?.academic_year_end_month   || 12;
-  // Determine if academic year wraps across calendar year (e.g. Sep→Aug)
-  const wraps = startM > endM;
+  const wraps  = startM > endM;
 
-  function _inAcademicYear(m){
-    if(!wraps) return m >= startM && m <= endM;
-    return m >= startM || m <= endM;
-  }
+  function _inAcademicYear(m){ return wraps ? (m>=startM||m<=endM) : (m>=startM&&m<=endM); }
 
-  let html='', count=0;
-  // Go back up to 36 months, show only those within academic year range
-  for(let offset=1; offset<=36 && count<24; offset++){
+  // Collect all past months within academic year range (up to 3 years back)
+  const months = [];
+  for(let offset=1; offset<=36; offset++){
     let m=curM-offset, y=curY;
     while(m<=0){ m+=12; y--; }
     if(y < curY-3) break;
-    if(_inAcademicYear(m)){
-      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_monthLabel(m,y)}</div>`;
-      count++;
-    }
+    if(_inAcademicYear(m)) months.push({y,m});
   }
-  document.getElementById('histMonthList').innerHTML=html||'<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
+
+  if(!months.length){
+    document.getElementById('histMonthList').innerHTML='<div style="padding:16px;color:#94A3B8">কোনো পূর্ববর্তী মাস নেই</div>';
+    document.getElementById('histMonthView').style.display='block';
+    document.getElementById('histEntryView').style.display='none';
+    return;
+  }
+
+  // Group by academic year: key = year when startM occurs
+  function acYearKey(m,y){ return (wraps && m < startM) ? y-1 : y; }
+  const groups={};
+  months.forEach(({y,m})=>{
+    const k=acYearKey(m,y);
+    if(!groups[k]) groups[k]=[];
+    groups[k].push({y,m});
+  });
+
+  // Within each group: sort by academic year position (startM = position 0), oldest first
+  Object.values(groups).forEach(arr=>{
+    arr.sort((a,b)=>((a.m-startM+12)%12)-((b.m-startM+12)%12));
+  });
+
+  // Most recent group first
+  const groupKeys = Object.keys(groups).sort((a,b)=>b-a);
+
+  let html='';
+  groupKeys.forEach(key=>{
+    const yr1=parseInt(key), yr2=wraps?yr1+1:yr1;
+    const label = wraps ? `${yr1}–${yr2}` : `${yr1}`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:10px 0 4px">${label} শিক্ষাবর্ষ</div>`;
+    groups[key].forEach(({y,m})=>{
+      html+=`<div class="hist-month-item" onclick="histSelMonth(${y},${m},this)">${_histMonthLabel(m,y)}</div>`;
+    });
+  });
+
+  document.getElementById('histMonthList').innerHTML=html;
   document.getElementById('histMonthView').style.display='block';
   document.getElementById('histEntryView').style.display='none';
 }
@@ -7029,7 +7086,7 @@ function _histBuildMonthList(){
 async function histSelMonth(year,month,el){
   document.querySelectorAll('.hist-month-item').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
-  document.getElementById('histEntryTitle').textContent=_monthLabel(month,year);
+  document.getElementById('histEntryTitle').textContent=_histMonthLabel(month,year);
   // Load existing data for this month
   const {data:existing}=await sb.from('monthly_attendance_summary')
     .select('*').eq('institution_id',teacher.institution_id).eq('year',year).eq('month',month);
