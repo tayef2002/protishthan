@@ -1033,6 +1033,7 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
     <!-- IMAGE EDITOR MODAL (zoom + mark) -->
     <div class="card" id="feePanel" style="display:none">
       <div class="card-head"><div class="card-title">💰 ফি উত্তোলন — <span id="feeClassName"></span></div><button class="cv-panel-close" onclick="closePanels()">✕</button></div>
+      <div id="feeClassChips" style="display:none;padding:6px 0 2px;gap:6px;flex-wrap:wrap"></div>
       <div id="feeList"></div>
     </div>
 
@@ -1431,8 +1432,8 @@ async function init(){
 
   // Auto-show class setup wizard if teacher has no class assigned yet
   cswCheckAndShow();
-  // Auto-show student setup wizard if teacher already has a class
-  if(teacher.primary_class_id) sswCheckAndShow();
+  // Auto-show student setup wizard if teacher has any class
+  if(myClasses.length) sswCheckAndShow();
 }
 
 /* ===== ATTENDANCE MARKING ===== */
@@ -2145,12 +2146,37 @@ let feePanelMonth = '';
 
 async function openFeePanel(){
   closePanels();
+  if(!myClasses.length) return;
   document.getElementById('feePanel').style.display = 'block';
-  const cls = myClasses.find(c=>c.id === teacher.primary_class_id);
-  if(!cls) return;
-  document.getElementById('feeClassName').textContent = cls.name;
-  feePanelCls = cls;
   feeMethodPickerFor = null;
+
+  const chipsEl = document.getElementById('feeClassChips');
+  if(myClasses.length > 1){
+    chipsEl.style.display = 'flex';
+    const activeCls = feePanelCls && myClasses.find(c=>c.id===feePanelCls.id) ? feePanelCls : myClasses[0];
+    chipsEl.innerHTML = myClasses.map(c=>
+      `<button class="hw-chip ${c.id===activeCls.id?'active':''}" onclick="selectFeeClass('${c.id}')" style="margin-bottom:4px">${escapeHtml(c.name)}</button>`
+    ).join('');
+    await _loadFeePanelForClass(activeCls);
+  } else {
+    chipsEl.style.display = 'none';
+    await _loadFeePanelForClass(myClasses[0]);
+  }
+}
+
+async function selectFeeClass(classId){
+  const cls = myClasses.find(c=>c.id===classId);
+  if(!cls) return;
+  document.getElementById('feeClassChips').querySelectorAll('.hw-chip').forEach(b=>{
+    b.classList.toggle('active', b.textContent===cls.name);
+  });
+  await _loadFeePanelForClass(cls);
+}
+
+async function _loadFeePanelForClass(cls){
+  feePanelCls = cls;
+  document.getElementById('feeClassName').textContent = cls.name;
+  document.getElementById('feeList').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3)">লোড হচ্ছে...</div>';
 
   const { data: studentsRaw } = await sb.from('students').select('*').eq('class_id', cls.id);
   const month = new Date().toISOString().slice(0,7);
@@ -2255,7 +2281,7 @@ async function sendFeeReminder(studentId, studentName, className, monthLabel){
 
 async function initHomeworkForm(){
   const feeCard = document.getElementById('feeActionCard');
-  if(teacher.primary_class_id && myClasses.some(c=>c.id===teacher.primary_class_id)){
+  if(myClasses.length){
     feeCard.style.display = 'block';
   }
   if(!myClasses.length) return;
@@ -2269,7 +2295,8 @@ async function initHomeworkForm(){
   });
   if(teacher.primary_class_id && teacher.primary_subject){
     if(!hwTeacherSubjects[teacher.primary_class_id]) hwTeacherSubjects[teacher.primary_class_id] = [];
-    hwTeacherSubjects[teacher.primary_class_id].push(teacher.primary_subject);
+    if(!hwTeacherSubjects[teacher.primary_class_id].includes(teacher.primary_subject))
+      hwTeacherSubjects[teacher.primary_class_id].push(teacher.primary_subject);
   }
 
   renderHwClassChips();
@@ -2739,21 +2766,18 @@ async function loadTeacherRoutine(){
   if(_ttrLoaded){ renderTeacherRoutine(); return; }
   if(!teacher?.id) return;
 
-  // Only use primary class — teacher sees their own class only
-  const primaryClassId = teacher.primary_class_id;
-  if(!primaryClassId){ _ttrLoaded=true; renderTeacherRoutine(); return; }
+  if(!myClasses.length){ _ttrLoaded=true; renderTeacherRoutine(); return; }
+
+  const classIds = myClasses.map(c=>c.id);
 
   const { data: tcLinks } = await sb.from('teacher_class_subjects')
     .select('class_id, subject_name')
     .eq('teacher_id', teacher.id)
-    .eq('class_id', primaryClassId);
+    .in('class_id', classIds);
 
-  const classIds = [primaryClassId];
-
-  // Load subjects for primary class only
   const { data: allSubjects } = await sb.from('class_subjects').select('*, classes(name,section)').in('class_id', classIds);
 
-  // Build teacher's subject list: only subjects assigned to this teacher via teacher_class_subjects
+  // Only show subjects this teacher is assigned to teach
   const linkSet = new Set((tcLinks||[]).map(r=>r.class_id+'|'+r.subject_name));
 
   _ttrMySubjects = (allSubjects||[]).filter(s=> linkSet.has(s.class_id+'|'+s.subject_name));
@@ -3847,13 +3871,12 @@ async function tqpLoadTeacherMeta(){
     if(inst) institution = inst;
   }
 
-  // Teacher sees ONLY their primary class
-  const primaryId = teacher.primary_class_id;
-  if(!primaryId){ _tqpTeacherClasses = []; _tqpTeacherSubjects = {}; return; }
+  if(!myClasses.length){ _tqpTeacherClasses = []; _tqpTeacherSubjects = {}; return; }
 
-  const [{ data: cls }, { data: pairs }] = await Promise.all([
-    sb.from('classes').select('id,name,section,institution_id').eq('id', primaryId),
-    sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id).eq('class_id', primaryId)
+  const classIds = myClasses.map(c=>c.id);
+  const [cls, { data: pairs }] = await Promise.all([
+    Promise.resolve(myClasses),
+    sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id).in('class_id', classIds)
   ]);
 
   if(!institution){
@@ -6806,17 +6829,40 @@ function _monthLabel(m,y){
 const _HIST_MONTHS=_MONTHS_EN;
 let _histStudents=[], _histExisting={};
 
+let _histSelectedClassId = null;
+
 async function openHistAtt(){
-  if(!teacher||!teacher.primary_class_id){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
-  const {data:cls}=await sb.from('classes').select('id,name').eq('id',teacher.primary_class_id).maybeSingle();
-  if(!cls){ alert('ক্লাস পাওয়া যায়নি।'); return; }
-  const {data:stuRaw}=await sb.from('students').select('id,full_name,roll_number').eq('institution_id',teacher.institution_id).eq('class_id',cls.id).eq('is_active',true);
-  _histStudents=(stuRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
-  if(!_histStudents.length){ alert('এই ক্লাসে কোনো শিক্ষার্থী নেই।'); return; }
-  document.getElementById('histAttClsName').textContent=cls.name;
-  _histBuildMonthList();
+  if(!myClasses.length){ alert('আপনার কোনো ক্লাস নির্ধারিত নেই।'); return; }
+  const cls = myClasses.find(c=>c.id===teacher.primary_class_id) || myClasses[0];
+  await _loadHistAttForClass(cls);
   document.getElementById('histAttOverlay').classList.add('open');
   document.getElementById('histAttSheet').classList.add('open');
+}
+
+async function _loadHistAttForClass(cls){
+  _histSelectedClassId = cls.id;
+  document.getElementById('histAttClsName').textContent = cls.name;
+
+  if(myClasses.length > 1){
+    let chipHtml = `<div style="display:flex;gap:6px;flex-wrap:wrap;padding:6px 20px 0">`;
+    chipHtml += myClasses.map(c=>
+      `<button class="hw-chip ${c.id===cls.id?'active':''}" onclick="_histSwitchClass('${c.id}')" style="margin-bottom:4px">${escapeHtml(c.name)}</button>`
+    ).join('');
+    chipHtml += `</div>`;
+    document.getElementById('histAttClsName').innerHTML = chipHtml;
+  }
+
+  const {data:stuRaw}=await sb.from('students').select('id,full_name,roll_number').eq('institution_id',teacher.institution_id).eq('class_id',cls.id).eq('is_active',true);
+  _histStudents=(stuRaw||[]).slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0));
+  document.getElementById('histMonthView').style.display='flex';
+  document.getElementById('histEntryView').style.display='none';
+  _histBuildMonthList();
+}
+
+async function _histSwitchClass(classId){
+  const cls = myClasses.find(c=>c.id===classId);
+  if(!cls) return;
+  await _loadHistAttForClass(cls);
 }
 
 function _histBuildMonthList(){
@@ -6917,7 +6963,7 @@ async function histSave(year,month){
       const p=parseInt(document.getElementById('histP_'+s.id)?.value)||0;
       return {
         institution_id:teacher.institution_id,
-        class_id:teacher.primary_class_id,
+        class_id:_histSelectedClassId,
         student_id:s.id,
         year,month,
         total_working_days:wd,
