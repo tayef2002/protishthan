@@ -5649,60 +5649,68 @@ async function showMySubjectsOverview(){
   const clsLbl  = document.getElementById('subOvClassName');
   overlay.classList.add('show');
   body.innerHTML = '<div class="empty-state">লোড হচ্ছে...</div>';
-  clsLbl.textContent = '';
 
-  if(!teacher.primary_class_id){
+  if(!myClasses.length){
+    clsLbl.textContent = '';
     body.innerHTML = '<div class="empty-state">কোনো ক্লাস নিযুক্ত নেই।</div>';
     return;
   }
 
-  const { data: cls } = await sb.from('classes').select('name,section').eq('id', teacher.primary_class_id).single();
-  const className = cls ? (cls.name + (cls.section ? ' ('+cls.section+')' : '')) : 'ক্লাস';
-  clsLbl.textContent = className;
+  clsLbl.textContent = 'সকল ক্লাস';
 
-  const { data: subjects } = await sb.from('class_subjects')
-    .select('*').eq('class_id', teacher.primary_class_id).order('start_time');
-
-  if(!subjects || !subjects.length){
-    body.innerHTML = `<div style="text-align:center;padding:24px 0 8px">
-      <div style="font-size:38px;margin-bottom:10px">📭</div>
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">${className}</div>
-      <div style="font-size:12.5px;color:var(--text-3)">এখনো কোনো বিষয় যোগ করা হয়নি।<br>নিচের বাটনে ক্লিক করে বিষয় যোগ করুন।</div>
-    </div>`;
-    return;
-  }
+  const classIds = myClasses.map(c=>c.id);
+  const { data: allSubjects } = await sb.from('class_subjects')
+    .select('*').in('class_id', classIds).order('start_time');
 
   const dayMap = {Sat:'শনি',Sun:'রবি',Mon:'সোম',Tue:'মঙ্গল',Wed:'বুধ',Thu:'বৃহ',Fri:'শুক্র'};
-  body.innerHTML = `
-    <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">
-      মোট ${subjects.length}টি বিষয়
-    </div>
-    ${subjects.map(s=>{
-      const days = s.days_of_week
-        ? s.days_of_week.split(',').map(d=>dayMap[d.trim()]||d.trim()).join(', ')
-        : 'প্রতিদিন';
-      const timeStr = s.start_time
-        ? fmtTime(s.start_time) + (s.end_time ? ' – '+fmtTime(s.end_time) : '')
-        : '—';
-      const dur = (s.start_time && s.end_time)
-        ? ' · '+(timeToMin(s.end_time)-timeToMin(s.start_time))+' মিনিট'
-        : '';
-      const emoji = _scSubjEmoji(s.subject_name);
-      return `<div style="display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--surface);border-radius:13px;margin-bottom:8px;border:1px solid var(--border)">
-        <div style="font-size:24px;flex-shrink:0;width:36px;text-align:center">${emoji}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:800;color:var(--text)">${s.subject_name||'—'}</div>
-          <div style="font-size:11.5px;color:var(--text-2);margin-top:3px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 3"/></svg>
-            ${timeStr}${dur}
-          </div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
-            ${days}
-          </div>
+
+  function renderSubject(s){
+    const days = s.days_of_week
+      ? s.days_of_week.split(',').map(d=>dayMap[d.trim()]||d.trim()).join(', ')
+      : 'প্রতিদিন';
+    const timeStr = s.start_time
+      ? fmtTime(s.start_time) + (s.end_time ? ' – '+fmtTime(s.end_time) : '')
+      : '—';
+    const dur = (s.start_time && s.end_time)
+      ? ' · '+(timeToMin(s.end_time)-timeToMin(s.start_time))+' মিনিট'
+      : '';
+    const emoji = _scSubjEmoji(s.subject_name);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--surface);border-radius:13px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="font-size:24px;flex-shrink:0;width:36px;text-align:center">${emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:800;color:var(--text)">${s.subject_name||'—'}</div>
+        <div style="font-size:11.5px;color:var(--text-2);margin-top:3px;display:flex;align-items:center;gap:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 3"/></svg>
+          ${timeStr}${dur}
         </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+          ${days}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  let html = '';
+  myClasses.forEach(cls => {
+    const clsSubjects = (allSubjects||[]).filter(s=>s.class_id===cls.id);
+    const isPrimary = cls.id === teacher.primary_class_id;
+    const clsName = cls.name + (cls.section ? ' ('+cls.section+')' : '');
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg>
+        ${escapeHtml(clsName)}${isPrimary ? '<span style="font-size:10px;background:#EEF3FF;color:#3B5BDB;padding:1px 7px;border-radius:6px;margin-left:4px">প্রাথমিক</span>' : ''}
+        <span style="font-size:10.5px;color:var(--text-3);font-weight:500">(${clsSubjects.length}টি বিষয়)</span>
       </div>`;
-    }).join('')}`;
+    if(!clsSubjects.length){
+      html += `<div style="font-size:12.5px;color:var(--text-3);padding:6px 4px;background:var(--surface);border-radius:10px;text-align:center;border:1px dashed var(--border)">এই ক্লাসে কোনো বিষয় যোগ করা হয়নি।</div>`;
+    } else {
+      html += clsSubjects.map(renderSubject).join('');
+    }
+    html += `</div>`;
+  });
+
+  body.innerHTML = html;
 }
 
 async function cswOpenForEdit(){
