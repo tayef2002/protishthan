@@ -376,6 +376,12 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
   .bottom-nav{display:flex!important}
   .topbar{flex-wrap:wrap!important;justify-content:space-between!important;height:auto!important;padding:12px 16px!important;row-gap:10px!important}
   html,body{overflow-x:hidden;max-width:100vw}
+  /* Mobile: exam cards → horizontal scroll row */
+  .exam-grid{display:flex;overflow-x:auto;gap:10px;padding-bottom:8px;grid-template-columns:none;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .exam-grid::-webkit-scrollbar{display:none}
+  .exam-card{min-width:200px;flex-shrink:0}
+  /* Mark table: ensure horizontal scroll works */
+  .grid-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;display:block}
 }
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,.06)}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;color:var(--text-3);background:none;border:none;font-family:inherit;text-decoration:none}
