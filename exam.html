@@ -494,7 +494,8 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
   <div class="topbar">
     <div class="topbar-title">পরীক্ষা ও Result</div>
     <div class="topbar-right">
-      <button id="topbarAddBtn" class="btn-add" onclick="openExamModal()">➕ নতুন পরীক্ষা</button>
+      <button id="topbarBtnQP" class="btn-add" onclick="startNewQP()" style="display:flex">➕ নতুন প্রশ্ন পত্র</button>
+      <button id="topbarBtnExam" class="btn-add" onclick="openExamModal()" style="display:none">➕ নতুন পরীক্ষা</button>
     </div>
   </div>
 
@@ -911,9 +912,6 @@ async function init(){
 
   await loadExams();
   loadQPList();
-  // Default tab is qp, set button accordingly
-  const btn = document.getElementById('topbarAddBtn');
-  if(btn){ btn.textContent='➕ নতুন প্রশ্ন পত্র'; btn.onclick=startNewQP; }
 }
 
 async function loadExams(){
@@ -1827,16 +1825,17 @@ async function doLogout(){ await sb.auth.signOut(); window.location.href='login.
 function switchPageTab(tab){
   document.querySelectorAll('.page-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
-  const btn = document.getElementById('topbarAddBtn');
   if(tab==='qp'){
     document.querySelectorAll('.page-tab')[0].classList.add('active');
     document.getElementById('qpSection').classList.add('active');
-    if(btn){ btn.textContent='➕ নতুন প্রশ্ন পত্র'; btn.onclick=startNewQP; }
+    document.getElementById('topbarBtnQP').style.display='flex';
+    document.getElementById('topbarBtnExam').style.display='none';
     loadQPList();
   } else {
     document.querySelectorAll('.page-tab')[1].classList.add('active');
     document.getElementById('examSection').classList.add('active');
-    if(btn){ btn.textContent='➕ নতুন পরীক্ষা'; btn.onclick=openExamModal; }
+    document.getElementById('topbarBtnQP').style.display='none';
+    document.getElementById('topbarBtnExam').style.display='flex';
   }
 }
 
