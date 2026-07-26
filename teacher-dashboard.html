@@ -6977,6 +6977,22 @@ function _monthLabel(m,y){
 const _HIST_MONTHS=_MONTHS_EN;
 let _histStudents=[], _histExisting={};
 
+function _gregToHijri(gy, gm, gd){
+  let y=gy, m=gm, d=gd;
+  if(m<3){y--;m+=12;}
+  const A=Math.floor(y/100), B=2-A+Math.floor(A/4);
+  const JD=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+  const l=JD-1948440+10632;
+  const n=Math.floor((l-1)/10631);
+  const l2=l-10631*n+354;
+  const J=(Math.floor((10985-l2)/5316))*(Math.floor((50*l2)/17719))+(Math.floor(l2/5670))*(Math.floor((43*l2)/15238));
+  const l3=l2-(Math.floor((30-J)/15))*(Math.floor((17719*J)/50))-(Math.floor(J/16))*(Math.floor((15238*J)/43))+29;
+  const hm=Math.floor((24*l3)/709);
+  const hd=l3-Math.floor((709*hm)/24);
+  const hy=30*n+J-30;
+  return {year:hy, month:hm, day:hd};
+}
+
 function _getHijriYear(gYear, gMonth){
   // Approximate Hijri year based on known 1 Muharram (start of Hijri year) dates
   const d = new Date(gYear, gMonth - 1, 15); // mid-month
@@ -6996,15 +7012,29 @@ function _getHijriYear(gYear, gMonth){
   return hy;
 }
 
+function _getArStartMonthIdx(){
+  // Returns 0-indexed Hijri month for the institution's academic year start date
+  if(institution?.academic_start_date){
+    const parts = institution.academic_start_date.split('-').map(Number);
+    if(parts.length===3 && parts[0]>0){
+      const h = _gregToHijri(parts[0], parts[1], parts[2]);
+      return h.month - 1; // 0-indexed
+    }
+  }
+  return 0; // fallback: Muharram
+}
+
 function _histMonthLabel(m, y, hijriYear){
   if(institution?.calendar_type !== 'arabic') return _MONTHS_EN[m-1] + ' ' + y;
   const startM = (institution?.academic_year_start_month || 1) - 1;
   const offset = ((m - 1 - startM + 12) % 12);
-  const arabicMonth = _MONTHS_AR[offset];
-  // hijriYear passed from group (calculated once per academic year from its start month)
-  const hy = (hijriYear != null) ? hijriYear : _getHijriYear(y, m);
+  const arStartIdx = _getArStartMonthIdx();
+  const totalIdx = arStartIdx + offset;
+  const arabicMonth = _MONTHS_AR[totalIdx % 12];
+  const yearOffset = Math.floor(totalIdx / 12); // 1 when Arabic months wrap into next Hijri year
+  const baseHy = (hijriYear != null) ? hijriYear : _getHijriYear(y, m);
   const engMonth = _MONTHS_EN[m-1];
-  return `${arabicMonth} - ${hy} · ${engMonth} - ${y}`;
+  return `${arabicMonth} - ${baseHy + yearOffset} · ${engMonth} - ${y}`;
 }
 
 let _histSelectedClassId = null;
