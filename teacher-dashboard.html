@@ -2295,26 +2295,16 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  // Load teacher's class assignments to know which classes they teach
+  // Load teacher's assigned class+subject pairs directly — teacher_class_subjects is kept
+  // in sync with renames (classes.html updates it on subject rename), so names are current.
   const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id);
-  // Load current subject names from class_subjects (always up-to-date)
-  const teacherClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
-  if(teacher.primary_class_id && !teacherClassIds.includes(teacher.primary_class_id))
-    teacherClassIds.push(teacher.primary_class_id);
   hwTeacherSubjects = {};
-  if(teacherClassIds.length){
-    const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', teacherClassIds).order('id');
-    // Build a set of assigned class+subject keys (using stale names for matching)
-    const assignedKeys = new Set((pairs||[]).map(p=>p.class_id+'|'+p.subject_name));
-    (csRows||[]).forEach(cs=>{
-      // Include if teacher is assigned to this subject (match by class_id; for primary_class_id include all)
-      const isAssigned = assignedKeys.has(cs.class_id+'|'+cs.subject_name) || cs.class_id===teacher.primary_class_id;
-      if(!isAssigned) return;
-      if(!hwTeacherSubjects[cs.class_id]) hwTeacherSubjects[cs.class_id] = [];
-      if(!hwTeacherSubjects[cs.class_id].includes(cs.subject_name))
-        hwTeacherSubjects[cs.class_id].push(cs.subject_name);
-    });
-  }
+  (pairs||[]).forEach(p=>{
+    if(!p.class_id || !p.subject_name) return;
+    if(!hwTeacherSubjects[p.class_id]) hwTeacherSubjects[p.class_id] = [];
+    if(!hwTeacherSubjects[p.class_id].includes(p.subject_name))
+      hwTeacherSubjects[p.class_id].push(p.subject_name);
+  });
 
   renderHwClassChips();
   loadHwSubjects();
