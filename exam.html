@@ -1264,8 +1264,7 @@ async function openExamEditModal(examId){
   _editingExamId = examId;
   document.querySelector('#examModalOverlay .modal-title').textContent = 'পরীক্ষা সম্পাদনা করুন';
   // Fill class
-  const classSel = document.getElementById('examClassSelect');
-  classSel.value = exam.class_id;
+  document.getElementById('examClassSelect').value = exam.class_id;
   // Fill exam type chip or custom
   document.querySelectorAll('#examTypeChips .chip-btn').forEach(b=>{
     b.classList.toggle('selected', b.dataset.val===exam.exam_type);
@@ -1275,8 +1274,19 @@ async function openExamEditModal(examId){
   // Fill name and date
   document.getElementById('examName').value = exam.name||'';
   document.getElementById('examDate').value = exam.exam_date ? exam.exam_date.slice(0,10) : '';
-  // Fill subjects from saved exam data
-  newExamSubjects = (exam.subjects||[]).map(s=>({...s}));
+  // Load fresh subject names from class_subjects, preserve marks settings by index
+  const oldSubs = exam.subjects||[];
+  const {data:freshData} = await sb.from('class_subjects').select('subject_name').eq('class_id', exam.class_id).order('id');
+  const freshNames = [...new Set((freshData||[]).map(r=>r.subject_name))];
+  if(freshNames.length){
+    newExamSubjects = freshNames.map((name,i)=>({
+      subject: name,
+      full_marks: oldSubs[i]?.full_marks ?? 100,
+      pass_marks: oldSubs[i]?.pass_marks ?? 33
+    }));
+  } else {
+    newExamSubjects = oldSubs.map(s=>({...s}));
+  }
   renderExamSubjectsList();
   document.getElementById('examModalOverlay').classList.add('show');
 }
