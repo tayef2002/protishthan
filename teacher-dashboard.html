@@ -6102,6 +6102,10 @@ async function cswSave(){
   try {
     const instId = teacher.institution_id;
 
+    // Delete all existing teacher_class_subjects for this teacher first,
+    // so removed entries (X clicked in wizard) actually get deleted from DB
+    await sb.from('teacher_class_subjects').delete().eq('teacher_id', teacher.id);
+
     for(let i=0;i<CSW.entries.length;i++){
       const e=CSW.entries[i];
       let clsId=e.classId;
@@ -6117,15 +6121,17 @@ async function cswSave(){
         }
       }
 
-      // Save subjects — try upsert first, fall back to insert-ignore-duplicate
+      // Save subjects to class_subjects
       for(const subj of e.subjects){
         const csRow = {class_id:clsId, subject_name:subj, start_time:e.startTime||null, end_time:e.endTime||null, days_of_week:e.daysOfWeek||null};
         const { error: csErr } = await sb.from('class_subjects').upsert(csRow, {onConflict:'class_id,subject_name'});
-        if(csErr) await sb.from('class_subjects').insert(csRow); // fallback if constraint missing
+        if(csErr) await sb.from('class_subjects').insert(csRow);
+      }
 
-        const tcsRow = {teacher_id:teacher.id, class_id:clsId, subject_name:subj};
-        const { error: tcsErr } = await sb.from('teacher_class_subjects').upsert(tcsRow, {onConflict:'teacher_id,class_id,subject_name'});
-        if(tcsErr) await sb.from('teacher_class_subjects').insert(tcsRow); // fallback if constraint missing
+      // Save subjects to teacher_class_subjects (fresh insert after delete above)
+      for(const subj of e.subjects){
+        if(!subj) continue;
+        await sb.from('teacher_class_subjects').insert({teacher_id:teacher.id, class_id:clsId, subject_name:subj});
       }
 
       // First = primary (skip in edit mode or if teacher said "no first period")
