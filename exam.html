@@ -946,6 +946,31 @@ async function selectExam(id){
   activeSubTab = 'marks';
   renderExamList();
   const exam = allExams.find(e=>e.id===id);
+
+  // Auto-heal stale subject names: fetch current names from class_subjects
+  if(exam.class_id && (exam.subjects||[]).length){
+    const { data: csRows } = await sb.from('class_subjects').select('subject_name').eq('class_id', exam.class_id).order('id');
+    const freshNames = [...new Set((csRows||[]).map(r=>r.subject_name))];
+    if(freshNames.length === exam.subjects.length){
+      const renames = []; // [{oldName, newName}]
+      exam.subjects.forEach((s, i)=>{
+        if(s.subject !== freshNames[i]){
+          renames.push({ oldName: s.subject, newName: freshNames[i] });
+          s.subject = freshNames[i];
+        }
+      });
+      if(renames.length){
+        // Update exam subjects JSON in DB
+        await sb.from('exams').update({ subjects: exam.subjects }).eq('id', id);
+        // Update exam_marks subject field so existing marks stay linked
+        await Promise.all(renames.map(r =>
+          sb.from('exam_marks').update({ subject: r.newName })
+            .eq('exam_id', id).eq('subject', r.oldName)
+        ));
+      }
+    }
+  }
+
   const { data: marks } = await sb.from('exam_marks').select('*').eq('exam_id', id);
   examMarksCache = {};
   (marks||[]).forEach(m=>{ examMarksCache[m.student_id+'__'+m.subject] = m; });
