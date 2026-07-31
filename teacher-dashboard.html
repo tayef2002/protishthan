@@ -2295,54 +2295,20 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  // teacher_class_subjects: reliable for WHICH classes/subjects teacher is assigned to
-  const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id);
+  // teacher_class_subjects is kept in sync by classes.html on every rename
+  // so subject_name here is always current — use it directly
+  const { data: pairs } = await sb.from(‘teacher_class_subjects’).select(‘class_id,subject_name’).eq(‘teacher_id’, teacher.id);
   const assignedClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
   if(teacher.primary_class_id && !assignedClassIds.includes(teacher.primary_class_id))
     assignedClassIds.push(teacher.primary_class_id);
 
-  // class_subjects: source of truth for current subject names
   hwTeacherSubjects = {};
-  if(assignedClassIds.length){
-    const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds).order('id');
-    // Build fresh name set per class for quick lookup
-    const freshByClass = {};
-    (csRows||[]).forEach(cs=>{
-      if(!freshByClass[cs.class_id]) freshByClass[cs.class_id] = [];
-      freshByClass[cs.class_id].push(cs.subject_name);
-    });
-
-    // Group teacher's assigned subject names per class
-    const teacherByClass = {};
-    (pairs||[]).forEach(p=>{
-      if(!p.class_id || !p.subject_name) return;
-      if(!teacherByClass[p.class_id]) teacherByClass[p.class_id] = [];
-      if(!teacherByClass[p.class_id].includes(p.subject_name))
-        teacherByClass[p.class_id].push(p.subject_name);
-    });
-
-    // Normalize: remove spaces, apostrophes, punctuation for fuzzy matching
-    const norm = s => s.replace(/[\s'’‘.,،؛]/g, '').toLowerCase();
-
-    Object.keys(teacherByClass).forEach(classId=>{
-      const teacherSubs = teacherByClass[classId];
-      const freshSubs   = freshByClass[classId] || [];
-      // Build normalized map: normalizedFreshName -> actual fresh name
-      const normFreshMap = {};
-      freshSubs.forEach(f => { normFreshMap[norm(f)] = f; });
-      hwTeacherSubjects[classId] = teacherSubs.map(tSub=>{
-        // 1. Exact match → already current
-        if(normFreshMap[norm(tSub)] !== undefined) return normFreshMap[norm(tSub)];
-        // 2. Partial: stored name starts-with or is contained in a fresh name
-        const normT = norm(tSub);
-        for(const [nf, fresh] of Object.entries(normFreshMap)){
-          if(nf.startsWith(normT) || normT.startsWith(nf)) return fresh;
-        }
-        // 3. Fallback: keep stored name (admin should re-assign via staff page)
-        return tSub;
-      });
-    });
-  }
+  (pairs||[]).forEach(p=>{
+    if(!p.class_id || !p.subject_name) return;
+    if(!hwTeacherSubjects[p.class_id]) hwTeacherSubjects[p.class_id] = [];
+    if(!hwTeacherSubjects[p.class_id].includes(p.subject_name))
+      hwTeacherSubjects[p.class_id].push(p.subject_name);
+  });
 
   renderHwClassChips();
   loadHwSubjects();
