@@ -2321,19 +2321,24 @@ async function initHomeworkForm(){
         teacherByClass[p.class_id].push(p.subject_name);
     });
 
+    // Normalize: remove spaces, apostrophes, punctuation for fuzzy matching
+    const norm = s => s.replace(/[\s'’‘.,،؛]/g, '').toLowerCase();
+
     Object.keys(teacherByClass).forEach(classId=>{
       const teacherSubs = teacherByClass[classId];
       const freshSubs   = freshByClass[classId] || [];
-      const freshSet    = new Set(freshSubs);
+      // Build normalized map: normalizedFreshName -> actual fresh name
+      const normFreshMap = {};
+      freshSubs.forEach(f => { normFreshMap[norm(f)] = f; });
       hwTeacherSubjects[classId] = teacherSubs.map(tSub=>{
-        // If exact match exists in class_subjects, name is already current
-        if(freshSet.has(tSub)) return tSub;
-        // If count matches, teacher was assigned all subjects — map by position (rename case)
-        if(teacherSubs.length === freshSubs.length){
-          const idx = teacherSubs.indexOf(tSub);
-          return freshSubs[idx] || tSub;
+        // 1. Exact match → already current
+        if(normFreshMap[norm(tSub)] !== undefined) return normFreshMap[norm(tSub)];
+        // 2. Partial: stored name starts-with or is contained in a fresh name
+        const normT = norm(tSub);
+        for(const [nf, fresh] of Object.entries(normFreshMap)){
+          if(nf.startsWith(normT) || normT.startsWith(nf)) return fresh;
         }
-        // Fallback: keep stored name (admin should re-assign)
+        // 3. Fallback: keep stored name (admin should re-assign via staff page)
         return tSub;
       });
     });
