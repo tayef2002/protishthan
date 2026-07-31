@@ -2295,8 +2295,7 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  // teacher_class_subjects is kept in sync by classes.html on every rename
-  // so subject_name here is always current — use it directly
+  // classes.html syncs teacher_class_subjects on rename, so names are always current
   const { data: pairs } = await sb.from(‘teacher_class_subjects’).select(‘class_id,subject_name’).eq(‘teacher_id’, teacher.id);
   const assignedClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
   if(teacher.primary_class_id && !assignedClassIds.includes(teacher.primary_class_id))
