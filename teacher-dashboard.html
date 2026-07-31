@@ -2295,19 +2295,55 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  // classes.html syncs teacher_class_subjects on rename, so names are always current
   const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id);
   const assignedClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
   if(teacher.primary_class_id && !assignedClassIds.includes(teacher.primary_class_id))
     assignedClassIds.push(teacher.primary_class_id);
 
+  // Load current names from class_subjects to detect and heal stale names
   hwTeacherSubjects = {};
-  (pairs||[]).forEach(p=>{
-    if(!p.class_id || !p.subject_name) return;
-    if(!hwTeacherSubjects[p.class_id]) hwTeacherSubjects[p.class_id] = [];
-    if(!hwTeacherSubjects[p.class_id].includes(p.subject_name))
-      hwTeacherSubjects[p.class_id].push(p.subject_name);
-  });
+  if(assignedClassIds.length){
+    const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds).order('id');
+    const freshByClass = {};
+    (csRows||[]).forEach(cs=>{
+      if(!freshByClass[cs.class_id]) freshByClass[cs.class_id] = [];
+      freshByClass[cs.class_id].push(cs.subject_name);
+    });
+    const teacherByClass = {};
+    (pairs||[]).forEach(p=>{
+      if(!p.class_id || !p.subject_name) return;
+      if(!teacherByClass[p.class_id]) teacherByClass[p.class_id] = [];
+      if(!teacherByClass[p.class_id].includes(p.subject_name))
+        teacherByClass[p.class_id].push(p.subject_name);
+    });
+    for(const classId of Object.keys(teacherByClass)){
+      const storedSubs = teacherByClass[classId];
+      const freshSubs  = freshByClass[classId] || [];
+      const freshSet   = new Set(freshSubs);
+      // If all stored names already exist in class_subjects, use them directly
+      if(storedSubs.every(s => freshSet.has(s))){
+        hwTeacherSubjects[classId] = storedSubs;
+      } else if(storedSubs.length === freshSubs.length){
+        // Count matches: teacher teaches all subjects in this class.
+        // Map by position (handles renames) and heal the DB so future loads are instant.
+        hwTeacherSubjects[classId] = freshSubs;
+        storedSubs.forEach((oldName, i) => {
+          const newName = freshSubs[i];
+          if(oldName !== newName){
+            sb.from('teacher_class_subjects')
+              .update({ subject_name: newName })
+              .eq('teacher_id', teacher.id)
+              .eq('class_id', classId)
+              .eq('subject_name', oldName)
+              .then(() => {});
+          }
+        });
+      } else {
+        // Different counts: can't safely auto-heal; use stored names as-is
+        hwTeacherSubjects[classId] = storedSubs;
+      }
+    }
+  }
 
   renderHwClassChips();
   loadHwSubjects();
