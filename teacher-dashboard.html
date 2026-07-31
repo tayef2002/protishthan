@@ -2295,19 +2295,47 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  // Get which classes this teacher is assigned to (class_id is reliable; subject names may be stale)
+  // teacher_class_subjects: reliable for WHICH classes/subjects teacher is assigned to
   const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id);
   const assignedClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
   if(teacher.primary_class_id && !assignedClassIds.includes(teacher.primary_class_id))
     assignedClassIds.push(teacher.primary_class_id);
-  // Load current subject names from institution's class management (always up-to-date)
+
+  // class_subjects: source of truth for current subject names
   hwTeacherSubjects = {};
   if(assignedClassIds.length){
     const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds).order('id');
+    // Build fresh name set per class for quick lookup
+    const freshByClass = {};
     (csRows||[]).forEach(cs=>{
-      if(!hwTeacherSubjects[cs.class_id]) hwTeacherSubjects[cs.class_id] = [];
-      if(!hwTeacherSubjects[cs.class_id].includes(cs.subject_name))
-        hwTeacherSubjects[cs.class_id].push(cs.subject_name);
+      if(!freshByClass[cs.class_id]) freshByClass[cs.class_id] = [];
+      freshByClass[cs.class_id].push(cs.subject_name);
+    });
+
+    // Group teacher's assigned subject names per class
+    const teacherByClass = {};
+    (pairs||[]).forEach(p=>{
+      if(!p.class_id || !p.subject_name) return;
+      if(!teacherByClass[p.class_id]) teacherByClass[p.class_id] = [];
+      if(!teacherByClass[p.class_id].includes(p.subject_name))
+        teacherByClass[p.class_id].push(p.subject_name);
+    });
+
+    Object.keys(teacherByClass).forEach(classId=>{
+      const teacherSubs = teacherByClass[classId];
+      const freshSubs   = freshByClass[classId] || [];
+      const freshSet    = new Set(freshSubs);
+      hwTeacherSubjects[classId] = teacherSubs.map(tSub=>{
+        // If exact match exists in class_subjects, name is already current
+        if(freshSet.has(tSub)) return tSub;
+        // If count matches, teacher was assigned all subjects — map by position (rename case)
+        if(teacherSubs.length === freshSubs.length){
+          const idx = teacherSubs.indexOf(tSub);
+          return freshSubs[idx] || tSub;
+        }
+        // Fallback: keep stored name (admin should re-assign)
+        return tSub;
+      });
     });
   }
 
