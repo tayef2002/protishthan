@@ -953,16 +953,13 @@ async function syncTeacherPrimaryClass(teacherId, primaryClassId){
 }
 
 async function syncAdditionalClassSubjects(teacherId, pairs){
-  // Upsert only — never delete existing rows (wizard/teacher-side saves must not be wiped)
-  if(pairs.length){
-    const rows = pairs.map(p=>({ teacher_id: teacherId, class_id: p.class_id, subject_name: p.subject_name }));
-    const { error } = await sb.from('teacher_class_subjects').upsert(rows, {onConflict:'teacher_id,class_id,subject_name'});
-    // fallback: insert individually ignoring duplicates if constraint missing
-    if(error){
-      for(const row of rows){
-        await sb.from('teacher_class_subjects').insert(row).then(()=>{}).catch(()=>{});
-      }
-    }
+  // Delete all existing rows first so removed entries actually get deleted
+  await sb.from('teacher_class_subjects').delete().eq('teacher_id', teacherId);
+  // Insert only valid pairs (class + subject both set)
+  const validRows = pairs.filter(p=>p.class_id && p.subject_name)
+    .map(p=>({ teacher_id: teacherId, class_id: p.class_id, subject_name: p.subject_name }));
+  for(const row of validRows){
+    await sb.from('teacher_class_subjects').insert(row).then(()=>{}).catch(()=>{});
   }
 }
 
