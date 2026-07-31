@@ -920,6 +920,32 @@ async function loadExams(){
   const { data } = await sb.from('exams').select('*').eq('institution_id', currentInstitution.id).order('created_at',{ascending:false});
   allExams = data||[];
   renderExamList();
+  healAllExamSubjectNames();
+}
+
+async function healAllExamSubjectNames(){
+  // Fetch all current subject names for all classes used in exams
+  const classIds = [...new Set(allExams.map(e=>e.class_id).filter(Boolean))];
+  if(!classIds.length) return;
+  const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', classIds).order('id');
+  const freshByClass = {};
+  (csRows||[]).forEach(r=>{
+    if(!freshByClass[r.class_id]) freshByClass[r.class_id] = [];
+    freshByClass[r.class_id].push(r.subject_name);
+  });
+
+  for(const exam of allExams){
+    const stored = exam.subjects||[];
+    const fresh = freshByClass[exam.class_id]||[];
+    if(!stored.length || fresh.length !== stored.length) continue;
+    const renames = [];
+    stored.forEach((s,i)=>{ if(s.subject !== fresh[i]) renames.push({oldName:s.subject, newName:fresh[i]}); s.subject = fresh[i]; });
+    if(!renames.length) continue;
+    await sb.from('exams').update({ subjects: stored }).eq('id', exam.id);
+    await Promise.all(renames.map(r=>
+      sb.from('exam_marks').update({ subject: r.newName }).eq('exam_id', exam.id).eq('subject', r.oldName)
+    ));
+  }
 }
 
 function renderExamList(){
