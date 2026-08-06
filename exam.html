@@ -1562,12 +1562,7 @@ function buildReportCardHTML(exam, student){
 
 
 function gradeLabel(percent){
-  if(percent>=90) return 'মুমতাজ';
-  if(percent>=80) return 'মুমতাজ';
-  if(percent>=70) return 'জায়িদ জিদ্দান';
-  if(percent>=60) return 'জায়িদ';
-  if(percent>=50) return 'মকবুল';
-  return 'রাসিব';
+  return divisionFor(gradeFor(percent).letter);
 }
 
 function buildResultCard(student, exam, r, cardNum){
