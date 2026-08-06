@@ -1186,9 +1186,10 @@ function printClassResultSheet(examId){
   }).join('');
 
   const subjectHeaders = subjects.map(s=>{
-    const g = (typeof Intl!=='undefined'&&Intl.Segmenter) ? [...new Intl.Segmenter('bn',{granularity:'grapheme'}).segment(s.subject)].map(x=>x.segment) : [...s.subject];
-    const label = g.length>9 ? g.slice(0,9).join('')+'…' : s.subject;
-    return `<th class="rot"><span class="rot-inner">${escapeHtml(label)}</span></th>`;
+    const name = s.subject || '';
+    const g = (typeof Intl!=='undefined'&&Intl.Segmenter) ? [...new Intl.Segmenter('bn',{granularity:'grapheme'}).segment(name)].map(x=>x.segment) : [...name];
+    const label = g.length>40 ? g.slice(0,40).join('')+'…' : name;
+    return `<th class="rot"><span class="rot-inner" data-rot-text="${escapeHtml(label)}"></span></th>`;
   }).join('');
   const subColspan = subjects.length;
 
@@ -1231,8 +1232,8 @@ function printClassResultSheet(examId){
     table.main{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:0}
     .main th,.main td{border:1px solid #000;padding:3px 5px;font-size:22px;font-weight:800;text-align:center;vertical-align:middle;word-wrap:break-word}
     .main thead th{background:#EFEFEF;font-weight:800;font-size:18px;color:#000}
-    .main th.rot,.main th.serial-h{height:160px;padding:3px 2px;font-size:18px;color:#000;position:relative}
-    .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block;white-space:nowrap;transform:rotate(-90deg);font-size:18px;font-weight:800;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+    .main th.rot,.main th.serial-h{padding:3px 2px;font-size:18px;color:#000;position:relative;vertical-align:middle}
+    .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block}
     td.lft{text-align:left;padding-left:8px;font-weight:800}
     td.fail-cell{background:#000 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   </style></head><body>
@@ -1261,21 +1262,51 @@ function printClassResultSheet(examId){
       <div>মোট নম্বরঃ <b>${bn(fullMarksTotal)}</b></div>
     </div>
     <div class="class-row">${cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null'}</div>
-    <div style="font-size:11px;color:#c00;background:#ffe;padding:4px;border:1px dashed #c00">DEBUG বিষয় (${subjects.length}): ${subjects.map((s,i)=>(i+1)+'=['+escapeHtml(s.subject||'(খালি)')+']').join('  ')}</div>
     <table class="main">
       ${colgroupHtml}
       <thead>
-        <tr><th rowspan="2" class="serial-h"><span class="rot-inner">ক্রমিক নং</span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
+        <tr><th rowspan="2" class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
         <tr>${subjectHeaders}<th>মোট নম্বর</th><th>গড়</th><th>পাশের বিভাগ</th><th>গ্রেড</th><th>জিপিএ</th><th>মেধাক্রম</th></tr>
       </thead>
       <tbody>${rowsHtml}</tbody>
     </table>
   </body></html>`);
   w.document.close();
+  function drawRotatedHeaderLabels(){
+    const fontPx = 18;
+    let maxLen = 0;
+    w.document.querySelectorAll('.rot-inner[data-rot-text]').forEach(el=>{
+      const text = el.getAttribute('data-rot-text');
+      const mctx = w.document.createElement('canvas').getContext('2d');
+      mctx.font = `800 ${fontPx}px SolaimanLipi, sans-serif`;
+      const textW = Math.ceil(mctx.measureText(text).width) + 6;
+      const cw = Math.ceil(fontPx*1.35), ch = textW;
+      const ratio = w.devicePixelRatio || 1;
+      const canvas = w.document.createElement('canvas');
+      canvas.width = cw*ratio; canvas.height = ch*ratio;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(ratio, ratio);
+      ctx.font = `800 ${fontPx}px SolaimanLipi, sans-serif`;
+      ctx.fillStyle = '#000';
+      ctx.textBaseline = 'middle';
+      ctx.translate(cw/2, ch-3);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillText(text, 0, 0);
+      const img = w.document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.width = cw+'px'; img.style.height = ch+'px'; img.style.display = 'block';
+      el.appendChild(img);
+      if(ch > maxLen) maxLen = ch;
+    });
+    const st = w.document.createElement('style');
+    st.textContent = `.main th.rot,.main th.serial-h{height:${maxLen+14}px}`;
+    w.document.head.appendChild(st);
+  }
+  function triggerPrint(){ drawRotatedHeaderLabels(); setTimeout(()=>w.print(), 200); }
   if(w.document.fonts && w.document.fonts.ready){
-    w.document.fonts.ready.then(()=>setTimeout(()=>w.print(), 300));
+    w.document.fonts.ready.then(triggerPrint);
   } else {
-    setTimeout(()=>w.print(), 800);
+    setTimeout(triggerPrint, 800);
   }
 }
 
