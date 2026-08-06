@@ -1185,7 +1185,11 @@ function printClassResultSheet(examId){
     return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${bn(pos)}</b></td></tr>`;
   }).join('');
 
-  const subjectHeaders = subjects.map(s=>`<th class="rot"><span class="rot-inner">${escapeHtml(s.subject)}</span></th>`).join('');
+  const subjectHeaders = subjects.map(s=>{
+    const g = (typeof Intl!=='undefined'&&Intl.Segmenter) ? [...new Intl.Segmenter('bn',{granularity:'grapheme'}).segment(s.subject)].map(x=>x.segment) : [...s.subject];
+    const label = g.length>9 ? g.slice(0,9).join('')+'…' : s.subject;
+    return `<th class="rot"><span class="rot-inner">${escapeHtml(label)}</span></th>`;
+  }).join('');
   const subColspan = subjects.length;
 
   // colgroup widths: serial 4%, name 13%, subjects share 35%, last 6 columns share 48% equally
@@ -1227,8 +1231,8 @@ function printClassResultSheet(examId){
     table.main{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:0}
     .main th,.main td{border:1px solid #000;padding:3px 5px;font-size:22px;font-weight:800;text-align:center;vertical-align:middle;word-wrap:break-word}
     .main thead th{background:#EFEFEF;font-weight:800;font-size:18px;color:#000}
-    .main th.rot,.main th.serial-h{height:124px;padding:3px 2px;font-size:18px;color:#000;position:relative}
-    .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block;white-space:nowrap;transform:rotate(-90deg);font-size:18px;font-weight:800;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+    .main th.rot,.main th.serial-h{height:160px;padding:3px 2px;font-size:18px;color:#000;position:relative}
+    .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block;white-space:nowrap;transform:rotate(-90deg);font-size:18px;font-weight:800;max-width:140px;overflow:hidden;text-overflow:ellipsis}
     td.lft{text-align:left;padding-left:8px;font-weight:800}
     td.fail-cell{background:#000 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   </style></head><body>
