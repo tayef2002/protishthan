@@ -1701,26 +1701,55 @@ function buildResultCard(student, exam, r, cardNum){
 
 async function fetchAttendanceMap(exam){
   // Returns map: studentId -> {present, absent, karjo}
+  // Two sources have to be combined: the day-by-day 'attendance' table (live
+  // tracking), and 'monthly_attendance_summary' (teachers bulk-entering
+  // totals for months before/outside daily tracking). For any given
+  // (year,month), a student's data comes from whichever source actually has
+  // rows for them that month - daily takes priority - so months are never
+  // double-counted between the two.
   const year = exam.academic_year || new Date().getFullYear();
   const fromDate = `${year}-01-01`;
-  const toDate = exam.exam_date || new Date().toISOString().slice(0,10);
+  const examDateStr = exam.exam_date || new Date().toISOString().slice(0,10);
   const instId = (currentInstitution||{}).id;
   if(!instId) return {};
-  const { data } = await sb.from('attendance')
-    .select('student_id,date,status')
-    .eq('institution_id', instId)
-    .gte('date', fromDate)
-    .lte('date', toDate);
-  if(!data) return {};
-  // Count working days (unique dates with any record)
-  const uniqueDates = new Set(data.map(r=>r.date));
-  const karjo = uniqueDates.size;
+  const examD = new Date(examDateStr);
+  const examYM = examD.getFullYear()*12 + (examD.getMonth()+1);
+  const fromYM = year*12 + 1;
+
+  const [{ data: daily }, { data: monthly }] = await Promise.all([
+    sb.from('attendance').select('student_id,date,status')
+      .eq('institution_id', instId).gte('date', fromDate).lte('date', examDateStr),
+    sb.from('monthly_attendance_summary').select('student_id,year,month,total_working_days,present_days')
+      .eq('institution_id', instId)
+  ]);
+
   const map = {};
-  data.forEach(r=>{
-    if(!map[r.student_id]) map[r.student_id]={present:0,absent:0,karjo};
-    if(r.status==='present') map[r.student_id].present++;
-    else map[r.student_id].absent++;
+  const ensure = sid => (map[sid] || (map[sid] = {present:0, absent:0, karjo:0}));
+
+  const dailyMonthsByStudent = {};
+  const uniqueDates = new Set();
+  (daily||[]).forEach(r=>{
+    uniqueDates.add(r.date);
+    const d = new Date(r.date);
+    const key = d.getFullYear()+'-'+(d.getMonth()+1);
+    (dailyMonthsByStudent[r.student_id] || (dailyMonthsByStudent[r.student_id]=new Set())).add(key);
+    const m = ensure(r.student_id);
+    if(r.status==='present') m.present++; else m.absent++;
   });
+  const dailyKarjo = uniqueDates.size;
+
+  (monthly||[]).forEach(r=>{
+    const ym = r.year*12 + r.month;
+    if(ym < fromYM || ym > examYM) return;
+    const key = r.year+'-'+r.month;
+    if((dailyMonthsByStudent[r.student_id]||new Set()).has(key)) return;
+    const m = ensure(r.student_id);
+    m.present += r.present_days||0;
+    m.absent += Math.max(0, (r.total_working_days||0) - (r.present_days||0));
+    m.karjo += r.total_working_days||0;
+  });
+
+  Object.keys(map).forEach(sid=>{ map[sid].karjo += dailyKarjo; });
   return map;
 }
 
@@ -1761,9 +1790,9 @@ async function bulkPrintReportCards(examId){
         serial: bn(String(st.roll_number||'')),
         studentName: st.full_name||'',
         fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'',
-        karjo: bn(String((attMap[st.id]||{}).karjo||'')),
-        present: bn(String((attMap[st.id]||{}).present||'')),
-        absent: bn(String((attMap[st.id]||{}).absent||'')),
+        karjo: bn(String((attMap[st.id]||{}).karjo ?? '')),
+        present: bn(String((attMap[st.id]||{}).present ?? '')),
+        absent: bn(String((attMap[st.id]||{}).absent ?? '')),
         subjectCount: bn(String(exam.subjects.length)),
         fullTotal: bn(String(r.fullTotal)),
         total: bn(String(r.total)),
@@ -1824,7 +1853,7 @@ async function printSingleCard(examId, studentId){
     year: bn(String(year)), examName,
     serial: bn(String(st.roll_number||'')),
     studentName: st.full_name||'', fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'',
-    karjo: bn(String(att.karjo||'')), present: bn(String(att.present||'')), absent: bn(String(att.absent||'')),
+    karjo: bn(String(att.karjo ?? '')), present: bn(String(att.present ?? '')), absent: bn(String(att.absent ?? '')),
     subjectCount: bn(String(exam.subjects.length)),
     fullTotal: bn(String(r.fullTotal)), total: bn(String(r.total)),
     avg, grade: gLabel, lg: g.letter, gpa: bn(r.gpa.toFixed(2)),
@@ -1877,7 +1906,7 @@ async function bulkPrintSingleCards(examId){
       serial: bn(String(st.roll_number||'')),
       studentName: st.full_name||'',
       fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'',
-      karjo: bn(String(att.karjo||'')), present: bn(String(att.present||'')), absent: bn(String(att.absent||'')),
+      karjo: bn(String(att.karjo ?? '')), present: bn(String(att.present ?? '')), absent: bn(String(att.absent ?? '')),
       subjectCount: bn(String(exam.subjects.length)),
       fullTotal: bn(String(r.fullTotal)),
       total: bn(String(r.total)),
