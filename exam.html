@@ -1313,13 +1313,19 @@ function printClassResultSheet(examId){
   w.document.close();
   function drawRotatedHeaderLabels(){
     const fontPx = 18;
+    const lineGap = fontPx * 1.15;
     let maxLen = 0;
     w.document.querySelectorAll('.rot-inner[data-rot-text]').forEach(el=>{
       const text = el.getAttribute('data-rot-text');
+      const words = text.split(' ');
+      const oIdx = words.indexOf('ও');
+      const lines = (oIdx > -1 && oIdx < words.length-1)
+        ? [words.slice(0, oIdx+1).join(' '), words.slice(oIdx+1).join(' ')]
+        : [text];
       const mctx = w.document.createElement('canvas').getContext('2d');
       mctx.font = `800 ${fontPx}px SolaimanLipi, sans-serif`;
-      const textW = Math.ceil(mctx.measureText(text).width) + 6;
-      const cw = Math.ceil(fontPx*1.35), ch = textW;
+      const lineWidths = lines.map(l => Math.ceil(mctx.measureText(l).width));
+      const cw = Math.ceil(lineGap*lines.length + 6), ch = Math.max(...lineWidths) + 6;
       const ratio = w.devicePixelRatio || 1;
       const canvas = w.document.createElement('canvas');
       canvas.width = cw*ratio; canvas.height = ch*ratio;
@@ -1328,9 +1334,9 @@ function printClassResultSheet(examId){
       ctx.font = `800 ${fontPx}px SolaimanLipi, sans-serif`;
       ctx.fillStyle = '#000';
       ctx.textBaseline = 'middle';
-      ctx.translate(cw/2, ch-3);
+      ctx.translate(cw/2 - (lines.length-1)*lineGap/2, ch-3);
       ctx.rotate(-Math.PI/2);
-      ctx.fillText(text, 0, 0);
+      lines.forEach((line,i)=> ctx.fillText(line, 0, i*lineGap));
       const img = w.document.createElement('img');
       img.src = canvas.toDataURL('image/png');
       img.style.width = cw+'px'; img.style.height = ch+'px'; img.style.display = 'block';
