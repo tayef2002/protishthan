@@ -1175,6 +1175,19 @@ function divisionFor(grade){
   return map[grade] || 'Null';
 }
 
+function remarkFor(grade){
+  const map = {
+    'A+': 'মাশাআল্লাহ, অনেক ভালো ফলাফল! তোমাকে নিয়ে আমরা সত্যিই গর্বিত। এভাবেই এগিয়ে যাও।',
+    'A': 'খুব ভালো করেছ, মাশাআল্লাহ! আরেকটু চেষ্টা করলে সবচেয়ে ভালো ফলাফলটাও তুমিই করবে।',
+    'A-': 'ভালো করেছ তুমি। তবে আরেকটু মন দিয়ে পড়লে আরও অনেক ভালো করতে পারবে।',
+    'B': 'পাস করেছ, এটা ভালো। তবে তোমার মধ্যে আরও ভালো করার সামর্থ্য আছে — একটু বেশি সময় দাও পড়ায়।',
+    'C': 'এবার টেনেটুনে পাস করেছ। এখন থেকে একটু বেশি মনোযোগী হলে সামনেরবার ফলাফল অনেক ভালো হবে, ইনশাআল্লাহ।',
+    'D': 'ফলাফলটা এবার ভালো হয়নি। মন খারাপ করার কিছু নেই — আজ থেকেই নিয়মিত পড়া শুরু করো, ইনশাআল্লাহ ঠিক হয়ে যাবে।',
+    'F': 'এবার তুমি পাস করতে পারোনি, কিন্তু এখানেই সব শেষ নয়। নতুন করে শুরু করো, নিয়মিত পড়ো — আমরা তোমার পাশে আছি, ইনশাআল্লাহ তুমি পারবে।'
+  };
+  return map[grade] || '';
+}
+
 function printClassResultSheet(examId){
   const exam = allExams.find(e=>e.id===examId);
   const cls = allClasses.find(c=>c.id===exam.class_id);
@@ -1752,6 +1765,7 @@ async function bulkPrintReportCards(examId){
         lg: g.letter,
         gpa: bn(r.gpa.toFixed(2)),
         roll: bn(String(st.roll_number||'')),
+        rem: remarkFor(g.letter),
         subjects: r.subjectResults.map((sr,idx)=>({
           kro: bn(String(idx+1)),
           name: sr.subject,
@@ -1772,7 +1786,7 @@ async function bulkPrintReportCards(examId){
       w.sessionStorage.setItem('rc_autoprint', '1');
       // Trigger the fill script manually since page already loaded
       const s = w.document.createElement('script');
-      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
       w.document.body.appendChild(s);
     });
   });
@@ -1808,6 +1822,7 @@ async function printSingleCard(examId, studentId){
     fullTotal: bn(String(r.fullTotal)), total: bn(String(r.total)),
     avg, grade: gLabel, lg: g.letter, gpa: bn(r.gpa.toFixed(2)),
     roll: bn(String(st.roll_number||'')),
+    rem: remarkFor(g.letter),
     subjects: r.subjectResults.map((sr,idx)=>({
       kro: bn(String(idx+1)), name: sr.subject,
       full: bn(String(exam.subjects[idx]?.full_marks||100)),
@@ -1815,7 +1830,7 @@ async function printSingleCard(examId, studentId){
       high: highMap[sr.subject]!=null ? bn(String(highMap[sr.subject])) : ''
     }))
   }];
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   const w = window.open('/result_card_single.html', '_blank');
   w.addEventListener('load', function(){
     w.sessionStorage.setItem('rc_data', JSON.stringify(data));
@@ -1840,7 +1855,7 @@ async function bulkPrintSingleCards(examId){
   const examName = exam.name || '';
   const attMap = await fetchAttendanceMap(exam);
   const highMap = subjectHighestMarks(students, exam.subjects);
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   students.forEach(function(st){
     const att = attMap[st.id] || {};
     const r = computeStudentResult(st, exam.subjects);
@@ -1862,6 +1877,7 @@ async function bulkPrintSingleCards(examId){
       avg, grade: gLabel, lg: g.letter,
       gpa: bn(r.gpa.toFixed(2)),
       roll: bn(String(st.roll_number||'')),
+      rem: remarkFor(g.letter),
       subjects: r.subjectResults.map((sr,idx)=>({
         kro: bn(String(idx+1)),
         name: sr.subject,
