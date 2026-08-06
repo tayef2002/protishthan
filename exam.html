@@ -881,10 +881,10 @@ function xConfirm(msg,{icon='⚠️',title='নিশ্চিত করুন',
 function gradeFor(percent){
   if(percent>=80) return {letter:'A+', point:5.00};
   if(percent>=70) return {letter:'A', point:4.00};
-  if(percent>=60) return {letter:'A-', point:3.50};
-  if(percent>=50) return {letter:'B', point:3.00};
-  if(percent>=40) return {letter:'C', point:2.00};
-  if(percent>=33) return {letter:'D', point:1.00};
+  if(percent>=65) return {letter:'A-', point:3.50};
+  if(percent>=60) return {letter:'B', point:3.00};
+  if(percent>=55) return {letter:'C', point:2.00};
+  if(percent>=50) return {letter:'D', point:1.00};
   return {letter:'F', point:0.00};
 }
 
@@ -1222,6 +1222,9 @@ function printClassResultSheet(examId){
     .sheet-org{font-size:54px;font-weight:800}
     .sheet-title{font-size:26px;font-weight:800;margin-top:2px}
     .scale-box{border:1.6px solid #000;font-size:13px;flex-shrink:0;align-self:center}
+    .scale-title{border-bottom:1.6px solid #000;text-align:center;font-weight:800;font-size:13px;padding:2px}
+    .scale-tables{display:flex}
+    .scale-tables table:first-child{border-right:1.6px solid #000}
     .scale-box table{border-collapse:collapse}
     .scale-box th,.scale-box td{border:1px solid #000;padding:1px 6px;font-size:12px;text-align:center}
     .stat-row{display:flex;border:1.6px solid #000;margin-top:4px}
@@ -1244,15 +1247,22 @@ function printClassResultSheet(examId){
         <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
       </div>
       <div class="scale-box">
-        <table>
-          <tr><th colspan="3">মান নির্ধারণ পদ্ধতি</th></tr>
-          <tr><th>বিভাগ</th><th>গ্রেড</th><th>জিপিএ</th></tr>
-          <tr><td>মুমতাজ</td><td>A+</td><td>৫</td></tr>
-          <tr><td>জায়িদ ইমতিয়াজ</td><td>A</td><td>৪</td></tr>
-          <tr><td>জায়িদ</td><td>A-</td><td>৩.৫</td></tr>
-          <tr><td>মাকবুল</td><td>B</td><td>৩</td></tr>
-          <tr><td>রাসিব</td><td>F</td><td>০</td></tr>
-        </table>
+        <div class="scale-title">মান নির্ধারণ পদ্ধতি</div>
+        <div class="scale-tables">
+          <table>
+            <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
+            <tr><td>A+</td><td>৮০-১০০</td><td>৫</td></tr>
+            <tr><td>A</td><td>৭০-৭৯</td><td>৪</td></tr>
+            <tr><td>A-</td><td>৬৫-৬৯</td><td>৩.৫</td></tr>
+            <tr><td>B</td><td>৬০-৬৪</td><td>৩</td></tr>
+          </table>
+          <table>
+            <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
+            <tr><td>C</td><td>৫৫-৫৯</td><td>২</td></tr>
+            <tr><td>D</td><td>৫০-৫৪</td><td>১</td></tr>
+            <tr><td>F</td><td>০-৪৯</td><td>০</td></tr>
+          </table>
+        </div>
       </div>
     </div>
     <div class="stat-row">
