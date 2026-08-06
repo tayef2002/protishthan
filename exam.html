@@ -1334,7 +1334,8 @@ function printClassResultSheet(examId){
       ctx.font = `800 ${fontPx}px SolaimanLipi, sans-serif`;
       ctx.fillStyle = '#000';
       ctx.textBaseline = 'middle';
-      ctx.translate(cw/2 - (lines.length-1)*lineGap/2, ch-3);
+      ctx.textAlign = 'center';
+      ctx.translate(cw/2 - (lines.length-1)*lineGap/2, ch/2);
       ctx.rotate(-Math.PI/2);
       lines.forEach((line,i)=> ctx.fillText(line, 0, i*lineGap));
       const img = w.document.createElement('img');
