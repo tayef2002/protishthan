@@ -1110,6 +1110,22 @@ function computeStudentResult(student, subjects){
   return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: fullTotal? (total/fullTotal*100):0 };
 }
 
+function subjectHighestMarks(students, subjects){
+  const highest = {};
+  subjects.forEach(sub=>{
+    let max = null;
+    students.forEach(st=>{
+      const m = examMarksCache[st.id+'__'+sub.subject];
+      if(m && !m.is_absent && m.marks_obtained!=null){
+        const v = Number(m.marks_obtained);
+        if(max===null || v>max) max = v;
+      }
+    });
+    highest[sub.subject] = max;
+  });
+  return highest;
+}
+
 function renderResultTable(exam, students, subjects){
   const results = students.map(st=>({ student: st, r: computeStudentResult(st, subjects) }));
   results.sort((a,b)=> b.r.total - a.r.total);
@@ -1702,6 +1718,7 @@ async function bulkPrintReportCards(examId){
   const className = cls ? cls.name : '';
   const year = exam.academic_year || new Date().getFullYear();
   const examName = exam.name || '';
+  const highMap = subjectHighestMarks(students, exam.subjects);
 
   // Build pairs of students (2 per page)
   // result_card_design.html supports exactly 2 cards (n=1,2)
@@ -1739,7 +1756,8 @@ async function bulkPrintReportCards(examId){
           kro: bn(String(idx+1)),
           name: sr.subject,
           full: bn(String(exam.subjects[idx]?.full_marks||100)),
-          mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : '')
+          mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : ''),
+          high: highMap[sr.subject]!=null ? bn(String(highMap[sr.subject])) : ''
         }))
       });
     }
@@ -1754,7 +1772,7 @@ async function bulkPrintReportCards(examId){
       w.sessionStorage.setItem('rc_autoprint', '1');
       // Trigger the fill script manually since page already loaded
       const s = w.document.createElement('script');
-      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
       w.document.body.appendChild(s);
     });
   });
@@ -1773,6 +1791,8 @@ async function printSingleCard(examId, studentId){
   const examName = exam.name || '';
   const attMap = await fetchAttendanceMap(exam);
   const att = attMap[st.id] || {};
+  const classmates = allStudents.filter(s=>s.class_id===exam.class_id);
+  const highMap = subjectHighestMarks(classmates, exam.subjects);
   const r = computeStudentResult(st, exam.subjects);
   const percent = r.fullTotal ? (r.total/r.fullTotal*100) : 0;
   const g = gradeFor(percent);
@@ -1791,10 +1811,11 @@ async function printSingleCard(examId, studentId){
     subjects: r.subjectResults.map((sr,idx)=>({
       kro: bn(String(idx+1)), name: sr.subject,
       full: bn(String(exam.subjects[idx]?.full_marks||100)),
-      mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : '')
+      mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : ''),
+      high: highMap[sr.subject]!=null ? bn(String(highMap[sr.subject])) : ''
     }))
   }];
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   const w = window.open('/result_card_single.html', '_blank');
   w.addEventListener('load', function(){
     w.sessionStorage.setItem('rc_data', JSON.stringify(data));
@@ -1818,7 +1839,8 @@ async function bulkPrintSingleCards(examId){
   const year = exam.academic_year || new Date().getFullYear();
   const examName = exam.name || '';
   const attMap = await fetchAttendanceMap(exam);
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const highMap = subjectHighestMarks(students, exam.subjects);
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   students.forEach(function(st){
     const att = attMap[st.id] || {};
     const r = computeStudentResult(st, exam.subjects);
@@ -1844,7 +1866,8 @@ async function bulkPrintSingleCards(examId){
         kro: bn(String(idx+1)),
         name: sr.subject,
         full: bn(String(exam.subjects[idx]?.full_marks||100)),
-        mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : '')
+        mark: sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bn(String(sr.marks)) : ''),
+        high: highMap[sr.subject]!=null ? bn(String(highMap[sr.subject])) : ''
       }))
     }];
     const w = window.open('/result_card_single.html', '_blank');
