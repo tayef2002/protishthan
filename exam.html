@@ -1268,6 +1268,9 @@ function printClassResultSheet(examId){
     .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block}
     td.lft{text-align:left;padding-left:8px;font-weight:800}
     td.fail-cell{background:rgba(0,0,0,.2) !important;color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .main th.repeat-head{padding:4px 2px}
+    .rh-org{font-size:26px;font-weight:800}
+    .rh-title{font-size:14px;font-weight:700;margin-top:1px}
   </style></head><body>
     <div class="top-row">
       <div class="logo-circle">${inst.logo_url ? `<img src="${inst.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'Null<br>(লোগো)'}</div>
@@ -1304,6 +1307,10 @@ function printClassResultSheet(examId){
     <table class="main">
       ${colgroupHtml}
       <thead>
+        <tr><th colspan="${subColspan+8}" class="repeat-head">
+          <div class="rh-org">${escapeHtml(inst.name)}</div>
+          <div class="rh-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
+        </th></tr>
         <tr><th rowspan="2" class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
         <tr>${subjectHeaders}<th>মোট নম্বর</th><th>গড়</th><th>পাশের বিভাগ</th><th>গ্রেড</th><th>জিপিএ</th><th>মেধাক্রম</th></tr>
       </thead>
