@@ -1247,9 +1247,6 @@ function printClassResultSheet(examId){
     tr{break-inside:avoid}
     .top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
     .logo-circle{width:80px;height:80px;border-radius:50%;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:12px;color:#888;text-align:center;line-height:1.2;flex-shrink:0}
-    .center-block{flex:1;text-align:center}
-    .sheet-org{font-size:54px;font-weight:800}
-    .sheet-title{font-size:26px;font-weight:800;margin-top:2px}
     .scale-box{border:1.6px solid #000;font-size:13px;flex-shrink:0;align-self:center}
     .scale-title{border-bottom:1.6px solid #000;text-align:center;font-weight:800;font-size:13px;padding:2px}
     .scale-tables{display:flex}
@@ -1274,10 +1271,6 @@ function printClassResultSheet(examId){
   </style></head><body>
     <div class="top-row">
       <div class="logo-circle">${inst.logo_url ? `<img src="${inst.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'Null<br>(লোগো)'}</div>
-      <div class="center-block">
-        <div class="sheet-org">${escapeHtml(inst.name)}</div>
-        <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
-      </div>
       <div class="scale-box">
         <div class="scale-title">মান নির্ধারণ পদ্ধতি</div>
         <div class="scale-tables">
