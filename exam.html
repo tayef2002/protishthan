@@ -1142,7 +1142,7 @@ function renderResultTable(exam, students, subjects){
   results.forEach((row)=>{
     if(row.r.pass) rankCounter++;
     html += `<tr>
-      <td class="gt-pos">${row.r.pass ? bn(rankCounter) : 'Null'}</td>
+      <td class="gt-pos">${row.r.pass ? bn(rankCounter) : ''}</td>
       <td class="gt-name">${escapeHtml(row.student.full_name)}</td>
       <td class="gt-total">${bn(row.r.total)}/${bn(row.r.fullTotal)}</td>
       <td>${bn(row.r.percent.toFixed(1))}%</td>
@@ -1174,7 +1174,7 @@ function renderClassResultSheet(exam, students, subjects){
       const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনু':'—');
       return `<td>${val}</td>`;
     }).join('');
-    html += `<tr><td class="gt-roll">${bn(st.roll_number||'-')}</td><td class="gt-name">${escapeHtml(st.full_name)}</td>${subjectCells}<td class="gt-total">${bn(r.total)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${bn(r.gpa.toFixed(2))}</td><td><b>${overallGrade}</b></td><td class="gt-pos">${pos!=null ? bn(pos) : 'Null'}</td></tr>`;
+    html += `<tr><td class="gt-roll">${bn(st.roll_number||'-')}</td><td class="gt-name">${escapeHtml(st.full_name)}</td>${subjectCells}<td class="gt-total">${bn(r.total)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${bn(r.gpa.toFixed(2))}</td><td><b>${overallGrade}</b></td><td class="gt-pos">${pos!=null ? bn(pos) : ''}</td></tr>`;
   });
   html += `</tbody></table></div>`;
   document.getElementById('subview-sheet').innerHTML = html;
@@ -1222,7 +1222,7 @@ function printClassResultSheet(examId){
       const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
       return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
     }).join('');
-    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td${r.pass?'':' class="fail-cell"'}>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
+    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td${r.pass?'':' class="fail-cell"'}>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : ''}</b></td></tr>`;
   });
 
   const subjectHeaders = subjects.map(s=>{
@@ -1607,7 +1607,7 @@ function openRC(examId, studentId){
         <div><b>${bn(r.total)}/${bn(r.fullTotal)}</b><span>মোট নম্বর</span></div>
         <div><b>${bn(r.percent.toFixed(1))}%</b><span>গড়</span></div>
         <div><b>${bn(r.gpa.toFixed(2))}</b><span>GPA</span></div>
-        <div><b>${position!=null ? bn(position) : 'Null'}</b><span>মেধাক্রম</span></div>
+        <div><b>${position!=null ? bn(position) : ''}</b><span>মেধাক্রম</span></div>
       </div>
       <div class="rc-scale">গ্রেডিং স্কেল: A+ (৮০-১০০) · A (৭০-৭৯) · A- (৬০-৬৯) · B (৫০-৫৯) · C (৪০-৪৯) · D (৩৩-৩৯) · F (০-৩২)</div>
       <div class="rc-sign-row">
@@ -1656,7 +1656,7 @@ function buildReportCardHTML(exam, student){
         <div><b>${bn(r.total)}/${bn(r.fullTotal)}</b><span>মোট নম্বর</span></div>
         <div><b>${bn(r.percent.toFixed(1))}%</b><span>গড়</span></div>
         <div><b>${bn(r.gpa.toFixed(2))}</b><span>GPA</span></div>
-        <div><b>${position!=null ? bn(position) : 'Null'}</b><span>মেধাক্রম</span></div>
+        <div><b>${position!=null ? bn(position) : ''}</b><span>মেধাক্রম</span></div>
       </div>
       <div class="rc-scale">গ্রেডিং স্কেল: A+ (৮০-১০০) · A (৭০-৭৯) · A- (৬০-৬৯) · B (৫০-৫৯) · C (৪০-৪৯) · D (৩৩-৩৯) · F (০-৩২)</div>
       <div class="rc-sign-row">
@@ -1875,7 +1875,7 @@ async function bulkPrintReportCards(examId){
         lg: g.letter,
         gpa: bn(r.gpa.toFixed(2)),
         roll: bn(String(st.roll_number||'')),
-        merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
+        merit: meritIdx>=0 ? bn(String(meritIdx+1)) : '',
         rem: remarkFor(g.letter),
         subjects: r.subjectResults.map((sr,idx)=>({
           kro: bn(String(idx+1)),
@@ -1935,7 +1935,7 @@ async function printSingleCard(examId, studentId){
     fullTotal: bn(String(r.fullTotal)), total: bn(String(r.total)),
     avg, grade: gLabel, lg: g.letter, gpa: bn(r.gpa.toFixed(2)),
     roll: bn(String(st.roll_number||'')),
-    merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
+    merit: meritIdx>=0 ? bn(String(meritIdx+1)) : '',
     rem: remarkFor(g.letter),
     subjects: r.subjectResults.map((sr,idx)=>({
       kro: bn(String(idx+1)), name: sr.subject,
@@ -1993,7 +1993,7 @@ async function bulkPrintSingleCards(examId){
       avg, grade: gLabel, lg: g.letter,
       gpa: bn(r.gpa.toFixed(2)),
       roll: bn(String(st.roll_number||'')),
-      merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
+      merit: meritIdx>=0 ? bn(String(meritIdx+1)) : '',
       rem: remarkFor(g.letter),
       subjects: r.subjectResults.map((sr,idx)=>({
         kro: bn(String(idx+1)),

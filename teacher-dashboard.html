@@ -3676,7 +3676,7 @@ async function openResultView(examId){
     const r = computeStudentResult(st, subjects, marksMap);
     const posIdx = ranked.findIndex(x=>x.student.id===st.id);
     const pos = posIdx>=0 ? posIdx+1 : null;
-    html += `<tr><td>${pos!=null ? bn(pos) : 'Null'}</td><td>${st.roll_number?bn(st.roll_number):'-'}</td><td>${escapeHtml(st.full_name)}</td><td>${bn(r.total)}/${bn(r.fullTotal)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${r.gpa.toFixed(2)}</td><td>${r.pass?'✅ পাস':'❌ ফেল'}</td></tr>`;
+    html += `<tr><td>${pos!=null ? bn(pos) : ''}</td><td>${st.roll_number?bn(st.roll_number):'-'}</td><td>${escapeHtml(st.full_name)}</td><td>${bn(r.total)}/${bn(r.fullTotal)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${r.gpa.toFixed(2)}</td><td>${r.pass?'✅ পাস':'❌ ফেল'}</td></tr>`;
   });
   html += `</tbody></table></div>`;
   document.getElementById('resultViewWrap').innerHTML = html;
@@ -3713,7 +3713,7 @@ function printTeacherResultSheet(){
         const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
         return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
       }).join('');
-      return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td${r.pass?'':' class="fail-cell"'}>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
+      return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td${r.pass?'':' class="fail-cell"'}>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : ''}</b></td></tr>`;
     }).join('');
     const subjectHeaders = subjects.map(s=>`<th class="rot"><span class="rot-inner">${escapeHtml(s.subject)}</span></th>`).join('');
     const subColspan = subjects.length;
