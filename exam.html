@@ -1374,8 +1374,15 @@ function printClassResultSheet(examId){
     const maxRowHeightPx = rowHeights.length ? Math.max(...rowHeights) : 40;
     // legal-landscape printable height: page height (215.9mm) minus @page margin (3mm*2) minus body padding (2mm*2), mm->px at 96dpi
     const PAGE_H_PX = (215.9 - 6 - 4) * (96/25.4);
-    const SAFETY_MARGIN_PX = 30;
-    const rowsPerPage = Math.max(1, Math.floor((PAGE_H_PX - headerHeightPx - SAFETY_MARGIN_PX) / maxRowHeightPx));
+    // On-screen getBoundingClientRect() measurements don't exactly match the browser's actual print
+    // rendering at 100% scale (confirmed empirically: printing at 90% scale fit perfectly, 100% overflowed
+    // by ~1-2 rows on later pages - likely font/DPI rounding differences or the printer's real hardware
+    // margins being larger than the 3mm requested). Bake that margin into the row count itself so it's
+    // correct at the browser's default 100% print scale, instead of relying on the user changing it.
+    const PRINT_SAFETY_FACTOR = 0.90;
+    const SAFETY_MARGIN_PX = 15;
+    const usablePageHeightPx = PAGE_H_PX * PRINT_SAFETY_FACTOR - SAFETY_MARGIN_PX;
+    const rowsPerPage = Math.max(1, Math.floor((usablePageHeightPx - headerHeightPx) / maxRowHeightPx));
 
     const pages = [];
     for(let i=0;i<rowsArr.length;i+=rowsPerPage) pages.push(rowsArr.slice(i,i+rowsPerPage));
