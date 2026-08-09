@@ -1379,8 +1379,8 @@ function printClassResultSheet(examId){
     // by ~1-2 rows on later pages - likely font/DPI rounding differences or the printer's real hardware
     // margins being larger than the 3mm requested). Bake that margin into the row count itself so it's
     // correct at the browser's default 100% print scale, instead of relying on the user changing it.
-    const PRINT_SAFETY_FACTOR = 0.90;
-    const SAFETY_MARGIN_PX = 15;
+    const PRINT_SAFETY_FACTOR = 0.96;
+    const SAFETY_MARGIN_PX = 10;
     const availableForRows = PAGE_H_PX * PRINT_SAFETY_FACTOR - SAFETY_MARGIN_PX - headerHeightPx;
 
     // Find the LARGEST uniform rowsPerPage that keeps every ACTUAL chunk of this exam's rows within
