@@ -1478,11 +1478,29 @@ async function saveExam(){
   if(!newExamSubjects.length){ showToast('অন্তত একটা বিষয় যুক্ত করো।'); return; }
 
   if(_editingExamId){
+    // Subject names can shift on edit (openExamEditModal reloads them fresh from
+    // class_subjects), even when the user didn't consciously rename anything. Capture the
+    // pre-save names here so we can carry any already-entered exam_marks over to the new
+    // names below - otherwise they'd silently stop matching and look like they'd vanished.
+    const oldExam = allExams.find(e=>e.id===_editingExamId);
+    const oldSubs = oldExam ? (oldExam.subjects||[]) : [];
     // UPDATE existing exam
     const { error } = await sb.from('exams').update({
       class_id: classId, name, exam_type: examType, exam_date: date||null, subjects: newExamSubjects
     }).eq('id', _editingExamId);
     if(error){ showToast('আপডেট হয়নি: '+error.message); return; }
+    if(oldSubs.length === newExamSubjects.length){
+      const renames = [];
+      oldSubs.forEach((old, i) => {
+        const newName = newExamSubjects[i].subject;
+        if(old.subject && newName && old.subject !== newName) renames.push({ oldName: old.subject, newName });
+      });
+      if(renames.length){
+        await Promise.all(renames.map(r =>
+          sb.from('exam_marks').update({ subject: r.newName }).eq('exam_id', _editingExamId).eq('subject', r.oldName)
+        ));
+      }
+    }
     closeExamModal();
     showToast('পরীক্ষা আপডেট হয়েছে।');
     await loadExams();
