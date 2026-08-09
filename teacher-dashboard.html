@@ -3504,11 +3504,17 @@ function loadExamSubjectsForClass(){
   ).join('');
   const dbg = (window.__healDebug||{})[examSelectedClassId];
   if(dbg){
-    wrap.innerHTML += `<pre style="width:100%;white-space:pre-wrap;font-size:11px;background:#ffe;border:1px dashed #c00;color:#900;padding:6px;margin-top:6px">DEBUG স্টোরড: ${JSON.stringify(dbg.storedSubs)}
-DEBUG ক্লাসের বর্তমান বিষয়: ${JSON.stringify(dbg.freshSubs)}
-DEBUG পুরনো/অমিল নাম: ${JSON.stringify(dbg.staleNames)}
-DEBUG কেউ claim করেনি এমন বিষয়: ${JSON.stringify(dbg.unclaimedFresh)}
-DEBUG সব টিচারের claim করা বিষয়: ${JSON.stringify(dbg.claimed)}</pre>`;
+    const numbered = (label, arr) => {
+      const lines = arr.length ? arr.map((x,i)=>`&nbsp;&nbsp;${i+1}. [${escapeHtml(x)}]`).join('<br>') : '&nbsp;&nbsp;(খালি)';
+      return `<b>${label}</b><br>${lines}`;
+    };
+    wrap.innerHTML += `<div style="width:100%;font-size:12px;line-height:1.7;background:#ffe;border:2px dashed #c00;color:#900;padding:8px;margin-top:6px;font-family:monospace">
+      ${numbered('১) এই টিচারের স্টোরড নাম:', dbg.storedSubs)}<br><br>
+      ${numbered('২) ক্লাসের বর্তমান (fresh) বিষয়:', dbg.freshSubs)}<br><br>
+      ${numbered('৩) এর মধ্যে পুরনো/অমিল নাম:', dbg.staleNames)}<br><br>
+      ${numbered('৪) কেউ claim করেনি এমন বিষয়:', dbg.unclaimedFresh)}<br><br>
+      ${numbered('৫) সব টিচার মিলিয়ে claim করা বিষয়:', dbg.claimed)}
+    </div>`;
   }
   loadExamsForTeacher();
 }
