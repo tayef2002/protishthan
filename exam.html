@@ -1275,42 +1275,49 @@ function printClassResultSheet(examId){
     .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block}
     td.lft{text-align:left;padding-left:8px;font-weight:800}
     td.fail-cell{background:rgba(0,0,0,.2) !important;color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .main th.repeat-head-cell{border:none;padding:0;background:#fff;text-align:left}
   </style></head><body>
-    <div class="top-row">
-      <div class="logo-circle">${inst.logo_url ? `<img src="${inst.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'Null<br>(লোগো)'}</div>
-      <div class="center-block">
-        <div class="sheet-org">${escapeHtml(inst.name)}</div>
-        <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
-      </div>
-      <div class="scale-box">
-        <div class="scale-title">মান নির্ধারণ পদ্ধতি</div>
-        <div class="scale-tables">
-          <table>
-            <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
-            <tr><td>A+</td><td>৮০-১০০</td><td>৫</td></tr>
-            <tr><td>A</td><td>৭০-৭৯</td><td>৪</td></tr>
-            <tr><td>A-</td><td>৬৫-৬৯</td><td>৩.৫</td></tr>
-            <tr><td>B</td><td>৬০-৬৪</td><td>৩</td></tr>
-          </table>
-          <table>
-            <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
-            <tr><td>C</td><td>৫৫-৫৯</td><td>২</td></tr>
-            <tr><td>D</td><td>৫০-৫৪</td><td>১</td></tr>
-            <tr><td>F</td><td>০-৪৯</td><td>০</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div class="stat-row">
-      <div>ছাত্র-ছাত্রী সংখ্যাঃ <b>${bn(students.length)}</b></div>
-      <div>পরীক্ষার্থী সংখ্যাঃ <b>${bn(students.length)}</b></div>
-      <div>বিষয় সংখ্যাঃ <b>${bn(subjects.length)}</b></div>
-      <div>মোট নম্বরঃ <b>${bn(fullMarksTotal)}</b></div>
-    </div>
-    <div class="class-row">${cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null'}</div>
     <table class="main">
       ${colgroupHtml}
       <thead>
+        <tr><th colspan="${subColspan+8}" class="repeat-head-cell">
+          <div class="top-row">
+            <div class="logo-circle">${inst.logo_url ? `<img src="${inst.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'Null<br>(লোগো)'}</div>
+            <div class="center-block">
+              <div class="sheet-org">${escapeHtml(inst.name)}</div>
+              <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
+            </div>
+            <div class="scale-box">
+              <div class="scale-title">মান নির্ধারণ পদ্ধতি</div>
+              <div class="scale-tables">
+                <table>
+                  <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
+                  <tr><td>A+</td><td>৮০-১০০</td><td>৫</td></tr>
+                  <tr><td>A</td><td>৭০-৭৯</td><td>৪</td></tr>
+                  <tr><td>A-</td><td>৬৫-৬৯</td><td>৩.৫</td></tr>
+                  <tr><td>B</td><td>৬০-৬৪</td><td>৩</td></tr>
+                </table>
+                <table>
+                  <tr><th>গ্রেড</th><th>নম্বর</th><th>জিপিএ</th></tr>
+                  <tr><td>C</td><td>৫৫-৫৯</td><td>২</td></tr>
+                  <tr><td>D</td><td>৫০-৫৪</td><td>১</td></tr>
+                  <tr><td>F</td><td>০-৪৯</td><td>০</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </th></tr>
+        <tr><th colspan="${subColspan+8}" class="repeat-head-cell">
+          <div class="stat-row">
+            <div>ছাত্র-ছাত্রী সংখ্যাঃ <b>${bn(students.length)}</b></div>
+            <div>পরীক্ষার্থী সংখ্যাঃ <b>${bn(students.length)}</b></div>
+            <div>বিষয় সংখ্যাঃ <b>${bn(subjects.length)}</b></div>
+            <div>মোট নম্বরঃ <b>${bn(fullMarksTotal)}</b></div>
+          </div>
+        </th></tr>
+        <tr><th colspan="${subColspan+8}" class="repeat-head-cell">
+          <div class="class-row">${cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null'}</div>
+        </th></tr>
         <tr><th rowspan="2" class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
         <tr>${subjectHeaders}<th>মোট নম্বর</th><th>গড়</th><th>পাশের বিভাগ</th><th>গ্রেড</th><th>জিপিএ</th><th>মেধাক্রম</th></tr>
       </thead>
