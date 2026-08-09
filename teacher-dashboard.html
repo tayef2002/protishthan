@@ -3664,7 +3664,7 @@ async function openResultView(examId){
   const marksMap = {};
   (marks||[]).forEach(m=>{ marksMap[m.student_id+'__'+m.subject] = m; });
   const subjects = exam.subjects||[];
-  const ranked = students.map(st=>({student:st, r:computeStudentResult(st, subjects, marksMap)})).slice().sort((a,b)=>b.r.total-a.r.total);
+  const ranked = students.map(st=>({student:st, r:computeStudentResult(st, subjects, marksMap)})).filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
 
   document.getElementById('resultPanel').style.display = 'none';
   document.getElementById('resultViewPanel').style.display = 'block';
@@ -3674,8 +3674,9 @@ async function openResultView(examId){
   html += `<div class="grid-table-wrap" style="overflow-x:auto"><table class="grid-table" style="width:100%;font-size:12.5px"><thead><tr><th>মেধাক্রম</th><th>রোল</th><th>নাম</th><th>মোট</th><th>%</th><th>GPA</th><th>স্ট্যাটাস</th></tr></thead><tbody>`;
   students.forEach(st=>{
     const r = computeStudentResult(st, subjects, marksMap);
-    const pos = ranked.findIndex(x=>x.student.id===st.id)+1;
-    html += `<tr><td>${bn(pos)}</td><td>${st.roll_number?bn(st.roll_number):'-'}</td><td>${escapeHtml(st.full_name)}</td><td>${bn(r.total)}/${bn(r.fullTotal)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${r.gpa.toFixed(2)}</td><td>${r.pass?'✅ পাস':'❌ ফেল'}</td></tr>`;
+    const posIdx = ranked.findIndex(x=>x.student.id===st.id);
+    const pos = posIdx>=0 ? posIdx+1 : null;
+    html += `<tr><td>${pos!=null ? bn(pos) : 'Null'}</td><td>${st.roll_number?bn(st.roll_number):'-'}</td><td>${escapeHtml(st.full_name)}</td><td>${bn(r.total)}/${bn(r.fullTotal)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${r.gpa.toFixed(2)}</td><td>${r.pass?'✅ পাস':'❌ ফেল'}</td></tr>`;
   });
   html += `</tbody></table></div>`;
   document.getElementById('resultViewWrap').innerHTML = html;
@@ -3694,7 +3695,7 @@ function printTeacherResultSheet(){
   sb.from('exam_marks').select('*').eq('exam_id', exam.id).then(({data:marks})=>{
     const mm = {};
     (marks||[]).forEach(m=>{ mm[m.student_id+'__'+m.subject] = m; });
-    const ranked = students.map(st=>({student:st, r:computeStudentResult(st, subjects, mm)})).slice().sort((a,b)=>b.r.total-a.r.total);
+    const ranked = students.map(st=>({student:st, r:computeStudentResult(st, subjects, mm)})).filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
     const examYear = exam.exam_date ? new Date(exam.exam_date).getFullYear() : new Date().getFullYear();
     const hijriYear = examYear - 579;
     const fullMarksTotal = subjects.reduce((s,x)=>s+Number(x.full_marks),0);
@@ -3702,7 +3703,8 @@ function printTeacherResultSheet(){
 
     const rowsHtml = students.map((st,idx)=>{
       const r = computeStudentResult(st, subjects, mm);
-      const pos = ranked.findIndex(x=>x.student.id===st.id)+1;
+      const posIdx = ranked.findIndex(x=>x.student.id===st.id);
+      const pos = posIdx>=0 ? posIdx+1 : null;
       const overallGrade = gradeFor(r.pass ? r.percent : -1).letter;
       const division = r.pass ? divisionFor(overallGrade) : 'রাসিব';
       const subjectCells = subjects.map(sub=>{
@@ -3711,7 +3713,7 @@ function printTeacherResultSheet(){
         const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
         return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
       }).join('');
-      return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${bn(pos)}</b></td></tr>`;
+      return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
     }).join('');
     const subjectHeaders = subjects.map(s=>`<th class="rot"><span class="rot-inner">${escapeHtml(s.subject)}</span></th>`).join('');
     const subColspan = subjects.length;

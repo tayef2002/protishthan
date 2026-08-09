@@ -1138,9 +1138,11 @@ function renderResultTable(exam, students, subjects){
   results.sort((a,b)=> b.r.total - a.r.total);
   let html = `<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px"><button class="btn-add" onclick="bulkPrintSingleCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, একটি/পেজ)</button><button class="btn-add" onclick="bulkPrintReportCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, ২টি/পেজ)</button></div>`;
   html += `<div class="grid-table-wrap"><table class="grid-table"><thead><tr><th>মেধাক্রম</th><th>শিক্ষার্থী</th><th>মোট নম্বর</th><th>%</th><th>GPA</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody>`;
-  results.forEach((row,i)=>{
+  let rankCounter = 0;
+  results.forEach((row)=>{
+    if(row.r.pass) rankCounter++;
     html += `<tr>
-      <td class="gt-pos">${bn(i+1)}</td>
+      <td class="gt-pos">${row.r.pass ? bn(rankCounter) : 'Null'}</td>
       <td class="gt-name">${escapeHtml(row.student.full_name)}</td>
       <td class="gt-total">${bn(row.r.total)}/${bn(row.r.fullTotal)}</td>
       <td>${bn(row.r.percent.toFixed(1))}%</td>
@@ -1155,7 +1157,7 @@ function renderResultTable(exam, students, subjects){
 
 function renderClassResultSheet(exam, students, subjects){
   const results = students.map(st=>({student:st, r:computeStudentResult(st, subjects)}));
-  const ranked = results.slice().sort((a,b)=>b.r.total-a.r.total);
+  const ranked = results.filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
   const sortedByRoll = students.slice().sort((a,b)=>(a.roll_number||999)-(b.roll_number||999));
 
   let html = `<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn-add" onclick="printClassResultSheet('${exam.id}')">🖨️ তালিকা প্রিন্ট করুন (A4 Landscape)</button></div>`;
@@ -1164,14 +1166,15 @@ function renderClassResultSheet(exam, students, subjects){
     `<th>মোট</th><th>%</th><th>GPA</th><th>গ্রেড</th><th>মেধাক্রম</th></tr></thead><tbody>`;
   sortedByRoll.forEach(st=>{
     const r = computeStudentResult(st, subjects);
-    const pos = ranked.findIndex(x=>x.student.id===st.id)+1;
+    const posIdx = ranked.findIndex(x=>x.student.id===st.id);
+    const pos = posIdx>=0 ? posIdx+1 : null;
     const overallGrade = gradeFor(r.pass ? r.percent : -1).letter;
     const subjectCells = subjects.map(sub=>{
       const m = examMarksCache[st.id+'__'+sub.subject];
       const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনু':'—');
       return `<td>${val}</td>`;
     }).join('');
-    html += `<tr><td class="gt-roll">${bn(st.roll_number||'-')}</td><td class="gt-name">${escapeHtml(st.full_name)}</td>${subjectCells}<td class="gt-total">${bn(r.total)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${bn(r.gpa.toFixed(2))}</td><td><b>${overallGrade}</b></td><td class="gt-pos">${bn(pos)}</td></tr>`;
+    html += `<tr><td class="gt-roll">${bn(st.roll_number||'-')}</td><td class="gt-name">${escapeHtml(st.full_name)}</td>${subjectCells}<td class="gt-total">${bn(r.total)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${bn(r.gpa.toFixed(2))}</td><td><b>${overallGrade}</b></td><td class="gt-pos">${pos!=null ? bn(pos) : 'Null'}</td></tr>`;
   });
   html += `</tbody></table></div>`;
   document.getElementById('subview-sheet').innerHTML = html;
@@ -1202,14 +1205,15 @@ function printClassResultSheet(examId){
   const subjects = exam.subjects||[];
   const inst = currentInstitution;
   const results = students.map(st=>({student:st, r:computeStudentResult(st, subjects)}));
-  const ranked = results.slice().sort((a,b)=>b.r.total-a.r.total);
+  const ranked = results.filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
   const fullMarksTotal = subjects.reduce((s,x)=>s+Number(x.full_marks),0);
   const examYear = exam.exam_date ? new Date(exam.exam_date).getFullYear() : new Date().getFullYear();
   const hijriYear = examYear - 579; // approximate Hijri conversion for display purposes
 
   const rowsArr = students.map((st,idx)=>{
     const r = computeStudentResult(st, subjects);
-    const pos = ranked.findIndex(x=>x.student.id===st.id)+1;
+    const posIdx = ranked.findIndex(x=>x.student.id===st.id);
+    const pos = posIdx>=0 ? posIdx+1 : null;
     const overallGrade = gradeFor(r.pass ? r.percent : -1).letter;
     const division = r.pass ? divisionFor(overallGrade) : 'রাসিব';
     const subjectCells = subjects.map(sub=>{
@@ -1218,7 +1222,7 @@ function printClassResultSheet(examId){
       const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
       return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
     }).join('');
-    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${bn(pos)}</b></td></tr>`;
+    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
   });
 
   const subjectHeaders = subjects.map(s=>{
@@ -1566,8 +1570,10 @@ function openRC(examId, studentId){
   const r = computeStudentResult(student, exam.subjects);
   const cls = allClasses.find(c=>c.id===exam.class_id);
   const inst = currentInstitution;
-  const allResults = allStudents.filter(s=>s.class_id===exam.class_id).map(st=>computeStudentResult(st, exam.subjects));
-  const position = allResults.slice().sort((a,b)=>b.total-a.total).findIndex(x=>x.total===r.total)+1;
+  const allResults = allStudents.filter(s=>s.class_id===exam.class_id).map(st=>({id:st.id, r:computeStudentResult(st, exam.subjects)}));
+  const rankedResults = allResults.filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
+  const rankIdx = rankedResults.findIndex(x=>x.id===student.id);
+  const position = rankIdx>=0 ? rankIdx+1 : null;
   currentRC = { exam, student, r };
 
   const rowsHtml = r.subjectResults.map(sr=>{
@@ -1601,7 +1607,7 @@ function openRC(examId, studentId){
         <div><b>${bn(r.total)}/${bn(r.fullTotal)}</b><span>মোট নম্বর</span></div>
         <div><b>${bn(r.percent.toFixed(1))}%</b><span>গড়</span></div>
         <div><b>${bn(r.gpa.toFixed(2))}</b><span>GPA</span></div>
-        <div><b>${bn(position)}</b><span>মেধাক্রম</span></div>
+        <div><b>${position!=null ? bn(position) : 'Null'}</b><span>মেধাক্রম</span></div>
       </div>
       <div class="rc-scale">গ্রেডিং স্কেল: A+ (৮০-১০০) · A (৭০-৭৯) · A- (৬০-৬৯) · B (৫০-৫৯) · C (৪০-৪৯) · D (৩৩-৩৯) · F (০-৩২)</div>
       <div class="rc-sign-row">
@@ -1616,8 +1622,10 @@ function buildReportCardHTML(exam, student){
   const r = computeStudentResult(student, exam.subjects);
   const cls = allClasses.find(c=>c.id===exam.class_id);
   const inst = currentInstitution;
-  const allResults = allStudents.filter(s=>s.class_id===exam.class_id).map(st=>computeStudentResult(st, exam.subjects));
-  const position = allResults.slice().sort((a,b)=>b.total-a.total).findIndex(x=>x.total===r.total)+1;
+  const allResults = allStudents.filter(s=>s.class_id===exam.class_id).map(st=>({id:st.id, r:computeStudentResult(st, exam.subjects)}));
+  const rankedResults = allResults.filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
+  const rankIdx = rankedResults.findIndex(x=>x.id===student.id);
+  const position = rankIdx>=0 ? rankIdx+1 : null;
   const rowsHtml = r.subjectResults.map(sr=>{
     const subDef = exam.subjects.find(s=>s.subject===sr.subject) || {};
     const failed = sr.isAbsent || (sr.marks!=null && sr.marks < (subDef.pass_marks||0));
@@ -1648,7 +1656,7 @@ function buildReportCardHTML(exam, student){
         <div><b>${bn(r.total)}/${bn(r.fullTotal)}</b><span>মোট নম্বর</span></div>
         <div><b>${bn(r.percent.toFixed(1))}%</b><span>গড়</span></div>
         <div><b>${bn(r.gpa.toFixed(2))}</b><span>GPA</span></div>
-        <div><b>${bn(position)}</b><span>মেধাক্রম</span></div>
+        <div><b>${position!=null ? bn(position) : 'Null'}</b><span>মেধাক্রম</span></div>
       </div>
       <div class="rc-scale">গ্রেডিং স্কেল: A+ (৮০-১০০) · A (৭০-৭৯) · A- (৬০-৬৯) · B (৫০-৫৯) · C (৪০-৪৯) · D (৩৩-৩৯) · F (০-৩২)</div>
       <div class="rc-sign-row">
@@ -1832,6 +1840,7 @@ async function bulkPrintReportCards(examId){
   const year = exam.academic_year || new Date().getFullYear();
   const examName = exam.name || '';
   const highMap = subjectHighestMarks(students, exam.subjects);
+  const rankedForMerit = students.map(s=>({id:s.id, r:computeStudentResult(s, exam.subjects)})).filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
 
   // Build pairs of students (2 per page)
   // result_card_design.html supports exactly 2 cards (n=1,2)
@@ -1847,6 +1856,7 @@ async function bulkPrintReportCards(examId){
       const g = gradeFor(percent);
       const gLabel = gradeLabel(percent);
       const avg = exam.subjects.length ? bn((r.total/exam.subjects.length).toFixed(1)) : '০';
+      const meritIdx = rankedForMerit.findIndex(x=>x.id===st.id);
       pair.push({
         instName, instLoc, className,
         year: bn(String(year)),
@@ -1865,6 +1875,7 @@ async function bulkPrintReportCards(examId){
         lg: g.letter,
         gpa: bn(r.gpa.toFixed(2)),
         roll: bn(String(st.roll_number||'')),
+        merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
         rem: remarkFor(g.letter),
         subjects: r.subjectResults.map((sr,idx)=>({
           kro: bn(String(idx+1)),
@@ -1886,7 +1897,7 @@ async function bulkPrintReportCards(examId){
       w.sessionStorage.setItem('rc_autoprint', '1');
       // Trigger the fill script manually since page already loaded
       const s = w.document.createElement('script');
-      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+      s.textContent = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('merit-'+n,d.merit); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
       w.document.body.appendChild(s);
     });
   });
@@ -1912,6 +1923,8 @@ async function printSingleCard(examId, studentId){
   const g = gradeFor(percent);
   const gLabel = gradeLabel(percent);
   const avg = exam.subjects.length ? bn((r.total/exam.subjects.length).toFixed(1)) : '০';
+  const rankedForMerit = classmates.map(s=>({id:s.id, r:computeStudentResult(s, exam.subjects)})).filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
+  const meritIdx = rankedForMerit.findIndex(x=>x.id===st.id);
   const data = [{
     instName, instLoc, className,
     year: bn(String(year)), examName,
@@ -1922,6 +1935,7 @@ async function printSingleCard(examId, studentId){
     fullTotal: bn(String(r.fullTotal)), total: bn(String(r.total)),
     avg, grade: gLabel, lg: g.letter, gpa: bn(r.gpa.toFixed(2)),
     roll: bn(String(st.roll_number||'')),
+    merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
     rem: remarkFor(g.letter),
     subjects: r.subjectResults.map((sr,idx)=>({
       kro: bn(String(idx+1)), name: sr.subject,
@@ -1930,7 +1944,7 @@ async function printSingleCard(examId, studentId){
       high: highMap[sr.subject]!=null ? bn(String(highMap[sr.subject])) : ''
     }))
   }];
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('merit-'+n,d.merit); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   const w = window.open('/result_card_single.html', '_blank');
   w.addEventListener('load', function(){
     w.sessionStorage.setItem('rc_data', JSON.stringify(data));
@@ -1955,7 +1969,8 @@ async function bulkPrintSingleCards(examId){
   const examName = exam.name || '';
   const attMap = await fetchAttendanceMap(exam);
   const highMap = subjectHighestMarks(students, exam.subjects);
-  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
+  const rankedForMerit = students.map(s=>({id:s.id, r:computeStudentResult(s, exam.subjects)})).filter(x=>x.r.pass).slice().sort((a,b)=>b.r.total-a.r.total);
+  const fillScriptText = "(function(){ const raw=sessionStorage.getItem('rc_data'); if(!raw) return; const pairs=JSON.parse(raw); pairs.forEach(function(d,i){ const n=i+1; function set(id,val){ var e=document.getElementById(id); if(e&&val!=null) e.textContent=val; } set('inst-name-'+n,d.instName); set('inst-loc-'+n,d.instLoc); set('class-name-'+n,d.className); set('year-'+n,d.year); set('exam-name-'+n,d.examName); set('serial-'+n,d.serial); set('student-name-'+n,d.studentName); set('father-name-'+n,d.fatherName); set('att-karjo-'+n,d.karjo); set('att-present-'+n,d.present); set('att-absent-'+n,d.absent); set('att-subjects-'+n,d.subjectCount); set('att-total-'+n,d.fullTotal); set('total-'+n,d.total); set('avg-'+n,d.avg); set('grade-'+n,d.grade); set('lg-'+n,d.lg); set('gpa-'+n,d.gpa); set('roll-'+n,d.roll); set('merit-'+n,d.merit); set('rem-'+n,d.rem); if(d.subjects){ d.subjects.forEach(function(sub,j){ var k=j+1; set('sub-'+k+'-'+n,sub.name); set('purno-'+k+'-'+n,sub.full); set('mark-'+k+'-'+n,sub.mark); set('high-'+k+'-'+n,sub.high); set('kro-'+k+'-'+n,sub.kro); }); for(var k=d.subjects.length+1;k<=9;k++){ var e=document.getElementById('purno-'+k+'-'+n); if(e) e.innerHTML='&nbsp;'; } } }); setTimeout(function(){ window.print(); }, 600); })();";
   students.forEach(function(st){
     const att = attMap[st.id] || {};
     const r = computeStudentResult(st, exam.subjects);
@@ -1963,6 +1978,7 @@ async function bulkPrintSingleCards(examId){
     const g = gradeFor(percent);
     const gLabel = gradeLabel(percent);
     const avg = exam.subjects.length ? bn((r.total/exam.subjects.length).toFixed(1)) : '০';
+    const meritIdx = rankedForMerit.findIndex(x=>x.id===st.id);
     const data = [{
       instName, instLoc, className,
       year: bn(String(year)),
@@ -1977,6 +1993,7 @@ async function bulkPrintSingleCards(examId){
       avg, grade: gLabel, lg: g.letter,
       gpa: bn(r.gpa.toFixed(2)),
       roll: bn(String(st.roll_number||'')),
+      merit: meritIdx>=0 ? bn(String(meritIdx+1)) : 'Null',
       rem: remarkFor(g.letter),
       subjects: r.subjectResults.map((sr,idx)=>({
         kro: bn(String(idx+1)),
