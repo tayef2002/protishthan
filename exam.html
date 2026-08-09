@@ -117,7 +117,9 @@ table td:first-child{text-align:right;font-weight:600;color:var(--text)}
 
 .subj-row{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:9px;padding:9px 11px;margin-bottom:7px}
 .subj-row .sj-name{flex:1;font-size:13px;font-weight:600;color:var(--text)}
-.subj-row input{width:60px;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;text-align:center}
+.subj-row input[type="number"]{width:60px;padding:6px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;text-align:center}
+.subj-row .sj-critical{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-2);white-space:nowrap;cursor:pointer;flex-shrink:0}
+.subj-row .sj-critical input{width:auto;margin:0}
 .subj-row .sj-rm{cursor:pointer;color:var(--text-3);font-weight:800}
 .subj-row .sj-rm:hover{color:var(--red)}
 
@@ -1093,7 +1095,7 @@ async function toggleAbsent(examId, studentId, subject, isAbsent){
 }
 
 function computeStudentResult(student, subjects){
-  let total=0, fullTotal=0, gpaSum=0, failed=false, anyMark=false;
+  let total=0, fullTotal=0, gpaSum=0, criticalFailed=false, anyMark=false;
   const subjectResults = subjects.map(sub=>{
     const m = examMarksCache[student.id+'__'+sub.subject];
     const marks = m ? Number(m.marks_obtained||0) : null;
@@ -1102,12 +1104,17 @@ function computeStudentResult(student, subjects){
     if(marks!=null){ anyMark=true; total += marks; }
     const percent = marks!=null ? (marks/sub.full_marks)*100 : 0;
     const g = gradeFor(isAbsent ? -1 : percent);
-    if(isAbsent || marks==null || marks < sub.pass_marks) failed = true;
+    const subFailed = isAbsent || marks==null || marks < sub.pass_marks;
+    if(subFailed && sub.critical) criticalFailed = true;
     gpaSum += g.point;
     return { subject: sub.subject, marks, isAbsent, grade: g.letter, point: g.point, full: sub.full_marks };
   });
   const gpa = subjects.length ? (gpaSum/subjects.length) : 0;
-  return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: fullTotal? (total/fullTotal*100):0 };
+  const overallPercent = fullTotal ? (total/fullTotal*100) : 0;
+  // Fails overall if a subject marked "আবশ্যিক" (critical) was failed, or the aggregate
+  // itself falls in the F range - not just from failing any one ordinary subject.
+  const failed = criticalFailed || gradeFor(overallPercent).letter === 'F';
+  return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: overallPercent };
 }
 
 function subjectHighestMarks(students, subjects){
@@ -1415,7 +1422,8 @@ async function openExamEditModal(examId){
     newExamSubjects = freshNames.map((name,i)=>({
       subject: name,
       full_marks: oldSubs[i]?.full_marks ?? 100,
-      pass_marks: oldSubs[i]?.pass_marks ?? 33
+      pass_marks: oldSubs[i]?.pass_marks ?? 33,
+      critical: oldSubs[i]?.critical ?? false
     }));
   } else {
     newExamSubjects = oldSubs.map(s=>({...s}));
@@ -1434,7 +1442,7 @@ async function onExamClassChange(){
   if(!classId){ newExamSubjects=[]; renderExamSubjectsList(); return; }
   const { data } = await sb.from('class_subjects').select('subject_name').eq('class_id', classId).order('id');
   const subjectNames = [...new Set((data||[]).map(r=>r.subject_name))];
-  newExamSubjects = subjectNames.map(name=>({ subject: name, full_marks: 100, pass_marks: 33 }));
+  newExamSubjects = subjectNames.map(name=>({ subject: name, full_marks: 100, pass_marks: 33, critical: false }));
   renderExamSubjectsList();
 }
 function renderExamSubjectsList(){
@@ -1445,13 +1453,14 @@ function renderExamSubjectsList(){
       <div class="sj-name">${escapeHtml(s.subject)}</div>
       <input type="number" value="${s.full_marks}" onchange="newExamSubjects[${i}].full_marks=parseFloat(this.value)||100" placeholder="পূর্ণমান">
       <input type="number" value="${s.pass_marks}" onchange="newExamSubjects[${i}].pass_marks=parseFloat(this.value)||33" placeholder="পাস">
+      <label class="sj-critical" title="এই বিষয়ে ফেল করলে পুরো ফলাফল ফেল (রাসিব) হবে"><input type="checkbox" ${s.critical?'checked':''} onchange="newExamSubjects[${i}].critical=this.checked">আবশ্যিক</label>
       <span class="sj-rm" onclick="removeExamSubject(${i})">✕</span>
     </div>`).join('');
 }
 function addExamSubjectRow(){
   const name = document.getElementById('newSubjectName').value.trim();
   if(!name) return;
-  newExamSubjects.push({ subject: name, full_marks: 100, pass_marks: 33 });
+  newExamSubjects.push({ subject: name, full_marks: 100, pass_marks: 33, critical: false });
   document.getElementById('newSubjectName').value = '';
   renderExamSubjectsList();
 }

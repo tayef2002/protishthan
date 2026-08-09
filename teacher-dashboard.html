@@ -1342,7 +1342,7 @@ function divisionFor(grade){
   return map[grade] || 'Null';
 }
 function computeStudentResult(student, subjects, marksMap){
-  let total=0, fullTotal=0, gpaSum=0, failed=false, anyMark=false;
+  let total=0, fullTotal=0, gpaSum=0, criticalFailed=false, anyMark=false;
   const subjectResults = subjects.map(sub=>{
     const m = marksMap[student.id+'__'+sub.subject];
     const marks = m ? Number(m.marks_obtained||0) : null;
@@ -1351,12 +1351,17 @@ function computeStudentResult(student, subjects, marksMap){
     if(marks!=null){ anyMark=true; total += marks; }
     const percent = marks!=null ? (marks/sub.full_marks)*100 : 0;
     const g = gradeFor(isAbsent ? -1 : percent);
-    if(isAbsent || marks==null || marks < sub.pass_marks) failed = true;
+    const subFailed = isAbsent || marks==null || marks < sub.pass_marks;
+    if(subFailed && sub.critical) criticalFailed = true;
     gpaSum += g.point;
     return { subject: sub.subject, marks, isAbsent, grade: g.letter, point: g.point, full: sub.full_marks };
   });
   const gpa = subjects.length ? (gpaSum/subjects.length) : 0;
-  return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: fullTotal? (total/fullTotal*100):0 };
+  const overallPercent = fullTotal ? (total/fullTotal*100) : 0;
+  // Fails overall if a subject marked "আবশ্যিক" (critical) was failed, or the aggregate
+  // itself falls in the F range - not just from failing any one ordinary subject.
+  const failed = criticalFailed || gradeFor(overallPercent).letter === 'F';
+  return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: overallPercent };
 }
 function fmtMoney(n){ return '৳' + Math.round(n||0).toLocaleString('en-IN'); }
 
