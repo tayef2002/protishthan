@@ -1366,24 +1366,19 @@ function printClassResultSheet(examId){
     drawRotatedHeaderLabels();
     const theadEl = w.document.querySelector('#measureTable thead');
     const headerHeightPx = theadEl ? theadEl.getBoundingClientRect().height : 0;
-    // real per-row heights, not an assumed average - student names vary in length and can wrap to 2 lines
+    // real per-row heights, not an assumed average - student names vary in length and can wrap to 2 lines.
+    // Use the TALLEST row (not an average/greedy-pack) to size a single uniform rowsPerPage: guarantees
+    // every page holds the same count (only the last page is a shorter remainder) and that no combination
+    // of rows can ever overflow a page, since even an all-tallest-row page would still fit.
     const rowHeights = [...w.document.querySelectorAll('#measureTable > tbody > tr')].map(tr=>tr.getBoundingClientRect().height);
+    const maxRowHeightPx = rowHeights.length ? Math.max(...rowHeights) : 40;
     // legal-landscape printable height: page height (215.9mm) minus @page margin (3mm*2) minus body padding (2mm*2), mm->px at 96dpi
     const PAGE_H_PX = (215.9 - 6 - 4) * (96/25.4);
     const SAFETY_MARGIN_PX = 30;
-    const availableForRows = PAGE_H_PX - headerHeightPx - SAFETY_MARGIN_PX;
+    const rowsPerPage = Math.max(1, Math.floor((PAGE_H_PX - headerHeightPx - SAFETY_MARGIN_PX) / maxRowHeightPx));
 
     const pages = [];
-    let current = [], currentHeight = 0;
-    rowHeights.forEach((h,i)=>{
-      if(current.length && currentHeight + h > availableForRows){
-        pages.push(current);
-        current = []; currentHeight = 0;
-      }
-      current.push(rowsArr[i]);
-      currentHeight += h;
-    });
-    if(current.length) pages.push(current);
+    for(let i=0;i<rowsArr.length;i+=rowsPerPage) pages.push(rowsArr.slice(i,i+rowsPerPage));
     if(!pages.length) pages.push([]);
 
     const pagesHtml = pages.map(rows=>`<table class="main page-block">${colgroupHtml}<thead>${theadHtml}</thead><tbody>${rows.join('')}</tbody></table>`).join('');
