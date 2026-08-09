@@ -2364,6 +2364,8 @@ async function initHomeworkForm(){
         const staleNames = storedSubs.filter(s => !freshSet.has(s));
         const validNames = storedSubs.filter(s => freshSet.has(s));
         const unclaimedFresh = freshSubs.filter(f => !claimed.has(f));
+        window.__healDebug = window.__healDebug || {};
+        window.__healDebug[classId] = { storedSubs, freshSubs, staleNames, unclaimedFresh, claimed: [...claimed] };
         if(staleNames.length === 1 && unclaimedFresh.length === 1){
           const [oldName] = staleNames, [newName] = unclaimedFresh;
           hwTeacherSubjects[classId] = [...validNames, newName];
@@ -3500,6 +3502,14 @@ function loadExamSubjectsForClass(){
   wrap.innerHTML = subjects.map(s=>
     `<button class="hw-chip ${s===examSelectedSubject?'active':''}" onclick="selectExamSubject('${escapeHtml(s)}')">${escapeHtml(s)}</button>`
   ).join('');
+  const dbg = (window.__healDebug||{})[examSelectedClassId];
+  if(dbg){
+    wrap.innerHTML += `<pre style="width:100%;white-space:pre-wrap;font-size:11px;background:#ffe;border:1px dashed #c00;color:#900;padding:6px;margin-top:6px">DEBUG স্টোরড: ${JSON.stringify(dbg.storedSubs)}
+DEBUG ক্লাসের বর্তমান বিষয়: ${JSON.stringify(dbg.freshSubs)}
+DEBUG পুরনো/অমিল নাম: ${JSON.stringify(dbg.staleNames)}
+DEBUG কেউ claim করেনি এমন বিষয়: ${JSON.stringify(dbg.unclaimedFresh)}
+DEBUG সব টিচারের claim করা বিষয়: ${JSON.stringify(dbg.claimed)}</pre>`;
+  }
   loadExamsForTeacher();
 }
 function selectExamSubject(subject){
