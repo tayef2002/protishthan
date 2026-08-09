@@ -1371,11 +1371,7 @@ function printClassResultSheet(examId){
     const theadEl = w.document.querySelector('#measureTable thead');
     const headerHeightPx = theadEl ? theadEl.getBoundingClientRect().height : 0;
     // real per-row heights, not an assumed average - student names vary in length and can wrap to 2 lines.
-    // Use the TALLEST row (not an average/greedy-pack) to size a single uniform rowsPerPage: guarantees
-    // every page holds the same count (only the last page is a shorter remainder) and that no combination
-    // of rows can ever overflow a page, since even an all-tallest-row page would still fit.
     const rowHeights = [...w.document.querySelectorAll('#measureTable > tbody > tr')].map(tr=>tr.getBoundingClientRect().height);
-    const maxRowHeightPx = rowHeights.length ? Math.max(...rowHeights) : 40;
     // legal-landscape printable height: page height (215.9mm) minus @page margin (3mm*2) minus body padding (2mm*2), mm->px at 96dpi
     const PAGE_H_PX = (215.9 - 6 - 4) * (96/25.4);
     // On-screen getBoundingClientRect() measurements don't exactly match the browser's actual print
@@ -1385,8 +1381,24 @@ function printClassResultSheet(examId){
     // correct at the browser's default 100% print scale, instead of relying on the user changing it.
     const PRINT_SAFETY_FACTOR = 0.90;
     const SAFETY_MARGIN_PX = 15;
-    const usablePageHeightPx = PAGE_H_PX * PRINT_SAFETY_FACTOR - SAFETY_MARGIN_PX;
-    const rowsPerPage = Math.max(1, Math.floor((usablePageHeightPx - headerHeightPx) / maxRowHeightPx));
+    const availableForRows = PAGE_H_PX * PRINT_SAFETY_FACTOR - SAFETY_MARGIN_PX - headerHeightPx;
+
+    // Find the LARGEST uniform rowsPerPage that keeps every ACTUAL chunk of this exam's rows within
+    // budget, instead of assuming a worst case (tallest row repeated on every page) - that wasted a lot
+    // of space on pages that don't happen to contain one of the few wrapped-name rows. Checking the real
+    // chunks fits noticeably more rows per page while staying provably safe: every chunk is measured, not
+    // assumed.
+    function chunksAllFit(n){
+      for(let i=0;i<rowHeights.length;i+=n){
+        let sum = 0;
+        for(let j=i;j<Math.min(i+n,rowHeights.length);j++) sum += rowHeights[j];
+        if(sum > availableForRows) return false;
+      }
+      return true;
+    }
+    const minRowHeightPx = rowHeights.length ? Math.min(...rowHeights) : 40;
+    let rowsPerPage = Math.max(1, Math.floor(availableForRows / Math.max(minRowHeightPx,1)));
+    while(rowsPerPage > 1 && !chunksAllFit(rowsPerPage)) rowsPerPage--;
 
     const pages = [];
     for(let i=0;i<rowsArr.length;i+=rowsPerPage) pages.push(rowsArr.slice(i,i+rowsPerPage));
