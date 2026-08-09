@@ -3513,7 +3513,24 @@ async function loadExamsForTeacher(){
   const wrap = document.getElementById('examListForTeacher');
   wrap.innerHTML = '<div class="empty-state">লোড হচ্ছে...</div>';
   const { data } = await sb.from('exams').select('*').eq('class_id', examSelectedClassId).order('exam_date',{ascending:false});
-  teacherExamsCache = (data||[]).filter(e => (e.subjects||[]).some(s=>s.subject===examSelectedSubject));
+  const all = data || [];
+  teacherExamsCache = all.filter(e => (e.subjects||[]).some(s=>s.subject===examSelectedSubject));
+  if(!teacherExamsCache.length){
+    // Exact match failed - the chip label may be a stale subject name that a rename left
+    // behind in teacher_class_subjects. If exactly one current subject name on this class's
+    // exams contains it (or vice versa), it's almost certainly the same subject under its new
+    // name. Switch to that name (in memory only, not the DB) so this and mark entry/saving
+    // below stay consistent with what the exam actually has.
+    const candidates = new Set();
+    all.forEach(e => (e.subjects||[]).forEach(s => {
+      if(s.subject.includes(examSelectedSubject) || examSelectedSubject.includes(s.subject)) candidates.add(s.subject);
+    }));
+    if(candidates.size === 1){
+      examSelectedSubject = [...candidates][0];
+      teacherExamsCache = all.filter(e => (e.subjects||[]).some(s=>s.subject===examSelectedSubject));
+      document.querySelectorAll('#examSubjectChips .hw-chip.active').forEach(b=>{ b.textContent = examSelectedSubject; });
+    }
+  }
   if(!teacherExamsCache.length){
     wrap.innerHTML = '<div class="empty-state" style="padding:20px 0">এই বিষয়ে এখনো কোনো পরীক্ষা তৈরি করা হয়নি।</div>';
     return;
