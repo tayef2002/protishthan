@@ -2295,7 +2295,7 @@ async function initHomeworkForm(){
   if(!myClasses.length) return;
   hwSelectedClassId = myClasses[0].id;
 
-  const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id);
+  const { data: pairs } = await sb.from('teacher_class_subjects').select('class_id,subject_name').eq('teacher_id', teacher.id).order('id');
   const assignedClassIds = [...new Set((pairs||[]).map(p=>p.class_id).filter(Boolean))];
   if(teacher.primary_class_id && !assignedClassIds.includes(teacher.primary_class_id))
     assignedClassIds.push(teacher.primary_class_id);
@@ -2303,11 +2303,26 @@ async function initHomeworkForm(){
   // Load current names from class_subjects to detect and heal stale names
   hwTeacherSubjects = {};
   if(assignedClassIds.length){
-    const { data: csRows } = await sb.from('class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds).order('id');
+    const [{ data: csRows }, { data: allPairsRows }] = await Promise.all([
+      sb.from('class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds).order('id'),
+      // Every teacher's assignment in these classes, not just this one - needed below to figure
+      // out which fresh subject a stale name could have become when this teacher doesn't teach
+      // every subject in the class (see the "different counts" branch).
+      sb.from('teacher_class_subjects').select('class_id,subject_name').in('class_id', assignedClassIds)
+    ]);
     const freshByClass = {};
     (csRows||[]).forEach(cs=>{
       if(!freshByClass[cs.class_id]) freshByClass[cs.class_id] = [];
       freshByClass[cs.class_id].push(cs.subject_name);
+    });
+    // Fresh subjects already correctly claimed by SOME teacher's stored name, per class.
+    const claimedByClass = {};
+    (allPairsRows||[]).forEach(p=>{
+      const fresh = freshByClass[p.class_id]||[];
+      if(fresh.includes(p.subject_name)){
+        if(!claimedByClass[p.class_id]) claimedByClass[p.class_id] = new Set();
+        claimedByClass[p.class_id].add(p.subject_name);
+      }
     });
     const teacherByClass = {};
     (pairs||[]).forEach(p=>{
@@ -2316,6 +2331,14 @@ async function initHomeworkForm(){
       if(!teacherByClass[p.class_id].includes(p.subject_name))
         teacherByClass[p.class_id].push(p.subject_name);
     });
+    const healOne = (classId, oldName, newName) => {
+      sb.from('teacher_class_subjects')
+        .update({ subject_name: newName })
+        .eq('teacher_id', teacher.id)
+        .eq('class_id', classId)
+        .eq('subject_name', oldName)
+        .then(() => {});
+    };
     for(const classId of Object.keys(teacherByClass)){
       const storedSubs = teacherByClass[classId];
       const freshSubs  = freshByClass[classId] || [];
@@ -2329,18 +2352,25 @@ async function initHomeworkForm(){
         hwTeacherSubjects[classId] = freshSubs;
         storedSubs.forEach((oldName, i) => {
           const newName = freshSubs[i];
-          if(oldName !== newName){
-            sb.from('teacher_class_subjects')
-              .update({ subject_name: newName })
-              .eq('teacher_id', teacher.id)
-              .eq('class_id', classId)
-              .eq('subject_name', oldName)
-              .then(() => {});
-          }
+          if(oldName !== newName) healOne(classId, oldName, newName);
         });
       } else {
-        // Different counts: can't safely auto-heal; use stored names as-is
-        hwTeacherSubjects[classId] = storedSubs;
+        // Different counts (teacher teaches only some of the class's subjects), so position
+        // mapping isn't safe. Fall back to elimination: a stale name that matches no current
+        // subject, where exactly one current subject isn't claimed by ANY teacher's stored
+        // name, can only be that one rename - heal it. Anything more ambiguous than that is
+        // left as the stored name rather than risk assigning the wrong subject.
+        const claimed = claimedByClass[classId] || new Set();
+        const staleNames = storedSubs.filter(s => !freshSet.has(s));
+        const validNames = storedSubs.filter(s => freshSet.has(s));
+        const unclaimedFresh = freshSubs.filter(f => !claimed.has(f));
+        if(staleNames.length === 1 && unclaimedFresh.length === 1){
+          const [oldName] = staleNames, [newName] = unclaimedFresh;
+          hwTeacherSubjects[classId] = [...validNames, newName];
+          healOne(classId, oldName, newName);
+        } else {
+          hwTeacherSubjects[classId] = storedSubs;
+        }
       }
     }
   }
