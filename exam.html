@@ -1222,7 +1222,7 @@ function printClassResultSheet(examId){
       const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
       return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
     }).join('');
-    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
+    return `<tr><td class="serial-c">${bn(idx+1)}</td><td class="lft">${escapeHtml(st.full_name)}</td>${subjectCells}<td><b>${bn(r.total)}</b></td><td>${bn(r.percent.toFixed(2))}</td><td${r.pass?'':' class="fail-cell"'}>${division}</td><td><b>${overallGrade}</b></td><td><b>${r.gpa.toFixed(1)}</b></td><td><b>${pos!=null ? bn(pos) : 'Null'}</b></td></tr>`;
   });
 
   const subjectHeaders = subjects.map(s=>{
