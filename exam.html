@@ -1095,11 +1095,12 @@ async function toggleAbsent(examId, studentId, subject, isAbsent){
 }
 
 function computeStudentResult(student, subjects){
-  let total=0, fullTotal=0, gpaSum=0, criticalFailed=false, anyMark=false;
+  let total=0, fullTotal=0, gpaSum=0, criticalFailed=false, anyMark=false, absentCount=0;
   const subjectResults = subjects.map(sub=>{
     const m = examMarksCache[student.id+'__'+sub.subject];
     const marks = m ? Number(m.marks_obtained||0) : null;
     const isAbsent = m ? m.is_absent : false;
+    if(isAbsent) absentCount++;
     fullTotal += Number(sub.full_marks);
     if(marks!=null){ anyMark=true; total += marks; }
     const percent = marks!=null ? (marks/sub.full_marks)*100 : 0;
@@ -1114,7 +1115,10 @@ function computeStudentResult(student, subjects){
   // Fails overall if a subject marked "আবশ্যিক" (critical) was failed, or the aggregate
   // itself falls in the F range - not just from failing any one ordinary subject.
   const failed = criticalFailed || gradeFor(overallPercent).letter === 'F';
-  return { subjectResults, total, fullTotal, gpa: failed ? 0 : gpa, pass: !failed && anyMark, percent: overallPercent };
+  // Result withheld ("স্থগিত") if absent in 3+ subjects - treated like a fail for pass/gpa/rank
+  // purposes, but shown with its own division label instead of রাসিব wherever displayed.
+  const withheld = absentCount >= 3;
+  return { subjectResults, total, fullTotal, gpa: (failed||withheld) ? 0 : gpa, pass: !failed && !withheld && anyMark, absentCount, withheld, percent: overallPercent };
 }
 
 function subjectHighestMarks(students, subjects){
@@ -1215,7 +1219,7 @@ function printClassResultSheet(examId){
     const posIdx = ranked.findIndex(x=>x.student.id===st.id);
     const pos = posIdx>=0 ? posIdx+1 : null;
     const overallGrade = gradeFor(r.pass ? r.percent : -1).letter;
-    const division = r.pass ? divisionFor(overallGrade) : 'রাসিব';
+    const division = r.withheld ? 'স্থগিত' : (r.pass ? divisionFor(overallGrade) : 'রাসিব');
     const subjectCells = subjects.map(sub=>{
       const m = examMarksCache[st.id+'__'+sub.subject];
       const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনুঃ':'Null');
