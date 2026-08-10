@@ -1171,7 +1171,7 @@ function renderClassResultSheet(exam, students, subjects){
     const overallGrade = gradeFor(r.pass ? r.percent : -1).letter;
     const subjectCells = subjects.map(sub=>{
       const m = examMarksCache[st.id+'__'+sub.subject];
-      const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনু':'—');
+      const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনুঃ':'—');
       return `<td>${val}</td>`;
     }).join('');
     html += `<tr><td class="gt-roll">${bn(st.roll_number||'-')}</td><td class="gt-name">${escapeHtml(st.full_name)}</td>${subjectCells}<td class="gt-total">${bn(r.total)}</td><td>${bn(r.percent.toFixed(1))}%</td><td>${bn(r.gpa.toFixed(2))}</td><td><b>${overallGrade}</b></td><td class="gt-pos">${pos!=null ? bn(pos) : ''}</td></tr>`;
@@ -1181,7 +1181,7 @@ function renderClassResultSheet(exam, students, subjects){
 }
 
 function divisionFor(grade){
-  const map = { 'A+':'মুমতাজ', 'A':'জাঃ জিদ্দান', 'A-':'জায়িদ', 'B':'মাকবুল', 'C':'মাকবুল', 'D':'মাকবুল', 'F':'রাসিব' };
+  const map = { 'A+':'মুমতাজ', 'A':'জাঃ জিদ্দান', 'A-':'জায়্যিদ', 'B':'মাকবুল', 'C':'মাকবুল', 'D':'মাকবুল', 'F':'রাসিব' };
   return map[grade] || 'Null';
 }
 
@@ -1218,7 +1218,7 @@ function printClassResultSheet(examId){
     const division = r.pass ? divisionFor(overallGrade) : 'রাসিব';
     const subjectCells = subjects.map(sub=>{
       const m = examMarksCache[st.id+'__'+sub.subject];
-      const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনু':'Null');
+      const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনুঃ':'Null');
       const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
       return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
     }).join('');

@@ -1338,7 +1338,7 @@ function gradeFor(percent){
   return {letter:'F', point:0.00};
 }
 function divisionFor(grade){
-  const map = { 'A+':'মুমতাজ', 'A':'জাঃ জিদ্দান', 'A-':'জায়িদ', 'B':'মাকবুল', 'C':'মাকবুল', 'D':'মাকবুল', 'F':'রাসিব' };
+  const map = { 'A+':'মুমতাজ', 'A':'জাঃ জিদ্দান', 'A-':'জায়্যিদ', 'B':'মাকবুল', 'C':'মাকবুল', 'D':'মাকবুল', 'F':'রাসিব' };
   return map[grade] || 'Null';
 }
 function computeStudentResult(student, subjects, marksMap){
@@ -3709,7 +3709,7 @@ function printTeacherResultSheet(){
       const division = r.pass ? divisionFor(overallGrade) : 'রাসিব';
       const subjectCells = subjects.map(sub=>{
         const m = mm[st.id+'__'+sub.subject];
-        const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনু':'Null');
+        const val = m && !m.is_absent && m.marks_obtained!=null ? bn(m.marks_obtained) : (m&&m.is_absent?'অনুঃ':'Null');
         const isFail = (m && m.is_absent) || (m && !m.is_absent && m.marks_obtained!=null && Number(m.marks_obtained) < Number(sub.pass_marks||0));
         return `<td${isFail?' class="fail-cell"':''}>${val}</td>`;
       }).join('');
