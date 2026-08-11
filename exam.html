@@ -1262,7 +1262,7 @@ function printClassResultSheet(examId){
       <div class="logo-circle">${inst.logo_url ? `<img src="${inst.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : 'Null<br>(লোগো)'}</div>
       <div class="center-block">
         <div class="sheet-org">${escapeHtml(inst.name)}</div>
-        <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
+        <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${inst.academic_year_label || (bn(hijriYear)+'হিজরী/'+bn(examYear)+'ইং')}</div>
       </div>
       <div class="scale-box">
         <div class="scale-title">মান নির্ধারণ পদ্ধতি</div>

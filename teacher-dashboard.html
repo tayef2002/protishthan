@@ -3753,7 +3753,7 @@ function printTeacherResultSheet(){
       <div class="top-row">
         <div class="center-block">
           <div class="sheet-org">${escapeHtml(inst.name)}</div>
-          <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${bn(hijriYear)}হিজরী/${bn(examYear)}ইং</div>
+          <div class="sheet-title">${escapeHtml(exam.exam_type||exam.name)} পরীক্ষার ফলাফল ${(institution && institution.academic_year_label) || (bn(hijriYear)+'হিজরী/'+bn(examYear)+'ইং')}</div>
         </div>
       </div>
       <div class="stat-row">
