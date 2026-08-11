@@ -1495,9 +1495,13 @@ async function loadAttendanceForClass(){
   const date = document.getElementById('attDateInput').value;
   if(!classId || !teacher.institution_id) return;
 
-  const { data, error } = await sb.from('students').select('*')
+  let attStudentQuery = sb.from('students').select('*')
     .eq('institution_id', teacher.institution_id)
     .eq('class_id', classId);
+  // Only exclude former students when taking today's/future attendance - a past date must still
+  // show students who were active back then, even if they've since left.
+  if(date >= todayStrLocal()) attStudentQuery = attStudentQuery.eq('is_active', true);
+  const { data, error } = await attStudentQuery;
 
   attStudents = (!error && data) ? data.slice().sort((a,b)=>(parseInt(a.roll_number)||0)-(parseInt(b.roll_number)||0)) : [];
 
@@ -2198,7 +2202,7 @@ async function _loadFeePanelForClass(cls){
   document.getElementById('feeClassName').textContent = cls.name;
   document.getElementById('feeList').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-3)">লোড হচ্ছে...</div>';
 
-  const { data: studentsRaw } = await sb.from('students').select('*').eq('class_id', cls.id);
+  const { data: studentsRaw } = await sb.from('students').select('*').eq('class_id', cls.id).eq('is_active', true);
   const month = new Date().toISOString().slice(0,7);
   feePanelMonth = month;
   const { data: payments } = await sb.from('fee_payments').select('*').eq('class_id', cls.id).eq('month', month);

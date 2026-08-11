@@ -477,6 +477,14 @@ body{display:flex}
         <option value="male">ছেলে</option>
         <option value="female">মেয়ে</option>
       </select>
+      <select class="filter-select" id="statusFilter" onchange="filterStudents()">
+        <option value="active">সক্রিয় শিক্ষার্থী</option>
+        <option value="former">সাবেক (চলে গেছে)</option>
+        <option value="all">সব</option>
+      </select>
+      <button class="filter-select" id="closeGapsBtn" onclick="closeRollGaps()" title="নির্বাচিত ক্লাসের সক্রিয় শিক্ষার্থীদের রোল নম্বর ১..N হিসেবে সাজিয়ে দেবে" style="cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg> রোল গ্যাপ বন্ধ করুন
+      </button>
       <div class="view-toggle">
         <button class="view-btn active" id="viewListBtn" onclick="setView('list')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6M9 15h6"/></svg> তালিকা</button>
         <button class="view-btn" id="viewGroupBtn" onclick="setView('group')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg> ক্লাস ভিত্তিক</button>
@@ -812,10 +820,11 @@ async function loadStudents(){
 }
 
 function updateStats(){
-  document.getElementById('totalStudents').textContent = allStudents.length.toLocaleString('bn');
-  document.getElementById('maleStudents').textContent = allStudents.filter(s=>s.gender==='male').length.toLocaleString('bn');
-  document.getElementById('femaleStudents').textContent = allStudents.filter(s=>s.gender==='female').length.toLocaleString('bn');
-  const classes = new Set(allStudents.map(s=>s.class_id).filter(Boolean));
+  const active = allStudents.filter(isActiveStudent);
+  document.getElementById('totalStudents').textContent = active.length.toLocaleString('bn');
+  document.getElementById('maleStudents').textContent = active.filter(s=>s.gender==='male').length.toLocaleString('bn');
+  document.getElementById('femaleStudents').textContent = active.filter(s=>s.gender==='female').length.toLocaleString('bn');
+  const classes = new Set(active.map(s=>s.class_id).filter(Boolean));
   document.getElementById('totalClasses').textContent = classes.size.toLocaleString('bn');
 }
 
@@ -829,9 +838,10 @@ function updateClassFilter(){
 function renderClassCards(classes){
   const row = document.getElementById('classCardsRow');
   const active = document.getElementById('classFilter').value;
+  const activeStudents = allStudents.filter(isActiveStudent);
   const countMap = {};
-  for(const s of allStudents){ countMap[s.class_name] = (countMap[s.class_name]||0)+1; }
-  const total = allStudents.length;
+  for(const s of activeStudents){ countMap[s.class_name] = (countMap[s.class_name]||0)+1; }
+  const total = activeStudents.length;
   let html = `<div class="cls-card${active===''?' active':''}" onclick="selectClassCard('')">
     <div class="cls-card-count">${total.toLocaleString('bn')}</div>
     <div class="cls-card-name">সব</div>
@@ -872,12 +882,19 @@ function renderStudentCard(s){
   const initial = (s.full_name||'?').slice(0,1);
   const hasOverride = s.custom_monthly_fee !== null && s.custom_monthly_fee !== undefined;
   const feeBadge = hasOverride ? (Number(s.custom_monthly_fee)===0 ? '<span class="sc-fee-badge free">ফ্রি</span>' : '<span class="sc-fee-badge custom">কাস্টম ফি ৳'+Number(s.custom_monthly_fee).toLocaleString('en-IN')+'</span>') : '';
+  const isFormer = s.is_active === false;
+  const leftBadge = isFormer ? '<span class="sc-fee-badge" style="background:var(--text-3);color:#fff">চলে গেছে</span>' : '';
+  const actionBtns = isFormer
+    ? `<button class="sc-btn" style="color:var(--green);border-color:var(--green)" onclick="restoreStudent('${s.id}','${s.full_name}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>️ পুনরায় সক্রিয় করুন</button>`
+    : `<button class="sc-btn" onclick="openEditModal('${s.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>️ Edit</button>
+        <button class="sc-btn" style="color:var(--red);border-color:var(--red)" onclick="markStudentLeft('${s.id}','${s.full_name}')" title="চলে গেছে হিসেবে চিহ্নিত করুন"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>️</button>
+        <button class="sc-btn wa" onclick="window.open('https://wa.me/88${primaryWa}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 11.5a8.5 8.5 0 1 1-3.8-7.1"/><path d="M21 11.5c0 4.7-3.8 8.5-8.5 8.5a8.6 8.6 0 0 1-3.2-.6L4 21l1.4-4.2A8.5 8.5 0 1 1 21 11.5z"/></svg></button>`;
   return `
-    <div class="student-card">
+    <div class="student-card"${isFormer?' style="opacity:.7"':''}>
       <div class="sc-top">
         <div class="sc-avatar">${initial}</div>
         <div>
-          <div class="sc-name">${s.full_name} ${feeBadge}</div>
+          <div class="sc-name">${s.full_name} ${feeBadge}${leftBadge}</div>
           <div class="sc-meta">${s.class_name||'—'} ${s.roll_number?'· রোল '+s.roll_number:''}</div>
         </div>
         <span class="sc-status ${(s.extra_data&&s.extra_data.notun_puraton)==='পুরাতন'?'old':'none'}">${(s.extra_data&&s.extra_data.notun_puraton)||'নতুন'}</span>
@@ -888,9 +905,7 @@ function renderStudentCard(s){
         ${s.address?'<div class="sc-detail-row"><span class="sc-detail-label">ঠিকানা</span><span class="sc-detail-val">'+s.address+'</span></div>':''}
       </div>
       <div class="sc-actions">
-        <button class="sc-btn" onclick="openEditModal('${s.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 20h4l11-11-4-4L4 16v4z"/><path d="M14 6l4 4"/></svg>️ Edit</button>
-        <button class="sc-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteStudent('${s.id}','${s.full_name}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>️</button>
-        <button class="sc-btn wa" onclick="window.open('https://wa.me/88${primaryWa}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 11.5a8.5 8.5 0 1 1-3.8-7.1"/><path d="M21 11.5c0 4.7-3.8 8.5-8.5 8.5a8.6 8.6 0 0 1-3.2-.6L4 21l1.4-4.2A8.5 8.5 0 1 1 21 11.5z"/></svg></button>
+        ${actionBtns}
       </div>
     </div>`;
 }
@@ -945,14 +960,19 @@ function filterStudents(){
   const search = document.getElementById('searchInput').value.toLowerCase();
   const classF = document.getElementById('classFilter').value;
   const genderF = document.getElementById('genderFilter').value;
+  const statusF = document.getElementById('statusFilter').value;
   let filtered = allStudents.filter(s=>{
     const matchSearch = !search || s.full_name.toLowerCase().includes(search) || (s.roll_number||'').includes(search) || (s.class_name||'').includes(search);
     const matchClass = !classF || s.class_name===classF;
     const matchGender = !genderF || s.gender===genderF;
-    return matchSearch && matchClass && matchGender;
+    const isActive = s.is_active !== false;
+    const matchStatus = statusF==='all' || (statusF==='former' ? !isActive : isActive);
+    return matchSearch && matchClass && matchGender && matchStatus;
   });
   renderStudents(filtered);
 }
+
+function isActiveStudent(s){ return s.is_active !== false; }
 
 
 // Auto-generate Roll & Student ID when class is selected
@@ -980,7 +1000,8 @@ async function autoFillRollAndId() {
     .from('students')
     .select('roll_number')
     .eq('class_id', classId)
-    .eq('institution_id', currentInstitution.id);
+    .eq('institution_id', currentInstitution.id)
+    .eq('is_active', true);
 
   const maxRoll = (classStudents || []).reduce((max, s) => {
     const n = parseInt(s.roll_number) || 0;
@@ -1132,7 +1153,7 @@ async function autoFillRollAndIdForEdit(classId, studentRowId){
   const rollInput = document.getElementById('stuRoll');
   const sidInput  = document.getElementById('stuStudentId');
   const sidHidden = document.getElementById('stuStudentIdHidden');
-  const { data: classStudents } = await sb.from('students').select('roll_number').eq('class_id', classId).eq('institution_id', currentInstitution.id);
+  const { data: classStudents } = await sb.from('students').select('roll_number').eq('class_id', classId).eq('institution_id', currentInstitution.id).eq('is_active', true);
   const maxRoll = (classStudents || []).reduce((max, s) => { const n = parseInt(s.roll_number) || 0; return n > max ? n : max; }, 0);
   rollInput.value = String(maxRoll + 1).padStart(2, '0');
   // Only generate a new student_id if the student doesn't already have one
@@ -1445,17 +1466,17 @@ async function saveStudent(){
   }
 }
 
-async function deleteStudent(studentId, studentName){
+async function markStudentLeft(studentId, studentName){
   const confirmed = await new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:24px;max-width:320px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
-      <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+    overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+      <div style="font-size:40px;margin-bottom:12px">🚪</div>
       <h3 style="margin:0 0 8px;font-size:16px;color:#1a1a2e">${studentName}</h3>
-      <p style="margin:0 0 20px;color:#666;font-size:14px">এই শিক্ষার্থীকে delete করতে চান? এই কাজ ফিরিয়ে আনা যাবে না।</p>
+      <p style="margin:0 0 20px;color:#666;font-size:14px">এই শিক্ষার্থীকে "চলে গেছে" হিসেবে চিহ্নিত করতে চান? সে সক্রিয় তালিকা থেকে সরে যাবে, কিন্তু তার আগের attendance/marks/fee history অক্ষত থাকবে — পরে চাইলে আবার সক্রিয় করা যাবে।</p>
       <div style="display:flex;gap:10px;justify-content:center">
         <button id="del-cancel" style="padding:10px 20px;border:1.5px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;color:#333">বাতিল</button>
-        <button id="del-confirm" style="padding:10px 20px;border:none;border-radius:8px;background:#e53e3e;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Delete করুন</button>
+        <button id="del-confirm" style="padding:10px 20px;border:none;border-radius:8px;background:#e53e3e;color:#fff;cursor:pointer;font-size:14px;font-weight:600">চলে গেছে চিহ্নিত করুন</button>
       </div>
     </div>`;
     document.body.appendChild(overlay);
@@ -1465,10 +1486,83 @@ async function deleteStudent(studentId, studentName){
   });
   if(!confirmed) return;
   try{
-    await sb.from('guardians').delete().eq('student_id', studentId);
-    const { error } = await sb.from('students').delete().eq('id', studentId);
+    const { error } = await sb.from('students').update({ is_active: false }).eq('id', studentId);
     if(error) throw error;
-    showToast('success','Delete সফল', studentName+' কে সরিয়ে ফেলা হয়েছে');
+    showToast('success','সংরক্ষিত হয়েছে', studentName+' কে চলে গেছে হিসেবে চিহ্নিত করা হয়েছে');
+    loadStudents();
+  }catch(e){
+    showToast('error','সমস্যা হয়েছে', e.message);
+  }
+}
+
+async function restoreStudent(studentId, studentName){
+  try{
+    const { error } = await sb.from('students').update({ is_active: true }).eq('id', studentId);
+    if(error) throw error;
+    showToast('success','পুনরায় সক্রিয় হয়েছে', studentName+' কে আবার সক্রিয় তালিকায় যোগ করা হয়েছে');
+    loadStudents();
+  }catch(e){
+    showToast('error','সমস্যা হয়েছে', e.message);
+  }
+}
+
+// On-demand renumber: closes gaps left by former (is_active=false) students by resequencing
+// the CURRENT class's active students to 1..N, sorted by their existing roll order. Deliberately
+// not automatic (not run on every markStudentLeft) - roll numbers already printed/known to
+// students shouldn't shift without the admin explicitly asking for it.
+async function closeRollGaps(){
+  const classF = document.getElementById('classFilter').value;
+  if(!classF){
+    showToast('error','ক্লাস নির্বাচন করুন','রোল গ্যাপ বন্ধ করতে আগে উপরে থেকে একটি নির্দিষ্ট ক্লাস বেছে নিন');
+    return;
+  }
+  const classStudents = allStudents
+    .filter(s => s.class_name === classF && isActiveStudent(s))
+    .slice()
+    .sort((a,b) => (parseInt(a.roll_number)||0) - (parseInt(b.roll_number)||0));
+
+  if(classStudents.length === 0){
+    showToast('error','কোনো সক্রিয় শিক্ষার্থী নেই', classF+' ক্লাসে কোনো সক্রিয় শিক্ষার্থী পাওয়া যায়নি');
+    return;
+  }
+
+  const changes = classStudents
+    .map((s, idx) => ({ id: s.id, name: s.full_name, oldRoll: s.roll_number, newRoll: String(idx+1).padStart(2,'0') }))
+    .filter(c => String(c.oldRoll||'') !== c.newRoll);
+
+  if(changes.length === 0){
+    showToast('success','ইতিমধ্যে ঠিক আছে', classF+' ক্লাসে কোনো গ্যাপ নেই, রোল ইতিমধ্যে ১..'+classStudents.length+' পর্যন্ত সাজানো আছে');
+    return;
+  }
+
+  const confirmed = await new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    const previewRows = changes.slice(0,8).map(c=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #eee"><span>${c.name}</span><span style="color:#666">${c.oldRoll||'—'} → <b style="color:var(--blue)">${c.newRoll}</b></span></div>`).join('');
+    const more = changes.length > 8 ? `<div style="font-size:12px;color:#999;margin-top:6px">+ আরও ${changes.length-8} জন</div>` : '';
+    overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:24px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+      <div style="font-size:32px;margin-bottom:8px;text-align:center">🔢</div>
+      <h3 style="margin:0 0 8px;font-size:16px;color:#1a1a2e;text-align:center">${classF} — ${changes.length} জনের রোল বদলাবে</h3>
+      <p style="margin:0 0 14px;color:#666;font-size:13px;text-align:center">শুধু সক্রিয় শিক্ষার্থীরা প্রভাবিত হবে, বর্তমান রোল অনুযায়ী ক্রম ঠিক রেখে ১ থেকে নতুন করে সাজানো হবে।</p>
+      <div style="max-height:220px;overflow-y:auto;margin-bottom:16px">${previewRows}${more}</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button id="rg-cancel" style="padding:10px 20px;border:1.5px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;color:#333">বাতিল</button>
+        <button id="rg-confirm" style="padding:10px 20px;border:none;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer;font-size:14px;font-weight:600">নিশ্চিত করুন</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#rg-confirm').onclick = () => { document.body.removeChild(overlay); resolve(true); };
+    overlay.querySelector('#rg-cancel').onclick = () => { document.body.removeChild(overlay); resolve(false); };
+    overlay.onclick = (e) => { if(e.target===overlay){ document.body.removeChild(overlay); resolve(false); } };
+  });
+  if(!confirmed) return;
+
+  try{
+    for(const c of changes){
+      const { error } = await sb.from('students').update({ roll_number: c.newRoll }).eq('id', c.id);
+      if(error) throw error;
+    }
+    showToast('success','রোল আপডেট হয়েছে', classF+' ক্লাসের '+changes.length+' জনের রোল নম্বর ঠিক করা হয়েছে');
     loadStudents();
   }catch(e){
     showToast('error','সমস্যা হয়েছে', e.message);
@@ -1827,7 +1921,7 @@ async function btOnClassChange(){
   const selVal = document.getElementById('btClassSelect').value;
   if(!selVal){ btBaseRoll = 0; btRefreshRollDisplay(); return; }
   const [, className] = selVal.split('||');
-  const { data } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className);
+  const { data } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className).eq('is_active', true);
   btBaseRoll = 0;
   (data||[]).forEach(s => { const n = parseInt(s.roll_number)||0; if(n > btBaseRoll) btBaseRoll = n; });
   btRefreshRollDisplay();
@@ -1935,8 +2029,9 @@ async function btSaveAll(){
   const btn = document.getElementById('btSaveBtn');
   btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে...';
 
-  // fetch max roll for this class only
-  const { data: classStudents } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className);
+  // fetch max roll for this class only (active students only, so a reused/gapped roll from a
+  // former student never gets skipped-over unnecessarily)
+  const { data: classStudents } = await sb.from('students').select('roll_number').eq('institution_id', currentInstitution.id).eq('class_name', className).eq('is_active', true);
   let maxRoll = 0;
   (classStudents||[]).forEach(s => { const n = parseInt(s.roll_number)||0; if(n > maxRoll) maxRoll = n; });
 

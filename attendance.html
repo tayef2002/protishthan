@@ -434,6 +434,10 @@ async function loadAttendance(){
 
   let studentQuery = sb.from('students').select('*').eq('institution_id', currentInstitution.id);
   if(classId) studentQuery = studentQuery.eq('class_id', classId);
+  // Only exclude former (is_active=false) students when taking today's/future attendance -
+  // viewing a past date must still show students who were active back then, even if they've
+  // since left, so their historical attendance record stays visible.
+  if(date >= todayStr()) studentQuery = studentQuery.eq('is_active', true);
   const { data: students, error: stuErr } = await studentQuery.order('roll_number',{ascending:true});
   allStudents = (!stuErr && students) ? students : [];
 
