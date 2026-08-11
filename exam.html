@@ -1237,14 +1237,21 @@ function printClassResultSheet(examId){
   }).join('');
   const subColspan = subjects.length;
 
-  // colgroup widths: serial 4%, name 13%, subjects share 35%, last 6 columns share 48% equally
-  const serialW = 4, nameW = 13, lastW = 8;
-  const subjectW = ((100 - serialW - nameW - (lastW*6)) / Math.max(subjects.length,1)).toFixed(2);
+  // colgroup widths: serial 4%, name 13%, পাশের বিভাগ gets its own fixed share (division names
+  // like "জাঃ জিদ্দান"/"স্থগিত" need more room); every other data column - each subject plus
+  // মোট নম্বর/গড়/গ্রেড/জিপিএ/মেধাক্রম - shares one uniform width so all those boxes match.
+  const serialW = 4, nameW = 13, divisionW = 10;
+  const uniformW = ((100 - serialW - nameW - divisionW) / (subjects.length + 5)).toFixed(2);
   const colgroupHtml = `<colgroup>
     <col style="width:${serialW}%">
     <col style="width:${nameW}%">
-    ${subjects.map(()=>`<col style="width:${subjectW}%">`).join('')}
-    ${Array(6).fill(`<col style="width:${lastW}%">`).join('')}
+    ${subjects.map(()=>`<col style="width:${uniformW}%">`).join('')}
+    <col style="width:${uniformW}%">
+    <col style="width:${uniformW}%">
+    <col style="width:${divisionW}%">
+    <col style="width:${uniformW}%">
+    <col style="width:${uniformW}%">
+    <col style="width:${uniformW}%">
   </colgroup>`;
 
   const w = window.open('', '_blank');
