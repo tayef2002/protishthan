@@ -1289,10 +1289,10 @@ function printClassResultSheet(examId){
       <div>বিষয় সংখ্যাঃ <b>${bn(subjects.length)}</b></div>
       <div>মোট নম্বরঃ <b>${bn(fullMarksTotal)}</b></div>
     </div>
-    <div class="class-row">${cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null'}</div>
   `;
-  const colHeaderRowsHtml = `<tr><th rowspan="2" class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
-        <tr>${subjectHeaders}<th class="rot"><span class="rot-inner" data-rot-text="মোট নম্বর"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গড়"></span></th><th class="rot"><span class="rot-inner" data-rot-text="পাশের বিভাগ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গ্রেড"></span></th><th class="rot"><span class="rot-inner" data-rot-text="জিপিএ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="মেধাক্রম"></span></th></tr>`;
+  const classLabel = cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null';
+  const colHeaderRowsHtml = `<tr><th colspan="2">${classLabel}</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
+        <tr><th class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th>পরীক্ষার্থীর নাম</th>${subjectHeaders}<th class="rot"><span class="rot-inner" data-rot-text="মোট নম্বর"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গড়"></span></th><th class="rot"><span class="rot-inner" data-rot-text="পাশের বিভাগ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গ্রেড"></span></th><th class="rot"><span class="rot-inner" data-rot-text="জিপিএ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="মেধাক্রম"></span></th></tr>`;
   const theadHtml = `<tr><th colspan="${subColspan+8}" class="repeat-head-cell">${headerBlockHtml}</th></tr>${colHeaderRowsHtml}`;
 
   w.document.write(`<html><head><title>ফলাফল তালিকা</title>
@@ -1322,7 +1322,6 @@ function printClassResultSheet(examId){
     .stat-row div{flex:1;padding:3px;text-align:center;font-size:16px;border-right:1px solid #000;display:flex;align-items:center;justify-content:center;gap:7px}
     .stat-row div:last-child{border-right:none}
     .stat-row b{font-size:19px}
-    .class-row{border:1.6px solid #000;border-top:none;text-align:center;font-weight:800;font-size:19px;padding:3px}
     table.main{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:0}
     .main th,.main td{border:1px solid #000;padding:3px 5px;font-size:22px;font-weight:800;text-align:center;vertical-align:middle;word-wrap:break-word}
     .main thead th{background:#EFEFEF;font-weight:800;font-size:18px;color:#000}
