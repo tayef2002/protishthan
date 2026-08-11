@@ -1323,7 +1323,8 @@ function printClassResultSheet(examId){
     .stat-row div:last-child{border-right:none}
     .stat-row b{font-size:19px}
     table.main{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:0}
-    .main th,.main td{border:1px solid #000;padding:3px 5px;font-size:18px;font-weight:800;text-align:center;vertical-align:middle;word-wrap:break-word}
+    .main th,.main td{border:1px solid #000;padding:4px 5px;font-size:18px;font-weight:800;text-align:center;vertical-align:middle;word-wrap:break-word}
+    .main tbody td{padding-top:calc(4px + var(--extra-pad,0px));padding-bottom:calc(4px + var(--extra-pad,0px))}
     .main thead th{background:#EFEFEF;font-weight:800;font-size:18px;color:#000}
     .main th.rot,.main th.serial-h{padding:3px 2px;font-size:18px;color:#000;position:relative;vertical-align:middle}
     .main th.rot .rot-inner,.main th.serial-h .rot-inner{display:inline-block}
@@ -1380,15 +1381,38 @@ function printClassResultSheet(examId){
   function paginateAndPrint(){
     drawRotatedHeaderLabels();
     // User explicitly requires exactly 10 students on every page, for every class, regardless of
-    // subject count or header height - not a computed/variable count. Row count is fixed; the only
-    // thing that flexes is how much safety margin we can afford to keep.
+    // subject count or header height - not a computed/variable count. Row count is fixed.
     const rowsPerPage = 10;
 
-    const pages = [];
-    for(let i=0;i<rowsArr.length;i+=rowsPerPage) pages.push(rowsArr.slice(i,i+rowsPerPage));
-    if(!pages.length) pages.push([]);
+    // Header height varies per exam (more/longer subject names -> taller rotated column headers),
+    // which would otherwise leave a different amount of empty space at the bottom of every exam's
+    // sheet. Measure the real header height and each row's real (base-padding) height, then compute
+    // how much EXTRA vertical padding this specific page's 10 rows need to stretch down to the same
+    // target line on every exam - not a fixed guess, so a page with a taller header (or rows that
+    // already wrap more) automatically gets less extra padding, never risking overflow.
+    const theadEl = w.document.querySelector('#measureTable thead');
+    const headerHeightPx = theadEl ? theadEl.getBoundingClientRect().height : 0;
+    const rowHeights = [...w.document.querySelectorAll('#measureTable > tbody > tr')].map(tr=>tr.getBoundingClientRect().height);
+    const PAGE_H_PX = (215.9 - 6 - 4) * (96/25.4);
+    const SAFETY_MARGIN_PX = 15;
+    const availableForRows = PAGE_H_PX - SAFETY_MARGIN_PX - headerHeightPx;
 
-    const pagesHtml = pages.map(rows=>`<table class="main page-block">${colgroupHtml}<thead>${theadHtml}</thead><tbody>${rows.join('')}</tbody></table>`).join('');
+    const pages = [];
+    const pageExtraPad = [];
+    for(let i=0;i<rowsArr.length;i+=rowsPerPage){
+      const chunkRows = rowsArr.slice(i,i+rowsPerPage);
+      const chunkHeights = rowHeights.slice(i,i+rowsPerPage);
+      const naturalChunkHeight = chunkHeights.reduce((a,b)=>a+b,0);
+      const extraNeeded = availableForRows - naturalChunkHeight;
+      pages.push(chunkRows);
+      // Cap the extra padding so a short LAST page (fewer than 10 rows, so more space to divide
+      // up) doesn't stretch its rows to a comically oversized height just to reach the same line -
+      // a shorter last page is already fine (explicitly OK'd earlier), it just won't be capped-full.
+      pageExtraPad.push(Math.min(10, Math.max(0, extraNeeded / Math.max(chunkRows.length,1) / 2)));
+    }
+    if(!pages.length){ pages.push([]); pageExtraPad.push(0); }
+
+    const pagesHtml = pages.map((rows,idx)=>`<table class="main page-block" style="--extra-pad:${pageExtraPad[idx].toFixed(2)}px">${colgroupHtml}<thead>${theadHtml}</thead><tbody>${rows.join('')}</tbody></table>`).join('');
     w.document.body.innerHTML = pagesHtml;
     drawRotatedHeaderLabels();
     setTimeout(()=>w.print(), 200);
