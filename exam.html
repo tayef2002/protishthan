@@ -1284,7 +1284,7 @@ function printClassResultSheet(examId){
     <div class="class-row">${cls?escapeHtml(cls.name)+(cls.section?' ('+escapeHtml(cls.section)+')':''):'Null'}</div>
   `;
   const colHeaderRowsHtml = `<tr><th rowspan="2" class="serial-h"><span class="rot-inner" data-rot-text="ক্রমিক নং"></span></th><th rowspan="2">পরীক্ষার্থীর নাম</th><th colspan="${subColspan}">বিষয় ভিত্তিক প্রাপ্ত নম্বর</th><th colspan="6">পাশের বিভাগ</th></tr>
-        <tr>${subjectHeaders}<th>মোট নম্বর</th><th>গড়</th><th>পাশের বিভাগ</th><th>গ্রেড</th><th>জিপিএ</th><th>মেধাক্রম</th></tr>`;
+        <tr>${subjectHeaders}<th class="rot"><span class="rot-inner" data-rot-text="মোট নম্বর"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গড়"></span></th><th class="rot"><span class="rot-inner" data-rot-text="পাশের বিভাগ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="গ্রেড"></span></th><th class="rot"><span class="rot-inner" data-rot-text="জিপিএ"></span></th><th class="rot"><span class="rot-inner" data-rot-text="মেধাক্রম"></span></th></tr>`;
   const theadHtml = `<tr><th colspan="${subColspan+8}" class="repeat-head-cell">${headerBlockHtml}</th></tr>${colHeaderRowsHtml}`;
 
   w.document.write(`<html><head><title>ফলাফল তালিকা</title>
