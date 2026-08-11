@@ -1362,9 +1362,12 @@ function computeStudentResult(student, subjects, marksMap){
   // Fails overall if a subject marked "আবশ্যিক" (critical) was failed, or the aggregate
   // itself falls in the F range - not just from failing any one ordinary subject.
   const failed = criticalFailed || gradeFor(overallPercent).letter === 'F';
-  // Result withheld ("স্থগিত") if absent in 3+ subjects - treated like a fail for pass/gpa/rank
-  // purposes, but shown with its own division label instead of রাসিব wherever displayed.
-  const withheld = absentCount >= 3;
+  // Result withheld ("স্থগিত") if absent in too many subjects - treated like a fail for
+  // pass/gpa/rank purposes, but shown with its own division label instead of রাসিব wherever
+  // displayed. The safe absence allowance scales with how few subjects the exam has: classes
+  // with very few total subjects (e.g. Hifz/Takmil with 2) can't absorb the same fixed 2-absence
+  // allowance a normal 6+ subject class can, so any absence withholds the result there.
+  const withheld = subjects.length <= 5 ? absentCount >= 1 : absentCount >= 3;
   return { subjectResults, total, fullTotal, gpa: (failed||withheld) ? 0 : gpa, pass: !failed && !withheld && anyMark, absentCount, withheld, percent: overallPercent };
 }
 function fmtMoney(n){ return '৳' + Math.round(n||0).toLocaleString('en-IN'); }
