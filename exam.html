@@ -1240,11 +1240,12 @@ function printClassResultSheet(examId){
   }).join('');
   const subColspan = subjects.length;
 
-  // colgroup widths: serial 4%, name 13%. পাশের বিভাগ and গড় each get their own fixed share
+  // colgroup widths: serial 4%, name 19% (wide enough that most long names stay on one line).
+  // পাশের বিভাগ and গড় each get their own fixed share
   // (division names like "জাঃ জিদ্দান"/"স্থগিত" need more room; গড়'s 2-decimal percentage like
   // "৮৩.৭৮" was wrapping to 2 lines at the plain uniform width). Every other data column - each
   // subject plus মোট নম্বর/গ্রেড/জিপিএ/মেধাক্রম - shares one uniform width so those boxes match.
-  const serialW = 4, nameW = 13, divisionW = 10, avgW = 9;
+  const serialW = 4, nameW = 19, divisionW = 10, avgW = 9;
   const uniformW = ((100 - serialW - nameW - divisionW - avgW) / (subjects.length + 4)).toFixed(2);
   const colgroupHtml = `<colgroup>
     <col style="width:${serialW}%">

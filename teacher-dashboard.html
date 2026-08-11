@@ -3724,7 +3724,7 @@ function printTeacherResultSheet(){
     }).join('');
     const subjectHeaders = subjects.map(s=>`<th class="rot"><span class="rot-inner">${escapeHtml(s.subject)}</span></th>`).join('');
     const subColspan = subjects.length;
-    const serialW = 4, nameW = 13, lastW = 8;
+    const serialW = 4, nameW = 19, lastW = 8;
     const subjectW = ((100 - serialW - nameW - (lastW*6)) / Math.max(subjects.length,1)).toFixed(2);
     const colgroupHtml = `<colgroup><col style="width:${serialW}%"><col style="width:${nameW}%">${subjects.map(()=>`<col style="width:${subjectW}%">`).join('')}${Array(6).fill(`<col style="width:${lastW}%">`).join('')}</colgroup>`;
 
