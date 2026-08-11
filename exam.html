@@ -1803,9 +1803,15 @@ async function fetchAttendanceMap(exam){
   // (year,month), a student's data comes from whichever source actually has
   // rows for them that month - daily takes priority - so months are never
   // double-counted between the two.
-  const year = exam.academic_year || new Date().getFullYear();
-  const fromDate = `${year}-01-01`;
+  // exam.academic_year is never written anywhere in this codebase (checked both the insert and
+  // update paths) - it was always silently falling back to whatever the REAL current calendar
+  // year happened to be when this ran, not the exam's own year. That made the summing window
+  // ([Jan 1 of that wrong year, exam_date]) a different, meaningless width for every exam
+  // depending purely on today's date - explaining wildly inconsistent totals across classes.
+  // Deriving the year straight from the exam's own date is deterministic and always correct.
   const examDateStr = exam.exam_date || new Date().toISOString().slice(0,10);
+  const year = new Date(examDateStr).getFullYear();
+  const fromDate = `${year}-01-01`;
   const instId = (currentInstitution||{}).id;
   if(!instId) return {};
   const examD = new Date(examDateStr);
@@ -1816,7 +1822,7 @@ async function fetchAttendanceMap(exam){
     sb.from('attendance').select('student_id,date,status')
       .eq('institution_id', instId).gte('date', fromDate).lte('date', examDateStr),
     sb.from('monthly_attendance_summary').select('student_id,year,month,total_working_days,present_days')
-      .eq('institution_id', instId)
+      .eq('institution_id', instId).eq('class_id', exam.class_id)
   ]);
 
   const map = {};

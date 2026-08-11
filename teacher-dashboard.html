@@ -7229,7 +7229,7 @@ async function histSelMonth(year,month,el,hijriYear){
   document.getElementById('histEntryTitle').textContent=_histMonthLabel(month,year,hijriYear);
   // Load existing data for this month
   const {data:existing}=await sb.from('monthly_attendance_summary')
-    .select('*').eq('institution_id',teacher.institution_id).eq('year',year).eq('month',month);
+    .select('*').eq('institution_id',teacher.institution_id).eq('class_id',_histSelectedClassId).eq('year',year).eq('month',month);
   _histExisting={};
   (existing||[]).forEach(r=>{ _histExisting[r.student_id]=r; });
   // Get working days from first record or default 0
