@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>পরীক্ষা ও Result — Protishthan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -1149,7 +1152,7 @@ function subjectHighestMarks(students, subjects){
 function renderResultTable(exam, students, subjects){
   const results = students.map(st=>({ student: st, r: computeStudentResult(st, subjects) }));
   results.sort((a,b)=> b.r.total - a.r.total);
-  let html = `<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px"><button class="btn-add" onclick="bulkPrintSingleCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, একটি/পেজ)</button><button class="btn-add" onclick="bulkPrintReportCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, ২টি/পেজ)</button></div>`;
+  let html = `<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px"><button class="btn-add" onclick="bulkPrintSingleCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, একটি/পেজ)</button><button class="btn-add" onclick="bulkPrintReportCards('${exam.id}')">🖨️ সব রিপোর্ট কার্ড (A4, ২টি/পেজ)</button><button class="btn-add" id="rcZipBtn" onclick="downloadClassReportCardsZip('${exam.id}')">📦 ZIP ডাউনলোড (PDF)</button></div>`;
   html += `<div class="grid-table-wrap"><table class="grid-table"><thead><tr><th>মেধাক্রম</th><th>শিক্ষার্থী</th><th>মোট নম্বর</th><th>%</th><th>GPA</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody>`;
   let rankCounter = 0;
   results.forEach((row)=>{
@@ -1867,11 +1870,14 @@ async function fetchAttendanceMap(exam){
   return map;
 }
 
-async function bulkPrintReportCards(examId){
+// Shared data-prep for the class report card set - both the popup-print flow
+// (bulkPrintReportCards) and the ZIP-download flow build the exact same pairs
+// from this, so they can never drift out of sync with each other.
+async function buildReportCardPages(examId){
   const exam = allExams.find(e=>e.id===examId);
-  if(!exam){ await xAlert('পরীক্ষা পাওয়া যায়নি',{icon:'🔍'}); return; }
+  if(!exam){ await xAlert('পরীক্ষা পাওয়া যায়নি',{icon:'🔍'}); return null; }
   const students = allStudents.filter(s=>s.class_id===exam.class_id).sort((a,b)=>(a.roll_number||999)-(b.roll_number||999));
-  if(!students.length){ await xAlert('এই ক্লাসে কোনো শিক্ষার্থী নেই।',{icon:'👥',title:'শিক্ষার্থী নেই'}); return; }
+  if(!students.length){ await xAlert('এই ক্লাসে কোনো শিক্ষার্থী নেই।',{icon:'👥',title:'শিক্ষার্থী নেই'}); return null; }
   const attMap = await fetchAttendanceMap(exam);
 
   const inst = currentInstitution || {};
@@ -1930,9 +1936,14 @@ async function bulkPrintReportCards(examId){
     }
     pages.push(pair);
   }
+  return { exam, className, examName, pages };
+}
 
+async function bulkPrintReportCards(examId){
+  const built = await buildReportCardPages(examId);
+  if(!built) return;
   // Open one window per page-pair
-  pages.forEach(function(pair, pi){
+  built.pages.forEach(function(pair, pi){
     const w = window.open('/result_card_design.html', '_blank');
     w.addEventListener('load', function(){
       w.sessionStorage.setItem('rc_data', JSON.stringify(pair.filter(Boolean)));
@@ -1943,6 +1954,107 @@ async function bulkPrintReportCards(examId){
       w.document.body.appendChild(s);
     });
   });
+}
+
+// Fills a result_card_design.html document's fields directly via DOM (no sessionStorage
+// round-trip, no injected script string) - used by the offscreen PDF-capture flow where we
+// control the iframe directly and don't want it to call window.print() itself.
+function fillReportCardDoc(doc, pair){
+  pair.forEach(function(d, i){
+    if(!d) return;
+    const n = i+1;
+    function set(id, val){ const e = doc.getElementById(id); if(e && val!=null) e.textContent = val; }
+    set('inst-name-'+n, d.instName); set('inst-loc-'+n, d.instLoc); set('class-name-'+n, d.className);
+    set('year-'+n, d.year); set('exam-name-'+n, d.examName); set('serial-'+n, d.serial);
+    set('student-name-'+n, d.studentName); set('father-name-'+n, d.fatherName); set('address-'+n, d.address);
+    set('att-karjo-'+n, d.karjo); set('att-present-'+n, d.present); set('att-absent-'+n, d.absent);
+    set('att-subjects-'+n, d.subjectCount); set('att-total-'+n, d.fullTotal); set('total-'+n, d.total);
+    set('avg-'+n, d.avg); set('grade-'+n, d.grade); set('lg-'+n, d.lg); set('gpa-'+n, d.gpa);
+    set('roll-'+n, d.roll); set('merit-'+n, d.merit); set('rem-'+n, d.rem);
+    if(d.subjects){
+      d.subjects.forEach(function(sub, j){
+        const k = j+1;
+        set('sub-'+k+'-'+n, sub.name); set('purno-'+k+'-'+n, sub.full);
+        set('mark-'+k+'-'+n, sub.mark); set('high-'+k+'-'+n, sub.high); set('kro-'+k+'-'+n, sub.kro);
+      });
+      for(let k=d.subjects.length+1; k<=9; k++){
+        const e = doc.getElementById('purno-'+k+'-'+n);
+        if(e) e.innerHTML = '&nbsp;';
+      }
+    }
+  });
+}
+
+// Renders one page-pair offscreen in a hidden iframe (reusing the exact same
+// result_card_design.html template/CSS/font as the print flow), captures it as an image, and
+// returns a single-page A4-landscape PDF Blob. One iframe per pair, torn down after capture -
+// simplest way to guarantee no leftover state bleeds into the next pair.
+async function renderReportCardPairToPdfBlob(pair){
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:1400px;height:900px;border:0';
+  document.body.appendChild(iframe);
+  try{
+    await new Promise(function(resolve, reject){
+      iframe.addEventListener('load', resolve, {once:true});
+      iframe.addEventListener('error', reject, {once:true});
+      iframe.src = '/result_card_design.html';
+    });
+    const w = iframe.contentWindow, doc = iframe.contentDocument;
+    fillReportCardDoc(doc, pair);
+    if(doc.fonts && doc.fonts.ready) await doc.fonts.ready;
+    await new Promise(r=>setTimeout(r, 150)); // let the rotated/late-painted bits settle
+    const canvas = await html2canvas(doc.body, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
+    const pageW = 297, pageH = 210;
+    const imgRatio = canvas.width / canvas.height;
+    let drawW = pageW, drawH = pageW / imgRatio;
+    if(drawH > pageH){ drawH = pageH; drawW = pageH * imgRatio; }
+    const offsetX = (pageW - drawW) / 2, offsetY = (pageH - drawH) / 2;
+    pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH);
+    return pdf.output('blob');
+  } finally {
+    document.body.removeChild(iframe);
+  }
+}
+
+async function downloadClassReportCardsZip(examId){
+  if(typeof JSZip==='undefined' || typeof html2canvas==='undefined' || !window.jspdf){
+    await xAlert('PDF তৈরির জন্য প্রয়োজনীয় লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ চেক করে পেজ রিফ্রেশ করে আবার চেষ্টা করুন।', {icon:'⚠️'});
+    return;
+  }
+  const built = await buildReportCardPages(examId);
+  if(!built) return;
+  const { className, examName, pages } = built;
+
+  const btn = document.getElementById('rcZipBtn');
+  const originalLabel = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = `তৈরি হচ্ছে... (০/${pages.length})`; }
+
+  try{
+    const zip = new JSZip();
+    for(let pi=0; pi<pages.length; pi++){
+      const pair = pages[pi].filter(Boolean);
+      if(!pair.length) continue;
+      const pdfBlob = await renderReportCardPairToPdfBlob(pair);
+      const label = pair.map(p=>p.roll).filter(Boolean).join('-') || String(pi+1);
+      zip.file(`${label}.pdf`, pdfBlob);
+      if(btn) btn.textContent = `তৈরি হচ্ছে... (${pi+1}/${pages.length})`;
+    }
+    const zipBlob = await zip.generateAsync({type:'blob'});
+    const safeName = `${className}_${examName}_রিপোর্ট_কার্ড`.replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_');
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${safeName}.zip`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){
+    console.error(e);
+    await xAlert('ZIP তৈরি করতে সমস্যা হয়েছে: '+e.message, {icon:'⚠️'});
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel; }
+  }
 }
 
 async function printSingleCard(examId, studentId){
