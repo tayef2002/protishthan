@@ -835,6 +835,15 @@ const RC_CSS = "*{box-sizing:border-box;margin:0;padding:0}\nbody{font-family:'S
 
 
 function bn(x){ const map={'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'}; return String(x).replace(/[0-9]/g, d=>map[d]); }
+// Result card address: sourced from the বর্তমান ঠিকানা (গ্রাম/মহল্লা, ডাকঘর, উপজেলা, জেলা)
+// sub-fields in students.html's edit form, not the plain ঠিকানা text field - those sub-fields
+// are the ones the office actually keeps up to date. Falls back to the flat address column only
+// for older records that never had the detailed fields filled in.
+function studentPresentAddress(st){
+  const pa = (st.extra_data && st.extra_data.present_address) || {};
+  const combined = [pa.village, pa.post, pa.upazila, pa.district].filter(Boolean).join(', ');
+  return combined || st.address || '';
+}
 function examTitleWithYear(exam){
   const name = exam.name||'';
   if(!exam.exam_date) return name;
@@ -904,7 +913,7 @@ async function init(){
 
   const [{data:classes},{data:students}] = await Promise.all([
     sb.from('classes').select('*').eq('institution_id', inst.id),
-    sb.from('students').select('id,full_name,class_id,roll_number,address,guardians(full_name,relation)').eq('institution_id', inst.id).eq('is_active', true)
+    sb.from('students').select('id,full_name,class_id,roll_number,address,extra_data,guardians(full_name,relation)').eq('institution_id', inst.id).eq('is_active', true)
   ]);
   allClasses = classes||[];
   allStudents = students||[];
@@ -1893,7 +1902,7 @@ async function bulkPrintReportCards(examId){
         examName,
         serial: bn(String(st.roll_number||'')),
         studentName: st.full_name||'',
-        fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: st.address||'',
+        fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: studentPresentAddress(st),
         karjo: bn(String((attMap[st.id]||{}).karjo ?? '')),
         present: bn(String((attMap[st.id]||{}).present ?? '')),
         absent: bn(String((attMap[st.id]||{}).absent ?? '')),
@@ -1959,7 +1968,7 @@ async function printSingleCard(examId, studentId){
     instName, instLoc, className,
     year: bn(String(year)), examName,
     serial: bn(String(st.roll_number||'')),
-    studentName: st.full_name||'', fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: st.address||'',
+    studentName: st.full_name||'', fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: studentPresentAddress(st),
     karjo: bn(String(att.karjo ?? '')), present: bn(String(att.present ?? '')), absent: bn(String(att.absent ?? '')),
     subjectCount: bn(String(exam.subjects.length)),
     fullTotal: bn(String(r.fullTotal)), total: bn(String(r.total)),
@@ -2015,7 +2024,7 @@ async function bulkPrintSingleCards(examId){
       examName,
       serial: bn(String(st.roll_number||'')),
       studentName: st.full_name||'',
-      fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: st.address||'',
+      fatherName: ((st.guardians||[]).find(g=>g.relation==='পিতা')||{}).full_name||'', address: studentPresentAddress(st),
       karjo: bn(String(att.karjo ?? '')), present: bn(String(att.present ?? '')), absent: bn(String(att.absent ?? '')),
       subjectCount: bn(String(exam.subjects.length)),
       fullTotal: bn(String(r.fullTotal)),
