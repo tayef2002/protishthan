@@ -2003,7 +2003,11 @@ async function renderReportCardPairToPdfBlob(pair){
     fillReportCardDoc(doc, pair);
     if(doc.fonts && doc.fonts.ready) await doc.fonts.ready;
     await new Promise(r=>setTimeout(r, 150)); // let the rotated/late-painted bits settle
-    const canvas = await html2canvas(doc.body, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
+    // Capture just the .a4 card-pair box, not doc.body - body is wider/taller than the
+    // fixed-size .a4 content (iframe viewport padding), so capturing body bakes in blank
+    // margin and shrinks the actual cards when fit to the PDF page.
+    const captureEl = doc.querySelector('.a4') || doc.body;
+    const canvas = await html2canvas(captureEl, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
     const imgData = canvas.toDataURL('image/jpeg', 0.92);
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
