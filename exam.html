@@ -835,12 +835,11 @@ const RC_CSS = "*{box-sizing:border-box;margin:0;padding:0}\nbody{font-family:'S
 
 
 function bn(x){ const map={'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'}; return String(x).replace(/[0-9]/g, d=>map[d]); }
-// Result card address: sourced ONLY from বর্তমান ঠিকানা's গ্রাম/মহল্লা sub-field in students.html's
-// edit form - not ডাকঘর/উপজেলা/জেলা, not the plain ঠিকানা text field. User explicitly rejected
-// combining multiple fields (tried once, corrected) - single field only.
+// Result card address: বর্তমান ঠিকানা's গ্রাম/মহল্লা then ডাকঘর (in that order), joined - not
+// উপজেলা/জেলা, not the plain ঠিকানা text field.
 function studentPresentAddress(st){
   const pa = (st.extra_data && st.extra_data.present_address) || {};
-  return pa.village || '';
+  return [pa.village, pa.post].filter(Boolean).join(', ');
 }
 function examTitleWithYear(exam){
   const name = exam.name||'';
