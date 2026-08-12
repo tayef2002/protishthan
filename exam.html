@@ -1811,18 +1811,24 @@ async function fetchAttendanceMap(exam){
   // double-counted between the two.
   // exam.academic_year is never written anywhere in this codebase (checked both the insert and
   // update paths) - it was always silently falling back to whatever the REAL current calendar
-  // year happened to be when this ran, not the exam's own year. That made the summing window
-  // ([Jan 1 of that wrong year, exam_date]) a different, meaningless width for every exam
-  // depending purely on today's date - explaining wildly inconsistent totals across classes.
-  // Deriving the year straight from the exam's own date is deterministic and always correct.
+  // year happened to be when this ran, not the exam's own year, making the summing window a
+  // different, meaningless width for every exam depending purely on today's date.
+  // The window's start is the institution's OWN configured academic year start month (Settings >
+  // শিক্ষা বর্ষ, currentInstitution.academic_year_start_month) - not calendar January 1st. A
+  // madrasa whose year starts in March would otherwise get Jan+Feb wrongly pulled in from what's
+  // actually still the previous academic year. If the exam's own month falls before the start
+  // month, the academic year began in the PREVIOUS calendar year (wrap-around).
   const examDateStr = exam.exam_date || new Date().toISOString().slice(0,10);
-  const year = new Date(examDateStr).getFullYear();
-  const fromDate = `${year}-01-01`;
+  const examD = new Date(examDateStr);
+  const examCalYear = examD.getFullYear();
+  const examMonth = examD.getMonth()+1;
+  const startMonth = (currentInstitution && currentInstitution.academic_year_start_month) || 1;
+  const academicStartYear = examMonth >= startMonth ? examCalYear : examCalYear - 1;
+  const fromDate = `${academicStartYear}-${String(startMonth).padStart(2,'0')}-01`;
   const instId = (currentInstitution||{}).id;
   if(!instId) return {};
-  const examD = new Date(examDateStr);
-  const examYM = examD.getFullYear()*12 + (examD.getMonth()+1);
-  const fromYM = year*12 + 1;
+  const examYM = examCalYear*12 + examMonth;
+  const fromYM = academicStartYear*12 + startMonth;
 
   const [{ data: daily }, { data: monthly }] = await Promise.all([
     sb.from('attendance').select('student_id,date,status')
