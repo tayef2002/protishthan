@@ -1937,6 +1937,7 @@ async function printSingleCard(examId, studentId){
   const exam = allExams.find(e=>e.id===examId);
   const st = allStudents.find(s=>s.id===studentId);
   if(!exam||!st) return;
+  alert('DEBUG\nst.id='+st.id+'\nst.full_name='+st.full_name+'\nst.address='+JSON.stringify(st.address)+'\nhasOwnProperty address='+st.hasOwnProperty('address')+'\nkeys='+Object.keys(st).join(','));
   const inst = currentInstitution || {};
   const instName = inst.name || '';
   const instLoc = [inst.upazila, inst.district].filter(Boolean).join(', ');
