@@ -904,7 +904,7 @@ async function init(){
 
   const [{data:classes},{data:students}] = await Promise.all([
     sb.from('classes').select('*').eq('institution_id', inst.id),
-    sb.from('students').select('id,full_name,class_id,roll_number,guardians(full_name,relation)').eq('institution_id', inst.id).eq('is_active', true)
+    sb.from('students').select('id,full_name,class_id,roll_number,address,guardians(full_name,relation)').eq('institution_id', inst.id).eq('is_active', true)
   ]);
   allClasses = classes||[];
   allStudents = students||[];
