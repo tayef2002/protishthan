@@ -2007,16 +2007,20 @@ async function renderReportCardPairToPdfBlob(pair){
     // fixed-size .a4 content (iframe viewport padding), so capturing body bakes in blank
     // margin and shrinks the actual cards when fit to the PDF page.
     const captureEl = doc.querySelector('.a4') || doc.body;
+    // Measure the box in real mm (CSS px->mm is a fixed 96px=25.4mm ratio, not a guess) so the
+    // PDF places it at its true size instead of stretching it to fill the page.
+    const rect = captureEl.getBoundingClientRect();
+    const PX_PER_MM = 96 / 25.4;
+    const elMmW = rect.width / PX_PER_MM, elMmH = rect.height / PX_PER_MM;
     const canvas = await html2canvas(captureEl, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
     const imgData = canvas.toDataURL('image/jpeg', 0.92);
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-    const pageW = 297, pageH = 210;
-    const imgRatio = canvas.width / canvas.height;
-    let drawW = pageW, drawH = pageW / imgRatio;
-    if(drawH > pageH){ drawH = pageH; drawW = pageH * imgRatio; }
-    const offsetX = (pageW - drawW) / 2, offsetY = (pageH - drawH) / 2;
-    pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH);
+    // Place at the exact same inset as result_card_design.html's own @page{margin:4mm 5mm}
+    // (top/bottom 4mm, left/right 5mm) instead of fitting/centering to the full physical page -
+    // this is what makes the downloaded PDF match the real print-preview the user already knows,
+    // rather than just visually resembling it.
+    pdf.addImage(imgData, 'JPEG', 5, 4, elMmW, elMmH);
     return pdf.output('blob');
   } finally {
     document.body.removeChild(iframe);
