@@ -1301,6 +1301,10 @@ function showToast(type,title,msg){
 function closeToast(){ document.getElementById('toastOverlay').classList.remove('show'); }
 
 async function saveStudent(){
+  // Wraps the whole function, including field-reads/validation, not just the DB calls - so
+  // an unexpected crash anywhere in here still surfaces as a popup instead of doing nothing.
+  const btn = document.getElementById('saveBtn');
+  try{
   const name = document.getElementById('stuName').value.trim();
   const classId = document.getElementById('stuClass').value;
   const selectedClass = allClassOptions.find(c=>c.id===classId);
@@ -1394,21 +1398,23 @@ async function saveStudent(){
     return;
   }
 
-  const btn = document.getElementById('saveBtn');
   btn.classList.add('loading');
 
-  try{
     let studentId = editStudentId;
 
     if(isEdit){
       const studentIdVal = document.getElementById('stuStudentIdHidden').value;
-      const { error: stuErr } = await sb.from('students').update({
+      const { data: updatedStuRows, error: stuErr } = await sb.from('students').update({
         full_name: name, class_name: className, class_id: classId || null, roll_number: roll,
         date_of_birth: dob || null, gender: gender, address: resolvedAddress, phone: phone || null,
         custom_monthly_fee: customFee, extra_data: extraData,
         student_id: studentIdVal || null
-      }).eq('id', editStudentId);
+      }).eq('id', editStudentId).select();
       if(stuErr) throw stuErr;
+      // update() can succeed with zero rows affected (e.g. blocked by a database permission
+      // policy) without ever returning an error - that silent case is exactly what needs to
+      // surface here instead of quietly doing nothing.
+      if(!updatedStuRows || !updatedStuRows.length) throw new Error('শিক্ষার্থীর তথ্য update হয়নি — কোনো row পরিবর্তন হয়নি (database permission/RLS সমস্যা হতে পারে)। student id: '+editStudentId);
     } else {
       const studentIdVal = document.getElementById('stuStudentIdHidden').value;
       const { data: student, error: stuErr } = await sb.from('students').insert({
@@ -1425,34 +1431,39 @@ async function saveStudent(){
     // Handle father
     if(!skipFather){
       if(editFatherId){
-        const { error: fErr } = await sb.from('guardians').update({full_name:fatherName, whatsapp_number:fatherWhatsapp, phone:fatherWhatsapp}).eq('id', editFatherId);
+        const { data: updatedFatherRows, error: fErr } = await sb.from('guardians').update({full_name:fatherName, whatsapp_number:fatherWhatsapp, phone:fatherWhatsapp}).eq('id', editFatherId).select();
         if(fErr) throw fErr;
+        if(!updatedFatherRows || !updatedFatherRows.length) throw new Error('পিতার তথ্য update হয়নি — কোনো row পরিবর্তন হয়নি (database permission/RLS সমস্যা হতে পারে)। guardian id: '+editFatherId);
       } else {
         const { error: fErr } = await sb.from('guardians').insert({student_id:studentId, full_name:fatherName, relation:'পিতা', whatsapp_number:fatherWhatsapp, phone:fatherWhatsapp});
         if(fErr) throw fErr;
       }
     } else if(editFatherId){
-      await sb.from('guardians').delete().eq('id', editFatherId);
+      const { error: fDelErr } = await sb.from('guardians').delete().eq('id', editFatherId);
+      if(fDelErr) throw fDelErr;
     }
 
     // Handle mother
     if(!effectiveSkipMother){
       if(editMotherId){
-        const { error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', editMotherId);
+        const { data: updatedMotherRows, error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', editMotherId).select();
         if(mErr) throw mErr;
+        if(!updatedMotherRows || !updatedMotherRows.length) throw new Error('মাতার তথ্য update হয়নি — কোনো row পরিবর্তন হয়নি (database permission/RLS সমস্যা হতে পারে)। guardian id: '+editMotherId);
       } else {
         // Check if a mother guardian already exists (e.g. inserted via scan with empty number)
         const { data: existingMother } = await sb.from('guardians').select('id').eq('student_id', studentId).eq('relation','মাতা').maybeSingle();
         if(existingMother){
-          const { error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', existingMother.id);
+          const { data: updatedExistingMotherRows, error: mErr } = await sb.from('guardians').update({full_name:motherName, whatsapp_number:motherWhatsapp, phone:motherWhatsapp}).eq('id', existingMother.id).select();
           if(mErr) throw mErr;
+          if(!updatedExistingMotherRows || !updatedExistingMotherRows.length) throw new Error('মাতার তথ্য update হয়নি — কোনো row পরিবর্তন হয়নি (database permission/RLS সমস্যা হতে পারে)। guardian id: '+existingMother.id);
         } else {
           const { error: mErr } = await sb.from('guardians').insert({student_id:studentId, full_name:motherName, relation:'মাতা', whatsapp_number:motherWhatsapp, phone:motherWhatsapp});
           if(mErr) throw mErr;
         }
       }
     } else if(effectiveSkipMother && editMotherId){
-      await sb.from('guardians').delete().eq('id', editMotherId);
+      const { error: mDelErr } = await sb.from('guardians').delete().eq('id', editMotherId);
+      if(mDelErr) throw mDelErr;
     }
 
     btn.classList.remove('loading');
@@ -1462,7 +1473,11 @@ async function saveStudent(){
 
   }catch(e){
     btn.classList.remove('loading');
-    showToast('error','সমস্যা হয়েছে', e.message||'আবার চেষ্টা করুন');
+    console.error('saveStudent failed:', e);
+    let msg = e.message || 'অজানা সমস্যা হয়েছে - আবার চেষ্টা করুন';
+    if(e.details) msg += ' | ' + e.details;
+    if(e.hint) msg += ' | hint: ' + e.hint;
+    showToast('error','সমস্যা হয়েছে (Save ব্যর্থ হয়েছে)', msg);
   }
 }
 
