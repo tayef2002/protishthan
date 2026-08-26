@@ -1322,8 +1322,8 @@ function printClassResultSheet(examId){
     tr{break-inside:avoid}
     .top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
     .logo-circle{width:145px;height:145px;border-radius:50%;border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:12px;color:#888;text-align:center;line-height:1.2;flex-shrink:0}
-    .center-block{flex:1;text-align:center}
-    .sheet-org{font-size:66px;font-weight:800}
+    .center-block{flex:1;text-align:center;min-width:0}
+    .sheet-org{font-size:66px;font-weight:800;white-space:nowrap}
     .sheet-title{font-size:30px;font-weight:800;margin-top:2px}
     .scale-box{border:1.6px solid #000;font-size:13px;flex-shrink:0;align-self:center}
     .scale-title{border-bottom:1.6px solid #000;text-align:center;font-weight:800;font-size:13px;padding:2px}
@@ -1391,6 +1391,23 @@ function printClassResultSheet(examId){
     st.textContent = `.main th.rot,.main th.serial-h{height:${maxLen+14}px}`;
     w.document.head.appendChild(st);
   }
+  // Institution name is a fixed 66px in CSS, fine for short names but wraps to 2 lines once a
+  // longer name (e.g. an upazila suffix added later) no longer fits .center-block's width. Shrink
+  // it in 0.5px steps until it fits on one line, same technique as fitInst()/fitInstEl() elsewhere
+  // in this file. Requires .sheet-org to have white-space:nowrap (else it silently wraps instead
+  // of overflowing, and scrollWidth never exceeds offsetWidth) and .center-block to have
+  // min-width:0 (else the nowrap text pushes the flex row wider instead of being measurable).
+  function fitSheetOrgLabels(){
+    const maxSize = 66, minSize = 30;
+    w.document.querySelectorAll('.sheet-org').forEach(el=>{
+      let size = maxSize;
+      el.style.fontSize = size + 'px';
+      while(el.scrollWidth > el.offsetWidth && size > minSize){
+        size -= 0.5;
+        el.style.fontSize = size + 'px';
+      }
+    });
+  }
   function paginateAndPrint(){
     drawRotatedHeaderLabels();
     // User explicitly requires exactly 10 students on every page, for every class, regardless of
@@ -1428,6 +1445,7 @@ function printClassResultSheet(examId){
     const pagesHtml = pages.map((rows,idx)=>`<table class="main page-block" style="--extra-pad:${pageExtraPad[idx].toFixed(2)}px">${colgroupHtml}<thead>${theadHtml}</thead><tbody>${rows.join('')}</tbody></table>`).join('');
     w.document.body.innerHTML = pagesHtml;
     drawRotatedHeaderLabels();
+    fitSheetOrgLabels();
     setTimeout(()=>w.print(), 200);
   }
   if(w.document.fonts && w.document.fonts.ready){
