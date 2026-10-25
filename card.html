@@ -650,8 +650,7 @@ function seal(x, y, r, color){
   ctx.font = F(700, Math.round(r*0.27)); arcText(['শি','ক্ষি','ত',' ','কা','র্ড'], r*0.71, true, r*0.06);
   ctx.font = `800 ${Math.round(r*0.15)}px Inter, sans-serif`; arcText('SHIKKHITO CARD'.split(''), r*0.78, false, r*0.035);
   [0, Math.PI].forEach(a=>{ ctx.beginPath(); ctx.arc(Math.cos(a)*r*0.78, Math.sin(a)*r*0.78, r*0.045, 0, Math.PI*2); ctx.fill(); });
-  capIcon(-r*0.24, -r*0.3, r*0.48, color);
-  ctx.font = '800 ' + Math.round(r*0.12) + 'px Inter, sans-serif'; ctx.fillText('BANGLADESH', 0, r*0.26);
+  capIcon(-r*0.28, -r*0.27, r*0.56, color);
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.restore();
 }
 function sticker(x, y, r, T){
@@ -730,7 +729,6 @@ function draw(){
   }
   ctx.restore();
   rr(px, py, pw, ph, 30); ctx.strokeStyle = T.accent; ctx.lineWidth = 5; ctx.stroke();
-  sticker(px + pw - 6, py + ph - 8, 58, T);
 
   // name + title + badges
   const nx = px + pw + 46, nw = cx + cw - 44 - nx;
