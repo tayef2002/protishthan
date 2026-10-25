@@ -120,43 +120,87 @@ body{padding-bottom:110px}
 @media(prefers-reduced-motion:reduce){.hero-sky *{animation:none!important}.shooting-star{display:none}}
 
 /* EDUCATION SCENE (hero bottom) */
-.search-hero{padding-bottom:250px}
-.edu-scene{position:absolute;left:0;right:0;bottom:0;height:240px;z-index:1;pointer-events:none}
+.search-hero{padding-bottom:clamp(205px,22.4vw,335px)}
+.edu-scene{position:absolute;left:0;right:0;bottom:0;height:clamp(190px,20.8vw,320px);z-index:1;pointer-events:none}
 .edu-scene svg{display:block;width:100%;height:100%}
 .edu-scene *{transform-box:fill-box}
-.es-tw{animation:esTw 3.2s ease-in-out infinite}
-.es-win{animation:esWin 7s ease-in-out infinite}
 .d1{animation-delay:-1.1s!important}.d2{animation-delay:-2.3s!important}.d3{animation-delay:-3.6s!important}
-@keyframes esTw{0%,100%{opacity:.25}50%{opacity:1}}
-@keyframes esWin{0%,100%{opacity:.9}45%{opacity:.9}50%{opacity:.35}58%{opacity:.9}}
+.es-win{animation:esWin 7s ease-in-out infinite}
+@keyframes esWin{0%,45%,58%,100%{opacity:.9}50%{opacity:.35}}
+.es-door{animation:esDoor 4s ease-in-out infinite}
+@keyframes esDoor{0%,100%{opacity:.75}50%{opacity:1}}
 .es-flag{transform-origin:left center;animation:esFlag 2.6s ease-in-out infinite}
 @keyframes esFlag{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.94)}}
-.es-fly{animation:esFly 30s linear infinite}
-.es-fly.f2{animation-duration:38s;animation-delay:-14s}
-.es-fly.f3{animation-duration:46s;animation-delay:-30s}
-@keyframes esFly{from{transform:translate(-80px,0)}25%{transform:translate(340px,-8px)}50%{transform:translate(760px,4px)}75%{transform:translate(1140px,-6px)}to{transform:translate(1540px,0)}}
-.es-wing{animation:esFlap .55s ease-in-out infinite alternate}
-.es-wing.l{transform-origin:right center}.es-wing.r{transform-origin:left center}
-@keyframes esFlap{to{transform:scaleY(.35)}}
-.es-cap{transform-origin:center;opacity:0;animation:esCap 11s ease-out infinite}
-.es-cap.c2{animation-delay:-4s}.es-cap.c3{animation-delay:-7.5s}
-@keyframes esCap{0%{opacity:0;transform:translateY(0) rotate(0)}8%{opacity:1}45%{opacity:1;transform:translateY(-150px) rotate(200deg)}60%,100%{opacity:0;transform:translateY(-170px) rotate(260deg)}}
-.es-hand{transform-box:view-box;transform-origin:990px 120px;animation:esSpin 40s linear infinite}
-@keyframes esSpin{to{transform:rotate(360deg)}}
-.es-boat{transform-origin:center bottom;animation:esBoat 4s ease-in-out infinite}
-@keyframes esBoat{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-2px)}}
 .es-sway{transform-origin:center bottom;animation:esSway 5s ease-in-out infinite}
-@keyframes esSway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
-.es-walk{animation:esWalk 48s linear infinite}
-@keyframes esWalk{from{transform:translateX(-60px)}to{transform:translateX(1500px)}}
-.es-bob{animation:esBob .45s ease-in-out infinite alternate}
-@keyframes esBob{to{transform:translateY(-1.6px)}}
-.es-ride{animation:esRide 34s linear infinite;animation-delay:-9s}
-@keyframes esRide{from{transform:translateX(1500px)}to{transform:translateX(-80px)}}
+@keyframes esSway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.es-hand{transform-box:view-box;transform-origin:1185px 120px;animation:esSpin 40s linear infinite}
+@keyframes esSpin{to{transform:rotate(360deg)}}
+.es-bob{animation:esBob .42s ease-in-out infinite alternate}
+@keyframes esBob{to{transform:translateY(-1.4px)}}
+/* school: letters float up from the roof */
+.es-abc{opacity:0;animation:esAbc 8s ease-out infinite}
+.es-abc.a2{animation-delay:-1.6s}.es-abc.a3{animation-delay:-3.2s}.es-abc.a4{animation-delay:-4.8s}.es-abc.a5{animation-delay:-6.4s}
+@keyframes esAbc{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translateY(-56px) scale(1.1)}}
+/* guardian + child walking home from the gate */
+.es-home{opacity:0;animation:esHome 16s linear infinite}
+.es-home.h2{animation-delay:-8s}
+@keyframes esHome{0%{opacity:0;transform:translateX(0)}6%{opacity:1}82%{opacity:1}100%{opacity:0;transform:translateX(118px)}}
+/* jhalmuri vendor */
+.es-shake{transform-origin:right center;animation:esShake .32s ease-in-out infinite alternate}
+@keyframes esShake{from{transform:rotate(-14deg)}to{transform:rotate(10deg)}}
+.es-steam{opacity:0;animation:esSteam 2.6s ease-out infinite}
+.es-steam.s2{animation-delay:-1.3s}
+@keyframes esSteam{0%{opacity:0;transform:translateY(4px)}30%{opacity:.8}100%{opacity:0;transform:translateY(-10px)}}
+/* musollis entering the mosque */
+.es-enter{opacity:0;animation:esEnter 13s linear infinite}
+.es-enter.e2{animation-delay:-6.5s}
+@keyframes esEnter{0%{opacity:0;transform:translateX(640px) scaleX(-1)}8%{opacity:1}80%{opacity:1;transform:translateX(556px) scaleX(-1)}90%,100%{opacity:0;transform:translateX(547px) scaleX(-1)}}
+/* madrasa students: football + reciting */
+.es-ball{animation:esBall 2.4s ease-in-out infinite}
+@keyframes esBall{0%,100%{transform:translate(714px,0)}25%{transform:translate(758px,-18px)}50%{transform:translate(802px,0)}75%{transform:translate(758px,-18px)}}
+.es-kickL,.es-kickR{transform-origin:center bottom;animation:esKick 2.4s ease-in-out infinite}
+.es-kickR{animation-delay:-1.2s}
+@keyframes esKick{0%,100%{transform:rotate(-8deg)}15%,85%{transform:rotate(3deg)}}
+.es-rock{transform-origin:center bottom;animation:esRock 1.6s ease-in-out infinite alternate}
+@keyframes esRock{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+/* university: caps tossed */
+.es-cap{opacity:0;animation:esCap 9s ease-out infinite}
+.es-cap.c2{animation-delay:-3s}.es-cap.c3{animation-delay:-6s}
+@keyframes esCap{0%{opacity:0;transform:translateY(0) rotate(0)}8%{opacity:1}45%{opacity:1;transform:translateY(-120px) rotate(220deg)}62%,100%{opacity:0;transform:translateY(-130px) rotate(280deg)}}
+/* reader under the banyan turns pages */
+.es-page{transform-origin:left center;animation:esPage 3.4s ease-in-out infinite}
+@keyframes esPage{0%,40%{transform:scaleX(1)}60%,100%{transform:scaleX(-1)}}
+/* road */
+.es-ride{animation:esRide 36s linear infinite;animation-delay:-11s}
+@keyframes esRide{from{transform:translateX(1500px)}to{transform:translateX(-90px)}}
+.es-cycle{animation:esCycle 24s linear infinite;animation-delay:-4s}
+@keyframes esCycle{from{transform:translateX(-60px)}to{transform:translateX(1500px)}}
 .es-wheel{transform-origin:center;animation:esWheel .9s linear infinite}
+.es-wheel.cw{animation-name:esWheelCw;animation-duration:.6s}
 @keyframes esWheel{to{transform:rotate(-360deg)}}
-@media(max-width:768px){.search-hero{padding-bottom:170px}.edu-scene{height:160px}}
-@media(prefers-reduced-motion:reduce){.edu-scene *{animation:none!important}.es-cap{opacity:0}}
+@keyframes esWheelCw{to{transform:rotate(360deg)}}
+
+/* flying books in the sky */
+.sky-book{position:absolute;left:0;animation:bookFly 34s linear infinite;will-change:transform}
+.sky-book svg{display:block;overflow:visible;filter:drop-shadow(0 0 6px rgba(147,197,253,.45));animation:bookBob 1.9s ease-in-out infinite alternate}
+.sky-book .bk-l,.sky-book .bk-r,.sky-book .bk-flip{transform-box:fill-box}
+.sky-book .bk-l{transform-origin:100% 100%;animation:bookFlapL .55s ease-in-out infinite alternate}
+.sky-book .bk-r{transform-origin:0 100%;animation:bookFlapR .55s ease-in-out infinite alternate}
+.sky-book .bk-flip{transform-origin:0 100%;animation:bookPage 2.6s ease-in-out infinite}
+.sky-book.b2{animation-duration:46s;animation-delay:-20s}
+.sky-book.b3{animation-duration:40s;animation-delay:-31s}
+.sky-book.b4{animation-duration:54s;animation-delay:-9s}
+.sky-book.b2 svg,.sky-book.b4 svg{animation-duration:2.4s}
+.sky-book.b2 .bk-l,.sky-book.b2 .bk-r,.sky-book.b4 .bk-l,.sky-book.b4 .bk-r{animation-duration:.7s}
+@keyframes bookFly{from{transform:translateX(-90px)}to{transform:translateX(calc(100vw + 90px))}}
+@keyframes bookBob{from{transform:translateY(-10px) rotate(-5deg)}to{transform:translateY(10px) rotate(5deg)}}
+@keyframes bookFlapL{from{transform:rotate(-26deg)}to{transform:rotate(14deg)}}
+@keyframes bookFlapR{from{transform:rotate(26deg)}to{transform:rotate(-14deg)}}
+@keyframes bookPage{0%,55%{transform:scaleX(1);opacity:0}60%{opacity:1}100%{transform:scaleX(-1);opacity:.2}}
+.sky-page{position:absolute;width:9px;height:12px;background:#FFFBEB;border-radius:1px;opacity:0;animation:pageDrift 12s ease-in-out infinite}
+.sky-page.p2{animation-delay:-6s}
+@keyframes pageDrift{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}50%{transform:translate(-40px,60px) rotate(160deg)}90%{opacity:.6}100%{opacity:0;transform:translate(-90px,130px) rotate(340deg)}}
+@media(prefers-reduced-motion:reduce){.edu-scene *,.sky-book,.sky-book *{animation:none!important}.es-abc,.es-cap,.es-steam,.sky-page,.sky-book{display:none}.es-home,.es-enter{opacity:1}}
 
 /* STATS BAR */
 .stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
@@ -308,6 +352,12 @@ body{padding-bottom:110px}
     <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
     <div class="shooting-star" style="top:16%;left:62%"></div>
     <div class="shooting-star s2" style="top:30%;left:88%"></div>
+    <div class="sky-book b1" style="top:11%"><svg viewBox="-28 -22 56 36" width="54" height="35"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#2563EB"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#1D4ED8"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <div class="sky-book b2" style="top:29%"><svg viewBox="-28 -22 56 36" width="40" height="26"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#7C3AED"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#6D28D9"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#6D28D9" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <div class="sky-book b3" style="top:47%"><svg viewBox="-28 -22 56 36" width="46" height="30"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#DC2626"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#B91C1C"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#B91C1C" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <div class="sky-book b4" style="top:57%"><svg viewBox="-28 -22 56 36" width="34" height="22"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#059669"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#047857"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#047857" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <div class="sky-page" style="top:14%;left:38%"></div>
+    <div class="sky-page p2" style="top:22%;left:74%"></div>
   </div>
   <div class="search-hero-content">
     <h1>বাংলাদেশের সকল<br><span>শিক্ষা প্রতিষ্ঠানের তথ্য</span></h1>
@@ -331,163 +381,255 @@ body{padding-bottom:110px}
   </div>
   <!-- EDUCATION SCENE (decorative, animated) -->
   <div class="edu-scene" aria-hidden="true">
-    <svg viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <!-- flying books -->
-      <g transform="translate(0,52)"><g class="es-fly">
-        <path class="es-wing l" d="M0 0Q-9-7-19-3L-19 5Q-9 1 0 8Z" fill="#93C5FD"/>
-        <path class="es-wing r" d="M0 0Q9-7 19-3L19 5Q9 1 0 8Z" fill="#BFDBFE"/>
-      </g></g>
-      <g transform="translate(0,92)"><g class="es-fly f2">
-        <path class="es-wing l" d="M0 0Q-7-5-14-2L-14 4Q-7 1 0 6Z" fill="#C4B5FD"/>
-        <path class="es-wing r" d="M0 0Q7-5 14-2L14 4Q7 1 0 6Z" fill="#DDD6FE"/>
-      </g></g>
-      <g transform="translate(0,34)"><g class="es-fly f3">
-        <path class="es-wing l" d="M0 0Q-6-4-12-2L-12 4Q-6 1 0 5Z" fill="#FDE68A"/>
-        <path class="es-wing r" d="M0 0Q6-4 12-2L12 4Q6 1 0 5Z" fill="#FEF3C7"/>
-      </g></g>
-
-      <!-- tossed graduation caps -->
-      <g transform="translate(612,200)"><g class="es-cap">
-        <path d="M0-6L16 0L0 6L-16 0Z" fill="#E2E8F0"/><rect x="-7" y="2" width="14" height="6" rx="1" fill="#CBD5E1"/><path d="M0 0L11 3L11 10" stroke="#FBBF24" stroke-width="1.5" fill="none"/>
-      </g></g>
-      <g transform="translate(842,205)"><g class="es-cap c2">
-        <path d="M0-5L13 0L0 5L-13 0Z" fill="#E2E8F0"/><rect x="-6" y="2" width="12" height="5" rx="1" fill="#CBD5E1"/><path d="M0 0L9 3L9 9" stroke="#FBBF24" stroke-width="1.5" fill="none"/>
-      </g></g>
-      <g transform="translate(1060,210)"><g class="es-cap c3">
-        <path d="M0-5L13 0L0 5L-13 0Z" fill="#E2E8F0"/><rect x="-6" y="2" width="12" height="5" rx="1" fill="#CBD5E1"/><path d="M0 0L9 3L9 9" stroke="#FBBF24" stroke-width="1.5" fill="none"/>
-      </g></g>
+    <svg viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- people: feet at y=0, facing right -->
+        <g id="pKid">
+          <rect x="-3.5" y="-9" width="3" height="9" fill="#1E3A8A"/><rect x=".5" y="-9" width="3" height="9" fill="#1E3A8A"/>
+          <rect x="-4.5" y="-19" width="9" height="11" rx="2" fill="#F1F5F9"/>
+          <rect x="-9" y="-18" width="5" height="9" rx="1.5" fill="#DC2626"/>
+          <circle cy="-23" r="4" fill="#E9B98F"/><path d="M-4-24a4 4 0 0 1 8 0z" fill="#1F2937"/>
+        </g>
+        <g id="pGirl">
+          <path d="M-5 0L-3.5-17H3.5L5 0Z" fill="#2563EB"/>
+          <rect x="-8.5" y="-17" width="4.5" height="8" rx="1.5" fill="#EC4899"/>
+          <circle cy="-21" r="4.6" fill="#F1F5F9"/><circle cx=".8" cy="-21" r="2.8" fill="#E9B98F"/>
+        </g>
+        <g id="pMan">
+          <rect x="-3.5" y="-8" width="3" height="8" fill="#E2E8F0"/><rect x=".5" y="-8" width="3" height="8" fill="#E2E8F0"/>
+          <path d="M-5.5-7L-4.5-25H4.5L5.5-7Z" fill="#F8FAFC"/>
+          <circle cy="-29" r="4.4" fill="#C68B59"/><path d="M-4.4-30a4.4 4.4 0 0 1 8.8 0z" fill="#F8FAFC"/>
+          <path d="M-1.5-26.5a4 4 0 0 0 5.5-.5" stroke="#1F2937" stroke-width="2" fill="none"/>
+        </g>
+        <g id="pMKid">
+          <rect x="-3" y="-6" width="2.6" height="6" fill="#E2E8F0"/><rect x=".4" y="-6" width="2.6" height="6" fill="#E2E8F0"/>
+          <path d="M-4.5-5L-3.5-18H3.5L4.5-5Z" fill="#F8FAFC"/>
+          <circle cy="-21.5" r="3.8" fill="#E9B98F"/><path d="M-3.8-22.5a3.8 3.8 0 0 1 7.6 0z" fill="#F8FAFC"/>
+        </g>
+        <g id="pWoman">
+          <path d="M-6 0L-4-24H4L6 0Z" fill="#DB2777"/><path d="M-4-24L6 0H2L-3-14Z" fill="#BE185D"/>
+          <circle cy="-28" r="4.4" fill="#E9B98F"/><path d="M-5-27a5 5 0 0 1 10 0v4h-2v-3a3 3 0 0 0-6 0v3h-2z" fill="#DB2777"/>
+        </g>
+        <g id="pGrad">
+          <path d="M-6.5 0L-4.5-23H4.5L6.5 0Z" fill="#111827"/><path d="M-2-23L0-15L2-23Z" fill="#F8FAFC"/>
+          <circle cy="-27" r="4.2" fill="#E9B98F"/>
+        </g>
+        <!-- graduation cap -->
+        <g id="gCap"><path d="M0-5L13 0L0 5L-13 0Z" fill="#111827" stroke="#334155" stroke-width=".8"/><rect x="-6" y="1.5" width="12" height="5" rx="1" fill="#1F2937"/><path d="M0 0L9 3L9 10" stroke="#FBBF24" stroke-width="1.5" fill="none"/></g>
+      </defs>
 
       <!-- far hills -->
-      <path d="M0 200Q120 160 260 188T540 182T820 176T1100 184T1440 172V260H0Z" fill="#132B5E"/>
+      <path d="M0 214Q120 182 260 204T540 198T820 192T1100 200T1440 188V300H0Z" fill="#132B5E"/>
 
-      <!-- SCHOOL -->
+      <!-- footpath + road -->
+      <rect x="0" y="248" width="1440" height="10" fill="#1B3366"/>
+      <rect x="0" y="257" width="1440" height="2" fill="#2B4A8C"/>
+      <rect x="0" y="259" width="1440" height="41" fill="#0E1E44"/>
+      <g fill="#334E8C"><rect x="10" y="280" width="44" height="2.5" rx="1"/><rect x="130" y="280" width="44" height="2.5" rx="1"/><rect x="250" y="280" width="44" height="2.5" rx="1"/><rect x="370" y="280" width="44" height="2.5" rx="1"/><rect x="490" y="280" width="44" height="2.5" rx="1"/><rect x="610" y="280" width="44" height="2.5" rx="1"/><rect x="730" y="280" width="44" height="2.5" rx="1"/><rect x="850" y="280" width="44" height="2.5" rx="1"/><rect x="970" y="280" width="44" height="2.5" rx="1"/><rect x="1090" y="280" width="44" height="2.5" rx="1"/><rect x="1210" y="280" width="44" height="2.5" rx="1"/><rect x="1330" y="280" width="44" height="2.5" rx="1"/></g>
+
+      <!-- ============ 1. SCHOOL ============ -->
       <g>
-        <rect x="90" y="150" width="230" height="80" fill="#1D3B7A"/>
-        <path d="M80 152L205 118L330 152Z" fill="#244A93"/>
-        <rect x="185" y="186" width="40" height="44" fill="#0F2048"/>
-        <path d="M185 186a20 14 0 0 1 40 0" fill="#0F2048"/>
+        <rect x="60" y="140" width="250" height="108" fill="#1D3B7A"/>
+        <path d="M48 142L185 104L322 142Z" fill="#244A93"/>
+        <rect x="158" y="114" width="54" height="14" rx="2" fill="#0F2048"/>
+        <text x="185" y="124.5" text-anchor="middle" font-size="9" font-weight="700" fill="#93C5FD" font-family="Hind Siliguri, sans-serif">বিদ্যালয়</text>
         <g fill="#FBBF24">
-          <rect class="es-win" x="108" y="164" width="20" height="16" rx="2"/>
-          <rect x="140" y="164" width="20" height="16" rx="2" opacity=".85"/>
-          <rect x="250" y="164" width="20" height="16" rx="2" opacity=".85"/>
-          <rect class="es-win d2" x="282" y="164" width="20" height="16" rx="2"/>
-          <rect x="108" y="198" width="20" height="16" rx="2" opacity=".85"/>
-          <rect class="es-win d1" x="140" y="198" width="20" height="16" rx="2"/>
-          <rect x="250" y="198" width="20" height="16" rx="2" opacity=".85"/>
-          <rect x="282" y="198" width="20" height="16" rx="2" opacity=".85"/>
+          <rect class="es-win" x="78" y="154" width="22" height="18" rx="2"/><rect x="112" y="154" width="22" height="18" rx="2" opacity=".85"/>
+          <rect x="236" y="154" width="22" height="18" rx="2" opacity=".85"/><rect class="es-win d2" x="270" y="154" width="22" height="18" rx="2"/>
+          <rect x="78" y="192" width="22" height="18" rx="2" opacity=".85"/><rect class="es-win d1" x="112" y="192" width="22" height="18" rx="2"/>
+          <rect x="236" y="192" width="22" height="18" rx="2" opacity=".85"/><rect x="270" y="192" width="22" height="18" rx="2" opacity=".85"/>
         </g>
-        <rect x="190" y="126" width="30" height="12" rx="2" fill="#0F2048"/>
-        <text x="205" y="135.5" text-anchor="middle" font-size="8" font-weight="700" fill="#93C5FD" font-family="Hind Siliguri, sans-serif">বিদ্যালয়</text>
-        <!-- flag -->
-        <rect x="336" y="96" width="2.5" height="134" fill="#94A3B8"/>
-        <g class="es-flag"><rect x="338.5" y="98" width="34" height="21" fill="#15803D"/><circle cx="353" cy="108.5" r="6.5" fill="#DC2626"/></g>
-      </g>
-
-      <!-- MADRASA -->
-      <g>
-        <rect x="392" y="104" width="12" height="126" fill="#244A93"/>
-        <path d="M390 106Q398 92 406 106Z" fill="#2B56A8"/>
-        <rect x="546" y="104" width="12" height="126" fill="#244A93"/>
-        <path d="M544 106Q552 92 560 106Z" fill="#2B56A8"/>
-        <path d="M398 92a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
-        <path d="M552 92a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
-        <rect x="410" y="168" width="130" height="62" fill="#1D3B7A"/>
-        <path d="M430 170a45 42 0 0 1 90 0Z" fill="#2B56A8"/>
-        <rect x="473" y="118" width="4" height="12" fill="#FDE68A"/>
-        <g fill="#FBBF24">
-          <path class="es-win d3" d="M424 230v-26a9 9 0 0 1 18 0v26Z"/>
-          <path d="M466 230v-30a9 9 0 0 1 18 0v30Z" opacity=".9"/>
-          <path class="es-win d1" d="M508 230v-26a9 9 0 0 1 18 0v26Z"/>
+        <path d="M163 248v-40a22 18 0 0 1 44 0v40Z" fill="#0F2048"/>
+        <rect x="300" y="70" width="2.5" height="72" fill="#94A3B8"/>
+        <g class="es-flag"><rect x="302.5" y="72" width="34" height="21" fill="#15803D"/><circle cx="317" cy="82.5" r="6.5" fill="#DC2626"/></g>
+        <!-- boundary wall + gate -->
+        <rect x="52" y="234" width="104" height="14" fill="#16306A"/><rect x="214" y="234" width="104" height="14" fill="#16306A"/>
+        <rect x="148" y="214" width="10" height="34" fill="#244A93"/><rect x="212" y="214" width="10" height="34" fill="#244A93"/>
+        <path d="M148 216Q185 196 222 216" stroke="#3B6FE0" stroke-width="4" fill="none"/>
+        <!-- alphabet floating up -->
+        <g font-family="Hind Siliguri, sans-serif" font-weight="700" font-size="15">
+          <text class="es-abc" x="96" y="136" fill="#93C5FD">অ</text>
+          <text class="es-abc a2" x="138" y="136" fill="#FDE68A">A</text>
+          <text class="es-abc a3" x="232" y="136" fill="#C4B5FD">ক</text>
+          <text class="es-abc a4" x="272" y="136" fill="#86EFAC">১</text>
+          <text class="es-abc a5" x="186" y="100" fill="#F9A8D4">আ</text>
         </g>
       </g>
 
-      <!-- SHAHEED MINAR -->
+      <!-- ============ 2. JHALMURI VENDOR on the footpath ============ -->
       <g>
-        <circle cx="720" cy="150" r="54" fill="#DC2626" opacity=".85"/>
-        <rect x="606" y="222" width="228" height="8" fill="#334E8C"/>
+        <rect x="373" y="196" width="2" height="42" fill="#CBD5E1"/>
+        <path d="M344 202Q374 182 404 202Z" fill="#DC2626"/><path d="M359 192Q374 182 389 192L384 202H364Z" fill="#FBBF24"/>
+        <rect x="346" y="236" width="56" height="14" rx="2" fill="#B45309"/>
+        <rect x="346" y="236" width="56" height="3" fill="#D97706"/>
+        <rect x="360" y="226" width="10" height="10" rx="2" fill="#FDE68A" opacity=".9"/>
+        <circle cx="358" cy="254" r="5" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><circle cx="390" cy="254" r="5" fill="none" stroke="#CBD5E1" stroke-width="1.6"/>
+        <!-- kettle + steam -->
+        <path d="M384 236v-6a5 4 0 0 1 10 0v6Z" fill="#94A3B8"/><path d="M394 231l4-3" stroke="#94A3B8" stroke-width="1.6"/>
+        <g stroke="#E2E8F0" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path class="es-steam" d="M398 226q-3-5 0-9t0-9"/><path class="es-steam s2" d="M402 227q-3-5 0-9t0-9"/>
+        </g>
+        <!-- vendor (lungi + genji + gamchha) -->
+        <g transform="translate(416,256)">
+          <path d="M-5.5 0L-5-12H5L5.5 0Z" fill="#0E7490"/><path d="M-5-12H5L4.5-6H-4.5Z" fill="#155E75" opacity=".6"/>
+          <path d="M-5-11L-4.5-26H4.5L5-11Z" fill="#F1F5F9"/><path d="M-5-26L5-19" stroke="#DC2626" stroke-width="3"/>
+          <circle cy="-30" r="4.4" fill="#A16207"/><path d="M-4.4-31a4.4 4.4 0 0 1 8.8 0z" fill="#1F2937"/>
+          <g class="es-shake"><path d="M-4-22L-13-20" stroke="#A16207" stroke-width="3" stroke-linecap="round"/><rect x="-21" y="-25" width="8" height="10" rx="2" fill="#FDE68A"/></g>
+        </g>
+        <!-- customer kid with paper cone -->
+        <use href="#pKid" x="334" y="256"/>
+        <path d="M338 236l7-3-1 7z" fill="#FDE68A"/>
+      </g>
+
+      <!-- ============ 3. MOSQUE ============ -->
+      <g>
+        <rect x="448" y="86" width="14" height="162" fill="#244A93"/>
+        <path d="M446 88Q455 72 464 88Z" fill="#2B56A8"/><path d="M455 66a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
+        <rect x="448" y="120" width="14" height="4" fill="#3B6FE0"/><rect x="448" y="170" width="14" height="4" fill="#3B6FE0"/>
+        <rect x="472" y="170" width="150" height="78" fill="#1D3B7A"/>
+        <rect x="468" y="164" width="158" height="8" fill="#244A93"/>
+        <path d="M497 166a50 46 0 0 1 100 0Z" fill="#2B56A8"/>
+        <rect x="545" y="108" width="4" height="12" fill="#FDE68A"/><path d="M547 98a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
+        <g fill="#FBBF24">
+          <path class="es-win d3" d="M484 236v-26a9 9 0 0 1 18 0v26Z" opacity=".9"/>
+          <path d="M592 236v-26a9 9 0 0 1 18 0v26Z" opacity=".85"/>
+        </g>
+        <path class="es-door" d="M529 248v-36a18 18 0 0 1 36 0v36Z" fill="#FCD34D"/>
+        <!-- musollis walking in -->
+        <g transform="translate(0,256)"><use class="es-enter" href="#pMan" x="0" y="0"/></g>
+        <g transform="translate(0,256)"><use class="es-enter e2" href="#pMan" x="0" y="0"/></g>
+      </g>
+
+      <!-- ============ 4. MADRASA ============ -->
+      <g>
+        <rect x="668" y="152" width="204" height="96" fill="#1D3B7A"/>
+        <g fill="#244A93">
+          <path d="M668 154a12 12 0 0 1 24 0Z"/><path d="M696 154a12 12 0 0 1 24 0Z"/><path d="M724 154a12 12 0 0 1 24 0Z"/>
+          <path d="M792 154a12 12 0 0 1 24 0Z"/><path d="M820 154a12 12 0 0 1 24 0Z"/><path d="M848 154a12 12 0 0 1 24 0Z"/>
+        </g>
+        <rect x="744" y="128" width="52" height="26" rx="3" fill="#244A93"/>
+        <text x="770" y="145" text-anchor="middle" font-size="10" font-weight="700" fill="#FDE68A" font-family="Hind Siliguri, sans-serif">মাদ্রাসা</text>
+        <g fill="#FBBF24">
+          <path class="es-win" d="M684 200v-18a8 8 0 0 1 16 0v18Z" opacity=".9"/><path d="M714 200v-18a8 8 0 0 1 16 0v18Z" opacity=".85"/>
+          <path d="M810 200v-18a8 8 0 0 1 16 0v18Z" opacity=".85"/><path class="es-win d2" d="M840 200v-18a8 8 0 0 1 16 0v18Z" opacity=".9"/>
+        </g>
+        <path d="M756 248v-30a14 14 0 0 1 28 0v30Z" fill="#0F2048"/>
+        <!-- students playing ball -->
+        <g transform="translate(704,256)"><g class="es-kickL"><use href="#pMKid"/></g></g>
+        <g transform="translate(812,256) scale(-1,1)"><g class="es-kickR"><use href="#pMKid"/></g></g>
+        <g transform="translate(0,252)"><circle class="es-ball" cx="0" cy="0" r="3.4" fill="#F8FAFC" stroke="#94A3B8" stroke-width=".8"/></g>
+        <!-- reciting on a rehal, rocking -->
+        <g transform="translate(852,256)">
+          <rect x="-12" y="-2" width="24" height="2.5" rx="1" fill="#15803D"/>
+          <g class="es-rock">
+            <path d="M-6 0L-5-12H5L6 0Z" fill="#F8FAFC"/>
+            <circle cy="-15.5" r="3.8" fill="#E9B98F"/><path d="M-3.8-16.5a3.8 3.8 0 0 1 7.6 0z" fill="#F8FAFC"/>
+          </g>
+          <path d="M8-1L13-8M13-1L8-8" stroke="#B45309" stroke-width="1.6"/>
+          <path d="M7-9L10.5-7L14-9V-12L10.5-10L7-12Z" fill="#FEF3C7"/>
+        </g>
+      </g>
+
+      <!-- ============ 5. SHAHEED MINAR ============ -->
+      <g>
+        <circle cx="980" cy="160" r="56" fill="#DC2626" opacity=".85"/>
+        <rect x="894" y="240" width="172" height="8" fill="#334E8C"/>
         <g fill="#E2E8F0">
-          <rect x="652" y="168" width="7" height="54"/><rect x="666" y="168" width="7" height="54"/><rect x="652" y="164" width="21" height="5"/>
-          <rect x="767" y="168" width="7" height="54"/><rect x="781" y="168" width="7" height="54"/><rect x="767" y="164" width="21" height="5"/>
-          <rect x="690" y="150" width="7" height="72"/><rect x="743" y="150" width="7" height="72"/>
-          <rect x="708" y="112" width="7" height="110"/><rect x="725" y="112" width="7" height="110"/>
-          <path d="M704 114L736 114L744 98L712 98Z"/>
-          <rect x="690" y="146" width="60" height="5"/>
+          <rect x="912" y="178" width="7" height="62"/><rect x="926" y="178" width="7" height="62"/><rect x="912" y="174" width="21" height="5"/>
+          <rect x="1027" y="178" width="7" height="62"/><rect x="1041" y="178" width="7" height="62"/><rect x="1027" y="174" width="21" height="5"/>
+          <rect x="950" y="158" width="7" height="82"/><rect x="1003" y="158" width="7" height="82"/><rect x="950" y="154" width="60" height="5"/>
+          <rect x="968" y="118" width="7" height="122"/><rect x="985" y="118" width="7" height="122"/>
+          <path d="M964 120H996L1004 104H972Z"/>
         </g>
+        <!-- wreaths -->
+        <g><circle cx="940" cy="238" r="4.5" fill="#F472B6"/><circle cx="946" cy="236" r="3.5" fill="#FBBF24"/><circle cx="952" cy="238.5" r="4" fill="#F87171"/></g>
+        <g><circle cx="976" cy="238" r="4.5" fill="#FBBF24"/><circle cx="982" cy="236" r="3.8" fill="#F87171"/><circle cx="988" cy="238.5" r="4" fill="#F472B6"/></g>
+        <g><circle cx="1012" cy="238" r="4" fill="#F87171"/><circle cx="1018" cy="236" r="3.5" fill="#F472B6"/><circle cx="1024" cy="238.5" r="4.5" fill="#FBBF24"/></g>
       </g>
 
-      <!-- UNIVERSITY + CLOCK TOWER -->
+      <!-- ============ 6. UNIVERSITY ============ -->
       <g>
-        <rect x="880" y="166" width="220" height="64" fill="#1D3B7A"/>
-        <rect x="874" y="160" width="232" height="8" fill="#244A93"/>
-        <rect x="965" y="92" width="50" height="74" fill="#244A93"/>
-        <path d="M960 94L990 62L1020 94Z" fill="#2B56A8"/>
-        <circle cx="990" cy="120" r="14" fill="#E2E8F0"/>
-        <line x1="990" y1="120" x2="990" y2="111" stroke="#0F2048" stroke-width="2" stroke-linecap="round"/>
-        <line class="es-hand" x1="990" y1="120" x2="1000" y2="120" stroke="#DC2626" stroke-width="1.6" stroke-linecap="round"/>
+        <rect x="1090" y="170" width="190" height="78" fill="#1D3B7A"/>
+        <rect x="1084" y="164" width="202" height="8" fill="#244A93"/>
+        <rect x="1160" y="94" width="50" height="72" fill="#244A93"/>
+        <path d="M1155 96L1185 66L1215 96Z" fill="#2B56A8"/>
+        <circle cx="1185" cy="120" r="14" fill="#E2E8F0"/>
+        <line x1="1185" y1="120" x2="1185" y2="111" stroke="#0F2048" stroke-width="2" stroke-linecap="round"/>
+        <line class="es-hand" x1="1185" y1="120" x2="1195" y2="120" stroke="#DC2626" stroke-width="1.6" stroke-linecap="round"/>
         <g fill="#FBBF24">
-          <path class="es-win" d="M898 230v-28a10 10 0 0 1 20 0v28Z" opacity=".9"/>
-          <path d="M934 230v-28a10 10 0 0 1 20 0v28Z" opacity=".9"/>
-          <path class="es-win d2" d="M1026 230v-28a10 10 0 0 1 20 0v28Z"/>
-          <path d="M1062 230v-28a10 10 0 0 1 20 0v28Z" opacity=".9"/>
-          <rect class="es-win d3" x="980" y="142" width="20" height="16" rx="2"/>
+          <path class="es-win" d="M1104 236v-26a9 9 0 0 1 18 0v26Z" opacity=".9"/><path d="M1134 236v-26a9 9 0 0 1 18 0v26Z" opacity=".85"/>
+          <path d="M1218 236v-26a9 9 0 0 1 18 0v26Z" opacity=".85"/><path class="es-win d3" d="M1248 236v-26a9 9 0 0 1 18 0v26Z" opacity=".9"/>
+          <rect class="es-win d1" x="1175" y="142" width="20" height="16" rx="2"/>
         </g>
-        <rect x="975" y="190" width="30" height="40" fill="#0F2048"/>
+        <rect x="1170" y="206" width="30" height="42" fill="#0F2048"/>
+        <!-- graduates tossing caps -->
+        <use href="#pGrad" x="1150" y="256"/><use href="#pGrad" x="1222" y="256"/>
+        <g transform="translate(1150,226)"><use class="es-cap" href="#gCap"/></g>
+        <g transform="translate(1222,226)"><use class="es-cap c2" href="#gCap"/></g>
+        <g transform="translate(1186,230)"><use class="es-cap c3" href="#gCap"/></g>
       </g>
 
-      <!-- BOOK STACK + PENCIL -->
+      <!-- ============ 7. BOOK STACK + READING UNDER THE BANYAN ============ -->
       <g>
-        <rect x="1140" y="214" width="96" height="16" rx="3" fill="#2563EB"/>
-        <rect x="1148" y="198" width="82" height="16" rx="3" fill="#7C3AED"/>
-        <rect x="1136" y="182" width="90" height="16" rx="3" fill="#0EA5E9"/>
-        <rect x="1150" y="166" width="74" height="16" rx="3" fill="#F59E0B"/>
-        <rect x="1144" y="150" width="84" height="16" rx="3" fill="#10B981"/>
-        <g fill="#E0E7FF" opacity=".55">
-          <rect x="1146" y="220" width="70" height="2"/><rect x="1156" y="204" width="60" height="2"/>
-          <rect x="1144" y="188" width="66" height="2"/><rect x="1158" y="172" width="52" height="2"/><rect x="1152" y="156" width="60" height="2"/>
+        <rect x="1296" y="236" width="50" height="12" rx="2" fill="#2563EB"/>
+        <rect x="1300" y="224" width="44" height="12" rx="2" fill="#7C3AED"/>
+        <rect x="1294" y="212" width="48" height="12" rx="2" fill="#0EA5E9"/>
+        <rect x="1302" y="200" width="38" height="12" rx="2" fill="#F59E0B"/>
+        <g fill="#E0E7FF" opacity=".55"><rect x="1300" y="241" width="38" height="2"/><rect x="1304" y="229" width="34" height="2"/><rect x="1298" y="217" width="38" height="2"/><rect x="1306" y="205" width="28" height="2"/></g>
+        <g class="es-sway">
+          <rect x="1386" y="190" width="12" height="58" fill="#3F2A1D"/>
+          <path d="M1389 206q-8 20-2 42M1396 210q8 18 4 38" stroke="#3F2A1D" stroke-width="2" fill="none"/>
+          <circle cx="1392" cy="176" r="34" fill="#166534"/><circle cx="1362" cy="190" r="22" fill="#15803D"/><circle cx="1422" cy="188" r="24" fill="#15803D"/><circle cx="1396" cy="150" r="22" fill="#14532D"/>
         </g>
-        <g transform="rotate(14 1250 230)">
-          <rect x="1244" y="120" width="12" height="104" fill="#FBBF24"/>
-          <rect x="1244" y="112" width="12" height="10" fill="#F472B6"/>
-          <path d="M1244 224L1250 240L1256 224Z" fill="#FDE68A"/>
+        <!-- reader -->
+        <g transform="translate(1372,256)">
+          <path d="M-7 0Q-6-6 0-6H5L6 0Z" fill="#1E3A8A"/>
+          <rect x="-5" y="-17" width="9" height="12" rx="2" fill="#F1F5F9"/>
+          <circle cx="0" cy="-21" r="4" fill="#E9B98F"/><path d="M-4-22a4 4 0 0 1 8 0z" fill="#1F2937"/>
+          <path d="M3-11L10-13L10-6L3-4Z" fill="#FEF3C7"/><path d="M3-11L-3-13L-3-6L3-4Z" fill="#FDE68A"/>
+          <path class="es-page" d="M3-11L10-13L10-6L3-4Z" fill="#FFFBEB"/>
         </g>
       </g>
 
-      <!-- river + boat -->
-      <path d="M1270 232Q1350 226 1440 230V260H1250Z" fill="#1E40AF" opacity=".55"/>
-      <g transform="translate(1360,232)"><g class="es-boat">
-        <path d="M-26 0L26 0L18 9L-18 9Z" fill="#7C2D12"/>
-        <path d="M-2 0L-2-36L22-4Z" fill="#F8FAFC"/>
-        <rect x="-3" y="-38" width="2" height="38" fill="#CBD5E1"/>
+      <!-- trees between buildings -->
+      <g class="es-sway"><rect x="20" y="214" width="5" height="34" fill="#3F2A1D"/><circle cx="22" cy="206" r="17" fill="#166534"/><circle cx="33" cy="214" r="11" fill="#15803D"/></g>
+      <g class="es-sway d2"><rect x="642" y="216" width="4" height="32" fill="#3F2A1D"/><circle cx="644" cy="210" r="13" fill="#15803D"/></g>
+      <g class="es-sway d1"><rect x="884" y="220" width="4" height="28" fill="#3F2A1D"/><circle cx="886" cy="212" r="12" fill="#166534"/></g>
+      <g class="es-sway d3"><rect x="1070" y="218" width="4" height="30" fill="#3F2A1D"/><circle cx="1072" cy="210" r="13" fill="#15803D"/></g>
+
+      <!-- guardian walking the child home from school (hand in hand) -->
+      <g transform="translate(185,256)"><g class="es-home">
+        <g class="es-bob"><use href="#pWoman"/></g>
+        <path d="M5-15L10-12" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
+        <g class="es-bob d1" transform="translate(13,0)"><use href="#pGirl"/></g>
+      </g></g>
+      <g transform="translate(185,256)"><g class="es-home h2">
+        <g class="es-bob d2"><use href="#pMan"/></g>
+        <path d="M5-16L10-13" stroke="#C68B59" stroke-width="2" stroke-linecap="round"/>
+        <g class="es-bob" transform="translate(13,0)"><use href="#pKid"/></g>
       </g></g>
 
-      <!-- trees -->
-      <g class="es-sway"><rect x="40" y="196" width="5" height="34" fill="#1E3A5F"/><circle cx="42" cy="190" r="18" fill="#166534"/><circle cx="54" cy="198" r="12" fill="#15803D"/></g>
-      <g class="es-sway d2"><rect x="590" y="200" width="4" height="30" fill="#1E3A5F"/><circle cx="592" cy="196" r="13" fill="#15803D"/></g>
-      <g class="es-sway d1"><rect x="850" y="198" width="4" height="32" fill="#1E3A5F"/><circle cx="852" cy="192" r="15" fill="#166534"/></g>
-      <g class="es-sway d3"><rect x="1112" y="200" width="4" height="30" fill="#1E3A5F"/><circle cx="1114" cy="194" r="13" fill="#15803D"/></g>
-
-      <!-- ground + road -->
-      <rect x="0" y="230" width="1440" height="30" fill="#0E1E44"/>
-      <rect x="0" y="230" width="1270" height="3" fill="#1E3A75"/>
-      <g fill="#334E8C"><rect x="20" y="246" width="40" height="2.5" rx="1"/><rect x="140" y="246" width="40" height="2.5" rx="1"/><rect x="260" y="246" width="40" height="2.5" rx="1"/><rect x="380" y="246" width="40" height="2.5" rx="1"/><rect x="500" y="246" width="40" height="2.5" rx="1"/><rect x="620" y="246" width="40" height="2.5" rx="1"/><rect x="740" y="246" width="40" height="2.5" rx="1"/><rect x="860" y="246" width="40" height="2.5" rx="1"/><rect x="980" y="246" width="40" height="2.5" rx="1"/><rect x="1100" y="246" width="40" height="2.5" rx="1"/></g>
-
-      <!-- students walking to school -->
-      <g transform="translate(0,242)"><g class="es-walk">
-        <g class="es-bob"><circle cx="0" cy="-24" r="4.5" fill="#FCD9B6"/><rect x="-4" y="-19" width="8" height="12" rx="2" fill="#F8FAFC"/><rect x="-9" y="-18" width="5" height="9" rx="1.5" fill="#DC2626"/><rect x="-4" y="-7" width="3" height="8" fill="#1E3A8A"/><rect x="1" y="-7" width="3" height="8" fill="#1E3A8A"/></g>
-        <g class="es-bob d1" transform="translate(18,0)"><circle cx="0" cy="-22" r="4" fill="#E9B98F"/><path d="M-4-25a4 4 0 0 1 8 0Z" fill="#F8FAFC"/><rect x="-4" y="-18" width="8" height="18" rx="2" fill="#F8FAFC"/><rect x="-9" y="-17" width="5" height="8" rx="1.5" fill="#2563EB"/></g>
-        <g class="es-bob d2" transform="translate(34,0)"><circle cx="0" cy="-20" r="3.8" fill="#FCD9B6"/><rect x="-3.5" y="-16" width="7" height="10" rx="2" fill="#F8FAFC"/><rect x="-8" y="-15" width="4.5" height="8" rx="1.5" fill="#F59E0B"/><rect x="-3.5" y="-6" width="2.6" height="7" fill="#1E3A8A"/><rect x="0.9" y="-6" width="2.6" height="7" fill="#1E3A8A"/></g>
+      <!-- rickshaw with guardian + child (heading left) -->
+      <g transform="translate(0,292)"><g class="es-ride">
+        <path d="M24-40Q38-58 56-40Z" fill="#DC2626"/><path d="M24-40H56" stroke="#FBBF24" stroke-width="2"/>
+        <circle cx="34" cy="-33" r="3.6" fill="#E9B98F"/><path d="M30-30L38-30L39-20H29Z" fill="#DB2777"/>
+        <circle cx="46" cy="-31" r="3" fill="#E9B98F"/><path d="M43-28H49L50-20H42Z" fill="#F1F5F9"/>
+        <path d="M22-20H58L54-12H26Z" fill="#F59E0B"/>
+        <line x1="-6" y1="-14" x2="26" y2="-14" stroke="#CBD5E1" stroke-width="2"/>
+        <circle cx="0" cy="-28" r="3.6" fill="#A16207"/>
+        <path d="M0-25L4-15L-2-8" stroke="#F8FAFC" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <g class="es-wheel"><circle cx="-6" cy="-7" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M-13-7H1M-6-14V0" stroke="#CBD5E1"/></g>
+        <g class="es-wheel"><circle cx="44" cy="-7" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M37-7H51M44-14V0" stroke="#CBD5E1"/></g>
       </g></g>
 
-      <!-- rickshaw (heading left) -->
-      <g transform="translate(0,254)"><g class="es-ride">
-        <path d="M18-30Q30-44 46-30Z" fill="#DC2626"/>
-        <path d="M16-30L48-30L44-16L20-16Z" fill="#F59E0B"/>
-        <rect x="18" y="-16" width="28" height="4" fill="#FBBF24"/>
-        <line x1="-6" y1="-12" x2="22" y2="-12" stroke="#CBD5E1" stroke-width="2"/>
-        <circle cx="0" cy="-24" r="3.5" fill="#E9B98F"/>
-        <path d="M0-21L4-12L-2-6" stroke="#F8FAFC" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <g class="es-wheel"><circle cx="-6" cy="-6" r="6" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><line x1="-12" y1="-6" x2="0" y2="-6" stroke="#CBD5E1"/><line x1="-6" y1="-12" x2="-6" y2="0" stroke="#CBD5E1"/></g>
-        <g class="es-wheel"><circle cx="38" cy="-6" r="6" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><line x1="32" y1="-6" x2="44" y2="-6" stroke="#CBD5E1"/><line x1="38" y1="-12" x2="38" y2="0" stroke="#CBD5E1"/></g>
+      <!-- student cycling to school (heading right) -->
+      <g transform="translate(0,276)"><g class="es-cycle">
+        <g class="es-wheel cw"><circle cx="0" cy="0" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M-7 0H7M0-7V7" stroke="#CBD5E1"/></g>
+        <g class="es-wheel cw"><circle cx="26" cy="0" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M19 0H33M26-7V7" stroke="#CBD5E1"/></g>
+        <path d="M0 0L10-12H22L26 0M10-12L14 0H0M22-12L24-17" stroke="#60A5FA" stroke-width="2" fill="none"/>
+        <rect x="6" y="-27" width="9" height="12" rx="2" fill="#F1F5F9"/><rect x="1" y="-26" width="5" height="9" rx="1.5" fill="#16A34A"/>
+        <circle cx="12" cy="-31" r="4" fill="#E9B98F"/><path d="M8-32a4 4 0 0 1 8 0z" fill="#1F2937"/>
+        <path d="M13-16L16-8" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
       </g></g>
     </svg>
   </div>
