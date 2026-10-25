@@ -96,6 +96,57 @@ html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(-
 .empty-feature-ic{width:52px;height:52px;border-radius:14px;background:var(--surface);color:var(--text-3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .empty-feature-t{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px}
 .empty-feature-s{font-size:12px;color:var(--text-3);line-height:1.5}
+/* RESULTS & FEES */
+.gr-loading{font-size:12px;color:var(--text-3);text-align:center;padding:16px}
+.gr-exam{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.gr-exam:last-child{margin-bottom:0}
+.gr-exam-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:var(--surface)}
+.gr-exam-main{flex:1;min-width:0}
+.gr-exam-name{font-size:13.5px;font-weight:700;color:var(--text);overflow-wrap:break-word}
+.gr-exam-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.gr-gpa{text-align:right;flex-shrink:0}
+.gr-gpa-num{font-size:17px;font-weight:800;color:var(--text);line-height:1.1}
+.gr-gpa-lbl{font-size:10px;color:var(--text-3)}
+.gr-chev{flex-shrink:0;color:var(--text-3);transition:transform .2s}
+.gr-exam.open .gr-chev{transform:rotate(180deg)}
+.gr-exam-body{display:none;padding:12px 14px 14px}
+.gr-exam.open .gr-exam-body{display:block}
+.gr-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:100px;margin-left:6px;vertical-align:1px}
+.gr-pill.pass{background:var(--green-l);color:var(--green)}
+.gr-pill.fail{background:var(--red-l);color:var(--red)}
+.gr-pill.held{background:var(--amber-l);color:var(--amber)}
+.gr-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.gr-stat{background:var(--surface);border-radius:10px;padding:9px 6px;text-align:center}
+.gr-stat-num{font-size:15px;font-weight:800;color:var(--text)}
+.gr-stat-lbl{font-size:10.5px;color:var(--text-3);margin-top:1px}
+.gr-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.gr-table th{font-size:10.5px;font-weight:600;color:var(--text-3);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border)}
+.gr-table th:first-child,.gr-table td:first-child{text-align:left}
+.gr-table td{padding:8px 4px;border-bottom:1px solid var(--border);text-align:center;color:var(--text)}
+.gr-table tr:last-child td{border-bottom:none}
+.gr-table td.gr-sub{font-weight:600;overflow-wrap:break-word}
+.gr-table td.gr-failmark{color:var(--red);font-weight:700}
+.gf-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.gf-box{border-radius:12px;padding:12px}
+.gf-box.due{background:var(--red-l)}
+.gf-box.ok{background:var(--green-l)}
+.gf-box.fee{background:var(--surface)}
+.gf-num{font-size:18px;font-weight:800;color:var(--text)}
+.gf-box.due .gf-num{color:var(--red)}
+.gf-box.ok .gf-num{color:var(--green)}
+.gf-lbl{font-size:11px;color:var(--text-2);margin-top:2px}
+.gf-sub{font-size:11.5px;font-weight:700;color:var(--text-2);margin:4px 0 8px}
+.gf-months{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.gf-month{border-radius:9px;padding:7px 4px;text-align:center;font-size:11px;font-weight:600}
+.gf-month.paid{background:var(--green-l);color:var(--green)}
+.gf-month.due{background:var(--red-l);color:var(--red)}
+.gf-month small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+.gf-pay{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12.5px}
+.gf-pay:last-child{border-bottom:none}
+.gf-pay-m{font-weight:700;color:var(--text)}
+.gf-pay-s{font-size:11px;color:var(--text-3);margin-top:1px}
+.gf-pay-amt{font-weight:800;color:var(--green);flex-shrink:0}
+@media(max-width:360px){.gf-months{grid-template-columns:repeat(3,1fr)}}
 .hw-item{padding:12px 0;border-bottom:1px solid var(--border)}
 .hw-item:last-child{border-bottom:none}
 .hw-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -548,22 +599,14 @@ function renderContent(student, todayRecord, weekAttendance, presentCount, total
       <div class="section-head">
         <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M4 4h13l3 3v13H4z"/><path d="M8 9h9M8 13h9M8 17h6"/></svg> পরীক্ষা ও ফলাফল</div>
       </div>
-      <div class="empty-feature">
-        <div class="empty-feature-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13l3 3v13H4z"/><path d="M8 9h9M8 13h9M8 17h6"/></svg></div>
-        <div class="empty-feature-t">এখনো কোনো ফলাফল প্রকাশিত হয়নি</div>
-        <div class="empty-feature-s">প্রতিষ্ঠান পরীক্ষার ফলাফল প্রকাশ করলে এখানে দেখা যাবে</div>
-      </div>
+      <div id="resultBody"><div class="gr-loading">লোড হচ্ছে...</div></div>
     </div>
 
     <div class="section-card" id="sec-fee">
       <div class="section-head">
         <div class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/></svg> ফি ও পরিশোধ</div>
       </div>
-      <div class="empty-feature">
-        <div class="empty-feature-ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.5h19"/><path d="M6 14.5h4"/></svg></div>
-        <div class="empty-feature-t">কোনো বকেয়া ফি নেই</div>
-        <div class="empty-feature-s">ফি নির্ধারণ করা হলে পরিশোধের তথ্য এখানে দেখা যাবে</div>
-      </div>
+      <div id="feeBody"><div class="gr-loading">লোড হচ্ছে...</div></div>
     </div>
 
     <div class="section-card" id="sec-routine">
@@ -582,9 +625,178 @@ function renderContent(student, todayRecord, weekAttendance, presentCount, total
   `;
 
   loadHomeworkForChild();
+  loadResultsForChild(student);
+  loadFeesForChild(student);
   const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
   const monthLabelEl = document.getElementById('monthLabel');
   if(monthLabelEl) monthLabelEl.textContent = monthNames[month];
+}
+
+/* ── Results & Fees ──
+   Data comes from the guardian_results / guardian_fees RPCs (see
+   migrations/2026-10-25_guardian_results_fees.sql). The result maths below
+   mirrors computeStudentResult()/gradeFor() in exam.html — keep them in sync. */
+const BN_MONTHS_G = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+function bnG(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]); }
+function gradeForG(percent){
+  if(percent>=80) return {letter:'A+', point:5.00};
+  if(percent>=70) return {letter:'A', point:4.00};
+  if(percent>=65) return {letter:'A-', point:3.50};
+  if(percent>=60) return {letter:'B', point:3.00};
+  if(percent>=55) return {letter:'C', point:2.00};
+  if(percent>=50) return {letter:'D', point:1.00};
+  return {letter:'F', point:0.00};
+}
+function computeResultG(marksArr, subjects){
+  const byS = {}; (marksArr||[]).forEach(m=>{ byS[m.subject] = m; });
+  let total=0, fullTotal=0, gpaSum=0, criticalFailed=false, anyMark=false, absentCount=0;
+  const subjectResults = subjects.map(sub=>{
+    const m = byS[sub.subject];
+    const marks = m ? Number(m.marks_obtained||0) : null;
+    const isAbsent = m ? !!m.is_absent : false;
+    if(isAbsent) absentCount++;
+    fullTotal += Number(sub.full_marks);
+    if(marks!=null){ anyMark=true; total += marks; }
+    const percent = marks!=null ? (marks/sub.full_marks)*100 : 0;
+    const g = gradeForG(isAbsent ? -1 : percent);
+    const subFailed = isAbsent || marks==null || marks < sub.pass_marks;
+    if(subFailed && sub.critical) criticalFailed = true;
+    gpaSum += g.point;
+    return { subject: sub.subject, marks, isAbsent, grade: g.letter, full: sub.full_marks, failed: subFailed };
+  });
+  const gpa = subjects.length ? (gpaSum/subjects.length) : 0;
+  const overallPercent = fullTotal ? (total/fullTotal*100) : 0;
+  const failed = criticalFailed || gradeForG(overallPercent).letter === 'F';
+  const withheld = subjects.length <= 5 ? absentCount >= 1 : absentCount >= 3;
+  return { subjectResults, total, fullTotal, gpa: (failed||withheld) ? 0 : gpa, pass: !failed && !withheld && anyMark, withheld, percent: overallPercent };
+}
+function emptyBoxG(title, sub){
+  return `<div class="empty-feature"><div class="empty-feature-t">${title}</div><div class="empty-feature-s">${sub}</div></div>`;
+}
+function fmtDateG(d){
+  if(!d) return '';
+  const dt = new Date(d);
+  return isNaN(dt) ? '' : bnG(dt.getDate())+' '+BN_MONTHS_G[dt.getMonth()]+' '+bnG(dt.getFullYear());
+}
+const NO_RESULT_G = ['এখনো কোনো ফলাফল প্রকাশিত হয়নি', 'প্রতিষ্ঠান পরীক্ষার ফলাফল প্রকাশ করলে এখানে দেখা যাবে'];
+
+async function loadResultsForChild(student){
+  const box = document.getElementById('resultBody');
+  if(!box) return;
+  const { data, error } = await sb.rpc('guardian_results', { p_phone: localStorage.getItem('guardian_phone'), p_student_id: student.id });
+  if(!window.currentStudent || window.currentStudent.id !== student.id) return; // child switched meanwhile
+  if(error){ console.error('guardian_results', error); box.innerHTML = emptyBoxG('ফলাফল লোড করা যায়নি', 'একটু পরে আবার চেষ্টা করুন'); return; }
+  const exams = (data||[]).filter(e=>(e.subjects||[]).length);
+
+  const html = exams.map(e=>{
+    const subjects = e.subjects;
+    const all = (e.class_marks||[]).map(c=>({ me: c.me, marks: c.marks||[], r: computeResultG(c.marks, subjects) }));
+    const mine = all.find(c=>c.me);
+    if(!mine || !mine.marks.length) return '';
+    const r = mine.r;
+    const ranked = all.filter(c=>c.r.pass).sort((a,b)=>b.r.total-a.r.total);
+    const meritIdx = ranked.indexOf(mine);
+    const highest = {};
+    subjects.forEach(sub=>{
+      let max = null;
+      all.forEach(c=>{
+        const m = c.marks.find(x=>x.subject===sub.subject);
+        if(m && !m.is_absent && m.marks_obtained!=null){ const v = Number(m.marks_obtained); if(max===null || v>max) max = v; }
+      });
+      highest[sub.subject] = max;
+    });
+    const status = r.withheld ? ['held','স্থগিত'] : (r.pass ? ['pass','পাস'] : ['fail','ফেল']);
+    const letter = gradeForG(r.pass ? r.percent : -1).letter;
+    const rows = r.subjectResults.map(sr=>`
+          <tr>
+            <td class="gr-sub">${escHtmlGR(sr.subject)}</td>
+            <td>${bnG(sr.full)}</td>
+            <td class="${sr.failed?'gr-failmark':''}">${sr.isAbsent ? 'অনুপ.' : (sr.marks!=null ? bnG(sr.marks) : '—')}</td>
+            <td>${highest[sr.subject]!=null ? bnG(highest[sr.subject]) : '—'}</td>
+            <td>${sr.isAbsent ? '—' : sr.grade}</td>
+          </tr>`).join('');
+    return `
+    <div class="gr-exam">
+      <div class="gr-exam-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="gr-exam-main">
+          <div class="gr-exam-name">${escHtmlGR(e.name||'পরীক্ষা')}<span class="gr-pill ${status[0]}">${status[1]}</span></div>
+          <div class="gr-exam-meta">${fmtDateG(e.exam_date)}</div>
+        </div>
+        <div class="gr-gpa"><div class="gr-gpa-num">${r.gpa.toFixed(2)}</div><div class="gr-gpa-lbl">GPA</div></div>
+        <svg class="gr-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="gr-exam-body">
+        <div class="gr-stats">
+          <div class="gr-stat"><div class="gr-stat-num">${bnG(r.total)}/${bnG(r.fullTotal)}</div><div class="gr-stat-lbl">মোট নম্বর</div></div>
+          <div class="gr-stat"><div class="gr-stat-num">${letter}</div><div class="gr-stat-lbl">গ্রেড</div></div>
+          <div class="gr-stat"><div class="gr-stat-num">${meritIdx>=0 ? bnG(meritIdx+1)+'/'+bnG(all.length) : '—'}</div><div class="gr-stat-lbl">মেধাক্রম</div></div>
+        </div>
+        <table class="gr-table">
+          <thead><tr><th>বিষয়</th><th>পূর্ণ</th><th>প্রাপ্ত</th><th>সর্বোচ্চ</th><th>গ্রেড</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+  box.innerHTML = html || emptyBoxG(NO_RESULT_G[0], NO_RESULT_G[1]);
+  const first = box.querySelector('.gr-exam');
+  if(first) first.classList.add('open');
+}
+
+async function loadFeesForChild(student){
+  const box = document.getElementById('feeBody');
+  if(!box) return;
+  const { data, error } = await sb.rpc('guardian_fees', { p_phone: localStorage.getItem('guardian_phone'), p_student_id: student.id });
+  if(!window.currentStudent || window.currentStudent.id !== student.id) return;
+  if(error || !data){ console.error('guardian_fees', error); box.innerHTML = emptyBoxG('ফি-র তথ্য লোড করা যায়নি', 'একটু পরে আবার চেষ্টা করুন'); return; }
+
+  const fee = Number(data.monthly_fee) || 0;
+  const pays = data.payments || [];
+  const paid = {};
+  pays.forEach(p=>{ if(p.status==='paid') paid[p.month] = p; });
+  if(!fee && !Object.keys(paid).length){ box.innerHTML = emptyBoxG('মাসিক ফি নির্ধারণ করা হয়নি', 'প্রতিষ্ঠান ফি নির্ধারণ করলে পরিশোধের তথ্য এখানে দেখা যাবে'); return; }
+
+  // Academic-year start -> current month, same as getDueMonths() in fee-management.html
+  const startMonth = parseInt(data.start_month) || 1;
+  const startYear = parseInt(data.start_year) || new Date().getFullYear();
+  const now = getBDNow();
+  const endY = now.getFullYear(), endM = now.getMonth()+1;
+  const months = [];
+  let y = startYear, m = startMonth;
+  while((y < endY || (y === endY && m <= endM)) && months.length < 24){
+    months.push(`${y}-${String(m).padStart(2,'0')}`);
+    m++; if(m > 12){ m = 1; y++; }
+  }
+  const dueMonths = months.filter(ms=>!paid[ms]);
+  const dueTotal = dueMonths.length * fee;
+  const taka = n=>'৳'+bnG(Number(n).toLocaleString('en-IN'));
+  const monthLabel = ms=>{ const [yy,mm] = String(ms).split('-'); return (BN_MONTHS_G[parseInt(mm)-1]||ms)+' '+bnG(yy); };
+  const methodLabel = { cash:'নগদ', bkash:'বিকাশ', nagad:'নগদ (MFS)', bank:'ব্যাংক' };
+
+  const chips = months.map(ms=>{
+    const [yy,mm] = ms.split('-');
+    const isPaid = !!paid[ms];
+    return `<div class="gf-month ${isPaid?'paid':'due'}">${BN_MONTHS_G[parseInt(mm)-1]}<small>${isPaid?'✓ পরিশোধিত':'বাকি'} · ${bnG(yy.slice(2))}</small></div>`;
+  }).join('');
+  const history = pays.filter(p=>p.status==='paid').sort((a,b)=>String(b.month).localeCompare(String(a.month))).slice(0,6).map(p=>`
+    <div class="gf-pay">
+      <div>
+        <div class="gf-pay-m">${monthLabel(p.month)}</div>
+        <div class="gf-pay-s">${[methodLabel[p.payment_method]||escHtmlGR(p.payment_method||''), p.paid_at?fmtDateG(p.paid_at):'', p.voucher_no?'ভাউচার '+bnG(escHtmlGR(String(p.voucher_no))):''].filter(Boolean).join(' · ')}</div>
+      </div>
+      <div class="gf-pay-amt">${taka(p.amount||fee)}</div>
+    </div>`).join('');
+
+  box.innerHTML = `
+    <div class="gf-summary">
+      ${dueMonths.length
+        ? `<div class="gf-box due"><div class="gf-num">${taka(dueTotal)}</div><div class="gf-lbl">বকেয়া · ${bnG(dueMonths.length)} মাস</div></div>`
+        : `<div class="gf-box ok"><div class="gf-num">✓</div><div class="gf-lbl">কোনো বকেয়া নেই</div></div>`}
+      <div class="gf-box fee"><div class="gf-num">${taka(fee)}</div><div class="gf-lbl">মাসিক ফি</div></div>
+    </div>
+    ${months.length ? `<div class="gf-sub">এই শিক্ষাবর্ষ</div><div class="gf-months">${chips}</div>` : ''}
+    ${history ? `<div class="gf-sub">সাম্প্রতিক পরিশোধ</div>${history}` : ''}
+  `;
 }
 
 /* ── Live Class & Routine ── */
