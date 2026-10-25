@@ -569,7 +569,7 @@ function autoTitle(){
 }
 
 /* ---------------- canvas drawing ---------------- */
-const cv = document.getElementById('card'), ctx = cv.getContext('2d');
+const cv = document.getElementById('card'); let ctx = cv.getContext('2d');
 const F = (w, px) => `${w} ${px}px 'Hind Siliguri', 'Inter', sans-serif`;
 function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); }
 function fitText(t, maxW){ if(ctx.measureText(t).width <= maxW) return t; while(t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
@@ -639,8 +639,26 @@ function arcText(chunks, r, top, gap){
     acc += ws[i] + gap;
   });
 }
+let SEAL_CACHE = null;
 function seal(x, y, r, color){
-  ctx.save(); ctx.translate(x, y); ctx.rotate(-0.2); ctx.globalAlpha = .9;
+  // drawn once per colour on its own layer, roughened like real ink, then pressed on softly
+  if(!SEAL_CACHE || SEAL_CACHE.key !== color + r){
+    const size = Math.ceil(r*2 + 24), off = document.createElement('canvas'); off.width = off.height = size;
+    const main = ctx; ctx = off.getContext('2d');
+    ctx.translate(size/2, size/2); sealInk(r, color);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'destination-out';
+    let seed = 7; const rnd = ()=>(seed = (seed * 16807) % 2147483647) / 2147483647;
+    for(let i=0;i<900;i++){ ctx.globalAlpha = .25 + rnd()*.6; ctx.beginPath(); ctx.arc(rnd()*size, rnd()*size, rnd()*2.2 + .4, 0, Math.PI*2); ctx.fill(); }
+    for(let i=0;i<14;i++){ ctx.globalAlpha = .18 + rnd()*.25; ctx.beginPath(); ctx.ellipse(rnd()*size, rnd()*size, 8 + rnd()*26, 3 + rnd()*9, rnd()*Math.PI, 0, Math.PI*2); ctx.fill(); }
+    ctx = main; SEAL_CACHE = { key: color + r, img: off, size };
+  }
+  ctx.save(); ctx.translate(x, y); ctx.rotate(-0.2);
+  ctx.globalAlpha = .55; ctx.globalCompositeOperation = 'multiply';
+  ctx.drawImage(SEAL_CACHE.img, -SEAL_CACHE.size/2, -SEAL_CACHE.size/2);
+  ctx.restore();
+}
+function sealInk(r, color){
+  ctx.save();
   ctx.strokeStyle = color; ctx.fillStyle = color;
   ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
   ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(0, 0, r - 9, 0, Math.PI*2); ctx.stroke();
