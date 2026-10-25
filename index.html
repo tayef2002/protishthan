@@ -133,9 +133,8 @@ body{padding-bottom:110px}
 @keyframes esFlag{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.94)}}
 .es-sway{transform-origin:center bottom;animation:esSway 5s ease-in-out infinite}
 @keyframes esSway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
-/* Dhaka metro: glides in from the right, dwells at the station, pulls inside */
-.es-metro{animation:esMetro 16s cubic-bezier(.45,0,.55,1) infinite}
-@keyframes esMetro{0%{transform:translateX(0)}50%{transform:translateX(-318px)}68%{transform:translateX(-318px)}100%{transform:translateX(-640px)}}
+/* Dhaka metro: SMIL animateMotion along #metroPath; scale about each car's centre */
+.es-metroTrain g{transform-origin:center}
 .es-headlight{animation:esLight 1.2s ease-in-out infinite alternate}
 @keyframes esLight{from{opacity:.55}to{opacity:1}}
 .es-beacon{animation:esBeacon 1.6s steps(1) infinite}
@@ -422,7 +421,6 @@ body{padding-bottom:110px}
         <!-- graduation cap -->
         <g id="gCap"><path d="M0-5L13 0L0 5L-13 0Z" fill="#111827" stroke="#334155" stroke-width=".8"/><rect x="-6" y="1.5" width="12" height="5" rx="1" fill="#1F2937"/><path d="M0 0L9 3L9 10" stroke="#FBBF24" stroke-width="1.5" fill="none"/></g>
         <pattern id="cityWin" width="9" height="11" patternUnits="userSpaceOnUse"><rect x="2.5" y="3" width="3.2" height="4.2" fill="#FDE68A" opacity=".42"/></pattern>
-        <clipPath id="metroClip"><rect x="1124" y="80" width="330" height="50"/></clipPath>
       </defs>
 
       <!-- far hills -->
@@ -554,7 +552,7 @@ body{padding-bottom:110px}
         <g><circle cx="1012" cy="238" r="4" fill="#F87171"/><circle cx="1018" cy="236" r="3.5" fill="#F472B6"/><circle cx="1024" cy="238.5" r="4.5" fill="#FBBF24"/></g>
       </g>
 
-      <!-- ============ 6. DHAKA: skyline + METRO RAIL + COLLEGE under the viaduct ============ -->
+      <!-- ============ 6. DHAKA: skyline + curved METRO RAIL looping in front of the COLLEGE ============ -->
       <g>
         <!-- city skyline behind -->
         <g fill="#152D63">
@@ -571,76 +569,74 @@ body{padding-bottom:110px}
         </g>
         <rect x="1253" y="56" width="2" height="10" fill="#94A3B8"/><circle class="es-beacon" cx="1254" cy="55" r="2" fill="#F87171"/>
 
-        <!-- COLLEGE (sits under the metro line) -->
+        <!-- far-leg piers (behind the college) -->
+        <g fill="#64748B"><rect x="1112" y="134" width="9" height="114"/><rect x="1196" y="106" width="8" height="142"/><rect x="1352" y="106" width="8" height="142"/></g>
+
+        <!-- COLLEGE -->
         <rect x="1150" y="170" width="152" height="78" fill="#1D3B7A"/>
         <path d="M1142 172L1226 146L1310 172Z" fill="#244A93"/>
         <rect x="1203" y="156" width="46" height="13" rx="2" fill="#0F2048"/>
         <text x="1226" y="166" text-anchor="middle" font-size="9" font-weight="700" fill="#FDE68A" font-family="Hind Siliguri, sans-serif">কলেজ</text>
         <rect x="1146" y="170" width="160" height="5" fill="#2B56A8"/>
-        <g fill="#FBBF24">
-          <rect class="es-win" x="1166" y="184" width="14" height="18" rx="2" opacity=".9"/><rect x="1188" y="184" width="14" height="18" rx="2" opacity=".85"/>
-          <rect x="1250" y="184" width="14" height="18" rx="2" opacity=".85"/><rect class="es-win d2" x="1272" y="184" width="14" height="18" rx="2" opacity=".9"/>
-        </g>
         <g fill="#3B5998"><rect x="1158" y="176" width="4" height="66"/><rect x="1204" y="176" width="4" height="66"/><rect x="1244" y="176" width="4" height="66"/><rect x="1290" y="176" width="4" height="66"/></g>
-        <path d="M1212 248v-34a14 14 0 0 1 28 0v34Z" fill="#0F2048"/>
+        <g fill="#FBBF24">
+          <rect class="es-win" x="1168" y="212" width="14" height="18" rx="2" opacity=".9"/><rect x="1188" y="212" width="12" height="18" rx="2" opacity=".85"/>
+          <rect x="1252" y="212" width="12" height="18" rx="2" opacity=".85"/><rect class="es-win d2" x="1270" y="212" width="14" height="18" rx="2" opacity=".9"/>
+        </g>
+        <path d="M1212 248v-30a14 14 0 0 1 28 0v30Z" fill="#0F2048"/>
         <rect x="1144" y="242" width="164" height="6" fill="#244A93"/>
 
-        <!-- viaduct piers -->
+        <!-- near-leg piers (in front of the college) -->
         <g fill="#7C8BA3">
-          <rect x="1132" y="138" width="16" height="110"/><path d="M1118 134H1162L1154 146H1126Z"/>
-          <rect x="1312" y="138" width="16" height="110"/><path d="M1298 134H1342L1334 146H1306Z"/>
-          <rect x="1428" y="138" width="16" height="110"/><path d="M1414 134H1458L1450 146H1422Z"/>
+          <rect x="1166" y="206" width="12" height="42"/><path d="M1158 203H1186L1181 211H1163Z"/>
+          <rect x="1306" y="206" width="12" height="42"/><path d="M1298 203H1326L1321 211H1303Z"/>
+          <rect x="1426" y="206" width="12" height="42"/><path d="M1418 204H1446L1441 212H1423Z"/>
         </g>
-        <g fill="#5B6B86"><rect x="1132" y="146" width="5" height="102"/><rect x="1312" y="146" width="5" height="102"/><rect x="1428" y="146" width="5" height="102"/></g>
+        <g fill="#5B6B86"><rect x="1166" y="211" width="4" height="37"/><rect x="1306" y="211" width="4" height="37"/><rect x="1426" y="212" width="4" height="36"/></g>
 
-        <!-- overhead line masts + wire -->
-        <g stroke="#94A3B8" stroke-width="1.6">
-          <line x1="1170" y1="120" x2="1170" y2="88"/><line x1="1250" y1="120" x2="1250" y2="88"/>
-          <line x1="1330" y1="120" x2="1330" y2="88"/><line x1="1410" y1="120" x2="1410" y2="88"/>
+        <!-- curved viaduct: far leg (top, thin) -> U-bend on the left -> near leg (bottom, thick) -->
+        <path d="M1500 100C1300 100 1150 98 1110 124C1072 150 1104 190 1210 190C1310 190 1400 190 1500 196L1500 209C1400 203 1310 203 1210 203C1100 202 1062 154 1106 132C1148 106 1300 106 1500 106Z" fill="#7F8FA8"/>
+        <path d="M1500 100C1300 100 1150 98 1110 124C1072 150 1104 190 1210 190C1310 190 1400 190 1500 196" stroke="#B4C0D3" stroke-width="2" fill="none"/>
+        <path d="M1210 203C1310 203 1400 203 1500 209" stroke="#5B6B86" stroke-width="2.5" fill="none"/>
+        <g transform="translate(1262,198.8)"><circle cx="-26" cy="-1" r="2.6" fill="#DC2626"/><circle cx="-26" cy="-1" r="1.2" fill="#16A34A"/>
+          <text x="0" y="2" text-anchor="middle" font-size="8" font-weight="700" fill="#F8FAFC" font-family="Hind Siliguri, sans-serif">মেট্রোরেল</text></g>
+
+        <!-- overhead-line masts + wires -->
+        <g stroke="#94A3B8" stroke-width="1.1"><line x1="1220" y1="99" x2="1220" y2="88"/><line x1="1320" y1="100" x2="1320" y2="89"/><line x1="1420" y1="100" x2="1420" y2="89"/></g>
+        <path d="M1150 90C1250 89 1350 89 1500 90" stroke="#94A3B8" stroke-width=".7" fill="none"/>
+        <g stroke="#94A3B8" stroke-width="1.6"><line x1="1240" y1="190" x2="1240" y2="170"/><line x1="1340" y1="190" x2="1340" y2="170"/><line x1="1440" y1="192" x2="1440" y2="172"/></g>
+        <path d="M1180 172C1300 171 1400 172 1500 175" stroke="#94A3B8" stroke-width=".9" fill="none"/>
+
+        <!-- MRT train: 4 cars ride the curve (rotate=auto), growing as they come closer.
+             Cars are drawn symmetric top/bottom so the leftward far leg doesn't look upside down. -->
+        <path id="metroPath" d="M1500 95C1300 95 1150 93 1110 119C1072 145 1104 185 1210 185C1310 185 1400 185 1500 191" fill="none"/>
+        <g id="metroCar">
+          <rect x="-14" y="-5" width="28" height="10" rx="3.6" fill="#F1F5F9"/>
+          <rect x="-11" y="-1.9" width="22" height="3.8" rx="1" fill="#1E3A5F"/>
+          <rect class="es-win" x="-11" y="-1.9" width="22" height="3.8" rx="1" fill="#FDE68A" opacity=".55"/>
+          <rect x="-13" y="2.4" width="26" height="1.2" fill="#16A34A"/><rect x="-13" y="3.7" width="26" height=".7" fill="#DC2626"/>
+          <rect x="-13" y="-3.6" width="26" height="1.2" fill="#16A34A"/><rect x="-13" y="-4.4" width="26" height=".7" fill="#DC2626"/>
         </g>
-        <line x1="1120" y1="91" x2="1440" y2="91" stroke="#94A3B8" stroke-width=".9"/>
-
-        <!-- METRO train (MRT livery: white, green + red stripes); runs right -> left into the station -->
-        <g clip-path="url(#metroClip)"><g transform="translate(1450,97)"><g class="es-metro">
-          <path d="M0 22V11Q2 3 13 1H280V22Z" fill="#F1F5F9"/>
-          <path d="M2 11Q4 5 13 3H17V12H2Z" fill="#0F172A"/>
-          <rect x="22" y="5" width="252" height="7" rx="1.5" fill="#1E3A5F"/>
-          <g fill="#FDE68A" opacity=".55"><rect x="22" y="5" width="252" height="7" rx="1.5"/></g>
-          <g fill="#0F172A" opacity=".75">
-            <circle cx="34" cy="10" r="2"/><circle cx="52" cy="10.5" r="2"/><circle cx="71" cy="10" r="2"/><circle cx="112" cy="10.5" r="2"/>
-            <circle cx="130" cy="10" r="2"/><circle cx="158" cy="10" r="2"/><circle cx="204" cy="10.5" r="2"/><circle cx="226" cy="10" r="2"/><circle cx="252" cy="10" r="2"/>
-          </g>
-          <g fill="#CBD5E1"><rect x="92" y="1" width="2" height="21"/><rect x="186" y="1" width="2" height="21"/></g>
-          <rect x="0" y="14" width="280" height="3.4" fill="#16A34A"/>
-          <rect x="0" y="17.8" width="280" height="1.6" fill="#DC2626"/>
-          <g fill="#E2E8F0" stroke="#94A3B8" stroke-width=".6"><rect x="40" y="5" width="8" height="15"/><rect x="138" y="5" width="8" height="15"/><rect x="232" y="5" width="8" height="15"/></g>
-          <circle class="es-headlight" cx="3.5" cy="17" r="1.8" fill="#FEF9C3"/>
-          <path d="M130 1L138-6L146 1" stroke="#64748B" stroke-width="1.4" fill="none"/>
-          <g fill="#334155"><rect x="10" y="22" width="26" height="3" rx="1"/><rect x="62" y="22" width="26" height="3" rx="1"/><rect x="100" y="22" width="26" height="3" rx="1"/><rect x="152" y="22" width="26" height="3" rx="1"/><rect x="196" y="22" width="26" height="3" rx="1"/><rect x="246" y="22" width="26" height="3" rx="1"/></g>
-        </g></g></g>
-
-        <!-- viaduct deck -->
-        <rect x="1100" y="118" width="340" height="3" fill="#A3B1C6"/>
-        <rect x="1100" y="121" width="340" height="12" fill="#8696AE"/>
-        <rect x="1100" y="133" width="340" height="3" fill="#5B6B86"/>
-
-        <!-- STATION (curved roof, glass hall) -->
-        <rect x="1072" y="138" width="12" height="110" fill="#7C8BA3"/><rect x="1112" y="138" width="12" height="110" fill="#7C8BA3"/>
-        <rect x="1052" y="92" width="80" height="46" rx="3" fill="#2B4A8C"/>
-        <rect x="1058" y="102" width="68" height="24" fill="#7DD3FC" opacity=".28"/>
-        <rect class="es-win" x="1058" y="102" width="68" height="24" fill="#FDE68A" opacity=".35"/>
-        <g fill="#2B4A8C"><rect x="1074" y="102" width="2" height="24"/><rect x="1091" y="102" width="2" height="24"/><rect x="1108" y="102" width="2" height="24"/></g>
-        <path d="M1046 95Q1092 70 1138 95Z" fill="#CBD5E1"/>
-        <path d="M1052 95Q1092 76 1132 95" stroke="#94A3B8" stroke-width="1" fill="none"/>
-        <rect x="1063" y="128" width="58" height="12" rx="2" fill="#15803D"/>
-        <circle cx="1070" cy="134" r="3" fill="#DC2626"/>
-        <text x="1096" y="137.5" text-anchor="middle" font-size="8" font-weight="700" fill="#FFFFFF" font-family="Hind Siliguri, sans-serif">মেট্রোরেল</text>
+        <g class="es-metroTrain">
+          <g><g><use href="#metroCar"/><circle class="es-headlight" cx="13.4" cy="0" r="1.4" fill="#FEF9C3"/>
+            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-1.65s" repeatCount="indefinite"/></g>
+            <animateMotion dur="18s" begin="-1.65s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#metroCar"/>
+            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-1.1s" repeatCount="indefinite"/></g>
+            <animateMotion dur="18s" begin="-1.1s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#metroCar"/>
+            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-.55s" repeatCount="indefinite"/></g>
+            <animateMotion dur="18s" begin="-.55s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#metroCar"/>
+            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="0s" repeatCount="indefinite"/></g>
+            <animateMotion dur="18s" begin="0s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+        </g>
 
         <!-- graduates tossing caps in front of the college -->
-        <use href="#pGrad" x="1176" y="256"/><use href="#pGrad" x="1276" y="256"/>
-        <g transform="translate(1176,226)"><use class="es-cap" href="#gCap"/></g>
+        <use href="#pGrad" x="1196" y="256"/><use href="#pGrad" x="1276" y="256"/>
+        <g transform="translate(1196,226)"><use class="es-cap" href="#gCap"/></g>
         <g transform="translate(1276,226)"><use class="es-cap c2" href="#gCap"/></g>
-        <g transform="translate(1226,232)"><use class="es-cap c3" href="#gCap"/></g>
+        <g transform="translate(1236,232)"><use class="es-cap c3" href="#gCap"/></g>
       </g>
 
       <!-- ============ 7. BOOK STACK + READING UNDER THE BANYAN ============ -->
