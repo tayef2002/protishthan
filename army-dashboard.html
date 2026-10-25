@@ -211,7 +211,7 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
       <div class="stat-card">
         <div class="stat-ic" style="background:var(--purple-l);color:var(--purple)">💰</div>
         <div class="stat-val" id="statCommission">—</div>
-        <div class="stat-lbl">মোট কমিশন (পেন্ডিং)</div>
+        <div class="stat-lbl">কমিশন (দেওয়া বাকি)</div>
       </div>
     </div>
 
@@ -240,35 +240,35 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
     <div class="page-head">
       <div>
         <div class="page-title">কমিশন</div>
-        <div class="page-sub">প্রতিষ্ঠান paid থাকা পর্যন্ত স্বয়ংক্রিয়ভাবে কমিশন জমা হয়</div>
+        <div class="page-sub">আপনার প্রতিষ্ঠান Protishthan-কে প্রতিবার টাকা দিলে আপনার কমিশন এখানে জমা হয়</div>
       </div>
     </div>
     <div class="comm-rules-row">
       <div class="comm-rule-chip first">
         <div class="comm-rule-ic">①</div>
-        <div><div class="comm-rule-pct">৫০%</div><div class="comm-rule-txt">১ম মাসে</div></div>
+        <div><div class="comm-rule-pct">৫০%</div><div class="comm-rule-txt">প্রথম পেমেন্টে</div></div>
       </div>
       <div class="comm-rule-arrow">→</div>
       <div class="comm-rule-chip recurring">
         <div class="comm-rule-ic">↻</div>
-        <div><div class="comm-rule-pct">২৫%</div><div class="comm-rule-txt">পরের প্রতি মাসে, যতদিন paid</div></div>
+        <div><div class="comm-rule-pct">২৫%</div><div class="comm-rule-txt">পরের প্রতিটি পেমেন্টে</div></div>
       </div>
     </div>
     <div class="comm-hero-grid">
       <div class="comm-hero-card">
         <div class="comm-hero-glow"></div>
         <div class="comm-hero-ic">💰</div>
-        <div class="comm-hero-lbl">মোট জমা হওয়া কমিশন</div>
+        <div class="comm-hero-lbl">মোট আয় (দেওয়া বাকি <span id="commPending">৳০</span>)</div>
         <div class="comm-hero-val" id="commTotal">৳০</div>
       </div>
       <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center">
         <div class="stat-ic" style="background:var(--green-l);color:var(--green)">🏫</div>
         <div class="stat-val" id="commInstCount">—</div>
-        <div class="stat-lbl">কমিশন-যোগ্য Paid প্রতিষ্ঠান</div>
+        <div class="stat-lbl">টাকা দিয়েছে এমন প্রতিষ্ঠান</div>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><div class="card-title">প্রতিষ্ঠান ভিত্তিক কমিশন বিস্তার</div></div>
+      <div class="card-head"><div class="card-title">প্রতিটি পেমেন্ট থেকে আপনার কমিশন</div></div>
       <div id="commissionTable"></div>
     </div>
   </div>
@@ -346,7 +346,6 @@ const sb = createClient(
 let agent = null;
 
 const PLAN_LABEL = { free:'Free', tier_599:'৳599 প্ল্যান', tier_1199:'৳1199 প্ল্যান', tier_1999:'৳1999 প্ল্যান' };
-const PLAN_PRICE = { free:0, tier_599:599, tier_1199:1199, tier_1999:1999 };
 
 function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtMoney(n){ return '৳' + Math.round(n||0).toLocaleString('en-IN'); }
@@ -484,32 +483,25 @@ async function saveInstEdit(id){
 }
 
 async function loadCommissions(){
-  const { data, error } = await sb.from('institutions').select('*').eq('assigned_agent_id', agent.id).not('paid_since','is',null);
-  if(error || !data){ return; }
-
-  let totalCommission = 0;
-  const rows = data.map(inst=>{
-    const price = PLAN_PRICE[inst.plan] || 0;
-    const months = Math.max(1, monthsBetween(inst.paid_since, new Date()));
-    const commission = price*0.5 + Math.max(0, months-1)*price*0.25;
-    totalCommission += commission;
-    return { name: inst.name, plan: inst.plan, paid_since: inst.paid_since, months, commission };
-  });
-
-  document.getElementById('statCommission').textContent = fmtMoney(totalCommission);
-  document.getElementById('commTotal').textContent = fmtMoney(totalCommission);
-  document.getElementById('commInstCount').textContent = data.length;
-
-  if(!rows.length){
-    document.getElementById('commissionTable').innerHTML = '<div class="empty-state">এখনো কোনো paid প্রতিষ্ঠান নেই।</div>';
+  // real commission rows, one per payment (first payment 50%, later ones 25%)
+  const { data, error } = await sb.from('agent_commissions').select('*').eq('agent_id', agent.id).order('created_at', { ascending:false });
+  if(error || !data){ document.getElementById('commissionTable').innerHTML = '<div class="empty-state">কমিশনের হিসাব এখন লোড করা যাচ্ছে না।</div>'; return; }
+  const total = data.reduce((s, c)=>s + Number(c.amount || 0), 0);
+  const pending = data.filter(c=>c.status !== 'paid').reduce((s, c)=>s + Number(c.amount || 0), 0);
+  document.getElementById('statCommission').textContent = fmtMoney(pending);
+  document.getElementById('commTotal').textContent = fmtMoney(total);
+  document.getElementById('commPending').textContent = fmtMoney(pending);
+  document.getElementById('commInstCount').textContent = new Set(data.map(c=>c.institution_id)).size;
+  if(!data.length){
+    document.getElementById('commissionTable').innerHTML = '<div class="empty-state">এখনো কোনো কমিশন নেই। আপনার যাচাই করা প্রতিষ্ঠান সার্ভিস নিলে এখানে দেখাবে।</div>';
     return;
   }
-  let html = '<table><thead><tr><th>প্রতিষ্ঠান</th><th>প্ল্যান</th><th>Paid সময়কাল</th><th>কমিশন</th></tr></thead><tbody>';
-  rows.forEach(r=>{
-    html += `<tr><td style="font-weight:600">${escapeHtml(r.name)}</td><td><span class="pill paid">${PLAN_LABEL[r.plan]||r.plan}</span></td><td style="color:var(--text-3)">${r.months} মাস</td><td style="font-weight:700;color:var(--green)">${fmtMoney(r.commission)}</td></tr>`;
+  let t = '<table><thead><tr><th>প্রতিষ্ঠান</th><th>ধরন</th><th>তারিখ</th><th>কমিশন</th><th>অবস্থা</th></tr></thead><tbody>';
+  data.forEach(c=>{
+    const kind = c.kind === 'first' ? 'প্রথম পেমেন্ট' : c.kind === 'recurring' ? 'চলতি পেমেন্ট' : 'পুরনো হিসাব';
+    t += `<tr><td style="font-weight:600">${escapeHtml(c.institution_name||'—')}</td><td style="color:var(--text-2)">${kind}${c.rate ? ' · ' + c.rate + '%' : ''}</td><td style="color:var(--text-3)">${new Date(c.created_at).toLocaleDateString('bn-BD')}</td><td style="font-weight:700;color:var(--green)">${fmtMoney(c.amount)}</td><td>${c.status === 'paid' ? '<span class="pill paid">পেয়েছেন</span>' : '<span class="pill free">বাকি</span>'}</td></tr>`;
   });
-  html += '</tbody></table>';
-  document.getElementById('commissionTable').innerHTML = html;
+  document.getElementById('commissionTable').innerHTML = t + '</tbody></table>';
 }
 
 let mySubmissionsData = [];
@@ -633,11 +625,6 @@ async function saveSubEdit(id){
   }catch(e){
     alert('সমস্যা হয়েছে: ' + e.message);
   }
-}
-
-function monthsBetween(start, end){
-  const s = new Date(start), e = new Date(end);
-  return (e.getFullYear()-s.getFullYear())*12 + (e.getMonth()-s.getMonth()) + 1;
 }
 
 function showView(name){
