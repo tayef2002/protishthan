@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>প্রতিষ্ঠানের বিস্তারিত — Protishthan</title>
+<meta name="description" content="বাংলাদেশের শিক্ষা প্রতিষ্ঠানের বিস্তারিত তথ্য — Protishthan তথ্যভান্ডার।">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,208 +12,426 @@
 :root{
   --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
   --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
-  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F1F5F9;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;
   --green:#059669;--green-light:#ECFDF5;
   --amber:#D97706;--amber-l:#FFFBEB;
   --red:#DC2626;--red-l:#FEF2F2;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --accent:#1A56DB;--accent-l:#EEF3FF;
 }
-html,body{min-height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg)}
+html{scroll-behavior:smooth;scroll-padding-top:128px}
+body{font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
 
-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
-nav a.logo{font-size:20px;font-weight:900;color:var(--blue);text-decoration:none}
-nav a.logo span{color:var(--text);opacity:.5}
-nav a.back{font-size:14px;font-weight:600;color:var(--text-2);text-decoration:none;display:flex;align-items:center;gap:6px}
+/* TOP BAR */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topbar .container{height:64px;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:900;color:var(--text);text-decoration:none;letter-spacing:-.4px;flex-shrink:0}
+.logo span{opacity:.45}
+.logo-ic{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#5B8DEF);color:#fff;display:flex;align-items:center;justify-content:center}
+.crumbs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-3);min-width:0;overflow:hidden;white-space:nowrap}
+.crumbs a{text-decoration:none;color:var(--text-2)}
+.crumbs a:hover{color:var(--blue)}
+.crumbs .cur{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.top-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.tbtn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;font-family:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;text-decoration:none;transition:border-color .15s,background .15s}
+.tbtn:hover{border-color:#C7D7FE;background:var(--surface)}
 
-.wrap{max-width:880px;margin:0 auto;padding:32px 5% 80px}
+/* STATES */
+.state-box{text-align:center;padding:90px 20px;color:var(--text-3)}
+.state-box h2{color:var(--text);font-size:20px;margin:14px 0 6px}
+.state-box a{color:var(--blue);font-weight:700;text-decoration:none}
+.skel{background:linear-gradient(90deg,#E9EEF6 25%,#F4F7FB 37%,#E9EEF6 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:12px}
+@keyframes shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.skel-wrap{max-width:1200px;margin:0 auto;padding:0 24px 60px}
+.skel-cover{height:240px;border-radius:0 0 22px 22px}
+.skel-row{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:24px}
 
-.state-box{text-align:center;padding:80px 20px;color:var(--text-3)}
-.state-box .ic{font-size:40px;margin-bottom:14px}
+/* COVER */
+.cover{position:relative;height:280px;overflow:hidden;background:#0F2048}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0) 40%,rgba(15,23,42,.45) 100%)}
+.cover-art{position:absolute;inset:0}
+.cover-art svg{width:100%;height:100%;display:block}
 
-.detail-card{display:none}
-.detail-card.show{display:block}
+/* PROFILE HEAD */
+.head{position:relative;margin-top:-72px;z-index:2}
+.head-card{background:#fff;border:1px solid var(--border);border-radius:22px;padding:22px 26px;display:flex;gap:22px;align-items:flex-end;box-shadow:0 18px 40px rgba(15,23,42,.08)}
+.logo-big{width:124px;height:124px;border-radius:24px;background:var(--accent-l);color:var(--accent);border:5px solid #fff;box-shadow:0 10px 26px rgba(15,23,42,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:-62px;overflow:hidden}
+.logo-big img{width:100%;height:100%;object-fit:cover}
+.head-main{flex:1;min-width:0}
+.head-main h1{font-size:30px;line-height:1.2;font-weight:900;letter-spacing:-.5px;overflow-wrap:anywhere}
+.head-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin-top:8px;font-size:13.5px;color:var(--text-2)}
+.head-meta span{display:inline-flex;align-items:center;gap:6px}
+.head-meta .ico{color:var(--text-3)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:100px;background:var(--surface);color:var(--text-2);border:1px solid var(--border)}
+.badge.green{background:var(--green-light);color:var(--green);border-color:#BBF7D0}
+.badge.amber{background:var(--amber-l);color:var(--amber);border-color:#FDE68A}
+.badge.gray{background:#F1F5F9;color:#64748B}
+.badge.accent{background:var(--accent-l);color:var(--accent);border-color:transparent}
+.badge.prn{background:#0F172A;color:#fff;border-color:#0F172A;font-family:'Inter',sans-serif;letter-spacing:.03em}
+.head-actions{display:flex;flex-wrap:wrap;gap:10px;flex-shrink:0;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:transform .15s,box-shadow .2s,background .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.3)}
+.btn-wa{background:#16A34A;color:#fff}
+.btn-ghost{background:#fff;color:var(--text);border-color:var(--border)}
+.btn-ghost:hover{background:var(--surface)}
 
-.hero{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:20px}
-.hero-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:16px}
-.hero-logo{width:64px;height:64px;border-radius:14px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
-.hero-name{font-size:22px;font-weight:800;margin-bottom:6px}
-.hero-loc{font-size:13px;color:var(--text-2)}
-.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.hbadge{font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px}
-.hbadge-blue{background:var(--blue-light);color:var(--blue-dark)}
-.hbadge-green{background:var(--green-light);color:var(--green)}
-.hbadge-amber{background:var(--amber-l);color:var(--amber)}
-.hbadge-gray{background:var(--surface);color:var(--text-2)}
-.hbadge-prn{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-family:'Inter',sans-serif;letter-spacing:.02em}
+/* TABS */
+.tabs{position:sticky;top:64px;z-index:150;background:rgba(244,246,251,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin-top:18px;border-bottom:1px solid var(--border)}
+.tabs .container{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs .container::-webkit-scrollbar{display:none}
+.tab{padding:14px 14px;font-size:14px;font-weight:700;color:var(--text-2);text-decoration:none;border-bottom:2.5px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-.cta-row{display:flex;gap:10px;margin-top:18px}
-.cta-btn{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
-.cta-primary{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white}
-.cta-secondary{background:var(--white);color:var(--text);border:1.5px solid var(--border)}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start;padding-top:24px;padding-bottom:40px}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:20px}
+.card h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;letter-spacing:-.2px;margin-bottom:16px}
+.h-ic{width:34px;height:34px;border-radius:10px;background:var(--accent-l);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.card .sub{font-size:13px;color:var(--text-3);margin:-10px 0 16px}
+.muted{color:var(--text-3);font-size:13.5px}
 
-.sec{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px}
-.sec h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text)}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.info-item{background:var(--surface);border-radius:10px;padding:11px 14px}
-.info-item .k{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
-.info-item .v{font-size:14px;font-weight:600}
-.chip-list{display:flex;flex-wrap:wrap;gap:6px}
-.chip-tag{background:var(--blue-light);color:var(--blue-dark);font-size:12px;font-weight:700;padding:4px 11px;border-radius:100px}
-.desc-text{font-size:14px;color:var(--text-2);line-height:1.7;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{border:1px solid var(--border);border-radius:16px;padding:16px;background:linear-gradient(180deg,#fff,#FAFBFF)}
+.stat-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat-num{font-size:26px;font-weight:900;letter-spacing:-.5px;line-height:1.1}
+.stat-lbl{font-size:12.5px;color:var(--text-3);margin-top:4px;font-weight:600}
+.stat-note{font-size:11.5px;color:var(--text-2);margin-top:8px;font-weight:600}
+.si-blue{background:#EFF6FF;color:#2563EB}.si-green{background:#ECFDF5;color:#059669}.si-amber{background:#FFFBEB;color:#D97706}.si-purple{background:#F5F3FF;color:#7C3AED}.si-pink{background:#FDF2F8;color:#DB2777}.si-teal{background:#F0FDFA;color:#0D9488}
 
-.contact-note{background:var(--blue-light);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--blue-dark);line-height:1.6}
+/* ABOUT */
+.about-text{font-size:15px;color:var(--text-2);line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+.about-text.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.more-btn{margin-top:10px;border:none;background:none;color:var(--blue);font-weight:700;font-family:inherit;font-size:13.5px;cursor:pointer;padding:0}
 
-.notice-row{background:var(--amber-l);border-radius:12px;padding:12px 14px;margin-bottom:10px}
-.notice-row .t{font-weight:700;font-size:13.5px;color:var(--amber)}
-.notice-row .b{font-size:12.5px;color:var(--text-2);margin-top:4px;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word}
+/* FACTS */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fact{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--border);border-radius:14px}
+.fact-ic{width:38px;height:38px;border-radius:11px;background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fact-k{font-size:12px;color:var(--text-3);font-weight:600}
+.fact-v{font-size:14.5px;font-weight:700;color:var(--text);overflow-wrap:anywhere}
+.fact-v.na{color:var(--text-3);font-weight:500;font-size:13.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:6px 12px;border-radius:100px;background:var(--accent-l);color:var(--accent)}
+.medium-row{margin-top:16px;padding-top:16px;border-top:1px dashed var(--border)}
+.medium-row .fact-k{margin-bottom:8px}
 
-.pub-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.pub-gallery .gimg-wrap{border-radius:14px;overflow:hidden;border:1px solid var(--border);cursor:pointer;background:var(--surface)}
-.pub-gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .3s}
-.pub-gallery .gimg-wrap:hover img{transform:scale(1.06)}
-.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
-.lightbox-overlay.show{display:flex}
-.lightbox-overlay img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px}
-.lightbox-close{position:absolute;top:18px;right:24px;color:white;font-size:32px;cursor:pointer;line-height:1}
-@media(max-width:600px){
-  .pub-gallery{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+/* FACILITIES / ACHIEVEMENTS */
+.fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.fac{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--surface);border:1px solid #EAF0FB}
+.fac-ic{width:40px;height:40px;border-radius:12px;background:#fff;color:var(--blue);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,23,42,.06);flex-shrink:0}
+.fac span{font-size:13.5px;font-weight:700;overflow-wrap:anywhere}
+.ach-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.ach{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FDE68A}
+.ach-ic{width:40px;height:40px;border-radius:50%;background:#fff;color:#D97706;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ach span{font-size:13.5px;font-weight:700;color:#78350F;overflow-wrap:anywhere}
+
+/* GALLERY */
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:10px}
+.gallery .g{border-radius:14px;overflow:hidden;cursor:zoom-in;background:var(--surface);position:relative}
+.gallery .g:first-child{grid-column:span 2;grid-row:span 2}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s}
+.gallery .g:hover img{transform:scale(1.05)}
+.gallery .more{position:absolute;inset:0;background:rgba(15,23,42,.55);color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center}
+.lb{position:fixed;inset:0;background:rgba(2,6,23,.92);z-index:1000;display:none;align-items:center;justify-content:center}
+.lb.show{display:flex}
+.lb img{max-width:90vw;max-height:84vh;border-radius:12px;object-fit:contain}
+.lb-btn{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lb-btn:hover{background:rgba(255,255,255,.22)}
+.lb-prev{left:20px}.lb-next{right:20px}
+.lb-close{top:22px;right:22px;transform:none}
+.lb-count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:#CBD5E1;font-size:13px;font-weight:700}
+
+/* NOTICES */
+.notice{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.notice:last-child{border-bottom:none;padding-bottom:0}
+.notice:first-child{padding-top:0}
+.n-date{width:54px;flex-shrink:0;border-radius:12px;background:var(--amber-l);color:var(--amber);text-align:center;padding:6px 0;line-height:1.15}
+.n-date b{display:block;font-size:18px}
+.n-date span{font-size:11px;font-weight:700}
+.n-title{font-weight:800;font-size:14.5px}
+.n-body{font-size:13.5px;color:var(--text-2);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* REVIEWS */
+.rv-sum{display:grid;grid-template-columns:180px 1fr;gap:24px;align-items:center;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border)}
+.rv-big{text-align:center}
+.rv-big b{font-size:44px;font-weight:900;line-height:1;letter-spacing:-1px}
+.rv-big .muted{display:block;margin-top:6px}
+.stars{display:inline-flex;gap:2px;color:#F59E0B;margin-top:6px}
+.bar-row{display:grid;grid-template-columns:28px 1fr 30px;gap:10px;align-items:center;font-size:12.5px;color:var(--text-2);font-weight:700;margin-bottom:6px}
+.bar{height:8px;border-radius:100px;background:#F1F5F9;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#FBBF24,#F59E0B);border-radius:100px}
+.review{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.review:last-child{border-bottom:none;padding-bottom:0}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--accent-l);color:var(--accent);font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rv-name{font-weight:800;font-size:14px}
+.rv-msg{font-size:14px;color:var(--text-2);margin-top:6px;line-height:1.7;overflow-wrap:anywhere}
+
+/* LOCATION */
+.loc-addr{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.map{border-radius:16px;overflow:hidden;border:1px solid var(--border);height:300px;background:var(--surface)}
+.map iframe{width:100%;height:100%;border:0;display:block}
+
+/* SIDEBAR */
+.side{position:sticky;top:132px}
+.side .card{padding:20px}
+.side h3{font-size:16px;font-weight:800;margin-bottom:4px}
+.side .sub{margin:0 0 14px}
+.inq input,.inq textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px;background:#fff;resize:vertical;transition:border-color .15s,box-shadow .15s}
+.inq input:focus,.inq textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.inq .btn{width:100%}
+.inq-note{font-size:11.5px;color:var(--text-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.inq-ok{text-align:center;padding:12px 4px}
+.inq-ok .okic{width:56px;height:56px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--text-3)}
+.kv b{text-align:right;overflow-wrap:anywhere}
+.contact-row{display:flex;align-items:center;gap:12px;padding:10px 0}
+.contact-row .fact-ic{background:var(--accent-l);color:var(--accent)}
+.contact-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.claim{background:linear-gradient(135deg,#0F2048,#1A3570);color:#fff;border:none}
+.claim h3{color:#fff}
+.claim p{font-size:13px;color:rgba(255,255,255,.75);margin:6px 0 14px;line-height:1.6}
+.claim .btn{background:#fff;color:#0F2048;width:100%}
+
+/* NEARBY */
+.nearby{padding-top:10px;padding-bottom:50px}
+.nearby h2{font-size:22px;font-weight:900;margin-bottom:4px;letter-spacing:-.3px}
+.nb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.nb{display:flex;gap:12px;align-items:center;padding:16px;background:#fff;border:1px solid var(--border);border-radius:16px;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s}
+.nb:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,23,42,.08);border-color:#C7D7FE}
+.nb-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nb-name{font-weight:800;font-size:14.5px;overflow-wrap:anywhere}
+.nb-meta{font-size:12.5px;color:var(--text-3);margin-top:2px}
+
+/* FOOTER */
+.foot{border-top:1px solid var(--border);background:#fff}
+.foot .container{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:22px 24px;font-size:13px;color:var(--text-2)}
+.foot a{color:var(--blue);font-weight:700;text-decoration:none}
+
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0F172A;color:#fff;padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:1100}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* MOBILE ACTION BAR */
+.mbar{display:none}
+
+/* type accents */
+.t-school{--accent:#2563EB;--accent-l:#EFF6FF}
+.t-book{--accent:#059669;--accent-l:#ECFDF5}
+.t-mosque{--accent:#7C3AED;--accent-l:#F5F3FF}
+.t-cap{--accent:#DB2777;--accent-l:#FDF2F8}
+.t-pencil{--accent:#D97706;--accent-l:#FFFBEB}
+
+@media(max-width:1024px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
-.testi-row{background:var(--surface);border-radius:12px;padding:14px 16px;margin-bottom:10px}
-.testi-row .name{font-weight:700;font-size:13px}
-.testi-row .msg{font-size:13px;color:var(--text-2);margin-top:4px;line-height:1.6;font-style:italic;overflow-wrap:break-word;word-break:break-word}
-
-.inquiry-form{display:flex;flex-direction:column;gap:10px}
-.inquiry-form input,.inquiry-form textarea{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;resize:vertical}
-.inquiry-submit{padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.inquiry-success{background:var(--green-light);color:var(--green);border-radius:12px;padding:14px 16px;font-size:13.5px;font-weight:600;text-align:center}
-
-@media(max-width:600px){
-  .info-grid{grid-template-columns:1fr}
-  .hero-top{flex-direction:column;align-items:center;text-align:center}
-  .cta-row{flex-direction:column}
+@media(max-width:720px){
+  .container{padding:0 16px}
+  .crumbs{display:none}
+  .top-actions .tbtn .lbl{display:none}
+  .cover{height:190px}
+  .head{margin-top:-56px}
+  .head-card{flex-direction:column;align-items:flex-start;gap:12px;padding:18px}
+  .logo-big{width:96px;height:96px;margin-top:-58px;border-radius:20px}
+  .head-main h1{font-size:23px}
+  .head-actions{display:none}
+  .tabs{top:64px}
+  .card{padding:18px;border-radius:18px}
+  .facts{grid-template-columns:1fr}
+  .gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:120px}
+  .rv-sum{grid-template-columns:1fr}
+  .nb-grid{grid-template-columns:1fr}
+  .map{height:230px}
+  .mbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:300;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+  .mbar .btn{padding:11px 8px;font-size:13px}
+  body{padding-bottom:76px}
+  .toast{bottom:92px}
 }
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="index.html" class="logo">Protisht<span>han</span></a>
-  <a href="index.html" class="back">← তথ্যভান্ডারে ফিরে যান</a>
-</nav>
+<header class="topbar">
+  <div class="container">
+    <a href="index.html" class="logo"><span class="logo-ic" data-ic="cap" data-s="18"></span>Protisht<span>han</span></a>
+    <nav class="crumbs" aria-label="অবস্থান">
+      <a href="index.html">তথ্যভান্ডার</a><span>/</span><a href="index.html" id="crumbDistrict">জেলা</a><span>/</span><span class="cur" id="crumbName">প্রতিষ্ঠান</span>
+    </nav>
+    <div class="top-actions">
+      <button type="button" class="tbtn" onclick="shareProfile()"><span data-ic="share" data-s="16"></span><span class="lbl">শেয়ার</span></button>
+      <a href="index.html" class="tbtn"><span data-ic="arrowLeft" data-s="16"></span><span class="lbl">তথ্যভান্ডার</span></a>
+    </div>
+  </div>
+</header>
 
-<div class="wrap">
+<!-- loading skeleton -->
+<div id="loadingState">
+  <div class="skel skel-cover" style="border-radius:0"></div>
+  <div class="skel-wrap">
+    <div class="skel" style="height:120px;margin-top:-50px;position:relative"></div>
+    <div class="skel-row">
+      <div><div class="skel" style="height:180px;margin-bottom:20px"></div><div class="skel" style="height:260px"></div></div>
+      <div class="skel" style="height:380px"></div>
+    </div>
+  </div>
+</div>
 
-  <div class="state-box" id="loadingState">
-    <div class="ic">⏳</div>
-    <div>তথ্য লোড হচ্ছে...</div>
+<div class="state-box" id="notFoundState" style="display:none">
+  <span data-ic="search" data-s="44"></span>
+  <h2>এই প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</h2>
+  <p>লিংকটি ভুল হতে পারে, অথবা প্রতিষ্ঠানটি এখনো অনুমোদিত হয়নি।</p>
+  <p style="margin-top:16px"><a href="index.html">তথ্যভান্ডারে ফিরে যান →</a></p>
+</div>
+
+<main id="profile" style="display:none">
+  <div class="cover" id="cover"><div class="cover-art" id="coverArt"></div></div>
+
+  <div class="container head">
+    <div class="head-card">
+      <div class="logo-big" id="heroLogo"></div>
+      <div class="head-main">
+        <h1 id="heroName">—</h1>
+        <div class="head-meta" id="heroMeta"></div>
+        <div class="badges" id="heroBadges"></div>
+      </div>
+      <div class="head-actions" id="heroActions"></div>
+    </div>
   </div>
 
-  <div class="state-box" id="notFoundState" style="display:none">
-    <div class="ic">🔍</div>
-    <div>এই প্রতিষ্ঠানের তথ্য পাওয়া যায়নি</div>
-    <div style="margin-top:16px"><a href="index.html" style="color:var(--blue);font-weight:600;text-decoration:none">তথ্যভান্ডারে ফিরে যান →</a></div>
-  </div>
+  <nav class="tabs" aria-label="বিভাগ">
+    <div class="container" id="tabBar"></div>
+  </nav>
 
-  <div class="detail-card" id="detailCard">
+  <div class="container layout">
+    <div class="main-col">
 
-    <div class="hero">
-      <div class="hero-top">
-        <div class="hero-logo" id="heroLogo">🏫</div>
-        <div>
-          <div class="hero-name" id="heroName">—</div>
-          <div class="hero-loc" id="heroLoc">📍 —</div>
+      <section class="card" id="sec-overview" data-tab="এক নজরে">
+        <h2><span class="h-ic" data-ic="chart" data-s="18"></span>এক নজরে</h2>
+        <div class="stats" id="statsGrid"></div>
+      </section>
+
+      <section class="card" id="sec-about" data-tab="পরিচিতি">
+        <h2><span class="h-ic" data-ic="info" data-s="18"></span>পরিচিতি</h2>
+        <p class="about-text clamp" id="aboutText"></p>
+        <button type="button" class="more-btn" id="aboutMore" style="display:none" onclick="toggleAbout()">আরও পড়ুন</button>
+      </section>
+
+      <section class="card" id="sec-academic" data-tab="একাডেমিক">
+        <h2><span class="h-ic" data-ic="cap" data-s="18"></span>একাডেমিক ও ভর্তি তথ্য</h2>
+        <div class="facts" id="factsGrid"></div>
+        <div class="medium-row" id="mediumRow">
+          <div class="fact-k">শিক্ষার মাধ্যম / বোর্ড</div>
+          <div class="chips" id="mediumChips"></div>
+        </div>
+      </section>
+
+      <section class="card" id="sec-facilities" data-tab="সুবিধা">
+        <h2><span class="h-ic" data-ic="campus" data-s="18"></span>সুযোগ-সুবিধা</h2>
+        <div class="fac-grid" id="facGrid"></div>
+      </section>
+
+      <section class="card" id="sec-achievements" data-tab="অর্জন">
+        <h2><span class="h-ic" data-ic="trophy" data-s="18"></span>অর্জন ও বিশেষত্ব</h2>
+        <div class="ach-list" id="achList"></div>
+      </section>
+
+      <section class="card" id="sec-gallery" data-tab="গ্যালারি" style="display:none">
+        <h2><span class="h-ic" data-ic="image" data-s="18"></span>ছবির গ্যালারি</h2>
+        <div class="gallery" id="galleryGrid"></div>
+      </section>
+
+      <section class="card" id="sec-notices" data-tab="নোটিস" style="display:none">
+        <h2><span class="h-ic" data-ic="megaphone" data-s="18"></span>নোটিস বোর্ড</h2>
+        <div id="noticeList"></div>
+      </section>
+
+      <section class="card" id="sec-reviews" data-tab="মতামত" style="display:none">
+        <h2><span class="h-ic" data-ic="star" data-s="18"></span>অভিভাবকদের মতামত</h2>
+        <div class="rv-sum" id="rvSummary"></div>
+        <div id="rvList"></div>
+      </section>
+
+      <section class="card" id="sec-location" data-tab="অবস্থান">
+        <h2><span class="h-ic" data-ic="pin" data-s="18"></span>অবস্থান</h2>
+        <div class="loc-addr"><span class="fact-ic" data-ic="pin" data-s="18"></span><div><div class="fact-v" id="locMain">—</div><div class="muted" id="locNote"></div></div></div>
+        <div class="map" id="mapBox"></div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <div class="card inq" id="inquiryCard">
+        <h3>ভর্তি বা তথ্য জানতে চান?</h3>
+        <p class="sub">আপনার নাম ও ফোন নম্বর দিন — প্রতিষ্ঠান সরাসরি আপনার সাথে যোগাযোগ করবে।</p>
+        <div id="inquiryFormWrap">
+          <input type="text" id="inqName" placeholder="আপনার নাম" autocomplete="name">
+          <input type="tel" id="inqPhone" placeholder="ফোন নম্বর (01XXXXXXXXX)" autocomplete="tel" inputmode="tel">
+          <textarea id="inqMessage" rows="3" placeholder="কোন শ্রেণিতে ভর্তি, বা কী জানতে চান (ঐচ্ছিক)"></textarea>
+          <button type="button" class="btn btn-primary" id="inqBtn" onclick="submitInquiry()"><span data-ic="send" data-s="16"></span>পাঠিয়ে দিন</button>
+          <div class="inq-note"><span data-ic="shield" data-s="14"></span>আপনার তথ্য শুধু এই প্রতিষ্ঠানের কাছে যাবে।</div>
+        </div>
+        <div class="inq-ok" id="inquirySuccess" style="display:none">
+          <div class="okic" data-ic="check" data-s="28"></div>
+          <b>ধন্যবাদ!</b>
+          <p class="muted" style="margin-top:4px">প্রতিষ্ঠান শীঘ্রই আপনার সাথে যোগাযোগ করবে।</p>
         </div>
       </div>
-      <div class="hero-badges" id="heroBadges"></div>
 
-      <div class="cta-row">
-        <button class="cta-btn cta-primary" id="websiteBtn">🌐 ওয়েবসাইট দেখুন</button>
-        <a class="cta-btn cta-secondary" id="whatsappBtn" href="#" target="_blank">💬 WhatsApp এ যোগাযোগ</a>
+      <div class="card" id="contactCard">
+        <h3>যোগাযোগ</h3>
+        <div id="contactBody"></div>
       </div>
-    </div>
 
-    <div class="sec">
-      <h3>📋 মৌলিক তথ্য</h3>
-      <div class="info-grid">
-        <div class="info-item"><div class="k">প্রতিষ্ঠার সাল</div><div class="v" id="vFounding">—</div></div>
-        <div class="info-item"><div class="k">শিক্ষার্থী সংখ্যা</div><div class="v" id="vStudents">—</div></div>
-        <div class="info-item"><div class="k">শিক্ষক সংখ্যা</div><div class="v" id="vTeachers">—</div></div>
-        <div class="info-item"><div class="k">সেশন শুরুর মাস</div><div class="v" id="vSession">—</div></div>
+      <div class="card">
+        <h3>দ্রুত তথ্য</h3>
+        <div id="quickFacts" style="margin-top:6px"></div>
       </div>
-    </div>
 
-    <div class="sec" id="mediumSec">
-      <h3>🎓 মাধ্যম / বোর্ড</h3>
-      <div class="chip-list" id="vMedium"></div>
-    </div>
-
-    <div class="sec">
-      <h3>📚 শ্রেণি ও ভর্তি</h3>
-      <div class="info-grid">
-        <div class="info-item"><div class="k">শ্রেণি রেঞ্জ</div><div class="v" id="vClassRange">—</div></div>
-        <div class="info-item"><div class="k">ছাত্র/ছাত্রী</div><div class="v" id="vGender">—</div></div>
-        <div class="info-item"><div class="k">ভর্তি স্ট্যাটাস</div><div class="v" id="vAdmission">—</div></div>
-        <div class="info-item"><div class="k">মাসিক ফি</div><div class="v" id="vFee">—</div></div>
+      <div class="card claim">
+        <h3>এই প্রতিষ্ঠান কি আপনার?</h3>
+        <p>প্রোফাইলের দায়িত্ব নিন — ছবি, নোটিস ও তথ্য নিজেই হালনাগাদ করুন, ভর্তির জিজ্ঞাসা সরাসরি পান। সম্পূর্ণ বিনামূল্যে।</p>
+        <a href="login.html" class="btn"><span data-ic="shield" data-s="16"></span>প্রোফাইল পরিচালনা করুন</a>
       </div>
-    </div>
-
-    <div class="sec" id="facilitySec">
-      <h3>🏢 সুযোগ-সুবিধা</h3>
-      <div class="chip-list" id="vFacilities"></div>
-    </div>
-
-    <div class="sec" id="noticeSec" style="display:none">
-      <h3>📢 নোটিস</h3>
-      <div id="vNotices"></div>
-    </div>
-
-    <div class="sec" id="gallerySec" style="display:none">
-      <h3>🖼️ গ্যালারি</h3>
-      <div class="pub-gallery" id="vGallery"></div>
-    </div>
-
-    <div class="sec" id="achievementSec">
-      <h3>🏆 অর্জন / বিশেষত্ব</h3>
-      <div class="chip-list" id="vAchievements"></div>
-    </div>
-
-    <div class="sec" id="descSec">
-      <h3>📝 প্রতিষ্ঠান সম্পর্কে</h3>
-      <p class="desc-text" id="vDescription"></p>
-    </div>
-
-    <div class="sec" id="testimonialSec" style="display:none">
-      <h3>💬 অভিভাবকদের মতামত</h3>
-      <div id="vTestimonials"></div>
-    </div>
-
-    <div class="sec">
-      <h3>📍 ঠিকানা ও যোগাযোগ</h3>
-      <div class="info-grid">
-        <div class="info-item"><div class="k">জেলা / উপজেলা</div><div class="v" id="vDistrict">—</div></div>
-        <div class="info-item"><div class="k">ঠিকানা বিবরণ</div><div class="v" id="vAddress">—</div></div>
-      </div>
-    </div>
-
-    <div class="sec" id="inquirySec">
-      <h3>📩 ভর্তির জন্য যোগাযোগ করুন</h3>
-      <div id="inquiryFormWrap" class="inquiry-form">
-        <input type="text" id="inqName" placeholder="আপনার নাম">
-        <input type="text" id="inqPhone" placeholder="ফোন নম্বর">
-        <textarea id="inqMessage" rows="3" placeholder="বার্তা (ঐচ্ছিক)"></textarea>
-        <button class="inquiry-submit" onclick="submitInquiry()">পাঠিয়ে দিন</button>
-      </div>
-      <div id="inquirySuccess" class="inquiry-success" style="display:none">✅ ধন্যবাদ! প্রতিষ্ঠান শীঘ্রই আপনার সাথে যোগাযোগ করবে।</div>
-    </div>
-
+    </aside>
   </div>
 
+  <section class="container nearby" id="nearbyWrap" style="display:none">
+    <h2 id="nearbyTitle">কাছাকাছি অন্যান্য প্রতিষ্ঠান</h2>
+    <p class="muted" id="nearbySub"></p>
+    <div class="nb-grid" id="nearbyGrid"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="container">
+    <span>© <span id="fy">২০২৬</span> Protishthan · শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</span>
+    <span><a href="list-institution.html">বিনামূল্যে প্রতিষ্ঠান যুক্ত করুন →</a></span>
+  </div>
+</footer>
+
+<div class="mbar" id="mobileBar"></div>
+
+<div class="lb" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button type="button" class="lb-btn lb-close" onclick="closeLightbox()" aria-label="বন্ধ করুন"><span data-ic="x" data-s="20"></span></button>
+  <button type="button" class="lb-btn lb-prev" onclick="stepLightbox(-1)" aria-label="আগের ছবি"><span data-ic="chevLeft" data-s="22"></span></button>
+  <img id="lightboxImg" src="" alt="">
+  <button type="button" class="lb-btn lb-next" onclick="stepLightbox(1)" aria-label="পরের ছবি"><span data-ic="chevRight" data-s="22"></span></button>
+  <div class="lb-count" id="lbCount"></div>
 </div>
 
-<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
-  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
-  <img id="lightboxImg" src="" onclick="event.stopPropagation()">
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
 const { createClient } = supabase;
@@ -221,205 +440,422 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
 );
 
-const typeIcons = { 'মাদ্রাসা':'🕌', 'স্কুল':'📚', 'কলেজ':'🎓', 'কোচিং সেন্টার':'✏️' };
+/* ---------- icons (24px line set, currentColor) ---------- */
+const IC = {
+  school:'<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M12 5V2.5l3 1.2-3 1.2"/>',
+  book:'<path d="M2 5.5C4.5 4 8 4 12 6c4-2 7.5-2 10-.5V19c-2.5-1.5-6-1.5-10 .5-4-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/>',
+  mosque:'<path d="M3 21h18"/><path d="M6.5 21v-7a5.5 5.5 0 0 1 11 0v7"/><path d="M12 8.5V6"/><path d="M12.6 3.2a1.5 1.5 0 1 0 .9 2.2"/><path d="M10 21v-3a2 2 0 0 1 4 0v3"/><path d="M3 21v-9l1-1.5 1 1.5v9M19 21v-9l1-1.5 1 1.5v9"/>',
+  cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/>',
+  pencil:'<path d="M4 20l1-5L16 4l4 4L9 19z"/><path d="M14 6l4 4"/><path d="M4 20l5-1"/>',
+  campus:'<path d="M3 21h18"/><rect x="4" y="9" width="6" height="12"/><rect x="10" y="3" width="8" height="18"/><path d="M13 7h2M13 11h2M13 15h2M6.5 13h1M6.5 17h1"/>',
+  chart:'<path d="M3 21h18"/><rect x="5" y="12" width="3" height="7"/><rect x="10.5" y="7" width="3" height="12"/><rect x="16" y="3" width="3" height="16"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8 21h8M10 17h4"/>',
+  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+  megaphone:'<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 8.5a4.5 4.5 0 0 1 0 7"/><path d="M18 6a8 8 0 0 1 0 12"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.4 5.5 5.8"/>',
+  teacher:'<circle cx="8" cy="7" r="3"/><path d="M3 20c0-3.3 2.2-6 5-6s5 2.7 5 6"/><rect x="13" y="4" width="8" height="7" rx="1"/><path d="M13 13l3-2"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  scale:'<path d="M12 3v18M6 21h12M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+  layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  form:'<path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/>',
+  money:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+  chat:'<path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/>',
+  share:'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
+  shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',
+  facebook:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M15 8h-1.5A2.5 2.5 0 0 0 11 10.5V21M8.5 13h6"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+  idcard:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M15 10h3.5M15 13h3"/>',
+  arrowLeft:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  chevLeft:'<path d="M15 6l-6 6 6 6"/>', chevRight:'<path d="M9 6l6 6-6 6"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  utensils:'<path d="M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3"/><path d="M17 21V3c-2.2 1-3.5 4-3.5 7s1.3 4 3.5 4"/>',
+  ball:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5l4 2.9-1.5 4.7h-5L8 10.4z"/><path d="M12 3v4.5M21 10.4h-5M3 10.4h5M15 21l-.5-5.9M9 21l.5-5.9"/>',
+  board:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/><path d="M7 12l3-3 3 2 4-4"/>',
+  bus:'<rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 11h16M8 21v-4M16 21v-4"/><path d="M7.5 14h1M15.5 14h1"/>',
+  bed:'<path d="M3 18V7M3 13h18v5M21 18v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="10.5" r="1.8"/>',
+  map:'<path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'
+};
+function ico(name, size, extra){
+  return '<svg class="ico" width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="'+(name==='star'&&extra==='fill'?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[name]||IC.info)+'</svg>';
+}
+function paintIcons(root){
+  (root||document).querySelectorAll('[data-ic]').forEach(el=>{ el.innerHTML = ico(el.dataset.ic, +el.dataset.s || 18); });
+}
+paintIcons();
+
+const TYPE = {
+  'মাদ্রাসা':{ic:'mosque', cls:'t-mosque', c1:'#4C1D95', c2:'#7C3AED'},
+  'স্কুল':{ic:'book', cls:'t-book', c1:'#064E3B', c2:'#059669'},
+  'কলেজ':{ic:'cap', cls:'t-cap', c1:'#831843', c2:'#DB2777'},
+  'কোচিং সেন্টার':{ic:'pencil', cls:'t-pencil', c1:'#78350F', c2:'#D97706'}
+};
+const DEFAULT_TYPE = {ic:'school', cls:'t-school', c1:'#0F2048', c2:'#1A56DB'};
+const FAC_IC = { 'লাইব্রেরি':'book', 'কম্পিউটার ল্যাব':'monitor', 'ক্যান্টিন':'utensils', 'খেলার মাঠ':'ball', 'ডিজিটাল ক্লাসরুম':'board', 'নিজস্ব ক্যাম্পাস':'campus', 'পরিবহন':'bus', 'আবাসিক':'bed' };
+const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
 
 function escapeHtml(str){
   if(str===null||str===undefined) return '';
   return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
+function bn(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]); }
+function toNum(v){ const n = parseInt(String(v||'').replace(/[০-৯]/g, d=>'০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/[^0-9]/g,''), 10); return isNaN(n) ? null : n; }
+function listOf(arr, other){ const a = Array.isArray(arr) ? arr.filter(Boolean).slice() : []; if(other) a.push(other); return a; }
+function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2400); }
+function fmtDate(d){ const x = new Date(d); return isNaN(x) ? '' : bn(x.getDate()) + ' ' + BN_MONTHS[x.getMonth()] + ' ' + bn(x.getFullYear()); }
+function waLink(phone){ const p = String(phone||'').replace(/\D/g,''); return p ? 'https://wa.me/' + (p.startsWith('88') ? p : '88' + p) : ''; }
+function telLink(phone){ const p = String(phone||'').replace(/\D/g,''); return p ? 'tel:+' + (p.startsWith('88') ? p : '88' + p) : ''; }
 
-function chipsHtml(arr, otherVal){
-  const items = Array.isArray(arr) ? arr.slice() : [];
-  if(otherVal) items.push(otherVal);
-  if(items.length === 0) return '<span style="color:var(--text-3);font-size:13px">দেওয়া হয়নি</span>';
-  return items.map(i=>'<span class="chip-tag">'+escapeHtml(i)+'</span>').join('');
+/* generated cover when the institution has no cover photo */
+function coverSvg(t, label){
+  return '<svg viewBox="0 0 1440 280" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+t.c1+'"/><stop offset="1" stop-color="'+t.c2+'"/></linearGradient>' +
+    '<pattern id="cp" width="56" height="56" patternUnits="userSpaceOnUse"><g fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="1.5" transform="translate(16 16) scale(1)">'+IC[t.ic]+'</g></pattern></defs>' +
+    '<rect width="1440" height="280" fill="url(#cg)"/><rect width="1440" height="280" fill="url(#cp)"/>' +
+    '<circle cx="1180" cy="40" r="220" fill="#fff" fill-opacity=".06"/><circle cx="1320" cy="250" r="160" fill="#fff" fill-opacity=".05"/>' +
+    '<g transform="translate(1040 40) scale(9)" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round">'+IC[t.ic]+'</g>' +
+    '<text x="60" y="230" fill="#fff" fill-opacity=".14" font-family="Hind Siliguri, sans-serif" font-size="64" font-weight="700">'+escapeHtml(label)+'</text>' +
+  '</svg>';
 }
 
-async function loadDetail(){
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get('slug');
+let REC = null, INST = null, GALLERY = [], LB_I = 0;
 
-  if(!slug){
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('notFoundState').style.display = 'block';
-    return;
-  }
+async function loadDetail(){
+  const slug = new URLSearchParams(window.location.search).get('slug');
+  if(!slug) return showNotFound();
 
   let record = null;
   try{
     const { data, error } = await sb.from('listing_submissions').select('*').eq('desired_slug', slug).eq('status','approved').limit(1);
     if(error) throw error;
-    if(data && data.length > 0) record = data[0];
-  }catch(e){
-    console.error('Failed to load institution detail', e);
-  }
+    if(data && data.length) record = data[0];
+  }catch(e){ console.error('Failed to load institution detail', e); }
+  if(!record) return showNotFound();
+  REC = record;
 
-  document.getElementById('loadingState').style.display = 'none';
+  sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{ if(error) console.error('View count tracking failed', error); });
 
-  if(!record){
-    document.getElementById('notFoundState').style.display = 'block';
-    return;
-  }
-
-  document.title = record.institution_name + ' — Protishthan';
-
-  // Track view count (fire-and-forget, doesn't block page rendering)
-  sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{
-    if(error) console.error('View count tracking failed', error);
-  });
-
-  document.getElementById('heroLogo').textContent = typeIcons[record.institution_type] || '🏫';
-  document.getElementById('heroName').textContent = record.institution_name;
-  document.getElementById('heroLoc').textContent = '📍 ' + (record.upazila||'') + ', ' + (record.district||'');
-
-  const badges = [];
-  if(record.prn_number) badges.push('<span class="hbadge hbadge-prn">🆔 PRN-'+String(record.prn_number).padStart(4,'0')+'</span>');
-  if(record.institution_type) badges.push('<span class="hbadge hbadge-blue">'+escapeHtml(record.institution_type)+'</span>');
-  if(record.admission_status === 'খোলা') badges.push('<span class="hbadge hbadge-green">ভর্তি চলছে</span>');
-  else if(record.admission_status === 'সীমিত সিট') badges.push('<span class="hbadge hbadge-amber">সীমিত সিট</span>');
-  else if(record.admission_status === 'বন্ধ') badges.push('<span class="hbadge hbadge-gray">ভর্তি বন্ধ</span>');
-  if(record.founding_year) badges.push('<span class="hbadge hbadge-gray">'+escapeHtml(record.founding_year)+' সালে প্রতিষ্ঠিত</span>');
-  document.getElementById('heroBadges').innerHTML = badges.join('');
-
-  document.getElementById('vFounding').textContent = record.founding_year || 'দেওয়া হয়নি';
-  document.getElementById('vStudents').textContent = record.student_count || 'দেওয়া হয়নি';
-  document.getElementById('vTeachers').textContent = record.teacher_count || 'দেওয়া হয়নি';
-  const sessionDisplay = record.session_start_month === 'অন্য' ? (record.other_session_month||'অন্য') : (record.session_start_month||'দেওয়া হয়নি');
-  document.getElementById('vSession').textContent = sessionDisplay;
-
-  document.getElementById('vMedium').innerHTML = chipsHtml(record.medium, record.other_medium);
-
-  document.getElementById('vClassRange').textContent = record.class_range || 'দেওয়া হয়নি';
-  document.getElementById('vGender').textContent = record.gender_type || 'দেওয়া হয়নি';
-  document.getElementById('vAdmission').textContent = record.admission_status || 'দেওয়া হয়নি';
-  document.getElementById('vFee').textContent = record.fee_range || 'দেওয়া হয়নি';
-
-  document.getElementById('vFacilities').innerHTML = chipsHtml(record.facilities, record.other_facility);
-
-  // Try to resolve the live `institutions` row (editable via admin Public Page panel)
-  // so achievements/description/logo/gallery/notices/testimonials reflect latest edits,
-  // not just the static registration-time snapshot.
+  // live institutions row (admin-edited logo, cover, description, achievements …)
   let inst = null;
   try{
-    if(record.institution_id){
-      const byId = await sb.from('institutions').select('*').eq('id', record.institution_id).maybeSingle();
-      inst = byId.data;
-    }
-    if(!inst){
-      const byName = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle();
-      inst = byName.data;
-    }
-    if(!inst && record.institution_name){
-      const fuzzy = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle();
-      inst = fuzzy.data;
-    }
-    if(!inst && record.contact_phone){
-      const byPhone = await sb.from('institutions').select('*').eq('phone', record.contact_phone).limit(1).maybeSingle();
-      inst = byPhone.data;
-    }
-    if(!inst && record.district && record.upazila){
-      const byLoc = await sb.from('institutions').select('*').eq('district', record.district).eq('upazila', record.upazila).limit(1).maybeSingle();
-      inst = byLoc.data;
-    }
+    if(record.institution_id){ const r = await sb.from('institutions').select('*').eq('id', record.institution_id).maybeSingle(); inst = r.data; }
+    if(!inst){ const r = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && record.institution_name){ const r = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && record.contact_phone){ const r = await sb.from('institutions').select('*').eq('phone', record.contact_phone).limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && record.district && record.upazila){ const r = await sb.from('institutions').select('*').eq('district', record.district).eq('upazila', record.upazila).limit(1).maybeSingle(); inst = r.data; }
   }catch(e){ console.error('institution resolve failed', e); }
+  INST = inst;
 
-  const liveAchievements = (inst && Array.isArray(inst.achievements) && inst.achievements.length) ? inst.achievements : null;
-  document.getElementById('vAchievements').innerHTML = liveAchievements
-    ? liveAchievements.map(a=>'<span class="chip-tag">'+escapeHtml(a)+'</span>').join('')
-    : chipsHtml(record.achievements, record.other_achievement);
-
-  const liveDescription = (inst && inst.description) ? inst.description : record.description;
-  if(liveDescription){
-    document.getElementById('vDescription').textContent = liveDescription;
-  } else {
-    document.getElementById('descSec').style.display = 'none';
-  }
-
-  if(inst && inst.logo_url){
-    document.getElementById('heroLogo').innerHTML = '<img src="'+inst.logo_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:14px">';
-  }
-
+  render();
   if(inst && inst.id){
     window.__resolvedInstitutionId = inst.id;
     loadPublicGallery(inst.id);
     loadPublicNotices(inst.id);
     loadPublicTestimonials(inst.id);
+  }
+  loadNearby();
+}
+
+function showNotFound(){
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('notFoundState').style.display = 'block';
+}
+
+function render(){
+  const r = REC, inst = INST;
+  const t = TYPE[r.institution_type] || DEFAULT_TYPE;
+  const loc = [r.upazila, r.district].filter(Boolean).join(', ');
+  const name = r.institution_name || 'প্রতিষ্ঠান';
+  document.body.classList.add(t.cls);
+  document.title = name + ' — ' + (r.institution_type || 'শিক্ষা প্রতিষ্ঠান') + (loc ? ', ' + loc : '') + ' | Protishthan';
+  setMeta(name + (loc ? ' — ' + loc : '') + '। শিক্ষার্থী, শিক্ষক, ভর্তি, সুযোগ-সুবিধা ও যোগাযোগের তথ্য।');
+
+  // breadcrumb
+  const cd = document.getElementById('crumbDistrict');
+  cd.textContent = r.district || 'জেলা'; cd.href = r.district ? 'index.html?q=' + encodeURIComponent(r.district) : 'index.html';
+  document.getElementById('crumbName').textContent = name;
+
+  // cover + logo
+  const coverUrl = inst && inst.cover_image_url;
+  document.getElementById('coverArt').innerHTML = coverUrl ? '<img src="'+escapeHtml(coverUrl)+'" alt="">' : coverSvg(t, r.institution_type || 'শিক্ষা প্রতিষ্ঠান');
+  document.getElementById('heroLogo').innerHTML = (inst && inst.logo_url) ? '<img src="'+escapeHtml(inst.logo_url)+'" alt="'+escapeHtml(name)+' লোগো">' : ico(t.ic, 52);
+
+  // header
+  document.getElementById('heroName').textContent = name;
+  const founded = toNum(r.founding_year);
+  const meta = [];
+  if(r.institution_type) meta.push('<span>'+ico(t.ic,16)+escapeHtml(r.institution_type)+'</span>');
+  if(loc) meta.push('<span>'+ico('pin',16)+escapeHtml(loc)+'</span>');
+  if(founded) meta.push('<span>'+ico('calendar',16)+bn(founded)+' সালে প্রতিষ্ঠিত</span>');
+  if(r.view_count) meta.push('<span>'+ico('eye',16)+bn(r.view_count)+' বার দেখা হয়েছে</span>');
+  document.getElementById('heroMeta').innerHTML = meta.join('');
+
+  const badges = [];
+  if(r.prn_number) badges.push('<span class="badge prn">PRN-'+String(r.prn_number).padStart(4,'0')+'</span>');
+  if(r.admission_status === 'খোলা') badges.push('<span class="badge green">'+ico('check',14)+'ভর্তি চলছে</span>');
+  else if(r.admission_status === 'সীমিত সিট') badges.push('<span class="badge amber">সীমিত সিট</span>');
+  else if(r.admission_status === 'বন্ধ') badges.push('<span class="badge gray">ভর্তি বন্ধ</span>');
+  if(r.gender_type) badges.push('<span class="badge accent">'+escapeHtml(r.gender_type)+'</span>');
+  if(inst && inst.eiin) badges.push('<span class="badge">EIIN '+escapeHtml(inst.eiin)+'</span>');
+  badges.push('<span class="badge">'+ico('shield',14)+'Protishthan-এ তালিকাভুক্ত</span>');
+  document.getElementById('heroBadges').innerHTML = badges.join('');
+
+  const phone = r.contact_phone || (inst && inst.phone);
+  const acts = ['<a href="#sec-inquiry" class="btn btn-primary" onclick="return focusInquiry()">'+ico('form',16)+'ভর্তির তথ্য জানুন</a>'];
+  if(phone) acts.push('<a href="'+waLink(phone)+'" target="_blank" rel="noopener" class="btn btn-wa">'+ico('chat',16)+'WhatsApp</a>');
+  if(phone) acts.push('<a href="'+telLink(phone)+'" class="btn btn-ghost">'+ico('phone',16)+'কল করুন</a>');
+  document.getElementById('heroActions').innerHTML = acts.join('');
+  const mb = ['<a href="#" class="btn btn-primary" onclick="return focusInquiry()">'+ico('form',16)+'তথ্য জানুন</a>'];
+  mb.push(phone ? '<a href="'+telLink(phone)+'" class="btn btn-ghost">'+ico('phone',16)+'কল</a>' : '<button type="button" class="btn btn-ghost" onclick="shareProfile()">'+ico('share',16)+'শেয়ার</button>');
+  mb.push(phone ? '<a href="'+waLink(phone)+'" target="_blank" rel="noopener" class="btn btn-wa">'+ico('chat',16)+'WhatsApp</a>' : '<a href="index.html" class="btn btn-ghost">'+ico('arrowLeft',16)+'ফিরুন</a>');
+  document.getElementById('mobileBar').innerHTML = mb.join('');
+
+  // at a glance
+  const students = toNum(r.student_count), teachers = toNum(r.teacher_count);
+  const age = founded ? new Date().getFullYear() - founded : null;
+  const ratio = (students && teachers) ? Math.round(students / teachers) : null;
+  const stat = (icn, cls, num, lbl, note) => '<div class="stat"><div class="stat-ic '+cls+'">'+ico(icn,20)+'</div><div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div>'+(note?'<div class="stat-note">'+note+'</div>':'')+'</div>';
+  document.getElementById('statsGrid').innerHTML =
+    stat('users','si-blue', students ? bn(students.toLocaleString('en-IN')) : '—', 'শিক্ষার্থী', r.gender_type ? escapeHtml(r.gender_type) : '') +
+    stat('teacher','si-green', teachers ? bn(teachers) : '—', 'শিক্ষক', '') +
+    stat('calendar','si-amber', founded ? bn(founded) : '—', 'প্রতিষ্ঠার সাল', age > 0 ? bn(age) + ' বছর ধরে শিক্ষাদান' : '') +
+    stat('scale','si-purple', ratio ? '১:' + bn(ratio) : '—', 'শিক্ষক : শিক্ষার্থী', ratio ? 'প্রতি শিক্ষকে গড়ে ' + bn(ratio) + ' জন' : '');
+
+  // about
+  const about = (inst && inst.description) || r.description;
+  const aboutEl = document.getElementById('aboutText');
+  if(about){
+    aboutEl.textContent = about;
+    requestAnimationFrame(()=>{ if(aboutEl.scrollHeight > aboutEl.clientHeight + 4) document.getElementById('aboutMore').style.display = 'inline-block'; });
   } else {
-    document.getElementById('inquirySec').style.display = 'none';
+    aboutEl.classList.remove('clamp');
+    aboutEl.innerHTML = '<span class="muted">' + escapeHtml(name) + (r.institution_type ? ' — ' + escapeHtml(r.institution_type) : '') + (loc ? ', ' + escapeHtml(loc) + '।' : '।') +
+      (founded ? ' ' + bn(founded) + ' সালে প্রতিষ্ঠিত।' : '') + ' প্রতিষ্ঠানটি এখনো বিস্তারিত পরিচিতি যোগ করেনি।</span>';
   }
 
-  document.getElementById('vDistrict').textContent = (record.upazila||'') + ', ' + (record.district||'');
-  document.getElementById('vAddress').textContent = record.address_note || 'দেওয়া হয়নি';
+  // academic facts
+  const session = r.session_start_month === 'অন্য' ? (r.other_session_month || '') : (r.session_start_month || '');
+  const fact = (icn, k, v) => '<div class="fact"><span class="fact-ic">'+ico(icn,18)+'</span><div><div class="fact-k">'+k+'</div><div class="fact-v'+(v?'':' na')+'">'+(v ? escapeHtml(v) : 'তথ্য দেওয়া হয়নি')+'</div></div></div>';
+  document.getElementById('factsGrid').innerHTML =
+    fact('layers','শ্রেণি', r.class_range ? bn(r.class_range) : '') + fact('users','শিক্ষার্থী', r.gender_type) +
+    fact('form','ভর্তির অবস্থা', r.admission_status === 'খোলা' ? 'ভর্তি চলছে' : r.admission_status) + fact('money','মাসিক ফি', r.fee_range ? (/[০-৯0-9]/.test(r.fee_range) ? '৳ ' + bn(r.fee_range) : r.fee_range) : '') +
+    fact('clock','সেশন শুরু', session) + fact('idcard','প্রধান / প্রতিষ্ঠান প্রধান', inst && inst.principal_name);
+  const mediums = listOf(r.medium, r.other_medium);
+  document.getElementById('mediumChips').innerHTML = mediums.length ? mediums.map(m=>'<span class="chip">'+ico('book',14)+escapeHtml(m)+'</span>').join('') : '<span class="muted">তথ্য দেওয়া হয়নি</span>';
 
-  const websiteBtn = document.getElementById('websiteBtn');
-  websiteBtn.onclick = function(){
-    alert('এই প্রতিষ্ঠান এখনও Protishthan-এ সম্পূর্ণভাবে যোগ দেয়নি। আমাদের এজেন্ট শীঘ্রই তাদের সাথে যোগাযোগ করবেন।');
+  // facilities
+  const facs = listOf(r.facilities, r.other_facility);
+  if(facs.length) document.getElementById('facGrid').innerHTML = facs.map(f=>'<div class="fac"><span class="fac-ic">'+ico(FAC_IC[f]||'check',20)+'</span><span>'+escapeHtml(f)+'</span></div>').join('');
+  else document.getElementById('sec-facilities').style.display = 'none';
+
+  // achievements (live first)
+  const achs = (inst && Array.isArray(inst.achievements) && inst.achievements.length) ? inst.achievements : listOf(r.achievements, r.other_achievement);
+  if(achs.length) document.getElementById('achList').innerHTML = achs.map(a=>'<div class="ach"><span class="ach-ic">'+ico('trophy',20)+'</span><span>'+escapeHtml(a)+'</span></div>').join('');
+  else document.getElementById('sec-achievements').style.display = 'none';
+
+  // location + map
+  document.getElementById('locMain').textContent = loc ? loc + ', বাংলাদেশ' : 'বাংলাদেশ';
+  document.getElementById('locNote').textContent = r.address_note || '';
+  const q = encodeURIComponent([r.address_note, r.upazila, r.district, 'Bangladesh'].filter(Boolean).join(', '));
+  document.getElementById('mapBox').innerHTML = '<iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="মানচিত্র" src="https://maps.google.com/maps?q='+q+'&z=13&output=embed"></iframe>';
+
+  // contact
+  const cb = [];
+  if(r.contact_name) cb.push('<div class="contact-row"><span class="fact-ic">'+ico('user',18)+'</span><div><div class="fact-k">যোগাযোগকারী</div><div class="fact-v">'+escapeHtml(r.contact_name)+'</div></div></div>');
+  if(phone) cb.push('<div class="contact-row"><span class="fact-ic">'+ico('phone',18)+'</span><div><div class="fact-k">ফোন</div><div class="fact-v">'+escapeHtml(bn(phone))+'</div></div></div>');
+  if(inst && inst.email) cb.push('<div class="contact-row"><span class="fact-ic">'+ico('send',18)+'</span><div><div class="fact-k">ইমেইল</div><div class="fact-v">'+escapeHtml(inst.email)+'</div></div></div>');
+  if(r.facebook_link && /^https?:\/\//i.test(r.facebook_link)) cb.push('<div class="contact-row"><span class="fact-ic">'+ico('facebook',18)+'</span><div><div class="fact-k">Facebook</div><a class="fact-v" style="color:var(--blue);text-decoration:none" href="'+escapeHtml(r.facebook_link)+'" target="_blank" rel="noopener">পেজ দেখুন ↗</a></div></div>');
+  if(phone) cb.push('<div class="contact-btns"><a class="btn btn-wa" href="'+waLink(phone)+'" target="_blank" rel="noopener">'+ico('chat',16)+'WhatsApp</a><a class="btn btn-ghost" href="'+telLink(phone)+'">'+ico('phone',16)+'কল</a></div>');
+  document.getElementById('contactBody').innerHTML = cb.join('') || '<p class="muted">যোগাযোগের তথ্য দেওয়া হয়নি।</p>';
+  if(!inst || !inst.id){
+    document.getElementById('inquiryCard').innerHTML = '<h3>ভর্তি বা তথ্য জানতে চান?</h3><p class="sub" style="margin-bottom:0">এই প্রতিষ্ঠানটি এখনো অনলাইনে জিজ্ঞাসা গ্রহণ চালু করেনি। ' + (phone ? 'সরাসরি কল বা WhatsApp করুন।' : 'শীঘ্রই চালু হবে।') + '</p>';
+  }
+  document.getElementById('inquiryCard').id = 'sec-inquiry';
+
+  // quick facts
+  const kv = (k, v) => v ? '<div class="kv"><span>'+k+'</span><b>'+escapeHtml(v)+'</b></div>' : '';
+  document.getElementById('quickFacts').innerHTML =
+    kv('ধরন', r.institution_type) + kv('জেলা', r.district) + kv('উপজেলা / থানা', r.upazila) +
+    kv('PRN', r.prn_number ? 'PRN-' + String(r.prn_number).padStart(4,'0') : '') + kv('EIIN', inst && inst.eiin) +
+    kv('তালিকাভুক্তি', r.created_at ? fmtDate(r.created_at) : '');
+
+  buildTabs();
+  injectJsonLd(r, inst, loc, phone);
+
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('profile').style.display = 'block';
+}
+
+function setMeta(desc){ document.querySelector('meta[name="description"]').setAttribute('content', desc); }
+
+function injectJsonLd(r, inst, loc, phone){
+  const data = {
+    '@context':'https://schema.org', '@type': r.institution_type === 'কলেজ' ? 'CollegeOrUniversity' : 'EducationalOrganization',
+    name: r.institution_name, url: location.href,
+    address: { '@type':'PostalAddress', addressLocality: r.upazila || undefined, addressRegion: r.district || undefined, addressCountry:'BD' }
   };
-
-  const whatsappBtn = document.getElementById('whatsappBtn');
-  if(record.contact_phone){
-    whatsappBtn.href = 'https://wa.me/88' + record.contact_phone;
-  } else {
-    whatsappBtn.style.display = 'none';
-  }
-
-  document.getElementById('detailCard').classList.add('show');
+  if(toNum(r.founding_year)) data.foundingDate = String(toNum(r.founding_year));
+  if(phone) data.telephone = '+88' + String(phone).replace(/\D/g,'').replace(/^88/,'');
+  if(inst && inst.logo_url) data.logo = inst.logo_url;
+  if(r.description || (inst && inst.description)) data.description = (inst && inst.description) || r.description;
+  const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data);
+  document.head.appendChild(s);
 }
 
-async function loadPublicGallery(institutionId){
-  const { data } = await sb.from('institution_gallery').select('*').eq('institution_id', institutionId).order('created_at',{ascending:false});
+/* ---------- tabs: only for visible sections, highlight on scroll ---------- */
+function buildTabs(){
+  const secs = [...document.querySelectorAll('.main-col > section[data-tab]')].filter(s=>s.style.display !== 'none');
+  document.getElementById('tabBar').innerHTML = secs.map(s=>'<a class="tab" href="#'+s.id+'">'+s.dataset.tab+'</a>').join('');
+  if(!('IntersectionObserver' in window)) return;
+  if(window.__tabObs) window.__tabObs.disconnect();
+  window.__tabObs = new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(!e.isIntersecting) return;
+      document.querySelectorAll('.tab').forEach(a=>a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      const act = document.querySelector('.tab.active'); if(act) act.scrollIntoView({block:'nearest', inline:'nearest'});
+    });
+  }, { rootMargin:'-140px 0px -60% 0px' });
+  secs.forEach(s=>window.__tabObs.observe(s));
+}
+
+function toggleAbout(){
+  const el = document.getElementById('aboutText'), b = document.getElementById('aboutMore');
+  const clamped = el.classList.toggle('clamp');
+  b.textContent = clamped ? 'আরও পড়ুন' : 'সংক্ষেপে দেখুন';
+}
+
+function focusInquiry(){
+  const card = document.getElementById('sec-inquiry');
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+  const n = document.getElementById('inqName'); if(n) setTimeout(()=>n.focus({preventScroll:true}), 500);
+  return false;
+}
+
+async function shareProfile(){
+  const data = { title: document.title, text: (REC && REC.institution_name) || 'Protishthan', url: location.href };
+  try{
+    if(navigator.share){ await navigator.share(data); return; }
+    await navigator.clipboard.writeText(location.href);
+    toast('লিংক কপি হয়েছে');
+  }catch(e){ /* user cancelled */ }
+}
+
+/* ---------- gallery / notices / reviews ---------- */
+async function loadPublicGallery(id){
+  const { data } = await sb.from('institution_gallery').select('*').eq('institution_id', id).order('created_at',{ascending:false});
   if(!data || !data.length) return;
-  document.getElementById('gallerySec').style.display = 'block';
-  document.getElementById('vGallery').innerHTML = data.map(g=>'<div class="gimg-wrap" onclick="openLightbox(\''+g.image_url+'\')"><img src="'+g.image_url+'" loading="lazy"></div>').join('');
+  GALLERY = data.map(g=>g.image_url);
+  const shown = GALLERY.slice(0, 5);
+  document.getElementById('galleryGrid').innerHTML = shown.map((u,i)=>
+    '<div class="g" onclick="openLightbox('+i+')"><img src="'+escapeHtml(u)+'" loading="lazy" alt="গ্যালারির ছবি '+bn(i+1)+'">' +
+    (i === shown.length - 1 && GALLERY.length > shown.length ? '<div class="more">+'+bn(GALLERY.length - shown.length)+' ছবি</div>' : '') + '</div>').join('');
+  document.getElementById('sec-gallery').style.display = 'block';
+  buildTabs();
 }
 
-async function loadPublicNotices(institutionId){
-  const { data } = await sb.from('institution_notices').select('*').eq('institution_id', institutionId).eq('is_active', true).order('created_at',{ascending:false});
+async function loadPublicNotices(id){
+  const { data } = await sb.from('institution_notices').select('*').eq('institution_id', id).eq('is_active', true).order('created_at',{ascending:false});
   if(!data || !data.length) return;
-  document.getElementById('noticeSec').style.display = 'block';
-  document.getElementById('vNotices').innerHTML = data.map(n=>
-    '<div class="notice-row"><div class="t">'+escapeHtml(n.title)+'</div>'+(n.body?'<div class="b">'+escapeHtml(n.body)+'</div>':'')+'</div>'
-  ).join('');
+  document.getElementById('noticeList').innerHTML = data.map(n=>{
+    const d = new Date(n.created_at);
+    return '<div class="notice"><div class="n-date"><b>'+(isNaN(d)?'—':bn(d.getDate()))+'</b><span>'+(isNaN(d)?'':BN_MONTHS[d.getMonth()].slice(0,4))+'</span></div>' +
+      '<div><div class="n-title">'+escapeHtml(n.title)+'</div>'+(n.body?'<div class="n-body">'+escapeHtml(n.body)+'</div>':'')+'</div></div>';
+  }).join('');
+  document.getElementById('sec-notices').style.display = 'block';
+  buildTabs();
 }
 
-async function loadPublicTestimonials(institutionId){
-  const { data } = await sb.from('institution_testimonials').select('*').eq('institution_id', institutionId).order('created_at',{ascending:false});
+function starsHtml(n, size){ let h = ''; for(let i=1;i<=5;i++) h += '<span style="color:'+(i<=Math.round(n)?'#F59E0B':'#E2E8F0')+'">'+ico('star', size||16, 'fill')+'</span>'; return '<span class="stars">'+h+'</span>'; }
+
+async function loadPublicTestimonials(id){
+  const { data } = await sb.from('institution_testimonials').select('*').eq('institution_id', id).order('created_at',{ascending:false});
   if(!data || !data.length) return;
-  document.getElementById('testimonialSec').style.display = 'block';
-  document.getElementById('vTestimonials').innerHTML = data.map(t=>
-    '<div class="testi-row"><div class="name">'+escapeHtml(t.author_name)+' <span style="color:#F59E0B">'+'★'.repeat(t.rating||5)+'</span></div><div class="msg">"'+escapeHtml(t.message)+'"</div></div>'
-  ).join('');
+  const ratings = data.map(t=>Math.min(5, Math.max(1, t.rating || 5)));
+  const avg = ratings.reduce((a,b)=>a+b,0) / ratings.length;
+  const dist = [5,4,3,2,1].map(s=>ratings.filter(x=>x===s).length);
+  document.getElementById('rvSummary').innerHTML =
+    '<div class="rv-big"><b>'+bn(avg.toFixed(1))+'</b><br>'+starsHtml(avg,18)+'<span class="muted">'+bn(data.length)+'টি মতামত</span></div>' +
+    '<div>' + [5,4,3,2,1].map((s,i)=>'<div class="bar-row"><span>'+bn(s)+'★</span><div class="bar"><i style="width:'+(data.length ? dist[i]/data.length*100 : 0)+'%"></i></div><span>'+bn(dist[i])+'</span></div>').join('') + '</div>';
+  document.getElementById('rvList').innerHTML = data.map(t=>
+    '<div class="review"><div class="avatar">'+escapeHtml((t.author_name||'?').trim().charAt(0))+'</div><div style="min-width:0">' +
+    '<div class="rv-name">'+escapeHtml(t.author_name)+'</div>'+starsHtml(t.rating||5,14)+
+    (t.created_at ? '<span class="muted" style="margin-left:8px;font-size:12px">'+fmtDate(t.created_at)+'</span>' : '') +
+    '<div class="rv-msg">'+escapeHtml(t.message)+'</div></div></div>').join('');
+  document.getElementById('sec-reviews').style.display = 'block';
+  buildTabs();
 }
 
+/* ---------- nearby institutions (same district, then same type) ---------- */
+async function loadNearby(){
+  const r = REC;
+  try{
+    let list = [];
+    if(r.district){
+      const { data } = await sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug,admission_status')
+        .eq('status','approved').eq('district', r.district).neq('id', r.id).or('is_hidden.is.null,is_hidden.eq.false').limit(6);
+      list = data || [];
+    }
+    let title = (r.district ? r.district + ' জেলার' : 'কাছাকাছি') + ' অন্যান্য প্রতিষ্ঠান';
+    if(list.length < 3 && r.institution_type){
+      const { data } = await sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug,admission_status')
+        .eq('status','approved').eq('institution_type', r.institution_type).neq('id', r.id).or('is_hidden.is.null,is_hidden.eq.false').limit(6);
+      const seen = new Set(list.map(x=>x.desired_slug));
+      (data||[]).forEach(x=>{ if(!seen.has(x.desired_slug)) list.push(x); });
+      if(!r.district || list.length) title = 'আরও কিছু ' + r.institution_type;
+    }
+    list = list.slice(0, 6);
+    if(!list.length) return;
+    document.getElementById('nearbyTitle').textContent = title;
+    document.getElementById('nearbySub').textContent = 'Protishthan তথ্যভান্ডার থেকে';
+    document.getElementById('nearbyGrid').innerHTML = list.map(x=>{
+      const tt = TYPE[x.institution_type] || DEFAULT_TYPE;
+      return '<a class="nb '+tt.cls+'" href="institution-detail.html?slug='+encodeURIComponent(x.desired_slug)+'">' +
+        '<span class="nb-ic" style="background:var(--accent-l);color:var(--accent)">'+ico(tt.ic,22)+'</span>' +
+        '<span style="min-width:0"><span class="nb-name" style="display:block">'+escapeHtml(x.institution_name)+'</span>' +
+        '<span class="nb-meta">'+escapeHtml(x.institution_type||'')+(x.upazila?' · '+escapeHtml(x.upazila):'')+(x.admission_status==='খোলা'?' · <b style="color:var(--green)">ভর্তি চলছে</b>':'')+'</span></span></a>';
+    }).join('');
+    document.getElementById('nearbyWrap').style.display = 'block';
+  }catch(e){ console.error('nearby failed', e); }
+}
+
+/* ---------- inquiry ---------- */
 async function submitInquiry(){
   const institutionId = window.__resolvedInstitutionId;
   const name = document.getElementById('inqName').value.trim();
   const phone = document.getElementById('inqPhone').value.trim();
   const message = document.getElementById('inqMessage').value.trim();
-  if(!name || !phone){
-    alert('নাম ও ফোন নম্বর দুটোই দিন।');
-    return;
-  }
-  if(!institutionId){
-    alert('এই প্রতিষ্ঠানের জন্য এই মুহূর্তে আবেদন গ্রহণ করা সম্ভব হচ্ছে না।');
-    return;
-  }
-  const { error } = await sb.from('institution_inquiries').insert({
-    institution_id: institutionId, guardian_name: name, phone, message: message || null
-  });
-  if(error){ alert('দুঃখিত, কিছু ভুল হয়েছে। আবার চেষ্টা করুন।'); return; }
+  if(!name || !phone){ toast('নাম ও ফোন নম্বর দুটোই দিন'); return; }
+  if(!/^(\+?88)?01[0-9]{9}$/.test(phone.replace(/[\s-]/g,''))){ toast('সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)'); return; }
+  if(!institutionId){ toast('এই মুহূর্তে জিজ্ঞাসা পাঠানো যাচ্ছে না'); return; }
+  const btn = document.getElementById('inqBtn'); btn.disabled = true; btn.style.opacity = .7;
+  const { error } = await sb.from('institution_inquiries').insert({ institution_id: institutionId, guardian_name: name, phone, message: message || null });
+  btn.disabled = false; btn.style.opacity = 1;
+  if(error){ toast('দুঃখিত, কিছু ভুল হয়েছে। আবার চেষ্টা করুন।'); return; }
   document.getElementById('inquiryFormWrap').style.display = 'none';
   document.getElementById('inquirySuccess').style.display = 'block';
 }
 
-function openLightbox(url){
-  document.getElementById('lightboxImg').src = url;
-  document.getElementById('lightboxOverlay').classList.add('show');
-}
-function closeLightbox(){
-  document.getElementById('lightboxOverlay').classList.remove('show');
-}
+/* ---------- lightbox ---------- */
+function openLightbox(i){ if(!GALLERY.length) return; LB_I = i; showLb(); document.getElementById('lightbox').classList.add('show'); }
+function showLb(){ document.getElementById('lightboxImg').src = GALLERY[LB_I]; document.getElementById('lbCount').textContent = bn(LB_I+1) + ' / ' + bn(GALLERY.length); }
+function stepLightbox(d){ LB_I = (LB_I + d + GALLERY.length) % GALLERY.length; showLb(); }
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('lightbox').classList.contains('show')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowRight') stepLightbox(1);
+  if(e.key === 'ArrowLeft') stepLightbox(-1);
+});
 
+document.getElementById('fy').textContent = bn(new Date().getFullYear());
 loadDetail();
 </script>
 </body>
