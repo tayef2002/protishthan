@@ -30,14 +30,50 @@ body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background
 /* hero */
 .hero{background:radial-gradient(1200px 400px at 70% -10%,rgba(124,58,237,.35),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:46px 0 120px;position:relative;overflow:hidden}
 .hero .stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff8 50%,transparent),radial-gradient(1.5px 1.5px at 30% 70%,#fff6 50%,transparent),radial-gradient(1.2px 1.2px at 55% 30%,#fff7 50%,transparent),radial-gradient(1.6px 1.6px at 80% 60%,#fff8 50%,transparent),radial-gradient(1.2px 1.2px at 90% 15%,#fff6 50%,transparent),radial-gradient(1.4px 1.4px at 68% 85%,#fff5 50%,transparent);pointer-events:none}
-.hero .container{position:relative}
+.hero .container{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600}
 .hero h1{font-size:clamp(34px,5vw,58px);line-height:1.15;font-weight:700;margin:16px 0 10px;letter-spacing:-.5px}
 .hero h1 span{background:linear-gradient(135deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{font-size:17px;color:rgba(255,255,255,.75);max-width:640px}
-.hero-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.hero p{font-size:17px;color:rgba(255,255,255,.75);max-width:660px;margin:0 auto}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:18px;justify-content:center}
 .hero-pills span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:rgba(255,255,255,.88)}
 .hero-pills .ico{color:#FDE68A}
+
+/* hero sky (same animation set as the home page, toned down) */
+.hero-sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-star{position:absolute;border-radius:50%;background:#E0E7FF;box-shadow:0 0 6px rgba(224,231,255,.8);animation:skyTwinkle 3.5s ease-in-out infinite}
+@keyframes skyTwinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+.hero-moon-wrap{position:absolute;top:118px;right:9%;width:70px;height:70px;animation:moonFloat 9s ease-in-out infinite}
+.hero-moon-halo{position:absolute;inset:-34px;border-radius:50%;background:radial-gradient(circle,rgba(253,230,138,.28),rgba(253,230,138,0) 70%);animation:moonGlow 5s ease-in-out infinite}
+.hero-moon{position:absolute;inset:0;border-radius:50%;box-shadow:-14px 8px 0 0 #FDE68A;transform:rotate(-18deg);filter:drop-shadow(0 0 10px rgba(253,230,138,.55))}
+@keyframes moonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes moonGlow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+.shooting-star{position:absolute;width:110px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95));opacity:0;transform:rotate(-24deg);animation:shoot 9s ease-in infinite}
+.shooting-star.s2{animation-duration:13s;animation-delay:5.5s}
+@keyframes shoot{0%,88%{opacity:0;translate:0 0}90%{opacity:1}100%{opacity:0;translate:-340px 150px}}
+.sky-book{position:absolute;left:0;animation:bookFly 34s linear infinite;will-change:transform}
+.sky-book svg{display:block;overflow:visible;filter:drop-shadow(0 0 6px rgba(147,197,253,.45));animation:bookBob 1.9s ease-in-out infinite alternate}
+.sky-book .bk-l,.sky-book .bk-r,.sky-book .bk-flip{transform-box:fill-box}
+.sky-book .bk-l{transform-origin:100% 100%;animation:bookFlapL .55s ease-in-out infinite alternate}
+.sky-book .bk-r{transform-origin:0 100%;animation:bookFlapR .55s ease-in-out infinite alternate}
+.sky-book .bk-flip{transform-origin:0 100%;animation:bookPage 2.6s ease-in-out infinite}
+.sky-book.b2{animation-duration:46s;animation-delay:-20s}
+.sky-book.b3{animation-duration:40s;animation-delay:-31s}
+.sky-book.b4{animation-duration:54s;animation-delay:-9s}
+.sky-book.b2 svg,.sky-book.b4 svg{animation-duration:2.4s}
+.sky-book.b2 .bk-l,.sky-book.b2 .bk-r,.sky-book.b4 .bk-l,.sky-book.b4 .bk-r{animation-duration:.7s}
+@keyframes bookFly{from{transform:translateX(-90px)}to{transform:translateX(calc(100vw + 90px))}}
+@keyframes bookBob{from{transform:translateY(-10px) rotate(-5deg)}to{transform:translateY(10px) rotate(5deg)}}
+@keyframes bookFlapL{from{transform:rotate(-26deg)}to{transform:rotate(14deg)}}
+@keyframes bookFlapR{from{transform:rotate(26deg)}to{transform:rotate(-14deg)}}
+@keyframes bookPage{0%,55%{transform:scaleX(1);opacity:0}60%{opacity:1}100%{transform:scaleX(-1);opacity:.2}}
+.sky-page{position:absolute;width:9px;height:12px;background:#FFFBEB;border-radius:1px;opacity:0;animation:pageDrift 12s ease-in-out infinite}
+.sky-page.p2{animation-delay:-6s}
+@keyframes pageDrift{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}50%{transform:translate(-40px,60px) rotate(160deg)}90%{opacity:.6}100%{opacity:0;transform:translate(-90px,130px) rotate(340deg)}}
+.hero-moon-wrap{top:70px;right:8%}
+.hero .sky-book{opacity:.75}
+@media(max-width:768px){.hero-moon-wrap{top:60px;right:6%;width:44px;height:44px}.hero-moon{box-shadow:-9px 5px 0 0 #FDE68A}.hero-moon-halo{inset:-22px}}
+@media(prefers-reduced-motion:reduce){.hero-sky *{animation:none!important}.shooting-star,.sky-book{display:none}}
 
 /* app layout */
 .app{display:grid;grid-template-columns:minmax(0,1fr) 470px;gap:28px;align-items:start;margin-top:-84px;padding-bottom:70px;position:relative}
@@ -166,7 +202,13 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 </header>
 
 <section class="hero">
-  <div class="stars"></div>
+  <div class="hero-sky" id="heroSky" aria-hidden="true">
+    <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
+    <div class="shooting-star" style="top:18%;left:64%"></div>
+    <div class="shooting-star s2" style="top:40%;left:92%"></div>
+    <div class="sky-book b1" style="top:11%"><svg viewBox="-28 -22 56 36" width="54" height="35"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#2563EB"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#1D4ED8"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <div class="sky-book b3" style="top:58%"><svg viewBox="-28 -22 56 36" width="46" height="30"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#DC2626"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#B91C1C"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#B91C1C" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+  </div>
   <div class="container">
     <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FDE68A"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · বিনামূল্যে · লগইন লাগবে না</span>
     <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
@@ -735,6 +777,17 @@ function shareFacebook(){ window.open('https://www.facebook.com/sharer/sharer.ph
 function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponent(caption()), '_blank', 'noopener'); }
 
 /* ---------------- start ---------------- */
+(function scatterStars(){
+  const sky = document.getElementById('heroSky'); if(!sky) return;
+  const n = window.innerWidth < 768 ? 22 : 44, frag = document.createDocumentFragment();
+  for(let i=0;i<n;i++){
+    const st = document.createElement('span'), size = (Math.random()*1.6 + 1).toFixed(1);
+    st.className = 'hero-star';
+    st.style.cssText = 'left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*90).toFixed(2)+'%;width:'+size+'px;height:'+size+'px;animation-delay:-'+(Math.random()*3.5).toFixed(2)+'s;animation-duration:'+(2.5+Math.random()*3).toFixed(2)+'s';
+    frag.appendChild(st);
+  }
+  sky.appendChild(frag);
+})();
 document.getElementById('fy').textContent = bn(new Date().getFullYear());
 refreshTitles();
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
