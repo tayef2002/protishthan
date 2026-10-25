@@ -21,7 +21,7 @@ const sb = createClient(
 
 ## ফাইল লিস্ট (২৬টা HTML, সব root এ flat)
 
-**Agent system:** agent-signup.html, agent-login.html, agent-dashboard.html
+**Protishthan Army (formerly Agent):** army.html (/army signup), army-login.html, army-dashboard.html — `agents` table, up to 3 members per upazila; old agent-*.html redirect here
 **Admin core:** admin.html, dashboard.html, login.html, list-institution.html
 **Student/Class:** students.html, classes.html, guardians.html
 **Teacher/Staff:** teachers.html, teacher-login.html, teacher-dashboard.html

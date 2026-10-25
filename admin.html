@@ -154,7 +154,7 @@ body{display:flex}
       <span class="nav-soon">আসছে</span>
     </button>
     <button class="nav-item" id="nav-agents" onclick="showView('agents')">
-      <span class="nav-icon">🧑‍💼</span><span>Agent Management</span>
+      <span class="nav-icon">🧑‍💼</span><span>Army Management</span>
       <span class="nav-badge" id="agentPendingBadge" style="display:none">0</span>
     </button>
     <button class="nav-item disabled">
@@ -269,12 +269,12 @@ body{display:flex}
         </table>
         <div class="empty-state" id="agentsEmptyState" style="display:none">
           <div class="ic">🧑‍💼</div>
-          <div>কোনো agent পাওয়া যায়নি</div>
+          <div>কোনো Army সদস্য পাওয়া যায়নি</div>
         </div>
       </div>
 
       <div class="section-card" id="unassignedSection" style="display:none">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">⚠️ Unassigned Institutions (district-এ কোনো approved agent নেই)</h3>
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">⚠️ Unassigned Institutions (এলাকায় কোনো approved Army সদস্য নেই)</h3>
         <div id="unassignedTable"></div>
       </div>
     </div>
@@ -550,7 +550,7 @@ document.querySelectorAll('.nav-item.disabled').forEach(function(item){
 loadSubmissions();
 </script>
 <script>
-const navTitlesAgents = { agents: ['Agent Management', 'এজেন্ট আবেদন review, approve এবং কমিশন নির্ধারণ'] };
+const navTitlesAgents = { agents: ['Army Management', 'Protishthan Army আবেদন review, approve এবং কমিশন'] };
 Object.assign(navTitles, navTitlesAgents);
 
 let allAgents = [];
@@ -604,7 +604,7 @@ function renderAgents(){
   empty.style.display='none';
   body.innerHTML = rows.map(a=>{
     const created = new Date(a.created_at).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'});
-    return '<tr><td style="font-weight:600">'+escapeHtmlA(a.full_name)+'</td><td>'+escapeHtmlA(a.district)+'</td><td>'+escapeHtmlA(a.phone||'-')+'</td><td style="color:var(--text-3);font-size:12px">'+escapeHtmlA(a.email)+'</td><td><span class="status-pill '+(a.status==='pending_review'?'pending':a.status)+'">'+(a.status==='pending_review'?'Pending':a.status==='approved'?'Approved':'Rejected')+'</span></td><td style="color:var(--text-3);font-size:12px">'+created+'</td><td><button class="row-btn view" onclick="openAgentModal(\''+a.id+'\')">বিস্তারিত</button></td></tr>';
+    return '<tr><td style="font-weight:600">'+escapeHtmlA(a.full_name)+'</td><td>'+escapeHtmlA((a.upazila ? a.upazila + ', ' : '') + a.district)+'</td><td>'+escapeHtmlA(a.phone||'-')+'</td><td style="color:var(--text-3);font-size:12px">'+escapeHtmlA(a.email)+'</td><td><span class="status-pill '+(a.status==='pending_review'?'pending':a.status)+'">'+(a.status==='pending_review'?'Pending':a.status==='approved'?'Approved':'Rejected')+'</span></td><td style="color:var(--text-3);font-size:12px">'+created+'</td><td><button class="row-btn view" onclick="openAgentModal(\''+a.id+'\')">বিস্তারিত</button></td></tr>';
   }).join('');
 }
 
@@ -615,6 +615,7 @@ async function openAgentModal(id){
 
   let html = '<div class="detail-grid" style="margin-bottom:20px">';
   html += '<div class="detail-item"><div class="k">জেলা</div><div class="v">'+escapeHtmlA(a.district)+'</div></div>';
+  html += '<div class="detail-item"><div class="k">উপজেলা</div><div class="v">'+escapeHtmlA(a.upazila||'—')+'</div></div>';
   html += '<div class="detail-item"><div class="k">ফোন</div><div class="v">'+escapeHtmlA(a.phone||'-')+'</div></div>';
   html += '<div class="detail-item full"><div class="k">ইমেইল</div><div class="v">'+escapeHtmlA(a.email)+'</div></div>';
   html += '<div class="detail-item"><div class="k">স্ট্যাটাস</div><div class="v"><span class="status-pill '+(a.status==='pending_review'?'pending':a.status)+'">'+(a.status==='pending_review'?'Pending':a.status==='approved'?'Approved':'Rejected')+'</span></div></div>';
@@ -670,7 +671,7 @@ async function loadUnassignedInstitutions(){
     if(error) throw error;
     const rows = data || [];
     if(!rows.length){
-      document.getElementById('unassignedTable').innerHTML = '<div class="empty-state"><div class="ic">✅</div><div>সব প্রতিষ্ঠান agent assign করা আছে</div></div>';
+      document.getElementById('unassignedTable').innerHTML = '<div class="empty-state"><div class="ic">✅</div><div>সব প্রতিষ্ঠান Army সদস্যের সাথে যুক্ত আছে</div></div>';
       return;
     }
     let html = '<table class="sub-table"><thead><tr><th>প্রতিষ্ঠান</th><th>জেলা</th><th>প্ল্যান</th></tr></thead><tbody>';
