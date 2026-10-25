@@ -280,6 +280,15 @@ textarea{resize:vertical;min-height:80px}
         </div>
 
         <div class="field">
+          <label>মালিকানা</label>
+          <div class="chip-grid chip-grid-single" id="ownershipGrid">
+            <button type="button" class="chip-btn" data-val="সরকারি" onclick="selectSingleChip(this,'ownershipGrid')">সরকারি</button>
+            <button type="button" class="chip-btn" data-val="বেসরকারি" onclick="selectSingleChip(this,'ownershipGrid')">বেসরকারি</button>
+            <button type="button" class="chip-btn" data-val="এমপিওভুক্ত" onclick="selectSingleChip(this,'ownershipGrid')">এমপিওভুক্ত</button>
+          </div>
+        </div>
+
+        <div class="field">
           <label>ছাত্র/ছাত্রী কাদের জন্য</label>
           <div class="chip-grid chip-grid-single" id="genderGrid">
             <button type="button" class="chip-btn" data-val="ছাত্র" onclick="selectSingleChip(this,'genderGrid')">ছাত্র</button>
@@ -554,6 +563,8 @@ async function submitListing(){
   const otherSessionMonth = document.getElementById('otherSessionMonth').value.trim();
   const genderSelected = document.querySelector('#genderGrid .chip-btn.selected');
   const genderType = genderSelected ? genderSelected.dataset.val : null;
+  const ownershipSelected = document.querySelector('#ownershipGrid .chip-btn.selected');
+  const ownership = ownershipSelected ? ownershipSelected.dataset.val : null;
   const admissionSelected = document.querySelector('#admissionGrid .chip-btn.selected');
   const admissionStatus = admissionSelected ? admissionSelected.dataset.val : null;
   const feeRange = document.getElementById('feeRange').value.trim();
@@ -621,6 +632,7 @@ async function submitListing(){
       session_start_month: sessionMonth || null,
       other_session_month: otherSessionMonth || null,
       gender_type: genderType,
+      ownership: ownership,
       admission_status: admissionStatus,
       fee_range: feeRange || null,
       facilities: facilities.length ? facilities : null,
@@ -634,6 +646,10 @@ async function submitListing(){
     // institution_id column not migrated yet -> insert without it
     if(error && /institution_id/.test(error.message || '')){
       delete listingRow.institution_id;
+      ({ error } = await sb.from('listing_submissions').insert(listingRow));
+    }
+    if(error && /ownership/.test(error.message || '')){
+      delete listingRow.ownership;
       ({ error } = await sb.from('listing_submissions').insert(listingRow));
     }
 

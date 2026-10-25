@@ -346,6 +346,13 @@ body{padding-bottom:110px}
 .filters .f-divs .f-count{padding:1px 6px}
 .filters .filter-select{width:100%;padding:10px 12px;border-radius:10px;font-size:13.5px;margin-bottom:8px;background:#fff}
 .filters .filter-select:last-child{margin-bottom:0}
+.f-chips{display:flex;flex-wrap:wrap;gap:6px}
+.f-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1.5px solid var(--border);border-radius:100px;background:#fff;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--text-2);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.f-chip:hover{border-color:#C7D7FE}
+.f-chip.sel{background:var(--blue-light);border-color:#93B4FB;color:var(--blue)}
+.f-chip .f-cn{font-style:normal;font-size:10.5px;font-weight:700;color:var(--text-3);background:#F1F5F9;border-radius:100px;padding:1px 6px}
+.f-chip.sel .f-cn{background:#fff;color:var(--blue)}
+.f-chip.zero{opacity:.55}
 .f-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
 .filters .f-switch{width:42px;height:24px;border-radius:100px;background:#CBD5E1;border:none;padding:0;position:relative;flex-shrink:0;transition:background .2s}
 .filters .f-switch span{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
@@ -1271,6 +1278,48 @@ body{padding-bottom:110px}
         </select>
       </div>
 
+      <div class="f-sec">
+        <div class="f-title">মালিকানা</div>
+        <div class="f-chips">
+          <button type="button" class="f-chip" data-g="own" data-v="সরকারি" onclick="toggleChipFilter(this)">সরকারি<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="own" data-v="বেসরকারি" onclick="toggleChipFilter(this)">বেসরকারি<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="own" data-v="এমপিওভুক্ত" onclick="toggleChipFilter(this)">এমপিওভুক্ত<i class="f-cn"></i></button>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <div class="f-title">কাদের জন্য</div>
+        <div class="f-chips">
+          <button type="button" class="f-chip" data-g="gender" data-v="ছাত্র" onclick="toggleChipFilter(this)">শুধু ছাত্র<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="gender" data-v="ছাত্রী" onclick="toggleChipFilter(this)">শুধু ছাত্রী<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="gender" data-v="ছাত্র-ছাত্রী উভয়" onclick="toggleChipFilter(this)">সহশিক্ষা<i class="f-cn"></i></button>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <div class="f-title">সুযোগ-সুবিধা</div>
+        <div class="f-sub" style="margin:-6px 0 10px">যতগুলো বাছবেন, সবগুলো আছে এমন প্রতিষ্ঠান</div>
+        <div class="f-chips">
+          <button type="button" class="f-chip" data-g="fac" data-v="আবাসিক" onclick="toggleChipFilter(this)">আবাসিক / হোস্টেল<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="পরিবহন" onclick="toggleChipFilter(this)">পরিবহন<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="কম্পিউটার ল্যাব" onclick="toggleChipFilter(this)">কম্পিউটার ল্যাব<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="ডিজিটাল ক্লাসরুম" onclick="toggleChipFilter(this)">ডিজিটাল ক্লাসরুম<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="লাইব্রেরি" onclick="toggleChipFilter(this)">লাইব্রেরি<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="খেলার মাঠ" onclick="toggleChipFilter(this)">খেলার মাঠ<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="ক্যান্টিন" onclick="toggleChipFilter(this)">ক্যান্টিন<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="নিজস্ব ক্যাম্পাস" onclick="toggleChipFilter(this)">নিজস্ব ক্যাম্পাস<i class="f-cn"></i></button>
+        </div>
+      </div>
+
+      <div class="f-sec">
+        <div class="f-title">বিশেষত্ব</div>
+        <div class="f-chips">
+          <button type="button" class="f-chip" data-g="fac" data-v="ভালো বোর্ড রিজাল্ট" onclick="toggleChipFilter(this)">ভালো বোর্ড রিজাল্ট<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="fac" data-v="অভিজ্ঞ শিক্ষক প্যানেল" onclick="toggleChipFilter(this)">অভিজ্ঞ শিক্ষক প্যানেল<i class="f-cn"></i></button>
+          <button type="button" class="f-chip" data-g="adm" data-v="সীমিত সিট" onclick="toggleChipFilter(this)">সীমিত সিট বাকি<i class="f-cn"></i></button>
+        </div>
+      </div>
+
       <div class="f-sec f-toggle-row" onclick="toggleAdmissionFilter(document.getElementById('filterAdmissionOpen'))">
         <div>
           <div class="f-title" style="margin:0">ভর্তি চলছে</div>
@@ -1680,6 +1729,7 @@ function renderCards(list){
     if(Array.isArray(s.medium) && s.medium.length){
       s.medium.slice(0,2).forEach(m=>tags.push('<span class="itag itag-blue">' + escapeHtml(m) + '</span>'));
     }
+    if(s.ownership) tags.push('<span class="itag itag-gray">' + escapeHtml(s.ownership) + '</span>');
     if(s.admission_status === 'খোলা') tags.push('<span class="itag itag-green">ভর্তি চলছে</span>');
     if(Array.isArray(s.achievements) && s.achievements.length){
       tags.push('<span class="itag itag-gray">' + escapeHtml(s.achievements[0]) + '</span>');
@@ -1757,6 +1807,32 @@ function updateDivisionCounts(){
   });
 }
 
+/* chip filters: ownership & gender pick one, facilities/strengths must all match */
+const CHIP_F = { own:'', gender:'', adm:'', fac:new Set() };
+const CHIP_LABEL = { own:v=>v, gender:v=>({ 'ছাত্র':'শুধু ছাত্র', 'ছাত্রী':'শুধু ছাত্রী', 'ছাত্র-ছাত্রী উভয়':'সহশিক্ষা' }[v] || v), adm:v=>'সীমিত সিট বাকি', fac:v=>v };
+function hasFeature(s, v){ return (Array.isArray(s.facilities) && s.facilities.includes(v)) || (Array.isArray(s.achievements) && s.achievements.includes(v)); }
+function chipMatch(s, g, v){
+  if(g === 'own') return s.ownership === v;
+  if(g === 'gender') return s.gender_type === v;
+  if(g === 'adm') return s.admission_status === v;
+  return hasFeature(s, v);
+}
+function toggleChipFilter(btn){
+  const g = btn.dataset.g, v = btn.dataset.v;
+  if(g === 'fac'){ CHIP_F.fac.has(v) ? CHIP_F.fac.delete(v) : CHIP_F.fac.add(v); }
+  else CHIP_F[g] = CHIP_F[g] === v ? '' : v;
+  applyFilters();
+}
+function syncChipUI(){
+  document.querySelectorAll('.f-chip').forEach(b=>{
+    const g = b.dataset.g, v = b.dataset.v;
+    b.classList.toggle('sel', g === 'fac' ? CHIP_F.fac.has(v) : CHIP_F[g] === v);
+    const n = allApproved.filter(s=>chipMatch(s, g, v)).length;
+    b.querySelector('.f-cn').textContent = bnNum(n);
+    b.classList.toggle('zero', !n);
+  });
+}
+
 function applyFilters(){
   const district = document.getElementById('filterDistrict').value;
   const upazila = document.getElementById('filterUpazila').value;
@@ -1771,6 +1847,10 @@ function applyFilters(){
     if(upazila && s.upazila !== upazila) return false;
     if(medium && !(Array.isArray(s.medium) && s.medium.includes(medium))) return false;
     if(admissionOnly && s.admission_status !== 'খোলা') return false;
+    if(CHIP_F.own && s.ownership !== CHIP_F.own) return false;
+    if(CHIP_F.gender && s.gender_type !== CHIP_F.gender) return false;
+    if(CHIP_F.adm && s.admission_status !== CHIP_F.adm) return false;
+    for(const v of CHIP_F.fac){ if(!hasFeature(s, v)) return false; }
     if(searchVal){
       // Check if search value looks like a PRN search (e.g. "1425", "PRN-1425", "PRN1425")
       const prnMatch = searchVal.match(/^(?:PRN-?)?(\d{1,6})$/i);
@@ -1789,6 +1869,7 @@ function applyFilters(){
   if(sort === 'popular') filtered.sort((a,b)=>(b.view_count||0)-(a.view_count||0));
   else if(sort === 'name') filtered.sort((a,b)=>String(a.institution_name||'').localeCompare(String(b.institution_name||''),'bn'));
 
+  syncChipUI();
   renderActiveChips({ district, upazila, medium, admissionOnly, searchVal });
   if(typeof refreshCustomSelects === 'function') refreshCustomSelects();
   renderCards(filtered);
@@ -1802,6 +1883,8 @@ function renderActiveChips(f){
   if(f.upazila) chips.push(['upazila', f.upazila]);
   if(f.medium) chips.push(['medium', f.medium]);
   if(f.admissionOnly) chips.push(['admission', 'ভর্তি চলছে']);
+  ['own', 'gender', 'adm'].forEach(g=>{ if(CHIP_F[g]) chips.push([g, CHIP_LABEL[g](CHIP_F[g])]); });
+  CHIP_F.fac.forEach(v=>chips.push(['fac:' + v, v]));
   if(f.searchVal) chips.push(['search', '“' + f.searchVal + '”']);
   const wrap = document.getElementById('activeChips');
   if(wrap) wrap.innerHTML = chips.map(([k,label])=>'<span class="a-chip">' + escapeHtml(label) + '<button type="button" aria-label="সরান" onclick="clearFilter(\'' + k + '\')">×</button></span>').join('');
@@ -1821,6 +1904,8 @@ function clearFilter(k){
   if(k === 'upazila') document.getElementById('filterUpazila').value = '';
   if(k === 'medium') document.getElementById('filterMedium').value = '';
   if(k === 'admission') document.getElementById('filterAdmissionOpen').classList.remove('on');
+  if(k === 'own' || k === 'gender' || k === 'adm') CHIP_F[k] = '';
+  if(k.startsWith('fac:')) CHIP_F.fac.delete(k.slice(4));
   if(k === 'search'){ const i = document.getElementById('mainSearch'); i.value = ''; const sbx = document.getElementById('searchBox'); if(sbx) sbx.classList.remove('has-text'); }
   applyFilters();
 }
@@ -1833,6 +1918,7 @@ function resetFilters(){
   document.getElementById('filterUpazila').innerHTML = '<option value="">সব উপজেলা</option>';
   document.getElementById('filterMedium').value = '';
   document.getElementById('filterAdmissionOpen').classList.remove('on');
+  CHIP_F.own = ''; CHIP_F.gender = ''; CHIP_F.adm = ''; CHIP_F.fac.clear();
   const i = document.getElementById('mainSearch'); if(i) i.value = '';
   const sbx = document.getElementById('searchBox'); if(sbx) sbx.classList.remove('has-text');
   applyFilters();

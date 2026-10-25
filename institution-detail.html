@@ -603,6 +603,7 @@ function render(){
   if(r.admission_status === 'খোলা') badges.push('<span class="badge green">'+ico('check',14)+'ভর্তি চলছে</span>');
   else if(r.admission_status === 'সীমিত সিট') badges.push('<span class="badge amber">সীমিত সিট</span>');
   else if(r.admission_status === 'বন্ধ') badges.push('<span class="badge gray">ভর্তি বন্ধ</span>');
+  if(r.ownership) badges.push('<span class="badge">'+escapeHtml(r.ownership)+'</span>');
   if(r.gender_type) badges.push('<span class="badge accent">'+escapeHtml(r.gender_type)+'</span>');
   if(inst && inst.eiin) badges.push('<span class="badge">EIIN '+escapeHtml(inst.eiin)+'</span>');
   badges.push('<span class="badge">'+ico('shield',14)+'Protishthan-এ তালিকাভুক্ত</span>');
@@ -645,7 +646,7 @@ function render(){
   const session = r.session_start_month === 'অন্য' ? (r.other_session_month || '') : (r.session_start_month || '');
   const fact = (icn, k, v) => '<div class="fact"><span class="fact-ic">'+ico(icn,18)+'</span><div><div class="fact-k">'+k+'</div><div class="fact-v'+(v?'':' na')+'">'+(v ? escapeHtml(v) : 'তথ্য দেওয়া হয়নি')+'</div></div></div>';
   document.getElementById('factsGrid').innerHTML =
-    fact('layers','শ্রেণি', r.class_range ? bn(r.class_range) : '') + fact('users','শিক্ষার্থী', r.gender_type) +
+    fact('layers','শ্রেণি', r.class_range ? bn(r.class_range) : '') + fact('users','শিক্ষার্থী', r.gender_type) + fact('shield','মালিকানা', r.ownership) +
     fact('form','ভর্তির অবস্থা', r.admission_status === 'খোলা' ? 'ভর্তি চলছে' : r.admission_status) + fact('money','মাসিক ফি', r.fee_range ? (/[০-৯0-9]/.test(r.fee_range) ? '৳ ' + bn(r.fee_range) : r.fee_range) : '') +
     fact('clock','সেশন শুরু', session) + fact('idcard','প্রধান / প্রতিষ্ঠান প্রধান', inst && inst.principal_name);
   const mediums = listOf(r.medium, r.other_medium);

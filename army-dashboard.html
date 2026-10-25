@@ -565,6 +565,7 @@ function openSubDetail(id){
   html += inp('session_start_month','সেশন শুরুর মাস', s.session_start_month === 'অন্য' ? (s.other_session_month||'') : s.session_start_month);
   html += chipsFull('medium','মাধ্যম / বোর্ড', s.medium, s.other_medium);
   html += inpFull('class_range','কোন শ্রেণি থেকে কোন শ্রেণি', s.class_range);
+  html += inp('ownership','মালিকানা (সরকারি / বেসরকারি / এমপিওভুক্ত)', s.ownership);
   html += inp('gender_type','ছাত্র/ছাত্রী', s.gender_type);
   html += inp('admission_status','ভর্তি স্ট্যাটাস', s.admission_status);
   html += inpFull('fee_range','মাসিক ফি রেঞ্জ', s.fee_range);
@@ -606,6 +607,7 @@ async function saveSubEdit(id){
     session_start_month: v('session_start_month'),
     class_range: v('class_range'),
     gender_type: v('gender_type'),
+    ...(['সরকারি','বেসরকারি','এমপিওভুক্ত'].includes(v('ownership')) ? { ownership: v('ownership') } : {}),
     admission_status: v('admission_status'),
     fee_range: v('fee_range'),
     description: v('description'),
