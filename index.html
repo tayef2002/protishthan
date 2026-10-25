@@ -425,8 +425,10 @@ body{padding-bottom:110px}
 .ii-blue{background:#EFF6FF;color:#2563EB}.ii-green{background:#ECFDF5;color:#059669}.ii-amber{background:#FFFBEB;color:#D97706}
 .ii-purple{background:#F5F3FF;color:#7C3AED}.ii-teal{background:#F0FDFA;color:#0D9488}.ii-red{background:#FEF2F2;color:#DC2626}
 
+.listing-bar{transition:transform .35s ease,opacity .35s ease}
+.listing-bar.tuck{transform:translate(-50%,150%);opacity:0;pointer-events:none}
 /* FOOTER: links + "the walk to school" morning illustration */
-.site-footer{position:relative;background:linear-gradient(180deg,#FFFBF5 0%,#FFF4E3 55%,#FDE7C8 100%);color:#475569;margin-bottom:-110px}
+.site-footer{position:relative;background:#F8FAFF;border-top:1px solid #E8EEF9;color:#475569;margin-bottom:-110px}
 .ft-inner{max-width:1200px;margin:0 auto;padding:56px 5% 28px;display:grid;grid-template-columns:minmax(260px,1.05fr) 2.4fr;gap:48px}
 .ft-logo{display:inline-flex;align-items:center;gap:10px;font-size:22px;font-weight:900;color:#0F172A;text-decoration:none;letter-spacing:-.4px}
 .ft-logo span{opacity:.5}
@@ -443,9 +445,9 @@ body{padding-bottom:110px}
 .ft-bottom{max-width:1200px;margin:0 auto;padding:18px 5%;border-top:1px solid rgba(15,23,42,.08);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:13px}
 .ft-made{display:inline-flex;align-items:center;gap:6px}
 .ft-top{color:#1A56DB;font-weight:700;text-decoration:none}
-.ft-art{height:clamp(170px,20.8vw,300px);position:relative;overflow:hidden}
+.ft-art{height:clamp(170px,20.8vw,300px);position:relative;overflow:hidden;background:linear-gradient(180deg,#F8FAFF 0%,#E3EEFF 30%,#FCE7D2 62%,#FBD9AE 78%)}
 .ft-art svg{display:block;width:100%;height:100%}
-.ft-ground{height:110px;background:#6BB27F}
+.ft-ground{height:14px;background:linear-gradient(180deg,#6BB27F 0%,#5A9E6E 100%)}
 .fa-cloud{animation:faCloud 38s ease-in-out infinite alternate}.fa-cloud.c2{animation-duration:50s;animation-delay:-12s}.fa-cloud.c3{animation-duration:44s;animation-delay:-25s}
 @keyframes faCloud{from{transform:translateX(-30px)}to{transform:translateX(40px)}}
 .fa-birds{animation:faBirds 30s linear infinite}.fa-birds.b2{animation-duration:40s;animation-delay:-18s}
@@ -1936,6 +1938,12 @@ function footerFilter(t){
   goToResults();
   return false;
 }
+
+(function tuckListingBarAtFooter(){
+  const art = document.querySelector('.ft-art'), bar = document.getElementById('listingBar');
+  if(!art || !bar || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es=>es.forEach(e=>bar.classList.toggle('tuck', e.isIntersecting)), { threshold: 0.15 }).observe(art);
+})();
 
 function toggleFilters(open){
   document.getElementById('filtersPanel').classList.toggle('open', open);
