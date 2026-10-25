@@ -362,9 +362,6 @@ body{padding-bottom:110px}
 .r-tools{display:flex;align-items:center;gap:10px}
 .r-filter-btn{display:none;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
 .r-fcount:not(:empty){background:var(--blue);color:#fff;border-radius:100px;padding:0 7px;font-size:11px;line-height:18px}
-.r-sort{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-3)}
-.r-sort select{border:1px solid var(--border);border-radius:100px;padding:8px 30px 8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748B' stroke-width='1.6' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;-webkit-appearance:none;appearance:none;cursor:pointer;outline:none}
-.r-sort select:focus{border-color:var(--blue)}
 .active-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .active-chips:empty{display:none}
 .a-chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-light);color:var(--blue);border:1px solid #C7D7FE;border-radius:100px;padding:5px 6px 5px 12px;font-size:12.5px;font-weight:700}
@@ -519,6 +516,32 @@ body{padding-bottom:110px}
 .cs-opt.all{grid-column:1/-1}
 .cs-empty{grid-column:1/-1;text-align:center;font-size:12.5px;color:var(--text-3);padding:14px 6px}
 @media(max-width:900px){.filters.picking{padding-bottom:62vh}.filters.picking .f-apply{display:none}.cs-list{max-height:40vh}.cs-opt{padding:11px 10px}.cs-btn{padding:11px 12px}}
+
+/* SORT MENU (custom card) */
+.sort-menu{position:relative}
+.sort-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 12px 8px 13px;border:1px solid var(--border);border-radius:100px;background:#fff;font-family:inherit;font-size:13px;color:var(--text);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.sort-btn:hover{border-color:#C7D7FE}
+.sort-btn>svg:first-child{color:var(--blue)}
+.sort-lbl{color:var(--text-3);font-weight:600}
+.sort-btn b{font-weight:800}
+.sort-chev{color:#94A3B8;transition:transform .2s}
+.sort-menu.open .sort-btn{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.sort-menu.open .sort-chev{transform:rotate(180deg);color:var(--blue)}
+.sort-pop{display:none;position:absolute;right:0;top:calc(100% + 8px);width:290px;max-width:calc(100vw - 32px);background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 22px 50px rgba(15,23,42,.16);padding:6px;z-index:60}
+.sort-menu.open .sort-pop{display:block;animation:csIn .16s ease-out}
+.sort-head{font-size:11px;font-weight:800;color:var(--text-3);letter-spacing:.04em;padding:8px 10px 6px}
+.sort-opt{width:100%;display:flex;align-items:center;gap:12px;padding:10px;border:none;background:none;border-radius:12px;cursor:pointer;font-family:inherit;text-align:left;transition:background .12s}
+.sort-opt:hover,.sort-opt.kb{background:#F1F5F9}
+.sort-opt.sel{background:var(--blue-light)}
+.so-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.so-blue{background:#EFF6FF;color:#2563EB}.so-amber{background:#FFF7ED;color:#EA580C}.so-purple{background:#F5F3FF;color:#7C3AED}
+.so-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.so-txt b{font-size:14px;font-weight:800;color:var(--text)}
+.so-txt small{font-size:12px;color:var(--text-3);margin-top:2px}
+.sort-opt.sel .so-txt b{color:var(--blue)}
+.so-check{color:var(--blue);opacity:0;flex-shrink:0}
+.sort-opt.sel .so-check{opacity:1}
+@media(max-width:480px){.sort-lbl{display:none}}
 
 /* STATS BAR */
 .stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
@@ -1270,13 +1293,36 @@ body{padding-bottom:110px}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
             ফিল্টার <span class="r-fcount" id="activeFilterCount"></span>
           </button>
-          <label class="r-sort">সাজান
-            <select id="sortBy" onchange="applyFilters()">
+          <div class="sort-menu" id="sortMenu">
+            <select id="sortBy" class="cs-native" onchange="applyFilters()" aria-hidden="true" tabindex="-1">
               <option value="new">নতুন যুক্ত</option>
               <option value="popular">জনপ্রিয়</option>
               <option value="name">নাম অনুযায়ী</option>
             </select>
-          </label>
+            <button type="button" class="sort-btn" id="sortBtn" aria-haspopup="listbox" aria-expanded="false" onclick="toggleSortMenu()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4"/><path d="M17 20V4M13 8l4-4 4 4"/></svg>
+              <span class="sort-lbl">সাজান:</span><b id="sortLabel">নতুন যুক্ত</b>
+              <svg class="sort-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="sort-pop" role="listbox" aria-label="সাজানোর ধরন">
+              <div class="sort-head">ফলাফল সাজান</div>
+              <button type="button" class="sort-opt" role="option" data-v="new" onclick="pickSort('new')">
+                <span class="so-ic so-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                <span class="so-txt"><b>নতুন যুক্ত</b><small>সম্প্রতি তালিকাভুক্ত প্রতিষ্ঠান আগে</small></span>
+                <svg class="so-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              </button>
+              <button type="button" class="sort-opt" role="option" data-v="popular" onclick="pickSort('popular')">
+                <span class="so-ic so-amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4.4 0 7-2.9 7-6.8 0-3.6-2.4-5.6-3.8-8.2-.5 2-1.6 3.3-3 3.8.4-3-1-6.3-4-8.8.2 3.4-3.2 6.1-3.2 10.8C5 17.6 7.6 22 12 22z"/><path d="M12 22c-1.7 0-3-1.3-3-3.2 0-2 1.5-3 3-4.8 1.5 1.8 3 2.8 3 4.8 0 1.9-1.3 3.2-3 3.2z"/></svg></span>
+                <span class="so-txt"><b>জনপ্রিয়</b><small>সবচেয়ে বেশি দেখা প্রতিষ্ঠান আগে</small></span>
+                <svg class="so-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              </button>
+              <button type="button" class="sort-opt" role="option" data-v="name" onclick="pickSort('name')">
+                <span class="so-ic so-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l3.5-12L11 18M5.2 14h4.6"/><path d="M14 6h6l-6 12h6"/></svg></span>
+                <span class="so-txt"><b>নাম অনুযায়ী</b><small>প্রতিষ্ঠানের নাম বর্ণানুক্রমে</small></span>
+                <svg class="so-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="active-chips" id="activeChips"></div>
@@ -1923,6 +1969,42 @@ function refreshCustomSelects(){
     if(disabled) csClose(id);
   });
 }
+
+/* ---------- sort menu ---------- */
+function syncSortMenu(){
+  const v = document.getElementById('sortBy').value;
+  const opt = document.querySelector('.sort-opt[data-v="' + v + '"]');
+  document.getElementById('sortLabel').textContent = opt ? opt.querySelector('b').textContent : '';
+  document.querySelectorAll('.sort-opt').forEach(o=>{ o.classList.toggle('sel', o.dataset.v === v); o.setAttribute('aria-selected', o.dataset.v === v); });
+}
+function toggleSortMenu(force){
+  const m = document.getElementById('sortMenu');
+  const open = typeof force === 'boolean' ? force : !m.classList.contains('open');
+  m.classList.toggle('open', open);
+  document.getElementById('sortBtn').setAttribute('aria-expanded', open);
+  if(open){ syncSortMenu(); const s = m.querySelector('.sort-opt.sel') || m.querySelector('.sort-opt'); document.querySelectorAll('.sort-opt').forEach(o=>o.classList.remove('kb')); s.classList.add('kb'); }
+}
+function pickSort(v){
+  const sel = document.getElementById('sortBy');
+  sel.value = v;
+  sel.dispatchEvent(new Event('change', { bubbles:true }));
+  syncSortMenu();
+  toggleSortMenu(false);
+}
+document.addEventListener('click', e=>{ const m = document.getElementById('sortMenu'); if(m && m.classList.contains('open') && !m.contains(e.target)) toggleSortMenu(false); });
+document.addEventListener('keydown', e=>{
+  const m = document.getElementById('sortMenu');
+  if(!m || !m.classList.contains('open')) return;
+  const opts = [...m.querySelectorAll('.sort-opt')];
+  let i = opts.findIndex(o=>o.classList.contains('kb'));
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault();
+    i = e.key === 'ArrowDown' ? (i + 1) % opts.length : (i - 1 + opts.length) % opts.length;
+    opts.forEach(o=>o.classList.remove('kb')); opts[i].classList.add('kb');
+  } else if(e.key === 'Enter' && i >= 0){ e.preventDefault(); pickSort(opts[i].dataset.v); }
+  else if(e.key === 'Escape'){ toggleSortMenu(false); document.getElementById('sortBtn').focus(); }
+});
+document.addEventListener('DOMContentLoaded', syncSortMenu);
 
 function footerFilter(t){
   if(t === 'admission'){
