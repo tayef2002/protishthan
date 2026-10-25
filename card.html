@@ -18,17 +18,27 @@ body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background
 .ico{display:inline-block;flex-shrink:0;vertical-align:middle}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 
-/* top bar */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(15,32,72,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
-.topbar .container{height:62px;display:flex;align-items:center;gap:14px}
-.logo{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-family:'Inter',sans-serif;font-weight:900;font-size:19px;letter-spacing:-.4px}
-.logo span{opacity:.5}
-.logo-ic{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#1A56DB,#5B8DEF);display:flex;align-items:center;justify-content:center}
-.top-link{margin-left:auto;color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;font-weight:600}
-.top-link:hover{color:#fff}
+/* top bar: same floating nav as the home page */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
 
 /* hero */
-.hero{background:radial-gradient(1200px 400px at 70% -10%,rgba(124,58,237,.35),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:46px 0 120px;position:relative;overflow:hidden}
+.hero{background:radial-gradient(1200px 400px at 70% -10%,rgba(124,58,237,.35),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:118px 0 120px;position:relative;overflow:hidden}
 .hero .stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff8 50%,transparent),radial-gradient(1.5px 1.5px at 30% 70%,#fff6 50%,transparent),radial-gradient(1.2px 1.2px at 55% 30%,#fff7 50%,transparent),radial-gradient(1.6px 1.6px at 80% 60%,#fff8 50%,transparent),radial-gradient(1.2px 1.2px at 90% 15%,#fff6 50%,transparent),radial-gradient(1.4px 1.4px at 68% 85%,#fff5 50%,transparent);pointer-events:none}
 .hero .container{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600}
@@ -185,7 +195,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 }
 @media(max-width:600px){
   .container{padding:0 14px}
-  .hero{padding:30px 0 110px}
+  .hero{padding:96px 0 110px}
   .hero p{font-size:15px}
   .panel{padding:16px;border-radius:18px}
   .edu-grid{grid-template-columns:1fr}
@@ -198,12 +208,21 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 </head>
 <body>
 
-<header class="topbar">
-  <div class="container">
-    <a href="index.html" class="logo"><span class="logo-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
-    <a href="index.html" class="top-link">তথ্যভান্ডার →</a>
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="software.html#features">ফিচার</a></li>
+    <li><a href="software.html#how">কিভাবে কাজ করে</a></li>
+    <li><a href="software.html#pricing">মূল্য</a></li>
+    <li><a href="software.html#testimonials">রিভিউ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-ghost-nav">লগইন</a>
+    <a href="login.html?tab=signup" class="btn-primary-nav">বিনামূল্যে শুরু করুন</a>
   </div>
-</header>
+</nav>
 
 <section class="hero">
   <div class="hero-sky" id="heroSky" aria-hidden="true">
@@ -899,6 +918,8 @@ function resetCard(){
 }
 
 /* ---------------- start ---------------- */
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', ()=>navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
 (function heroBackground(){
   const sky = document.getElementById('heroSky'), g = document.getElementById('guil'); if(!sky || !g) return;
   // security-print waves like on a real card, drawn wider than the hero so they slide seamlessly
