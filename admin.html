@@ -254,6 +254,9 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-icon">🏫</span><span>Institution Accounts</span>
       <span class="nav-soon">আসছে</span>
     </button>
+    <button class="nav-item" id="nav-boardres" onclick="showView('boardres')">
+      <span class="nav-icon">📈</span><span>বোর্ড ফলাফল</span>
+    </button>
     <button class="nav-item" id="nav-billing" onclick="showView('billing')">
       <span class="nav-icon">💰</span><span>Revenue / Billing</span>
       <span class="nav-badge" id="commPendingBadge" style="display:none">0</span>
@@ -413,6 +416,25 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
             <div class="bill-note">ভুল এন্ট্রি মুছে দিলে তার কমিশনও মুছে যাবে (Army-কে দেওয়া হয়ে না থাকলে)।</div>
             <div id="paymentsTable"></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-boardres">
+      <div class="bill-grid">
+        <div class="section-card">
+          <div class="sec-h">ফলাফলের ফাইল ইমপোর্ট</div>
+          <div class="bill-note" style="margin-top:0">tools/board-results দিয়ে বানানো .json ফাইল দিন (যেমন data/board-results/dhaka-hsc-2018.json)। একই পরীক্ষা/সাল/বোর্ড/EIIN আগে থাকলে নতুনটা দিয়ে বদলে যাবে।</div>
+          <div class="pay-form">
+            <input type="file" id="brFile" accept=".json,application/json" onchange="readBoardFile(this.files[0])">
+            <div class="pay-preview" id="brPreview">ফাইল বাছলে এখানে কী কী আছে দেখাবে।</div>
+            <div style="height:8px;border-radius:6px;background:var(--bg);overflow:hidden;margin-bottom:12px"><i id="brBar" style="display:block;height:100%;width:0;background:var(--green);transition:width .2s"></i></div>
+            <button class="pay-btn" id="brBtn" type="button" onclick="importBoardFile()" disabled>ইমপোর্ট করুন</button>
+          </div>
+        </div>
+        <div class="section-card" style="overflow-x:auto">
+          <div class="sec-h">ডাটাবেসে যা আছে <a href="results.html" target="_blank" style="font-size:12.5px;color:var(--blue)">ফলাফল পাতা ↗</a></div>
+          <div id="brAvail"></div>
         </div>
       </div>
     </div>
@@ -947,6 +969,69 @@ function renderBilling(){
     }).join('') + '</tbody></table>';
 }
 ADMIN_READY.then(()=>loadBilling());
+</script>
+<script>
+/* ---------------- board results import (admin session; RLS lets only admins write) ---------------- */
+navTitles.boardres = ['বোর্ড ফলাফল', 'শিক্ষা বোর্ডের প্রকাশিত প্রতিষ্ঠানভিত্তিক ফলাফল ইমপোর্ট'];
+const BR_BOARD = { dhaka:'ঢাকা', rajshahi:'রাজশাহী', cumilla:'কুমিল্লা', jashore:'যশোর', chattogram:'চট্টগ্রাম', barishal:'বরিশাল', sylhet:'সিলেট', dinajpur:'দিনাজপুর', mymensingh:'ময়মনসিংহ', madrasah:'মাদ্রাসা', technical:'কারিগরি' };
+const BR_FIELDS = ['exam', 'year', 'board', 'eiin', 'institution_name', 'district', 'upazila', 'grp', 'appeared', 'passed', 'gpa5', 'gpa_bands', 'source_url'];
+let brRows = [];
+
+function readBoardFile(file){
+  const box = document.getElementById('brPreview'), btn = document.getElementById('brBtn');
+  brRows = []; btn.disabled = true; document.getElementById('brBar').style.width = '0';
+  if(!file) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    try{
+      const data = JSON.parse(fr.result);
+      if(!Array.isArray(data) || !data.length) throw new Error('ফাইলে কোনো সারি নেই');
+      const bad = data.filter(r=>!r.exam || !r.year || !r.board || !r.eiin || !r.institution_name || !r.grp);
+      if(bad.length) throw new Error(bad.length + 'টি সারিতে দরকারি ঘর নেই');
+      brRows = data.map(r=>Object.fromEntries(BR_FIELDS.map(k=>[k, r[k] === undefined ? null : r[k]])));
+      const sets = {}; brRows.forEach(r=>{ const k = r.exam + ' ' + r.year + ' · ' + (BR_BOARD[r.board] || r.board) + ' বোর্ড'; sets[k] = sets[k] || new Set(); if(r.grp === 'total') sets[k].add(r.eiin); });
+      const tot = brRows.filter(r=>r.grp === 'total'), ap = tot.reduce((a, r)=>a + (r.appeared || 0), 0), ps = tot.reduce((a, r)=>a + (r.passed || 0), 0);
+      box.innerHTML = Object.entries(sets).map(([k, v])=>'<b>' + escapeHtmlA(k) + '</b> — ' + v.size + 'টি প্রতিষ্ঠান').join('<br>') +
+        '<br>মোট সারি: ' + brRows.length + ' · পরীক্ষার্থী ' + ap.toLocaleString('en-IN') + ' · পাস ' + ps.toLocaleString('en-IN') + (ap ? ' (' + (ps * 100 / ap).toFixed(2) + '%)' : '');
+      btn.disabled = false;
+    }catch(e){ box.textContent = 'ফাইলটি পড়া গেল না: ' + e.message; }
+  };
+  fr.readAsText(file);
+}
+
+async function importBoardFile(){
+  if(!brRows.length) return;
+  if(!confirm(brRows.length + 'টি সারি ইমপোর্ট করবেন?')) return;
+  const btn = document.getElementById('brBtn'), bar = document.getElementById('brBar'), box = document.getElementById('brPreview');
+  btn.disabled = true;
+  const size = 500; let done = 0;
+  for(let i = 0; i < brRows.length; i += size){
+    const { error } = await sbAdmin.from('board_results').upsert(brRows.slice(i, i + size), { onConflict:'exam,year,board,eiin,grp' });
+    if(error){ box.innerHTML += '<br><b style="color:var(--red)">থেমে গেছে (' + done + ' সারি হয়েছে): ' + escapeHtmlA(error.message) + '</b>'; btn.disabled = false; return; }
+    done = Math.min(brRows.length, i + size);
+    bar.style.width = (done * 100 / brRows.length).toFixed(1) + '%';
+  }
+  box.innerHTML += '<br><b style="color:var(--green)">✓ ' + done + ' সারি ইমপোর্ট হয়েছে</b>';
+  brRows = []; document.getElementById('brFile').value = '';
+  loadBoardAvail();
+}
+
+async function loadBoardAvail(){
+  const box = document.getElementById('brAvail');
+  const { data, error } = await sb.rpc('board_results_available');
+  if(error){ box.innerHTML = '<div class="empty-state" style="padding:24px">তালিকা লোড হয়নি — migrations/2026-10-26_board_results.sql চালানো হয়েছে কি?<br><small>' + escapeHtmlA(error.message) + '</small></div>'; return; }
+  if(!data || !data.length){ box.innerHTML = '<div class="empty-state" style="padding:24px">এখনো কোনো ফলাফল ইমপোর্ট হয়নি</div>'; return; }
+  box.innerHTML = '<table class="sub-table" style="min-width:0"><thead><tr><th>পরীক্ষা</th><th>সাল</th><th>বোর্ড</th><th>প্রতিষ্ঠান</th><th></th></tr></thead><tbody>' +
+    data.map(r=>'<tr><td style="font-weight:700">' + escapeHtmlA(r.exam) + '</td><td>' + r.year + '</td><td>' + escapeHtmlA(BR_BOARD[r.board] || r.board) + '</td><td>' + r.institutions + '</td><td><button class="mini-btn ghost" onclick="deleteBoardSet(\'' + escapeHtmlA(r.exam) + '\',' + r.year + ',\'' + escapeHtmlA(r.board) + '\')">মুছুন</button></td></tr>').join('') + '</tbody></table>';
+}
+
+async function deleteBoardSet(exam, year, board){
+  if(!confirm(exam + ' ' + year + ' (' + (BR_BOARD[board] || board) + ') — এই পুরো সেটটি মুছে দেবেন?')) return;
+  const { error } = await sbAdmin.from('board_results').delete().match({ exam, year, board });
+  if(error){ alert('মোছা যায়নি: ' + error.message); return; }
+  loadBoardAvail();
+}
+ADMIN_READY.then(()=>loadBoardAvail());
 </script>
 </body>
 </html>
