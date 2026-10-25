@@ -319,7 +319,7 @@ body{padding-bottom:110px}
 
 /* BROWSE LAYOUT: sticky filter sidebar + results grid */
 .browse{max-width:1320px}
-.browse-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:28px;align-items:start}
+.browse-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:28px;align-items:start;min-height:calc(100vh - 100px)}
 .filters{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px 16px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);scrollbar-width:none;-ms-overflow-style:none}
 .filters::-webkit-scrollbar{display:none}
 .f-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -392,7 +392,7 @@ body{padding-bottom:110px}
 .inst-empty a{color:var(--blue);font-weight:700}
 
 @media(max-width:900px){
-  .browse-layout{grid-template-columns:1fr}
+  .browse-layout{grid-template-columns:1fr;min-height:0}
   .r-filter-btn{display:inline-flex}
   .filters{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:86vh;border-radius:20px 20px 0 0;z-index:10001;transform:translateY(105%);transition:transform .3s ease;padding:16px 18px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(15,23,42,.25)}
   .filters.open{transform:translateY(0)}
@@ -481,6 +481,42 @@ body{padding-bottom:110px}
   .ft-bottom{justify-content:center;text-align:center}
 }
 @media(prefers-reduced-motion:reduce){.site-footer *{animation:none!important}}
+
+/* CUSTOM SELECT (district / upazila / medium): card that opens inside the sidebar */
+.cs-native{display:none!important}
+.cs{position:relative;margin-bottom:8px;scroll-margin-top:12px}
+.cs:last-child{margin-bottom:0}
+.cs-btn{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:border-color .15s,box-shadow .15s}
+.cs-btn:hover{border-color:#C7D7FE}
+.cs.open .cs-btn{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.cs-btn:disabled{cursor:not-allowed;background:#F8FAFC}
+.cs-ic{width:30px;height:30px;border-radius:9px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs-btn:disabled .cs-ic{background:#F1F5F9;color:#94A3B8}
+.cs-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.cs-lbl{font-size:10.5px;font-weight:800;color:var(--text-3);letter-spacing:.02em}
+.cs-val{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-btn:disabled .cs-val{color:#94A3B8;font-weight:600}
+.cs-chev{flex-shrink:0;color:#94A3B8;transition:transform .2s}
+.cs.open .cs-chev{transform:rotate(180deg);color:var(--blue)}
+.cs-clear{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:none;background:#F1F5F9;color:#64748B;font-size:14px;line-height:22px;cursor:pointer;padding:0}
+.cs-clear:hover{background:#E2E8F0}
+.cs-panel{display:none;margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 14px 34px rgba(15,23,42,.12);overflow:hidden}
+.cs.open .cs-panel{display:block;animation:csIn .16s ease-out}
+@keyframes csIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.cs-search{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);color:#94A3B8}
+.cs-search input{flex:1;min-width:0;border:none;outline:none;font-family:inherit;font-size:13.5px;color:var(--text);background:none}
+.cs-list{max-height:264px;overflow-y:auto;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;scrollbar-width:thin}
+.cs-opt{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:10px;border:1px solid #EEF2F7;background:#FAFBFD;cursor:pointer;font-family:inherit;text-align:left;min-width:0;transition:background .12s,border-color .12s}
+.cs-opt:hover,.cs-opt.kb{background:var(--blue-light);border-color:#C7D7FE}
+.cs-opt.sel{background:var(--blue);border-color:var(--blue)}
+.cs-opt-name{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--text);line-height:1.3;overflow-wrap:anywhere}
+.cs-opt.sel .cs-opt-name{color:#fff}
+.cs-opt-n{flex-shrink:0;font-size:10.5px;font-weight:800;color:var(--text-3);background:#fff;border-radius:100px;padding:1px 7px;border:1px solid #EEF2F7}
+.cs-opt-n.has{color:var(--green);border-color:#BBF7D0;background:#F0FDF4}
+.cs-opt.sel .cs-opt-n{background:rgba(255,255,255,.2);border-color:transparent;color:#fff}
+.cs-opt.all{grid-column:1/-1}
+.cs-empty{grid-column:1/-1;text-align:center;font-size:12.5px;color:var(--text-3);padding:14px 6px}
+@media(max-width:900px){.filters.picking{padding-bottom:62vh}.filters.picking .f-apply{display:none}.cs-list{max-height:40vh}.cs-opt{padding:11px 10px}.cs-btn{padding:11px 12px}}
 
 /* STATS BAR */
 .stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
@@ -1514,6 +1550,7 @@ function fillDistrictFilter(){
   });
 }
 fillDistrictFilter();
+document.addEventListener('DOMContentLoaded', initCustomSelects);
 
 function onFilterDistrictChange(){
   selectedDivision = '';
@@ -1705,6 +1742,7 @@ function applyFilters(){
   else if(sort === 'name') filtered.sort((a,b)=>String(a.institution_name||'').localeCompare(String(b.institution_name||''),'bn'));
 
   renderActiveChips({ district, upazila, medium, admissionOnly, searchVal });
+  if(typeof refreshCustomSelects === 'function') refreshCustomSelects();
   renderCards(filtered);
 }
 
@@ -1750,6 +1788,138 @@ function resetFilters(){
   const i = document.getElementById('mainSearch'); if(i) i.value = '';
   const sbx = document.getElementById('searchBox'); if(sbx) sbx.classList.remove('has-text');
   applyFilters();
+}
+
+/* ---------- custom selects (wrap the native <select>s; existing filter code keeps working) ---------- */
+const CS_ICONS = {
+  district: '<path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
+  upazila: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  medium: '<path d="M2 5.5C4.5 4 8 4 12 6c4-2 7.5-2 10-.5V19c-2.5-1.5-6-1.5-10 .5-4-2-7.5-2-10-.5z"/><path d="M12 6v13.5"/>'
+};
+const CS_CONF = {
+  filterDistrict: { key:'district', label:'জেলা', searchable:true, placeholder:'জেলা খুঁজুন… (যেমন: হবিগঞ্জ)', count:v => allApproved.filter(s=>s.district===v).length },
+  filterUpazila:  { key:'upazila', label:'উপজেলা / থানা', searchable:true, placeholder:'থানা খুঁজুন…', disabledText:'আগে জেলা বাছাই করুন',
+                    count:v => { const d = document.getElementById('filterDistrict').value; return allApproved.filter(s=>s.upazila===v && (!d || s.district===d)).length; } },
+  filterMedium:   { key:'medium', label:'শিক্ষার মাধ্যম', searchable:false, count:v => allApproved.filter(s=>Array.isArray(s.medium) && s.medium.includes(v)).length }
+};
+const csSvg = (p, size) => '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+
+function initCustomSelects(){
+  Object.entries(CS_CONF).forEach(([id, conf])=>{
+    const sel = document.getElementById(id);
+    if(!sel || sel.dataset.cs) return;
+    sel.dataset.cs = '1';
+    sel.classList.add('cs-native');
+    const wrap = document.createElement('div');
+    wrap.className = 'cs';
+    wrap.id = 'cs-' + id;
+    wrap.innerHTML =
+      '<button type="button" class="cs-btn" aria-haspopup="listbox" aria-expanded="false">' +
+        '<span class="cs-ic">' + csSvg(CS_ICONS[conf.key], 16) + '</span>' +
+        '<span class="cs-txt"><span class="cs-lbl">' + conf.label + '</span><span class="cs-val"></span></span>' +
+        '<span class="cs-clear-slot"></span>' +
+        '<svg class="cs-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>' +
+      '</button>' +
+      '<div class="cs-panel" role="listbox">' +
+        (conf.searchable ? '<div class="cs-search">' + csSvg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', 15) + '<input type="text" placeholder="' + conf.placeholder + '" autocomplete="off"></div>' : '') +
+        '<div class="cs-list"></div>' +
+      '</div>';
+    sel.insertAdjacentElement('afterend', wrap);
+    const btn = wrap.querySelector('.cs-btn');
+    btn.addEventListener('click', e=>{
+      if(e.target.closest('.cs-clear')){ e.stopPropagation(); csPick(id, ''); return; }
+      wrap.classList.contains('open') ? csClose(id) : csOpen(id);
+    });
+    const input = wrap.querySelector('.cs-search input');
+    if(input){
+      input.addEventListener('input', ()=>csRenderList(id, input.value));
+      input.addEventListener('keydown', e=>{
+        const opts = [...wrap.querySelectorAll('.cs-opt')];
+        let i = opts.findIndex(o=>o.classList.contains('kb'));
+        if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+          e.preventDefault(); if(!opts.length) return;
+          i = e.key === 'ArrowDown' ? (i + 1) % opts.length : (i - 1 + opts.length) % opts.length;
+          opts.forEach(o=>o.classList.remove('kb')); opts[i].classList.add('kb'); opts[i].scrollIntoView({block:'nearest'});
+        } else if(e.key === 'Enter'){
+          e.preventDefault(); const o = opts[i >= 0 ? i : (opts.length > 1 ? 1 : 0)]; if(o) csPick(id, o.dataset.v);
+        } else if(e.key === 'Escape'){ csClose(id); btn.focus(); }
+      });
+    }
+  });
+  document.addEventListener('click', e=>{
+    document.querySelectorAll('.cs.open').forEach(w=>{ if(!w.contains(e.target)) csClose(w.id.slice(3)); });
+  });
+  refreshCustomSelects();
+}
+
+function csOpen(id){
+  document.querySelectorAll('.cs.open').forEach(w=>{ if(w.id !== 'cs-' + id) csClose(w.id.slice(3)); });
+  const wrap = document.getElementById('cs-' + id);
+  if(wrap.querySelector('.cs-btn').disabled) return;
+  wrap.classList.add('open');
+  document.getElementById('filtersPanel').classList.add('picking');
+  wrap.querySelector('.cs-btn').setAttribute('aria-expanded', 'true');
+  const input = wrap.querySelector('.cs-search input');
+  if(input) input.value = '';
+  csRenderList(id, '');
+  if(input && window.matchMedia('(min-width:901px)').matches) input.focus();
+  const sel = wrap.querySelector('.cs-opt.sel');
+  if(sel) sel.scrollIntoView({block:'nearest'});
+  // bring the whole card into view (inside the sidebar and on the page)
+  setTimeout(()=>{
+    // phone: the filters sheet has a sticky 'ফলাফল দেখুন' bar, so lift the whole picker to the top of the sheet
+    if(window.matchMedia('(max-width:900px)').matches){ const sheet = document.getElementById('filtersPanel'); sheet.scrollTo({ top: wrap.getBoundingClientRect().top - sheet.getBoundingClientRect().top + sheet.scrollTop - 12, behavior:'smooth' }); }
+    else wrap.querySelector('.cs-panel').scrollIntoView({block:'nearest', behavior:'smooth'});
+  }, 30);
+}
+
+function csClose(id){
+  const wrap = document.getElementById('cs-' + id);
+  if(!wrap) return;
+  wrap.classList.remove('open');
+  if(!document.querySelector('.cs.open')) document.getElementById('filtersPanel').classList.remove('picking');
+  wrap.querySelector('.cs-btn').setAttribute('aria-expanded', 'false');
+}
+
+function csRenderList(id, q){
+  const conf = CS_CONF[id], sel = document.getElementById(id), wrap = document.getElementById('cs-' + id);
+  const query = (q || '').trim().toLowerCase();
+  const opts = [...sel.options];
+  const all = opts[0];
+  const items = opts.slice(1).filter(o=>!query || o.text.toLowerCase().includes(query) || o.value.toLowerCase().includes(query));
+  const row = (o, isAll) => {
+    const n = isAll ? null : conf.count(o.value);
+    return '<button type="button" class="cs-opt' + (isAll ? ' all' : '') + (sel.value === o.value ? ' sel' : '') + '" data-v="' + escapeHtml(o.value) + '">' +
+      '<span class="cs-opt-name">' + escapeHtml(o.text) + '</span>' +
+      (n === null ? '' : '<span class="cs-opt-n' + (n ? ' has' : '') + '">' + bnNum(n) + '</span>') +
+    '</button>';
+  };
+  wrap.querySelector('.cs-list').innerHTML =
+    (query ? '' : row(all, true)) +
+    (items.length ? items.map(o=>row(o, false)).join('') : '<div class="cs-empty">“' + escapeHtml(q) + '” নামে কিছু পাওয়া যায়নি</div>');
+  wrap.querySelectorAll('.cs-opt').forEach(b=>b.addEventListener('click', ()=>csPick(id, b.dataset.v)));
+}
+
+function csPick(id, v){
+  const sel = document.getElementById(id);
+  sel.value = v;
+  sel.dispatchEvent(new Event('change', { bubbles:true }));
+  csClose(id);
+  refreshCustomSelects();
+}
+
+function refreshCustomSelects(){
+  Object.entries(CS_CONF).forEach(([id, conf])=>{
+    const sel = document.getElementById(id), wrap = document.getElementById('cs-' + id);
+    if(!sel || !wrap) return;
+    const btn = wrap.querySelector('.cs-btn');
+    const disabled = id === 'filterUpazila' && !document.getElementById('filterDistrict').value;
+    btn.disabled = disabled;
+    const opt = sel.options[sel.selectedIndex];
+    wrap.querySelector('.cs-val').textContent = disabled ? conf.disabledText : (opt ? opt.text : '');
+    wrap.querySelector('.cs-clear-slot').innerHTML = sel.value ? '<span class="cs-clear" role="button" aria-label="মুছুন">×</span>' : '';
+    if(disabled) csClose(id);
+  });
 }
 
 function footerFilter(t){
