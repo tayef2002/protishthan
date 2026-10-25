@@ -301,8 +301,14 @@ async function loadDetail(){
   // not just the static registration-time snapshot.
   let inst = null;
   try{
-    const byName = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle();
-    inst = byName.data;
+    if(record.institution_id){
+      const byId = await sb.from('institutions').select('*').eq('id', record.institution_id).maybeSingle();
+      inst = byId.data;
+    }
+    if(!inst){
+      const byName = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle();
+      inst = byName.data;
+    }
     if(!inst && record.institution_name){
       const fuzzy = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle();
       inst = fuzzy.data;

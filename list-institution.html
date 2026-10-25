@@ -589,11 +589,11 @@ async function submitListing(){
 
     // Step 2: Auto-create the institutions (SaaS) account using the same submitted data
     const shortName = autoSlug(instName);
-    const { error: instError } = await sb.from('institutions').insert({
+    const { data: newInst, error: instError } = await sb.from('institutions').insert({
       name: instName, short_name: shortName, email: instEmail, phone: contactPhone,
       plan: 'free', is_active: true, principal_name: contactName, district, upazila,
       institution_type: selectedType
-    });
+    }).select('id').single();
     if(instError){
       btn.classList.remove('loading');
       alert('Account তৈরি হয়েছে কিন্তু institution profile-এ সমস্যা হয়েছে: ' + instError.message);
@@ -601,7 +601,8 @@ async function submitListing(){
     }
 
     // Step 3: Submit the directory listing (existing behavior, unchanged)
-    const { error } = await sb.from('listing_submissions').insert({
+    const listingRow = {
+      institution_id: newInst ? newInst.id : null,
       institution_name: instName,
       institution_type: selectedType,
       district: district,
@@ -628,7 +629,13 @@ async function submitListing(){
       other_achievement: otherAchievement || null,
       description: description || null,
       facebook_link: facebookLink || null
-    });
+    };
+    let { error } = await sb.from('listing_submissions').insert(listingRow);
+    // institution_id column not migrated yet -> insert without it
+    if(error && /institution_id/.test(error.message || '')){
+      delete listingRow.institution_id;
+      ({ error } = await sb.from('listing_submissions').insert(listingRow));
+    }
 
     if(error) throw error;
 

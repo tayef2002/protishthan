@@ -399,8 +399,12 @@ async function init(){
 // ---------- Listing resolution (for view count / QR / link) ----------
 async function resolveListing(inst){
   let data = null;
-  const byName = await sb.from('listing_submissions').select('*').eq('institution_name', inst.name).order('created_at',{ascending:false}).limit(1).maybeSingle();
-  data = byName.data;
+  const byId = await sb.from('listing_submissions').select('*').eq('institution_id', inst.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  data = byId.data;
+  if(!data){
+    const byName = await sb.from('listing_submissions').select('*').eq('institution_name', inst.name).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    data = byName.data;
+  }
   if(!data && inst.name){
     const fuzzy = await sb.from('listing_submissions').select('*').ilike('institution_name', '%'+inst.name.trim()+'%').order('created_at',{ascending:false}).limit(1).maybeSingle();
     data = fuzzy.data;
