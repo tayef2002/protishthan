@@ -341,7 +341,7 @@ const LEVELS = [
   { key:'bachelor',title:'স্নাতক', sub:'অনার্স / ডিগ্রি / ফাজিল', ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
   { key:'masters', title:'স্নাতকোত্তর', sub:'মাস্টার্স / কামিল', ph:'বিশ্ববিদ্যালয়ের নাম' }
 ];
-const BADGES = ['হাফেজ', 'শিক্ষক', 'প্রথম প্রজন্মের গ্র্যাজুয়েট', 'প্রবাসী', 'এখনো পড়ছি'];
+const BADGES = ['প্রথম প্রজন্মের গ্র্যাজুয়েট', 'শিক্ষক', 'হাফেজ', 'আলেম', 'ডাক্তার', 'ইঞ্জিনিয়ার', 'আইনজীবী', 'বিসিএস ক্যাডার', 'গবেষক', 'স্বর্ণপদকপ্রাপ্ত', 'বৃত্তিপ্রাপ্ত', 'উদ্যোক্তা', 'প্রবাসী', 'এখনো পড়ছি'];
 const TITLES = ['সার্টিফায়েড শিক্ষিত নাগরিক', 'ডাবল ডিগ্রিধারী নাগরিক', 'চিরছাত্র', 'জ্ঞানের ফেরিওয়ালা', 'বইপোকা', 'ভবিষ্যতের প্রফেসর'];
 const THEMES = {
   night: { name:'রাতের আকাশ', bg:['#0A1628','#1A3570'], accent:'#2563EB', accent2:'#7C3AED', gold:'#FBBF24', ink:'#0F172A', chipText:'#fff' },
@@ -379,7 +379,9 @@ document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
 document.getElementById('badgeChips').innerHTML = BADGES.map(b=>`<button type="button" class="chip" data-b="${b}">${b}</button>`).join('');
 document.getElementById('badgeChips').addEventListener('click', e=>{
   const c = e.target.closest('.chip'); if(!c) return;
-  const b = c.dataset.b; S.badges.has(b) ? S.badges.delete(b) : S.badges.add(b);
+  const b = c.dataset.b;
+  if(!S.badges.has(b) && S.badges.size >= 4){ toast('সর্বোচ্চ ৪টি বেছে নিতে পারবেন'); return; }
+  S.badges.has(b) ? S.badges.delete(b) : S.badges.add(b);
   c.classList.toggle('on'); refreshTitles(); draw();
 });
 function refreshTitles(){
@@ -857,7 +859,7 @@ function restoreState(){
   if(!d) return;
   restoring = true;
   S.name = d.name || ''; document.getElementById('fName').value = S.name;
-  (d.badges || []).forEach(b=>{ if(BADGES.includes(b)) S.badges.add(b); });
+  (d.badges || []).filter(b=>BADGES.includes(b)).slice(0, 4).forEach(b=>S.badges.add(b));
   document.querySelectorAll('#badgeChips .chip').forEach(c=>c.classList.toggle('on', S.badges.has(c.dataset.b)));
   LEVELS.forEach(l=>{
     const e = (d.edu || {})[l.key]; if(!e) return;
