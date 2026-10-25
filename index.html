@@ -160,9 +160,9 @@ body{padding-bottom:110px}
 .es-abc.a2{animation-delay:-1.6s}.es-abc.a3{animation-delay:-3.2s}.es-abc.a4{animation-delay:-4.8s}.es-abc.a5{animation-delay:-6.4s}
 @keyframes esAbc{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translateY(-56px) scale(1.1)}}
 /* guardian + child walking home from the gate */
-.es-home{opacity:0;animation:esHome 16s linear infinite}
-.es-home.h2{animation-delay:-8s}
-@keyframes esHome{0%{opacity:0;transform:translateX(0)}6%{opacity:1}82%{opacity:1}100%{opacity:0;transform:translateX(118px)}}
+.es-home{opacity:0;animation:esHome 30s linear infinite}
+.es-home.h2{animation-delay:-27s}
+@keyframes esHome{0%,58%{opacity:0;transform:translateX(0)}61%{opacity:1}92%{opacity:1}96%,100%{opacity:0;transform:translateX(118px)}}
 /* jhalmuri vendor */
 .es-shake{transform-origin:right center;animation:esShake .32s ease-in-out infinite alternate}
 @keyframes esShake{from{transform:rotate(-14deg)}to{transform:rotate(10deg)}}
@@ -189,10 +189,64 @@ body{padding-bottom:110px}
 .es-page{transform-origin:left center;animation:esPage 3.4s ease-in-out infinite}
 @keyframes esPage{0%,40%{transform:scaleX(1)}60%,100%{transform:scaleX(-1)}}
 /* road */
-.es-ride{animation:esRide 36s linear infinite;animation-delay:-11s}
-@keyframes esRide{from{transform:translateX(1500px)}to{transform:translateX(-90px)}}
-.es-cycle{animation:esCycle 24s linear infinite;animation-delay:-4s}
-@keyframes esCycle{from{transform:translateX(-60px)}to{transform:translateX(1500px)}}
+.es-ride{animation:esRide 30s linear infinite;animation-delay:-1.5s}
+@keyframes esRide{0%{transform:translateX(1500px)}86.7%,100%{transform:translateX(-90px)}}
+/* ROAD: every vehicle + the bicycle story share a 30s cycle (phased to keep the story clear) */
+.edu-scene .sb-bike,.edu-scene .sb-rider,.edu-scene .sb-pass,.edu-scene .sb-kid,.edu-scene .sb-mkid{transform-box:view-box;transform-origin:0 0}
+.sb-bike{animation:sbBike 30s infinite}
+.sb-rider{animation:sbRider 30s infinite}
+.sb-pass{animation:sbPass 30s infinite}
+@keyframes sbBike{
+0%{transform:translate(-80px,270px);opacity:1;animation-timing-function:cubic-bezier(.3,.6,.5,1)}
+20%{transform:translate(185px,270px);animation-timing-function:linear}
+50%{transform:translate(185px,270px);animation-timing-function:cubic-bezier(.45,0,.55,1)}
+75%{transform:translate(770px,270px);opacity:1}
+92%{transform:translate(770px,270px);opacity:1}
+96%,100%{transform:translate(770px,270px);opacity:0}}
+@keyframes sbRider{
+0%{transform:translate(-80px,270px);opacity:1;animation-timing-function:cubic-bezier(.3,.6,.5,1)}
+20%{transform:translate(185px,270px);animation-timing-function:linear}
+50%{transform:translate(185px,270px);animation-timing-function:cubic-bezier(.45,0,.55,1)}
+75%{transform:translate(770px,270px);opacity:1}
+78%{transform:translate(770px,270px);opacity:1}
+80%,100%{transform:translate(770px,270px);opacity:0}}
+@keyframes sbPass{
+0%{transform:translate(-80px,270px);opacity:1;animation-timing-function:cubic-bezier(.3,.6,.5,1)}
+20%{transform:translate(185px,270px);opacity:1}
+21.5%,100%{transform:translate(185px,270px);opacity:0}}
+.sb-wheel{transform-origin:center;animation:sbWheel 30s infinite}
+@keyframes sbWheel{
+0%{transform:rotate(0);animation-timing-function:cubic-bezier(.3,.6,.5,1)}
+20%{transform:rotate(2170deg);animation-timing-function:linear}
+50%{transform:rotate(2170deg);animation-timing-function:cubic-bezier(.45,0,.55,1)}
+75%,100%{transform:rotate(6960deg)}}
+.sb-kid{opacity:0;animation:sbKid 30s infinite}
+@keyframes sbKid{
+0%,21%{transform:translate(172px,250px);opacity:0}
+23%{transform:translate(168px,256px);opacity:1}
+46%{transform:translate(168px,256px);opacity:1}
+58%{transform:translate(186px,247px);opacity:0}
+100%{transform:translate(186px,247px);opacity:0}}
+.sb-wave{transform-origin:0 100%;animation:sbWave .45s ease-in-out infinite alternate}
+@keyframes sbWave{from{transform:rotate(-18deg)}to{transform:rotate(16deg)}}
+.sb-mkid{opacity:0;animation:sbMkid 30s infinite}
+@keyframes sbMkid{
+0%,78%{transform:translate(784px,256px);opacity:0}
+80%{transform:translate(784px,256px);opacity:1}
+90%,100%{transform:translate(770px,249px);opacity:0}}
+.sb-bub{transform-origin:50% 100%;opacity:0}
+.sb-bub.b1{animation:sbBub1 30s infinite}
+.sb-bub.b2{animation:sbBub2 30s infinite}
+@keyframes sbBub1{0%,25%{opacity:0;transform:scale(.4)}27%{opacity:1;transform:scale(1.08)}28.5%{transform:scale(1)}42%{opacity:1;transform:scale(1)}44%,100%{opacity:0;transform:scale(.9)}}
+@keyframes sbBub2{0%,37%{opacity:0;transform:scale(.4)}39%{opacity:1;transform:scale(1.08)}40.5%{transform:scale(1)}48%{opacity:1;transform:scale(1)}50%,100%{opacity:0;transform:scale(.9)}}
+.es-bus{animation:esBus 30s linear infinite;animation-delay:-2.36s}
+@keyframes esBus{0%{transform:translateX(-120px)}80%,100%{transform:translateX(1560px)}}
+.es-sbus{animation:esSbus 30s linear infinite;animation-delay:-12s}
+@keyframes esSbus{0%{transform:translateX(-120px)}70%,100%{transform:translateX(1560px)}}
+.es-cng{animation:esCng 30s linear infinite;animation-delay:-23.5s}
+@keyframes esCng{0%{transform:translateX(1500px)}48.3%,100%{transform:translateX(-90px)}}
+.es-moto{animation:esMoto 30s linear infinite;animation-delay:-6.89s}
+@keyframes esMoto{0%{transform:translateX(1500px)}38%,100%{transform:translateX(-90px)}}
 .es-wheel{transform-origin:center;animation:esWheel .9s linear infinite}
 .es-wheel.cw{animation-name:esWheelCw;animation-duration:.6s}
 @keyframes esWheel{to{transform:rotate(-360deg)}}
@@ -218,7 +272,7 @@ body{padding-bottom:110px}
 .sky-page{position:absolute;width:9px;height:12px;background:#FFFBEB;border-radius:1px;opacity:0;animation:pageDrift 12s ease-in-out infinite}
 .sky-page.p2{animation-delay:-6s}
 @keyframes pageDrift{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}50%{transform:translate(-40px,60px) rotate(160deg)}90%{opacity:.6}100%{opacity:0;transform:translate(-90px,130px) rotate(340deg)}}
-@media(prefers-reduced-motion:reduce){.edu-scene *,.sky-book,.sky-book *{animation:none!important}.es-abc,.es-cap,.es-steam,.sky-page,.sky-book{display:none}.es-home,.es-enter{opacity:1}}
+@media(prefers-reduced-motion:reduce){.edu-scene *,.sky-book,.sky-book *{animation:none!important}.es-abc,.es-cap,.es-steam,.sky-page,.sky-book,.sb-bub,.sb-kid,.sb-mkid{display:none}.sb-bike,.sb-rider,.sb-pass{transform:translate(185px,270px)!important}.es-home,.es-enter{opacity:1}}
 
 /* MOBILE: search box fits, scene framed on the landmarks */
 @media(max-width:768px){
@@ -460,7 +514,7 @@ body{padding-bottom:110px}
       <rect x="0" y="248" width="1440" height="10" fill="#1B3366"/>
       <rect x="0" y="257" width="1440" height="2" fill="#2B4A8C"/>
       <rect x="0" y="259" width="1440" height="41" fill="#0E1E44"/>
-      <g fill="#334E8C"><rect x="10" y="280" width="44" height="2.5" rx="1"/><rect x="130" y="280" width="44" height="2.5" rx="1"/><rect x="250" y="280" width="44" height="2.5" rx="1"/><rect x="370" y="280" width="44" height="2.5" rx="1"/><rect x="490" y="280" width="44" height="2.5" rx="1"/><rect x="610" y="280" width="44" height="2.5" rx="1"/><rect x="730" y="280" width="44" height="2.5" rx="1"/><rect x="850" y="280" width="44" height="2.5" rx="1"/><rect x="970" y="280" width="44" height="2.5" rx="1"/><rect x="1090" y="280" width="44" height="2.5" rx="1"/><rect x="1210" y="280" width="44" height="2.5" rx="1"/><rect x="1330" y="280" width="44" height="2.5" rx="1"/></g>
+      <g fill="#334E8C"><rect x="10" y="287" width="44" height="2.5" rx="1"/><rect x="130" y="287" width="44" height="2.5" rx="1"/><rect x="250" y="287" width="44" height="2.5" rx="1"/><rect x="370" y="287" width="44" height="2.5" rx="1"/><rect x="490" y="287" width="44" height="2.5" rx="1"/><rect x="610" y="287" width="44" height="2.5" rx="1"/><rect x="730" y="287" width="44" height="2.5" rx="1"/><rect x="850" y="287" width="44" height="2.5" rx="1"/><rect x="970" y="287" width="44" height="2.5" rx="1"/><rect x="1090" y="287" width="44" height="2.5" rx="1"/><rect x="1210" y="287" width="44" height="2.5" rx="1"/><rect x="1330" y="287" width="44" height="2.5" rx="1"/></g>
 
       <!-- ============ 6. DHAKA: skyline + METRO RAIL + COLLEGE under the viaduct ============ -->
       <g>
@@ -756,8 +810,52 @@ body{padding-bottom:110px}
         <g class="es-bob" transform="translate(13,0)"><use href="#pKid"/></g>
       </g></g>
 
-      <!-- rickshaw with guardian + child (heading left) -->
-      <g transform="translate(0,292)"><g class="es-ride">
+      <!-- ================= ROAD =================
+           kerb lane (y=270): the bicycle story
+           middle lane (y=284, heading left): rickshaw, CNG, motorcycle
+           front lane (y=298, heading right): local bus, school bus
+           All share one 30s cycle and are phased so nothing passes in front of the story's key moments. -->
+
+      <!-- STORY: madrasa student gives his school friend a lift, drops him at the school gate,
+           the friend says thanks, then the madrasa student rides on to the madrasa -->
+      <g class="sb-bike">
+        <g class="sb-wheel"><circle cx="-15" cy="-7" r="7" fill="none" stroke="#E2E8F0" stroke-width="1.7"/><path d="M-22-7H-8M-15-14V0" stroke="#CBD5E1" stroke-width=".9"/></g>
+        <g class="sb-wheel"><circle cx="15" cy="-7" r="7" fill="none" stroke="#E2E8F0" stroke-width="1.7"/><path d="M8-7H22M15-14V0" stroke="#CBD5E1" stroke-width=".9"/></g>
+        <path d="M-15-7L-4-18H7L15-7M-4-18L1-7H-15M7-18L9-24M6-24H12" stroke="#F59E0B" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="-21" y="-17" width="13" height="2.2" rx="1" fill="#94A3B8"/>
+        <rect x="-8" y="-21" width="8" height="2.4" rx="1.2" fill="#1F2937"/>
+      </g>
+      <!-- school friend on the carrier -->
+      <g class="sb-pass">
+        <rect x="-15.5" y="-17" width="3" height="9" fill="#1E3A8A"/>
+        <rect x="-18" y="-30" width="8" height="13" rx="2" fill="#F1F5F9"/>
+        <rect x="-22" y="-29" width="4.5" height="9" rx="1.5" fill="#DC2626"/>
+        <circle cx="-14" cy="-34" r="3.8" fill="#E9B98F"/><path d="M-17.8-35a3.8 3.8 0 0 1 7.6 0z" fill="#1F2937"/>
+        <path d="M-11-26L-5-28" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <!-- madrasa student riding (panjabi + tupi) -->
+      <g class="sb-rider">
+        <path d="M-3-21L2-12L0-7" stroke="#E2E8F0" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M-6-21L-3-38H3L4-21Z" fill="#F8FAFC"/>
+        <path d="M1-33L9-24" stroke="#E9B98F" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="1" cy="-42" r="4.2" fill="#E9B98F"/><path d="M-3.2-43a4.2 4.2 0 0 1 8.4 0z" fill="#F8FAFC"/>
+      </g>
+      <!-- the friend standing, waving thanks, then walking in through the gate -->
+      <g class="sb-kid"><use href="#pKid"/><path class="sb-wave" d="M3-17L9-27" stroke="#E9B98F" stroke-width="2.4" stroke-linecap="round"/></g>
+      <!-- the madrasa student walking into the madrasa -->
+      <g class="sb-mkid"><use href="#pMKid"/></g>
+      <!-- speech bubbles -->
+      <g transform="translate(140,228)"><g class="sb-bub b1">
+        <rect x="-44" y="-17" width="88" height="17" rx="8.5" fill="#FFFFFF"/><path d="M18-1L30-1L28 7Z" fill="#FFFFFF"/>
+        <text x="0" y="-5.2" text-anchor="middle" font-size="9" font-weight="700" fill="#0F172A" font-family="Hind Siliguri, sans-serif">ধন্যবাদ ভাই! 🙏</text>
+      </g></g>
+      <g transform="translate(236,206)"><g class="sb-bub b2">
+        <rect x="-52" y="-17" width="104" height="17" rx="8.5" fill="#FEF3C7"/><path d="M-36-1L-24-1L-40 7Z" fill="#FEF3C7"/>
+        <text x="0" y="-5.2" text-anchor="middle" font-size="9" font-weight="700" fill="#7C2D12" font-family="Hind Siliguri, sans-serif">কাল আবার দেখা হবে!</text>
+      </g></g>
+
+      <!-- middle lane: rickshaw with guardian + child (heading left) -->
+      <g transform="translate(0,284)"><g class="es-ride">
         <path d="M24-40Q38-58 56-40Z" fill="#DC2626"/><path d="M24-40H56" stroke="#FBBF24" stroke-width="2"/>
         <circle cx="34" cy="-33" r="3.6" fill="#E9B98F"/><path d="M30-30L38-30L39-20H29Z" fill="#DB2777"/>
         <circle cx="46" cy="-31" r="3" fill="#E9B98F"/><path d="M43-28H49L50-20H42Z" fill="#F1F5F9"/>
@@ -769,14 +867,62 @@ body{padding-bottom:110px}
         <g class="es-wheel"><circle cx="44" cy="-7" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M37-7H51M44-14V0" stroke="#CBD5E1"/></g>
       </g></g>
 
-      <!-- student cycling to school (heading right) -->
-      <g transform="translate(0,276)"><g class="es-cycle">
-        <g class="es-wheel cw"><circle cx="0" cy="0" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M-7 0H7M0-7V7" stroke="#CBD5E1"/></g>
-        <g class="es-wheel cw"><circle cx="26" cy="0" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M19 0H33M26-7V7" stroke="#CBD5E1"/></g>
-        <path d="M0 0L10-12H22L26 0M10-12L14 0H0M22-12L24-17" stroke="#60A5FA" stroke-width="2" fill="none"/>
-        <rect x="6" y="-27" width="9" height="12" rx="2" fill="#F1F5F9"/><rect x="1" y="-26" width="5" height="9" rx="1.5" fill="#16A34A"/>
-        <circle cx="12" cy="-31" r="4" fill="#E9B98F"/><path d="M8-32a4 4 0 0 1 8 0z" fill="#1F2937"/>
-        <path d="M13-16L16-8" stroke="#1E3A8A" stroke-width="3" stroke-linecap="round"/>
+      <!-- middle lane: CNG auto-rickshaw (green, heading left) -->
+      <g transform="translate(0,284)"><g class="es-cng">
+        <path d="M-18-5V-14Q-18-20-11-21H16V-5Z" fill="#16A34A"/>
+        <path d="M-11-21Q-9-31 1-31H16V-21Z" fill="#111827"/>
+        <path d="M-15-14Q-15-19-10-19H-6V-12H-15Z" fill="#7DD3FC" opacity=".55"/>
+        <g stroke="#14532D" stroke-width="1"><line x1="2" y1="-20" x2="2" y2="-6"/><line x1="7" y1="-20" x2="7" y2="-6"/><line x1="12" y1="-20" x2="12" y2="-6"/></g>
+        <circle cx="-3" cy="-16" r="2.8" fill="#A16207"/>
+        <circle cx="-18" cy="-10" r="1.5" fill="#FEF9C3"/>
+        <g class="es-wheel"><circle cx="-13" cy="-3.6" r="3.6" fill="#111827" stroke="#CBD5E1" stroke-width="1.2"/><line x1="-16" y1="-3.6" x2="-10" y2="-3.6" stroke="#CBD5E1" stroke-width=".7"/></g>
+        <g class="es-wheel"><circle cx="10" cy="-4" r="4" fill="#111827" stroke="#CBD5E1" stroke-width="1.2"/><line x1="7" y1="-4" x2="13" y2="-4" stroke="#CBD5E1" stroke-width=".7"/></g>
+      </g></g>
+
+      <!-- middle lane: motorcycle with helmeted rider (heading left) -->
+      <g transform="translate(0,284)"><g class="es-moto">
+        <path d="M-11-8L-5-14H7L11-8Z" fill="#DC2626"/><path d="M-11-8L-15-15" stroke="#CBD5E1" stroke-width="1.6"/>
+        <path d="M3-14L0-26" stroke="#1E3A8A" stroke-width="5" stroke-linecap="round"/>
+        <path d="M1-22L-10-16" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
+        <path d="M3-14L-2-8" stroke="#1F2937" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="-1" cy="-30" r="4.4" fill="#1D4ED8"/><path d="M-5.4-30H-1V-27.5H-5Z" fill="#0F172A"/>
+        <circle cx="-15" cy="-12" r="1.4" fill="#FEF9C3"/>
+        <g class="es-wheel"><circle cx="-11" cy="-5" r="5" fill="none" stroke="#E2E8F0" stroke-width="1.6"/><line x1="-16" y1="-5" x2="-6" y2="-5" stroke="#CBD5E1" stroke-width=".7"/></g>
+        <g class="es-wheel"><circle cx="11" cy="-5" r="5" fill="none" stroke="#E2E8F0" stroke-width="1.6"/><line x1="6" y1="-5" x2="16" y2="-5" stroke="#CBD5E1" stroke-width=".7"/></g>
+      </g></g>
+
+      <!-- front lane: local bus (heading right) -->
+      <g transform="translate(0,298)"><g class="es-bus">
+        <path d="M0-8V-38Q0-42 4-42H96Q102-42 104-35V-8Z" fill="#15803D"/>
+        <rect x="0" y="-42" width="98" height="4" fill="#DC2626"/>
+        <rect x="5" y="-35" width="80" height="13" rx="1.5" fill="#1E3A5F"/>
+        <rect class="es-win" x="5" y="-35" width="80" height="13" rx="1.5" fill="#FDE68A" opacity=".5"/>
+        <g fill="#0F172A" opacity=".75"><circle cx="12" cy="-26" r="2.4"/><circle cx="22" cy="-25.5" r="2.4"/><circle cx="35" cy="-26" r="2.4"/><circle cx="44" cy="-25.5" r="2.4"/><circle cx="58" cy="-26" r="2.4"/><circle cx="70" cy="-25.5" r="2.4"/><circle cx="79" cy="-26" r="2.4"/></g>
+        <g fill="#15803D"><rect x="24" y="-35" width="2" height="13"/><rect x="46" y="-35" width="2" height="13"/><rect x="66" y="-35" width="2" height="13"/></g>
+        <path d="M89-36H99Q103-34 103.5-24H89Z" fill="#0F172A"/>
+        <rect x="88" y="-22" width="9" height="14" fill="#0F2048" opacity=".7"/>
+        <rect x="0" y="-21" width="88" height="2.5" fill="#F8FAFC" opacity=".85"/>
+        <text x="44" y="-11" text-anchor="middle" font-size="7" font-weight="700" fill="#F8FAFC" font-family="Hind Siliguri, sans-serif">মতিঝিল ↔ মিরপুর</text>
+        <circle cx="102" cy="-13" r="1.8" fill="#FEF9C3"/>
+        <rect x="-1" y="-10" width="106" height="3" rx="1" fill="#334155"/>
+        <g class="es-wheel cw"><circle cx="20" cy="-6.5" r="6.5" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="14" y1="-6.5" x2="26" y2="-6.5" stroke="#94A3B8"/></g>
+        <g class="es-wheel cw"><circle cx="82" cy="-6.5" r="6.5" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="76" y1="-6.5" x2="88" y2="-6.5" stroke="#94A3B8"/></g>
+      </g></g>
+
+      <!-- front lane: yellow school bus with children (heading right) -->
+      <g transform="translate(0,298)"><g class="es-sbus">
+        <path d="M0-8V-34Q0-38 4-38H74Q80-38 84-28V-8Z" fill="#FACC15"/>
+        <rect x="5" y="-32" width="62" height="11" rx="1.5" fill="#1E3A5F"/>
+        <rect class="es-win d2" x="5" y="-32" width="62" height="11" rx="1.5" fill="#FDE68A" opacity=".5"/>
+        <g fill="#E9B98F"><circle cx="12" cy="-24.5" r="2.3"/><circle cx="23" cy="-25" r="2.3"/><circle cx="34" cy="-24.5" r="2.3"/><circle cx="46" cy="-25" r="2.3"/><circle cx="58" cy="-24.5" r="2.3"/></g>
+        <g fill="#1F2937"><path d="M9.7-25.5a2.3 2.3 0 0 1 4.6 0z"/><path d="M31.7-25.5a2.3 2.3 0 0 1 4.6 0z"/><path d="M55.7-25.5a2.3 2.3 0 0 1 4.6 0z"/></g>
+        <path d="M70-32H78Q82-30 82.5-22H70Z" fill="#0F172A"/>
+        <rect x="0" y="-19" width="84" height="2" fill="#111827"/>
+        <text x="36" y="-10.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#111827" font-family="Hind Siliguri, sans-serif">স্কুল বাস</text>
+        <circle cx="82" cy="-13" r="1.7" fill="#FEF9C3"/>
+        <rect x="-1" y="-10" width="86" height="3" rx="1" fill="#334155"/>
+        <g class="es-wheel cw"><circle cx="16" cy="-6" r="6" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="10" y1="-6" x2="22" y2="-6" stroke="#94A3B8"/></g>
+        <g class="es-wheel cw"><circle cx="66" cy="-6" r="6" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="60" y1="-6" x2="72" y2="-6" stroke="#94A3B8"/></g>
       </g></g>
     </svg>
   </div>
