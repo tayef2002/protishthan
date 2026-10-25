@@ -629,6 +629,31 @@ function goldChip(x, y){
   ctx.moveTo(x, y + 29); ctx.lineTo(x + 26, y + 29); ctx.moveTo(x + 52, y + 29); ctx.lineTo(x + 78, y + 29); ctx.stroke();
   rr(x + 26, y + 14, 26, 30, 6); ctx.stroke();
 }
+// round ink seal, like a passport stamp: Bangla on the top arc, English on the bottom arc
+function arcText(chunks, r, top, gap){
+  const ws = chunks.map(c=>ctx.measureText(c).width), total = ws.reduce((a,b)=>a+b, 0) + gap*(chunks.length-1);
+  let acc = 0;
+  chunks.forEach((c, i)=>{
+    const mid = (acc + ws[i]/2) / r, a = top ? -Math.PI/2 - total/2/r + mid : Math.PI/2 + total/2/r - mid;
+    ctx.save(); ctx.rotate(top ? a + Math.PI/2 : a - Math.PI/2); ctx.fillText(c, 0, top ? -r : r); ctx.restore();
+    acc += ws[i] + gap;
+  });
+}
+function seal(x, y, r, color){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(-0.2); ctx.globalAlpha = .9;
+  ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
+  ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(0, 0, r - 9, 0, Math.PI*2); ctx.stroke();
+  ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, r*0.56, 0, Math.PI*2); ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  // Bangla is drawn in shaped clusters so conjuncts (ক্ষি, র্ড) stay intact on the curve
+  ctx.font = F(700, Math.round(r*0.27)); arcText(['শি','ক্ষি','ত',' ','কা','র্ড'], r*0.71, true, r*0.06);
+  ctx.font = `800 ${Math.round(r*0.15)}px Inter, sans-serif`; arcText('SHIKKHITO CARD'.split(''), r*0.78, false, r*0.035);
+  [0, Math.PI].forEach(a=>{ ctx.beginPath(); ctx.arc(Math.cos(a)*r*0.78, Math.sin(a)*r*0.78, r*0.045, 0, Math.PI*2); ctx.fill(); });
+  capIcon(-r*0.24, -r*0.3, r*0.48, color);
+  ctx.font = '800 ' + Math.round(r*0.12) + 'px Inter, sans-serif'; ctx.fillText('BANGLADESH', 0, r*0.26);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.restore();
+}
 function sticker(x, y, r, T){
   ctx.save(); ctx.translate(x, y); ctx.rotate(-0.22);
   ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
@@ -729,8 +754,9 @@ function draw(){
   const ex = cx + 44, eyTop = py + ph + 52;
   ctx.fillStyle = T.accent; ctx.font = F(700, 31); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
   ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 176, eyTop - 10, cw - 88 - 176, 2);
-  const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26;
-  if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', ex, ry0 + 46); }
+  const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
+  seal(cx + cw - 40 - sealR, ry0 + 132, sealR, T.accent);
+  if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText(fitText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', cw - 88 - sealW), ex, ry0 + 46); }
   rows.slice(0, 4).forEach((l, i)=>{
     const ed = S.edu[l.key], y = ry0 + i*rowH;
     if(i < Math.min(rows.length, 4) - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28, 3, rowH - 6); }
@@ -740,8 +766,8 @@ function draw(){
     const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
     ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
     ctx.fillStyle = T.ink; ctx.font = F(700, 31);
-    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 50 - yw - 20), ex + 50, y + 48);
-    if(yr) pill(cx + cw - 44 - yw, y + 20, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 40);
+    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 50 - yw - 20 - sealW), ex + 50, y + 48);
+    if(yr) pill(cx + cw - 44 - sealW - yw, y + 20, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 40);
   });
 
   // benefits
