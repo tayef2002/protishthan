@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>বোর্ড পরীক্ষার ফলাফল — প্রতিষ্ঠানভিত্তিক SSC, HSC, দাখিল, আলিম | Protishthan</title>
+<meta name="description" content="কোন স্কুল, কলেজ বা মাদ্রাসার SSC, HSC, দাখিল ও আলিম পরীক্ষায় কতজন পাস করেছে, পাসের হার কত, কতজন GPA-5 পেয়েছে — জেলা ও উপজেলাভিত্তিক র‍্যাংকিংসহ। তথ্যসূত্র: শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান।">
+<meta property="og:title" content="বোর্ড পরীক্ষার ফলাফল — প্রতিষ্ঠান ধরে | Protishthan">
+<meta property="og:description" content="আপনার স্কুল, কলেজ বা মাদ্রাসার ফলাফল কেমন? পাসের হার, GPA-5 আর জেলায় কততম — এক জায়গায়।">
+<meta property="og:type" content="website">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--blue-light:#EEF3FF;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669;--green-l:#ECFDF5;--amber:#D97706;--amber-l:#FFFBEB;--red:#DC2626;--red-l:#FEF2F2;--purple:#7C3AED}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+
+/* top bar: same floating nav as the home page */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
+
+/* hero */
+.hero{background:radial-gradient(1100px 380px at 75% -10%,rgba(124,58,237,.32),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:118px 0 96px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+.hero .container{position:relative;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#FDE68A;background:rgba(253,230,138,.1);border:1px solid rgba(253,230,138,.25);padding:5px 13px;border-radius:100px}
+.hero h1{font-size:clamp(30px,4.6vw,52px);line-height:1.18;margin:14px 0 10px;letter-spacing:-.4px}
+.hero h1 span{background:linear-gradient(135deg,#93C5FD,#C4B5FD);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:rgba(255,255,255,.74);max-width:640px;margin:0 auto;font-size:16px}
+.bars-art{position:absolute;right:6%;bottom:0;display:flex;align-items:flex-end;gap:10px;opacity:.22}
+.bars-art i{width:22px;border-radius:6px 6px 0 0;background:linear-gradient(#93C5FD,#2563EB);animation:barUp 3.2s ease-in-out infinite alternate}
+.bars-art.l{left:6%;right:auto}
+@keyframes barUp{from{transform:scaleY(.55)}to{transform:scaleY(1)}}
+.bars-art i{transform-origin:bottom}
+@media(max-width:900px){.bars-art{display:none}}
+
+/* picker panel */
+.panel{position:relative;z-index:2;margin-top:-62px;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 18px 50px rgba(15,32,72,.12);padding:18px}
+.panel-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.exam-tabs{display:flex;background:var(--bg);border-radius:14px;padding:4px;gap:4px}
+.exam-tabs button{border:none;background:none;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--text-2);padding:9px 16px;border-radius:11px;cursor:pointer}
+.exam-tabs button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.sel{appearance:none;-webkit-appearance:none;border:1.5px solid var(--border);border-radius:12px;padding:10px 34px 10px 13px;font-family:inherit;font-size:14px;font-weight:600;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;cursor:pointer;outline:none}
+.sel:focus{border-color:var(--blue)}
+.search{flex:1;min-width:240px;display:flex;align-items:center;gap:9px;border:1.5px solid var(--border);border-radius:12px;padding:0 13px;background:#fff}
+.search:focus-within{border-color:var(--blue)}
+.search input{flex:1;min-width:0;border:none;outline:none;font-family:inherit;font-size:14.5px;padding:10px 0;background:none}
+.sugg{position:absolute;left:18px;right:18px;top:calc(100% - 8px);background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 40px rgba(15,23,42,.14);display:none;max-height:340px;overflow:auto;z-index:5}
+.sugg.open{display:block}
+.sugg button{display:block;width:100%;text-align:left;border:none;background:none;font-family:inherit;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border)}
+.sugg button:hover{background:var(--surface)}
+.sugg b{font-size:14px}.sugg small{display:block;font-size:12px;color:var(--text-3)}
+
+/* banners */
+.note-bar{margin-top:16px;border-radius:14px;padding:11px 15px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}
+.note-bar.demo{background:var(--amber-l);border:1px solid #FDE68A;color:#92400E}
+.note-bar.info{background:var(--blue-light);border:1px solid #C7D7FE;color:#1E3A8A}
+
+/* sections */
+.sec{margin-top:26px}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.sec-h h2{font-size:20px;line-height:1.3}
+.sec-h p{font-size:13px;color:var(--text-3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px}
+.stat .k{font-size:12.5px;color:var(--text-3);font-weight:600}
+.stat .v{font-family:'Inter','Hind Siliguri',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.5px;margin-top:2px}
+.stat .s{font-size:12px;color:var(--text-2)}
+.stat.hl{background:linear-gradient(150deg,#0F2048,#1A3570);color:#fff;border-color:transparent}
+.stat.hl .k{color:rgba(255,255,255,.65)}.stat.hl .s{color:rgba(255,255,255,.7)}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+@media(max-width:960px){.grid2{grid-template-columns:1fr}}
+
+/* ranking */
+.rank-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.seg{display:flex;background:var(--bg);border-radius:11px;padding:3px}
+.seg button{border:none;background:none;font-family:inherit;font-size:13px;font-weight:700;color:var(--text-2);padding:7px 12px;border-radius:9px;cursor:pointer}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 5px rgba(15,23,42,.08)}
+.rank{list-style:none}
+.rank li{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:10px}
+.rank li:hover{background:var(--surface)}
+.rank .no{width:30px;height:30px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--text-2)}
+.rank li:nth-child(1) .no{background:#FEF3C7;color:#92400E}.rank li:nth-child(2) .no{background:#F1F5F9;color:#334155}.rank li:nth-child(3) .no{background:#FFEDD5;color:#9A3412}
+.rank .nm{font-weight:700;font-size:14.5px;line-height:1.35}
+.rank .loc{font-size:12px;color:var(--text-3)}
+.rank .val{text-align:right;font-family:'Inter','Hind Siliguri',sans-serif;font-weight:800;font-size:16px}
+.rank .val small{display:block;font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:11.5px;color:var(--text-3)}
+.meter{height:5px;border-radius:5px;background:var(--bg);margin-top:5px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#2563EB,#7C3AED)}
+
+/* district bars */
+.dist li{list-style:none;display:grid;grid-template-columns:96px 1fr 58px;gap:10px;align-items:center;padding:6px 0;font-size:13.5px;cursor:pointer}
+.dist .bar{height:10px;border-radius:6px;background:var(--bg);overflow:hidden}
+.dist .bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#10B981,#059669)}
+.dist .pc{text-align:right;font-weight:700;font-family:'Inter',sans-serif;font-size:13px}
+.dist li.cur{font-weight:700;color:var(--blue)}
+
+/* institution result */
+.inst-card{display:none}
+.inst-card.show{display:block}
+.inst-head{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.inst-head h3{font-size:22px;line-height:1.3}
+.inst-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--bg);color:var(--text-2)}
+.tag.blue{background:var(--blue-light);color:var(--blue)}
+.inst-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+@media(max-width:700px){.inst-kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px}
+.kpi .k{font-size:12px;color:var(--text-3);font-weight:600}.kpi .v{font-family:'Inter','Hind Siliguri',sans-serif;font-size:22px;font-weight:800}
+.kpi .v.up{color:var(--green)}.kpi .v.down{color:var(--red)}
+.trend{width:100%;height:auto;display:block}
+.bands{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--bg);margin:8px 0}
+.bands i{display:block;height:100%}
+.band-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--text-2)}
+.band-legend span{display:inline-flex;align-items:center;gap:5px}
+.band-legend b{width:10px;height:10px;border-radius:3px;display:inline-block}
+.close-x{border:1px solid var(--border);background:#fff;border-radius:10px;padding:6px 12px;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;color:var(--text-2)}
+
+/* empty + own result + method */
+.empty{text-align:center;padding:34px 18px;color:var(--text-2)}
+.empty .ic{width:58px;height:58px;border-radius:16px;background:var(--blue-light);color:var(--blue);display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
+.empty b{display:block;font-size:17px;color:var(--text);margin-bottom:4px}
+.own{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:linear-gradient(150deg,#ECFDF5,#F0FDF4);border:1px solid #A7F3D0;border-radius:20px;padding:18px 20px}
+@media(max-width:700px){.own{grid-template-columns:1fr}}
+.own .ic{width:48px;height:48px;border-radius:14px;background:#fff;color:var(--green);display:flex;align-items:center;justify-content:center}
+.own b{font-size:16.5px}.own p{font-size:13px;color:var(--text-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;padding:11px 18px;font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+.btn-green{background:var(--green);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-line{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.method{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:800px){.method{grid-template-columns:1fr}}
+.method div{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;font-size:13.5px;color:var(--text-2)}
+.method b{display:block;color:var(--text);font-size:14.5px;margin-bottom:4px}
+.skel{background:linear-gradient(90deg,#EEF2F7 25%,#F8FAFC 50%,#EEF2F7 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:8px;height:14px;margin:10px 0}
+@keyframes sk{to{background-position:-200% 0}}
+.foot{text-align:center;padding:30px 16px 44px;color:var(--text-3);font-size:13px}
+.foot a{color:var(--text-2)}
+@media(max-width:600px){.container{padding:0 16px}.panel{padding:14px;border-radius:18px}.exam-tabs{width:100%}.exam-tabs button{flex:1;padding:9px 8px}.sel{flex:1}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="card.html">শিক্ষিত কার্ড</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-ghost-nav">লগইন</a>
+    <a href="login.html?tab=signup" class="btn-primary-nav">বিনামূল্যে শুরু করুন</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="bars-art l" aria-hidden="true"><i style="height:60px"></i><i style="height:96px;animation-delay:-1s"></i><i style="height:74px;animation-delay:-2s"></i></div>
+  <div class="bars-art" aria-hidden="true"><i style="height:82px;animation-delay:-.5s"></i><i style="height:120px;animation-delay:-1.6s"></i><i style="height:66px;animation-delay:-2.4s"></i><i style="height:104px"></i></div>
+  <div class="container">
+    <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/></svg>প্রতিষ্ঠানভিত্তিক ফলাফল</span>
+    <h1>আপনার প্রতিষ্ঠানের <span>বোর্ড ফলাফল</span> কেমন?</h1>
+    <p>SSC, HSC, দাখিল ও আলিম — কোন স্কুল, কলেজ বা মাদ্রাসায় কতজন পাস করেছে, কতজন GPA-5 পেয়েছে, আর জেলায় কততম।</p>
+  </div>
+</section>
+
+<main class="container">
+  <div class="panel" id="panel">
+    <div class="panel-row">
+      <div class="exam-tabs" id="examTabs" role="tablist">
+        <button type="button" class="on" data-exam="SSC">SSC / দাখিল</button>
+        <button type="button" data-exam="HSC">HSC / আলিম</button>
+      </div>
+      <select class="sel" id="yearSel" aria-label="সাল"></select>
+      <select class="sel" id="boardSel" aria-label="বোর্ড"><option value="">সব বোর্ড</option></select>
+      <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="প্রতিষ্ঠানের নাম বা EIIN লিখুন" autocomplete="off"></label>
+    </div>
+    <div class="sugg" id="sugg"></div>
+    <div id="noteBar"></div>
+  </div>
+
+  <!-- one institution -->
+  <section class="sec inst-card card" id="instCard" aria-live="polite"></section>
+
+  <!-- overview -->
+  <section class="sec">
+    <div class="sec-h"><div><h2 id="ovTitle">সারসংক্ষেপ</h2><p id="ovSub">সব বোর্ড মিলিয়ে</p></div></div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="sec grid2">
+    <div class="card">
+      <div class="sec-h" style="margin-bottom:8px"><div><h2>সেরা প্রতিষ্ঠান</h2><p>কমপক্ষে ৩০ জন পরীক্ষার্থী আছে এমন প্রতিষ্ঠান</p></div></div>
+      <div class="rank-tools">
+        <div class="seg" id="rankBy"><button type="button" class="on" data-by="pass_rate">পাসের হার</button><button type="button" data-by="gpa5">GPA-5 সংখ্যা</button></div>
+        <select class="sel" id="distSel" aria-label="জেলা"><option value="">সব জেলা</option></select>
+        <select class="sel" id="upaSel" aria-label="উপজেলা" disabled><option value="">সব উপজেলা</option></select>
+      </div>
+      <ol class="rank" id="rankList"></ol>
+    </div>
+    <div class="card">
+      <div class="sec-h" style="margin-bottom:8px"><div><h2>জেলাভিত্তিক পাসের হার</h2><p>কোনো জেলায় চাপলে সেই জেলার র‍্যাংকিং দেখাবে</p></div></div>
+      <ul class="dist" id="distList"></ul>
+    </div>
+  </section>
+
+  <section class="sec own">
+    <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+    <div><b>নিজের ফলাফল ও মার্কশিট দেখবেন?</b><p>রোল আর রেজিস্ট্রেশন নম্বর দিয়ে ব্যক্তিগত ফলাফল শুধু শিক্ষা বোর্ডের অফিসিয়াল সাইটে দেখা যায়। Protishthan কারো ব্যক্তিগত ফলাফল সংরক্ষণ বা প্রকাশ করে না।</p></div>
+    <a class="btn btn-green" href="https://www.educationboardresults.gov.bd/" target="_blank" rel="noopener">অফিসিয়াল সাইটে দেখুন ↗</a>
+  </section>
+
+  <section class="sec">
+    <div class="sec-h"><div><h2>তথ্য কোথা থেকে আসে</h2></div></div>
+    <div class="method">
+      <div><b>শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান</b>প্রতি বছর ফলাফলের পর বোর্ডগুলো প্রতিষ্ঠানভিত্তিক যে পরিসংখ্যান প্রকাশ করে, সেখান থেকে নেওয়া। প্রতিটি সংখ্যার সাথে মূল সূত্রের লিংক থাকে।</div>
+      <div><b>শুধু মোট সংখ্যা, কারো নাম নয়</b>কতজন পরীক্ষা দিয়েছে, কতজন পাস করেছে, কতজন GPA-5 — এটুকুই। কোনো শিক্ষার্থীর নাম, রোল বা নম্বর এখানে নেই।</div>
+      <div><b>ভুল দেখলে জানান</b>কোনো সংখ্যা মূল সূত্রের সাথে না মিললে <a href="index.html">আমাদের জানান</a> — যাচাই করে ঠিক করা হবে।</div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</a> · <a href="card.html">শিক্ষিত কার্ড</a></footer>
+
+<script>
+const sb = supabase.createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+
+/* ---------------- helpers ---------------- */
+const BN = '০১২৩৪৫৬৭৮৯';
+const bn = v => String(v).replace(/[0-9]/g, d => BN[d]);
+const num = n => bn(Math.round(Number(n) || 0).toLocaleString('en-IN'));
+const pct = n => bn((Number(n) || 0).toFixed(2)) + '%';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const EXAMS = { SSC: ['SSC', 'DAKHIL'], HSC: ['HSC', 'ALIM'] };
+const EXAM_LABEL = { SSC:'SSC', DAKHIL:'দাখিল', HSC:'HSC', ALIM:'আলিম' };
+const BOARDS = { dhaka:'ঢাকা', rajshahi:'রাজশাহী', cumilla:'কুমিল্লা', jashore:'যশোর', chattogram:'চট্টগ্রাম', barishal:'বরিশাল', sylhet:'সিলেট', dinajpur:'দিনাজপুর', mymensingh:'ময়মনসিংহ', madrasah:'মাদ্রাসা', technical:'কারিগরি' };
+const BAND_COLORS = { '5':'#7C3AED', '4':'#2563EB', '3.5':'#0EA5E9', '3':'#10B981', '2':'#F59E0B', '1':'#F97316' };
+const BAND_ORDER = ['5', '4', '3.5', '3', '2', '1'];
+const BAND_LABEL = { '5':'GPA 5', '4':'4 – <5', '3.5':'3.5 – <4', '3':'3 – <3.5', '2':'2 – <3', '1':'1 – <2' };
+const ICON = {
+  chart: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/></svg>'
+};
+const params = new URLSearchParams(location.search);
+const DEMO = params.get('demo') === '1';
+
+/* ---------------- state ---------------- */
+const ST = { exam: params.get('exam') === 'HSC' ? 'HSC' : 'SSC', year: Number(params.get('year')) || null, board: params.get('board') || '', by: 'pass_rate', district: '', upazila: '' };
+let AVAIL = [];
+
+/* ---------------- data layer (real DB, or clearly-labelled sample data with ?demo=1) ---------------- */
+const DB = DEMO ? demoDB() : {
+  async available(){ const { data, error } = await sb.rpc('board_results_available'); return error ? [] : (data || []); },
+  async summary(exams, year, board){ const { data, error } = await sb.rpc('board_results_summary', { p_exams: exams, p_year: year, p_board: board || null }); return error ? null : data; },
+  async ranking(exams, year, board, by, district, upazila){
+    let q = sb.from('board_results').select('eiin,institution_name,district,upazila,appeared,passed,gpa5,pass_rate,exam,board')
+      .eq('grp', 'total').in('exam', exams).eq('year', year).gte('appeared', 30);
+    if(board) q = q.eq('board', board);
+    if(district) q = q.eq('district', district);
+    if(upazila) q = q.eq('upazila', upazila);
+    q = q.order(by, { ascending:false }).order('appeared', { ascending:false }).limit(20);
+    const { data, error } = await q; return error ? [] : (data || []);
+  },
+  async upazilas(exams, year, board, district){
+    let q = sb.from('board_results').select('upazila').eq('grp', 'total').in('exam', exams).eq('year', year).eq('district', district).limit(2000);
+    if(board) q = q.eq('board', board);
+    const { data } = await q; return [...new Set((data || []).map(r=>r.upazila).filter(Boolean))].sort((a, b)=>a.localeCompare(b, 'bn'));
+  },
+  async search(text){
+    const t = text.replace(/[%,()]/g, ' ').trim();
+    const q = /^\d{4,7}$/.test(t) ? sb.from('board_results').select('eiin,institution_name,district,upazila').eq('eiin', t)
+                                  : sb.from('board_results').select('eiin,institution_name,district,upazila').ilike('institution_name', '%' + t + '%');
+    const { data } = await q.eq('grp', 'total').limit(60);
+    const seen = new Map(); (data || []).forEach(r=>{ if(!seen.has(r.eiin)) seen.set(r.eiin, r); });
+    return [...seen.values()].slice(0, 8);
+  },
+  async institution(eiin){
+    const { data } = await sb.from('board_results').select('*').eq('eiin', eiin).order('year', { ascending:true });
+    return data || [];
+  }
+};
+
+/* ---------------- pickers ---------------- */
+function yearsFor(exam){ return [...new Set(AVAIL.filter(a=>EXAMS[exam].includes(a.exam)).map(a=>a.year))].sort((a, b)=>b - a); }
+function boardsFor(exam, year){ return [...new Set(AVAIL.filter(a=>EXAMS[exam].includes(a.exam) && a.year === year).map(a=>a.board))]; }
+function fillPickers(){
+  const ys = yearsFor(ST.exam);
+  if(!ys.includes(ST.year)) ST.year = ys[0] || null;
+  document.getElementById('yearSel').innerHTML = ys.length ? ys.map(y=>`<option value="${y}"${y === ST.year ? ' selected' : ''}>${bn(y)}</option>`).join('') : '<option value="">সাল</option>';
+  document.getElementById('yearSel').disabled = !ys.length;
+  const bs = ST.year ? boardsFor(ST.exam, ST.year) : [];
+  if(ST.board && !bs.includes(ST.board)) ST.board = '';
+  document.getElementById('boardSel').innerHTML = '<option value="">সব বোর্ড</option>' + bs.map(b=>`<option value="${b}"${b === ST.board ? ' selected' : ''}>${esc(BOARDS[b] || b)} বোর্ড</option>`).join('');
+  document.getElementById('boardSel').disabled = !bs.length;
+}
+function syncUrl(){
+  const p = new URLSearchParams();
+  if(DEMO) p.set('demo', '1');
+  p.set('exam', ST.exam); if(ST.year) p.set('year', ST.year); if(ST.board) p.set('board', ST.board);
+  const e = params.get('eiin'); if(e) p.set('eiin', e);
+  history.replaceState(null, '', location.pathname + '?' + p.toString());
+}
+
+/* ---------------- render: overview ---------------- */
+function statCard(k, v, s, hl){ return `<div class="stat${hl ? ' hl' : ''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s || ''}</div></div>`; }
+function renderEmpty(){
+  const label = ST.exam === 'SSC' ? 'SSC ও দাখিল' : 'HSC ও আলিম';
+  const html = `<div class="empty" style="grid-column:1/-1"><span class="ic">${ICON.chart}</span><b>${label}-এর প্রতিষ্ঠানভিত্তিক ফলাফল শীঘ্রই আসছে</b>শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান থেকে তথ্য যোগ করা হচ্ছে। এর মধ্যে নিজের ফলাফল অফিসিয়াল সাইটে দেখুন।<div style="margin-top:14px"><a class="btn btn-blue" href="https://www.educationboardresults.gov.bd/" target="_blank" rel="noopener">অফিসিয়াল ফলাফল ↗</a></div></div>`;
+  document.getElementById('stats').innerHTML = html;
+  document.getElementById('rankList').innerHTML = '<li style="cursor:default;display:block"><div class="empty" style="padding:20px">এখনো কোনো তথ্য নেই</div></li>';
+  document.getElementById('distList').innerHTML = '<li style="cursor:default;display:block"><div class="empty" style="padding:20px">এখনো কোনো তথ্য নেই</div></li>';
+  document.getElementById('ovTitle').textContent = 'সারসংক্ষেপ';
+  document.getElementById('ovSub').textContent = label;
+}
+let LAST_SUMMARY = null;
+async function loadOverview(){
+  if(!ST.year){ renderEmpty(); return; }
+  document.getElementById('stats').innerHTML = [1, 2, 3, 4].map(()=>'<div class="stat"><div class="skel" style="width:50%"></div><div class="skel" style="height:26px"></div></div>').join('');
+  const exams = EXAMS[ST.exam];
+  const s = await DB.summary(exams, ST.year, ST.board);
+  if(!s || !s.institutions){ renderEmpty(); return; }
+  LAST_SUMMARY = s;
+  const rate = s.appeared ? s.passed * 100 / s.appeared : 0;
+  document.getElementById('ovTitle').textContent = (ST.exam === 'SSC' ? 'SSC ও দাখিল' : 'HSC ও আলিম') + ' ' + bn(ST.year);
+  document.getElementById('ovSub').textContent = (ST.board ? (BOARDS[ST.board] || ST.board) + ' বোর্ড' : 'সব বোর্ড মিলিয়ে') + ' · ' + num(s.institutions) + 'টি প্রতিষ্ঠান';
+  document.getElementById('stats').innerHTML =
+    statCard('পাসের হার', pct(rate), num(s.passed) + ' জন পাস করেছে', true) +
+    statCard('পরীক্ষার্থী', num(s.appeared), num(s.institutions) + 'টি প্রতিষ্ঠান থেকে') +
+    statCard('GPA-5', num(s.gpa5), s.appeared ? 'প্রতি ১০০ জনে ' + bn((s.gpa5 * 100 / s.appeared).toFixed(1)) + ' জন' : '') +
+    statCard('শতভাগ পাস', num(s.full_pass) + 'টি', 'প্রতিষ্ঠান · শূন্য পাস ' + num(s.zero_pass) + 'টি');
+  // district list + district picker
+  const ds = s.districts || [];
+  const max = Math.max(...ds.map(d=>Number(d.pass_rate) || 0), 1);
+  document.getElementById('distList').innerHTML = ds.length ? ds.map(d=>`<li data-d="${esc(d.district)}" class="${d.district === ST.district ? 'cur' : ''}"><span>${esc(d.district)}</span><span class="bar"><i style="width:${(Number(d.pass_rate) / max * 100).toFixed(1)}%"></i></span><span class="pc">${bn(Number(d.pass_rate).toFixed(1))}%</span></li>`).join('') : '<li style="display:block" class="empty">জেলার তথ্য নেই</li>';
+  const dsel = document.getElementById('distSel');
+  dsel.innerHTML = '<option value="">সব জেলা</option>' + ds.map(d=>d.district).sort((a, b)=>a.localeCompare(b, 'bn')).map(d=>`<option${d === ST.district ? ' selected' : ''}>${esc(d)}</option>`).join('');
+  await loadRanking();
+}
+
+/* ---------------- render: ranking ---------------- */
+async function loadRanking(){
+  const list = document.getElementById('rankList');
+  if(!ST.year || !LAST_SUMMARY){ return; }
+  list.innerHTML = '<li style="display:block"><div class="skel"></div><div class="skel" style="width:70%"></div></li>';
+  const rows = await DB.ranking(EXAMS[ST.exam], ST.year, ST.board, ST.by, ST.district, ST.upazila);
+  if(!rows.length){ list.innerHTML = '<li style="display:block;cursor:default"><div class="empty" style="padding:20px">এই এলাকায় ৩০+ পরীক্ষার্থী আছে এমন প্রতিষ্ঠান নেই</div></li>'; return; }
+  list.innerHTML = rows.map((r, i)=>`<li data-eiin="${esc(r.eiin)}"><span class="no">${bn(i + 1)}</span><div><div class="nm">${esc(r.institution_name)}</div><div class="loc">${esc([r.upazila, r.district].filter(Boolean).join(', '))} · ${EXAM_LABEL[r.exam] || r.exam} · EIIN ${bn(r.eiin)}</div><div class="meter"><i style="width:${Math.min(100, Number(r.pass_rate))}%"></i></div></div><div class="val">${ST.by === 'gpa5' ? num(r.gpa5) : pct(r.pass_rate)}<small>${ST.by === 'gpa5' ? 'GPA-5 · ' + pct(r.pass_rate) : num(r.passed) + '/' + num(r.appeared) + ' জন'}</small></div></li>`).join('');
+}
+
+/* ---------------- render: one institution ---------------- */
+function trendSvg(points){
+  const W = 640, H = 210, P = 52, n = points.length;
+  const L = P + 40, R = W - 40, x = i => n === 1 ? (L + R) / 2 : L + i * (R - L) / (n - 1);
+  const y = v => H - 30 - (v / 100) * (H - 60);
+  const bw = Math.min(46, (W - 2 * P) / Math.max(n, 1) * .5);
+  let g = '';
+  [0, 50, 100].forEach(v=>{ g += `<line x1="${P - 6}" x2="${W - P + 10}" y1="${y(v)}" y2="${y(v)}" stroke="#E2E8F0" stroke-dasharray="${v ? '4 4' : '0'}"/><text x="${P - 12}" y="${y(v) + 4}" font-size="11" fill="#94A3B8" text-anchor="end">${bn(v)}%</text>`; });
+  points.forEach((p, i)=>{
+    g += `<rect x="${x(i) - bw / 2}" y="${y(p.rate)}" width="${bw}" height="${y(0) - y(p.rate)}" rx="7" fill="url(#tg)"/>`;
+    g += `<text x="${x(i)}" y="${y(p.rate) - 8}" font-size="12.5" font-weight="700" fill="#0F172A" text-anchor="middle">${bn(p.rate.toFixed(1))}%</text>`;
+    g += `<text x="${x(i)}" y="${H - 10}" font-size="12" fill="#475569" text-anchor="middle">${bn(p.year)}</text>`;
+  });
+  return `<svg class="trend" viewBox="0 0 ${W} ${H}" role="img" aria-label="বছরভিত্তিক পাসের হার"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs>${g}</svg>`;
+}
+async function openInstitution(eiin){
+  const box = document.getElementById('instCard');
+  box.classList.add('show');
+  box.innerHTML = '<div class="skel" style="width:40%;height:22px"></div><div class="skel"></div><div class="skel" style="height:120px"></div>';
+  const p = new URLSearchParams(location.search); p.set('eiin', eiin); history.replaceState(null, '', location.pathname + '?' + p.toString());
+  const rows = await DB.institution(eiin);
+  const tot = rows.filter(r=>r.grp === 'total' && EXAMS[ST.exam].includes(r.exam));
+  const any = rows[0];
+  if(!any){ box.innerHTML = '<div class="empty">এই EIIN-এর কোনো ফলাফল পাওয়া যায়নি।</div>'; return; }
+  if(!tot.length){
+    const other = ST.exam === 'SSC' ? 'HSC' : 'SSC';
+    box.innerHTML = `<div class="inst-head"><div><h3>${esc(any.institution_name)}</h3></div><button class="close-x" onclick="closeInstitution()">✕ বন্ধ</button></div><div class="empty">এই প্রতিষ্ঠানের ${ST.exam === 'SSC' ? 'SSC/দাখিল' : 'HSC/আলিম'} ফলাফল নেই। <a href="#" onclick="switchExam('${other}');openInstitution('${esc(eiin)}');return false">${other === 'SSC' ? 'SSC/দাখিল' : 'HSC/আলিম'} দেখুন →</a></div>`;
+    return;
+  }
+  const byYear = {}; tot.forEach(r=>{ const k = r.year; byYear[k] = byYear[k] || { year:k, appeared:0, passed:0, gpa5:0, bands:{}, src:r.source_url, exam:r.exam, board:r.board }; const b = byYear[k]; b.appeared += r.appeared; b.passed += r.passed; b.gpa5 += r.gpa5; Object.entries(r.gpa_bands || {}).forEach(([kk, v])=>b.bands[kk] = (b.bands[kk] || 0) + Number(v || 0)); });
+  const ys = Object.values(byYear).sort((a, b)=>a.year - b.year).map(b=>({ ...b, rate: b.appeared ? b.passed * 100 / b.appeared : 0 }));
+  const last = ys[ys.length - 1], prev = ys[ys.length - 2];
+  const diff = prev ? last.rate - prev.rate : null;
+  const bandTotal = Object.values(last.bands).reduce((s, v)=>s + v, 0);
+  const groups = rows.filter(r=>r.grp !== 'total' && r.year === last.year && EXAMS[ST.exam].includes(r.exam));
+  box.innerHTML = `
+    <div class="inst-head">
+      <div><h3>${esc(any.institution_name)}</h3>
+        <div class="inst-meta"><span class="tag blue">EIIN ${bn(eiin)}</span>${any.upazila || any.district ? `<span class="tag">${esc([any.upazila, any.district].filter(Boolean).join(', '))}</span>` : ''}<span class="tag">${esc(BOARDS[last.board] || last.board)} বোর্ড</span><span class="tag">${EXAM_LABEL[last.exam] || last.exam} ${bn(last.year)}</span></div>
+      </div>
+      <button class="close-x" onclick="closeInstitution()">✕ বন্ধ</button>
+    </div>
+    <div class="inst-kpis">
+      <div class="kpi"><div class="k">পাসের হার</div><div class="v">${pct(last.rate)}</div></div>
+      <div class="kpi"><div class="k">পরীক্ষার্থী / পাস</div><div class="v">${num(last.appeared)} / ${num(last.passed)}</div></div>
+      <div class="kpi"><div class="k">GPA-5</div><div class="v">${num(last.gpa5)}</div></div>
+      <div class="kpi"><div class="k">আগের বছরের তুলনায়</div><div class="v ${diff == null ? '' : diff >= 0 ? 'up' : 'down'}">${diff == null ? '—' : (diff >= 0 ? '▲ ' : '▼ ') + bn(Math.abs(diff).toFixed(1)) + '%'}</div></div>
+    </div>
+    ${ys.length > 1 ? '<div style="font-weight:700;margin-bottom:4px">বছরভিত্তিক পাসের হার</div>' + trendSvg(ys) : ''}
+    ${bandTotal ? `<div style="font-weight:700;margin-top:14px">${bn(last.year)} সালের GPA বণ্টন</div><div class="bands">${BAND_ORDER.map(k=>last.bands[k] ? `<i style="width:${(last.bands[k] / bandTotal * 100).toFixed(2)}%;background:${BAND_COLORS[k]}" title="${BAND_LABEL[k]}: ${last.bands[k]}"></i>` : '').join('')}</div><div class="band-legend">${BAND_ORDER.map(k=>last.bands[k] ? `<span><b style="background:${BAND_COLORS[k]}"></b>${BAND_LABEL[k]}: ${num(last.bands[k])}</span>` : '').join('')}</div>` : ''}
+    ${groups.length ? `<div style="font-weight:700;margin-top:14px">বিভাগভিত্তিক (${bn(last.year)})</div><div class="inst-kpis" style="margin-top:8px">${groups.map(g=>`<div class="kpi"><div class="k">${esc({ science:'বিজ্ঞান', humanities:'মানবিক', business:'ব্যবসায় শিক্ষা' }[g.grp] || g.grp)}</div><div class="v" style="font-size:18px">${pct(g.pass_rate)}</div><div class="k">${num(g.passed)}/${num(g.appeared)} জন</div></div>`).join('')}</div>` : ''}
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center">
+      ${last.src ? `<a class="btn btn-line" href="${esc(last.src)}" target="_blank" rel="noopener">মূল সূত্র দেখুন ↗</a>` : ''}
+      <span style="font-size:12px;color:var(--text-3)">সূত্র: ${esc(BOARDS[last.board] || last.board)} শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান</span>
+    </div>`;
+  box.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function closeInstitution(){
+  document.getElementById('instCard').classList.remove('show');
+  const p = new URLSearchParams(location.search); p.delete('eiin'); history.replaceState(null, '', location.pathname + '?' + p.toString());
+}
+
+/* ---------------- search box ---------------- */
+let sTimer = 0;
+document.getElementById('q').addEventListener('input', e=>{
+  clearTimeout(sTimer);
+  const t = e.target.value.trim(), box = document.getElementById('sugg');
+  if(t.length < 2){ box.classList.remove('open'); return; }
+  sTimer = setTimeout(async ()=>{
+    const rows = await DB.search(t);
+    box.innerHTML = rows.length ? rows.map(r=>`<button type="button" data-eiin="${esc(r.eiin)}"><b>${esc(r.institution_name)}</b><small>EIIN ${bn(r.eiin)} · ${esc([r.upazila, r.district].filter(Boolean).join(', '))}</small></button>`).join('') : '<div style="padding:14px;font-size:13.5px;color:var(--text-2)">কিছু পাওয়া যায়নি। নাম ইংরেজিতে লিখে দেখুন, বা EIIN দিন।</div>';
+    box.classList.add('open');
+  }, 260);
+});
+document.getElementById('sugg').addEventListener('click', e=>{ const b = e.target.closest('[data-eiin]'); if(!b) return; document.getElementById('sugg').classList.remove('open'); openInstitution(b.dataset.eiin); });
+document.addEventListener('click', e=>{ if(!e.target.closest('#panel')) document.getElementById('sugg').classList.remove('open'); });
+
+/* ---------------- controls ---------------- */
+function switchExam(exam){
+  ST.exam = exam; ST.district = ''; ST.upazila = '';
+  document.querySelectorAll('#examTabs button').forEach(b=>b.classList.toggle('on', b.dataset.exam === exam));
+  fillPickers(); syncUrl(); loadOverview();
+}
+document.getElementById('examTabs').addEventListener('click', e=>{ const b = e.target.closest('button'); if(b) switchExam(b.dataset.exam); });
+document.getElementById('yearSel').addEventListener('change', e=>{ ST.year = Number(e.target.value); fillPickers(); syncUrl(); loadOverview(); });
+document.getElementById('boardSel').addEventListener('change', e=>{ ST.board = e.target.value; ST.district = ''; ST.upazila = ''; syncUrl(); loadOverview(); });
+document.getElementById('rankBy').addEventListener('click', e=>{ const b = e.target.closest('button'); if(!b) return; ST.by = b.dataset.by; document.querySelectorAll('#rankBy button').forEach(x=>x.classList.toggle('on', x === b)); loadRanking(); });
+async function pickDistrict(d){
+  ST.district = d; ST.upazila = '';
+  document.getElementById('distSel').value = d;
+  document.querySelectorAll('#distList li').forEach(li=>li.classList.toggle('cur', li.dataset.d === d));
+  const us = d ? await DB.upazilas(EXAMS[ST.exam], ST.year, ST.board, d) : [];
+  const u = document.getElementById('upaSel');
+  u.innerHTML = '<option value="">সব উপজেলা</option>' + us.map(x=>`<option>${esc(x)}</option>`).join('');
+  u.disabled = !us.length;
+  loadRanking();
+}
+document.getElementById('distSel').addEventListener('change', e=>pickDistrict(e.target.value));
+document.getElementById('upaSel').addEventListener('change', e=>{ ST.upazila = e.target.value; loadRanking(); });
+document.getElementById('distList').addEventListener('click', e=>{ const li = e.target.closest('[data-d]'); if(li){ pickDistrict(li.dataset.d === ST.district ? '' : li.dataset.d); document.getElementById('rankList').scrollIntoView({ behavior:'smooth', block:'center' }); } });
+document.getElementById('rankList').addEventListener('click', e=>{ const li = e.target.closest('[data-eiin]'); if(li) openInstitution(li.dataset.eiin); });
+
+/* ---------------- sample data for the design preview (?demo=1 only) ---------------- */
+function demoDB(){
+  let seed = 11; const rnd = ()=>(seed = (seed * 16807) % 2147483647) / 2147483647;
+  const D = { 'ঢাকা':['ধানমন্ডি', 'মিরপুর', 'উত্তরা'], 'কুমিল্লা':['কুমিল্লা সদর', 'চান্দিনা', 'দাউদকান্দি'], 'চাঁদপুর':['চাঁদপুর সদর', 'হাজীগঞ্জ'], 'সিলেট':['সিলেট সদর', 'বিয়ানীবাজার'], 'হবিগঞ্জ':['হবিগঞ্জ সদর', 'বানিয়াচং'], 'রাজশাহী':['বোয়ালিয়া', 'পবা'] };
+  const kinds = ['নমুনা উচ্চ বিদ্যালয়', 'নমুনা বালিকা বিদ্যালয়', 'নমুনা মডেল স্কুল', 'নমুনা দাখিল মাদ্রাসা', 'নমুনা স্কুল অ্যান্ড কলেজ'];
+  const rows = [];
+  let id = 100100;
+  Object.entries(D).forEach(([d, ups])=>ups.forEach(u=>{
+    for(let k = 0; k < 6; k++){
+      const eiin = String(id++), name = kinds[k % kinds.length] + ' ' + bn(k + 1) + ', ' + u, base = .55 + rnd() * .42, size = 25 + Math.floor(rnd() * 260);
+      [2021, 2022, 2023, 2024, 2025].forEach(y=>[['SSC', 'HSC']].flat().forEach(ex=>{
+        const exam = ex === 'SSC' && k === 3 ? 'DAKHIL' : ex === 'HSC' && k === 3 ? 'ALIM' : ex;
+        const ap = Math.max(12, Math.round(size * (.85 + rnd() * .3) * (ex === 'HSC' ? .8 : 1)));
+        const ps = Math.min(ap, Math.round(ap * Math.min(1, base + (rnd() - .5) * .14)));
+        const g5 = Math.round(ps * rnd() * (base > .85 ? .45 : .18));
+        const rest = ps - g5, b4 = Math.round(rest * .38), b35 = Math.round(rest * .24), b3 = Math.round(rest * .18), b2 = Math.round(rest * .14), b1 = rest - b4 - b35 - b3 - b2;
+        rows.push({ exam, year:y, board: d === 'ঢাকা' ? 'dhaka' : d === 'রাজশাহী' ? 'rajshahi' : d === 'সিলেট' || d === 'হবিগঞ্জ' ? 'sylhet' : 'cumilla', eiin, institution_name:name, district:d, upazila:u, grp:'total', appeared:ap, passed:ps, gpa5:g5, gpa_bands:{ '5':g5, '4':b4, '3.5':b35, '3':b3, '2':b2, '1':Math.max(0, b1) }, pass_rate: +(ps * 100 / ap).toFixed(2), source_url:null });
+      }));
+    }
+  }));
+  const pick = (exams, year, board)=>rows.filter(r=>exams.includes(r.exam) && r.year === year && (!board || r.board === board));
+  return {
+    async available(){ const m = {}; rows.forEach(r=>{ const k = r.exam + r.year + r.board; m[k] = m[k] || { exam:r.exam, year:r.year, board:r.board, institutions:0 }; m[k].institutions++; }); return Object.values(m); },
+    async summary(exams, year, board){
+      const r = pick(exams, year, board); const s = { institutions:r.length, appeared:0, passed:0, gpa5:0, zero_pass:0, full_pass:0, districts:[] }; const dm = {};
+      r.forEach(x=>{ s.appeared += x.appeared; s.passed += x.passed; s.gpa5 += x.gpa5; if(!x.passed) s.zero_pass++; if(x.passed === x.appeared) s.full_pass++; const d = dm[x.district] = dm[x.district] || { district:x.district, appeared:0, passed:0, gpa5:0 }; d.appeared += x.appeared; d.passed += x.passed; d.gpa5 += x.gpa5; });
+      s.districts = Object.values(dm).map(d=>({ ...d, pass_rate: +(d.passed * 100 / d.appeared).toFixed(2) })).sort((a, b)=>b.pass_rate - a.pass_rate); return s;
+    },
+    async ranking(exams, year, board, by, d, u){ return pick(exams, year, board).filter(r=>r.appeared >= 30 && (!d || r.district === d) && (!u || r.upazila === u)).sort((a, b)=>b[by] - a[by] || b.appeared - a.appeared).slice(0, 20); },
+    async upazilas(exams, year, board, d){ return [...new Set(pick(exams, year, board).filter(r=>r.district === d).map(r=>r.upazila))]; },
+    async search(t){ const m = new Map(); rows.filter(r=>r.eiin === t || r.institution_name.includes(t)).forEach(r=>{ if(!m.has(r.eiin)) m.set(r.eiin, r); }); return [...m.values()].slice(0, 8); },
+    async institution(eiin){ return rows.filter(r=>r.eiin === eiin); }
+  };
+}
+
+/* ---------------- start ---------------- */
+document.getElementById('fy').textContent = bn(new Date().getFullYear());
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', ()=>navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
+(async function init(){
+  if(DEMO) document.getElementById('noteBar').innerHTML = '<div class="note-bar demo"><b>নমুনা ডিজাইন</b> — এখানের সব প্রতিষ্ঠান ও সংখ্যা বানানো, শুধু পাতার নকশা দেখানোর জন্য। আসল তথ্য নয়।</div>';
+  document.querySelectorAll('#examTabs button').forEach(b=>b.classList.toggle('on', b.dataset.exam === ST.exam));
+  AVAIL = await DB.available();
+  if(!DEMO && !AVAIL.length) document.getElementById('noteBar').innerHTML = '<div class="note-bar info">শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান থেকে প্রতিষ্ঠানভিত্তিক ফলাফল যোগ করা হচ্ছে — প্রথম ধাপে ঢাকা ও কুমিল্লা বোর্ড।</div>';
+  fillPickers(); syncUrl();
+  await loadOverview();
+  if(params.get('eiin')) openInstitution(params.get('eiin'));
+})();
+</script>
+</body>
+</html>
