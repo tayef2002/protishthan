@@ -356,6 +356,8 @@ http.createServer((req, res) => {
   }
 
   if (urlPath === '/') urlPath = '/index.html';
+  // pretty URLs like Cloudflare Pages: /card -> /card.html
+  if (!path.extname(urlPath) && fs.existsSync(path.join(ROOT, urlPath.replace(/\/$/, '') + '.html'))) urlPath = urlPath.replace(/\/$/, '') + '.html';
 
   const filePath = path.join(ROOT, urlPath);
 

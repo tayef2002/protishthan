@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>শিক্ষিত কার্ড — ৩০ সেকেন্ডে নিজের কার্ড বানান | Protishthan</title>
+<meta name="description" content="দেশে কার্ডের অভাব নেই — এবার নিন এমন একটা কার্ড, যেটা নিজের যোগ্যতায় অর্জিত। নিজের স্কুল, কলেজ, বিশ্ববিদ্যালয় দিয়ে ৩০ সেকেন্ডে বানান শিক্ষিত কার্ড।">
+<meta property="og:title" content="শিক্ষিত কার্ড — সরকার দেয়নি, তাই নিজেই বানিয়ে নিন">
+<meta property="og:description" content="নিজের শিক্ষাজীবন দিয়ে ৩০ সেকেন্ডে বানান শিক্ষিত কার্ড। বিনামূল্যে, লগইন ছাড়া।">
+<meta property="og:type" content="website">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,32,72,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar .container{height:62px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-family:'Inter',sans-serif;font-weight:900;font-size:19px;letter-spacing:-.4px}
+.logo span{opacity:.5}
+.logo-ic{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#1A56DB,#5B8DEF);display:flex;align-items:center;justify-content:center}
+.top-link{margin-left:auto;color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;font-weight:600}
+.top-link:hover{color:#fff}
+
+/* hero */
+.hero{background:radial-gradient(1200px 400px at 70% -10%,rgba(124,58,237,.35),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:46px 0 120px;position:relative;overflow:hidden}
+.hero .stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff8 50%,transparent),radial-gradient(1.5px 1.5px at 30% 70%,#fff6 50%,transparent),radial-gradient(1.2px 1.2px at 55% 30%,#fff7 50%,transparent),radial-gradient(1.6px 1.6px at 80% 60%,#fff8 50%,transparent),radial-gradient(1.2px 1.2px at 90% 15%,#fff6 50%,transparent),radial-gradient(1.4px 1.4px at 68% 85%,#fff5 50%,transparent);pointer-events:none}
+.hero .container{position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600}
+.hero h1{font-size:clamp(34px,5vw,58px);line-height:1.15;font-weight:700;margin:16px 0 10px;letter-spacing:-.5px}
+.hero h1 span{background:linear-gradient(135deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:17px;color:rgba(255,255,255,.75);max-width:640px}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.hero-pills span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:rgba(255,255,255,.88)}
+.hero-pills .ico{color:#FDE68A}
+
+/* app layout */
+.app{display:grid;grid-template-columns:minmax(0,1fr) 470px;gap:28px;align-items:start;margin-top:-84px;padding-bottom:70px;position:relative}
+.panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.step{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.step-n{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.step h2{font-size:18px;font-weight:700}
+.step small{display:block;font-size:12.5px;color:var(--text-3);font-weight:500;margin-top:-2px}
+label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px}
+.inp{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-family:inherit;font-size:15px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.photo-row{display:flex;gap:14px;align-items:center}
+.photo-prev{width:72px;height:86px;border-radius:14px;background:var(--surface);border:1.5px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;overflow:hidden;flex-shrink:0}
+.photo-prev img{width:100%;height:100%;object-fit:cover}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:12px;border:1px solid transparent;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .2s,background .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn-ghost{background:#fff;color:var(--text);border-color:var(--border)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-primary{background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;box-shadow:0 10px 24px rgba(37,99,235,.3)}
+.btn-wa{background:#16A34A;color:#fff}
+.btn-fb{background:#1877F2;color:#fff}
+.hint{font-size:12px;color:var(--text-3);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:100px;border:1px solid var(--border);background:#fff;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;transition:all .15s}
+.chip:hover{border-color:#C7D7FE}
+.chip.on{background:#EEF3FF;border-color:#93B4FB;color:var(--blue)}
+
+/* education rows */
+.edu{border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;transition:border-color .15s,background .15s}
+.edu.filled{border-color:#BFD3FE;background:#FAFCFF}
+.edu-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.edu-ic{width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.edu-title{font-weight:700;font-size:14.5px}
+.edu-title small{display:block;font-weight:500;color:var(--text-3);font-size:12px;margin-top:-3px}
+.edu-grid{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px}
+.ac{position:relative}
+.ac-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.14);z-index:30;max-height:240px;overflow-y:auto;padding:4px}
+.ac.open .ac-list{display:block}
+.ac-item{display:flex;flex-direction:column;padding:9px 11px;border-radius:9px;cursor:pointer}
+.ac-item:hover,.ac-item.kb{background:#EEF3FF}
+.ac-item b{font-size:14px}
+.ac-item span{font-size:12px;color:var(--text-3)}
+.ac-free{font-size:12.5px;color:var(--text-2);padding:9px 11px}
+.ac-free b{color:var(--blue)}
+.linked{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--green);margin-top:6px}
+.cur{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);margin-top:8px;cursor:pointer;user-select:none}
+
+/* themes */
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.theme{border:2px solid transparent;border-radius:14px;padding:6px;background:#fff;cursor:pointer;font-family:inherit;text-align:center;font-size:13px;font-weight:700;color:var(--text-2);box-shadow:0 0 0 1px var(--border)}
+.theme i{display:block;height:54px;border-radius:10px;margin-bottom:6px}
+.theme.on{border-color:var(--blue);color:var(--blue);box-shadow:none}
+
+/* preview */
+.preview{position:sticky;top:80px}
+.preview-card{background:#fff;border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 20px 50px rgba(15,23,42,.12)}
+.preview canvas{width:100%;height:auto;display:block;border-radius:14px;background:#0F2048}
+.prev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--text-2)}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--green)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:pulse 1.6s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(5,150,105,0)}100%{box-shadow:0 0 0 0 rgba(5,150,105,0)}}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.actions .wide{grid-column:1/-1;padding:14px;font-size:15.5px}
+.fmt{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.fmt button{border:1px solid var(--border);background:#fff;border-radius:100px;padding:6px 12px;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--text-2);cursor:pointer}
+.fmt button.on{background:#0F172A;color:#fff;border-color:#0F172A}
+.note{font-size:12px;color:var(--text-3);text-align:center;margin-top:12px;line-height:1.6}
+
+/* how it works / FAQ */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 18px}
+.how div{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}
+.how b{display:block;font-size:15px;margin:8px 0 4px}
+.how p{font-size:13.5px;color:var(--text-2)}
+.how .ico{color:var(--blue)}
+.faq details{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.faq summary{cursor:pointer;font-weight:700;font-size:14.5px}
+.faq p{font-size:13.5px;color:var(--text-2);margin-top:8px}
+.sec-title{font-size:22px;font-weight:700;margin:6px 0 12px}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0F172A;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.mbar{display:none}
+.foot{text-align:center;padding:26px 16px 40px;color:var(--text-3);font-size:13px}
+.foot a{color:var(--blue);font-weight:700;text-decoration:none}
+
+@media(max-width:1000px){
+  .app{grid-template-columns:1fr;margin-top:-90px}
+  .preview{position:static;order:-1}
+  .preview-card{max-width:520px;margin:0 auto}
+  .how{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .container{padding:0 14px}
+  .hero{padding:30px 0 110px}
+  .hero p{font-size:15px}
+  .panel{padding:16px;border-radius:18px}
+  .edu-grid{grid-template-columns:1fr}
+  .actions .hide-sm{display:none}
+  .mbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+  body{padding-bottom:74px}
+  .toast{bottom:90px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <a href="index.html" class="logo"><span class="logo-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+    <a href="index.html" class="top-link">তথ্যভান্ডার →</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="stars"></div>
+  <div class="container">
+    <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FDE68A"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · বিনামূল্যে · লগইন লাগবে না</span>
+    <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
+    <p>এমন একটা কার্ড, যেটা কেউ দেয়নি — নিজের যোগ্যতায় অর্জন করেছেন। নিজের স্কুল, কলেজ, বিশ্ববিদ্যালয় বাছাই করুন, ছবি দিন, আর ৩০ সেকেন্ডে ডাউনলোড করে শেয়ার করুন।</p>
+    <div class="hero-pills">
+      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৩০ সেকেন্ড</span>
+      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>ছবি আপনার ফোনেই থাকে</span>
+      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>এক ক্লিকে শেয়ার</span>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <div class="app">
+    <div class="form-col">
+
+      <div class="panel">
+        <div class="step"><span class="step-n">১</span><div><h2>আপনার পরিচয়</h2><small>ডাকনাম দিলেও চলবে</small></div></div>
+        <label class="lbl" for="fName">নাম</label>
+        <input class="inp" id="fName" maxlength="32" placeholder="যেমন: তায়েফ আহমেদ" autocomplete="name">
+        <label class="lbl">ছবি (ঐচ্ছিক)</label>
+        <div class="photo-row">
+          <div class="photo-prev" id="photoPrev"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div>
+            <input type="file" id="fPhoto" accept="image/*" hidden>
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('fPhoto').click()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
+              <span id="photoBtnTxt">ছবি দিন</span></button>
+            <button type="button" class="btn btn-ghost" id="photoRemove" style="display:none" onclick="removePhoto()">সরান</button>
+            <div class="hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>ছবি কোথাও আপলোড হয় না — শুধু আপনার ফোনে কার্ডে বসে।</div>
+          </div>
+        </div>
+        <label class="lbl">আপনি কি… (ঐচ্ছিক)</label>
+        <div class="chips" id="badgeChips"></div>
+      </div>
+
+      <div class="panel">
+        <div class="step"><span class="step-n">২</span><div><h2>শিক্ষাজীবন</h2><small>Protishthan তথ্যভান্ডার থেকে প্রতিষ্ঠান খুঁজুন — না পেলে নিজেই লিখুন</small></div></div>
+        <div id="eduRows"></div>
+      </div>
+
+      <div class="panel">
+        <div class="step"><span class="step-n">৩</span><div><h2>পদবি ও থিম</h2><small>কার্ডে আপনার মজার পদবি</small></div></div>
+        <div class="chips" id="titleChips"></div>
+        <label class="lbl">থিম</label>
+        <div class="themes" id="themeBtns"></div>
+      </div>
+
+      <h3 class="sec-title">কীভাবে কাজ করে</h3>
+      <div class="how">
+        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><b>প্রতিষ্ঠান বাছাই করুন</b><p>দেশের স্কুল, মাদ্রাসা, কলেজ, বিশ্ববিদ্যালয় — তথ্যভান্ডার থেকে খুঁজে নিন।</p></div>
+        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M15 10h3.5M15 13h3"/></svg><b>কার্ড তৈরি হয়ে যায়</b><p>লেখার সাথে সাথেই কার্ড দেখা যায় — ছবি, পদবি, শিক্ষাজীবন সবকিছু।</p></div>
+        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg><b>ডাউনলোড ও শেয়ার</b><p>Facebook, WhatsApp-এ শেয়ার করুন — বন্ধুদেরও বানাতে বলুন।</p></div>
+      </div>
+
+      <h3 class="sec-title">প্রশ্ন ও উত্তর</h3>
+      <div class="faq">
+        <details><summary>এটা কি সরকারি বা অফিশিয়াল কার্ড?</summary><p>না। এটা সম্পূর্ণ মজার, স্ব-ঘোষিত একটা কার্ড — কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়। কার্ডেও এটা স্পষ্ট লেখা থাকে।</p></details>
+        <details><summary>আমার ছবি কি কোথাও সংরক্ষণ হয়?</summary><p>না। ছবি আপনার ডিভাইসের ব্রাউজারেই কার্ডে বসানো হয়, কোনো সার্ভারে পাঠানো হয় না।</p></details>
+        <details><summary>আমার প্রতিষ্ঠান তালিকায় নেই, কী করব?</summary><p>নামটা নিজেই লিখে দিন — কার্ডে বসে যাবে। চাইলে <a href="list-institution.html" style="color:var(--blue);font-weight:700">বিনামূল্যে প্রতিষ্ঠানটি তথ্যভান্ডারে যুক্ত করুন</a>।</p></details>
+      </div>
+    </div>
+
+    <aside class="preview">
+      <div class="preview-card">
+        <div class="prev-head"><span>আপনার কার্ড</span><span class="live"><i></i>লাইভ প্রিভিউ</span></div>
+        <canvas id="card" width="1080" height="1350" aria-label="শিক্ষিত কার্ডের প্রিভিউ"></canvas>
+        <div class="fmt" id="fmtBtns">
+          <button type="button" class="on" data-f="post">পোস্ট (৪:৫)</button>
+          <button type="button" data-f="story">স্টোরি (৯:১৬)</button>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-primary wide" onclick="downloadCard()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>কার্ড ডাউনলোড করুন</button>
+          <button type="button" class="btn btn-fb" onclick="shareFacebook()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook</button>
+          <button type="button" class="btn btn-wa" onclick="shareWhatsApp()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp</button>
+          <button type="button" class="btn btn-ghost wide hide-sm" onclick="shareImage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>ছবিসহ শেয়ার / ক্যাপশন কপি</button>
+        </div>
+        <p class="note">এটি একটি স্ব-ঘোষিত মজার কার্ড · কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়।</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</a></footer>
+
+<div class="mbar">
+  <button type="button" class="btn btn-primary" onclick="downloadCard()">ডাউনলোড</button>
+  <button type="button" class="btn btn-ghost" onclick="shareImage()">শেয়ার</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const sb = supabase.createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
+);
+const SHARE_URL = 'https://protishthan.com/card';
+const bn = x => String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+/* ---------------- state ---------------- */
+const LEVELS = [
+  { key:'school',  title:'মাধ্যমিক', sub:'SSC / দাখিল', ph:'স্কুল বা মাদ্রাসার নাম' },
+  { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC / আলিম', ph:'কলেজ বা মাদ্রাসার নাম' },
+  { key:'bachelor',title:'স্নাতক', sub:'অনার্স / ডিগ্রি / ফাজিল', ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
+  { key:'masters', title:'স্নাতকোত্তর', sub:'মাস্টার্স / কামিল', ph:'বিশ্ববিদ্যালয়ের নাম' }
+];
+const BADGES = ['হাফেজ', 'শিক্ষক', 'প্রথম প্রজন্মের গ্র্যাজুয়েট', 'প্রবাসী', 'এখনো পড়ছি'];
+const TITLES = ['সার্টিফায়েড শিক্ষিত নাগরিক', 'ডাবল ডিগ্রিধারী নাগরিক', 'চিরছাত্র', 'জ্ঞানের ফেরিওয়ালা', 'বইপোকা', 'ভবিষ্যতের প্রফেসর'];
+const THEMES = {
+  night: { name:'রাতের আকাশ', bg:['#0A1628','#1A3570'], accent:'#2563EB', accent2:'#7C3AED', gold:'#FBBF24', ink:'#0F172A', chipText:'#fff' },
+  green: { name:'সবুজ', bg:['#03382B','#047857'], accent:'#047857', accent2:'#10B981', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
+  gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
+};
+const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
+LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'' });
+
+let cardNo = '';
+try{ cardNo = localStorage.getItem('sk_no') || ''; }catch(e){}
+if(!cardNo){ cardNo = String(Math.floor(100000 + Math.random()*900000)); try{ localStorage.setItem('sk_no', cardNo); }catch(e){} }
+
+/* ---------------- institutions ---------------- */
+let INST = [];
+sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').or('is_hidden.is.null,is_hidden.eq.false').limit(2000)
+  .then(({data})=>{ INST = data || []; }).catch(()=>{});
+
+/* ---------------- form UI ---------------- */
+const LEVEL_IC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>';
+document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
+  <div class="edu" id="edu-${l.key}">
+    <div class="edu-head"><span class="edu-ic">${LEVEL_IC}</span><div class="edu-title">${l.title}<small>${l.sub}</small></div></div>
+    <div class="edu-grid">
+      <div class="ac" id="ac-${l.key}">
+        <input class="inp" data-k="${l.key}" data-f="name" placeholder="${l.ph}" autocomplete="off">
+        <div class="ac-list"></div>
+      </div>
+      <input class="inp" data-k="${l.key}" data-f="year" inputmode="numeric" maxlength="4" placeholder="পাসের সাল">
+    </div>
+    <div class="linked" id="lk-${l.key}" style="display:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>তথ্যভান্ডারে পাওয়া গেছে</div>
+    <label class="cur"><input type="checkbox" data-k="${l.key}" data-f="current"> এখানে এখনো পড়ছি</label>
+  </div>`).join('');
+
+document.getElementById('badgeChips').innerHTML = BADGES.map(b=>`<button type="button" class="chip" data-b="${b}">${b}</button>`).join('');
+document.getElementById('badgeChips').addEventListener('click', e=>{
+  const c = e.target.closest('.chip'); if(!c) return;
+  const b = c.dataset.b; S.badges.has(b) ? S.badges.delete(b) : S.badges.add(b);
+  c.classList.toggle('on'); refreshTitles(); draw();
+});
+function refreshTitles(){
+  const auto = autoTitle();
+  const list = [auto, ...TITLES.filter(t=>t !== auto)];
+  document.getElementById('titleChips').innerHTML = list.map((t,i)=>`<button type="button" class="chip${(S.title||auto)===t?' on':''}" data-t="${t}">${i===0?'✦ ':''}${t}</button>`).join('');
+}
+document.getElementById('titleChips').addEventListener('click', e=>{
+  const c = e.target.closest('.chip'); if(!c) return;
+  S.title = c.dataset.t === autoTitle() ? null : c.dataset.t; refreshTitles(); draw();
+});
+document.getElementById('themeBtns').innerHTML = Object.entries(THEMES).map(([k,t])=>`<button type="button" class="theme${k===S.theme?' on':''}" data-th="${k}"><i style="background:linear-gradient(135deg,${t.bg[0]},${t.bg[1]})"></i>${t.name}</button>`).join('');
+document.getElementById('themeBtns').addEventListener('click', e=>{
+  const b = e.target.closest('.theme'); if(!b) return;
+  S.theme = b.dataset.th; document.querySelectorAll('.theme').forEach(x=>x.classList.toggle('on', x===b)); draw();
+});
+document.getElementById('fmtBtns').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  S.format = b.dataset.f; document.querySelectorAll('#fmtBtns button').forEach(x=>x.classList.toggle('on', x===b)); draw();
+});
+
+document.getElementById('fName').addEventListener('input', e=>{ S.name = e.target.value; draw(); });
+
+document.getElementById('eduRows').addEventListener('input', e=>{
+  const k = e.target.dataset.k, f = e.target.dataset.f; if(!k) return;
+  const ed = S.edu[k];
+  if(f === 'name'){ ed.name = e.target.value; ed.slug = ''; ed.district = ''; showAc(k, e.target.value); }
+  if(f === 'year'){ e.target.value = e.target.value.replace(/[^0-9০-৯]/g,''); ed.year = e.target.value; }
+  syncEduRow(k); refreshTitles(); draw();
+});
+document.getElementById('eduRows').addEventListener('change', e=>{
+  if(e.target.dataset.f !== 'current') return;
+  S.edu[e.target.dataset.k].current = e.target.checked; refreshTitles(); draw();
+});
+document.getElementById('eduRows').addEventListener('keydown', e=>{
+  if(e.target.dataset.f !== 'name') return;
+  const ac = document.getElementById('ac-' + e.target.dataset.k);
+  const items = [...ac.querySelectorAll('.ac-item')]; let i = items.findIndex(x=>x.classList.contains('kb'));
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ if(!items.length) return; e.preventDefault(); i = e.key === 'ArrowDown' ? (i+1)%items.length : (i-1+items.length)%items.length; items.forEach(x=>x.classList.remove('kb')); items[i].classList.add('kb'); }
+  else if(e.key === 'Enter'){ e.preventDefault(); if(i >= 0) items[i].click(); else ac.classList.remove('open'); }
+  else if(e.key === 'Escape') ac.classList.remove('open');
+});
+document.addEventListener('click', e=>{ document.querySelectorAll('.ac.open').forEach(a=>{ if(!a.contains(e.target)) a.classList.remove('open'); }); });
+
+function showAc(k, q){
+  const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
+  q = (q||'').trim();
+  if(q.length < 2){ ac.classList.remove('open'); return; }
+  const ql = q.toLowerCase();
+  const hits = INST.filter(s=>(s.institution_name||'').toLowerCase().includes(ql) || (s.district||'').includes(q)).slice(0, 7);
+  list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
+    `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে</div>`;
+  list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
+    const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
+    ac.querySelector('input').value = ed.name; ac.classList.remove('open'); syncEduRow(k); refreshTitles(); draw();
+  }));
+  ac.classList.add('open');
+}
+function syncEduRow(k){
+  const ed = S.edu[k];
+  document.getElementById('edu-' + k).classList.toggle('filled', !!ed.name.trim());
+  document.getElementById('lk-' + k).style.display = ed.slug ? 'inline-flex' : 'none';
+}
+
+/* photo (stays in the browser) */
+let PHOTO_IMG = null;
+document.getElementById('fPhoto').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  const url = URL.createObjectURL(f); const img = new Image();
+  img.onload = ()=>{ PHOTO_IMG = img; document.getElementById('photoPrev').innerHTML = '<img src="'+url+'" alt="">'; document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান'; document.getElementById('photoRemove').style.display = 'inline-flex'; draw(); };
+  img.src = url;
+});
+function removePhoto(){ PHOTO_IMG = null; document.getElementById('fPhoto').value = ''; document.getElementById('photoPrev').innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>'; document.getElementById('photoBtnTxt').textContent = 'ছবি দিন'; document.getElementById('photoRemove').style.display = 'none'; draw(); }
+
+function filledLevels(){ return LEVELS.filter(l=>S.edu[l.key].name.trim()); }
+function autoTitle(){
+  const has = k => S.edu[k].name.trim();
+  const studying = S.badges.has('এখনো পড়ছি') || LEVELS.some(l=>S.edu[l.key].current);
+  if(has('masters') && !S.edu.masters.current) return 'ডাবল ডিগ্রিধারী নাগরিক';
+  if(has('bachelor') && !S.edu.bachelor.current) return 'সার্টিফায়েড শিক্ষিত নাগরিক';
+  if(studying) return 'চিরছাত্র';
+  if(has('college')) return 'উচ্চ মাধ্যমিক পাস বীর';
+  if(has('school')) return 'মাধ্যমিক পাস যোদ্ধা';
+  return 'সার্টিফায়েড শিক্ষিত নাগরিক';
+}
+
+/* ---------------- canvas drawing ---------------- */
+const cv = document.getElementById('card'), ctx = cv.getContext('2d');
+const F = (w, px) => `${w} ${px}px 'Hind Siliguri', 'Inter', sans-serif`;
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); }
+function fitText(t, maxW){ if(ctx.measureText(t).width <= maxW) return t; while(t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
+function wrap(t, maxW, maxLines){
+  const words = String(t).split(/\s+/), lines = []; let cur = '';
+  words.forEach(w=>{ const tryL = cur ? cur + ' ' + w : w; if(ctx.measureText(tryL).width <= maxW) cur = tryL; else { if(cur) lines.push(cur); cur = w; } });
+  if(cur) lines.push(cur);
+  if(lines.length > maxLines){ const keep = lines.slice(0, maxLines); keep[maxLines-1] = fitText(keep[maxLines-1] + ' ' + lines.slice(maxLines).join(' '), maxW); return keep; }
+  return lines;
+}
+function pill(x, y, text, bg, fg, font, padX, h){
+  ctx.font = font; const w = ctx.measureText(text).width + padX*2;
+  rr(x, y, w, h, h/2); ctx.fillStyle = bg; ctx.fill();
+  ctx.fillStyle = fg; ctx.textBaseline = 'middle'; ctx.fillText(text, x + padX, y + h/2 + 1); ctx.textBaseline = 'alphabetic';
+  return w;
+}
+function tick(x, y, ok){
+  ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI*2); ctx.fillStyle = ok ? '#DCFCE7' : '#FEE2E2'; ctx.fill();
+  ctx.strokeStyle = ok ? '#16A34A' : '#DC2626'; ctx.lineWidth = 3.4; ctx.lineCap = 'round'; ctx.beginPath();
+  if(ok){ ctx.moveTo(x-7, y); ctx.lineTo(x-2, y+5); ctx.lineTo(x+7, y-5); } else { ctx.moveTo(x-6, y-6); ctx.lineTo(x+6, y+6); ctx.moveTo(x+6, y-6); ctx.lineTo(x-6, y+6); }
+  ctx.stroke();
+}
+function drawQR(x, y, size, text){
+  if(typeof qrcode !== 'function') return false;
+  const qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), cell = size / n;
+  ctx.fillStyle = '#fff'; rr(x-10, y-10, size+20, size+20, 16); ctx.fill();
+  ctx.fillStyle = '#0F172A';
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(qr.isDark(r,c)) ctx.fillRect(x + c*cell, y + r*cell, Math.ceil(cell), Math.ceil(cell));
+  return true;
+}
+function capIcon(x, y, s, color){
+  ctx.save(); ctx.translate(x, y); ctx.scale(s/24, s/24); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.stroke(new Path2D('M2 9l10-5 10 5-10 5z')); ctx.stroke(new Path2D('M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5')); ctx.stroke(new Path2D('M22 9v5'));
+  ctx.restore();
+}
+
+function draw(){
+  const T = THEMES[S.theme];
+  const story = S.format === 'story';
+  const W = 1080, H = story ? 1920 : 1350;
+  if(cv.height !== H) cv.height = H;
+  const top = story ? 300 : 0;   // extra headroom in story format
+
+  // background
+  const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = .07; ctx.fillStyle = '#fff';
+  for(let i=0;i<9;i++){ ctx.beginPath(); ctx.arc((i*173)%W, ((i*271)%H), 90 + (i%3)*60, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = .6;
+  for(let i=0;i<46;i++){ const sx = (i*397)%W, sy = (i*211 + 37)%H; ctx.beginPath(); ctx.arc(sx, sy, (i%3)+1, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = 1;
+
+  if(story){
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+    ctx.font = F(700, 54); ctx.fillText('সরকার কার্ড দেয়নি,', W/2, 150);
+    ctx.fillStyle = T.gold; ctx.fillText('তাই নিজেই বানিয়ে নিলাম', W/2, 225);
+    ctx.textAlign = 'left';
+  }
+
+  // header
+  const hy = top + 70;
+  capIcon(80, hy + 6, 64, T.gold);
+  ctx.fillStyle = '#fff'; ctx.font = F(700, 76); ctx.fillText('শিক্ষিত কার্ড', 160, hy + 66);
+  ctx.globalAlpha = .7; ctx.font = F(600, 24); ctx.fillText('SHIKKHITO CARD  ·  protishthan.com', 164, hy + 104); ctx.globalAlpha = 1;
+  // card number box
+  rr(780, hy, 220, 96, 18); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = F(600, 22); ctx.textAlign = 'center'; ctx.fillText('কার্ড নং', 890, hy + 36);
+  ctx.fillStyle = '#fff'; ctx.font = F(700, 36); ctx.fillText('শি-' + bn(cardNo), 890, hy + 78); ctx.textAlign = 'left';
+
+  // main card
+  const cx = 60, cy = top + 230, cw = 960, ch = 940;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18;
+  rr(cx, cy, cw, ch, 40); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+  // accent strip
+  ctx.save(); rr(cx, cy, cw, ch, 40); ctx.clip();
+  const sg = ctx.createLinearGradient(cx, 0, cx + cw, 0); sg.addColorStop(0, T.accent); sg.addColorStop(1, T.accent2);
+  ctx.fillStyle = sg; ctx.fillRect(cx, cy, cw, 14); ctx.restore();
+
+  // photo
+  const px = cx + 40, py = cy + 54, pw = 290, ph = 350;
+  ctx.save(); rr(px, py, pw, ph, 28); ctx.clip();
+  if(PHOTO_IMG){
+    const r = Math.max(pw / PHOTO_IMG.width, ph / PHOTO_IMG.height), iw = PHOTO_IMG.width * r, ih = PHOTO_IMG.height * r;
+    ctx.drawImage(PHOTO_IMG, px + (pw - iw)/2, py + (ph - ih)/2.4, iw, ih);
+  } else {
+    const pg = ctx.createLinearGradient(px, py, px, py + ph); pg.addColorStop(0, '#EEF2FF'); pg.addColorStop(1, '#E0E7FF');
+    ctx.fillStyle = pg; ctx.fillRect(px, py, pw, ph);
+    ctx.fillStyle = '#C7D2FE'; ctx.beginPath(); ctx.arc(px + pw/2, py + 140, 62, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(px + pw/2, py + ph + 30, 128, 140, 0, Math.PI, 0); ctx.fill();
+  }
+  ctx.restore();
+  rr(px, py, pw, ph, 28); ctx.strokeStyle = T.accent; ctx.lineWidth = 5; ctx.stroke();
+
+  // name + title + badges
+  const nx = px + pw + 44, nw = cx + cw - 44 - nx;
+  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 24); ctx.fillText('নাম', nx, py + 30);
+  ctx.fillStyle = T.ink; ctx.font = F(700, 58);
+  const nameLines = wrap(S.name.trim() || 'আপনার নাম', nw, 2);
+  nameLines.forEach((l, i)=>ctx.fillText(l, nx, py + 96 + i*66));
+  let ty = py + 96 + (nameLines.length - 1)*66 + 34;
+  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 24); ctx.fillText('পদবি', nx, ty + 26);
+  ctx.font = F(700, 30); const tt = fitText(S.title || autoTitle(), nw - 44);
+  const tg = ctx.createLinearGradient(nx, 0, nx + nw, 0); tg.addColorStop(0, T.accent); tg.addColorStop(1, T.accent2);
+  pill(nx, ty + 42, tt, tg, '#fff', F(700, 30), 22, 58);
+  let by = ty + 124, bx = nx;
+  [...S.badges].forEach(b=>{
+    ctx.font = F(700, 23); const w = ctx.measureText(b).width + 32;
+    if(bx + w > nx + nw){ bx = nx; by += 48; }
+    if(by > py + ph + 10) return;
+    pill(bx, by, b, '#FEF3C7', '#92400E', F(700, 23), 16, 40); bx += w + 10;
+  });
+
+  // education timeline
+  const ex = cx + 44, eyTop = py + ph + 50;
+  ctx.fillStyle = T.accent; ctx.font = F(700, 32); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
+  ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 180, eyTop - 10, cw - 88 - 180, 2);
+  const rows = filledLevels();
+  const rowH = 76, ry0 = eyTop + 30;
+  if(!rows.length){
+    ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 28); ctx.fillText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', ex, ry0 + 50);
+  }
+  rows.slice(0, 4).forEach((l, i)=>{
+    const ed = S.edu[l.key], y = ry0 + i*rowH;
+    if(i < Math.min(rows.length, 4) - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 30, 3, rowH - 8); }
+    ctx.beginPath(); ctx.arc(ex + 18, y + 26, 16, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
+    ctx.beginPath(); ctx.arc(ex + 18, y + 26, 7, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = '#64748B'; ctx.font = F(600, 22); ctx.fillText(l.title + ' · ' + l.sub, ex + 52, y + 14);
+    ctx.fillStyle = T.ink; ctx.font = F(700, 32);
+    const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
+    ctx.font = F(700, 24); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
+    ctx.font = F(700, 32);
+    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 52 - yw - 20), ex + 52, y + 52);
+    if(yr) pill(cx + cw - 44 - yw, y + 22, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 24), 17, 42);
+  });
+
+  // benefits
+  const bTop = cy + ch - 146;
+  rr(cx + 30, bTop, cw - 60, 124, 22); ctx.fillStyle = '#F8FAFC'; ctx.fill();
+  ctx.fillStyle = '#64748B'; ctx.font = F(700, 21); ctx.fillText('কার্ডের সুবিধাসমূহ', cx + 54, bTop + 32);
+  const ben = [['কোনো ভাতা নেই', false], ['জ্ঞান কেউ কেড়ে নিতে পারবে না', true], ['লাইনে দাঁড়াতে হয়নি', false], ['নিজের যোগ্যতায় অর্জিত', true]];
+  ben.forEach(([t, ok], i)=>{
+    const x = cx + 74 + (i % 2)*440, y = bTop + 66 + Math.floor(i / 2)*38;
+    tick(x, y, ok); ctx.fillStyle = '#334155'; ctx.font = F(600, 24); ctx.fillText(fitText(t, 380), x + 26, y + 8);
+  });
+
+  // footer: QR + url + disclaimer
+  const fy = cy + ch + 46;
+  const hasQR = drawQR(80, fy, 120, SHARE_URL + '?ref=card');
+  const tx = hasQR ? 240 : 80;
+  ctx.fillStyle = '#fff'; ctx.font = F(700, 32); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 40);
+  ctx.fillStyle = T.gold; ctx.font = F(700, 34); ctx.fillText('protishthan.com/card', tx, fy + 88);
+  ctx.globalAlpha = .65; ctx.fillStyle = '#fff'; ctx.font = F(500, 20);
+  ctx.fillText('স্ব-ঘোষিত মজার কার্ড · কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়', tx, fy + 124); ctx.globalAlpha = 1;
+
+  if(story){
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = F(700, 40);
+    ctx.fillText('তোমারটা বানাও → protishthan.com/card', W/2, H - 110);
+    ctx.textAlign = 'left';
+  }
+}
+
+/* ---------------- export / share ---------------- */
+function toast(m){ const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2600); }
+function caption(){
+  const names = filledLevels().map(l=>S.edu[l.key].name.trim()).slice(0, 3).join(', ');
+  return 'সরকার কার্ড দেয়নি, তাই নিজেই বানিয়ে নিলাম 😎' + (names ? '\n' + names + ' — আমার শিক্ষাজীবন।' : '') + '\nতোমারটা বানাও 👉 ' + SHARE_URL + '?ref=share\n#শিক্ষিতকার্ড #ShikkhitoCard';
+}
+function cardBlob(){ return new Promise(res=>cv.toBlob(res, 'image/png')); }
+function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
+async function downloadCard(){
+  draw();
+  const blob = await cardBlob(); const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast('কার্ড ডাউনলোড হয়েছে — এবার শেয়ার করুন!');
+}
+async function shareImage(){
+  draw();
+  const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
+  try{
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); return; }
+  }catch(e){ if(e && e.name === 'AbortError') return; }
+  try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
+  downloadCard();
+}
+function shareFacebook(){ window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=fb'), '_blank', 'noopener,width=640,height=560'); }
+function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponent(caption()), '_blank', 'noopener'); }
+
+/* ---------------- start ---------------- */
+document.getElementById('fy').textContent = bn(new Date().getFullYear());
+refreshTitles();
+Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
+draw();
+</script>
+</body>
+</html>
