@@ -76,7 +76,7 @@ body{padding-bottom:110px}
 
 /* SEARCH BOX */
 .search-box{background:white;border-radius:14px;padding:6px 6px 6px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.2);max-width:620px;margin:0 auto 20px}
-.search-box input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:none}
+.search-box input{flex:1;min-width:0;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:none}
 .search-box input::placeholder{color:var(--text-3)}
 .search-box button{padding:10px 24px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s}
 .search-box button:hover{background:var(--blue-dark)}
@@ -215,6 +215,18 @@ body{padding-bottom:110px}
 .sky-page.p2{animation-delay:-6s}
 @keyframes pageDrift{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}50%{transform:translate(-40px,60px) rotate(160deg)}90%{opacity:.6}100%{opacity:0;transform:translate(-90px,130px) rotate(340deg)}}
 @media(prefers-reduced-motion:reduce){.edu-scene *,.sky-book,.sky-book *{animation:none!important}.es-abc,.es-cap,.es-steam,.sky-page,.sky-book{display:none}.es-home,.es-enter{opacity:1}}
+
+/* MOBILE: search box fits, scene framed on the landmarks */
+@media(max-width:768px){
+  .search-box{padding:5px 5px 5px 14px;gap:6px}
+  .search-box input{font-size:14px}
+  .search-box button{padding:10px 14px;font-size:13px}
+  .my-area-btn{padding:10px 10px!important;font-size:12px!important}
+  /* full-height scene, slid so mosque -> station is in view (centre at x=800 of 1440) */
+  .edu-scene{overflow:hidden}
+  .edu-scene svg{position:absolute;bottom:0;height:100%;width:auto;aspect-ratio:1440/300;max-width:none;left:calc(50% - 800/1440*190px*1440/300)}
+}
+@media(max-width:420px){.ma-txt{display:none}.edu-scene svg{left:calc(50% - 845/1440*190px*1440/300)}.search-box input::placeholder{font-size:13px}}
 
 /* STATS BAR */
 .stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
@@ -380,7 +392,7 @@ body{padding-bottom:110px}
     <div class="search-box-wrap">
       <div class="search-box">
         <input type="text" id="mainSearch" placeholder="প্রতিষ্ঠানের নাম, এলাকা বা PRN নম্বর লিখুন..." oninput="onSearchInput(this.value)" onfocus="onSearchFocus()" autocomplete="off">
-        <button class="my-area-btn" onclick="useMyLocation()" title="আমার এলাকা">📍 আমার এলাকা</button>
+        <button class="my-area-btn" onclick="useMyLocation()" title="আমার এলাকা">📍<span class="ma-txt"> আমার এলাকা</span></button>
         <button onclick="doSearch(document.getElementById('mainSearch').value)">🔍 খুঁজুন</button>
       </div>
       <div class="search-suggest" id="searchSuggest"></div>
