@@ -317,6 +317,92 @@ body{padding-bottom:110px}
 }
 @media(max-width:420px){.edu-scene svg{left:calc(50% - 845/1440*190px*1440/300)}}
 
+/* BROWSE LAYOUT: sticky filter sidebar + results grid */
+.browse{max-width:1320px}
+.browse-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:28px;align-items:start}
+.filters{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px 16px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);scrollbar-width:thin}
+.f-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.f-head h2{font-size:17px;font-weight:800;color:var(--text);margin-right:auto}
+.f-reset{border:none;background:none;color:var(--blue);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:4px 6px;border-radius:6px}
+.f-reset:hover{background:var(--blue-light)}
+.f-close{display:none;border:none;background:#F1F5F9;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer;color:var(--text-2)}
+.f-sec{padding:14px 0;border-top:1px solid var(--border)}
+.f-sec:first-of-type{border-top:none}
+.f-title{font-size:12px;font-weight:800;color:var(--text-2);letter-spacing:.02em;margin-bottom:10px}
+.f-sub{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.f-list{display:flex;flex-direction:column;gap:2px}
+.f-divs{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.filters .f-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;cursor:pointer;user-select:none;border:1px solid transparent;background:none;transition:background .15s,border-color .15s;text-align:left;transform:none}
+.filters .f-opt:hover{background:#F1F5F9;border-color:transparent;transform:none}
+.filters .f-opt.sel{background:var(--blue-light);border-color:#C7D7FE}
+.filters .f-opt .type-icon,.filters .f-opt .div-icon{font-size:17px;flex-shrink:0;margin:0}
+.filters .f-opt .type-name,.filters .f-opt .div-name{font-size:13.5px;font-weight:600;color:var(--text);margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filters .f-opt.sel .type-name,.filters .f-opt.sel .div-name{color:var(--blue)}
+.filters .f-count{font-size:11px;font-weight:700;color:var(--text-3);background:#F1F5F9;border-radius:100px;padding:1px 8px;flex-shrink:0;margin:0}
+.filters .f-opt.sel .f-count{background:#fff;color:var(--blue)}
+.filters .f-divs .f-opt{padding:7px 8px;gap:6px}
+.filters .f-divs .div-name{font-size:12.5px}
+.filters .f-divs .f-count{padding:1px 6px}
+.filters .filter-select{width:100%;padding:10px 12px;border-radius:10px;font-size:13.5px;margin-bottom:8px;background:#fff}
+.filters .filter-select:last-child{margin-bottom:0}
+.f-toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
+.filters .f-switch{width:42px;height:24px;border-radius:100px;background:#CBD5E1;border:none;padding:0;position:relative;flex-shrink:0;transition:background .2s}
+.filters .f-switch span{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.filters .f-switch.on{background:var(--green);border-color:transparent;color:inherit}
+.filters .f-switch.on span{transform:translateX(18px)}
+.filters .f-switch:hover{background:#94A3B8;border-color:transparent}.filters .f-switch.on:hover{background:#047857}
+.f-apply{display:none}
+.f-overlay{display:none}
+
+.results{min-width:0}
+.r-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.r-title h2{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.r-title .result-count{margin:2px 0 0;display:block;font-size:13px;color:var(--text-3)}
+.r-tools{display:flex;align-items:center;gap:10px}
+.r-filter-btn{display:none;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
+.r-fcount:not(:empty){background:var(--blue);color:#fff;border-radius:100px;padding:0 7px;font-size:11px;line-height:18px}
+.r-sort{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text-3)}
+.r-sort select{border:1px solid var(--border);border-radius:100px;padding:8px 30px 8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748B' stroke-width='1.6' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;-webkit-appearance:none;appearance:none;cursor:pointer;outline:none}
+.r-sort select:focus{border-color:var(--blue)}
+.active-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.active-chips:empty{display:none}
+.a-chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-light);color:var(--blue);border:1px solid #C7D7FE;border-radius:100px;padding:5px 6px 5px 12px;font-size:12.5px;font-weight:700}
+.a-chip button{border:none;background:#fff;color:var(--blue);width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:13px;line-height:18px;padding:0}
+.a-chip button:hover{background:var(--blue);color:#fff}
+
+.results .inst-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.results .inst-card{flex-direction:column;align-items:stretch;gap:12px;padding:16px;border-radius:16px}
+.results .inst-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(15,23,42,.08);border-color:#C7D7FE}
+.ic-top{display:flex;align-items:flex-start;gap:12px}
+.ic-head{flex:1;min-width:0}
+.results .inst-name{font-size:15.5px;line-height:1.35;margin:0 0 3px;overflow-wrap:break-word}
+.ic-loc{font-size:12.5px;color:var(--text-3)}
+.ic-badge{flex-shrink:0;font-size:10.5px;font-weight:800;color:var(--green);background:var(--green-light);border-radius:100px;padding:3px 9px}
+.ic-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ic-stat{background:#F8FAFC;border-radius:10px;padding:8px 6px;text-align:center}
+.ic-stat b{display:block;font-size:14px;color:var(--text)}
+.ic-stat span{font-size:10.5px;color:var(--text-3)}
+.results .inst-tags{margin:0}
+.ic-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:10px;margin-top:auto}
+.ic-prn{font-size:11.5px;font-weight:700;color:var(--text-3);letter-spacing:.02em}
+.ic-cta{font-size:13px;font-weight:700;color:var(--blue)}
+.inst-card:hover .ic-cta{text-decoration:underline}
+.inst-empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-3);background:#fff;border:1px dashed var(--border);border-radius:16px}
+.inst-empty a{color:var(--blue);font-weight:700}
+
+@media(max-width:900px){
+  .browse-layout{grid-template-columns:1fr}
+  .r-filter-btn{display:inline-flex}
+  .filters{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:86vh;border-radius:20px 20px 0 0;z-index:10001;transform:translateY(105%);transition:transform .3s ease;padding:16px 18px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -20px 50px rgba(15,23,42,.25)}
+  .filters.open{transform:translateY(0)}
+  .f-close{display:block}
+  .f-apply{display:block;width:100%;margin-top:6px;border:none;border-radius:12px;padding:13px;font-family:inherit;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563EB,#7C3AED);cursor:pointer;position:sticky;bottom:0}
+  .f-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:10000}
+  .f-overlay.show{display:block}
+  .results .inst-list{grid-template-columns:1fr}
+  .r-title h2{font-size:19px}
+}
+
 /* STATS BAR */
 .stats-bar{background:#0F172A;padding:14px 5%;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
 .stat-item{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.6);font-size:13px}
@@ -986,124 +1072,111 @@ body{padding-bottom:110px}
 </div>
 
 <!-- MAIN -->
-<div class="main" style="padding-top:32px">
+<div class="main browse" style="padding-top:28px">
 
-  <!-- DIVISION SECTION -->
-  <div class="sec-head">
-    <h2>📍 বিভাগ ভিত্তিক খুঁজুন</h2>
-    <a href="#">সব বিভাগ →</a>
-  </div>
-  <div class="div-grid">
-    <div class="div-card" onclick="filterByDiv('ঢাকা',this)">
-      <div class="div-icon">🏙️</div>
-      <div class="div-name">ঢাকা</div>
-      <div class="div-count" data-div="ঢাকা">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('চট্টগ্রাম',this)">
-      <div class="div-icon">⚓</div>
-      <div class="div-name">চট্টগ্রাম</div>
-      <div class="div-count" data-div="চট্টগ্রাম">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('সিলেট',this)">
-      <div class="div-icon">🍵</div>
-      <div class="div-name">সিলেট</div>
-      <div class="div-count" data-div="সিলেট">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('রাজশাহী',this)">
-      <div class="div-icon">🥭</div>
-      <div class="div-name">রাজশাহী</div>
-      <div class="div-count" data-div="রাজশাহী">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('খুলনা',this)">
-      <div class="div-icon">🐯</div>
-      <div class="div-name">খুলনা</div>
-      <div class="div-count" data-div="খুলনা">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('বরিশাল',this)">
-      <div class="div-icon">🚢</div>
-      <div class="div-name">বরিশাল</div>
-      <div class="div-count" data-div="বরিশাল">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('রংপুর',this)">
-      <div class="div-icon">🌾</div>
-      <div class="div-name">রংপুর</div>
-      <div class="div-count" data-div="রংপুর">শীঘ্রই আসছে</div>
-    </div>
-    <div class="div-card" onclick="filterByDiv('ময়মনসিংহ',this)">
-      <div class="div-icon">🎓</div>
-      <div class="div-name">ময়মনসিংহ</div>
-      <div class="div-count" data-div="ময়মনসিংহ">শীঘ্রই আসছে</div>
-    </div>
-  </div>
+  <!-- BROWSE: filters on the left, results on the right -->
+  <div class="browse-layout">
+    <aside class="filters" id="filtersPanel" aria-label="ফিল্টার">
+      <div class="f-head">
+        <h2>ফিল্টার</h2>
+        <button type="button" class="f-reset" onclick="resetFilters()">সব মুছুন</button>
+        <button type="button" class="f-close" onclick="toggleFilters(false)" aria-label="বন্ধ করুন">×</button>
+      </div>
 
-  <div class="divider"></div>
+      <div class="f-sec">
+        <div class="f-title">প্রতিষ্ঠানের ধরন</div>
+        <div class="f-list">
+          <div class="type-card f-opt sel" data-type="" onclick="filterByType('',this)"><span class="type-icon">🏫</span><span class="type-name">সব ধরন</span><span class="f-count" data-tcount="">০</span></div>
+          <div class="type-card f-opt" data-type="স্কুল" onclick="filterByType('স্কুল',this)"><span class="type-icon">📚</span><span class="type-name">স্কুল</span><span class="f-count" data-tcount="স্কুল">০</span></div>
+          <div class="type-card f-opt" data-type="মাদ্রাসা" onclick="filterByType('মাদ্রাসা',this)"><span class="type-icon">🕌</span><span class="type-name">মাদ্রাসা</span><span class="f-count" data-tcount="মাদ্রাসা">০</span></div>
+          <div class="type-card f-opt" data-type="কলেজ" onclick="filterByType('কলেজ',this)"><span class="type-icon">🎓</span><span class="type-name">কলেজ</span><span class="f-count" data-tcount="কলেজ">০</span></div>
+          <div class="type-card f-opt" data-type="কোচিং সেন্টার" onclick="filterByType('কোচিং সেন্টার',this)"><span class="type-icon">✏️</span><span class="type-name">কোচিং সেন্টার</span><span class="f-count" data-tcount="কোচিং সেন্টার">০</span></div>
+        </div>
+      </div>
 
-  <!-- TYPE SECTION -->
-  <div class="sec-head">
-    <h2>🏫 ধরন অনুযায়ী</h2>
-  </div>
-  <div class="type-grid">
-    <div class="type-card sel" data-type="" onclick="filterByType('',this)">
-      <span class="type-icon">🏫</span>
-      <span class="type-name">সব ধরন</span>
-    </div>
-    <div class="type-card" data-type="স্কুল" onclick="filterByType('স্কুল',this)">
-      <span class="type-icon">📚</span>
-      <span class="type-name">স্কুল</span>
-    </div>
-    <div class="type-card" data-type="মাদ্রাসা" onclick="filterByType('মাদ্রাসা',this)">
-      <span class="type-icon">🕌</span>
-      <span class="type-name">মাদ্রাসা</span>
-    </div>
-    <div class="type-card" data-type="কলেজ" onclick="filterByType('কলেজ',this)">
-      <span class="type-icon">🎓</span>
-      <span class="type-name">কলেজ</span>
-    </div>
-    <div class="type-card" data-type="কোচিং সেন্টার" onclick="filterByType('কোচিং সেন্টার',this)">
-      <span class="type-icon">✏️</span>
-      <span class="type-name">কোচিং সেন্টার</span>
-    </div>
-  </div>
+      <div class="f-sec">
+        <div class="f-title">বিভাগ</div>
+        <div class="f-list f-divs">
+          <div class="div-card f-opt" onclick="filterByDiv('ঢাকা',this)"><span class="div-icon">🏙️</span><span class="div-name">ঢাকা</span><span class="div-count f-count" data-div="ঢাকা">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('চট্টগ্রাম',this)"><span class="div-icon">⚓</span><span class="div-name">চট্টগ্রাম</span><span class="div-count f-count" data-div="চট্টগ্রাম">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('সিলেট',this)"><span class="div-icon">🍵</span><span class="div-name">সিলেট</span><span class="div-count f-count" data-div="সিলেট">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('রাজশাহী',this)"><span class="div-icon">🥭</span><span class="div-name">রাজশাহী</span><span class="div-count f-count" data-div="রাজশাহী">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('খুলনা',this)"><span class="div-icon">🐯</span><span class="div-name">খুলনা</span><span class="div-count f-count" data-div="খুলনা">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('বরিশাল',this)"><span class="div-icon">🚢</span><span class="div-name">বরিশাল</span><span class="div-count f-count" data-div="বরিশাল">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('রংপুর',this)"><span class="div-icon">🌾</span><span class="div-name">রংপুর</span><span class="div-count f-count" data-div="রংপুর">০</span></div>
+          <div class="div-card f-opt" onclick="filterByDiv('ময়মনসিংহ',this)"><span class="div-icon">🎓</span><span class="div-name">ময়মনসিংহ</span><span class="div-count f-count" data-div="ময়মনসিংহ">০</span></div>
+        </div>
+      </div>
 
-  <div class="divider"></div>
+      <div class="f-sec">
+        <div class="f-title">জেলা ও উপজেলা</div>
+        <select class="filter-select" id="filterDistrict" onchange="onFilterDistrictChange()">
+          <option value="">সব জেলা</option>
+        </select>
+        <select class="filter-select" id="filterUpazila" onchange="applyFilters()">
+          <option value="">সব উপজেলা</option>
+        </select>
+      </div>
 
-  <!-- INSTITUTION LIST -->
-  <div class="sec-head">
-    <h2>📋 প্রতিষ্ঠানের তালিকা</h2>
-    <span class="result-count" id="resultCount">লোড হচ্ছে...</span>
-  </div>
+      <div class="f-sec">
+        <div class="f-title">শিক্ষার মাধ্যম</div>
+        <select class="filter-select" id="filterMedium" onchange="applyFilters()">
+          <option value="">সব মাধ্যম</option>
+          <option value="বাংলা মিডিয়াম">বাংলা মিডিয়াম</option>
+          <option value="ইংলিশ মিডিয়াম">ইংলিশ মিডিয়াম</option>
+          <option value="ইংলিশ ভার্সন">ইংলিশ ভার্সন</option>
+          <option value="কওমি মাদ্রাসা">কওমি মাদ্রাসা</option>
+          <option value="আলিয়া মাদ্রাসা">আলিয়া মাদ্রাসা</option>
+          <option value="হিফজ বিভাগ">হিফজ বিভাগ</option>
+        </select>
+      </div>
 
-  <!-- FILTER ROW -->
-  <div class="filter-row">
-    <span class="filter-label">ফিল্টার:</span>
-    <select class="filter-select" id="filterDistrict" onchange="onFilterDistrictChange()">
-      <option value="">সব জেলা</option>
-    </select>
-    <select class="filter-select" id="filterUpazila" onchange="applyFilters()">
-      <option value="">সব উপজেলা</option>
-    </select>
-    <select class="filter-select" id="filterMedium" onchange="applyFilters()">
-      <option value="">সব মাধ্যম</option>
-      <option value="বাংলা মিডিয়াম">বাংলা মিডিয়াম</option>
-      <option value="ইংলিশ মিডিয়াম">ইংলিশ মিডিয়াম</option>
-      <option value="ইংলিশ ভার্সন">ইংলিশ ভার্সন</option>
-      <option value="কওমি মাদ্রাসা">কওমি মাদ্রাসা</option>
-      <option value="আলিয়া মাদ্রাসা">আলিয়া মাদ্রাসা</option>
-      <option value="হিফজ বিভাগ">হিফজ বিভাগ</option>
-    </select>
-    <div class="filter-tag" id="filterAdmissionOpen" onclick="toggleAdmissionFilter(this)">✅ ভর্তি চলছে</div>
-  </div>
+      <div class="f-sec f-toggle-row" onclick="toggleAdmissionFilter(document.getElementById('filterAdmissionOpen'))">
+        <div>
+          <div class="f-title" style="margin:0">ভর্তি চলছে</div>
+          <div class="f-sub">শুধু যেখানে এখন ভর্তি নেওয়া হচ্ছে</div>
+        </div>
+        <div class="filter-tag f-switch" id="filterAdmissionOpen" role="switch" aria-label="ভর্তি চলছে"><span></span></div>
+      </div>
 
-  <div class="inst-list" id="instList">
-    <div id="instLoading" style="text-align:center;padding:50px 20px;color:var(--text-3)">
-      <div style="font-size:32px;margin-bottom:10px">⏳</div>
-      <div>প্রতিষ্ঠান লোড হচ্ছে...</div>
-    </div>
-  </div>
+      <button type="button" class="f-apply" onclick="toggleFilters(false)">ফলাফল দেখুন</button>
+    </aside>
 
-  <div class="load-more" id="loadMoreWrap" style="display:none">
-    <button class="btn-load" id="loadMoreBtn">আরো প্রতিষ্ঠান দেখুন</button>
+    <section class="results" aria-live="polite">
+      <div class="r-head">
+        <div class="r-title">
+          <h2>প্রতিষ্ঠানের তালিকা</h2>
+          <span class="result-count" id="resultCount">লোড হচ্ছে...</span>
+        </div>
+        <div class="r-tools">
+          <button type="button" class="r-filter-btn" onclick="toggleFilters(true)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            ফিল্টার <span class="r-fcount" id="activeFilterCount"></span>
+          </button>
+          <label class="r-sort">সাজান
+            <select id="sortBy" onchange="applyFilters()">
+              <option value="new">নতুন যুক্ত</option>
+              <option value="popular">জনপ্রিয়</option>
+              <option value="name">নাম অনুযায়ী</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="active-chips" id="activeChips"></div>
+
+      <div class="inst-list" id="instList">
+        <div id="instLoading" class="inst-empty">
+          <div style="font-size:32px;margin-bottom:10px">⏳</div>
+          <div>প্রতিষ্ঠান লোড হচ্ছে...</div>
+        </div>
+      </div>
+
+      <div class="load-more" id="loadMoreWrap" style="display:none">
+        <button class="btn-load" id="loadMoreBtn">আরো প্রতিষ্ঠান দেখুন</button>
+      </div>
+    </section>
   </div>
+  <div class="f-overlay" id="filtersOverlay" onclick="toggleFilters(false)"></div>
 
   <div class="divider"></div>
 
@@ -1274,7 +1347,7 @@ function renderCards(list){
   document.getElementById('resultCount').textContent = bnNum(list.length) + 'টি প্রতিষ্ঠান দেখাচ্ছে';
 
   if(list.length === 0){
-    wrap.innerHTML = '<div style="text-align:center;padding:50px 20px;color:var(--text-3)"><div style="font-size:32px;margin-bottom:10px">🔍</div><div>কোনো প্রতিষ্ঠান পাওয়া যায়নি</div></div>';
+    wrap.innerHTML = '<div class="inst-empty"><div style="font-size:32px;margin-bottom:10px">🔍</div><div style="font-weight:700;color:var(--text);margin-bottom:4px">এই ফিল্টারে কোনো প্রতিষ্ঠান পাওয়া যায়নি</div><div>ফিল্টার বদলে দেখুন, অথবা <a href="#" onclick="resetFilters();return false">সব ফিল্টার মুছুন</a> · <a href="list-institution.html">নিজের প্রতিষ্ঠান যুক্ত করুন</a></div></div>';
     return;
   }
 
@@ -1299,16 +1372,20 @@ function renderCards(list){
     if(s.student_count) metaParts.push('<span>👨‍🎓 ' + bnNum(escapeHtml(s.student_count)) + ' শিক্ষার্থী</span>');
     if(s.teacher_count) metaParts.push('<span>👨‍🏫 ' + bnNum(escapeHtml(s.teacher_count)) + ' শিক্ষক</span>');
 
+    const typeName = s.institution_type || 'প্রতিষ্ঠান';
+    const loc = [s.upazila, s.district].filter(Boolean).map(escapeHtml).join(', ');
+    const stat = (v, label) => '<div class="ic-stat"><b>' + (v ? bnNum(escapeHtml(v)) : '—') + '</b><span>' + label + '</span></div>';
+    const cardTags = tags.filter(t => t.indexOf('ভর্তি চলছে') < 0 && t.indexOf('সালে প্রতিষ্ঠিত') < 0);
     return '<a class="inst-card" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
-      '<div class="inst-logo">' + icon + '</div>' +
-      '<div class="inst-info">' +
-        '<div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
-        '<div class="inst-meta">' + metaParts.join('') + '</div>' +
-        (tags.length ? '<div class="inst-tags">' + tags.join('') + '</div>' : '') +
+      '<div class="ic-top">' +
+        '<div class="inst-logo">' + icon + '</div>' +
+        '<div class="ic-head"><div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
+        '<div class="ic-loc">' + escapeHtml(typeName) + (loc ? ' · 📍 ' + loc : '') + '</div></div>' +
+        (s.admission_status === 'খোলা' ? '<span class="ic-badge">ভর্তি চলছে</span>' : '') +
       '</div>' +
-      '<div class="inst-right">' +
-        '<div class="inst-arrow">→</div>' +
-      '</div>' +
+      '<div class="ic-stats">' + stat(s.student_count, 'শিক্ষার্থী') + stat(s.teacher_count, 'শিক্ষক') + stat(s.founding_year, 'প্রতিষ্ঠা') + '</div>' +
+      (cardTags.length ? '<div class="inst-tags">' + cardTags.join('') + '</div>' : '') +
+      '<div class="ic-foot"><span class="ic-prn">' + (s.prn_number ? 'PRN-' + String(s.prn_number).padStart(4,'0') : '') + '</span><span class="ic-cta">বিস্তারিত দেখুন →</span></div>' +
     '</a>';
   }).join('');
 
@@ -1356,7 +1433,11 @@ function updateDivisionCounts(){
     if(!div) return;
     const districtsInDiv = DIVISION_MAP[div] || [];
     const count = allApproved.filter(s=>districtsInDiv.includes(s.district)).length;
-    el.textContent = count > 0 ? (bnNum(count) + 'টি প্রতিষ্ঠান') : 'শীঘ্রই আসছে';
+    el.textContent = bnNum(count);
+  });
+  document.querySelectorAll('[data-tcount]').forEach(el=>{
+    const t = el.dataset.tcount;
+    el.textContent = bnNum(t ? allApproved.filter(s=>s.institution_type===t).length : allApproved.length);
   });
 }
 
@@ -1388,7 +1469,62 @@ function applyFilters(){
     return true;
   });
 
+  const sort = (document.getElementById('sortBy') || {}).value || 'new';
+  if(sort === 'popular') filtered.sort((a,b)=>(b.view_count||0)-(a.view_count||0));
+  else if(sort === 'name') filtered.sort((a,b)=>String(a.institution_name||'').localeCompare(String(b.institution_name||''),'bn'));
+
+  renderActiveChips({ district, upazila, medium, admissionOnly, searchVal });
   renderCards(filtered);
+}
+
+function renderActiveChips(f){
+  const chips = [];
+  if(selectedType) chips.push(['type', selectedType]);
+  if(selectedDivision) chips.push(['div', selectedDivision + ' বিভাগ']);
+  if(f.district) chips.push(['district', f.district]);
+  if(f.upazila) chips.push(['upazila', f.upazila]);
+  if(f.medium) chips.push(['medium', f.medium]);
+  if(f.admissionOnly) chips.push(['admission', 'ভর্তি চলছে']);
+  if(f.searchVal) chips.push(['search', '“' + f.searchVal + '”']);
+  const wrap = document.getElementById('activeChips');
+  if(wrap) wrap.innerHTML = chips.map(([k,label])=>'<span class="a-chip">' + escapeHtml(label) + '<button type="button" aria-label="সরান" onclick="clearFilter(\'' + k + '\')">×</button></span>').join('');
+  const cnt = document.getElementById('activeFilterCount');
+  if(cnt) cnt.textContent = chips.length ? bnNum(chips.length) : '';
+}
+
+function syncTypeUI(){
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.toggle('sel', c.dataset.type === selectedType));
+  document.querySelectorAll('.qf').forEach(c=>c.classList.toggle('active', c.textContent.trim() === (selectedType || 'সব প্রতিষ্ঠান')));
+}
+
+function clearFilter(k){
+  if(k === 'type'){ selectedType = ''; syncTypeUI(); }
+  if(k === 'div'){ selectedDivision = ''; document.querySelectorAll('.div-card').forEach(c=>c.classList.remove('sel')); }
+  if(k === 'district'){ document.getElementById('filterDistrict').value = ''; onFilterDistrictChange(); return; }
+  if(k === 'upazila') document.getElementById('filterUpazila').value = '';
+  if(k === 'medium') document.getElementById('filterMedium').value = '';
+  if(k === 'admission') document.getElementById('filterAdmissionOpen').classList.remove('on');
+  if(k === 'search'){ const i = document.getElementById('mainSearch'); i.value = ''; const sbx = document.getElementById('searchBox'); if(sbx) sbx.classList.remove('has-text'); }
+  applyFilters();
+}
+
+function resetFilters(){
+  selectedType = ''; selectedDivision = '';
+  syncTypeUI();
+  document.querySelectorAll('.div-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('filterDistrict').value = '';
+  document.getElementById('filterUpazila').innerHTML = '<option value="">সব উপজেলা</option>';
+  document.getElementById('filterMedium').value = '';
+  document.getElementById('filterAdmissionOpen').classList.remove('on');
+  const i = document.getElementById('mainSearch'); if(i) i.value = '';
+  const sbx = document.getElementById('searchBox'); if(sbx) sbx.classList.remove('has-text');
+  applyFilters();
+}
+
+function toggleFilters(open){
+  document.getElementById('filtersPanel').classList.toggle('open', open);
+  document.getElementById('filtersOverlay').classList.toggle('show', open);
+  document.body.style.overflow = open ? 'hidden' : '';
 }
 
 function goToResults(){
