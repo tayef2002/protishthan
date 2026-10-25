@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard — Protishthan</title>
+<meta name="robots" content="noindex,nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -125,9 +126,83 @@ body{display:flex}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .detail-grid{grid-template-columns:1fr}
 }
+/* admin login gate */
+body.locked .sidebar,body.locked .main{visibility:hidden}
+.gate{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570)}
+body.locked .gate{display:flex}
+.gate-box{width:100%;max-width:380px;background:#fff;border-radius:20px;padding:30px 26px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.gate-logo{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.gate-logo span{opacity:.45}
+.gate-sub{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.gate label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin:0 0 6px}
+.gate input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;font-family:inherit;margin-bottom:14px;outline:none}
+.gate input:focus{border-color:var(--blue)}
+.gate button{width:100%;padding:12px;border:none;border-radius:var(--r);background:var(--blue);color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.gate button:disabled{opacity:.6;cursor:default}
+.gate-err{display:none;background:var(--red-l);color:var(--red);border:1px solid #FECACA;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:14px}
+.gate-wait{font-size:13px;color:var(--text-3);text-align:center}
+.admin-logout{margin-top:10px;width:100%;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-family:inherit;font-size:12px;cursor:pointer}
+.admin-logout:hover{background:rgba(255,255,255,.12);color:#fff}
 </style>
 </head>
-<body>
+<body class="locked">
+<div class="gate" id="adminGate">
+  <div class="gate-box">
+    <div class="gate-logo">Protisht<span>han</span> Admin</div>
+    <div class="gate-sub">শুধু Admin অ্যাকাউন্ট দিয়ে প্রবেশ করা যাবে</div>
+    <div class="gate-wait" id="gateWait">যাচাই করা হচ্ছে…</div>
+    <form id="gateForm" style="display:none" onsubmit="adminLogin(event)">
+      <div class="gate-err" id="gateErr"></div>
+      <label for="gateEmail">ইমেইল</label>
+      <input type="email" id="gateEmail" autocomplete="username" required>
+      <label for="gatePass">পাসওয়ার্ড</label>
+      <input type="password" id="gatePass" autocomplete="current-password" required>
+      <button type="submit" id="gateBtn">লগইন করুন</button>
+    </form>
+  </div>
+</div>
+<script>
+/* Admin gate: a separate auth session ('prot-admin') that must belong to admin_users.
+   Data loaders wait on ADMIN_READY, so nothing is fetched before the check passes. */
+const sbAdmin = supabase.createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-admin' } }
+);
+let adminReadyResolve;
+const ADMIN_READY = new Promise(r => adminReadyResolve = r);
+let ADMIN_EMAIL = '';
+
+function gateError(msg){ const e = document.getElementById('gateErr'); e.textContent = msg; e.style.display = msg ? 'block' : 'none'; }
+function showGateForm(){ document.getElementById('gateWait').style.display = 'none'; document.getElementById('gateForm').style.display = 'block'; }
+async function checkAdmin(session){
+  if(!session) return false;
+  const { data, error } = await sbAdmin.rpc('is_admin');
+  return !error && data === true;
+}
+function unlockAdmin(session){
+  ADMIN_EMAIL = session.user.email || '';
+  document.body.classList.remove('locked');
+  const n = document.querySelector('.sidebar-bottom .user-name');
+  if(n) n.textContent = ADMIN_EMAIL;
+  const a = document.querySelector('.sidebar-bottom .user-avatar');
+  if(a) a.textContent = (ADMIN_EMAIL || 'A').charAt(0).toUpperCase();
+  adminReadyResolve(session);
+}
+async function adminLogin(e){
+  e.preventDefault();
+  const btn = document.getElementById('gateBtn'); btn.disabled = true; gateError('');
+  const { data, error } = await sbAdmin.auth.signInWithPassword({ email: document.getElementById('gateEmail').value.trim(), password: document.getElementById('gatePass').value });
+  if(error){ btn.disabled = false; gateError(error.message === 'Invalid login credentials' ? 'ইমেইল বা পাসওয়ার্ড ভুল।' : error.message); return; }
+  if(!(await checkAdmin(data.session))){ await sbAdmin.auth.signOut(); btn.disabled = false; gateError('এই অ্যাকাউন্টটি Admin নয়।'); return; }
+  document.getElementById('gatePass').value = '';
+  unlockAdmin(data.session);
+}
+async function adminLogout(){ await sbAdmin.auth.signOut(); location.reload(); }
+sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
+  if(await checkAdmin(session)) unlockAdmin(session); else showGateForm();
+});
+</script>
 
 <div class="sidebar">
   <div class="sidebar-glow"></div>
@@ -175,6 +250,7 @@ body{display:flex}
         <div class="user-role">Super Admin</div>
       </div>
     </div>
+    <button type="button" class="admin-logout" onclick="adminLogout()">লগআউট</button>
   </div>
 </div>
 
@@ -547,7 +623,7 @@ document.querySelectorAll('.nav-item.disabled').forEach(function(item){
   });
 });
 
-loadSubmissions();
+ADMIN_READY.then(()=>loadSubmissions());
 </script>
 <script>
 const navTitlesAgents = { agents: ['Army Management', 'Protishthan Army আবেদন review, approve এবং কমিশন'] };
@@ -685,7 +761,7 @@ async function loadUnassignedInstitutions(){
   }
 }
 
-loadAgents();
+ADMIN_READY.then(()=>loadAgents());
 </script>
 </body>
 </html>
