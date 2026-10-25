@@ -106,6 +106,20 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .fmt button.on{background:#0F172A;color:#fff;border-color:#0F172A}
 .note{font-size:12px;color:var(--text-3);text-align:center;margin-top:12px;line-height:1.6}
 
+/* crop editor */
+.crop-modal{position:fixed;inset:0;z-index:400;background:rgba(2,6,23,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px}
+.crop-modal.show{display:flex}
+.crop-box{background:#fff;border-radius:22px;padding:18px;width:min(420px,100%);box-shadow:0 30px 80px rgba(0,0,0,.4);animation:cropIn .2s ease-out}
+@keyframes cropIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.crop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:17px}
+.crop-x{border:none;background:#F1F5F9;width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;color:#475569}
+.crop-stage{border-radius:18px;overflow:hidden;background:#0F172A;touch-action:none}
+.crop-stage canvas{display:block;width:100%;height:auto;cursor:grab;touch-action:none}
+.crop-stage canvas:active{cursor:grabbing}
+.crop-hint{font-size:12px;color:var(--text-3);text-align:center;margin:10px 0 6px}
+.crop-zoom{display:flex;align-items:center;gap:10px;color:#64748B;padding:4px 4px 12px}
+.crop-zoom input{flex:1;accent-color:#2563EB;height:28px}
+.crop-actions{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
 /* how it works / FAQ */
 .how{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 18px}
 .how div{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}
@@ -181,6 +195,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
             <button type="button" class="btn btn-ghost" onclick="document.getElementById('fPhoto').click()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
               <span id="photoBtnTxt">ছবি দিন</span></button>
+            <button type="button" class="btn btn-ghost" id="photoEdit" style="display:none" onclick="openCrop()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>ঠিক করুন</button>
             <button type="button" class="btn btn-ghost" id="photoRemove" style="display:none" onclick="removePhoto()">সরান</button>
             <div class="hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>ছবি কোথাও আপলোড হয় না — শুধু আপনার ফোনে কার্ডে বসে।</div>
           </div>
@@ -241,6 +256,23 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 <div class="mbar">
   <button type="button" class="btn btn-primary" onclick="downloadCard()">ডাউনলোড</button>
   <button type="button" class="btn btn-ghost" onclick="shareImage()">শেয়ার</button>
+</div>
+<div class="crop-modal" id="cropModal" onclick="if(event.target===this)closeCrop(false)">
+  <div class="crop-box" role="dialog" aria-label="ছবি ঠিক করুন">
+    <div class="crop-head"><b>ছবি ঠিক করুন</b><button type="button" class="crop-x" onclick="closeCrop(false)" aria-label="বন্ধ করুন">×</button></div>
+    <div class="crop-stage"><canvas id="cropCv" width="580" height="660"></canvas></div>
+    <p class="crop-hint">টেনে সরান · স্লাইডার, মাউস হুইল বা দুই আঙুলে জুম করুন · মুখ ডটেড বৃত্তের মধ্যে রাখুন</p>
+    <div class="crop-zoom">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-3.5-3.5"/></svg>
+      <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" aria-label="জুম">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M11 8v6M20 20l-3.5-3.5"/></svg>
+    </div>
+    <div class="crop-actions">
+      <button type="button" class="btn btn-ghost" onclick="PH.zoom=1;PH.ox=0;PH.oy=0;document.getElementById('cropZoom').value=1;renderCrop()">রিসেট</button>
+      <button type="button" class="btn btn-ghost" onclick="closeCrop(false)">বাতিল</button>
+      <button type="button" class="btn btn-primary" onclick="closeCrop(true)">ঠিক আছে</button>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -363,15 +395,106 @@ function syncEduRow(k){
   document.getElementById('lk-' + k).style.display = ed.slug ? 'inline-flex' : 'none';
 }
 
-/* photo (stays in the browser) */
+/* photo (stays in the browser) + crop/zoom editor */
 let PHOTO_IMG = null;
+const PH = { zoom:1, ox:0, oy:0 };          // ox/oy: offset as a fraction of the frame size
+const FRAME_W = 290, FRAME_H = 330;          // same ratio as the photo slot on the card
+
+function photoGeom(img, x, y, w, h, st){
+  const base = Math.max(w / img.width, h / img.height), s = base * st.zoom;
+  const dw = img.width * s, dh = img.height * s;
+  const mx = Math.max(0, (dw - w) / 2 / w), my = Math.max(0, (dh - h) / 2 / h);
+  st.ox = Math.min(mx, Math.max(-mx, st.ox)); st.oy = Math.min(my, Math.max(-my, st.oy));   // keep the frame covered
+  return { dx: x + w/2 + st.ox*w - dw/2, dy: y + h/2 + st.oy*h - dh/2, dw, dh };
+}
+function drawPhotoInto(c, img, x, y, w, h, st){
+  const g = photoGeom(img, x, y, w, h, st);
+  c.imageSmoothingQuality = 'high';
+  c.drawImage(img, g.dx, g.dy, g.dw, g.dh);
+}
+
 document.getElementById('fPhoto').addEventListener('change', e=>{
   const f = e.target.files && e.target.files[0]; if(!f) return;
   const url = URL.createObjectURL(f); const img = new Image();
-  img.onload = ()=>{ PHOTO_IMG = img; document.getElementById('photoPrev').innerHTML = '<img src="'+url+'" alt="">'; document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান'; document.getElementById('photoRemove').style.display = 'inline-flex'; draw(); };
+  img.onload = ()=>{
+    PHOTO_IMG = img; PH.zoom = 1; PH.ox = 0; PH.oy = 0;
+    document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান';
+    document.getElementById('photoRemove').style.display = 'inline-flex';
+    document.getElementById('photoEdit').style.display = 'inline-flex';
+    openCrop();
+  };
   img.src = url;
 });
-function removePhoto(){ PHOTO_IMG = null; document.getElementById('fPhoto').value = ''; document.getElementById('photoPrev').innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>'; document.getElementById('photoBtnTxt').textContent = 'ছবি দিন'; document.getElementById('photoRemove').style.display = 'none'; draw(); }
+function removePhoto(){
+  PHOTO_IMG = null; document.getElementById('fPhoto').value = '';
+  document.getElementById('photoPrev').innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  document.getElementById('photoBtnTxt').textContent = 'ছবি দিন';
+  document.getElementById('photoRemove').style.display = 'none';
+  document.getElementById('photoEdit').style.display = 'none';
+  draw();
+}
+function updateThumb(){
+  const t = document.createElement('canvas'); t.width = 144; t.height = 164;
+  const c = t.getContext('2d'); drawPhotoInto(c, PHOTO_IMG, 0, 0, 144, 164, PH);
+  document.getElementById('photoPrev').innerHTML = ''; t.style.cssText = 'width:100%;height:100%;display:block';
+  document.getElementById('photoPrev').appendChild(t);
+}
+
+/* crop editor: drag to move, slider / wheel / pinch to zoom */
+const cropCv = document.getElementById('cropCv'), cctx = cropCv.getContext('2d');
+let cropBackup = null, cropRaf = 0;
+function openCrop(){
+  if(!PHOTO_IMG) return;
+  cropBackup = { ...PH };
+  document.getElementById('cropZoom').value = PH.zoom;
+  document.getElementById('cropModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  renderCrop();
+}
+function closeCrop(apply){
+  if(!apply && cropBackup) Object.assign(PH, cropBackup);
+  document.getElementById('cropModal').classList.remove('show');
+  document.body.style.overflow = '';
+  if(PHOTO_IMG){ updateThumb(); draw(); }
+}
+function renderCrop(){
+  cancelAnimationFrame(cropRaf);
+  cropRaf = requestAnimationFrame(()=>{
+    const W = cropCv.width, H = cropCv.height;
+    cctx.fillStyle = '#0F172A'; cctx.fillRect(0, 0, W, H);
+    drawPhotoInto(cctx, PHOTO_IMG, 0, 0, W, H, PH);
+    // rule-of-thirds guides + face hint
+    cctx.strokeStyle = 'rgba(255,255,255,.35)'; cctx.lineWidth = 1;
+    for(let i=1;i<3;i++){ cctx.beginPath(); cctx.moveTo(W*i/3, 0); cctx.lineTo(W*i/3, H); cctx.moveTo(0, H*i/3); cctx.lineTo(W, H*i/3); cctx.stroke(); }
+    cctx.setLineDash([8, 8]); cctx.strokeStyle = 'rgba(255,255,255,.55)'; cctx.lineWidth = 2;
+    cctx.beginPath(); cctx.ellipse(W/2, H*0.4, W*0.24, H*0.24, 0, 0, Math.PI*2); cctx.stroke(); cctx.setLineDash([]);
+    draw();   // keep the live card in sync while adjusting
+  });
+}
+function setZoom(z, fx, fy){
+  const old = PH.zoom; z = Math.min(4, Math.max(1, z));
+  if(fx !== undefined){ // zoom towards the pointer
+    const k = z / old; PH.ox = (PH.ox - fx) * k + fx; PH.oy = (PH.oy - fy) * k + fy;
+  } else { const k = z / old; PH.ox *= k; PH.oy *= k; }
+  PH.zoom = z; document.getElementById('cropZoom').value = z; renderCrop();
+}
+document.getElementById('cropZoom').addEventListener('input', e=>setZoom(parseFloat(e.target.value)));
+const ptrs = new Map(); let pinch0 = null;
+cropCv.addEventListener('pointerdown', e=>{ cropCv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY }); if(ptrs.size === 2){ const [a,b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a.x-b.x, a.y-b.y), z: PH.zoom }; } });
+cropCv.addEventListener('pointermove', e=>{
+  if(!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId), cur = { x:e.clientX, y:e.clientY }; ptrs.set(e.pointerId, cur);
+  const r = cropCv.getBoundingClientRect();
+  if(ptrs.size === 2 && pinch0){ const [a,b] = [...ptrs.values()]; setZoom(pinch0.z * Math.hypot(a.x-b.x, a.y-b.y) / pinch0.d); return; }
+  PH.ox += (cur.x - prev.x) / r.width; PH.oy += (cur.y - prev.y) / r.height; renderCrop();
+});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>cropCv.addEventListener(ev, e=>{ ptrs.delete(e.pointerId); if(ptrs.size < 2) pinch0 = null; }));
+cropCv.addEventListener('wheel', e=>{
+  e.preventDefault(); const r = cropCv.getBoundingClientRect();
+  const fx = (e.clientX - r.left) / r.width - 0.5, fy = (e.clientY - r.top) / r.height - 0.5;
+  setZoom(PH.zoom * Math.exp(-e.deltaY * 0.0015), fx, fy);
+}, { passive:false });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.getElementById('cropModal').classList.contains('show')) closeCrop(false); });
 
 function filledLevels(){ return LEVELS.filter(l=>S.edu[l.key].name.trim()); }
 function autoTitle(){
@@ -424,21 +547,57 @@ function capIcon(x, y, s, color){
   ctx.restore();
 }
 
+function guilloche(x, y, w, h, color, alpha, lines){
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.strokeStyle = color; ctx.globalAlpha = alpha; ctx.lineWidth = 1.4;
+  for(let k=0;k<lines;k++){
+    ctx.beginPath();
+    for(let i=0;i<=w;i+=6){
+      const yy = y + h*0.5 + Math.sin(i/58 + k*0.55) * h*0.32 * Math.cos(i/230 + k*0.21);
+      i === 0 ? ctx.moveTo(x + i, yy) : ctx.lineTo(x + i, yy);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+function goldChip(x, y){
+  const g = ctx.createLinearGradient(x, y, x + 78, y + 58);
+  g.addColorStop(0, '#FDE68A'); g.addColorStop(.5, '#F59E0B'); g.addColorStop(1, '#FCD34D');
+  rr(x, y, 78, 58, 12); ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = 'rgba(120,53,15,.45)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x + 26, y); ctx.lineTo(x + 26, y + 58); ctx.moveTo(x + 52, y); ctx.lineTo(x + 52, y + 58);
+  ctx.moveTo(x, y + 29); ctx.lineTo(x + 26, y + 29); ctx.moveTo(x + 52, y + 29); ctx.lineTo(x + 78, y + 29); ctx.stroke();
+  rr(x + 26, y + 14, 26, 30, 6); ctx.stroke();
+}
+function sticker(x, y, r, T){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(-0.22);
+  ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 6;
+  ctx.beginPath();
+  for(let i=0;i<24;i++){ const a = i/24*Math.PI*2, rad = i%2 ? r*0.9 : r; ctx.lineTo(Math.cos(a)*rad, Math.sin(a)*rad); }
+  ctx.closePath(); ctx.fillStyle = T.gold; ctx.fill(); ctx.shadowColor = 'transparent';
+  ctx.beginPath(); ctx.arc(0, 0, r*0.74, 0, Math.PI*2); ctx.strokeStyle = 'rgba(120,53,15,.5)'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#78350F'; ctx.textAlign = 'center';
+  ctx.font = F(700, 30); ctx.fillText('১০০%', 0, -2);
+  ctx.font = F(700, 15); ctx.fillText('নিজের যোগ্যতায়', 0, 22);
+  ctx.textAlign = 'left'; ctx.restore();
+}
+
 function draw(){
   const T = THEMES[S.theme];
   const story = S.format === 'story';
   const W = 1080, H = story ? 1920 : 1350;
   if(cv.height !== H) cv.height = H;
-  const top = story ? 300 : 0;   // extra headroom in story format
+  const top = story ? 300 : 0;
 
-  // background
+  // background + guilloche waves
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  ctx.globalAlpha = .07; ctx.fillStyle = '#fff';
-  for(let i=0;i<9;i++){ ctx.beginPath(); ctx.arc((i*173)%W, ((i*271)%H), 90 + (i%3)*60, 0, Math.PI*2); ctx.fill(); }
-  ctx.globalAlpha = .6;
-  for(let i=0;i<46;i++){ const sx = (i*397)%W, sy = (i*211 + 37)%H; ctx.beginPath(); ctx.arc(sx, sy, (i%3)+1, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = .08; ctx.fillStyle = '#fff';
+  for(let i=0;i<7;i++){ ctx.beginPath(); ctx.arc((i*173)%W, ((i*271)%H), 90 + (i%3)*70, 0, Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha = .55;
+  for(let i=0;i<40;i++){ const sx = (i*397)%W, sy = (i*211 + 37)%H; ctx.beginPath(); ctx.arc(sx, sy, (i%3)*0.8 + 1, 0, Math.PI*2); ctx.fill(); }
   ctx.globalAlpha = 1;
+  guilloche(0, top + 20, W, 190, '#fff', .12, 9);
 
   if(story){
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
@@ -448,103 +607,104 @@ function draw(){
   }
 
   // header
-  const hy = top + 70;
-  capIcon(80, hy + 6, 64, T.gold);
-  ctx.fillStyle = '#fff'; ctx.font = F(700, 76); ctx.fillText('শিক্ষিত কার্ড', 160, hy + 66);
-  ctx.globalAlpha = .7; ctx.font = F(600, 24); ctx.fillText('SHIKKHITO CARD  ·  protishthan.com', 164, hy + 104); ctx.globalAlpha = 1;
-  // card number box
-  rr(780, hy, 220, 96, 18); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = F(600, 22); ctx.textAlign = 'center'; ctx.fillText('কার্ড নং', 890, hy + 36);
-  ctx.fillStyle = '#fff'; ctx.font = F(700, 36); ctx.fillText('শি-' + bn(cardNo), 890, hy + 78); ctx.textAlign = 'left';
+  const hy = top + 64;
+  capIcon(72, hy + 4, 62, T.gold);
+  ctx.fillStyle = '#fff'; ctx.font = F(700, 74); ctx.fillText('শিক্ষিত কার্ড', 150, hy + 62);
+  ctx.globalAlpha = .72; ctx.font = '700 21px Inter, sans-serif'; ctx.fillText('SHIKKHITO CARD   ·   PROTISHTHAN.COM', 154, hy + 100); ctx.globalAlpha = 1;
+  // card number (English digits)
+  rr(770, hy - 4, 240, 98, 20); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 17px Inter, sans-serif'; ctx.fillText('CARD NO.', 890, hy + 28);
+  ctx.fillStyle = '#fff'; ctx.font = '800 36px Inter, sans-serif'; ctx.fillText('SK-' + cardNo, 890, hy + 72);
+  ctx.textAlign = 'left';
 
   // main card
-  const cx = 60, cy = top + 230, cw = 960, ch = 940;
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18;
-  rr(cx, cy, cw, ch, 40); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
-  // accent strip
-  ctx.save(); rr(cx, cy, cw, ch, 40); ctx.clip();
-  const sg = ctx.createLinearGradient(cx, 0, cx + cw, 0); sg.addColorStop(0, T.accent); sg.addColorStop(1, T.accent2);
-  ctx.fillStyle = sg; ctx.fillRect(cx, cy, cw, 14); ctx.restore();
+  const cx = 56, cy = top + 214, cw = 968, ch = 900;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.38)'; ctx.shadowBlur = 54; ctx.shadowOffsetY = 20;
+  rr(cx, cy, cw, ch, 42); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
+  ctx.save(); rr(cx, cy, cw, ch, 42); ctx.clip();
+  // holographic strip + faint guilloche inside the card
+  const hg = ctx.createLinearGradient(cx, 0, cx + cw, 0);
+  hg.addColorStop(0, T.accent); hg.addColorStop(.35, T.accent2); hg.addColorStop(.6, '#F472B6'); hg.addColorStop(.82, T.gold); hg.addColorStop(1, T.accent);
+  ctx.fillStyle = hg; ctx.fillRect(cx, cy, cw, 16);
+  guilloche(cx, cy + 40, cw, 360, T.accent, .06, 7);
+  ctx.restore();
+
+  goldChip(cx + cw - 124, cy + 44);
 
   // photo
-  const px = cx + 40, py = cy + 54, pw = 290, ph = 350;
-  ctx.save(); rr(px, py, pw, ph, 28); ctx.clip();
-  if(PHOTO_IMG){
-    const r = Math.max(pw / PHOTO_IMG.width, ph / PHOTO_IMG.height), iw = PHOTO_IMG.width * r, ih = PHOTO_IMG.height * r;
-    ctx.drawImage(PHOTO_IMG, px + (pw - iw)/2, py + (ph - ih)/2.4, iw, ih);
-  } else {
+  const px = cx + 40, py = cy + 50, pw = FRAME_W, ph = FRAME_H;
+  ctx.save(); rr(px, py, pw, ph, 30); ctx.clip();
+  if(PHOTO_IMG){ drawPhotoInto(ctx, PHOTO_IMG, px, py, pw, ph, PH); }
+  else {
     const pg = ctx.createLinearGradient(px, py, px, py + ph); pg.addColorStop(0, '#EEF2FF'); pg.addColorStop(1, '#E0E7FF');
     ctx.fillStyle = pg; ctx.fillRect(px, py, pw, ph);
-    ctx.fillStyle = '#C7D2FE'; ctx.beginPath(); ctx.arc(px + pw/2, py + 140, 62, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(px + pw/2, py + ph + 30, 128, 140, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = '#C7D2FE'; ctx.beginPath(); ctx.arc(px + pw/2, py + 130, 60, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(px + pw/2, py + ph + 30, 126, 136, 0, Math.PI, 0); ctx.fill();
   }
   ctx.restore();
-  rr(px, py, pw, ph, 28); ctx.strokeStyle = T.accent; ctx.lineWidth = 5; ctx.stroke();
+  rr(px, py, pw, ph, 30); ctx.strokeStyle = T.accent; ctx.lineWidth = 5; ctx.stroke();
+  sticker(px + pw - 6, py + ph - 8, 58, T);
 
   // name + title + badges
-  const nx = px + pw + 44, nw = cx + cw - 44 - nx;
-  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 24); ctx.fillText('নাম', nx, py + 30);
-  ctx.fillStyle = T.ink; ctx.font = F(700, 58);
-  const nameLines = wrap(S.name.trim() || 'আপনার নাম', nw, 2);
-  nameLines.forEach((l, i)=>ctx.fillText(l, nx, py + 96 + i*66));
-  let ty = py + 96 + (nameLines.length - 1)*66 + 34;
-  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 24); ctx.fillText('পদবি', nx, ty + 26);
-  ctx.font = F(700, 30); const tt = fitText(S.title || autoTitle(), nw - 44);
+  const nx = px + pw + 46, nw = cx + cw - 44 - nx;
+  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 23); ctx.fillText('নাম', nx, py + 34);
+  ctx.fillStyle = T.ink; ctx.font = F(700, 56);
+  const lines = wrap(S.name.trim() || 'আপনার নাম', nw, 2);
+  lines.forEach((l, i)=>ctx.fillText(l, nx, py + 100 + i*64));
+  let ty = py + 100 + (lines.length - 1)*64 + 30;
+  ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 23); ctx.fillText('পদবি', nx, ty + 26);
   const tg = ctx.createLinearGradient(nx, 0, nx + nw, 0); tg.addColorStop(0, T.accent); tg.addColorStop(1, T.accent2);
-  pill(nx, ty + 42, tt, tg, '#fff', F(700, 30), 22, 58);
-  let by = ty + 124, bx = nx;
+  ctx.font = F(700, 29); pill(nx, ty + 40, fitText(S.title || autoTitle(), nw - 44), tg, '#fff', F(700, 29), 22, 56);
+  let by = ty + 118, bx = nx;
   [...S.badges].forEach(b=>{
-    ctx.font = F(700, 23); const w = ctx.measureText(b).width + 32;
-    if(bx + w > nx + nw){ bx = nx; by += 48; }
-    if(by > py + ph + 10) return;
-    pill(bx, by, b, '#FEF3C7', '#92400E', F(700, 23), 16, 40); bx += w + 10;
+    ctx.font = F(700, 22); const w = ctx.measureText(b).width + 30;
+    if(bx + w > nx + nw){ bx = nx; by += 46; }
+    if(by > py + ph - 30) return;
+    pill(bx, by, b, '#FEF3C7', '#92400E', F(700, 22), 15, 38); bx += w + 10;
   });
 
   // education timeline
-  const ex = cx + 44, eyTop = py + ph + 50;
-  ctx.fillStyle = T.accent; ctx.font = F(700, 32); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
-  ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 180, eyTop - 10, cw - 88 - 180, 2);
-  const rows = filledLevels();
-  const rowH = 76, ry0 = eyTop + 30;
-  if(!rows.length){
-    ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 28); ctx.fillText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', ex, ry0 + 50);
-  }
+  const ex = cx + 44, eyTop = py + ph + 52;
+  ctx.fillStyle = T.accent; ctx.font = F(700, 31); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
+  ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 176, eyTop - 10, cw - 88 - 176, 2);
+  const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26;
+  if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', ex, ry0 + 46); }
   rows.slice(0, 4).forEach((l, i)=>{
     const ed = S.edu[l.key], y = ry0 + i*rowH;
-    if(i < Math.min(rows.length, 4) - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 30, 3, rowH - 8); }
-    ctx.beginPath(); ctx.arc(ex + 18, y + 26, 16, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
-    ctx.beginPath(); ctx.arc(ex + 18, y + 26, 7, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.fillStyle = '#64748B'; ctx.font = F(600, 22); ctx.fillText(l.title + ' · ' + l.sub, ex + 52, y + 14);
-    ctx.fillStyle = T.ink; ctx.font = F(700, 32);
+    if(i < Math.min(rows.length, 4) - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28, 3, rowH - 6); }
+    ctx.beginPath(); ctx.arc(ex + 18, y + 24, 15, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
+    ctx.beginPath(); ctx.arc(ex + 18, y + 24, 6.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = '#64748B'; ctx.font = F(600, 21); ctx.fillText(l.title + ' · ' + l.sub, ex + 50, y + 12);
     const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
-    ctx.font = F(700, 24); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
-    ctx.font = F(700, 32);
-    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 52 - yw - 20), ex + 52, y + 52);
-    if(yr) pill(cx + cw - 44 - yw, y + 22, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 24), 17, 42);
+    ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
+    ctx.fillStyle = T.ink; ctx.font = F(700, 31);
+    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 50 - yw - 20), ex + 50, y + 48);
+    if(yr) pill(cx + cw - 44 - yw, y + 20, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 40);
   });
 
   // benefits
-  const bTop = cy + ch - 146;
-  rr(cx + 30, bTop, cw - 60, 124, 22); ctx.fillStyle = '#F8FAFC'; ctx.fill();
-  ctx.fillStyle = '#64748B'; ctx.font = F(700, 21); ctx.fillText('কার্ডের সুবিধাসমূহ', cx + 54, bTop + 32);
+  const bTop = cy + ch - 140;
+  rr(cx + 30, bTop, cw - 60, 116, 22); ctx.fillStyle = '#F8FAFC'; ctx.fill();
+  ctx.fillStyle = '#64748B'; ctx.font = F(700, 20); ctx.fillText('কার্ডের সুবিধাসমূহ', cx + 54, bTop + 30);
   const ben = [['কোনো ভাতা নেই', false], ['জ্ঞান কেউ কেড়ে নিতে পারবে না', true], ['লাইনে দাঁড়াতে হয়নি', false], ['নিজের যোগ্যতায় অর্জিত', true]];
   ben.forEach(([t, ok], i)=>{
-    const x = cx + 74 + (i % 2)*440, y = bTop + 66 + Math.floor(i / 2)*38;
-    tick(x, y, ok); ctx.fillStyle = '#334155'; ctx.font = F(600, 24); ctx.fillText(fitText(t, 380), x + 26, y + 8);
+    const x = cx + 74 + (i % 2)*440, y = bTop + 62 + Math.floor(i / 2)*36;
+    tick(x, y, ok); ctx.fillStyle = '#334155'; ctx.font = F(600, 23); ctx.fillText(fitText(t, 380), x + 26, y + 8);
   });
 
-  // footer: QR + url + disclaimer
-  const fy = cy + ch + 46;
-  const hasQR = drawQR(80, fy, 120, SHARE_URL + '?ref=card');
-  const tx = hasQR ? 240 : 80;
-  ctx.fillStyle = '#fff'; ctx.font = F(700, 32); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 40);
-  ctx.fillStyle = T.gold; ctx.font = F(700, 34); ctx.fillText('protishthan.com/card', tx, fy + 88);
-  ctx.globalAlpha = .65; ctx.fillStyle = '#fff'; ctx.font = F(500, 20);
-  ctx.fillText('স্ব-ঘোষিত মজার কার্ড · কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়', tx, fy + 124); ctx.globalAlpha = 1;
+  // footer with a proper safe zone at the bottom
+  const fy = cy + ch + 40, qs = 112;
+  const hasQR = drawQR(76, fy + 10, qs, SHARE_URL + '?ref=card');
+  const tx = hasQR ? 76 + qs + 36 : 76;
+  ctx.fillStyle = '#fff'; ctx.font = F(700, 30); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 46);
+  ctx.fillStyle = T.gold; ctx.font = '800 32px Inter, sans-serif'; ctx.fillText('protishthan.com/card', tx, fy + 88);
+  ctx.globalAlpha = .62; ctx.fillStyle = '#fff'; ctx.font = F(500, 19);
+  ctx.fillText('স্ব-ঘোষিত মজার কার্ড · কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়', tx, fy + 120); ctx.globalAlpha = 1;
 
   if(story){
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = F(700, 40);
-    ctx.fillText('তোমারটা বানাও → protishthan.com/card', W/2, H - 110);
+    ctx.fillText('তোমারটা বানাও → protishthan.com/card', W/2, H - 120);
     ctx.textAlign = 'left';
   }
 }
