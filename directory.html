@@ -19,7 +19,8 @@ html{scroll-behavior:smooth}
 body{font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
+nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
 
 /* ── PERSISTENT LISTING PROMO BAR (matches index.html) ── */
 .listing-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:190;width:min(92%,1080px);background:rgba(15,23,42,.6);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.12);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden;min-height:100px}
@@ -51,17 +52,18 @@ body{padding-bottom:110px}
   .listing-dots{display:none}
   body{padding-bottom:110px}
 }
-.logo{font-size:20px;font-weight:900;color:var(--blue);letter-spacing:-.5px;text-decoration:none}
-.logo span{opacity:.5;color:var(--text)}
-.nav-links{display:flex;gap:24px;list-style:none}
-.nav-links a{text-decoration:none;color:var(--text-2);font-size:14px;font-weight:500;transition:color .2s}
-.nav-links a:hover,.nav-links a.active{color:var(--blue)}
+.logo{font-size:21px;font-weight:800;color:var(--white);letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--white)}
 .nav-links a.active{font-weight:700}
-.nav-cta{display:flex;gap:10px}
-.btn-ghost{padding:7px 16px;border:1.5px solid var(--border);border-radius:8px;background:none;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
-.btn-pri{padding:7px 18px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s}
-.btn-pri:hover{background:var(--blue-dark)}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;border:none;background:none;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:var(--white)}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.5)}
 
 /* HERO SEARCH */
 .search-hero{background:linear-gradient(145deg,#0A1628,#0F2048,#1A3570);padding:100px 5% 48px;position:relative;overflow:hidden}
@@ -196,6 +198,11 @@ body{padding-bottom:110px}
 /* MOBILE */
 @media(max-width:768px){
   .nav-links{display:none}
+  nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}
+  .logo{font-size:18px}
+  .logo-icon{width:30px;height:30px;font-size:15px}
+  .btn-ghost-nav{display:none}
+  .btn-primary-nav{padding:9px 16px;font-size:13px}
   .stats-bar{gap:16px}
   .filter-row{gap:8px}
   .inst-right{display:none}
@@ -205,17 +212,18 @@ body{padding-bottom:110px}
 <body>
 
 <!-- NAV -->
-<nav>
-  <a href="index.html" class="logo">Protisht<span>han</span></a>
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon">🎓</span>Protisht<span>han</span></a>
   <ul class="nav-links">
     <li><a href="index.html#features">ফিচার</a></li>
-    <li><a href="index.html#how">কিভাবে কাজ করে</a></li>
     <li><a href="directory.html" class="active">তথ্যভান্ডার</a></li>
+    <li><a href="index.html#how">কিভাবে কাজ করে</a></li>
     <li><a href="index.html#pricing">মূল্য</a></li>
+    <li><a href="index.html#testimonials">রিভিউ</a></li>
   </ul>
   <div class="nav-cta">
-    <a href="login.html" class="btn-ghost">লগইন</a>
-    <a href="login.html?tab=signup" class="btn-pri">বিনামূল্যে শুরু করুন</a>
+    <a href="login.html" class="btn-ghost-nav">লগইন</a>
+    <a href="login.html?tab=signup" class="btn-primary-nav">বিনামূল্যে শুরু করুন</a>
   </div>
 </nav>
 
@@ -827,6 +835,10 @@ async function loadApprovedInstitutions(){
 })();
 
 loadApprovedInstitutions();
+</script>
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40)},{ passive:true});
 </script>
 </body>
 </html>
