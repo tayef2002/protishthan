@@ -156,6 +156,9 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .crop-zoom{display:flex;align-items:center;gap:10px;color:#64748B;padding:4px 4px 12px}
 .crop-zoom input{flex:1;accent-color:#2563EB;height:28px}
 .crop-actions{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
+.save-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-3)}
+.save-row span{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:600}
+.save-row button{border:none;background:none;color:#DC2626;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:2px 0}
 /* how it works / FAQ */
 .how{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 18px}
 .how div{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px}
@@ -244,6 +247,10 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
         </div>
         <label class="lbl">আপনি কি… (ঐচ্ছিক)</label>
         <div class="chips" id="badgeChips"></div>
+        <div class="save-row">
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার তথ্য এই ব্রাউজারে নিজে থেকেই সংরক্ষিত থাকে</span>
+          <button type="button" id="resetRow" style="display:none" onclick="resetCard()">সব মুছে নতুন করে শুরু করুন</button>
+        </div>
       </div>
 
       <div class="panel">
@@ -460,6 +467,7 @@ document.getElementById('fPhoto').addEventListener('change', e=>{
   const url = URL.createObjectURL(f); const img = new Image();
   img.onload = ()=>{
     PHOTO_IMG = img; PH.zoom = 1; PH.ox = 0; PH.oy = 0;
+    PHOTO_DATA = shrinkPhoto(img);
     document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান';
     document.getElementById('photoRemove').style.display = 'inline-flex';
     document.getElementById('photoEdit').style.display = 'inline-flex';
@@ -468,7 +476,7 @@ document.getElementById('fPhoto').addEventListener('change', e=>{
   img.src = url;
 });
 function removePhoto(){
-  PHOTO_IMG = null; document.getElementById('fPhoto').value = '';
+  PHOTO_IMG = null; PHOTO_DATA = ''; document.getElementById('fPhoto').value = '';
   document.getElementById('photoPrev').innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
   document.getElementById('photoBtnTxt').textContent = 'ছবি দিন';
   document.getElementById('photoRemove').style.display = 'none';
@@ -480,6 +488,16 @@ function updateThumb(){
   const c = t.getContext('2d'); drawPhotoInto(c, PHOTO_IMG, 0, 0, 144, 164, PH);
   document.getElementById('photoPrev').innerHTML = ''; t.style.cssText = 'width:100%;height:100%;display:block';
   document.getElementById('photoPrev').appendChild(t);
+}
+
+let PHOTO_DATA = '';
+function shrinkPhoto(img){   // max 1000px JPEG so it fits comfortably in localStorage
+  try{
+    const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.86);
+  }catch(e){ return ''; }
 }
 
 /* crop editor: drag to move, slider / wheel / pinch to zoom */
@@ -625,6 +643,7 @@ function sticker(x, y, r, T){
 }
 
 function draw(){
+  saveState();
   const T = THEMES[S.theme];
   const story = S.format === 'story';
   const W = 1080, H = story ? 1920 : 1350;
@@ -776,6 +795,61 @@ async function shareImage(){
 function shareFacebook(){ window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=fb'), '_blank', 'noopener,width=640,height=560'); }
 function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponent(caption()), '_blank', 'noopener'); }
 
+/* ---------------- save in this browser (no login) ---------------- */
+const SAVE_KEY = 'shikkhito_card_v1';
+let saveTimer = 0, restoring = false;
+function saveState(){
+  if(restoring) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    const data = { name:S.name, badges:[...S.badges], edu:S.edu, title:S.title, theme:S.theme, format:S.format, crop:{...PH}, photo:PHOTO_DATA || '' };
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
+    catch(e){ try{ data.photo = ''; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }catch(_){} }   // storage full: keep the text at least
+  }, 400);
+}
+function restoreState(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); }catch(e){}
+  if(!d) return;
+  restoring = true;
+  S.name = d.name || ''; document.getElementById('fName').value = S.name;
+  (d.badges || []).forEach(b=>{ if(BADGES.includes(b)) S.badges.add(b); });
+  document.querySelectorAll('#badgeChips .chip').forEach(c=>c.classList.toggle('on', S.badges.has(c.dataset.b)));
+  LEVELS.forEach(l=>{
+    const e = (d.edu || {})[l.key]; if(!e) return;
+    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'' });
+    document.querySelector('[data-k="'+l.key+'"][data-f="name"]').value = S.edu[l.key].name;
+    document.querySelector('[data-k="'+l.key+'"][data-f="year"]').value = S.edu[l.key].year;
+    document.querySelector('[data-k="'+l.key+'"][data-f="current"]').checked = S.edu[l.key].current;
+    syncEduRow(l.key);
+  });
+  S.title = d.title || null;
+  if(THEMES[d.theme]){ S.theme = d.theme; document.querySelectorAll('.theme').forEach(x=>x.classList.toggle('on', x.dataset.th === S.theme)); }
+  if(d.format === 'story' || d.format === 'post'){ S.format = d.format; document.querySelectorAll('#fmtBtns button').forEach(x=>x.classList.toggle('on', x.dataset.f === S.format)); }
+  if(d.crop) Object.assign(PH, d.crop);
+  refreshTitles();
+  if(d.photo){
+    PHOTO_DATA = d.photo;   // set now so an early save never drops the photo
+    const img = new Image();
+    img.onload = ()=>{
+      PHOTO_IMG = img; PHOTO_DATA = d.photo;
+      document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান';
+      document.getElementById('photoRemove').style.display = 'inline-flex';
+      document.getElementById('photoEdit').style.display = 'inline-flex';
+      updateThumb(); draw();
+    };
+    img.src = d.photo;
+  }
+  restoring = false;
+  const has = S.name || d.photo || LEVELS.some(l=>S.edu[l.key].name);
+  if(has){ document.getElementById('resetRow').style.display = 'flex'; toast('আগের তথ্য ফিরিয়ে আনা হয়েছে'); }
+}
+function resetCard(){
+  if(!confirm('সব তথ্য মুছে নতুন করে শুরু করবেন?')) return;
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  location.reload();
+}
+
 /* ---------------- start ---------------- */
 (function scatterStars(){
   const sky = document.getElementById('heroSky'); if(!sky) return;
@@ -790,6 +864,7 @@ function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponen
 })();
 document.getElementById('fy').textContent = bn(new Date().getFullYear());
 refreshTitles();
+restoreState();
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
 </script>
