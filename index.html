@@ -134,7 +134,7 @@ body{padding-bottom:110px}
 .es-sway{transform-origin:center bottom;animation:esSway 5s ease-in-out infinite}
 @keyframes esSway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
 /* Dhaka metro: SMIL animateMotion along #metroPath; scale about each car's centre */
-.es-metroTrain g{transform-origin:center}
+.edu-scene .es-metroTrain g{transform-box:view-box;transform-origin:0 0}
 .es-headlight{animation:esLight 1.2s ease-in-out infinite alternate}
 @keyframes esLight{from{opacity:.55}to{opacity:1}}
 .es-beacon{animation:esBeacon 1.6s steps(1) infinite}
@@ -607,29 +607,51 @@ body{padding-bottom:110px}
         <g stroke="#94A3B8" stroke-width="1.6"><line x1="1240" y1="190" x2="1240" y2="170"/><line x1="1340" y1="190" x2="1340" y2="170"/><line x1="1440" y1="192" x2="1440" y2="172"/></g>
         <path d="M1180 172C1300 171 1400 172 1500 175" stroke="#94A3B8" stroke-width=".9" fill="none"/>
 
-        <!-- MRT train: 4 cars ride the curve (rotate=auto), growing as they come closer.
-             Cars are drawn symmetric top/bottom so the leftward far leg doesn't look upside down. -->
-        <path id="metroPath" d="M1500 95C1300 95 1150 93 1110 119C1072 145 1104 185 1210 185C1310 185 1400 185 1500 191" fill="none"/>
-        <g id="metroCar">
-          <rect x="-14" y="-5" width="28" height="10" rx="3.6" fill="#F1F5F9"/>
-          <rect x="-11" y="-1.9" width="22" height="3.8" rx="1" fill="#1E3A5F"/>
-          <rect class="es-win" x="-11" y="-1.9" width="22" height="3.8" rx="1" fill="#FDE68A" opacity=".55"/>
-          <rect x="-13" y="2.4" width="26" height="1.2" fill="#16A34A"/><rect x="-13" y="3.7" width="26" height=".7" fill="#DC2626"/>
-          <rect x="-13" y="-3.6" width="26" height="1.2" fill="#16A34A"/><rect x="-13" y="-4.4" width="26" height=".7" fill="#DC2626"/>
+        <!-- MRT train (Dhaka livery). Cars stay upright and ride the deck-top path; scaleX swings
+             from -0.6 (far leg, nose pointing left) through 0 on the bend (seen end-on as it turns)
+             to +1 (near leg, nose pointing right), and they grow as they come closer. -->
+        <path id="metroPath" d="M1500 100C1300 100 1150 98 1110 124C1072 150 1104 190 1210 190C1310 190 1400 190 1500 196" fill="none"/>
+        <defs>
+        <!-- lead car: sloped nose + windshield + headlight on the right (+x) -->
+        <g id="mrtLead">
+          <path d="M-28 0V-16H17Q26-15 28.5-6V0Z" fill="#F1F5F9"/>
+          <path d="M17-14Q24.5-13 27-8H17Z" fill="#0F172A"/>
+          <rect x="-24" y="-13" width="38" height="5" rx="1" fill="#1E3A5F"/>
+          <rect class="es-win" x="-24" y="-13" width="38" height="5" rx="1" fill="#FDE68A" opacity=".5"/>
+          <g fill="#0F172A" opacity=".75"><circle cx="-19" cy="-9.6" r="1.5"/><circle cx="-9" cy="-9.4" r="1.5"/><circle cx="4" cy="-9.6" r="1.5"/><circle cx="10" cy="-9.4" r="1.5"/></g>
+          <g fill="#E2E8F0" stroke="#94A3B8" stroke-width=".5"><rect x="-15" y="-13" width="5" height="11"/><rect x="-1" y="-13" width="5" height="11"/></g>
+          <rect x="-28" y="-6.5" width="56.5" height="2.5" fill="#16A34A"/><rect x="-28" y="-3.6" width="56.5" height="1.1" fill="#DC2626"/>
+          <circle class="es-headlight" cx="26.5" cy="-4" r="1.4" fill="#FEF9C3"/>
+          <g fill="#334155"><rect x="-23" y="0" width="12" height="2" rx=".8"/><rect x="8" y="0" width="12" height="2" rx=".8"/></g>
         </g>
+        <!-- middle car: pantograph -->
+        <g id="mrtMid">
+          <rect x="-28" y="-16" width="56" height="16" rx="1.5" fill="#F1F5F9"/>
+          <rect x="-25" y="-13" width="50" height="5" rx="1" fill="#1E3A5F"/>
+          <rect class="es-win d2" x="-25" y="-13" width="50" height="5" rx="1" fill="#FDE68A" opacity=".5"/>
+          <g fill="#0F172A" opacity=".75"><circle cx="-20" cy="-9.4" r="1.5"/><circle cx="-6" cy="-9.6" r="1.5"/><circle cx="1" cy="-9.4" r="1.5"/><circle cx="16" cy="-9.6" r="1.5"/></g>
+          <g fill="#E2E8F0" stroke="#94A3B8" stroke-width=".5"><rect x="-14" y="-13" width="5" height="11"/><rect x="8" y="-13" width="5" height="11"/></g>
+          <rect x="-28" y="-6.5" width="56" height="2.5" fill="#16A34A"/><rect x="-28" y="-3.6" width="56" height="1.1" fill="#DC2626"/>
+          <path d="M-7-16L0-22L7-16M-4-22H4" stroke="#64748B" stroke-width="1.2" fill="none"/>
+          <g fill="#334155"><rect x="-22" y="0" width="12" height="2" rx=".8"/><rect x="10" y="0" width="12" height="2" rx=".8"/></g>
+        </g>
+        <!-- tail car: sloped rear on the left -->
+        <g id="mrtTail">
+          <path d="M28 0V-16H-17Q-26-15-28.5-6V0Z" fill="#F1F5F9"/>
+          <path d="M-17-14Q-24.5-13-27-8H-17Z" fill="#0F172A"/>
+          <rect x="-14" y="-13" width="38" height="5" rx="1" fill="#1E3A5F"/>
+          <rect class="es-win d1" x="-14" y="-13" width="38" height="5" rx="1" fill="#FDE68A" opacity=".5"/>
+          <g fill="#0F172A" opacity=".75"><circle cx="-9" cy="-9.4" r="1.5"/><circle cx="6" cy="-9.6" r="1.5"/><circle cx="18" cy="-9.4" r="1.5"/></g>
+          <g fill="#E2E8F0" stroke="#94A3B8" stroke-width=".5"><rect x="-4" y="-13" width="5" height="11"/><rect x="12" y="-13" width="5" height="11"/></g>
+          <rect x="-28.5" y="-6.5" width="56.5" height="2.5" fill="#16A34A"/><rect x="-28.5" y="-3.6" width="56.5" height="1.1" fill="#DC2626"/>
+          <circle cx="-26.8" cy="-4" r="1.1" fill="#F87171"/>
+          <g fill="#334155"><rect x="-20" y="0" width="12" height="2" rx=".8"/><rect x="11" y="0" width="12" height="2" rx=".8"/></g>
+        </g>
+        </defs>
         <g class="es-metroTrain">
-          <g><g><use href="#metroCar"/><circle class="es-headlight" cx="13.4" cy="0" r="1.4" fill="#FEF9C3"/>
-            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-1.65s" repeatCount="indefinite"/></g>
-            <animateMotion dur="18s" begin="-1.65s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
-          <g><g><use href="#metroCar"/>
-            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-1.1s" repeatCount="indefinite"/></g>
-            <animateMotion dur="18s" begin="-1.1s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
-          <g><g><use href="#metroCar"/>
-            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="-.55s" repeatCount="indefinite"/></g>
-            <animateMotion dur="18s" begin="-.55s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
-          <g><g><use href="#metroCar"/>
-            <animateTransform attributeName="transform" type="scale" values=".7;.7;1.15;1.15;1.15" keyTimes="0;.38;.52;.88;1" dur="18s" begin="0s" repeatCount="indefinite"/></g>
-            <animateMotion dur="18s" begin="0s" repeatCount="indefinite" rotate="auto" calcMode="linear" keyPoints="0;.42;.6;1;1" keyTimes="0;.38;.52;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#mrtTail"/><animateTransform attributeName="transform" type="scale" values="-.6 .6;-.6 .6;1 1;1 1;1 1" keyTimes="0;.466;.607;.88;1" dur="20s" begin="0s" repeatCount="indefinite"/></g><animateMotion dur="20s" begin="0s" repeatCount="indefinite" calcMode="linear" keyPoints="0;.42;.59;1;1" keyTimes="0;.466;.607;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#mrtMid"/><animateTransform attributeName="transform" type="scale" values="-.6 .6;-.6 .6;1 1;1 1;1 1" keyTimes="0;.466;.607;.88;1" dur="20s" begin="-0.81s" repeatCount="indefinite"/></g><animateMotion dur="20s" begin="-0.81s" repeatCount="indefinite" calcMode="linear" keyPoints="0;.42;.59;1;1" keyTimes="0;.466;.607;.88;1"><mpath href="#metroPath"/></animateMotion></g>
+          <g><g><use href="#mrtLead"/><animateTransform attributeName="transform" type="scale" values="-.6 .6;-.6 .6;1 1;1 1;1 1" keyTimes="0;.466;.607;.88;1" dur="20s" begin="-1.62s" repeatCount="indefinite"/></g><animateMotion dur="20s" begin="-1.62s" repeatCount="indefinite" calcMode="linear" keyPoints="0;.42;.59;1;1" keyTimes="0;.466;.607;.88;1"><mpath href="#metroPath"/></animateMotion></g>
         </g>
 
         <!-- graduates tossing caps in front of the college -->
