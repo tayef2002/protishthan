@@ -39,41 +39,42 @@ body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background
 .hero-pills span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:rgba(255,255,255,.88)}
 .hero-pills .ico{color:#FDE68A}
 
-/* hero sky (same animation set as the home page, toned down) */
+/* hero background: an ID-card world — security guilloche, floating cards, a seal being stamped */
 .hero-sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.hero-star{position:absolute;border-radius:50%;background:#E0E7FF;box-shadow:0 0 6px rgba(224,231,255,.8);animation:skyTwinkle 3.5s ease-in-out infinite}
-@keyframes skyTwinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
-.hero-moon-wrap{position:absolute;top:118px;right:9%;width:70px;height:70px;animation:moonFloat 9s ease-in-out infinite}
-.hero-moon-halo{position:absolute;inset:-34px;border-radius:50%;background:radial-gradient(circle,rgba(253,230,138,.28),rgba(253,230,138,0) 70%);animation:moonGlow 5s ease-in-out infinite}
-.hero-moon{position:absolute;inset:0;border-radius:50%;box-shadow:-14px 8px 0 0 #FDE68A;transform:rotate(-18deg);filter:drop-shadow(0 0 10px rgba(253,230,138,.55))}
-@keyframes moonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes moonGlow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
-.shooting-star{position:absolute;width:110px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95));opacity:0;transform:rotate(-24deg);animation:shoot 9s ease-in infinite}
-.shooting-star.s2{animation-duration:13s;animation-delay:5.5s}
-@keyframes shoot{0%,88%{opacity:0;translate:0 0}90%{opacity:1}100%{opacity:0;translate:-340px 150px}}
-.sky-book{position:absolute;left:0;animation:bookFly 34s linear infinite;will-change:transform}
-.sky-book svg{display:block;overflow:visible;filter:drop-shadow(0 0 6px rgba(147,197,253,.45));animation:bookBob 1.9s ease-in-out infinite alternate}
-.sky-book .bk-l,.sky-book .bk-r,.sky-book .bk-flip{transform-box:fill-box}
-.sky-book .bk-l{transform-origin:100% 100%;animation:bookFlapL .55s ease-in-out infinite alternate}
-.sky-book .bk-r{transform-origin:0 100%;animation:bookFlapR .55s ease-in-out infinite alternate}
-.sky-book .bk-flip{transform-origin:0 100%;animation:bookPage 2.6s ease-in-out infinite}
-.sky-book.b2{animation-duration:46s;animation-delay:-20s}
-.sky-book.b3{animation-duration:40s;animation-delay:-31s}
-.sky-book.b4{animation-duration:54s;animation-delay:-9s}
-.sky-book.b2 svg,.sky-book.b4 svg{animation-duration:2.4s}
-.sky-book.b2 .bk-l,.sky-book.b2 .bk-r,.sky-book.b4 .bk-l,.sky-book.b4 .bk-r{animation-duration:.7s}
-@keyframes bookFly{from{transform:translateX(-90px)}to{transform:translateX(calc(100vw + 90px))}}
-@keyframes bookBob{from{transform:translateY(-10px) rotate(-5deg)}to{transform:translateY(10px) rotate(5deg)}}
-@keyframes bookFlapL{from{transform:rotate(-26deg)}to{transform:rotate(14deg)}}
-@keyframes bookFlapR{from{transform:rotate(26deg)}to{transform:rotate(-14deg)}}
-@keyframes bookPage{0%,55%{transform:scaleX(1);opacity:0}60%{opacity:1}100%{transform:scaleX(-1);opacity:.2}}
-.sky-page{position:absolute;width:9px;height:12px;background:#FFFBEB;border-radius:1px;opacity:0;animation:pageDrift 12s ease-in-out infinite}
-.sky-page.p2{animation-delay:-6s}
-@keyframes pageDrift{0%{opacity:0;transform:translate(0,0) rotate(0)}10%{opacity:.85}50%{transform:translate(-40px,60px) rotate(160deg)}90%{opacity:.6}100%{opacity:0;transform:translate(-90px,130px) rotate(340deg)}}
-.hero-moon-wrap{top:70px;right:8%}
-.hero .sky-book{opacity:.75}
-@media(max-width:768px){.hero-moon-wrap{top:60px;right:6%;width:44px;height:44px}.hero-moon{box-shadow:-9px 5px 0 0 #FDE68A}.hero-moon-halo{inset:-22px}}
-@media(prefers-reduced-motion:reduce){.hero-sky *{animation:none!important}.shooting-star,.sky-book{display:none}}
+.guil{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.5}
+.guil g{animation:guilSlide 26s linear infinite}
+.guil g.g2{animation-duration:38s;animation-direction:reverse}
+@keyframes guilSlide{to{transform:translateX(-240px)}}
+.holo-sweep{position:absolute;top:-20%;bottom:-20%;width:240px;left:-260px;background:linear-gradient(100deg,transparent,rgba(96,165,250,.10) 30%,rgba(244,114,182,.12) 50%,rgba(253,230,138,.10) 70%,transparent);transform:skewX(-18deg);animation:holoSweep 9s ease-in-out infinite}
+@keyframes holoSweep{0%,15%{left:-260px}70%,100%{left:calc(100% + 260px)}}
+.glint{position:absolute;width:6px;height:6px;animation:glint 4s ease-in-out infinite;opacity:0}
+.glint::before,.glint::after{content:'';position:absolute;left:50%;top:50%;background:currentColor;border-radius:2px;transform:translate(-50%,-50%)}
+.glint::before{width:100%;height:1.5px}.glint::after{width:1.5px;height:100%}
+@keyframes glint{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:.9;transform:scale(1.4) rotate(45deg)}}
+.fcard{position:absolute;width:190px;height:120px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.22);box-shadow:0 18px 40px rgba(0,0,0,.28);overflow:hidden;animation:fFloat 10s ease-in-out infinite}
+.fcard::before{content:'';position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,#2563EB,#7C3AED,#F472B6,#FBBF24,#2563EB);background-size:200% 100%;animation:holoStrip 4s linear infinite}
+@keyframes holoStrip{to{background-position:200% 0}}
+.fcard .ph{position:absolute;left:14px;top:22px;width:46px;height:56px;border-radius:8px;background:rgba(199,210,254,.35);overflow:hidden}
+.fcard .ph::before{content:'';position:absolute;left:50%;top:12px;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.55);transform:translateX(-50%)}
+.fcard .ph::after{content:'';position:absolute;left:50%;bottom:-12px;width:40px;height:30px;border-radius:50%;background:rgba(255,255,255,.55);transform:translateX(-50%)}
+.fcard .ln{position:absolute;left:72px;height:7px;border-radius:4px;background:rgba(255,255,255,.4)}
+.fcard .chip{position:absolute;right:14px;top:20px;width:24px;height:18px;border-radius:4px;background:linear-gradient(135deg,#FDE68A,#F59E0B);opacity:.85}
+.fcard .ft{position:absolute;left:14px;right:14px;bottom:14px;height:5px;border-radius:3px;background:rgba(255,255,255,.18)}
+.fcard.c1{left:5%;top:16%}
+.fcard.c2{right:6%;top:26%;width:210px;height:132px;animation-delay:-4s}
+.fcard.c3{left:15%;bottom:16%;width:150px;height:94px;opacity:.6;animation-delay:-7s}
+.fcard.c4{right:19%;bottom:10%;width:130px;height:82px;opacity:.45;animation-delay:-2s}
+.fcard.c3 .ph,.fcard.c4 .ph{transform:scale(.75);transform-origin:0 0}
+.fcard.c3 .ln,.fcard.c4 .ln{left:56px}
+@keyframes fFloat{0%,100%{translate:0 0;rotate:-10deg}50%{translate:0 -16px;rotate:-5deg}}
+.fcard.c2,.fcard.c4{animation-name:fFloat2}
+@keyframes fFloat2{0%,100%{translate:0 0;rotate:9deg}50%{translate:0 -14px;rotate:4deg}}
+.fcard .stamp{position:absolute;right:-4px;bottom:-8px;width:84px;height:84px;color:#FCA5A5;opacity:0;animation:stampDown 7s ease-out infinite}
+@keyframes stampDown{0%,38%{opacity:0;transform:scale(2.2) rotate(-30deg)}44%{opacity:.95;transform:scale(.92) rotate(-14deg)}48%{transform:scale(1) rotate(-16deg)}88%{opacity:.85;transform:scale(1) rotate(-16deg)}100%{opacity:0;transform:scale(1) rotate(-16deg)}}
+.fcard.c1 .stamp{color:#FDE68A;animation-delay:-3.5s}
+.fcard .done{position:absolute;left:72px;bottom:26px;font-size:10px;font-weight:700;color:#BBF7D0;letter-spacing:.3px}
+@media(max-width:900px){.fcard.c3,.fcard.c4{display:none}.fcard.c1{left:-50px;top:8%;opacity:.45}.fcard.c2{right:-60px;top:auto;bottom:8%;opacity:.45}}
+@media(prefers-reduced-motion:reduce){.hero-sky *,.hero-sky *::before{animation:none!important}.fcard .stamp{opacity:.8}}
 
 /* app layout */
 .app{display:grid;grid-template-columns:minmax(0,1fr) 470px;gap:28px;align-items:start;margin-top:-84px;padding-bottom:70px;position:relative}
@@ -206,11 +207,12 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 
 <section class="hero">
   <div class="hero-sky" id="heroSky" aria-hidden="true">
-    <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
-    <div class="shooting-star" style="top:18%;left:64%"></div>
-    <div class="shooting-star s2" style="top:40%;left:92%"></div>
-    <div class="sky-book b1" style="top:11%"><svg viewBox="-28 -22 56 36" width="54" height="35"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#2563EB"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#1D4ED8"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/></svg></div>
-    <div class="sky-book b3" style="top:58%"><svg viewBox="-28 -22 56 36" width="46" height="30"><g class="bk-l"><path d="M0 10C-8 4-16 2-26 4L-25-8C-15-10-7-7 0 0Z" fill="#DC2626"/><path d="M0 8C-8 2-15 0-23 1.5L-22.5-7C-14-8.5-7-6 0-.5Z" fill="#FFFBEB"/><path d="M-2 4C-8 0-13-1-20-.5M-2 1C-8-3-13-4-20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><g class="bk-r"><path d="M0 10C8 4 16 2 26 4L25-8C15-10 7-7 0 0Z" fill="#B91C1C"/><path d="M0 8C8 2 15 0 23 1.5L22.5-7C14-8.5 7-6 0-.5Z" fill="#FEF3C7"/><path d="M2 4C8 0 13-1 20-.5M2 1C8-3 13-4 20-3.5" stroke="#CBD5E1" stroke-width=".9" fill="none"/></g><path class="bk-flip" d="M0 8C5 3 10 1 16 1.5L15.5-6C10-7 5-5 0-.5Z" fill="#FFFFFF"/><path d="M0-1V10" stroke="#B91C1C" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+    <svg class="guil" id="guil" preserveAspectRatio="none"></svg>
+    <div class="holo-sweep"></div>
+    <div class="fcard c1"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i><svg class="stamp" viewBox="0 0 100 100"><defs><path id="sT1" d="M18 50a32 32 0 0 1 64 0"/><path id="sB1" d="M12 50a38 38 0 0 0 76 0"/></defs><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="50" cy="50" r="23" fill="none" stroke="currentColor" stroke-width="1.4"/><text font-size="13" font-weight="700" fill="currentColor" font-family="Hind Siliguri,sans-serif"><textPath href="#sT1" startOffset="50%" text-anchor="middle">শিক্ষিত কার্ড</textPath></text><text font-size="8" font-weight="800" fill="currentColor" font-family="Inter,sans-serif" letter-spacing="1.2"><textPath href="#sB1" startOffset="50%" text-anchor="middle">SHIKKHITO CARD</textPath></text><path d="M38 47l12-6 12 6-12 6zM43 50v6c0 2 3.2 3.5 7 3.5s7-1.5 7-3.5v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+    <div class="fcard c2"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i><svg class="stamp" viewBox="0 0 100 100"><defs><path id="sT2" d="M18 50a32 32 0 0 1 64 0"/><path id="sB2" d="M12 50a38 38 0 0 0 76 0"/></defs><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="50" cy="50" r="23" fill="none" stroke="currentColor" stroke-width="1.4"/><text font-size="13" font-weight="700" fill="currentColor" font-family="Hind Siliguri,sans-serif"><textPath href="#sT2" startOffset="50%" text-anchor="middle">শিক্ষিত কার্ড</textPath></text><text font-size="8" font-weight="800" fill="currentColor" font-family="Inter,sans-serif" letter-spacing="1.2"><textPath href="#sB2" startOffset="50%" text-anchor="middle">SHIKKHITO CARD</textPath></text><path d="M38 47l12-6 12 6-12 6zM43 50v6c0 2 3.2 3.5 7 3.5s7-1.5 7-3.5v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="done">✓ যাচাইকৃত</span></div>
+    <div class="fcard c3"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i></div>
+    <div class="fcard c4"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i></div>
   </div>
   <div class="container">
     <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FDE68A"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · বিনামূল্যে · লগইন লাগবে না</span>
@@ -897,13 +899,20 @@ function resetCard(){
 }
 
 /* ---------------- start ---------------- */
-(function scatterStars(){
-  const sky = document.getElementById('heroSky'); if(!sky) return;
-  const n = window.innerWidth < 768 ? 22 : 44, frag = document.createDocumentFragment();
+(function heroBackground(){
+  const sky = document.getElementById('heroSky'), g = document.getElementById('guil'); if(!sky || !g) return;
+  // security-print waves like on a real card, drawn wider than the hero so they slide seamlessly
+  const W = 1700, H = 420, P = 240; g.setAttribute('viewBox', '0 0 1440 ' + H);
+  const wave = (y0, amp, ph)=>{ let d = ''; for(let x=-P; x<=W; x+=12){ const y = y0 + Math.sin(x/P*Math.PI*2 + ph)*amp; d += (d ? 'L' : 'M') + x + ' ' + y.toFixed(1); } return d; };
+  let a = '', b = '';
+  for(let i=0;i<9;i++) a += '<path d="' + wave(70 + i*9, 22, i*.35) + '" fill="none" stroke="rgba(147,197,253,.22)" stroke-width="1"/>';
+  for(let i=0;i<7;i++) b += '<path d="' + wave(300 + i*10, 28, i*.5 + 1) + '" fill="none" stroke="rgba(253,230,138,.16)" stroke-width="1"/>';
+  g.innerHTML = '<g>' + a + '</g><g class="g2">' + b + '</g>';
+  const n = window.innerWidth < 768 ? 10 : 22, frag = document.createDocumentFragment(), cols = ['#FDE68A', '#93C5FD', '#F9A8D4', '#fff'];
   for(let i=0;i<n;i++){
-    const st = document.createElement('span'), size = (Math.random()*1.6 + 1).toFixed(1);
-    st.className = 'hero-star';
-    st.style.cssText = 'left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*90).toFixed(2)+'%;width:'+size+'px;height:'+size+'px;animation-delay:-'+(Math.random()*3.5).toFixed(2)+'s;animation-duration:'+(2.5+Math.random()*3).toFixed(2)+'s';
+    const st = document.createElement('i'), sz = (Math.random()*6 + 5).toFixed(1);
+    st.className = 'glint';
+    st.style.cssText = 'left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*92).toFixed(2)+'%;width:'+sz+'px;height:'+sz+'px;color:'+cols[i%4]+';animation-delay:-'+(Math.random()*4).toFixed(2)+'s;animation-duration:'+(3+Math.random()*3).toFixed(2)+'s';
     frag.appendChild(st);
   }
   sky.appendChild(frag);
