@@ -104,6 +104,21 @@ body{padding-bottom:110px}
 .qf{padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:rgba(255,255,255,.8);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px)}
 .qf:hover,.qf.active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:white}
 
+/* HERO SKY: moon + stars (decorative) */
+.hero-sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-star{position:absolute;border-radius:50%;background:#E0E7FF;box-shadow:0 0 6px rgba(224,231,255,.8);animation:skyTwinkle 3.5s ease-in-out infinite}
+@keyframes skyTwinkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+.hero-moon-wrap{position:absolute;top:118px;right:9%;width:70px;height:70px;animation:moonFloat 9s ease-in-out infinite}
+.hero-moon-halo{position:absolute;inset:-34px;border-radius:50%;background:radial-gradient(circle,rgba(253,230,138,.28),rgba(253,230,138,0) 70%);animation:moonGlow 5s ease-in-out infinite}
+.hero-moon{position:absolute;inset:0;border-radius:50%;box-shadow:-14px 8px 0 0 #FDE68A;transform:rotate(-18deg);filter:drop-shadow(0 0 10px rgba(253,230,138,.55))}
+@keyframes moonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes moonGlow{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+.shooting-star{position:absolute;width:110px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.95));opacity:0;transform:rotate(-24deg);animation:shoot 9s ease-in infinite}
+.shooting-star.s2{animation-duration:13s;animation-delay:5.5s}
+@keyframes shoot{0%,88%{opacity:0;translate:0 0}90%{opacity:1}100%{opacity:0;translate:-340px 150px}}
+@media(max-width:768px){.hero-moon-wrap{top:84px;right:6%;width:44px;height:44px}.hero-moon{box-shadow:-9px 5px 0 0 #FDE68A}.hero-moon-halo{inset:-22px}}
+@media(prefers-reduced-motion:reduce){.hero-sky *{animation:none!important}.shooting-star{display:none}}
+
 /* EDUCATION SCENE (hero bottom) */
 .search-hero{padding-bottom:250px}
 .edu-scene{position:absolute;left:0;right:0;bottom:0;height:240px;z-index:1;pointer-events:none}
@@ -289,6 +304,11 @@ body{padding-bottom:110px}
 <div class="search-hero">
   <div class="search-grid"></div>
   <div class="search-glow"></div>
+  <div class="hero-sky" id="heroSky" aria-hidden="true">
+    <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
+    <div class="shooting-star" style="top:16%;left:62%"></div>
+    <div class="shooting-star s2" style="top:30%;left:88%"></div>
+  </div>
   <div class="search-hero-content">
     <h1>বাংলাদেশের সকল<br><span>শিক্ষা প্রতিষ্ঠানের তথ্য</span></h1>
     <p>মাদ্রাসা, স্কুল, কলেজ ও কোচিং সেন্টার — বিভাগ, জেলা ও উপজেলা অনুযায়ী খুঁজুন</p>
@@ -312,24 +332,6 @@ body{padding-bottom:110px}
   <!-- EDUCATION SCENE (decorative, animated) -->
   <div class="edu-scene" aria-hidden="true">
     <svg viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <!-- stars -->
-      <g fill="#E0E7FF">
-        <circle class="es-tw" cx="60" cy="30" r="1.6"/>
-        <circle class="es-tw d1" cx="170" cy="70" r="1.2"/>
-        <circle class="es-tw d2" cx="260" cy="22" r="1.8"/>
-        <circle class="es-tw d3" cx="410" cy="55" r="1.2"/>
-        <circle class="es-tw d1" cx="530" cy="18" r="1.5"/>
-        <circle class="es-tw d2" cx="640" cy="64" r="1.1"/>
-        <circle class="es-tw d3" cx="860" cy="28" r="1.7"/>
-        <circle class="es-tw" cx="955" cy="62" r="1.2"/>
-        <circle class="es-tw d2" cx="1080" cy="20" r="1.4"/>
-        <circle class="es-tw d1" cx="1180" cy="72" r="1.1"/>
-        <circle class="es-tw d3" cx="1250" cy="34" r="1.6"/>
-        <circle class="es-tw" cx="1400" cy="80" r="1.3"/>
-      </g>
-      <!-- crescent moon -->
-      <path d="M1338 26a24 24 0 1 0 22 34a19 19 0 1 1-22-34z" fill="#FDE68A" opacity=".9"/>
-
       <!-- flying books -->
       <g transform="translate(0,52)"><g class="es-fly">
         <path class="es-wing l" d="M0 0Q-9-7-19-3L-19 5Q-9 1 0 8Z" fill="#93C5FD"/>
@@ -847,6 +849,21 @@ async function loadNoticeIndicators(list){
     renderCards(list); // re-render once with badges
   }catch(e){ console.error('notice indicator lookup failed', e); }
 }
+
+(function scatterStars(){
+  const sky = document.getElementById('heroSky');
+  if(!sky) return;
+  const n = window.innerWidth < 768 ? 28 : 60;
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<n;i++){
+    const st = document.createElement('span');
+    const size = (Math.random()*1.8 + 1).toFixed(1);
+    st.className = 'hero-star';
+    st.style.cssText = 'left:'+(Math.random()*100).toFixed(2)+'%;top:'+(Math.random()*62).toFixed(2)+'%;width:'+size+'px;height:'+size+'px;animation-delay:-'+(Math.random()*3.5).toFixed(2)+'s;animation-duration:'+(2.5+Math.random()*3).toFixed(2)+'s';
+    frag.appendChild(st);
+  }
+  sky.appendChild(frag);
+})();
 
 function bnNum(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]); }
 
