@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="avatars.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -155,6 +156,20 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .note{font-size:12px;color:var(--text-3);text-align:center;margin-top:12px;line-height:1.6}
 
 /* crop editor */
+.av-box{width:min(560px,100%);max-height:90vh;overflow-y:auto}
+.av-sub{font-size:13px;color:var(--text-3);margin:-4px 0 12px}
+.av-tabs{display:flex;gap:8px;margin-bottom:12px}
+.av-tabs button{border:1.5px solid var(--border);background:#fff;border-radius:100px;padding:7px 16px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:var(--text-2);cursor:pointer}
+.av-tabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.av-skins{display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:12.5px;font-weight:600;color:var(--text-3)}
+.av-skins button{width:26px;height:26px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 0 0 1.5px var(--border);cursor:pointer;padding:0}
+.av-skins button.on{box-shadow:0 0 0 2.5px var(--blue)}
+.av-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.av-item{border:2px solid transparent;border-radius:16px;padding:0;background:none;cursor:pointer;text-align:center;font-family:inherit;transition:transform .15s,border-color .15s}
+.av-item img{display:block;width:100%;aspect-ratio:290/330;border-radius:14px;background:#F1F5F9}
+.av-item span{display:block;font-size:12px;font-weight:700;color:var(--text-2);padding:5px 0 2px}
+.av-item:hover{transform:translateY(-2px);border-color:var(--blue)}
+@media(max-width:520px){.av-grid{grid-template-columns:repeat(3,1fr)}}
 .crop-modal{position:fixed;inset:0;z-index:400;background:rgba(2,6,23,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px}
 .crop-modal.show{display:flex}
 .crop-box{background:#fff;border-radius:22px;padding:18px;width:min(420px,100%);box-shadow:0 30px 80px rgba(0,0,0,.4);animation:cropIn .2s ease-out}
@@ -262,7 +277,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
         <div class="step"><span class="step-n">১</span><div><h2>আপনার পরিচয়</h2><small>ডাকনাম দিলেও চলবে</small></div></div>
         <label class="lbl" for="fName">নাম</label>
         <input class="inp" id="fName" maxlength="32" placeholder="যেমন: তায়েফ আহমেদ" autocomplete="name">
-        <label class="lbl">ছবি (ঐচ্ছিক)</label>
+        <label class="lbl">ছবি বা অ্যাভাটার (ঐচ্ছিক)</label>
         <div class="photo-row">
           <div class="photo-prev" id="photoPrev"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
           <div>
@@ -270,6 +285,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
             <button type="button" class="btn btn-ghost" onclick="document.getElementById('fPhoto').click()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
               <span id="photoBtnTxt">ছবি দিন</span></button>
+            <button type="button" class="btn btn-ghost" id="avBtn" onclick="openAvatars()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>অ্যাভাটার বাছুন</button>
             <button type="button" class="btn btn-ghost" id="photoEdit" style="display:none" onclick="openCrop()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>ঠিক করুন</button>
             <button type="button" class="btn btn-ghost" id="photoRemove" style="display:none" onclick="removePhoto()">সরান</button>
             <div class="hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>ছবি কোথাও আপলোড হয় না — শুধু আপনার ফোনে কার্ডে বসে।</div>
@@ -366,6 +382,15 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
       <button type="button" class="btn btn-ghost" onclick="closeCrop(false)">বাতিল</button>
       <button type="button" class="btn btn-primary" onclick="closeCrop(true)">ঠিক আছে</button>
     </div>
+  </div>
+</div>
+<div class="crop-modal" id="avModal" onclick="if(event.target===this)closeAvatars()">
+  <div class="crop-box av-box" role="dialog" aria-label="অ্যাভাটার বাছুন">
+    <div class="crop-head"><b>অ্যাভাটার বাছুন</b><button type="button" class="crop-x" onclick="closeAvatars()" aria-label="বন্ধ করুন">×</button></div>
+    <p class="av-sub">ছবি না দিয়েই কার্ড বানান। একটায় ট্যাপ করলেই কার্ডে বসে যাবে।</p>
+    <div class="av-tabs" id="avTabs"></div>
+    <div class="av-skins" id="avSkins"><span>ত্বকের রং</span></div>
+    <div class="av-grid" id="avGrid"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -553,6 +578,31 @@ function shrinkPhoto(img){   // max 1000px JPEG so it fits comfortably in localS
 }
 
 /* crop editor: drag to move, slider / wheel / pinch to zoom */
+/* ---------------- illustrated avatars (no photo needed) ---------------- */
+let AV_SKIN = 1, AV_TAB = 'all';
+try{ const k = localStorage.getItem('sk_av_skin'); if(k !== null && +k >= 0 && +k < 5) AV_SKIN = +k; }catch(e){}
+function openAvatars(){ renderAvatars(); document.getElementById('avModal').classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeAvatars(){ document.getElementById('avModal').classList.remove('show'); document.body.style.overflow = ''; }
+function renderAvatars(){
+  const A = window.ProtAvatars; if(!A) return;
+  document.getElementById('avTabs').innerHTML = [['all', 'সব'], ['pro', 'পেশাদার'], ['fun', 'মজার']].map(t => '<button type="button" class="' + (AV_TAB === t[0] ? 'on' : '') + '" onclick="AV_TAB=\'' + t[0] + '\';renderAvatars()">' + t[1] + '</button>').join('');
+  document.getElementById('avSkins').innerHTML = '<span>ত্বকের রং</span>' + A.SKINS.map((c, i) => '<button type="button" aria-label="ত্বকের রং ' + (i + 1) + '" class="' + (AV_SKIN === i ? 'on' : '') + '" style="background:' + c + '" onclick="AV_SKIN=' + i + ';try{localStorage.setItem(\'sk_av_skin\',' + i + ')}catch(e){};renderAvatars()"></button>').join('');
+  document.getElementById('avGrid').innerHTML = A.list.filter(a => AV_TAB === 'all' || a.group === AV_TAB).map(a => '<button type="button" class="av-item" onclick="pickAvatar(\'' + a.id + '\')"><img alt="" loading="lazy" src="' + A.dataUrl(a.spec, AV_SKIN) + '"><span>' + a.label + '</span></button>').join('');
+}
+function pickAvatar(id){
+  const A = window.ProtAvatars, a = A && A.list.find(x => x.id === id); if(!a) return;
+  const url = A.dataUrl(a.spec, AV_SKIN), img = new Image();
+  img.onload = ()=>{
+    PHOTO_IMG = img; PH.zoom = 1; PH.ox = 0; PH.oy = 0; PHOTO_DATA = url;
+    document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান';
+    document.getElementById('photoRemove').style.display = 'inline-flex';
+    document.getElementById('photoEdit').style.display = 'none';
+    updateThumb(); draw(); closeAvatars(); toast('অ্যাভাটার বসানো হয়েছে');
+  };
+  img.src = url;
+}
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.getElementById('avModal').classList.contains('show')) closeAvatars(); });
+
 const cropCv = document.getElementById('cropCv'), cctx = cropCv.getContext('2d');
 let cropBackup = null, cropRaf = 0;
 function openCrop(){
@@ -1052,7 +1102,7 @@ function restoreState(){
       PHOTO_IMG = img; PHOTO_DATA = d.photo;
       document.getElementById('photoBtnTxt').textContent = 'ছবি বদলান';
       document.getElementById('photoRemove').style.display = 'inline-flex';
-      document.getElementById('photoEdit').style.display = 'inline-flex';
+      document.getElementById('photoEdit').style.display = d.photo.indexOf('data:image/svg') === 0 ? 'none' : 'inline-flex';
       updateThumb(); draw();
     };
     img.src = d.photo;
