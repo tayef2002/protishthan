@@ -79,7 +79,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       </ul>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
-      <div class="mb-fine">আমরা শুধু আপনার নাম, ইমেইল আর ছবি নিই। পাসওয়ার্ড লাগে না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
+      <div class="mb-fine">আমরা শুধু আপনার <b>নাম আর ইমেইল</b> রাখি। পাসওয়ার্ড লাগে না। Google-এর স্ক্রিনে "প্রোফাইল ছবি"ও লেখা থাকে, ওটা Google-এর একসাথে দেওয়া অনুমতি — আমরা ছবি রাখি না, দেখাইও না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
     </div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
@@ -113,7 +113,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   async function loadMember(session){
     if(!session){ ME = null; return null; }
     const { data, error } = await sb.rpc('ensure_member');
-    if(error){ console.warn('ensure_member:', error.message); ME = { user_id: session.user.id, display_name: (session.user.user_metadata || {}).full_name || session.user.email, avatar_url: (session.user.user_metadata || {}).avatar_url || (session.user.user_metadata || {}).picture || null, email: session.user.email, _fallback: true }; }
+    if(error){ console.warn('ensure_member:', error.message); ME = { user_id: session.user.id, display_name: (session.user.user_metadata || {}).full_name || session.user.email, avatar_url: null, email: session.user.email, _fallback: true }; }
     else ME = data;
     return ME;
   }
@@ -149,7 +149,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         return;
       }
       slot.innerHTML = `<div class="mb-wrap${light ? ' mb-light' : ''}">
-        <button type="button" class="mb-av" aria-haspopup="menu" aria-label="আমার অ্যাকাউন্ট">${ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="" referrerpolicy="no-referrer">` : esc(initial(ME))}</button>
+        <button type="button" class="mb-av" aria-haspopup="menu" aria-label="আমার অ্যাকাউন্ট">${esc(initial(ME))}</button>
         <div class="mb-menu" role="menu">
           <div class="mb-who"><b>${esc(ME.display_name || 'সদস্য')}</b><span>${esc(ME.email || '')}</span></div>
           <a href="member.html">আমার পাতা</a>

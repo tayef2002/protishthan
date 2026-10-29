@@ -176,7 +176,7 @@ async function render(){
   document.getElementById('name').textContent = me.display_name || 'সদস্য';
   document.getElementById('mail').textContent = me.email || '';
   document.getElementById('chip').style.display = 'inline-flex';
-  document.getElementById('avatar').innerHTML = me.avatar_url ? '<img src="' + esc(me.avatar_url) + '" alt="" referrerpolicy="no-referrer">' : esc(String(me.display_name || me.email || '?').charAt(0).toUpperCase());
+  document.getElementById('avatar').textContent = String(me.display_name || me.email || '?').charAt(0).toUpperCase();
   loadSaved(); loadCard();
 }
 
