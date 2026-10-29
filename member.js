@@ -101,6 +101,9 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     document.getElementById('mbGoogle').addEventListener('click', google);
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
   }
+  /* the sign-in prompt says what this page is for, so it reads as the step to what you came to do */
+  const PAGE_WHY = { card: 'কার্ডটা হারিয়ে যাওয়ার আগে সেভ করুন', results: 'ফলাফল আর প্রতিষ্ঠানের খবর পেতে যোগ দিন' };
+  function pageWhy(){ const p = location.pathname.split('/').filter(Boolean).pop() || ''; return PAGE_WHY[p.split('.')[0]]; }
   function openModal(reason){
     if(!ov) buildModal();
     document.getElementById('mbSub').textContent = reason || '৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।';
@@ -158,7 +161,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         slot.innerHTML = light
           ? '<button type="button" class="tbtn mb-join" style="background:#1A56DB;border-color:#1A56DB;color:#fff"><span>যোগ দিন</span></button>'
           : '<button type="button" class="btn-ghost-nav mb-login">লগইন</button><button type="button" class="btn-primary-nav mb-join">যোগ দিন</button>';
-        slot.querySelectorAll('.mb-join,.mb-login').forEach(b => b.addEventListener('click', () => openModal()));
+        slot.querySelectorAll('.mb-join,.mb-login').forEach(b => b.addEventListener('click', () => openModal(pageWhy())));
         return;
       }
       const face = ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME));
