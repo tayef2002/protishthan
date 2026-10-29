@@ -9,6 +9,7 @@
 <meta property="og:description" content="নিজের শিক্ষাজীবন দিয়ে ৩০ সেকেন্ডে বানান শিক্ষিত কার্ড। বিনামূল্যে, লগইন ছাড়া।">
 <meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -169,6 +170,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .crop-actions{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
 .save-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-3)}
 .save-row span{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:600}
+.save-row .cloud-join{flex-basis:100%;text-align:center;border:1.5px solid #C7D7FE;background:#EEF3FF;color:#1A56DB;border-radius:10px;padding:8px 12px}
 .save-row button{border:none;background:none;color:#DC2626;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:2px 0}
 .army-invite{display:block;margin-top:16px;padding:20px;border-radius:20px;text-decoration:none;color:#fff;background:radial-gradient(400px 160px at 100% 0,rgba(124,58,237,.45),transparent),linear-gradient(150deg,#0A1628,#1A3570);box-shadow:0 14px 34px rgba(15,32,72,.25);transition:transform .2s}
 .army-invite:hover{transform:translateY(-2px)}
@@ -223,10 +225,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
     <li><a href="software.html">সার্ভিস</a></li>
     <li><a href="card.html" class="active">শিক্ষিত কার্ড</a></li>
   </ul>
-  <div class="nav-cta">
-    <a href="login.html" class="btn-ghost-nav">লগইন</a>
-    <a href="login.html?tab=signup" class="btn-primary-nav">বিনামূল্যে শুরু করুন</a>
-  </div>
+  <div class="nav-cta" data-member-slot="nav"></div>
 </nav>
 
 <section class="hero">
@@ -274,7 +273,8 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
         <label class="lbl">আপনি কি… (ঐচ্ছিক)</label>
         <div class="chips" id="badgeChips"></div>
         <div class="save-row">
-          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার তথ্য এই ব্রাউজারে নিজে থেকেই সংরক্ষিত থাকে</span>
+          <span id="saveNote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার তথ্য এই ব্রাউজারে নিজে থেকেই সংরক্ষিত থাকে</span>
+          <button type="button" id="cloudJoin" class="cloud-join" onclick="Protishthan.member.signIn('কার্ড সব ডিভাইসে পেতে যোগ দিন')">সব ডিভাইসে পেতে যোগ দিন</button>
           <button type="button" id="resetRow" style="display:none" onclick="resetCard()">সব মুছে নতুন করে শুরু করুন</button>
         </div>
       </div>
@@ -879,15 +879,59 @@ function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponen
 
 /* ---------------- save in this browser (no login) ---------------- */
 const SAVE_KEY = 'shikkhito_card_v1';
-let saveTimer = 0, restoring = false;
+let saveTimer = 0, restoring = false, touched = false, lastSnap = '';
+// only real edits count: the first automatic redraws on page load must never overwrite a newer copy from the member account
+['input', 'change', 'click', 'pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, e => { if(e.isTrusted) touched = true; }, true));
+function snapshot(){ return { name:S.name, badges:[...S.badges], edu:S.edu, title:S.title, theme:S.theme, format:S.format, crop:{...PH}, photo:PHOTO_DATA || '' }; }
+function isBlank(d){ return !d.name && !d.photo && !(d.badges || []).length && !Object.values(d.edu || {}).some(e => e && e.name); }
 function saveState(){
   if(restoring) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>{
-    const data = { name:S.name, badges:[...S.badges], edu:S.edu, title:S.title, theme:S.theme, format:S.format, crop:{...PH}, photo:PHOTO_DATA || '' };
+    const data = snapshot();
+    if(isBlank(data) || !touched) return;
+    const snap = JSON.stringify(data);
+    if(snap === lastSnap) return;
+    lastSnap = snap;
+    data.savedAt = Date.now();
     try{ localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }
     catch(e){ try{ data.photo = ''; localStorage.setItem(SAVE_KEY, JSON.stringify(data)); }catch(_){} }   // storage full: keep the text at least
+    cloudPush(data);
   }, 400);
+}
+
+/* ---------------- keep the card in the member account (when signed in) ---------------- */
+const MB = () => (window.Protishthan && Protishthan.member) || null;
+let cloudT = 0;
+function cloudPush(data){
+  const M = MB(); if(!M || !M.current()) return;
+  clearTimeout(cloudT);
+  cloudT = setTimeout(async ()=>{
+    const { error } = await M.sb.from('member_cards').upsert({ user_id: M.current().user_id, data, saved_at: data.savedAt || Date.now(), updated_at: new Date().toISOString() }, { onConflict:'user_id' });
+    if(error) console.warn('card sync:', error.message);
+  }, 1500);
+}
+async function syncCloud(){
+  const M = MB(); if(!M) return;
+  await M.ready(); const me = M.current();
+  updateCloudNote(me);
+  if(!me) return;
+  const { data: row, error } = await M.sb.from('member_cards').select('data,saved_at').maybeSingle();
+  if(error) return;
+  let local = null; try{ local = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); }catch(e){}
+  const lt = (local && local.savedAt) || 0;
+  if(row && row.data && !isBlank(row.data) && Number(row.saved_at) > lt){
+    // the account has a newer card (made on another device): bring it here
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(Object.assign({}, row.data, { savedAt: Number(row.saved_at) }))); }catch(e){ return; }
+    location.reload();
+  } else if(local && !isBlank(local) && lt > (row ? Number(row.saved_at) : 0)){
+    cloudPush(local);
+  }
+}
+function updateCloudNote(me){
+  const note = document.getElementById('saveNote'), join = document.getElementById('cloudJoin');
+  if(me){ if(note) note.lastChild.textContent = 'আপনার তথ্য অ্যাকাউন্টে সেভ হচ্ছে — যেকোনো ফোনে পাবেন'; if(join) join.style.display = 'none'; }
+  else if(join) join.style.display = '';
 }
 function restoreState(){
   let d = null;
@@ -926,9 +970,11 @@ function restoreState(){
   const has = S.name || d.photo || LEVELS.some(l=>S.edu[l.key].name);
   if(has){ document.getElementById('resetRow').style.display = 'flex'; toast('আগের তথ্য ফিরিয়ে আনা হয়েছে'); }
 }
-function resetCard(){
+async function resetCard(){
   if(!confirm('সব তথ্য মুছে নতুন করে শুরু করবেন?')) return;
   try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  const M = MB();
+  if(M && M.current()){ try{ await M.sb.from('member_cards').delete().eq('user_id', M.current().user_id); }catch(e){} }
   location.reload();
 }
 
@@ -956,6 +1002,8 @@ window.addEventListener('scroll', ()=>navEl.classList.toggle('scrolled', window.
 document.getElementById('fy').textContent = bn(new Date().getFullYear());
 refreshTitles();
 restoreState();
+lastSnap = JSON.stringify(snapshot());
+syncCloud();
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
 </script>

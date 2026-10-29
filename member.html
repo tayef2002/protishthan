@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আমার পাতা — সদস্য | Protishthan</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--blue-light:#EEF3FF;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669;--red:#DC2626;--amber:#D97706}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
+.container{max-width:1000px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+
+/* top bar: same floating nav as the home page */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
+
+.hero{background:radial-gradient(900px 340px at 80% -10%,rgba(124,58,237,.32),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:112px 0 84px}
+.who{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.avatar{width:76px;height:76px;border-radius:50%;border:3px solid rgba(255,255,255,.4);overflow:hidden;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;flex:none}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.who h1{font-size:clamp(24px,3.6vw,34px);line-height:1.2}
+.who p{color:rgba(255,255,255,.7);font-size:14px;word-break:break-all}
+.chip{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;font-weight:700;color:#FDE68A;background:rgba(253,230,138,.1);border:1px solid rgba(253,230,138,.28);padding:3px 11px;border-radius:100px}
+
+main{margin-top:-46px;position:relative;z-index:2;padding-bottom:30px}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 8px 28px rgba(15,32,72,.06)}
+.card h2{font-size:18px;line-height:1.3;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card h2 small{font-size:12.5px;font-weight:600;color:var(--text-3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-line{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-gold{background:#FDE68A;color:#78350F}
+.btn-red{background:#FEF2F2;color:var(--red)}
+
+.saved-list{list-style:none}
+.saved-list li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.saved-list li:last-child{border-bottom:none}
+.saved-ic{width:44px;height:44px;border-radius:12px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+.saved-main{flex:1;min-width:0}
+.saved-main a{font-weight:700;font-size:15px;line-height:1.35;text-decoration:none;display:block}
+.saved-main a:hover{color:var(--blue)}
+.saved-main span{font-size:12.5px;color:var(--text-3)}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:var(--bg);color:var(--text-2)}
+.tag.g{background:#ECFDF5;color:var(--green)}
+.x{border:none;background:none;color:var(--text-3);font-size:20px;line-height:1;cursor:pointer;padding:6px;border-radius:8px}
+.x:hover{background:#FEF2F2;color:var(--red)}
+.empty{text-align:center;padding:26px 14px;color:var(--text-2);font-size:14px}
+.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
+.empty .btn{margin-top:12px}
+
+.army{background:radial-gradient(400px 160px at 100% 0,rgba(124,58,237,.45),transparent),linear-gradient(150deg,#0A1628,#1A3570);color:#fff;border:none}
+.army p{color:rgba(255,255,255,.78);font-size:13.5px;margin-bottom:12px}
+.army ul{list-style:none;margin-bottom:14px}
+.army li{position:relative;padding-left:18px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:4px}
+.army li::before{content:'';position:absolute;left:3px;top:9px;width:6px;height:6px;border-radius:50%;background:#FDE68A}
+.soon{display:flex;flex-direction:column;gap:10px}
+.soon div{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-2)}
+.soon b{color:var(--text);display:block;font-size:14px}
+.soon i{flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-style:normal}
+.card-mini{display:flex;gap:12px;align-items:center}
+.card-mini .pic{width:54px;height:62px;border-radius:12px;background:var(--bg);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;color:var(--text-3)}
+.card-mini .pic img{width:100%;height:100%;object-fit:cover}
+.card-mini b{display:block;font-size:15px}
+.card-mini span{font-size:12.5px;color:var(--text-3)}
+.sign{max-width:520px;margin:0 auto;text-align:center;padding:34px 24px}
+.sign h2{justify-content:center;font-size:22px}
+.sign p{color:var(--text-2);margin-bottom:16px}
+.danger{font-size:12.5px;color:var(--text-3)}
+.danger button{background:none;border:none;color:var(--red);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0}
+.skel{background:linear-gradient(90deg,#EEF2F7 25%,#F8FAFC 50%,#EEF2F7 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:8px;height:16px;margin:10px 0}
+@keyframes sk{to{background-position:-200% 0}}
+.foot{text-align:center;padding:24px 16px 40px;color:var(--text-3);font-size:13px}
+@media(max-width:600px){.container{padding:0 16px}.hero{padding:96px 0 76px}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="card.html">শিক্ষিত কার্ড</a></li>
+  </ul>
+  <div class="nav-cta" data-member-slot="nav"></div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="who" id="who">
+      <div class="avatar" id="avatar">…</div>
+      <div><h1 id="name">আমার পাতা</h1><p id="mail"></p><span class="chip" id="chip" style="display:none">✦ Protishthan সদস্য</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <div id="gate" class="card sign" style="display:none">
+    <h2>আমার পাতা দেখতে যোগ দিন</h2>
+    <p>বিনামূল্যে Google দিয়ে যোগ দিলে আপনার সেভ করা প্রতিষ্ঠান আর শিক্ষিত কার্ড যেকোনো ফোনে পাবেন।</p>
+    <button class="btn btn-blue" type="button" onclick="Protishthan.member.signIn()">যোগ দিন</button>
+  </div>
+
+  <div id="body" class="grid" style="display:none">
+    <div>
+      <section class="card" id="saved">
+        <h2>সেভ করা প্রতিষ্ঠান <small id="savedCount"></small></h2>
+        <ul class="saved-list" id="savedList"><li><div class="skel" style="width:70%"></div></li></ul>
+      </section>
+      <section class="card">
+        <h2>আমার শিক্ষিত কার্ড</h2>
+        <div id="cardBox"><div class="skel" style="width:60%"></div></div>
+      </section>
+    </div>
+    <div>
+      <section class="card army">
+        <h2 style="color:#fff">Protishthan Army</h2>
+        <p>নিজের উপজেলার প্রতিষ্ঠানের তথ্য যাচাই করুন, আর সেই প্রতিষ্ঠান সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন।</p>
+        <ul><li>প্রথম পেমেন্টের ৫০%, পরের প্রতিটির ২৫%</li><li>প্রতি উপজেলায় মাত্র ৩ জন</li></ul>
+        <a class="btn btn-gold" href="army.html?ref=member">Army-তে আবেদন করুন →</a>
+      </section>
+      <section class="card">
+        <h2>শীঘ্রই আসছে</h2>
+        <div class="soon">
+          <div><i>🔔</i><span><b>নোটিফিকেশন</b>সেভ করা প্রতিষ্ঠানে ভর্তি, নোটিস, ফলাফল</span></div>
+          <div><i>♟</i><span><b>দৈনিক খেলা ও লিগ</b>পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে এগিয়ে নিন</span></div>
+          <div><i>★</i><span><b>রিভিউ ও অ্যালামনাই</b>নিজের স্কুলের সাবেকদের খুঁজে পান</span></div>
+        </div>
+      </section>
+      <section class="card danger">
+        আমার সব তথ্য (সেভ করা প্রতিষ্ঠান, কার্ড, প্রোফাইল) মুছে ফেলতে চান? <button type="button" onclick="deleteMyData()">তথ্য মুছে দিন</button>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</a> · <a href="card.html">শিক্ষিত কার্ড</a></footer>
+
+<script>
+const M = Protishthan.member, esc = M.esc;
+const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/[0-9]/g, d => BN[d]);
+const TYPE_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg>';
+
+async function render(){
+  await M.ready(); const me = M.current();
+  document.getElementById('gate').style.display = me ? 'none' : 'block';
+  document.getElementById('body').style.display = me ? 'grid' : 'none';
+  if(!me){
+    document.getElementById('name').textContent = 'আমার পাতা'; document.getElementById('mail').textContent = ''; document.getElementById('chip').style.display = 'none';
+    document.getElementById('avatar').innerHTML = '?'; return;
+  }
+  document.getElementById('name').textContent = me.display_name || 'সদস্য';
+  document.getElementById('mail').textContent = me.email || '';
+  document.getElementById('chip').style.display = 'inline-flex';
+  document.getElementById('avatar').innerHTML = me.avatar_url ? '<img src="' + esc(me.avatar_url) + '" alt="" referrerpolicy="no-referrer">' : esc(String(me.display_name || me.email || '?').charAt(0).toUpperCase());
+  loadSaved(); loadCard();
+}
+
+async function loadSaved(){
+  const list = document.getElementById('savedList');
+  const { data, error } = await M.sb.from('saved_institutions').select('listing_id,created_at,listing_submissions(id,institution_name,institution_type,district,upazila,desired_slug,ownership,admission_status)').order('created_at', { ascending:false });
+  if(error){ list.innerHTML = '<li><div class="empty">তালিকা লোড হয়নি।<br><small>' + esc(error.message) + '</small></div></li>'; return; }
+  const rows = (data || []).filter(r=>r.listing_submissions);
+  document.getElementById('savedCount').textContent = rows.length ? bn(rows.length) + 'টি' : '';
+  if(!rows.length){ list.innerHTML = '<li style="display:block"><div class="empty"><b>এখনো কিছু সেভ করেননি</b>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে এখানে জমা হবে।<br><a class="btn btn-blue" href="index.html">প্রতিষ্ঠান খুঁজুন</a></div></li>'; return; }
+  list.innerHTML = rows.map(r=>{
+    const s = r.listing_submissions;
+    return '<li data-id="' + esc(s.id) + '"><span class="saved-ic">' + TYPE_IC + '</span><div class="saved-main"><a href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' + esc(s.institution_name) + '</a><span>' + esc([s.upazila, s.district].filter(Boolean).join(', ')) + '</span><div class="tags">' +
+      (s.institution_type ? '<span class="tag">' + esc(s.institution_type) + '</span>' : '') + (s.ownership ? '<span class="tag">' + esc(s.ownership) + '</span>' : '') + (s.admission_status === 'খোলা' ? '<span class="tag g">ভর্তি চলছে</span>' : '') + '</div></div><button class="x" type="button" aria-label="সরান" onclick="unsave(\'' + esc(s.id) + '\')">×</button></li>';
+  }).join('');
+}
+async function unsave(id){
+  await M.saved.toggle(id, false);
+  const li = document.querySelector('#savedList li[data-id="' + id + '"]'); if(li) li.remove();
+  if(!document.querySelector('#savedList li')) loadSaved();
+  M.toast('সেভ থেকে সরানো হয়েছে');
+}
+
+async function loadCard(){
+  const box = document.getElementById('cardBox');
+  const { data } = await M.sb.from('member_cards').select('data,updated_at').maybeSingle();
+  const d = data && data.data;
+  if(!d || !(d.name || d.photo)){ box.innerHTML = '<div class="empty" style="padding:8px 0"><b>এখনো কার্ড বানাননি</b>৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান — সব ডিভাইসে পাবেন।<br><a class="btn btn-blue" href="card.html">কার্ড বানান</a></div>'; return; }
+  const edu = Object.values(d.edu || {}).filter(e=>e && e.name).map(e=>e.name);
+  box.innerHTML = '<div class="card-mini"><div class="pic">' + (d.photo ? '<img src="' + esc(d.photo) + '" alt="">' : '👤') + '</div><div><b>' + esc(d.name || 'নাম দেওয়া হয়নি') + '</b><span>' + esc(edu.slice(0, 2).join(' · ') || 'প্রতিষ্ঠান যোগ করা হয়নি') + '</span></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-blue" href="card.html">কার্ড খুলুন</a></div>';
+}
+
+async function deleteMyData(){
+  if(!confirm('আপনার সব তথ্য মুছে ফেলবেন? সেভ করা প্রতিষ্ঠান, কার্ড আর প্রোফাইল চিরতরে চলে যাবে।')) return;
+  const me = M.current(); if(!me) return;
+  for(const t of ['saved_institutions', 'member_cards', 'members']){
+    const { error } = await M.sb.from(t).delete().eq('user_id', me.user_id);
+    if(error){ alert('মোছা যায়নি (' + t + '): ' + error.message); return; }
+  }
+  try{ localStorage.removeItem('shikkhito_card_v1'); }catch(e){}
+  await M.signOut();
+}
+
+document.getElementById('fy').textContent = bn(new Date().getFullYear());
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
+M.onChange(render);
+render();
+</script>
+</body>
+</html>

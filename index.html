@@ -665,10 +665,7 @@ body{padding-bottom:110px}
     <li><a href="software.html">সার্ভিস</a></li>
     <li><a href="card.html">শিক্ষিত কার্ড</a></li>
   </ul>
-  <div class="nav-cta">
-    <a href="login.html" class="btn-ghost-nav">লগইন</a>
-    <a href="login.html?tab=signup" class="btn-primary-nav">বিনামূল্যে শুরু করুন</a>
-  </div>
+  <div class="nav-cta" data-member-slot="nav"></div>
 </nav>
 
 <div class="listing-bar" id="listingBar">
@@ -1597,6 +1594,7 @@ body{padding-bottom:110px}
 <script>document.getElementById('footerYear').textContent = String(new Date().getFullYear()).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]);</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
 <script>
 const { createClient } = supabase;
 const sb = createClient(

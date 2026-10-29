@@ -6,6 +6,7 @@
 <title>প্রতিষ্ঠানের বিস্তারিত — Protishthan</title>
 <meta name="description" content="বাংলাদেশের শিক্ষা প্রতিষ্ঠানের বিস্তারিত তথ্য — Protishthan তথ্যভান্ডার।">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -241,6 +242,7 @@ a{color:inherit}
   .container{padding:0 16px}
   .crumbs{display:none}
   .top-actions .tbtn .lbl{display:none}
+  .top-actions .tbtn-back{display:none}
   .cover{height:190px}
   .head{margin-top:-56px}
   .head-card{flex-direction:column;align-items:flex-start;gap:12px;padding:18px}
@@ -271,8 +273,10 @@ a{color:inherit}
       <a href="index.html">তথ্যভান্ডার</a><span>/</span><a href="index.html" id="crumbDistrict">জেলা</a><span>/</span><span class="cur" id="crumbName">প্রতিষ্ঠান</span>
     </nav>
     <div class="top-actions">
+      <button type="button" class="tbtn" id="saveBtn" onclick="toggleSaveProfile()" aria-pressed="false"><span id="saveIc" data-ic="star" data-s="16"></span><span class="lbl" id="saveLbl">সেভ করুন</span></button>
       <button type="button" class="tbtn" onclick="shareProfile()"><span data-ic="share" data-s="16"></span><span class="lbl">শেয়ার</span></button>
-      <a href="index.html" class="tbtn"><span data-ic="arrowLeft" data-s="16"></span><span class="lbl">তথ্যভান্ডার</span></a>
+      <a href="index.html" class="tbtn tbtn-back"><span data-ic="arrowLeft" data-s="16"></span><span class="lbl">তথ্যভান্ডার</span></a>
+      <span data-member-slot="light" style="display:inline-flex;gap:8px;align-items:center"></span>
     </div>
   </div>
 </header>
@@ -528,6 +532,26 @@ function coverSvg(t, label){
 
 let REC = null, INST = null, GALLERY = [], LB_I = 0;
 
+/* save this institution to the signed-in member's list (asks to sign in first if needed) */
+async function syncSaveBtn(){
+  if(!REC || !window.Protishthan) return;
+  const m = Protishthan.member; await m.ready();
+  const on = m.current() ? await m.saved.has(REC.id) : false;
+  const b = document.getElementById('saveBtn'); if(!b) return;
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.style.borderColor = on ? '#F59E0B' : ''; b.style.background = on ? '#FFFBEB' : '';
+  document.getElementById('saveLbl').textContent = on ? 'সেভ করা আছে' : 'সেভ করুন';
+  const ic = document.getElementById('saveIc'); if(ic) ic.querySelector('svg') && ic.querySelector('svg').setAttribute('fill', on ? '#F59E0B' : 'none');
+}
+async function toggleSaveProfile(){
+  if(!REC) return;
+  const r = await Protishthan.member.saved.toggle(REC.id);
+  if(r === null) return;                       // sign-in popup opened
+  Protishthan.member.toast(r ? 'সেভ করা হয়েছে ★' : 'সেভ থেকে সরানো হয়েছে');
+  syncSaveBtn();
+}
+if(window.Protishthan) Protishthan.member.onChange(() => syncSaveBtn());
+
 async function loadDetail(){
   const slug = new URLSearchParams(window.location.search).get('slug');
   if(!slug) return showNotFound();
@@ -540,6 +564,7 @@ async function loadDetail(){
   }catch(e){ console.error('Failed to load institution detail', e); }
   if(!record) return showNotFound();
   REC = record;
+  syncSaveBtn();
 
   sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{ if(error) console.error('View count tracking failed', error); });
 
