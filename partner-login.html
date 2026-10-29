@@ -27,16 +27,32 @@ a{color:inherit}
 .btn-ghost{background:transparent;color:rgba(255,255,255,.85)}
 .btn-ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
 
-/* NAV */
-.nav{border-bottom:1px solid rgba(255,255,255,.07)}
-.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
-.brand{font-size:21px;font-weight:900;letter-spacing:-.5px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
-.brand span{opacity:.5}
-.brand em{font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.3px;color:#BFD3FF;background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.3);border-radius:100px;padding:3px 10px}
-.nav-cta{margin-left:auto;display:flex;gap:8px;align-items:center}
+/* NAV (same floating bar as the home page) */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+nav#nav .logo{font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+nav#nav .logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#1A56DB,#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+nav#nav .logo span:not(.logo-icon){opacity:.6}
+nav#nav .nav-links{display:flex;gap:26px;list-style:none;margin:0}
+nav#nav .nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s;padding:0;border-radius:0;background:none}
+nav#nav .nav-links a:hover,nav#nav .nav-links a.active{color:#fff;background:none}
+nav#nav .nav-links a.active{font-weight:700}
+nav#nav .nav-cta{display:flex;gap:10px;align-items:center;margin:0}
+.btn-ghost-nav{padding:9px 16px;border:none;background:none;font:500 14px 'Hind Siliguri','Inter',sans-serif;color:rgba(255,255,255,.85);cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);color:#fff;border:none;border-radius:10px;font:700 14px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.5)}
+@media (max-width:960px){
+  nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}
+  nav#nav .nav-links{display:none}
+  nav#nav .logo{font-size:18px}
+  nav#nav .logo-icon{width:30px;height:30px}
+  .btn-ghost-nav{display:none}
+  .btn-primary-nav{padding:9px 16px;font-size:13px}
+}
 
 /* HERO */
-main{flex:1;display:flex;align-items:center;padding:48px 0 56px}
+main{flex:1;display:flex;align-items:center;padding:120px 0 56px}
 main .wrap{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#BFD3FF;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.28);border-radius:100px;padding:6px 14px;margin-bottom:22px}
 .eyebrow i{width:7px;height:7px;border-radius:50%;background:#60A5FA;box-shadow:0 0 0 3px rgba(96,165,250,.25)}
@@ -81,7 +97,7 @@ footer{padding:0 0 26px;text-align:center;font-size:12.5px;color:rgba(255,255,25
 footer a{color:rgba(255,255,255,.5);text-decoration:none;margin:0 10px}footer a:hover{color:#fff}
 
 @media (max-width:960px){
-  main{padding:28px 0 36px;align-items:center}
+  main{padding:96px 0 36px;align-items:center}
   main .wrap{grid-template-columns:1fr}
   .copy{display:none}
 }
@@ -96,15 +112,18 @@ footer a{color:rgba(255,255,255,.5);text-decoration:none;margin:0 10px}footer a:
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap">
-    <a class="brand" href="partner.html">Protisht<span>han</span><em>Partner</em></a>
-    <div class="nav-cta">
-      <a class="btn btn-ghost" href="index.html">হোম</a>
-      <a class="btn btn-primary" href="partner.html">আবেদন করুন</a>
-    </div>
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="partner.html">Partner প্রোগ্রাম</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a class="btn-ghost-nav" href="index.html">হোম</a>
+    <a class="btn-primary-nav" href="partner.html">আবেদন করুন</a>
   </div>
-</header>
+</nav>
 
 <main>
   <div class="wrap">
@@ -187,6 +206,8 @@ function showOk(msg){
   document.getElementById('errBox').style.display='none';
   box.textContent = msg; box.style.display = msg ? 'block' : 'none';
 }
+
+window.addEventListener('scroll', () => { const n = document.getElementById('nav'); if(n) n.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
 ['email', 'password'].forEach(id => document.getElementById(id).addEventListener('input', () => document.getElementById(id).classList.remove('bad')));
 
 async function doLogin(){

@@ -16,7 +16,7 @@
   --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
   --green:#059669;--red:#DC2626;--amber:#D97706;--r:12px;
 }
-html{scroll-behavior:smooth;scroll-padding-top:76px}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
 body{font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 .wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
@@ -26,20 +26,32 @@ a{color:inherit}
 .btn-ghost{background:transparent;color:rgba(255,255,255,.85)}
 .btn-ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
 
-/* NAV */
-.nav{position:sticky;top:0;z-index:50;background:rgba(10,22,40,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}
-.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
-.brand{font-size:21px;font-weight:900;letter-spacing:-.5px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
-.brand span{opacity:.5}
-.brand em{font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.3px;color:#BFD3FF;background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.3);border-radius:100px;padding:3px 10px}
-.nav-links{display:flex;gap:6px;margin-left:12px}
-.nav-links a{font-size:14px;font-weight:600;color:rgba(255,255,255,.7);text-decoration:none;padding:8px 12px;border-radius:9px}
-.nav-links a:hover{color:#fff;background:rgba(255,255,255,.07)}
-.nav-cta{margin-left:auto;display:flex;gap:8px;align-items:center}
-.nav-cta .btn{padding:9px 17px;font-size:14px}
+/* NAV (same floating bar as the home page) */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+nav#nav .logo{font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+nav#nav .logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#1A56DB,#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+nav#nav .logo span:not(.logo-icon){opacity:.6}
+nav#nav .nav-links{display:flex;gap:26px;list-style:none;margin:0}
+nav#nav .nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s;padding:0;border-radius:0;background:none}
+nav#nav .nav-links a:hover,nav#nav .nav-links a.active{color:#fff;background:none}
+nav#nav .nav-links a.active{font-weight:700}
+nav#nav .nav-cta{display:flex;gap:10px;align-items:center;margin:0}
+.btn-ghost-nav{padding:9px 16px;border:none;background:none;font:500 14px 'Hind Siliguri','Inter',sans-serif;color:rgba(255,255,255,.85);cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);color:#fff;border:none;border-radius:10px;font:700 14px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.5)}
+@media (max-width:960px){
+  nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}
+  nav#nav .nav-links{display:none}
+  nav#nav .logo{font-size:18px}
+  nav#nav .logo-icon{width:30px;height:30px}
+  .btn-ghost-nav{display:none}
+  .btn-primary-nav{padding:9px 16px;font-size:13px}
+}
 
 /* HERO */
-.hero{position:relative;background:linear-gradient(150deg,var(--navy) 0%,var(--navy-2) 48%,var(--navy-3) 100%);overflow:hidden;padding:68px 0 92px}
+.hero{position:relative;background:linear-gradient(150deg,var(--navy) 0%,var(--navy-2) 48%,var(--navy-3) 100%);overflow:hidden;padding:128px 0 92px}
 .hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(ellipse at 30% 30%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 30% 30%,#000 30%,transparent 75%)}
 .hero::after{content:'';position:absolute;top:-160px;right:-120px;width:560px;height:560px;background:radial-gradient(circle,rgba(79,70,229,.38),transparent 68%);pointer-events:none}
 .hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:start}
@@ -191,7 +203,7 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
 
 @media (max-width:960px){
   .hero .wrap,.earn{grid-template-columns:1fr;gap:40px}
-  .hero{padding:44px 0 60px}
+  .hero{padding:100px 0 60px}
   .steps{grid-template-columns:1fr 1fr}
   .grid3{grid-template-columns:1fr 1fr}
   .nav-links{display:none}
@@ -239,21 +251,19 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
 </head>
 <body>
 
-<header class="nav">
-  <div class="wrap">
-    <a class="brand" href="partner.html">Protisht<span>han</span><em>Partner</em></a>
-    <nav class="nav-links" aria-label="Sections">
-      <a href="#how">কীভাবে কাজ করে</a>
-      <a href="#earn">আয়ের হিসাব</a>
-      <a href="#why">সুবিধা</a>
-      <a href="#faq">প্রশ্নোত্তর</a>
-    </nav>
-    <div class="nav-cta">
-      <a class="btn btn-ghost" href="partner-login.html">লগইন</a>
-      <a class="btn btn-primary" href="#apply">আবেদন করুন</a>
-    </div>
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">কীভাবে কাজ করে</a></li>
+    <li><a href="#earn">আয়ের হিসাব</a></li>
+    <li><a href="#why">সুবিধা</a></li>
+    <li><a href="#faq">প্রশ্নোত্তর</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a class="btn-ghost-nav" href="partner-login.html">লগইন</a>
+    <a class="btn-primary-nav" href="#apply">আবেদন করুন</a>
   </div>
-</header>
+</nav>
 
 <section class="hero">
   <div class="wrap">
@@ -672,6 +682,9 @@ function goStep2(){
   goStep(2);
 }
 function formSubmit(){ if(STEP === 1) goStep2(); else doSignup(); }
+
+
+window.addEventListener('scroll', () => { const n = document.getElementById('nav'); if(n) n.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
 
 /* earnings calculator */
 let CALC_PLAN = 599;
