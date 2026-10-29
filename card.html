@@ -834,8 +834,11 @@ function draw(){
       ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 15, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
       ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 6.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
       const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
+      // the year keeps its own badge, same size as in the single-column layout, at the right end of the label line
+      ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
       ctx.fillStyle = '#64748B'; ctx.font = F(600, 20);
-      ctx.fillText(fitText(l.title + ' · ' + l.sub.split(' / ')[0] + (yr ? ' · ' + yr : ''), colW - 50), x0 + 50, y + 12);
+      ctx.fillText(fitText(l.title + ' · ' + l.sub.split(' / ')[0], colW - 50 - yw - 10), x0 + 50, y + 12);
+      if(yr) pill(x0 + colW - yw, y - 13, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 34);
       ctx.fillStyle = T.ink; ctx.font = F(700, 28);
       const nameW = colW - 50 - (col === 1 && r >= 1 ? 118 : 0);   // keep the stamp's corner clear
       wrap(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), nameW, 2).forEach((ln, k)=>ctx.fillText(ln, x0 + 50, y + 46 + k * 32));
@@ -855,7 +858,7 @@ function draw(){
   });
 
   // the stamp goes on last so whatever sits under it still reads through the ink
-  if(twoCol){ ctx.save(); ctx.globalAlpha = .5; seal(cx + cw - 44 - 66, ry0 + 2*96 + 20, 62, T.accent); ctx.restore(); }
+  if(twoCol){ ctx.save(); ctx.globalAlpha = .5; seal(cx + cw - 44 - 48, ry0 + 2*96 + 65, 40, T.accent); ctx.restore(); }
   else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
