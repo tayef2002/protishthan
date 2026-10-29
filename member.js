@@ -1,7 +1,7 @@
 /* Protishthan সদস্য (member) — Google sign-in for ordinary visitors.
    Loaded on every general page (home, card, results, profile, member). Needs supabase-js loaded first.
    It uses its own browser session ('prot-member'), so it never mixes with the institution /
-   teacher / guardian / student / army logins that live on the service pages. */
+   teacher / guardian / student / partner logins that live on the service pages. */
 (function(){
   'use strict';
   if(window.Protishthan && window.Protishthan.member) return;
@@ -155,7 +155,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
           <a href="member.html">আমার পাতা</a>
           <a href="member.html#saved">সেভ করা প্রতিষ্ঠান</a>
           <a href="card.html">আমার শিক্ষিত কার্ড</a>
-          <a href="army.html">Protishthan Army</a>
+          <a href="partner.html">Protishthan Partner</a>
           <a href="terms.html" class="mb-sm">ব্যবহারের শর্ত</a>
           <a href="privacy.html" class="mb-sm">গোপনীয়তা নীতি</a>
           <button type="button" class="mb-out">লগআউট</button>

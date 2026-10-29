@@ -247,7 +247,7 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-soon">আসছে</span>
     </button>
     <button class="nav-item" id="nav-agents" onclick="showView('agents')">
-      <span class="nav-icon">🧑‍💼</span><span>Army Management</span>
+      <span class="nav-icon">🧑‍💼</span><span>Partner Management</span>
       <span class="nav-badge" id="agentPendingBadge" style="display:none">0</span>
     </button>
     <button class="nav-item disabled">
@@ -366,12 +366,12 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         </table>
         <div class="empty-state" id="agentsEmptyState" style="display:none">
           <div class="ic">🧑‍💼</div>
-          <div>কোনো Army সদস্য পাওয়া যায়নি</div>
+          <div>কোনো Partner পাওয়া যায়নি</div>
         </div>
       </div>
 
       <div class="section-card" id="unassignedSection" style="display:none">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">⚠️ Unassigned Institutions (এলাকায় কোনো approved Army সদস্য নেই)</h3>
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">⚠️ Unassigned Institutions (এলাকায় কোনো approved Partner নেই)</h3>
         <div id="unassignedTable"></div>
       </div>
     </div>
@@ -380,8 +380,8 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <div class="bill-stats">
         <div class="stat-card"><div class="icon" style="background:var(--green-l);color:var(--green)">💵</div><div class="val" id="bsMonth">—</div><div class="lbl">এই মাসের আয়</div></div>
         <div class="stat-card"><div class="icon" style="background:var(--blue-light);color:var(--blue)">🏦</div><div class="val" id="bsTotal">—</div><div class="lbl">মোট আয়</div></div>
-        <div class="stat-card"><div class="icon" style="background:var(--amber-l);color:var(--amber)">⏳</div><div class="val" id="bsPending">—</div><div class="lbl">Army-কে দেওয়া বাকি</div></div>
-        <div class="stat-card"><div class="icon" style="background:var(--purple-l);color:var(--purple)">✅</div><div class="val" id="bsPaid">—</div><div class="lbl">Army-কে দেওয়া হয়েছে</div></div>
+        <div class="stat-card"><div class="icon" style="background:var(--amber-l);color:var(--amber)">⏳</div><div class="val" id="bsPending">—</div><div class="lbl">Partner-কে দেওয়া বাকি</div></div>
+        <div class="stat-card"><div class="icon" style="background:var(--purple-l);color:var(--purple)">✅</div><div class="val" id="bsPaid">—</div><div class="lbl">Partner-কে দেওয়া হয়েছে</div></div>
       </div>
       <div class="bill-grid">
         <div class="section-card">
@@ -408,12 +408,12 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         </div>
         <div>
           <div class="section-card">
-            <div class="sec-h">Army-কে দেওয়া বাকি কমিশন</div>
+            <div class="sec-h">Partner-কে দেওয়া বাকি কমিশন</div>
             <div id="pendingCommTable"></div>
           </div>
           <div class="section-card" style="overflow-x:auto">
             <div class="sec-h">সাম্প্রতিক পেমেন্ট</div>
-            <div class="bill-note">ভুল এন্ট্রি মুছে দিলে তার কমিশনও মুছে যাবে (Army-কে দেওয়া হয়ে না থাকলে)।</div>
+            <div class="bill-note">ভুল এন্ট্রি মুছে দিলে তার কমিশনও মুছে যাবে (Partner-কে দেওয়া হয়ে না থাকলে)।</div>
             <div id="paymentsTable"></div>
           </div>
         </div>
@@ -711,7 +711,7 @@ document.querySelectorAll('.nav-item.disabled').forEach(function(item){
 ADMIN_READY.then(()=>loadSubmissions());
 </script>
 <script>
-const navTitlesAgents = { agents: ['Army Management', 'Protishthan Army আবেদন review, approve এবং কমিশন'] };
+const navTitlesAgents = { agents: ['Partner Management', 'Protishthan Partner আবেদন review, approve এবং কমিশন'] };
 Object.assign(navTitles, navTitlesAgents);
 
 let allAgents = [];
@@ -832,7 +832,7 @@ async function loadUnassignedInstitutions(){
     if(error) throw error;
     const rows = data || [];
     if(!rows.length){
-      document.getElementById('unassignedTable').innerHTML = '<div class="empty-state"><div class="ic">✅</div><div>সব প্রতিষ্ঠান Army সদস্যের সাথে যুক্ত আছে</div></div>';
+      document.getElementById('unassignedTable').innerHTML = '<div class="empty-state"><div class="ic">✅</div><div>সব প্রতিষ্ঠান Partnerের সাথে যুক্ত আছে</div></div>';
       return;
     }
     let html = '<table class="sub-table"><thead><tr><th>প্রতিষ্ঠান</th><th>জেলা</th><th>প্ল্যান</th></tr></thead><tbody>';
@@ -852,8 +852,8 @@ ADMIN_READY.then(()=>loadAgents());
 /* ---------------- Revenue / Billing ----------------
    Payments and commission rows are read/written with the admin session (sbAdmin),
    whose RLS only lets admin_users through. First payment of an institution = 50% to
-   its Army owner, every later payment = 25% (done by the database trigger). */
-navTitles.billing = ['Revenue / Billing', 'প্রতিষ্ঠানের পেমেন্ট আর Army কমিশন'];
+   its Partner owner, every later payment = 25% (done by the database trigger). */
+navTitles.billing = ['Revenue / Billing', 'প্রতিষ্ঠানের পেমেন্ট আর Partner কমিশন'];
 let billInst = [], billAgents = {}, billPays = [], billComms = [], billError = '';
 const taka = n => '৳' + Math.round(Number(n) || 0).toLocaleString('en-IN');
 const METHOD_LABEL = { bkash:'bKash', nagad:'Nagad', rocket:'Rocket', bank:'ব্যাংক', cash:'ক্যাশ' };
@@ -891,9 +891,9 @@ function updatePayPreview(){
   if(!inst){ box.innerHTML = 'প্রতিষ্ঠান আর টাকা দিলে কমিশন কত হবে এখানে দেখাবে।'; return; }
   const owner = billAgents[inst.assigned_agent_id];
   const earlier = billPays.filter(p=>p.institution_id === inst.id).length;
-  if(!owner){ box.innerHTML = 'এই প্রতিষ্ঠানের কোনো Army মালিক নেই — <b>কোনো কমিশন হবে না</b>।' + (earlier ? ' আগের পেমেন্ট: ' + earlier + 'টি।' : ' এটি প্রথম পেমেন্ট।'); return; }
+  if(!owner){ box.innerHTML = 'এই প্রতিষ্ঠানের কোনো Partner মালিক নেই — <b>কোনো কমিশন হবে না</b>।' + (earlier ? ' আগের পেমেন্ট: ' + earlier + 'টি।' : ' এটি প্রথম পেমেন্ট।'); return; }
   const pct = earlier ? 25 : 50;
-  box.innerHTML = (earlier ? 'আগে ' + earlier + 'টি পেমেন্ট হয়েছে' : '<b>এটি প্রথম পেমেন্ট</b>') + ' · Army মালিক <b>' + escapeHtmlA(owner.full_name) + '</b> পাবেন <b>' + pct + '%' + (amount ? ' = ' + taka(amount * pct / 100) : '') + '</b>';
+  box.innerHTML = (earlier ? 'আগে ' + earlier + 'টি পেমেন্ট হয়েছে' : '<b>এটি প্রথম পেমেন্ট</b>') + ' · Partner মালিক <b>' + escapeHtmlA(owner.full_name) + '</b> পাবেন <b>' + pct + '%' + (amount ? ' = ' + taka(amount * pct / 100) : '') + '</b>';
 }
 
 async function savePayment(e){
@@ -920,7 +920,7 @@ async function savePayment(e){
 async function deletePayment(id){
   const p = billPays.find(x=>x.id === id); if(!p) return;
   const c = billComms.find(x=>x.payment_id === id);
-  if(c && c.status === 'paid'){ alert('এই পেমেন্টের কমিশন Army-কে দেওয়া হয়ে গেছে, তাই মোছা যাবে না।'); return; }
+  if(c && c.status === 'paid'){ alert('এই পেমেন্টের কমিশন Partner-কে দেওয়া হয়ে গেছে, তাই মোছা যাবে না।'); return; }
   if(!confirm('এই পেমেন্ট (' + taka(p.amount) + ') মুছে দেবেন? এর কমিশনও মুছে যাবে।')) return;
   const { error } = await sbAdmin.from('institution_payments').delete().eq('id', id);
   if(error){ alert('মোছা যায়নি: ' + error.message); return; }
@@ -954,7 +954,7 @@ function renderBilling(){
   pending.forEach(c=>{ (by[c.agent_id] = by[c.agent_id] || []).push(c); });
   const ids = Object.keys(by);
   document.getElementById('pendingCommTable').innerHTML = !ids.length ? '<div class="empty-state" style="padding:24px">সব কমিশন দেওয়া হয়ে গেছে ✅</div>' :
-    '<table class="sub-table" style="min-width:0"><thead><tr><th>Army সদস্য</th><th>এলাকা</th><th>এন্ট্রি</th><th>বাকি</th><th></th></tr></thead><tbody>' +
+    '<table class="sub-table" style="min-width:0"><thead><tr><th>Partner</th><th>এলাকা</th><th>এন্ট্রি</th><th>বাকি</th><th></th></tr></thead><tbody>' +
     ids.map(id=>{ const a = billAgents[id] || {}; return '<tr><td style="font-weight:600">' + escapeHtmlA(a.full_name || '—') + '<div style="font-size:11.5px;color:var(--text-3)">' + escapeHtmlA(a.phone || '') + '</div></td><td>' + escapeHtmlA([a.upazila, a.district].filter(Boolean).join(', ')) + '</td><td>' + by[id].length + '</td><td style="font-weight:800;color:var(--amber)">' + taka(sum(by[id])) + '</td><td><button class="mini-btn" onclick="payOutAgent(\'' + id + '\')">দেওয়া হয়েছে</button></td></tr>'; }).join('') +
     '</tbody></table>';
 

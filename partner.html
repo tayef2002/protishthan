@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protishthan Partner — যোগ দিন</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
+  --green:#059669;--red:#DC2626;--amber:#D97706;--r:12px;--rl:20px;
+}
+html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);overflow-x:hidden}
+body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--white)}
+@media (max-width:900px){body{grid-template-columns:1fr}.left{display:none}}
+
+/* LEFT */
+.left{background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden;height:100vh}
+.left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.left-glow{position:absolute;top:20%;left:30%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%);pointer-events:none}
+.logo{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;margin-bottom:36px;position:relative;z-index:2}
+.logo span{opacity:.5}
+.hero-text{position:relative;z-index:2}
+.hero-text h2{font-size:clamp(24px,3vw,36px);font-weight:900;color:white;line-height:1.2;letter-spacing:-1px;margin-bottom:14px}
+.hero-text h2 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-text p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.8;max-width:340px}
+.perk-list{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;margin-top:32px}
+.perk{display:flex;align-items:flex-start;gap:12px}
+.perk-ic{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.perk-t{font-size:13px;color:rgba(255,255,255,.85);font-weight:600}
+.perk-s{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
+.left-footer{position:relative;z-index:2}
+.left-footer p{font-size:11px;color:rgba(255,255,255,.25)}
+
+/* RIGHT */
+.right{display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;overflow-y:auto;height:100vh}
+.right-inner{width:100%;max-width:440px}
+.form-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.form-sub{font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
+.field input,.field select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--blue)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pass-wrap{position:relative}
+.pass-wrap .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;background:none;border:none;display:flex;align-items:center;justify-content:center;padding:4px;color:var(--text-3);transition:color .15s}
+.pass-wrap .eye:hover{color:var(--text-2)}
+.pass-wrap input{padding-right:40px}
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;margin-top:6px;position:relative}
+.submit-btn:hover{background:var(--blue-dark)}
+.submit-btn.loading{pointer-events:none;opacity:.7}
+.submit-btn.loading::after{content:'';position:absolute;right:16px;top:50%;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;transform:translateY(-50%);animation:spin .6s linear infinite}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.note{font-size:12px;color:var(--text-3);margin-top:18px;line-height:1.7;text-align:center}
+
+/* SUCCESS SCREEN */
+.success-screen{display:none;text-align:center;padding:40px 20px}
+.success-screen.show{display:block}
+.success-ic{font-size:48px;margin-bottom:18px}
+.success-screen h2{font-size:20px;font-weight:800;margin-bottom:10px}
+.success-screen p{font-size:13.5px;color:var(--text-2);line-height:1.8;max-width:340px;margin:0 auto 24px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber);padding:7px 14px;border-radius:100px;font-size:12.5px;font-weight:700;margin-bottom:20px}
+.success-screen .submit-btn{max-width:200px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div class="left-grid"></div>
+  <div class="left-glow"></div>
+  <div class="logo">Protisht<span>han</span></div>
+  <div class="hero-text">
+    <h2><span class="grad">Protishthan Partner</span>-এ যোগ দিন</h2>
+    <p>নিজের উপজেলার শিক্ষা প্রতিষ্ঠানের সঠিক তথ্য যাচাই করুন। আপনার যাচাই করা প্রতিষ্ঠান Protishthan-এর সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন।</p>
+    <div class="perk-list">
+      <div class="perk">
+        <div class="perk-ic">💰</div>
+        <div><div class="perk-t">প্রতি মাসে আয়</div><div class="perk-s">প্রথম পেমেন্টের ৫০%, পরের প্রতিটি পেমেন্টের ২৫% — যতদিন প্রতিষ্ঠান সার্ভিস চালু রাখে</div></div>
+      </div>
+      <div class="perk">
+        <div class="perk-ic">📍</div>
+        <div><div class="perk-t">যাচাই করলেই প্রতিষ্ঠান আপনার</div><div class="perk-s">প্রতি উপজেলায় মাত্র ৩ জন — যে প্রতিষ্ঠান আপনি প্রথম নির্ভুলভাবে যাচাই করবেন, সেটি আপনার প্রোফাইলে যুক্ত থাকবে</div></div>
+      </div>
+      <div class="perk">
+        <div class="perk-ic">📊</div>
+        <div><div class="perk-t">নিজের ড্যাশবোর্ড ও প্রশিক্ষণ</div><div class="perk-s">আপনার প্রতিষ্ঠান, আয় আর কাজ — সব এক জায়গায়, সাথে কাজ শেখার গাইড</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="left-footer"><p>© 2026 Protishthan Partner</p></div>
+</div>
+
+<div class="right">
+  <div class="right-inner">
+
+    <!-- SIGNUP FORM -->
+    <div id="signupForm">
+      <div class="form-title">Partner হতে আবেদন</div>
+      <div class="form-sub">নিজের উপজেলার জন্য Protishthan Partner হিসেবে আবেদন করুন। জমা দেওয়ার পর Admin রিভিউ করে অনুমোদন দেবেন।</div>
+
+      <div class="err-box" id="errBox"></div>
+
+      <div class="field">
+        <label>সম্পূর্ণ নাম *</label>
+        <input type="text" id="fullName" placeholder="আপনার নাম">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>ফোন নম্বর *</label>
+          <input type="text" id="phone" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="field">
+          <label>ইমেইল *</label>
+          <input type="email" id="email" placeholder="you@email.com">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>জেলা *</label>
+          <select id="district" onchange="onDistrictChange()">
+            <option value="">জেলা নির্বাচন করুন</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>উপজেলা *</label>
+          <select id="upazila" onchange="checkUpazilaAvailability()" disabled>
+            <option value="">আগে জেলা বাছুন</option>
+          </select>
+        </div>
+      </div>
+      <div id="districtStatus" style="font-size:12px;margin:-6px 0 14px"></div>
+
+      <div class="field">
+        <label>পাসওয়ার্ড *</label>
+        <div class="pass-wrap">
+          <input type="password" id="password" placeholder="কমপক্ষে ৮ অক্ষর">
+          <button type="button" class="eye" id="eyeBtn" onclick="togglePass(this)" aria-label="পাসওয়ার্ড দেখান">
+            <svg id="eyeIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="signupBtn" onclick="doSignup()">আবেদন জমা দিন</button>
+      <div class="note">আবেদন জমা দেওয়ার পর আপনার একটি ড্যাশবোর্ড অ্যাক্সেস পাবেন (Review Pending status সহ)। Admin অনুমোদন দিলে full access চালু হবে।</div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-ic">🎉</div>
+      <h2>আবেদন জমা হয়েছে!</h2>
+      <div class="status-badge">⏳ Review Pending</div>
+      <p>আপনার Partner আবেদনটি Admin-এর কাছে পাঠানো হয়েছে। রিভিউ সম্পন্ন হওয়া পর্যন্ত আপনি limited access সহ আপনার ড্যাশবোর্ড দেখতে পারবেন। এখন লগইন করুন।</p>
+      <button class="submit-btn" onclick="window.location.href='partner-login.html'">লগইন করুন →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
+
+const { createClient } = supabase;
+const sb = createClient(
+  'https://eoqeeuujvpydhmfteqqj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU',
+  { auth: { storageKey: 'prot-agent' } }
+);
+
+const MAX_PER_UPAZILA = 3;
+function populateDistricts(){
+  const sel = document.getElementById('district');
+  BD_LOCATIONS.forEach(d=>{
+    const opt = document.createElement('option');
+    opt.value = d.n; opt.textContent = d.n;
+    sel.appendChild(opt);
+  });
+}
+populateDistricts();
+
+function onDistrictChange(){
+  const d = BD_LOCATIONS.find(x=>x.n === document.getElementById('district').value);
+  const up = document.getElementById('upazila');
+  up.innerHTML = '<option value="">' + (d ? 'উপজেলা নির্বাচন করুন' : 'আগে জেলা বাছুন') + '</option>';
+  up.disabled = !d;
+  (d ? d.u : []).forEach(u=>{ const o = document.createElement('option'); o.value = u; o.textContent = u; up.appendChild(o); });
+  document.getElementById('districtStatus').textContent = '';
+}
+
+async function upazilaSeats(district, upazila){
+  const { count, error } = await sb.from('agents').select('id', { count:'exact', head:true }).eq('district', district).eq('upazila', upazila).neq('status', 'rejected');
+  if(error) return null;
+  return MAX_PER_UPAZILA - (count || 0);
+}
+
+async function checkUpazilaAvailability(){
+  const d = document.getElementById('district').value, u = document.getElementById('upazila').value;
+  const statusEl = document.getElementById('districtStatus');
+  if(!d || !u){ statusEl.textContent = ''; return; }
+  statusEl.textContent = 'চেক করা হচ্ছে...';
+  statusEl.style.color = 'var(--text-3)';
+  const left = await upazilaSeats(d, u);
+  if(left === null){ statusEl.textContent = ''; return; }
+  if(left <= 0){
+    statusEl.textContent = '❌ এই উপজেলায় ' + MAX_PER_UPAZILA + ' জন Partner পূর্ণ হয়ে গেছে।';
+    statusEl.style.color = 'var(--red)';
+  } else {
+    statusEl.textContent = '✅ এই উপজেলায় আরও ' + left + ' জনের জায়গা আছে।';
+    statusEl.style.color = 'var(--green)';
+  }
+}
+
+function togglePass(btn){
+  const inp = document.getElementById('password');
+  inp.type = inp.type==='password' ? 'text' : 'password';
+  document.getElementById('eyeIconOpen').style.display = inp.type==='password' ? 'block' : 'none';
+  document.getElementById('eyeIconClosed').style.display = inp.type==='password' ? 'none' : 'block';
+}
+
+function showErr(msg){
+  const box = document.getElementById('errBox');
+  box.textContent = msg;
+  box.style.display = msg ? 'block' : 'none';
+}
+
+async function doSignup(){
+  const fullName = document.getElementById('fullName').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const district = document.getElementById('district').value;
+  const upazila = document.getElementById('upazila').value;
+  const password = document.getElementById('password').value;
+
+  if(!fullName||!phone||!email||!district||!upazila||!password){ showErr('সব তথ্য পূরণ করুন।'); return; }
+  if(password.length<8){ showErr('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে।'); return; }
+  showErr('');
+
+  const btn = document.getElementById('signupBtn');
+  btn.classList.add('loading');
+
+  // Re-check seats right before signing up (the database enforces the same limit)
+  const left = await upazilaSeats(district, upazila);
+  if(left !== null && left <= 0){
+    btn.classList.remove('loading');
+    showErr('এই উপজেলায় ' + MAX_PER_UPAZILA + ' জন Partner পূর্ণ হয়ে গেছে। পাশের অন্য উপজেলা বেছে নিন।');
+    return;
+  }
+
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options:{ data:{ full_name: fullName, role:'partner' } }
+  });
+
+  if(error){
+    btn.classList.remove('loading');
+    if(error.message.includes('already registered')) showErr('এই ইমেইল দিয়ে account আগেই আছে।');
+    else if(error.message.includes('rate limit')) showErr('একটু পরে আবার চেষ্টা করুন।');
+    else showErr(error.message);
+    return;
+  }
+
+  if(data.user){
+    const { error: insertErr } = await sb.from('agents').insert({
+      user_id: data.user.id,
+      full_name: fullName,
+      phone, email, district, upazila,
+      status: 'pending_review',
+      is_active: true
+    });
+    if(insertErr){
+      btn.classList.remove('loading');
+      if(insertErr.message.includes('duplicate')||insertErr.message.includes('unique')) showErr('এই উপজেলায় Partner পূর্ণ হয়ে গেছে, অথবা এই তথ্য দিয়ে আগেই আবেদন করা হয়েছে।');
+      else showErr(insertErr.message);
+      return;
+    }
+  }
+
+  btn.classList.remove('loading');
+  document.getElementById('signupForm').style.display='none';
+  document.getElementById('successScreen').classList.add('show');
+}
+</script>
+</body>
+</html>
