@@ -47,6 +47,11 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .hero h1{font-size:clamp(34px,5vw,58px);line-height:1.15;font-weight:700;margin:16px 0 10px;letter-spacing:-.5px}
 .hero h1 span{background:linear-gradient(135deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p{font-size:17px;color:rgba(255,255,255,.75);max-width:660px;margin:0 auto}
+.dl-live{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:9px 18px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:14.5px;font-weight:600;color:rgba(255,255,255,.92)}
+.dl-live b{color:#FDE68A;font-weight:800;font-size:16px;letter-spacing:-.2px}
+.dl-live i{width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
+@keyframes dlPulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+@media(prefers-reduced-motion:reduce){.dl-live i{animation:none}}
 .hero-pills{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:18px;justify-content:center}
 .hero-pills span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:rgba(255,255,255,.88)}
 .hero-pills .ico{color:#FDE68A}
@@ -306,6 +311,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
     <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FDE68A"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · বিনামূল্যে · লগইন লাগবে না</span>
     <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
     <p>এমন একটা কার্ড, যেটা কেউ দেয়নি — নিজের যোগ্যতায় অর্জন করেছেন। নিজের স্কুল, কলেজ, বিশ্ববিদ্যালয় বাছাই করুন, ছবি দিন, আর ৩০ সেকেন্ডে ডাউনলোড করে শেয়ার করুন।</p>
+    <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>ইতিমধ্যে শিক্ষিত কার্ড <b id="dlCount">০</b>টি ডাউনলোড হয়েছে</span></div>
     <div class="hero-pills">
       <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৩০ সেকেন্ড</span>
       <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>ছবি আপনার ফোনেই থাকে</span>
@@ -1103,6 +1109,30 @@ function draw(){
 }
 
 /* ---------------- export / share ---------------- */
+/* ---------------- live download counter ---------------- */
+const DL_MIN_SHOW = 10;          // show the badge once the number is big enough to read as a crowd
+let dlShown = 0, dlRaf = 0;
+function paintDownloads(n){
+  const box = document.getElementById('dlLive'), el = document.getElementById('dlCount'); if(!box || !el) return;
+  if(!(n >= DL_MIN_SHOW)) return;
+  box.style.display = 'inline-flex';
+  cancelAnimationFrame(dlRaf);
+  const from = dlShown || Math.max(0, n - Math.min(n, 40)), t0 = performance.now();
+  const step = t => { const p = Math.min(1, (t - t0) / 900), v = Math.round(from + (n - from) * (1 - Math.pow(1 - p, 3))); el.textContent = v.toLocaleString('bn-BD'); if(p < 1) dlRaf = requestAnimationFrame(step); };
+  dlRaf = requestAnimationFrame(step); dlShown = n;
+}
+async function refreshDownloads(){
+  if(document.hidden) return;
+  try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
+}
+async function countMyDownload(){   // one count per person (per browser), however many times they download
+  let done = false; try{ done = localStorage.getItem('sk_dl_counted') === '1'; }catch(e){}
+  if(done) return;
+  try{ const { data, error } = await sb.rpc('bump_card_downloads'); if(!error){ try{ localStorage.setItem('sk_dl_counted', '1'); }catch(e){} if(data != null) paintDownloads(Number(data)); } }catch(e){}
+}
+refreshDownloads(); setInterval(refreshDownloads, 20000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
+
 function toast(m){ const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2600); }
 function caption(){
   const names = filledLevels().map(l=>S.edu[l.key].name.trim()).slice(0, 3).join(', ');
@@ -1116,6 +1146,7 @@ async function downloadCard(){
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   toast('কার্ড ডাউনলোড হয়েছে — এবার শেয়ার করুন!');
+  countMyDownload();
 }
 async function shareImage(){
   draw();
