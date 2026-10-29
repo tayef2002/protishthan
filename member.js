@@ -48,18 +48,21 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 @media(max-width:400px){.mb-bar .mb-partner{display:none}}
 .mb-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,22,40,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
 .mb-ov.show{display:flex}
-.mb-box{width:100%;max-width:410px;background:#fff;border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;font-family:'Hind Siliguri','Inter',sans-serif;color:#0F172A;max-height:92vh;overflow:auto}
+.mb-box{width:100%;max-width:380px;background:#fff;border-radius:24px;padding:30px 26px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;font-family:'Hind Siliguri','Inter',sans-serif;color:#0F172A;max-height:92vh;overflow:auto}
 .mb-x{position:absolute;right:12px;top:12px;width:34px;height:34px;border:none;border-radius:50%;background:#F1F5F9;color:#475569;font-size:18px;cursor:pointer;line-height:1}
-.mb-box h2{font-size:22px;line-height:1.25;margin:0 0 4px;padding-right:30px}
-.mb-box p.sub{font-size:13.5px;color:#475569;margin:0 0 14px}
+.mb-logo{width:52px;height:52px;border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563EB,#7C3AED);box-shadow:0 10px 24px rgba(37,99,235,.35)}
+.mb-box h2{font-size:22px;line-height:1.25;margin:0 0 6px;font-weight:700;letter-spacing:-.2px}
+.mb-box p.sub{font-size:14px;color:#64748B;margin:0 0 18px}
 .mb-why{font-size:13px;font-weight:600;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:8px 12px;margin-bottom:14px}
-.mb-perks{list-style:none;margin:0 0 18px;padding:0}
-.mb-perks li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#334155;margin-bottom:9px;line-height:1.45}
-.mb-perks i{flex:none;width:22px;height:22px;border-radius:7px;background:#EEF3FF;color:#1A56DB;display:flex;align-items:center;justify-content:center;font-style:normal}
+.mb-perks{list-style:none;margin:0 0 20px;padding:14px 16px;background:#F8FAFC;border-radius:14px;text-align:left}
+.mb-perks li{display:flex;gap:11px;align-items:center;font-size:14px;color:#334155;margin-bottom:10px;line-height:1.4}
+.mb-perks li:last-child{margin-bottom:0}
+.mb-perks i{flex:none;width:26px;height:26px;border-radius:8px;background:#EEF3FF;color:#1A56DB;display:flex;align-items:center;justify-content:center;font-style:normal}
 .mb-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;border-radius:14px;border:1.5px solid #CBD5E1;background:#fff;font:700 15px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;cursor:pointer;transition:background .15s,box-shadow .15s}
 .mb-google:hover{background:#F8FAFC;box-shadow:0 4px 14px rgba(15,23,42,.1)}
 .mb-google:disabled{opacity:.6;cursor:default}
-.mb-fine{font-size:11.5px;color:#94A3B8;text-align:center;margin-top:12px;line-height:1.55}
+.mb-fine{font-size:12px;color:#94A3B8;text-align:center;margin-top:14px;line-height:1.55}
+.mb-fine a{color:#64748B;text-decoration:underline}
 .mb-err{display:none;background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:10px;padding:8px 12px;font-size:12.5px;margin-top:10px}
 .mb-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#fff;padding:11px 18px;border-radius:12px;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;opacity:0;pointer-events:none;transition:all .25s;z-index:2100;max-width:92vw;text-align:center}
 .mb-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -80,18 +83,17 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     ov = document.createElement('div'); ov.className = 'mb-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
     ov.innerHTML = `<div class="mb-box">
       <button type="button" class="mb-x" aria-label="বন্ধ করুন">×</button>
-      <h2>Protishthan-এ যোগ দিন</h2>
-      <p class="sub">বিনামূল্যে, এক ক্লিকে — আপনার তথ্য আপনারই থাকবে।</p>
-      <div class="mb-why" id="mbWhy" style="display:none"></div>
+      <div class="mb-logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg></div>
+      <h2>Protishthan-এ স্বাগতম</h2>
+      <p class="sub" id="mbSub">বিনামূল্যে, মাত্র এক ক্লিকে।</p>
       <ul class="mb-perks">
-        <li><i>★</i><span>পছন্দের স্কুল-কলেজ-মাদ্রাসা <b>সেভ</b> করে রাখুন, পরে এক জায়গায় দেখুন</span></li>
-        <li><i>▣</i><span><b>শিক্ষিত কার্ড</b> যেকোনো ফোনে পাবেন, হারাবে না</span></li>
-        <li><i>🔔</i><span>ভর্তি, নোটিস আর ফলাফলের খবর (শীঘ্রই)</span></li>
-        <li><i>♟</i><span>দৈনিক খেলা, পয়েন্ট আর নিজের প্রতিষ্ঠানের লিগ (শীঘ্রই)</span></li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></i>পছন্দের প্রতিষ্ঠান সেভ করুন</li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/></svg></i>শিক্ষিত কার্ড সবসময় সাথে থাকবে</li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></i>ভর্তি ও ফলাফলের খবর · শীঘ্রই</li>
       </ul>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
-      <div class="mb-fine">আমরা শুধু আপনার <b>নাম আর ইমেইল</b> রাখি। পাসওয়ার্ড লাগে না। Google-এর স্ক্রিনে "প্রোফাইল ছবি"ও লেখা থাকে, ওটা Google-এর একসাথে দেওয়া অনুমতি — আমরা Google-এর ছবি রাখি না, দেখাইও না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
+      <div class="mb-fine">আমরা শুধু আপনার নাম ও ইমেইল রাখি। চালিয়ে গেলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয় (বয়স ১৩+)।</div>
     </div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
@@ -101,8 +103,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   }
   function openModal(reason){
     if(!ov) buildModal();
-    const why = document.getElementById('mbWhy');
-    why.style.display = reason ? 'block' : 'none'; why.textContent = reason || '';
+    document.getElementById('mbSub').textContent = reason || 'বিনামূল্যে, মাত্র এক ক্লিকে।';
     document.getElementById('mbErr').style.display = 'none';
     document.getElementById('mbGoogle').disabled = false;
     ov.classList.add('show'); document.body.style.overflow = 'hidden';
