@@ -222,16 +222,17 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .av-wrap{position:relative;display:inline-block}
 .av-wrap.hint #avBtn{border-color:#93B4F5;animation:avPulse 1.8s ease-out 3}
 @keyframes avPulse{0%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}70%{box-shadow:0 0 0 10px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
-.av-tip{position:absolute;left:0;top:calc(100% + 12px);z-index:30;width:max-content;max-width:min(300px,84vw);display:flex;align-items:center;gap:10px;background:#0F172A;color:#fff;border-radius:14px;padding:11px 12px 11px 12px;box-shadow:0 18px 36px -12px rgba(2,8,23,.5);font-size:13.5px;line-height:1.45;animation:avTipIn .45s cubic-bezier(.2,.9,.3,1.2)}
+.av-tip{position:absolute;left:58px;bottom:calc(100% + 12px);z-index:30;width:max-content;max-width:min(300px,84vw);display:flex;align-items:center;gap:10px;background:#0F172A;color:#fff;border-radius:14px;padding:11px 12px 11px 12px;box-shadow:0 18px 36px -12px rgba(2,8,23,.5);font-size:13.5px;line-height:1.45;animation:avTipIn .45s cubic-bezier(.2,.9,.3,1.2)}
 .av-tip[hidden]{display:none}
-.av-tip::before{content:'';position:absolute;top:-6px;left:34px;width:13px;height:13px;background:#0F172A;transform:rotate(45deg);border-radius:3px}
+.av-tip::before{content:'';position:absolute;bottom:-6px;left:26px;width:13px;height:13px;background:#0F172A;transform:rotate(45deg);border-radius:3px}
+@media(max-width:560px){.av-tip{left:0}.av-tip::before{left:30px}}
 .av-tip-ic{flex:none;width:30px;height:30px;border-radius:50%;background:rgba(96,165,250,.2);color:#93C5FD;display:flex;align-items:center;justify-content:center;animation:avBob 1.6s ease-in-out infinite}
 .av-tip-t b{color:#93C5FD;font-weight:800}
 .av-tip-x{flex:none;border:none;background:rgba(255,255,255,.12);color:#fff;border-radius:100px;padding:5px 11px;font:700 12px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
 .av-tip-x:hover{background:rgba(255,255,255,.22)}
 .av-tip.out{animation:avTipOut .3s ease-in forwards}
-@keyframes avTipIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes avTipOut{to{opacity:0;transform:translateY(6px)}}
+@keyframes avTipIn{from{opacity:0;transform:translateY(-8px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes avTipOut{to{opacity:0;transform:translateY(-6px)}}
 @keyframes avBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px) rotate(-6deg)}}
 @media(prefers-reduced-motion:reduce){.av-wrap.hint #avBtn,.av-tip,.av-tip-ic{animation:none}}
 .btn-del{padding:11px 13px;color:#DC2626}
