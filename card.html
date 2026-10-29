@@ -764,7 +764,12 @@ async function autoSaveUnl(k){
   if(UNL_NAME[k] === key){ updateUnl(k); return; }
   if(UNL_ID[k]){ try{ await M.sb.from('member_custom_institutions').delete().eq('id', UNL_ID[k]); }catch(e){} delete UNL_ID[k]; }
   const { data, error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name: nm }).select('id').single();
-  if(error && !/duplicate|unique/i.test(error.message)){ return; }
+  if(error && !/duplicate|unique/i.test(error.message)){
+    console.warn('save institution:', error);
+    const bx = document.getElementById('unl-' + k);
+    if(bx){ bx.style.display = 'flex'; bx.innerHTML = '<span class="u-t" style="color:#DC2626">প্রোফাইলে সেভ হয়নি: ' + esc(/TOO_MANY/.test(error.message) ? 'সর্বোচ্চ ৩০টি সেভ করা যায়' : (error.message || 'অজানা সমস্যা')) + '</span>'; }
+    return;
+  }
   if(data && data.id) UNL_ID[k] = data.id;
   UNL_NAME[k] = key; UNL_SAVED.add(key); updateUnl(k);
 }
