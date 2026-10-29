@@ -525,7 +525,7 @@ async function render(){
   $('mail').textContent = me.email || '';
   if(me.avatar_url){ $('avatar').innerHTML = '<img src="' + esc(me.avatar_url) + '" alt="">'; } else { $('avatar').textContent = String(nm || me.email || '?').charAt(0).toUpperCase(); }
   $('avatarEdit').style.display = 'flex'; $('editPill').style.display = 'inline-flex';
-  const no = me.member_no ? 'PM-' + String(me.member_no).padStart(5, '0') : '';
+  const no = me.member_no ? String(me.member_no) : '';
   const since = me.created_at ? new Date(me.created_at).toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' }) : '';
   renderShellUser(me);
   $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + (no ? 'সদস্য নং ' + esc(no) : 'Protishthan সদস্য') + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
