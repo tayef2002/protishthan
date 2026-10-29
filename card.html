@@ -659,7 +659,7 @@ function setTrack(t){
 function syncEduRow(k){
   syncYearUI(k);
   const lv = LEVELS.find(l => l.key === k), tr = S.edu[k].track || 'g';
-  const sub = document.getElementById('sub-' + k); if(sub && lv) sub.textContent = tr === 'g' ? lv.sub : (tr === 'a' ? 'আলিয়া · ' : 'কওমি · ') + lvName(lv, S.edu[k]);
+  const sub = document.getElementById('sub-' + k); if(sub && lv) sub.textContent = tr === 'g' ? lv.sub : lvName(lv, S.edu[k]);
 
   const ed = S.edu[k];
   document.getElementById('edu-' + k).classList.toggle('filled', !!ed.name.trim());
