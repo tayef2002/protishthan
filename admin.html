@@ -6,6 +6,7 @@
 <title>Admin Dashboard — Protishthan</title>
 <meta name="robots" content="noindex,nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="promo.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -161,6 +162,19 @@ body.locked .gate{display:flex}
 .mini-btn.ghost{background:var(--red-l);color:var(--red)}
 .pct-pill{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;background:var(--purple-l);color:var(--purple)}
 .bill-note{font-size:12px;color:var(--text-3);margin-top:-4px;margin-bottom:12px}
+/* home popup editor */
+.sw{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:14px;background:#fff;margin-bottom:14px}
+.sw b{display:block;font-size:14px}.sw small{display:block;font-size:12px;color:var(--text-3)}
+.sw input{width:46px;height:26px;flex:none;appearance:none;-webkit-appearance:none;border-radius:26px;background:#CBD5E1;position:relative;cursor:pointer;transition:background .2s;margin:0;padding:0;border:none}
+.sw input::after{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .2s}
+.sw input:checked{background:var(--green)}
+.sw input:checked::after{transform:translateX(20px)}
+.sw > div{flex:1}
+.pm-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;border-radius:100px;padding:4px 13px;margin-bottom:12px}
+.pm-chip.on{background:var(--green-l);color:var(--green)}.pm-chip.off{background:#F1F5F9;color:var(--text-2)}.pm-chip.sch{background:var(--amber-l);color:var(--amber)}
+.pm-prev{position:sticky;top:18px}
+.pm-prev .lbl{font-size:12px;font-weight:700;color:var(--text-3);margin:0 0 8px}
+.pm-err{display:none;background:var(--red-l);color:var(--red);border:1px solid #FECACA;border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:12px}
 </style>
 </head>
 <body class="locked">
@@ -256,6 +270,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     </button>
     <button class="nav-item" id="nav-boardres" onclick="showView('boardres')">
       <span class="nav-icon">📈</span><span>বোর্ড ফলাফল</span>
+    </button>
+    <button class="nav-item" id="nav-promo" onclick="showView('promo')">
+      <span class="nav-icon">📣</span><span>হোম পপআপ</span>
+      <span class="nav-badge" id="promoDot" style="display:none;background:var(--green)">চালু</span>
     </button>
     <button class="nav-item" id="nav-billing" onclick="showView('billing')">
       <span class="nav-icon">💰</span><span>Revenue / Billing</span>
@@ -435,6 +453,53 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         <div class="section-card" style="overflow-x:auto">
           <div class="sec-h">ডাটাবেসে যা আছে <a href="results.html" target="_blank" style="font-size:12.5px;color:var(--blue)">ফলাফল পাতা ↗</a></div>
           <div id="brAvail"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-promo">
+      <div class="bill-grid">
+        <div class="section-card">
+          <div class="sec-h">হোম পেজের পপআপ</div>
+          <div class="bill-note" style="margin-top:0">এই পপআপ শুধু হোম পেজে দেখাবে। একই পপআপ একই ভিজিটরকে নির্ধারিত দিনের মধ্যে আবার দেখানো হয় না, আর কেউ লেখার সময় (সার্চ বক্সে) আসে না।</div>
+          <div id="pmChip"></div>
+          <form class="pay-form" id="pmForm" onsubmit="savePromo(event)">
+            <label class="sw"><div><b>পপআপ চালু</b><small>বন্ধ থাকলে ভিজিটররা কিছুই দেখবে না</small></div><input type="checkbox" id="pmActive" oninput="renderPromoPreview()"></label>
+            <div class="row2">
+              <div><label for="pmBadge">ছোট ট্যাগ</label><input id="pmBadge" maxlength="30" placeholder="যেমন: নতুন, বিনামূল্যে" oninput="renderPromoPreview()"></div>
+              <div><label for="pmAudience">কাদের দেখাবে</label><select id="pmAudience"><option value="all">সবাইকে</option><option value="guests">যারা লগইন করেননি</option><option value="members">শুধু সদস্যদের</option></select></div>
+            </div>
+            <label for="pmTitle">শিরোনাম * <small style="font-weight:500;color:var(--text-3)" id="pmTitleN"></small></label>
+            <input id="pmTitle" maxlength="90" required oninput="renderPromoPreview()">
+            <label for="pmBody">বিবরণ <small style="font-weight:500;color:var(--text-3)">(নতুন লাইনের জন্য Enter)</small></label>
+            <textarea id="pmBody" rows="4" maxlength="500" oninput="renderPromoPreview()"></textarea>
+            <div class="row2">
+              <div><label for="pmCtaLabel">বাটনের লেখা</label><input id="pmCtaLabel" maxlength="40" placeholder="যেমন: তালিকাভুক্ত করুন" oninput="renderPromoPreview()"></div>
+              <div><label for="pmCtaUrl">বাটন কোথায় নেবে</label><input id="pmCtaUrl" placeholder="list-institution.html বা https://…" oninput="renderPromoPreview()"></div>
+            </div>
+            <label for="pmImage">ছবির লিংক <small style="font-weight:500;color:var(--text-3)">(ঐচ্ছিক, https:// দিয়ে শুরু; ফাঁকা থাকলে নকশা দেখাবে)</small></label>
+            <input id="pmImage" placeholder="https://…/banner.jpg" oninput="renderPromoPreview()">
+            <label class="sw"><div><b>এটা স্পনসর করা বিজ্ঞাপন</b><small>চালু থাকলে পপআপে "স্পনসরড" লেখা দেখাবে (বাধ্যতামূলক স্বচ্ছতা)</small></div><input type="checkbox" id="pmSponsored" oninput="renderPromoPreview()"></label>
+            <input id="pmSponsor" maxlength="60" placeholder="স্পনসরের নাম (ঐচ্ছিক)" oninput="renderPromoPreview()" style="margin-top:-4px">
+            <div class="row2">
+              <div><label for="pmDelay">কত সেকেন্ড পরে আসবে</label><input id="pmDelay" type="number" min="0" max="120" value="8"></div>
+              <div><label for="pmFreq">কত দিন পরপর আবার</label><input id="pmFreq" type="number" min="0" max="365" value="3"></div>
+            </div>
+            <div class="row2">
+              <div><label for="pmStart">শুরুর সময় <small style="font-weight:500;color:var(--text-3)">(ঐচ্ছিক)</small></label><input id="pmStart" type="datetime-local"></div>
+              <div><label for="pmEnd">শেষের সময় <small style="font-weight:500;color:var(--text-3)">(ঐচ্ছিক)</small></label><input id="pmEnd" type="datetime-local"></div>
+            </div>
+            <div class="pm-err" id="pmErr"></div>
+            <div class="row2">
+              <button class="pay-btn" id="pmSave" type="submit">সেভ করুন</button>
+              <button class="pay-btn" type="button" style="background:var(--blue)" onclick="testPromo()">নিজে দেখুন</button>
+            </div>
+          </form>
+        </div>
+        <div class="pm-prev">
+          <div class="lbl">লাইভ প্রিভিউ</div>
+          <div id="pmPreview"></div>
+          <div class="bill-note" id="pmUpdated" style="margin-top:12px"></div>
         </div>
       </div>
     </div>
@@ -1032,6 +1097,63 @@ async function deleteBoardSet(exam, year, board){
   loadBoardAvail();
 }
 ADMIN_READY.then(()=>loadBoardAvail());
+</script>
+<script>
+/* ---------------- home page popup editor (table site_promos, admin-only writes) ---------------- */
+navTitles.promo = ['হোম পপআপ', 'হোম পেজে ভিজিটরদের কী দেখানো হবে, কখন, কাকে'];
+let PM_ROW = null;
+const $pm = id => document.getElementById(id);
+const pmLocal = iso => { if(!iso) return ''; const d = new Date(iso), p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes()); };
+function promoFromForm(){
+  const v = id => $pm(id).value.trim();
+  return {
+    slot: 'home_popup', active: $pm('pmActive').checked, audience: $pm('pmAudience').value,
+    badge: v('pmBadge') || null, title: v('pmTitle'), body: $pm('pmBody').value.trim() || null,
+    cta_label: v('pmCtaLabel') || null, cta_url: v('pmCtaUrl') || null, image_url: v('pmImage') || null,
+    sponsored: $pm('pmSponsored').checked, sponsor_name: v('pmSponsor') || null,
+    delay_seconds: Math.max(0, Math.min(120, parseInt($pm('pmDelay').value, 10) || 0)), frequency_days: Math.max(0, Math.min(365, parseInt($pm('pmFreq').value, 10) || 0)),
+    starts_at: $pm('pmStart').value ? new Date($pm('pmStart').value).toISOString() : null, ends_at: $pm('pmEnd').value ? new Date($pm('pmEnd').value).toISOString() : null
+  };
+}
+function fillPromo(r){
+  $pm('pmActive').checked = !!r.active; $pm('pmAudience').value = r.audience || 'all'; $pm('pmBadge').value = r.badge || ''; $pm('pmTitle').value = r.title || ''; $pm('pmBody').value = r.body || '';
+  $pm('pmCtaLabel').value = r.cta_label || ''; $pm('pmCtaUrl').value = r.cta_url || ''; $pm('pmImage').value = r.image_url || ''; $pm('pmSponsored').checked = !!r.sponsored; $pm('pmSponsor').value = r.sponsor_name || '';
+  $pm('pmDelay').value = r.delay_seconds == null ? 8 : r.delay_seconds; $pm('pmFreq').value = r.frequency_days == null ? 3 : r.frequency_days; $pm('pmStart').value = pmLocal(r.starts_at); $pm('pmEnd').value = pmLocal(r.ends_at);
+}
+function renderPromoPreview(){
+  const p = promoFromForm();
+  $pm('pmPreview').innerHTML = Protishthan.promo.cardHtml(p, { preview: true });
+  $pm('pmTitleN').textContent = p.title.length + '/৯০'.replace(/\d/g, '');
+  const now = Date.now(), inWin = (!p.starts_at || new Date(p.starts_at) <= now) && (!p.ends_at || new Date(p.ends_at) > now);
+  $pm('pmChip').innerHTML = !p.active ? '<span class="pm-chip off">● এখন বন্ধ</span>' : inWin ? '<span class="pm-chip on">● এখন চালু — ভিজিটররা দেখছেন</span>' : '<span class="pm-chip sch">● চালু আছে, তবে নির্ধারিত সময়ের বাইরে</span>';
+  const dot = $pm('promoDot'); if(dot) dot.style.display = (p.active && inWin && PM_ROW && PM_ROW.active) ? 'inline-block' : 'none';
+}
+function promoError(p){
+  if(!p.title) return 'শিরোনাম লিখুন।';
+  if(p.cta_url && !/^(https:\/\/\S+|\/\S*|[a-z0-9_.\/?=&#-]+\.html([?#]\S*)?)$/.test(p.cta_url)) return 'বাটনের ঠিকানা https:// দিয়ে শুরু হতে হবে, অথবা সাইটের কোনো পাতা (যেমন list-institution.html)।';
+  if(p.cta_url && !p.cta_label) return 'বাটনের ঠিকানা দিলে বাটনের লেখাও দিন।';
+  if(p.image_url && !/^https:\/\/\S+$/.test(p.image_url)) return 'ছবির লিংক https:// দিয়ে শুরু হতে হবে।';
+  if(p.starts_at && p.ends_at && new Date(p.ends_at) <= new Date(p.starts_at)) return 'শেষের সময় শুরুর সময়ের পরে হতে হবে।';
+  return '';
+}
+async function loadPromo(){
+  const { data, error } = await sbAdmin.from('site_promos').select('*').eq('slot', 'home_popup').maybeSingle();
+  if(error){ $pm('pmPreview').innerHTML = '<div class="empty-state" style="padding:24px">লোড হয়নি — migrations/2026-10-30_site_promos.sql চালানো হয়েছে কি?<br><small>' + escapeHtmlA(error.message) + '</small></div>'; return; }
+  PM_ROW = data; fillPromo(data || { active: false, title: '', delay_seconds: 8, frequency_days: 3 }); renderPromoPreview();
+  $pm('pmUpdated').textContent = data && data.updated_at ? 'শেষ বদল: ' + new Date(data.updated_at).toLocaleString('bn-BD') : 'এখনো সেভ করা হয়নি।';
+}
+async function savePromo(e){
+  e.preventDefault();
+  const p = promoFromForm(), err = $pm('pmErr'); err.style.display = 'none';
+  const bad = promoError(p); if(bad){ err.textContent = bad; err.style.display = 'block'; return; }
+  const btn = $pm('pmSave'); btn.disabled = true;
+  const { data, error } = await sbAdmin.from('site_promos').upsert(p, { onConflict: 'slot' }).select().single();
+  btn.disabled = false;
+  if(error){ err.textContent = 'সেভ হয়নি: ' + error.message; err.style.display = 'block'; return; }
+  PM_ROW = data; $pm('pmUpdated').textContent = 'সেভ হয়েছে ✓ — ' + new Date(data.updated_at).toLocaleString('bn-BD') + '। ভিজিটররা নতুন সংস্করণ নতুন করে দেখবে।'; renderPromoPreview();
+}
+function testPromo(){ const p = promoFromForm(); const bad = promoError(p); if(bad){ const err = $pm('pmErr'); err.textContent = bad; err.style.display = 'block'; return; } Protishthan.promo.open(p); }
+ADMIN_READY.then(()=>loadPromo());
 </script>
 </body>
 </html>
