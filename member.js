@@ -25,15 +25,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-av{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.4);padding:0;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font:700 16px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .mb-av img{width:100%;height:100%;object-fit:cover;display:block}
 .mb-light .mb-av{border-color:#E2E8F0}
-.mb-menu{position:absolute;right:0;top:50px;min-width:236px;background:#fff;color:#0F172A;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 18px 44px rgba(15,23,42,.2);padding:8px;display:none;z-index:600;font-family:'Hind Siliguri','Inter',sans-serif;text-align:left}
-.mb-menu.open{display:block}
-.mb-who{padding:10px 12px 12px;border-bottom:1px solid #E2E8F0;margin-bottom:6px}
-.mb-who b{display:block;font-size:14.5px;line-height:1.3}
-.mb-who span{display:block;font-size:12px;color:#94A3B8;word-break:break-all}
-.mb-menu a,.mb-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:9px 12px;border:none;background:none;border-radius:10px;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;text-decoration:none;cursor:pointer;text-align:left}
-.mb-menu a:hover,.mb-menu button:hover{background:#F1F5F9}
-.mb-menu .mb-out{color:#DC2626}
-.mb-menu .mb-sm{font-size:12.5px;font-weight:500;color:#475569;padding:7px 12px}
+.mb-av{text-decoration:none}
 .mb-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,22,40,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
 .mb-ov.show{display:flex}
 .mb-box{width:100%;max-width:410px;background:#fff;border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;font-family:'Hind Siliguri','Inter',sans-serif;color:#0F172A;max-height:92vh;overflow:auto}
@@ -148,24 +140,11 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         slot.querySelectorAll('.mb-join,.mb-login').forEach(b => b.addEventListener('click', () => openModal()));
         return;
       }
-      slot.innerHTML = `<div class="mb-wrap${light ? ' mb-light' : ''}">
-        <button type="button" class="mb-av" aria-haspopup="menu" aria-label="আমার অ্যাকাউন্ট">${ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME))}</button>
-        <div class="mb-menu" role="menu">
-          <div class="mb-who"><b>${esc(ME.display_name || 'সদস্য')}</b><span>${esc(ME.email || '')}</span></div>
-          <a href="member.html">আমার পাতা</a>
-          <a href="member.html#saved">সেভ করা প্রতিষ্ঠান</a>
-          <a href="card.html">আমার শিক্ষিত কার্ড</a>
-          <a href="partner.html">Protishthan Partner</a>
-          <a href="terms.html" class="mb-sm">ব্যবহারের শর্ত</a>
-          <a href="privacy.html" class="mb-sm">গোপনীয়তা নীতি</a>
-          <button type="button" class="mb-out">লগআউট</button>
-        </div></div>`;
-      const menu = slot.querySelector('.mb-menu');
-      slot.querySelector('.mb-av').addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
-      slot.querySelector('.mb-out').addEventListener('click', signOut);
+      slot.innerHTML = `<span class="mb-wrap${light ? ' mb-light' : ''}"><a class="mb-av" href="member.html" aria-label="আমার প্রোফাইল" title="${esc(ME.display_name || 'আমার প্রোফাইল')}">${ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME))}</a></span>`;
+      // on the profile page itself the avatar just scrolls to the top
+      slot.querySelector('.mb-av').addEventListener('click', e => { if(/\/member(\.html)?$/.test(location.pathname)){ e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
     });
   }
-  document.addEventListener('click', e => { if(!e.target.closest('.mb-wrap')) document.querySelectorAll('.mb-menu.open').forEach(m => m.classList.remove('open')); });
   document.addEventListener('DOMContentLoaded', render);
   if(document.readyState !== 'loading') render();
 
