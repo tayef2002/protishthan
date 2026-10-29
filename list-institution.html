@@ -443,6 +443,14 @@ function onDistrictChange(){
   });
 }
 
+/* arriving from "my saved institution": name (and type) already filled in */
+(function prefillFromProfile(){
+  try{
+    const p = new URLSearchParams(location.search), nm = (p.get('name') || '').trim(), ty = p.get('type');
+    if(nm){ const el = document.getElementById('instName'); if(el){ el.value = nm.slice(0, 120); if(typeof updateSlugPreview === 'function') updateSlugPreview(); } }
+    if(ty){ const b = [...document.querySelectorAll('.type-btn')].find(x => x.dataset.type === ty); if(b && typeof selectType === 'function') selectType(b); }
+  }catch(e){}
+})();
 function selectType(btn){
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');

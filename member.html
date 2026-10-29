@@ -574,7 +574,23 @@ function updateProgress(){
 }
 
 /* ---------- saved institutions ---------- */
+async function loadCustom(){
+  let box = $('customList'); if(!box){ const sv = $('savedList'); box = document.createElement('div'); box.id = 'customList'; box.className = 'saved'; box.style.marginTop = '14px'; sv.parentNode.insertBefore(box, sv.nextSibling); }
+  const { data, error } = await M.sb.from('member_custom_institutions').select('id,name,itype,district,created_at').order('created_at', { ascending: false });
+  if(error){ box.innerHTML = ''; return; }
+  STATE.custom = data || [];
+  box.innerHTML = STATE.custom.map(c => {
+    const k = typeKey(c.itype), q = 'name=' + encodeURIComponent(c.name) + (c.itype ? '&type=' + encodeURIComponent(c.itype) : '') + (c.district ? '&district=' + encodeURIComponent(c.district) : '');
+    return '<article class="inst" data-cid="' + esc(c.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3>' + esc(c.name) + '</h3><p>' + esc([c.itype, c.district].filter(Boolean).join(' · ') || 'আপনার সেভ করা') + '</p></div></div><div class="tags"><span class="tag">তালিকাভুক্ত নয়</span><span class="tag">শুধু আপনি দেখছেন</span></div><div class="inst-act"><a class="btn btn-line btn-sm" href="list-institution.html?' + q + '">তালিকাভুক্ত করুন ' + ico('arrow', 15) + '</a><button class="unsave" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('x', 16) + '</button></div></article>';
+  }).join('');
+}
+async function delCustom(id){
+  const el = document.querySelector('.inst[data-cid="' + id + '"]'); if(el) el.classList.add('gone');
+  await M.sb.from('member_custom_institutions').delete().eq('id', id);
+  setTimeout(() => { if(el) el.remove(); }, 250); M.toast('মুছে ফেলা হয়েছে');
+}
 async function loadSaved(){
+  loadCustom();
   const box = $('savedList');
   const { data, error } = await M.sb.from('saved_institutions').select('listing_id,created_at,listing_submissions(id,institution_name,institution_type,district,upazila,desired_slug,ownership,admission_status)').order('created_at', { ascending: false });
   if(error){ box.innerHTML = '<div class="card empty" style="grid-column:1/-1"><b>তালিকা লোড হয়নি</b><p>' + esc(error.message) + '</p></div>'; return; }
