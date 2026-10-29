@@ -66,6 +66,25 @@ body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(
 .success-screen p{font-size:13.5px;color:var(--text-2);line-height:1.8;max-width:340px;margin:0 auto 24px}
 .status-badge{display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber);padding:7px 14px;border-radius:100px;font-size:12.5px;font-weight:700;margin-bottom:20px}
 .success-screen .submit-btn{max-width:200px;margin:0 auto}
+.field label .req{color:var(--red);font-weight:700}
+.field input:focus,.field select:focus{box-shadow:0 0 0 3px rgba(26,86,219,.14)}
+.field input.bad,.field select.bad{border-color:var(--red);background:#FEF2F2}
+.field .msg{display:none;font-size:12px;color:var(--red);margin-top:5px;line-height:1.4}
+.field input:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #fff inset;-webkit-text-fill-color:var(--text)}
+.seat{display:none;font-size:12.5px;font-weight:600;margin:-4px 0 16px;padding:8px 12px;border-radius:10px;line-height:1.4}
+.seat.show{display:block}.seat.ok{background:#ECFDF5;color:#047857}.seat.full{background:#FEF2F2;color:var(--red)}.seat.wait{background:#F1F5F9;color:var(--text-3)}
+.meter{display:none;align-items:center;gap:5px;margin-top:8px}
+.meter.show{display:flex}
+.meter i{flex:0 0 38px;height:4px;border-radius:4px;background:var(--border)}
+.meter span{font-size:12px;color:var(--text-3);margin-left:6px}
+.meter.l1 i:nth-child(1){background:#EF4444}.meter.l2 i:nth-child(-n+2){background:#F59E0B}.meter.l3 i{background:#10B981}
+.note a,.alt a{color:var(--blue);font-weight:600;text-decoration:none}.note a:hover,.alt a:hover{text-decoration:underline}
+.alt{text-align:center;font-size:13.5px;color:var(--text-2);margin-top:22px;padding-top:20px;border-top:1px solid var(--border)}
+.submit-btn:disabled{opacity:.7;cursor:default}
+.m-head{display:none;margin-bottom:26px}
+.m-logo{font-size:20px;font-weight:900;letter-spacing:-.5px}.m-logo span{opacity:.45}
+.m-line{font-size:12.5px;color:var(--text-2);margin-top:6px;background:var(--blue-light);border-radius:10px;padding:8px 12px;font-weight:600}
+@media (max-width:900px){.m-head{display:block}.right{height:auto;min-height:100vh;padding:28px 18px 40px}.field-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -99,58 +118,67 @@ body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(
   <div class="right-inner">
 
     <!-- SIGNUP FORM -->
-    <div id="signupForm">
-      <div class="form-title">Partner হতে আবেদন</div>
-      <div class="form-sub">নিজের উপজেলার জন্য Protishthan Partner হিসেবে আবেদন করুন। জমা দেওয়ার পর Admin রিভিউ করে অনুমোদন দেবেন।</div>
+    <div class="m-head"><div class="m-logo">Protisht<span>han</span> Partner</div><div class="m-line">প্রতিটি পেমেন্টে আয় · প্রতি উপজেলায় মাত্র ৩ জন</div></div>
+    <form id="signupForm" novalidate onsubmit="doSignup();return false">
+      <div class="form-title">আপনার তথ্য দিন</div>
+      <div class="form-sub">৩ মিনিটের ফর্ম। জমা দেওয়ার পর Admin যাচাই করে অনুমোদন দেবেন।</div>
 
-      <div class="err-box" id="errBox"></div>
+      <div class="err-box" id="errBox" role="alert"></div>
 
       <div class="field">
-        <label>সম্পূর্ণ নাম *</label>
-        <input type="text" id="fullName" placeholder="আপনার নাম">
+        <label for="fullName">পুরো নাম <b class="req">*</b></label>
+        <input type="text" id="fullName" placeholder="যেমন: মোহাম্মদ রফিকুল ইসলাম" autocomplete="name" maxlength="80">
+        <div class="msg"></div>
       </div>
 
       <div class="field-row">
         <div class="field">
-          <label>ফোন নম্বর *</label>
-          <input type="text" id="phone" placeholder="01XXXXXXXXX">
+          <label for="phone">মোবাইল নম্বর <b class="req">*</b></label>
+          <input type="tel" id="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" maxlength="16">
+          <div class="msg"></div>
         </div>
         <div class="field">
-          <label>ইমেইল *</label>
-          <input type="email" id="email" placeholder="you@email.com">
+          <label for="email">ইমেইল <b class="req">*</b></label>
+          <input type="email" id="email" placeholder="you@gmail.com" autocomplete="email" inputmode="email">
+          <div class="msg"></div>
         </div>
       </div>
 
       <div class="field-row">
         <div class="field">
-          <label>জেলা *</label>
+          <label for="district">জেলা <b class="req">*</b></label>
           <select id="district" onchange="onDistrictChange()">
-            <option value="">জেলা নির্বাচন করুন</option>
+            <option value="">জেলা বাছুন</option>
           </select>
+          <div class="msg"></div>
         </div>
         <div class="field">
-          <label>উপজেলা *</label>
+          <label for="upazila">উপজেলা <b class="req">*</b></label>
           <select id="upazila" onchange="checkUpazilaAvailability()" disabled>
             <option value="">আগে জেলা বাছুন</option>
           </select>
+          <div class="msg"></div>
         </div>
       </div>
-      <div id="districtStatus" style="font-size:12px;margin:-6px 0 14px"></div>
+      <div id="districtStatus" class="seat" aria-live="polite"></div>
 
       <div class="field">
-        <label>পাসওয়ার্ড *</label>
+        <label for="password">পাসওয়ার্ড <b class="req">*</b></label>
         <div class="pass-wrap">
-          <input type="password" id="password" placeholder="কমপক্ষে ৮ অক্ষর">
+          <input type="password" id="password" placeholder="কমপক্ষে ৮ অক্ষর" autocomplete="new-password" oninput="passMeter()">
           <button type="button" class="eye" id="eyeBtn" onclick="togglePass(this)" aria-label="পাসওয়ার্ড দেখান">
             <svg id="eyeIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
           </button>
         </div>
+        <div class="meter" id="meter" aria-hidden="true"><i></i><i></i><i></i><span id="meterTxt"></span></div>
+        <div class="msg"></div>
       </div>
 
-      <button class="submit-btn" id="signupBtn" onclick="doSignup()">আবেদন জমা দিন</button>
-      <div class="note">আবেদন জমা দেওয়ার পর আপনার একটি ড্যাশবোর্ড অ্যাক্সেস পাবেন (Review Pending status সহ)। Admin অনুমোদন দিলে full access চালু হবে।</div>
-    </div>
+      <button class="submit-btn" id="signupBtn" type="submit"><span id="signupLbl">আবেদন জমা দিন</span></button>
+      <div class="note">আবেদন করলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
+      <div class="alt">আগেই অ্যাকাউন্ট আছে? <a href="partner-login.html">লগইন করুন</a></div>
+    </form>
 
     <!-- SUCCESS SCREEN -->
     <div class="success-screen" id="successScreen">
@@ -174,6 +202,31 @@ const sb = createClient(
   { auth: { storageKey: 'prot-agent' } }
 );
 
+const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
+function normPhone(v){
+  let d = String(v).split('').map(c => { const i = BN_DIGITS.indexOf(c); return i > -1 ? String(i) : c; }).join('').replace(/[^0-9]/g, '');
+  if(d.indexOf('880') === 0) d = d.slice(2);
+  if(d.length === 10 && d.charAt(0) === '1') d = '0' + d;
+  return d;
+}
+function fieldErr(id, msg){
+  const el = document.getElementById(id), box = el.closest('.field'), m = box && box.querySelector('.msg');
+  el.classList.toggle('bad', !!msg);
+  if(m){ m.textContent = msg || ''; m.style.display = msg ? 'block' : 'none'; }
+}
+['fullName', 'phone', 'email', 'district', 'upazila', 'password'].forEach(id => {
+  const el = document.getElementById(id); if(!el) return;
+  el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => fieldErr(id, ''));
+});
+function passMeter(){
+  const v = document.getElementById('password').value, m = document.getElementById('meter');
+  if(!v){ m.className = 'meter'; return; }
+  let sc = 1; if(v.length >= 8) sc = 2; if(v.length >= 10 && /[0-9]/.test(v) && /[A-Za-z]/.test(v)) sc = 3;
+  m.className = 'meter show l' + sc;
+  document.getElementById('meterTxt').textContent = v.length < 8 ? 'আরও ' + (8 - v.length) + ' অক্ষর লাগবে' : (sc === 3 ? 'শক্তিশালী' : 'ঠিক আছে');
+}
+function setSeat(cls, txt){ const e = document.getElementById('districtStatus'); e.className = 'seat' + (cls ? ' show ' + cls : ''); e.textContent = txt || ''; }
+
 const MAX_PER_UPAZILA = 3;
 function populateDistricts(){
   const sel = document.getElementById('district');
@@ -191,7 +244,7 @@ function onDistrictChange(){
   up.innerHTML = '<option value="">' + (d ? 'উপজেলা নির্বাচন করুন' : 'আগে জেলা বাছুন') + '</option>';
   up.disabled = !d;
   (d ? d.u : []).forEach(u=>{ const o = document.createElement('option'); o.value = u; o.textContent = u; up.appendChild(o); });
-  document.getElementById('districtStatus').textContent = '';
+  setSeat('');
 }
 
 async function upazilaSeats(district, upazila){
@@ -202,19 +255,12 @@ async function upazilaSeats(district, upazila){
 
 async function checkUpazilaAvailability(){
   const d = document.getElementById('district').value, u = document.getElementById('upazila').value;
-  const statusEl = document.getElementById('districtStatus');
-  if(!d || !u){ statusEl.textContent = ''; return; }
-  statusEl.textContent = 'চেক করা হচ্ছে...';
-  statusEl.style.color = 'var(--text-3)';
+  if(!d || !u){ setSeat(''); return; }
+  setSeat('wait', 'জায়গা আছে কিনা দেখা হচ্ছে...');
   const left = await upazilaSeats(d, u);
-  if(left === null){ statusEl.textContent = ''; return; }
-  if(left <= 0){
-    statusEl.textContent = '❌ এই উপজেলায় ' + MAX_PER_UPAZILA + ' জন Partner পূর্ণ হয়ে গেছে।';
-    statusEl.style.color = 'var(--red)';
-  } else {
-    statusEl.textContent = '✅ এই উপজেলায় আরও ' + left + ' জনের জায়গা আছে।';
-    statusEl.style.color = 'var(--green)';
-  }
+  if(left === null){ setSeat(''); return; }
+  if(left <= 0) setSeat('full', 'এই উপজেলায় ' + MAX_PER_UPAZILA + ' জন Partner পূর্ণ। পাশের অন্য উপজেলা বেছে নিন।');
+  else setSeat('ok', 'এই উপজেলায় আরও ' + left + ' জনের জায়গা আছে।');
 }
 
 function togglePass(btn){
@@ -238,17 +284,27 @@ async function doSignup(){
   const upazila = document.getElementById('upazila').value;
   const password = document.getElementById('password').value;
 
-  if(!fullName||!phone||!email||!district||!upazila||!password){ showErr('সব তথ্য পূরণ করুন।'); return; }
-  if(password.length<8){ showErr('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে।'); return; }
+  let bad = null; const flag = (id, msg) => { fieldErr(id, msg); if(!bad) bad = id; };
+  ['fullName', 'phone', 'email', 'district', 'upazila', 'password'].forEach(id => fieldErr(id, ''));
+  if(fullName.length < 3) flag('fullName', 'আপনার পুরো নাম লিখুন।');
+  const ph = normPhone(phone);
+  if(!/^01[3-9][0-9]{8}$/.test(ph)) flag('phone', 'সঠিক মোবাইল নম্বর দিন (যেমন 01712345678)।');
+  if(!/^[^ @]+@[^ @]+[.][^ @]+$/.test(email)) flag('email', 'সঠিক ইমেইল ঠিকানা দিন।');
+  if(!district) flag('district', 'জেলা বাছুন।');
+  if(district && !upazila) flag('upazila', 'উপজেলা বাছুন।');
+  if(password.length < 8) flag('password', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।');
+  if(bad){ showErr(''); const el = document.getElementById(bad); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }); return; }
   showErr('');
 
   const btn = document.getElementById('signupBtn');
+  const lbl = document.getElementById('signupLbl'); btn.disabled = true; lbl.textContent = 'জমা হচ্ছে...';
   btn.classList.add('loading');
+  const unlock = () => { btn.disabled = false; lbl.textContent = 'আবেদন জমা দিন'; btn.classList.remove('loading'); };
 
   // Re-check seats right before signing up (the database enforces the same limit)
   const left = await upazilaSeats(district, upazila);
   if(left !== null && left <= 0){
-    btn.classList.remove('loading');
+    unlock();
     showErr('এই উপজেলায় ' + MAX_PER_UPAZILA + ' জন Partner পূর্ণ হয়ে গেছে। পাশের অন্য উপজেলা বেছে নিন।');
     return;
   }
@@ -259,7 +315,7 @@ async function doSignup(){
   });
 
   if(error){
-    btn.classList.remove('loading');
+    unlock();
     if(error.message.includes('already registered')) showErr('এই ইমেইল দিয়ে account আগেই আছে।');
     else if(error.message.includes('rate limit')) showErr('একটু পরে আবার চেষ্টা করুন।');
     else showErr(error.message);
@@ -270,19 +326,19 @@ async function doSignup(){
     const { error: insertErr } = await sb.from('agents').insert({
       user_id: data.user.id,
       full_name: fullName,
-      phone, email, district, upazila,
+      phone: ph, email, district, upazila,
       status: 'pending_review',
       is_active: true
     });
     if(insertErr){
-      btn.classList.remove('loading');
+      unlock();
       if(insertErr.message.includes('duplicate')||insertErr.message.includes('unique')) showErr('এই উপজেলায় Partner পূর্ণ হয়ে গেছে, অথবা এই তথ্য দিয়ে আগেই আবেদন করা হয়েছে।');
       else showErr(insertErr.message);
       return;
     }
   }
 
-  btn.classList.remove('loading');
+  unlock();
   document.getElementById('signupForm').style.display='none';
   document.getElementById('successScreen').classList.add('show');
 }
