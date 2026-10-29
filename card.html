@@ -619,6 +619,7 @@ function autoTitle(){
 
 /* ---------------- canvas drawing ---------------- */
 const cv = document.getElementById('card'); let ctx = cv.getContext('2d');
+const QS = 2;   // render at 2x (2160 px wide): everything below is still drawn in the 1080-wide design space
 const F = (w, px) => `${w} ${px}px 'Hind Siliguri', 'Inter', sans-serif`;
 function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); }
 function fitText(t, maxW){ if(ctx.measureText(t).width <= maxW) return t; while(t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1); return t + '…'; }
@@ -692,10 +693,10 @@ let SEAL_CACHE = null;
 function seal(x, y, r, color){
   // drawn once per colour on its own layer, roughened like real ink, then pressed on softly
   if(!SEAL_CACHE || SEAL_CACHE.key !== color + r){
-    const size = Math.ceil(r*2 + 24), off = document.createElement('canvas'); off.width = off.height = size;
+    const size = Math.ceil(r*2 + 24), off = document.createElement('canvas'); off.width = off.height = size * QS;
     const main = ctx; ctx = off.getContext('2d');
-    ctx.translate(size/2, size/2); sealInk(r, color);
-    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'destination-out';
+    ctx.setTransform(QS, 0, 0, QS, 0, 0); ctx.translate(size/2, size/2); sealInk(r, color);
+    ctx.setTransform(QS, 0, 0, QS, 0, 0); ctx.globalCompositeOperation = 'destination-out';
     let seed = 7; const rnd = ()=>(seed = (seed * 16807) % 2147483647) / 2147483647;
     for(let i=0;i<900;i++){ ctx.globalAlpha = .25 + rnd()*.6; ctx.beginPath(); ctx.arc(rnd()*size, rnd()*size, rnd()*2.2 + .4, 0, Math.PI*2); ctx.fill(); }
     for(let i=0;i<14;i++){ ctx.globalAlpha = .18 + rnd()*.25; ctx.beginPath(); ctx.ellipse(rnd()*size, rnd()*size, 8 + rnd()*26, 3 + rnd()*9, rnd()*Math.PI, 0, Math.PI*2); ctx.fill(); }
@@ -703,7 +704,7 @@ function seal(x, y, r, color){
   }
   ctx.save(); ctx.translate(x, y); ctx.rotate(-0.2);
   ctx.globalAlpha = .55; ctx.globalCompositeOperation = 'multiply';
-  ctx.drawImage(SEAL_CACHE.img, -SEAL_CACHE.size/2, -SEAL_CACHE.size/2);
+  ctx.drawImage(SEAL_CACHE.img, -SEAL_CACHE.size/2, -SEAL_CACHE.size/2, SEAL_CACHE.size, SEAL_CACHE.size);
   ctx.restore();
 }
 function sealInk(r, color){
@@ -738,7 +739,8 @@ function draw(){
   const T = THEMES[S.theme];
   const story = S.format === 'story';
   const W = 1080, H = story ? 1920 : 1350;
-  if(cv.height !== H) cv.height = H;
+  if(cv.width !== W*QS || cv.height !== H*QS){ cv.width = W*QS; cv.height = H*QS; }
+  ctx.setTransform(QS, 0, 0, QS, 0, 0);
   const top = story ? 300 : 0;
 
   // background + guilloche waves
