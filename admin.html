@@ -354,6 +354,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     <button class="nav-item" id="nav-boardres" onclick="showView('boardres')">
       <span class="nav-icon">📈</span><span>বোর্ড ফলাফল</span>
     </button>
+    <button class="nav-item" id="nav-names" onclick="showView('names')">
+      <span class="nav-icon">📝</span><span>নাম-অনুরোধ</span>
+      <span class="nav-badge" id="namesBadge" style="display:none">0</span>
+    </button>
     <button class="nav-item" id="nav-promo" onclick="showView('promo')">
       <span class="nav-icon">📣</span><span>হোম পপআপ</span>
       <span class="nav-badge" id="promoDot" style="display:none;background:var(--green)">চালু</span>
@@ -537,6 +541,15 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
           <div class="sec-h">ডাটাবেসে যা আছে <a href="results.html" target="_blank" style="font-size:12.5px;color:var(--blue)">ফলাফল পাতা ↗</a></div>
           <div id="brAvail"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-names">
+      <div class="section-card" style="overflow-x:auto">
+        <div class="sec-h">তালিকায় নেই এমন প্রতিষ্ঠানের নাম <span style="font-size:12.5px;font-weight:500;color:var(--text-3)">শিক্ষিত কার্ডে মানুষ যা লিখেছে</span></div>
+        <div class="bill-note" style="margin-top:0">লগইন থাকুক বা না থাকুক, কেউ কার্ডে তালিকার বাইরের নাম লিখলে এখানে জমা হয়। একই ডিভাইস একই নাম একবারই গোনা হয়, তাই বেশি জন যে নাম লিখেছে সেটা উপরে থাকে। যাচাই করে নিজে তালিকাভুক্ত করুন।</div>
+        <div style="display:flex;gap:8px;margin:10px 0"><button class="pay-btn" type="button" id="nmF-new" onclick="nmFilter('new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="nmF-all" onclick="nmFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
+        <div id="nmList"></div>
       </div>
     </div>
 
@@ -1183,6 +1196,42 @@ ADMIN_READY.then(()=>loadBoardAvail());
 </script>
 <script>
 /* ---------------- home page popup editor (table site_promos, admin-only writes) ---------------- */
+navTitles.names = ['নাম-অনুরোধ', 'কার্ডে লেখা, তালিকায় না থাকা প্রতিষ্ঠানের নাম'];
+let NM_ROWS = [], NM_FILTER = 'new';
+function nmEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+function nmFilter(f){
+  NM_FILTER = f;
+  const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('nmF-new').style.cssText = 'width:auto;padding:8px 14px' + (f === 'new' ? '' : off);
+  document.getElementById('nmF-all').style.cssText = 'width:auto;padding:8px 14px' + (f === 'all' ? '' : off);
+  renderNames();
+}
+async function loadNames(){
+  const { data, error } = await sb.from('unlisted_name_suggestions').select('*').order('n', { ascending: false }).order('last_at', { ascending: false }).limit(500);
+  const box = document.getElementById('nmList');
+  if(error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + nmEsc(error.message) + ' — migrations/2026-10-31_unlisted_name_suggestions.sql চালানো হয়েছে কি?</div>'; return; }
+  NM_ROWS = data || [];
+  const fresh = NM_ROWS.filter(r => r.status === 'new').length, b = document.getElementById('namesBadge');
+  b.textContent = fresh; b.style.display = fresh ? '' : 'none';
+  renderNames();
+}
+function renderNames(){
+  const rows = NM_ROWS.filter(r => NM_FILTER === 'all' || r.status === 'new'), box = document.getElementById('nmList');
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">এখনো কোনো নাম আসেনি।</div>'; return; }
+  const lab = { new: 'নতুন', added: 'তালিকায় তোলা হয়েছে', ignored: 'বাদ' };
+  const th = 'style="padding:8px"';
+  box.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="text-align:left;color:var(--text-3);font-size:12.5px"><th ' + th + '>নাম</th><th ' + th + '>কতজন</th><th ' + th + '>শেষ</th><th ' + th + '>অবস্থা</th><th ' + th + '></th></tr></thead><tbody>' + rows.map(r =>
+    '<tr style="border-top:1px solid #E2E8F0"><td style="padding:10px 8px;font-weight:700">' + nmEsc(r.name) + '</td><td ' + th + '>' + r.n + '</td><td style="padding:8px;color:var(--text-3)">' + new Date(r.last_at).toLocaleDateString('bn-BD') + '</td><td ' + th + '>' + lab[r.status] + '</td><td style="padding:8px;white-space:nowrap">' +
+    '<a href="list-institution.html?name=' + encodeURIComponent(r.name) + '" target="_blank" style="color:var(--blue);font-weight:700;margin-right:12px">ফর্মে খুলুন ↗</a>' +
+    (r.status !== 'added' ? '<button type="button" data-k="' + nmEsc(r.key) + '" onclick="nmSet(this.dataset.k,\'added\')" style="margin-right:8px">হয়েছে</button>' : '') +
+    (r.status !== 'ignored' ? '<button type="button" data-k="' + nmEsc(r.key) + '" onclick="nmSet(this.dataset.k,\'ignored\')">বাদ</button>' : '') + '</td></tr>').join('') + '</tbody></table>';
+}
+async function nmSet(key, status){
+  const { error } = await sb.from('unlisted_name_suggestions').update({ status }).eq('key', key);
+  if(error){ alert('হয়নি: ' + error.message); return; }
+  const r = NM_ROWS.find(x => x.key === key); if(r) r.status = status; loadNames();
+}
+ADMIN_READY.then(() => loadNames());
 navTitles.promo = ['হোম পপআপ', 'হোম পেজে ভিজিটরদের কী দেখানো হবে, কখন, কাকে'];
 let PM_ROW = null;
 const $pm = id => document.getElementById(id);

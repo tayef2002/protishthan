@@ -753,7 +753,15 @@ function updateUnl(k){
 }
 /* signed-in members: a name that is not in the directory is kept in their profile on its own, once they stop typing */
 const UNL_ID = {}, UNL_NAME = {}, UNL_T = {};
-function scheduleUnlSave(k){ clearTimeout(UNL_T[k]); UNL_T[k] = setTimeout(() => autoSaveUnl(k), 1100); }
+function scheduleUnlSave(k){ clearTimeout(UNL_T[k]); UNL_T[k] = setTimeout(() => { reportUnl(k); autoSaveUnl(k); }, 1100); }
+/* every name that is not in the directory is also reported to the admin (logged in or not), so nothing typed is lost */
+const UNL_REPORTED = new Set();
+function reportUnl(k){
+  const ed = S.edu[k], nm = (ed.name || '').trim(), key = unlKey(nm);
+  if(ed.slug || nm.length < 4 || UNL_REPORTED.has(key)) return;
+  UNL_REPORTED.add(key);
+  try{ sb.rpc('suggest_unlisted_institution', { p_device: deviceId(), p_name: nm }).then(() => {}, () => {}); }catch(e){}
+}
 async function autoSaveUnl(k){
   const ed = S.edu[k], nm = (ed.name || '').trim(), key = unlKey(nm), M = MB(); if(!M) return;
   await M.ready(); if(!M.current()){ updateUnl(k); return; }
