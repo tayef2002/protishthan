@@ -826,6 +826,7 @@ function draw(){
   // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
   const shown = rows.slice(0, 6), twoCol = shown.length > 4;
   const sc = 1, rh = rowH, fLbl = 21, fName = 31, fYr = 23;
+  if(twoCol) seal(cx + cw - 44 - sealR, py + ph - 70, sealR, T.accent);   // full-size stamp, parked in the free space beside the photo so it never covers a name or a year
   if(twoCol){
     // five or six levels: two columns of three so the text stays large (names wrap to two lines instead of shrinking)
     const gap = 36, colW = (cw - 88 - gap) / 2, rh2 = 96;
@@ -842,7 +843,7 @@ function draw(){
       ctx.fillText(fitText(l.title + ' · ' + l.sub.split(' / ')[0], colW - 50 - yw - 10), x0 + 50, y + 12);
       if(yr) pill(x0 + colW - yw, y - 13, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 34);
       ctx.fillStyle = T.ink; ctx.font = F(700, 28);
-      const nameW = colW - 50 - (col === 1 && r >= 1 ? 118 : 0);   // keep the stamp's corner clear
+      const nameW = colW - 50;
       wrap(ed.name.trim(), nameW, 2).forEach((ln, k)=>ctx.fillText(ln, x0 + 50, y + 46 + k * 32));
     });
   }
@@ -860,8 +861,7 @@ function draw(){
   });
 
   // the stamp goes on last so whatever sits under it still reads through the ink
-  if(twoCol){ ctx.save(); ctx.globalAlpha = .5; seal(cx + cw - 44 - 48, ry0 + 2*96 + 65, 40, T.accent); ctx.restore(); }
-  else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
+  if(!twoCol) seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
   const bTop = cy + ch - 140;
