@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ব্যবহারের শর্ত | Protishthan</title>
+<meta name="description" content="Protishthan ওয়েবসাইট, সদস্য অ্যাকাউন্ট, শিক্ষিত কার্ড এবং তথ্যভান্ডার ব্যবহারের নিয়ম।">
+<link rel="canonical" href="https://protishthan.com/terms">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased}
+.container{max-width:860px;margin:0 auto;padding:0 24px}
+a{color:var(--blue)}
+/* top bar: same floating nav as the home page */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
+.hero{background:radial-gradient(900px 320px at 80% -10%,rgba(124,58,237,.3),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:112px 0 70px}
+.hero h1{font-size:clamp(28px,4.4vw,42px);line-height:1.2;margin-bottom:8px}
+.hero p{color:rgba(255,255,255,.75);font-size:16px;max-width:640px}
+.hero small{display:inline-block;margin-top:12px;font-size:13px;color:#FDE68A}
+main{margin-top:-34px;position:relative;z-index:2;padding-bottom:30px}
+.doc{background:#fff;border:1px solid var(--border);border-radius:22px;padding:30px 32px;box-shadow:0 10px 34px rgba(15,32,72,.07)}
+.doc h2{font-size:20px;line-height:1.4;margin:26px 0 8px;padding-top:6px}
+.doc h2:first-child{margin-top:0}
+.doc p,.doc li{font-size:15.5px;color:#334155}
+.doc p{margin-bottom:10px}
+.doc ul{margin:6px 0 12px 22px}
+.doc li{margin-bottom:5px}
+.doc .box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:12px 0;font-size:15px}
+.doc table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:14.5px}
+.doc th,.doc td{border:1px solid var(--border);padding:9px 11px;text-align:left;vertical-align:top}
+.doc th{background:var(--surface);font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.toc a{font-size:13px;font-weight:600;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 12px;color:var(--text-2)}
+.foot{text-align:center;padding:22px 16px 40px;color:var(--text-3);font-size:13px}
+.foot a{color:var(--text-2)}
+@media(max-width:600px){.container{padding:0 16px}.doc{padding:22px 18px}.hero{padding:96px 0 64px}.doc table{font-size:13px}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="card.html">শিক্ষিত কার্ড</a></li>
+  </ul>
+  <div class="nav-cta" data-member-slot="nav"></div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>ব্যবহারের শর্ত</h1>
+    <p>Protishthan ব্যবহার করলে এই শর্তগুলো মেনে নিচ্ছেন বলে ধরা হবে। অল্প কথায় পরিষ্কার নিয়ম।</p>
+    <small>সর্বশেষ হালনাগাদ: ২৯ অক্টোবর ২০২৬</small>
+  </div>
+</section>
+
+<main class="container">
+  <article class="doc">
+
+    <div class="toc"><a href="#about">সেবা</a><a href="#account">অ্যাকাউন্ট</a><a href="#info">তথ্যের নির্ভুলতা</a><a href="#card">শিক্ষিত কার্ড</a><a href="#rules">যা করা যাবে না</a><a href="#army">Army</a><a href="#liab">দায়</a><a href="#contact">যোগাযোগ</a></div>
+
+    <h2 id="about">আমাদের সেবা</h2>
+    <p>Protishthan বাংলাদেশের শিক্ষা প্রতিষ্ঠানের একটি তথ্যভান্ডার, যেখানে আছে প্রতিষ্ঠানের পরিচিতি, বোর্ড ফলাফলের পরিসংখ্যান, শিক্ষিত কার্ড বানানোর সুবিধা, সদস্য অ্যাকাউন্ট এবং প্রতিষ্ঠান পরিচালনার জন্য আলাদা সফটওয়্যার সেবা। এই শর্ত ওয়েবসাইটের সাধারণ অংশ ও সদস্য অ্যাকাউন্টের জন্য। সফটওয়্যার সেবার জন্য প্রতিষ্ঠানের সাথে আলাদা শর্ত প্রযোজ্য হতে পারে।</p>
+
+    <h2 id="account">সদস্য অ্যাকাউন্ট</h2>
+    <ul>
+      <li>অ্যাকাউন্ট খুলতে বয়স <b>কমপক্ষে ১৩ বছর</b> হতে হবে।</li>
+      <li>আপনি Google দিয়ে প্রবেশ করেন। আপনার Google অ্যাকাউন্টের নিরাপত্তা আপনার নিজের দায়িত্ব।</li>
+      <li>অ্যাকাউন্টে নিজের সঠিক তথ্য দেবেন। অন্যের পরিচয় ব্যবহার করা যাবে না।</li>
+      <li>যেকোনো সময় "আমার পাতা" থেকে তথ্য মুছে অ্যাকাউন্ট বন্ধ করতে পারেন। নিয়ম ভাঙলে আমরাও অ্যাকাউন্ট বন্ধ করার অধিকার রাখি।</li>
+    </ul>
+
+    <h2 id="info">তথ্যভান্ডার ও ফলাফলের নির্ভুলতা</h2>
+    <p>প্রতিষ্ঠান সম্পর্কে তথ্য আসে সরকারি তালিকা, শিক্ষা বোর্ডের প্রকাশিত পরিসংখ্যান, প্রতিষ্ঠান নিজে এবং Protishthan Army সদস্যদের কাছ থেকে। প্রতিটি পাতায় তথ্যের অবস্থা (যাচাইকৃত বা অযাচাইকৃত) এবং সম্ভব হলে সূত্র দেখানো হয়।</p>
+    <div class="box">আমরা নির্ভুল রাখার চেষ্টা করি, কিন্তু <b>সব তথ্য সবসময় সঠিক বা হালনাগাদ থাকার নিশ্চয়তা দিতে পারি না।</b> ভর্তি, ফি বা অন্য গুরুত্বপূর্ণ সিদ্ধান্তের আগে প্রতিষ্ঠানের সাথে সরাসরি যোগাযোগ করে নিন। ভুল দেখলে আমাদের জানান, আমরা যাচাই করে ঠিক করব।</div>
+    <p>ব্যক্তিগত পরীক্ষার ফলাফল ও মার্কশিটের জন্য শিক্ষা বোর্ডের অফিসিয়াল ওয়েবসাইটই একমাত্র নির্ভরযোগ্য উৎস।</p>
+
+    <h2 id="card">শিক্ষিত কার্ড</h2>
+    <p>শিক্ষিত কার্ড একটি <b>স্ব-ঘোষিত মজার কার্ড</b>। এটি কোনো সরকারি নথি, সনদ বা শিক্ষাগত যোগ্যতার প্রমাণ নয়, এবং কোনো সরকারি সংস্থার সাথে এর সম্পর্ক নেই। নিজের শিক্ষাজীবন সম্পর্কে সত্য তথ্য দিন। কার্ড ব্যবহার করে কাউকে ঠকানো বা মিথ্যা পরিচয় দেওয়া নিষিদ্ধ। কার্ডে আপনার দেওয়া নাম ও ছবি আপনার নিজের দায়িত্বে থাকবে।</p>
+
+    <h2 id="rules">যা করা যাবে না</h2>
+    <ul>
+      <li>মিথ্যা বা বিভ্রান্তিকর তথ্য দেওয়া, বিশেষ করে প্রতিষ্ঠান বা ফলাফল নিয়ে।</li>
+      <li>অন্যের ছবি বা পরিচয় তার অনুমতি ছাড়া ব্যবহার করা।</li>
+      <li>সাইট বা লগইন ব্যবস্থা অকেজো করার, ফাঁকি দেওয়ার বা অনুমতি ছাড়া ঢোকার চেষ্টা।</li>
+      <li>সাইট থেকে স্বয়ংক্রিয়ভাবে ব্যাপক হারে তথ্য সংগ্রহ (স্ক্র্যাপিং) করা।</li>
+      <li>আপত্তিকর, হয়রানিমূলক বা বেআইনি বিষয়বস্তু দেওয়া।</li>
+      <li>আইন লঙ্ঘন করে এই সেবা ব্যবহার করা।</li>
+    </ul>
+
+    <h2>আপনার দেওয়া বিষয়বস্তু</h2>
+    <p>আপনি যা দেন (যেমন কার্ডের লেখা ও ছবি) তার মালিকানা আপনারই থাকে। সেবা চালানোর জন্য আমাদের সেটি সংরক্ষণ ও দেখানোর অনুমতি দিচ্ছেন। প্রতিষ্ঠানের পাতার তথ্য, ডিজাইন ও লেখা Protishthan বা সংশ্লিষ্ট প্রতিষ্ঠানের সম্পত্তি, অনুমতি ছাড়া অন্যত্র কপি করা যাবে না।</p>
+
+    <h2 id="army">Protishthan Army</h2>
+    <p>Protishthan Army হলো সদস্যদের জন্য একটি ঐচ্ছিক কর্মসূচি, যেখানে আবেদনকারী নিজের এলাকার প্রতিষ্ঠানের তথ্য যাচাই করেন। Army-তে অংশ নেওয়া, কমিশনের হার, শর্ত ও অর্থ প্রদানের নিয়ম আলাদা নির্দেশিকায় বলা হয়। কমিশন শুধু যাচাইকৃত এবং প্রকৃতপক্ষে মূল্য পরিশোধকারী প্রতিষ্ঠান থেকে আসে, আয়ের কোনো নিশ্চয়তা নেই, এবং এই নিয়ম সময়ে সময়ে বদলাতে পারে।</p>
+
+    <h2 id="liab">আমাদের দায় সীমা</h2>
+    <p>সেবা "যেমন আছে" ভিত্তিতে দেওয়া হয়। সাইট সবসময় বিরতিহীন বা ত্রুটিমুক্ত থাকবে তা আমরা নিশ্চিত করতে পারি না। এই সাইটের তথ্যের ওপর ভিত্তি করে আপনার নেওয়া কোনো সিদ্ধান্তের ফলাফলের জন্য আইন অনুমোদিত সীমায় আমরা দায়ী নই।</p>
+
+    <h2>শর্ত বদলালে</h2>
+    <p>এই শর্ত আমরা বদলাতে পারি। বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। বদলের পরও সেবা ব্যবহার চালিয়ে গেলে নতুন শর্ত মেনে নিয়েছেন বলে ধরা হবে।</p>
+
+    <h2>প্রযোজ্য আইন</h2>
+    <p>এই শর্ত বাংলাদেশের আইন অনুযায়ী পরিচালিত হবে।</p>
+
+    <h2 id="contact">যোগাযোগ</h2>
+    <p>প্রশ্ন, অভিযোগ বা তথ্য সংশোধনের অনুরোধ জানাতে লিখুন: <a href="mailto:teamprotishthan@gmail.com">teamprotishthan@gmail.com</a></p>
+    <p>আমাদের <a href="privacy.html">গোপনীয়তা নীতি</a>-ও দেখুন।</p>
+  </article>
+</main>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="privacy.html">গোপনীয়তা নীতি</a> · <a href="terms.html">ব্যবহারের শর্ত</a> · <a href="index.html">তথ্যভান্ডার</a></footer>
+
+<script>
+document.getElementById('fy').textContent = String(new Date().getFullYear()).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>গোপনীয়তা নীতি | Protishthan</title>
+<meta name="description" content="Protishthan আপনার কোন তথ্য নেয়, কেন নেয়, কোথায় রাখে এবং আপনি কীভাবে তা মুছে ফেলতে পারেন।">
+<link rel="canonical" href="https://protishthan.com/privacy">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.8;-webkit-font-smoothing:antialiased}
+.container{max-width:860px;margin:0 auto;padding:0 24px}
+a{color:var(--blue)}
+/* top bar: same floating nav as the home page */
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
+.hero{background:radial-gradient(900px 320px at 80% -10%,rgba(124,58,237,.3),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:112px 0 70px}
+.hero h1{font-size:clamp(28px,4.4vw,42px);line-height:1.2;margin-bottom:8px}
+.hero p{color:rgba(255,255,255,.75);font-size:16px;max-width:640px}
+.hero small{display:inline-block;margin-top:12px;font-size:13px;color:#FDE68A}
+main{margin-top:-34px;position:relative;z-index:2;padding-bottom:30px}
+.doc{background:#fff;border:1px solid var(--border);border-radius:22px;padding:30px 32px;box-shadow:0 10px 34px rgba(15,32,72,.07)}
+.doc h2{font-size:20px;line-height:1.4;margin:26px 0 8px;padding-top:6px}
+.doc h2:first-child{margin-top:0}
+.doc p,.doc li{font-size:15.5px;color:#334155}
+.doc p{margin-bottom:10px}
+.doc ul{margin:6px 0 12px 22px}
+.doc li{margin-bottom:5px}
+.doc .box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:12px 0;font-size:15px}
+.doc table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:14.5px}
+.doc th,.doc td{border:1px solid var(--border);padding:9px 11px;text-align:left;vertical-align:top}
+.doc th{background:var(--surface);font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.toc a{font-size:13px;font-weight:600;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 12px;color:var(--text-2)}
+.foot{text-align:center;padding:22px 16px 40px;color:var(--text-3);font-size:13px}
+.foot a{color:var(--text-2)}
+@media(max-width:600px){.container{padding:0 16px}.doc{padding:22px 18px}.hero{padding:96px 0 64px}.doc table{font-size:13px}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="card.html">শিক্ষিত কার্ড</a></li>
+  </ul>
+  <div class="nav-cta" data-member-slot="nav"></div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <h1>গোপনীয়তা নীতি</h1>
+    <p>আপনার তথ্য আপনার। এখানে সহজ ভাষায় লেখা আছে আমরা কী নিই, কেন নিই, আর আপনার কী কী অধিকার আছে।</p>
+    <small>সর্বশেষ হালনাগাদ: ২৯ অক্টোবর ২০২৬</small>
+  </div>
+</section>
+
+<main class="container">
+  <article class="doc">
+
+    <div class="toc"><a href="#who">আমরা কারা</a><a href="#what">কী তথ্য নিই</a><a href="#google">Google লগইন</a><a href="#use">কীভাবে ব্যবহার করি</a><a href="#share">কার কাছে যায়</a><a href="#keep">কতদিন রাখি</a><a href="#rights">আপনার অধিকার</a><a href="#kids">কম বয়সীরা</a><a href="#contact">যোগাযোগ</a></div>
+
+    <h2 id="who">আমরা কারা</h2>
+    <p>Protishthan (protishthan.com) বাংলাদেশের শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার, বোর্ড ফলাফলের পরিসংখ্যান, শিক্ষিত কার্ড এবং প্রতিষ্ঠান পরিচালনার সফটওয়্যার সেবা। এই নীতি আমাদের ওয়েবসাইটের সাধারণ পাতাগুলো এবং সদস্য অ্যাকাউন্টের জন্য প্রযোজ্য।</p>
+
+    <h2 id="what">আমরা কী তথ্য নিই</h2>
+    <table>
+      <tr><th>কখন</th><th>কী তথ্য</th></tr>
+      <tr><td>শুধু সাইট ঘুরে দেখলে (লগইন ছাড়া)</td><td>কোনো ব্যক্তিগত তথ্য নিই না। প্রতিষ্ঠানের পাতা কতবার দেখা হয়েছে তার একটা গণনা রাখি, কে দেখেছে তা নয়।</td></tr>
+      <tr><td>শিক্ষিত কার্ড বানালে (লগইন ছাড়া)</td><td>আপনার লেখা নাম, প্রতিষ্ঠান, ছবি এবং পছন্দ <b>শুধু আপনার ব্রাউজারে</b> থাকে। ছবি আমাদের সার্ভারে যায় না।</td></tr>
+      <tr><td>Google দিয়ে সদস্য হলে</td><td>আপনার <b>নাম, ইমেইল ঠিকানা ও প্রোফাইল ছবি</b> (Google থেকে), অ্যাকাউন্ট খোলার সময় এবং শেষ কবে এসেছেন।</td></tr>
+      <tr><td>সদস্য অবস্থায়</td><td>আপনার সেভ করা প্রতিষ্ঠানের তালিকা, এবং আপনার শিক্ষিত কার্ডের তথ্য (নাম, প্রতিষ্ঠান, সাল, ছবি, পছন্দ) যাতে সব ডিভাইসে পান।</td></tr>
+      <tr><td>প্রতিষ্ঠান তালিকাভুক্ত করলে</td><td>আপনার দেওয়া প্রতিষ্ঠানের তথ্য ও যোগাযোগের নাম, ফোন, ইমেইল।</td></tr>
+      <tr><td>Protishthan Army-তে আবেদন করলে</td><td>নাম, ফোন, ইমেইল, জেলা ও উপজেলা। আয়ের টাকা পাঠানোর সময় প্রয়োজনীয় পেমেন্টের তথ্য।</td></tr>
+    </table>
+    <div class="box"><b>বোর্ড ফলাফল:</b> আমাদের ফলাফলের পাতায় শুধু প্রতিষ্ঠানভিত্তিক মোট সংখ্যা (কতজন পরীক্ষা দিয়েছে, কতজন পাস করেছে) থাকে, যা শিক্ষা বোর্ডগুলো নিজেরা প্রকাশ করে। কোনো শিক্ষার্থীর নাম, রোল বা নম্বর আমরা সংগ্রহ বা প্রকাশ করি না।</div>
+    <p>স্কুল ম্যানেজমেন্ট সফটওয়্যারে (প্রতিষ্ঠান, শিক্ষক, অভিভাবক ও শিক্ষার্থীর লগইন) যে তথ্য থাকে, তা সেই প্রতিষ্ঠানের নিজস্ব। আমরা শুধু সেবা চালানোর জন্য তা সংরক্ষণ করি।</p>
+
+    <h2 id="google">Google দিয়ে লগইন</h2>
+    <p>"যোগ দিন" চাপলে আপনি Google-এর মাধ্যমে প্রবেশ করেন। আমরা Google-এর কাছ থেকে শুধু আপনার <b>নাম, ইমেইল ও প্রোফাইল ছবি</b> চাই। আপনার Google পাসওয়ার্ড আমরা কখনো দেখি না বা পাই না। আপনার Gmail, Drive বা অন্য কিছুতে আমাদের কোনো প্রবেশাধিকার নেই।</p>
+    <p>Protishthan Google API থেকে পাওয়া তথ্য ব্যবহার ও অন্যত্র স্থানান্তরের ক্ষেত্রে <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a> মেনে চলে, এর <i>Limited Use</i> শর্তসহ।</p>
+
+    <h2 id="use">তথ্য কীভাবে ব্যবহার করি</h2>
+    <ul>
+      <li>আপনাকে চেনা এবং আপনার অ্যাকাউন্টের পাতা দেখানো।</li>
+      <li>আপনার সেভ করা প্রতিষ্ঠান ও কার্ড সব ডিভাইসে পাওয়ার সুবিধা দেওয়া।</li>
+      <li>সেবার সমস্যা ঠিক করা এবং নিরাপত্তা রক্ষা করা।</li>
+      <li>আপনি চাইলে ভবিষ্যতে ভর্তি, নোটিস ও ফলাফলের খবর জানানো।</li>
+    </ul>
+    <p><b>আমরা আপনার ব্যক্তিগত তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাদের কাছে দিই না, এবং বিজ্ঞাপনের জন্য আপনাকে ট্র্যাক করি না।</b></p>
+
+    <h2 id="share">তথ্য কার কাছে যায়</h2>
+    <p>সেবা চালাতে আমরা নির্ভরযোগ্য কিছু প্রযুক্তি প্রতিষ্ঠান ব্যবহার করি। তারা আমাদের হয়ে তথ্য সংরক্ষণ ও পরিচালনা করে, নিজেদের কাজে ব্যবহার করে না:</p>
+    <ul>
+      <li><b>Supabase</b> — ডাটাবেস ও লগইন ব্যবস্থা।</li>
+      <li><b>Cloudflare</b> — ওয়েবসাইট হোস্টিং ও নিরাপত্তা।</li>
+      <li><b>Google</b> — লগইন এবং ফন্ট (Google Fonts)।</li>
+      <li><b>jsDelivr ও cdnjs</b> — ওয়েবসাইটের কিছু কোড লাইব্রেরি পরিবেশন।</li>
+    </ul>
+    <p>আইনগত বাধ্যবাধকতা থাকলে আমরা সংশ্লিষ্ট কর্তৃপক্ষকে তথ্য দিতে পারি।</p>
+
+    <h2 id="keep">কতদিন রাখি</h2>
+    <p>আপনার সদস্য অ্যাকাউন্টের তথ্য আপনি মুছে না ফেলা পর্যন্ত রাখা হয়। ব্রাউজারে সংরক্ষিত কার্ডের খসড়া আপনার ডিভাইসে থাকে, ব্রাউজারের তথ্য মুছলে চলে যায়। ব্রাউজারে আমরা শুধু লগইন অবস্থা মনে রাখার জন্য এবং আপনার কার্ডের খসড়া রাখার জন্য স্থানীয় সংরক্ষণ (local storage) ব্যবহার করি।</p>
+
+    <h2 id="rights">আপনার অধিকার</h2>
+    <ul>
+      <li><b>দেখা ও সংশোধন:</b> "আমার পাতা"-য় আপনার তথ্য দেখতে পাবেন।</li>
+      <li><b>মুছে ফেলা:</b> "আমার পাতা"-র নিচে <b>"তথ্য মুছে দিন"</b> বাটন চাপলে আপনার প্রোফাইল, সেভ করা প্রতিষ্ঠান ও কার্ডের তথ্য তখনই মুছে যায়।</li>
+      <li><b>লগইন রেকর্ড সম্পূর্ণ মোছা:</b> লগইন ব্যবস্থায় থাকা আপনার ইমেইলের রেকর্ডও পুরোপুরি মুছতে চাইলে নিচের ঠিকানায় ইমেইল করুন। আমরা ৩০ দিনের মধ্যে তা মুছে দেব।</li>
+      <li><b>Google-এর অনুমতি প্রত্যাহার:</b> <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google অ্যাকাউন্ট → নিরাপত্তা → তৃতীয় পক্ষের অ্যাপ</a> থেকে যেকোনো সময় Protishthan-এর অনুমতি তুলে নিতে পারেন।</li>
+    </ul>
+
+    <h2 id="kids">কম বয়সীদের জন্য</h2>
+    <p>সদস্য অ্যাকাউন্ট খুলতে বয়স <b>কমপক্ষে ১৩ বছর</b> হতে হবে। ১৩ বছরের কম বয়সী কেউ অ্যাকাউন্ট খুলেছে জানতে পারলে আমরা তা মুছে দেব। কোনো শিক্ষার্থীর ব্যক্তিগত ফলাফল আমরা প্রকাশ করি না।</p>
+
+    <h2>নিরাপত্তা</h2>
+    <p>আপনার তথ্য সুরক্ষিত ডাটাবেসে রাখা হয়, আর প্রতিটি সদস্য শুধু নিজের তথ্য দেখতে ও বদলাতে পারে। তবে ইন্টারনেটে কোনো ব্যবস্থাই শতভাগ নিরাপদ নয়, তাই কিছু ঘটলে আমরা দ্রুত জানানোর চেষ্টা করব।</p>
+
+    <h2>এই নীতি বদলালে</h2>
+    <p>নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। গুরুত্বপূর্ণ বদল হলে সদস্যদের আলাদা করে জানানো হবে।</p>
+
+    <h2 id="contact">যোগাযোগ</h2>
+    <p>এই নীতি নিয়ে কোনো প্রশ্ন বা অনুরোধ থাকলে লিখুন: <a href="mailto:teamprotishthan@gmail.com">teamprotishthan@gmail.com</a></p>
+  </article>
+</main>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="privacy.html">গোপনীয়তা নীতি</a> · <a href="terms.html">ব্যবহারের শর্ত</a> · <a href="index.html">তথ্যভান্ডার</a></footer>
+
+<script>
+document.getElementById('fy').textContent = String(new Date().getFullYear()).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
+</script>
+</body>
+</html>

@@ -78,7 +78,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       </ul>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
-      <div class="mb-fine">আমরা শুধু আপনার নাম, ইমেইল আর ছবি নিই। পাসওয়ার্ড লাগে না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের নিয়ম মেনে নিচ্ছেন বলে ধরা হবে।</div>
+      <div class="mb-fine">আমরা শুধু আপনার নাম, ইমেইল আর ছবি নিই। পাসওয়ার্ড লাগে না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
     </div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
