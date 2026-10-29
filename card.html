@@ -381,6 +381,8 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'
 
 /* ---------------- state ---------------- */
 const LEVELS = [
+  { key:'psc',     title:'প্রাথমিক', sub:'PSC / ইবতেদায়ি', ph:'প্রাথমিক বিদ্যালয় বা মাদ্রাসার নাম' },
+  { key:'jsc',     title:'জুনিয়র', sub:'JSC / JDC', ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'school',  title:'মাধ্যমিক', sub:'SSC / দাখিল', ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC / আলিম', ph:'কলেজ বা মাদ্রাসার নাম' },
   { key:'bachelor',title:'স্নাতক', sub:'অনার্স / ডিগ্রি / ফাজিল', ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
@@ -819,17 +821,20 @@ function draw(){
   ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 176, eyTop - 10, cw - 88 - 176, 2);
   const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
   if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText(fitText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', cw - 88 - sealW), ex, ry0 + 46); }
-  rows.slice(0, 4).forEach((l, i)=>{
-    const ed = S.edu[l.key], y = ry0 + i*rowH;
-    if(i < Math.min(rows.length, 4) - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28, 3, rowH - 6); }
-    ctx.beginPath(); ctx.arc(ex + 18, y + 24, 15, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
-    ctx.beginPath(); ctx.arc(ex + 18, y + 24, 6.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.fillStyle = '#64748B'; ctx.font = F(600, 21); ctx.fillText(l.title + ' · ' + l.sub, ex + 50, y + 12);
+  // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
+  const shown = rows.slice(0, 6), sc = Math.min(1, Math.floor(290 / Math.max(shown.length, 1)) / rowH), rh = rowH * sc;
+  const fLbl = Math.max(16, 21 * sc), fName = Math.max(23, 31 * sc), fYr = Math.max(18, 23 * sc);
+  shown.forEach((l, i)=>{
+    const ed = S.edu[l.key], y = ry0 + i*rh;
+    if(i < shown.length - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28*sc, 3, rh - 6*sc); }
+    ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 15*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
+    ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 6.5*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.fillStyle = '#64748B'; ctx.font = F(600, fLbl); ctx.fillText(l.title + ' · ' + l.sub, ex + 50, y + 12*sc);
     const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
-    ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
-    ctx.fillStyle = T.ink; ctx.font = F(700, 31);
-    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 50 - yw - 20), ex + 50, y + 48);
-    if(yr) pill(cx + cw - 44 - yw, y + 20, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 40);
+    ctx.font = F(700, fYr); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
+    ctx.fillStyle = T.ink; ctx.font = F(700, fName);
+    ctx.fillText(fitText(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), cw - 88 - 50 - yw - 20), ex + 50, y + 48*sc);
+    if(yr) pill(cx + cw - 44 - yw, y + 20*sc, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, fYr), 17, 40*Math.max(sc, .8));
   });
 
   // the stamp goes on last so whatever sits under it still reads through the ink
