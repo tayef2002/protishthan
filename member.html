@@ -171,6 +171,7 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 .inst-act .btn{flex:1}
 .unsave{width:40px;height:40px;border-radius:11px;border:1.5px solid var(--border);background:#fff;color:#F59E0B;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;transition:background .15s,border-color .15s}
 .unsave:hover{background:#FFFBEB;border-color:#FDE68A}
+.inst-act .unsave.del{color:#DC2626}.inst-act .unsave.del:hover{background:#FEF2F2;border-color:#FECACA}
 
 .empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 16px;color:var(--text-2)}
 .empty .art{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,#EEF3FF,#F3E8FF);color:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
@@ -532,6 +533,8 @@ const M = Protishthan.member, esc = M.esc;
 const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/[0-9]/g, d => BN[d]);
 const $ = id => document.getElementById(id);
 const IC = {
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/>',
   school: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>',
   madrasa: '<path d="M5 21v-7c0-3.9 3.1-7 7-7s7 3.1 7 7v7"/><path d="M12 3v4M3 21h18M10 21v-4h4v4"/>',
   college: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
@@ -622,7 +625,7 @@ async function loadCustom(){
     if(c.__ls === 'approved' && c.__slug && !/^pending-/.test(c.__slug)) act += '<a class="btn btn-line btn-sm" href="institution-detail.html?slug=' + encodeURIComponent(c.__slug) + '">পাতা দেখুন ' + ico('arrow', 15) + '</a>';
     return '<article class="inst" data-cid="' + esc(c.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3>' + esc(c.name) + '</h3><p>' + esc([c.itype, c.upazila, c.district].filter(Boolean).join(' · ') || 'তথ্য এখনো দেওয়া হয়নি') + '</p></div></div>' +
       '<div class="tags"><span class="tag im-st im-' + st[1] + '">' + st[0] + '</span>' + (c.listing_id ? '' : '<span class="tag">শুধু আপনি দেখছেন</span>') + '</div>' +
-      '<div class="inst-act">' + act + (c.listing_id ? '' : '<button class="unsave" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('x', 16) + '</button>') + '</div></article>';
+      '<div class="inst-act">' + act + (c.listing_id ? '' : '<button class="unsave del" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('trash', 17) + '</button>') + '</div></article>';
   }).join('');
 }
 async function delCustom(id){
