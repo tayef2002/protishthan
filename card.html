@@ -393,6 +393,9 @@ const TITLES = ['সার্টিফায়েড শিক্ষিত ন�
 const THEMES = {
   night: { name:'রাতের আকাশ', bg:['#0A1628','#1A3570'], accent:'#2563EB', accent2:'#7C3AED', gold:'#FBBF24', ink:'#0F172A', chipText:'#fff' },
   green: { name:'সবুজ', bg:['#03382B','#047857'], accent:'#047857', accent2:'#10B981', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
+  black: { name:'কালো-সোনালি', bg:['#0B0B10','#2B2211'], accent:'#B8860B', accent2:'#F5C542', gold:'#F5C542', ink:'#111827', chipText:'#fff' },
+  plat:  { name:'প্ল্যাটিনাম', bg:['#1F2937','#64748B'], accent:'#475569', accent2:'#94A3B8', gold:'#E5E7EB', ink:'#0F172A', chipText:'#fff' },
+  flag:  { name:'লাল-সবুজ', bg:['#00432F','#006A4E'], accent:'#006A4E', accent2:'#F42A41', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
 const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
@@ -734,6 +737,37 @@ function sticker(x, y, r, T){
   ctx.textAlign = 'left'; ctx.restore();
 }
 
+/* ---------------- premium print details ---------------- */
+let GRAIN = null;
+function drawGrain(x, y, w, h){          // fine paper grain, made once and reused
+  if(!GRAIN){
+    const c = document.createElement('canvas'); c.width = w * QS; c.height = h * QS; const g = c.getContext('2d');
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for(let i = 0; i < 5200; i++){ g.globalAlpha = .025 + rnd() * .05; g.fillStyle = rnd() > .5 ? '#0F172A' : '#64748B'; g.beginPath(); g.arc(rnd() * c.width, rnd() * c.height, (.5 + rnd() * 1.1) * QS, 0, Math.PI * 2); g.fill(); }
+    GRAIN = c;
+  }
+  ctx.drawImage(GRAIN, x, y, w, h);
+}
+function foilFrame(x, y, w, h){          // gold foil edge
+  ctx.save();
+  const g = ctx.createLinearGradient(x, y, x + w, y + h);
+  [[0, '#FFF3B0'], [.25, '#D4A017'], [.5, '#FFF1A8'], [.75, '#B8860B'], [1, '#F9E08B']].forEach(([p, c]) => g.addColorStop(p, c));
+  ctx.strokeStyle = g; ctx.lineWidth = 6; rr(x + 4, y + 4, w - 8, h - 8, 38); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; rr(x + 11, y + 11, w - 22, h - 22, 32); ctx.stroke();
+  ctx.restore();
+}
+function microLine(x, y, w){             // banknote-style micro print
+  ctx.save(); ctx.font = '700 8px Inter, sans-serif'; ctx.fillStyle = 'rgba(15,23,42,.38)';
+  const t = 'SHIKKHITO CARD · PROTISHTHAN.COM · '; let line = ''; while(ctx.measureText(line).width < w) line += t;
+  ctx.beginPath(); ctx.rect(x, y - 10, w, 14); ctx.clip(); ctx.fillText(line, x, y); ctx.restore();
+}
+function verifiedTick(x, y, r){          // blue tick: this institution is listed in the Protishthan directory
+  ctx.save(); ctx.fillStyle = '#2563EB'; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = r * .28; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x - r * .42, y + r * .02); ctx.lineTo(x - r * .1, y + r * .34); ctx.lineTo(x + r * .46, y - r * .32); ctx.stroke(); ctx.restore();
+}
+const LEVEL_YEARS = { psc: 5, jsc: 8, school: 10, college: 12, bachelor: 16, masters: 17 };   // years of schooling up to the end of each level
+
 function draw(){
   saveState();
   const T = THEMES[S.theme];
@@ -782,7 +816,10 @@ function draw(){
   hg.addColorStop(0, T.accent); hg.addColorStop(.35, T.accent2); hg.addColorStop(.6, '#F472B6'); hg.addColorStop(.82, T.gold); hg.addColorStop(1, T.accent);
   ctx.fillStyle = hg; ctx.fillRect(cx, cy, cw, 16);
   guilloche(cx, cy + 40, cw, 360, T.accent, .06, 7);
+  drawGrain(cx, cy, cw, ch);
   ctx.restore();
+  foilFrame(cx, cy, cw, ch);
+  microLine(cx + 40, cy + 34, cw - 80); microLine(cx + 40, cy + ch - 10, cw - 80);
 
   goldChip(cx + cw - 124, cy + 44);
 
@@ -802,9 +839,13 @@ function draw(){
   // name + title + badges
   const nx = px + pw + 46, nw = cx + cw - 44 - nx;
   ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 23); ctx.fillText('নাম', nx, py + 34);
-  ctx.fillStyle = T.ink; ctx.font = F(700, 56);
+  ctx.font = F(700, 58);
   const lines = wrap(S.name.trim() || 'আপনার নাম', nw, 2);
-  lines.forEach((l, i)=>ctx.fillText(l, nx, py + 100 + i*64));
+  lines.forEach((l, i)=>{            // embossed: a light edge below-right, a soft shadow under the ink
+    const yy = py + 100 + i*64;
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.fillText(l, nx + 2, yy + 2);
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.22)'; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1; ctx.fillStyle = T.ink; ctx.fillText(l, nx, yy); ctx.restore();
+  });
   let ty = py + 100 + (lines.length - 1)*64 + 30;
   ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 23); ctx.fillText('পদবি', nx, ty + 26);
   const tg = ctx.createLinearGradient(nx, 0, nx + nw, 0); tg.addColorStop(0, T.accent); tg.addColorStop(1, T.accent2);
@@ -820,7 +861,12 @@ function draw(){
   // education timeline
   const ex = cx + 44, eyTop = py + ph + 52;
   ctx.fillStyle = T.accent; ctx.font = F(700, 31); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
-  ctx.fillStyle = '#E2E8F0'; ctx.fillRect(ex + 176, eyTop - 10, cw - 88 - 176, 2);
+  const lvDone = filledLevels().filter(l => !S.edu[l.key].current), lvAll = filledLevels().length;
+  const yrsTop = lvDone.length ? Math.max(...lvDone.map(l => LEVEL_YEARS[l.key] || 0)) : 0;
+  const summary = yrsTop ? bn(yrsTop) + ' বছরের শিক্ষাজীবন · ' + bn(lvAll) + ' স্তর' : (lvAll ? bn(lvAll) + ' স্তর' : '');
+  let lineStart = ex + 176;
+  if(summary){ ctx.font = F(700, 22); const sw = ctx.measureText(summary).width; ctx.fillStyle = '#64748B'; ctx.fillText(summary, ex + 190, eyTop - 1); lineStart = ex + 190 + sw + 18; }
+  ctx.fillStyle = '#E2E8F0'; ctx.fillRect(lineStart, eyTop - 10, Math.max(0, cx + cw - 44 - lineStart), 2);
   const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
   if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText(fitText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', cw - 88 - sealW), ex, ry0 + 46); }
   // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
@@ -839,7 +885,9 @@ function draw(){
       // the year keeps its own badge, same size as in the single-column layout, at the right end of the label line
       ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
       ctx.fillStyle = '#64748B'; ctx.font = F(600, 20);
-      ctx.fillText(fitText(l.title + ' · ' + l.sub.split(' / ')[0], colW - 50 - yw - 10), x0 + 50, y + 12);
+      const lab = fitText(l.title + ' · ' + l.sub.split(' / ')[0], colW - 50 - yw - 40);
+      ctx.fillText(lab, x0 + 50, y + 12);
+      if(ed.slug) verifiedTick(x0 + 50 + ctx.measureText(lab).width + 16, y + 5, 10);
       if(yr) pill(x0 + colW - yw, y - 13, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 34);
       ctx.fillStyle = T.ink; ctx.font = F(700, 28);
       const nameW = colW - 50;
@@ -852,6 +900,7 @@ function draw(){
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 15*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 6.5*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
     ctx.fillStyle = '#64748B'; ctx.font = F(600, fLbl); ctx.fillText(l.title + ' · ' + l.sub, ex + 50, y + 12*sc);
+    if(ed.slug) verifiedTick(ex + 50 + ctx.measureText(l.title + ' · ' + l.sub).width + 18, y + 12*sc - 7, 11);
     const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
     ctx.font = F(700, fYr); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
     ctx.fillStyle = T.ink; ctx.font = F(700, fName);
@@ -881,6 +930,9 @@ function draw(){
   const tx = hasQR ? 76 + qs + 36 : 76;
   ctx.fillStyle = '#fff'; ctx.font = F(700, 30); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 58);
   ctx.fillStyle = T.gold; ctx.font = '800 32px Inter, sans-serif'; ctx.fillText('protishthan.com/card', tx, fy + 102);
+
+  ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = F(600, 19);
+  ctx.fillText('এটি একটি স্মারক কার্ড — সরকারি পরিচয়পত্র নয়' + (filledLevels().some(l => S.edu[l.key].slug) ? '   ·   নীল টিক = তথ্যভান্ডারে নিবন্ধিত প্রতিষ্ঠান' : ''), W/2, H - (story ? 52 : 26)); ctx.restore();
 
   if(story){
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = F(700, 40);
