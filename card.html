@@ -822,9 +822,26 @@ function draw(){
   const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
   if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText(fitText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', cw - 88 - sealW), ex, ry0 + 46); }
   // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
-  const shown = rows.slice(0, 6), sc = Math.min(1, Math.floor(290 / Math.max(shown.length, 1)) / rowH), rh = rowH * sc;
-  const fLbl = Math.max(16, 21 * sc), fName = Math.max(23, 31 * sc), fYr = Math.max(18, 23 * sc);
-  shown.forEach((l, i)=>{
+  const shown = rows.slice(0, 6), twoCol = shown.length > 4;
+  const sc = 1, rh = rowH, fLbl = 21, fName = 31, fYr = 23;
+  if(twoCol){
+    // five or six levels: two columns of three so the text stays large (names wrap to two lines instead of shrinking)
+    const gap = 36, colW = (cw - 88 - gap) / 2, rh2 = 96;
+    shown.forEach((l, i)=>{
+      const ed = S.edu[l.key], col = i < 3 ? 0 : 1, r = i % 3, x0 = ex + col * (colW + gap), y = ry0 + r * rh2;
+      const lastInCol = r === 2 || i === shown.length - 1;
+      if(!lastInCol){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(x0 + 17, y + 28, 3, rh2 - 6); }
+      ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 15, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
+      ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 6.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+      const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
+      ctx.fillStyle = '#64748B'; ctx.font = F(600, 20);
+      ctx.fillText(fitText(l.title + ' · ' + l.sub.split(' / ')[0] + (yr ? ' · ' + yr : ''), colW - 50), x0 + 50, y + 12);
+      ctx.fillStyle = T.ink; ctx.font = F(700, 28);
+      const nameW = colW - 50 - (col === 1 && r >= 1 ? 118 : 0);   // keep the stamp's corner clear
+      wrap(ed.name.trim() + (ed.district ? ', ' + ed.district : ''), nameW, 2).forEach((ln, k)=>ctx.fillText(ln, x0 + 50, y + 46 + k * 32));
+    });
+  }
+  if(!twoCol) shown.forEach((l, i)=>{
     const ed = S.edu[l.key], y = ry0 + i*rh;
     if(i < shown.length - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28*sc, 3, rh - 6*sc); }
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 15*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
@@ -838,7 +855,8 @@ function draw(){
   });
 
   // the stamp goes on last so whatever sits under it still reads through the ink
-  seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
+  if(twoCol){ ctx.save(); ctx.globalAlpha = .5; seal(cx + cw - 44 - 66, ry0 + 2*96 + 20, 62, T.accent); ctx.restore(); }
+  else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
   const bTop = cy + ch - 140;
