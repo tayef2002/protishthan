@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>আমার পাতা — সদস্য | Protishthan</title>
+<title>আমার প্রোফাইল — সদস্য | Protishthan</title>
 <meta name="robots" content="noindex,nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
@@ -315,7 +315,7 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
       <div class="avatar-wrap"><div class="avatar" id="avatar" aria-hidden="true">?</div><button class="avatar-edit" id="avatarEdit" type="button" onclick="openEdit()" aria-label="ছবি বদলান" title="ছবি বদলান" style="display:none"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
       <div>
         <span class="eyebrow"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Protishthan সদস্য</span>
-        <div class="name-row"><h1 id="name">আমার পাতা</h1><button class="edit-pill" id="editPill" type="button" onclick="openEdit()" style="display:none"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>এডিট</button></div>
+        <div class="name-row"><h1 id="name">আমার প্রোফাইল</h1><button class="edit-pill" id="editPill" type="button" onclick="openEdit()" style="display:none"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>এডিট</button></div>
         <p class="mail" id="mail"></p>
         <div class="chips" id="chips"></div>
       </div>
@@ -345,7 +345,7 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 
   <!-- signed-in -->
   <div id="app" class="shell" style="display:none">
-    <aside class="side" id="side" aria-label="আমার পাতার মেনু">
+    <aside class="side" id="side" aria-label="আমার প্রোফাইলের মেনু">
       <div class="su"><div class="sua" id="suAvatar">?</div><div class="sut"><b id="suName">—</b><span id="suMail"></span></div></div>
       <button class="su-edit" type="button" onclick="openEdit()"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>প্রোফাইল এডিট</button>
       <nav id="sideNav"></nav>
@@ -519,7 +519,7 @@ async function render(){
   $('app').style.display = me ? 'grid' : 'none';
   $('bnav').style.display = me ? 'flex' : 'none';
   $('heroStats').style.display = me ? 'flex' : 'none';
-  if(!me){ $('name').textContent = 'আমার পাতা'; $('mail').textContent = ''; $('chips').innerHTML = ''; $('avatar').textContent = '?'; $('avatarEdit').style.display = 'none'; $('editPill').style.display = 'none'; return; }
+  if(!me){ $('name').textContent = 'আমার প্রোফাইল'; $('mail').textContent = ''; $('chips').innerHTML = ''; $('avatar').textContent = '?'; $('avatarEdit').style.display = 'none'; $('editPill').style.display = 'none'; return; }
   const nm = me.display_name || 'সদস্য';
   $('name').textContent = nm;
   $('mail').textContent = me.email || '';
@@ -718,7 +718,7 @@ const NAVI = {
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
 const NAV = [
-  { t: 'আমার পাতা', items: [
+  { t: 'আমার প্রোফাইল', items: [
     { href: '#overview', i: 'grid', l: 'ওভারভিউ', spy: 'overview' },
     { href: '#saved', i: 'bookmark', l: 'সেভ করা প্রতিষ্ঠান', spy: 'saved', cnt: true },
     { href: '#card', i: 'card', l: 'আমার শিক্ষিত কার্ড', spy: 'card' },
