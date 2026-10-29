@@ -487,7 +487,7 @@ const THEMES = {
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
 const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
-LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false, track:'g' });
+LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false, track:'g', tManual:false });
 
 let cardNo = '';
 try{ cardNo = localStorage.getItem('sk_no') || ''; }catch(e){}
@@ -636,7 +636,10 @@ document.addEventListener('click', e => { if(!e.target.closest('.ydd')) closeYea
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeYears(); });
 
 function setTrack(k, t){
-  S.edu[k].track = t; syncEduRow(k); refreshTitles(); draw();
+  // the stream follows along: picking it on one level sets every other level you have not chosen by hand
+  S.edu[k].track = t; S.edu[k].tManual = true;
+  LV().forEach(j => { if(j !== k && !S.edu[j].tManual){ S.edu[j].track = t; syncEduRow(j); } });
+  syncEduRow(k); refreshTitles(); draw();
 }
 function syncEduRow(k){
   syncYearUI(k);
@@ -1241,7 +1244,7 @@ function restoreState(){
   document.querySelectorAll('#badgeChips .chip').forEach(c=>c.classList.toggle('on', S.badges.has(c.dataset.b)));
   LEVELS.forEach(l=>{
     const e = (d.edu || {})[l.key]; if(!e) return;
-    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'', yAuto:!!e.yAuto, track:(e.track === 'a' || e.track === 'q') ? e.track : 'g' });
+    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'', yAuto:!!e.yAuto, track:(e.track === 'a' || e.track === 'q') ? e.track : 'g', tManual:!!e.tManual });
     document.querySelector('[data-k="'+l.key+'"][data-f="name"]').value = S.edu[l.key].name;
     document.querySelector('[data-k="'+l.key+'"][data-f="year"]').value = S.edu[l.key].year;
     document.querySelector('[data-k="'+l.key+'"][data-f="current"]').checked = S.edu[l.key].current;
