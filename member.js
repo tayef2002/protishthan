@@ -87,13 +87,14 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       <h2>Protishthan-এ স্বাগতম</h2>
       <p class="sub" id="mbSub">৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।</p>
       <ul class="mb-perks">
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></i>পছন্দের প্রতিষ্ঠান সেভ করুন</li>
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/></svg></i>শিক্ষিত কার্ড সবসময় সাথে থাকবে</li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></i>পছন্দের প্রতিষ্ঠান সেভ, সব ডিভাইসে</li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/></svg></i>শিক্ষিত কার্ড হারাবে না</li>
+        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8v6M14 11h6"/></svg></i>Partner হয়ে আয়ের সুযোগ</li>
         <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></i>ভর্তি ও ফলাফলের খবর · শীঘ্রই</li>
       </ul>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
-      <div class="mb-fine">আমরা শুধু আপনার নাম ও ইমেইল রাখি। চালিয়ে গেলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয় (বয়স ১৩+)।</div>
+      <div class="mb-fine">চালিয়ে গেলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
     </div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
