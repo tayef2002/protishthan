@@ -1,258 +1,456 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Protishthan Partner — রেজিস্ট্রেশন করুন</title>
+<meta name="description" content="নিজের উপজেলার শিক্ষা প্রতিষ্ঠান যাচাই করুন, আর প্রতিষ্ঠান সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন। প্রতি উপজেলায় মাত্র ৩ জন Partner।">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;--blue-mid:#3B6FE0;
+  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
+  --navy:#0A1628;--navy-2:#0F2048;--navy-3:#1A3570;
   --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
   --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
-  --green:#059669;--red:#DC2626;--amber:#D97706;--r:12px;--rl:20px;
+  --green:#059669;--red:#DC2626;--amber:#D97706;--r:12px;
 }
-html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);overflow-x:hidden}
-body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--white)}
-@media (max-width:900px){body{grid-template-columns:1fr}.left{display:none}}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);background:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{width:100%;max-width:1180px;margin:0 auto;padding:0 24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;border-radius:12px;padding:11px 20px;text-decoration:none;cursor:pointer;border:none;transition:transform .15s,box-shadow .15s,background .15s}
+.btn-primary{background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;box-shadow:0 10px 24px -8px rgba(37,99,235,.55)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 30px -8px rgba(37,99,235,.6)}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.85)}
+.btn-ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
 
-/* LEFT */
-.left{background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden;height:100vh}
-.left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
-.left-glow{position:absolute;top:20%;left:30%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%);pointer-events:none}
-.logo{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;margin-bottom:36px;position:relative;z-index:2}
-.logo span{opacity:.5}
-.hero-text{position:relative;z-index:2}
-.hero-text h2{font-size:clamp(24px,3vw,36px);font-weight:900;color:white;line-height:1.2;letter-spacing:-1px;margin-bottom:14px}
-.hero-text h2 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero-text p{font-size:14px;color:rgba(255,255,255,.55);line-height:1.8;max-width:340px}
-.perk-list{position:relative;z-index:2;display:flex;flex-direction:column;gap:14px;margin-top:32px}
-.perk{display:flex;align-items:flex-start;gap:12px}
-.perk-ic{width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.perk-t{font-size:13px;color:rgba(255,255,255,.85);font-weight:600}
-.perk-s{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
-.left-footer{position:relative;z-index:2}
-.left-footer p{font-size:11px;color:rgba(255,255,255,.25)}
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:rgba(10,22,40,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07)}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.brand{font-size:21px;font-weight:900;letter-spacing:-.5px;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
+.brand span{opacity:.5}
+.brand em{font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.3px;color:#BFD3FF;background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.3);border-radius:100px;padding:3px 10px}
+.nav-links{display:flex;gap:6px;margin-left:12px}
+.nav-links a{font-size:14px;font-weight:600;color:rgba(255,255,255,.7);text-decoration:none;padding:8px 12px;border-radius:9px}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.nav-cta{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nav-cta .btn{padding:9px 17px;font-size:14px}
 
-/* RIGHT */
-.right{display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;overflow-y:auto;height:100vh}
-.right-inner{width:100%;max-width:440px}
+/* HERO */
+.hero{position:relative;background:linear-gradient(150deg,var(--navy) 0%,var(--navy-2) 48%,var(--navy-3) 100%);overflow:hidden;padding:68px 0 92px}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(ellipse at 30% 30%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 30% 30%,#000 30%,transparent 75%)}
+.hero::after{content:'';position:absolute;top:-160px;right:-120px;width:560px;height:560px;background:radial-gradient(circle,rgba(79,70,229,.38),transparent 68%);pointer-events:none}
+.hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:start}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#BFD3FF;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.28);border-radius:100px;padding:6px 14px;margin-bottom:22px}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:#60A5FA;box-shadow:0 0 0 3px rgba(96,165,250,.25)}
+.hero h1 .nw{white-space:nowrap}
+.hero h1{font-size:clamp(30px,3.7vw,50px);font-weight:900;color:#fff;line-height:1.16;letter-spacing:-1.4px;margin-bottom:20px}
+.hero h1 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{font-size:17.5px;line-height:1.75;color:rgba(255,255,255,.7);max-width:540px;margin-bottom:28px}
+.hero-checks{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:34px}
+.hero-checks li{display:flex;gap:12px;align-items:flex-start;font-size:15.5px;line-height:1.55;color:rgba(255,255,255,.86)}
+.hero-checks svg{flex:none;color:#60A5FA;margin-top:3px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:34px}
+.hero-actions .btn{padding:14px 26px;font-size:16px;border-radius:14px}
+.btn-outline{border:1.5px solid rgba(255,255,255,.28);color:#fff;background:rgba(255,255,255,.04)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.hero-stats{display:flex;gap:34px;flex-wrap:wrap;padding-top:26px;border-top:1px solid rgba(255,255,255,.12)}
+.hero-stats b{display:block;font-size:30px;font-weight:800;color:#fff;letter-spacing:-.8px;line-height:1.1}
+.hero-stats span{font-size:13px;color:rgba(255,255,255,.55)}
+
+/* APPLY CARD */
+.apply{background:#fff;border-radius:24px;padding:32px 30px 26px;box-shadow:0 40px 90px -30px rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.1)}
 .form-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
-.form-sub{font-size:13px;color:var(--text-2);margin-bottom:28px;line-height:1.6}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);margin-bottom:6px}
-.field input,.field select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-size:14px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:border-color .2s}
-.field input:focus,.field select:focus{border-color:var(--blue)}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pass-wrap{position:relative}
-.pass-wrap .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;background:none;border:none;display:flex;align-items:center;justify-content:center;padding:4px;color:var(--text-3);transition:color .15s}
-.pass-wrap .eye:hover{color:var(--text-2)}
-.pass-wrap input{padding-right:40px}
-.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
-.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;margin-top:6px;position:relative}
-.submit-btn:hover{background:var(--blue-dark)}
-.submit-btn.loading{pointer-events:none;opacity:.7}
-.submit-btn.loading::after{content:'';position:absolute;right:16px;top:50%;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;transform:translateY(-50%);animation:spin .6s linear infinite}
-@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
-.note{font-size:12px;color:var(--text-3);margin-top:18px;line-height:1.7;text-align:center}
-
-/* SUCCESS SCREEN */
-.success-screen{display:none;text-align:center;padding:40px 20px}
-.success-screen.show{display:block}
-.success-ic{font-size:48px;margin-bottom:18px}
-.success-screen h2{font-size:20px;font-weight:800;margin-bottom:10px}
-.success-screen p{font-size:13.5px;color:var(--text-2);line-height:1.8;max-width:340px;margin:0 auto 24px}
-.status-badge{display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber);padding:7px 14px;border-radius:100px;font-size:12.5px;font-weight:700;margin-bottom:20px}
-.success-screen .submit-btn{max-width:200px;margin:0 auto}
-.field label .req{color:var(--red);font-weight:700}
-.field input:focus,.field select:focus{box-shadow:0 0 0 3px rgba(26,86,219,.14)}
-.field input.bad,.field select.bad{border-color:var(--red);background:#FEF2F2}
-.field .msg{display:none;font-size:12px;color:var(--red);margin-top:5px;line-height:1.4}
+.form-sub{font-size:13.5px;color:var(--text-2);margin-bottom:20px;line-height:1.6}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin-bottom:7px}
+.field label .req{color:var(--red)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.inp{position:relative}
+.inp>svg.lead{position:absolute;left:14px;top:24px;transform:translateY(-50%);color:#94A3B8;pointer-events:none;transition:color .2s;z-index:1}
+.inp:focus-within>svg.lead{color:var(--blue)}
+.field input,.field select{width:100%;height:48px;padding:0 14px 0 42px;border:1.5px solid #E2E8F0;border-radius:13px;font-size:14.5px;font-family:inherit;color:var(--text);background-color:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input::placeholder{color:#A5B1C2}
+.field input:hover,.field select:hover{border-color:#CBD5E1}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,86,219,.12)}
+.field input.bad,.field select.bad{border-color:var(--red);background-color:#FEF2F2}
 .field input:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #fff inset;-webkit-text-fill-color:var(--text)}
-.seat{display:none;font-size:12.5px;font-weight:600;margin:-4px 0 16px;padding:8px 12px;border-radius:10px;line-height:1.4}
+.field select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+.field select:disabled{background-color:#F8FAFC;color:#94A3B8;cursor:not-allowed}
+.field .msg{display:none;font-size:12px;color:var(--red);margin-top:5px;line-height:1.4}
+.pass-wrap.inp input{padding-right:46px}
+.pass-wrap .eye{position:absolute;right:8px;top:7px;width:34px;height:34px;border-radius:9px;cursor:pointer;background:none;border:none;display:flex;align-items:center;justify-content:center;color:var(--text-3);transition:background .15s,color .15s}
+.pass-wrap .eye:hover{background:#F1F5F9;color:var(--text-2)}
+.sec{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;color:var(--text);margin:22px 0 13px}
+.form-sub + .err-box + .sec,.form-sub + .sec{margin-top:4px}
+.sec i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+.seat{display:none;font-size:12.5px;font-weight:600;margin:-4px 0 14px;padding:8px 12px;border-radius:10px;line-height:1.4}
 .seat.show{display:block}.seat.ok{background:#ECFDF5;color:#047857}.seat.full{background:#FEF2F2;color:var(--red)}.seat.wait{background:#F1F5F9;color:var(--text-3)}
 .meter{display:none;align-items:center;gap:5px;margin-top:8px}
 .meter.show{display:flex}
 .meter i{flex:0 0 38px;height:4px;border-radius:4px;background:var(--border)}
 .meter span{font-size:12px;color:var(--text-3);margin-left:6px}
 .meter.l1 i:nth-child(1){background:#EF4444}.meter.l2 i:nth-child(-n+2){background:#F59E0B}.meter.l3 i{background:#10B981}
-.note a,.alt a{color:var(--blue);font-weight:600;text-decoration:none}.note a:hover,.alt a:hover{text-decoration:underline}
-.alt{text-align:center;font-size:13.5px;color:var(--text-2);margin-top:22px;padding-top:20px;border-top:1px solid var(--border)}
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+.submit-btn{width:100%;height:52px;margin-top:8px;border-radius:14px;border:none;font:700 15.5px 'Hind Siliguri','Inter',sans-serif;color:#fff;cursor:pointer;background:linear-gradient(135deg,#1A56DB,#4F46E5);box-shadow:0 12px 26px -8px rgba(37,99,235,.55);display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .15s,box-shadow .15s;position:relative}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 16px 32px -8px rgba(37,99,235,.6)}
+.submit-btn .arr{transition:transform .15s}.submit-btn:hover .arr{transform:translateX(3px)}
 .submit-btn:disabled{opacity:.7;cursor:default}
-.m-head{display:none;margin-bottom:26px}
-.m-logo{font-size:20px;font-weight:900;letter-spacing:-.5px}.m-logo span{opacity:.45}
-.m-line{font-size:12.5px;color:var(--text-2);margin-top:6px;background:var(--blue-light);border-radius:10px;padding:8px 12px;font-weight:600}
-@media (max-width:900px){.m-head{display:block}.right{height:auto;min-height:100vh;padding:28px 18px 40px}.field-row{grid-template-columns:1fr}}
-/* ---- visual refresh ---- */
-body{background:#fff}
-.left{padding:44px 48px}
-.logo{font-size:23px;margin-bottom:0}
-.hero-text{margin:auto 0}
-.pill-tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.3px;color:#BFD3FF;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.28);border-radius:100px;padding:6px 13px;margin-bottom:20px}
-.pill-tag i{width:7px;height:7px;border-radius:50%;background:#60A5FA;box-shadow:0 0 0 3px rgba(96,165,250,.25)}
-.hero-text h2{font-size:clamp(30px,3.4vw,44px);line-height:1.2;margin-bottom:16px}
-.hero-text p{font-size:15px;line-height:1.75;color:rgba(255,255,255,.62);max-width:420px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:30px 0 26px;max-width:460px}
-.stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 14px}
-.stat b{display:block;font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.1}
-.stat span{display:block;font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;line-height:1.35}
-.checks{list-style:none;display:flex;flex-direction:column;gap:12px;max-width:440px}
-.checks li{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;line-height:1.55;color:rgba(255,255,255,.78)}
-.checks svg{flex:none;color:#60A5FA;margin-top:2px}
+.submit-btn.loading{pointer-events:none}
+.submit-btn.loading::after{content:'';position:absolute;right:18px;top:50%;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;transform:translateY(-50%);animation:spin .6s linear infinite}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.note{font-size:12.5px;color:var(--text-3);margin-top:15px;line-height:1.7;text-align:center}
+.note a,.alt a{color:var(--blue);font-weight:600;text-decoration:none}
+.note a:hover,.alt a:hover{text-decoration:underline}
+.alt{text-align:center;font-size:13.5px;color:var(--text-2);margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.success-screen{display:none;text-align:center;padding:26px 8px}
+.success-screen.show{display:block}
+.success-ic{width:64px;height:64px;border-radius:50%;background:#ECFDF5;color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.success-screen h2{font-size:22px;font-weight:800;margin-bottom:10px}
+.success-screen p{font-size:14px;color:var(--text-2);line-height:1.8;max-width:340px;margin:0 auto 22px}
+.status-badge{display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber);padding:7px 14px;border-radius:100px;font-size:12.5px;font-weight:700;margin-bottom:16px}
 
-.right{background:linear-gradient(180deg,#F8FAFF,#fff 320px);padding:44px 28px}
-.right-inner{max-width:480px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:34px 32px 28px;box-shadow:0 24px 60px -24px rgba(15,32,72,.18)}
-.form-title{font-size:26px;letter-spacing:-.6px}
-.form-sub{font-size:13.5px;margin-bottom:22px}
-.sec{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;color:var(--text);margin:24px 0 14px;letter-spacing:.1px}
-.err-box + .sec,.form-sub + .sec{margin-top:4px}
-.sec i{font-style:normal;width:22px;height:22px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-.sec::after{content:'';flex:1;height:1px;background:var(--border)}
-.field{margin-bottom:14px}
-.field label{font-size:12.5px;color:#334155;margin-bottom:7px}
-.inp{position:relative}
-.inp>svg.lead{position:absolute;left:14px;top:24px;transform:translateY(-50%);color:#94A3B8;pointer-events:none;transition:color .2s;z-index:1}
-.inp:focus-within>svg.lead{color:var(--blue)}
-.field input,.field select{height:48px;padding:0 14px 0 42px;border:1.5px solid #E2E8F0;border-radius:13px;font-size:14.5px;background-color:#fff;transition:border-color .2s,box-shadow .2s}
-.field input::placeholder{color:#A5B1C2}
-.field input:hover,.field select:hover{border-color:#CBD5E1}
-.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,86,219,.12)}
-.field input.bad,.field select.bad{border-color:var(--red);background-color:#FEF2F2}
-.field select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
-.field select:disabled{background-color:#F8FAFC;color:#94A3B8;cursor:not-allowed}
-.pass-wrap.inp input{padding-right:46px}
-.pass-wrap .eye{right:8px;width:34px;height:34px;border-radius:9px}
-.pass-wrap .eye:hover{background:#F1F5F9}
-.field-row{gap:14px}
-.submit-btn{height:52px;margin-top:10px;border-radius:14px;font-size:15.5px;background:linear-gradient(135deg,#1A56DB,#4F46E5);box-shadow:0 12px 26px -8px rgba(37,99,235,.55);display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .15s,box-shadow .15s}
-.submit-btn:hover{background:linear-gradient(135deg,#1A56DB,#4F46E5);transform:translateY(-1px);box-shadow:0 16px 32px -8px rgba(37,99,235,.6)}
-.submit-btn .arr{transition:transform .15s}
-.submit-btn:hover .arr{transform:translateX(3px)}
-.submit-btn.loading::after{right:18px}
-.note{margin-top:16px;font-size:12.5px}
-.alt{margin-top:20px;padding-top:18px}
-@media (max-width:900px){
-  .right{background:#F8FAFF;padding:22px 14px 40px}
-  .right-inner{padding:24px 18px 22px;border-radius:20px}
+/* SECTIONS */
+section.s{padding:92px 0}
+section.s.alt-bg{background:var(--surface)}
+.s-head{max-width:640px;margin:0 auto 52px;text-align:center}
+.kicker{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--blue);background:var(--blue-light);border-radius:100px;padding:5px 14px;margin-bottom:14px}
+.s-head h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.25;margin-bottom:12px}
+.s-head p{font-size:16.5px;line-height:1.75;color:var(--text-2)}
+
+/* HOW */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.step{background:#fff;border:1px solid var(--border);border-radius:20px;padding:26px 22px;position:relative;transition:transform .2s,box-shadow .2s}
+.step:hover{transform:translateY(-3px);box-shadow:0 20px 40px -20px rgba(15,32,72,.25)}
+.step-n{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 8px 18px -6px rgba(37,99,235,.5)}
+.step h3{font-size:17px;font-weight:800;margin-bottom:8px}
+.step p{font-size:14.5px;line-height:1.7;color:var(--text-2)}
+
+/* EARN */
+.earn{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.earn h2{font-size:clamp(28px,3.4vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.25;margin-bottom:14px}
+.earn>div>p{font-size:16.5px;line-height:1.75;color:var(--text-2);margin-bottom:24px}
+.rules{display:flex;flex-direction:column;gap:14px}
+.rule{display:flex;gap:16px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px 18px}
+.rule b{flex:none;min-width:76px;font-size:28px;font-weight:800;letter-spacing:-.8px;background:linear-gradient(135deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rule span{font-size:14.5px;line-height:1.55;color:var(--text-2)}
+.calc{background:linear-gradient(150deg,var(--navy),var(--navy-3));border-radius:26px;padding:32px 30px;color:#fff;box-shadow:0 36px 70px -30px rgba(10,22,40,.6)}
+.calc h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.calc .cs{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:24px}
+.calc-row{margin-bottom:22px}
+.calc-row>label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:10px}
+.calc-row>label b{color:#fff;font-size:15px}
+.calc input[type=range]{width:100%;accent-color:#60A5FA;height:6px;cursor:pointer}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:13px;color:#fff;padding:12px;font:700 15px 'Inter','Hind Siliguri',sans-serif;cursor:pointer;transition:all .15s;text-align:center}
+.plan small{display:block;font-size:11.5px;font-weight:500;color:rgba(255,255,255,.55);margin-top:2px}
+.plan:hover{background:rgba(255,255,255,.12)}
+.plan.on{background:#fff;color:var(--navy);border-color:#fff}.plan.on small{color:var(--text-2)}
+.calc-out{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.calc-out div b{display:block;font-size:24px;font-weight:800;letter-spacing:-.6px;line-height:1.15}
+.calc-out div span{font-size:12.5px;color:rgba(255,255,255,.55)}
+.calc-out .wide{grid-column:1/-1;padding-top:16px;border-top:1px solid rgba(255,255,255,.12)}
+.calc-out .wide b{font-size:32px;background:linear-gradient(135deg,#93C5FD,#C4B5FD);-webkit-background-clip:text;background-clip:text;color:transparent}
+.calc .disc{font-size:11.5px;color:rgba(255,255,255,.42);margin-top:14px;line-height:1.55}
+
+/* WHY */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:26px 24px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 20px 40px -20px rgba(15,32,72,.25)}
+.card .ic{width:46px;height:46px;border-radius:13px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.card h3{font-size:17px;font-weight:800;margin-bottom:8px}
+.card p{font-size:14.5px;line-height:1.7;color:var(--text-2)}
+
+/* FAQ */
+.faq{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.faq details{background:#fff;border:1px solid var(--border);border-radius:16px;padding:0 22px;transition:box-shadow .2s}
+.faq details[open]{box-shadow:0 14px 34px -20px rgba(15,32,72,.3)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:16px;font-weight:700;padding:19px 0}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'';flex:none;width:22px;height:22px;border-radius:50%;background:var(--blue-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231A56DB' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center no-repeat;transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{font-size:15px;line-height:1.8;color:var(--text-2);padding:0 0 20px}
+
+/* CTA + FOOTER */
+.cta{background:linear-gradient(150deg,var(--navy),var(--navy-3));border-radius:28px;padding:56px 32px;text-align:center;position:relative;overflow:hidden}
+.cta::after{content:'';position:absolute;top:-120px;right:-80px;width:380px;height:380px;background:radial-gradient(circle,rgba(79,70,229,.4),transparent 68%)}
+.cta *{position:relative;z-index:1}
+.cta h2{font-size:clamp(26px,3.2vw,38px);font-weight:800;color:#fff;letter-spacing:-.8px;margin-bottom:12px}
+.cta p{font-size:16.5px;color:rgba(255,255,255,.7);margin-bottom:26px}
+.cta .btn{padding:14px 30px;font-size:16px;border-radius:14px}
+footer{padding:44px 0 36px}
+footer .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .brand{color:var(--text)}
+footer nav{display:flex;gap:22px;flex-wrap:wrap}
+footer nav a{font-size:14px;color:var(--text-2);text-decoration:none;font-weight:500}
+footer nav a:hover{color:var(--blue)}
+footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-top:8px}
+
+@media (max-width:960px){
+  .hero .wrap,.earn{grid-template-columns:1fr;gap:40px}
+  .hero{padding:44px 0 60px}
+  .steps{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  section.s{padding:64px 0}
 }
+@media (max-width:600px){
+  .wrap{padding:0 16px}
+  .steps,.grid3{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .apply{padding:26px 18px 22px;border-radius:20px}
+  .hero-stats{gap:22px}
+  .hero-stats b{font-size:24px}
+  .brand em{display:none}
+  .nav-cta .btn-ghost{display:none}
+  .calc{padding:26px 20px}
+  .rule b{min-width:64px;font-size:24px}
+  .cta{padding:44px 20px;border-radius:22px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
 
-<div class="left">
-  <div class="left-grid"></div>
-  <div class="left-glow"></div>
-  <div class="logo">Protisht<span>han</span></div>
-  <div class="hero-text">
-    <div class="pill-tag"><i></i>Partner প্রোগ্রাম</div>
-    <h2><span class="grad">Protishthan Partner</span>-এ<br>রেজিস্ট্রেশন করুন</h2>
-    <p>নিজের উপজেলার শিক্ষা প্রতিষ্ঠানের সঠিক তথ্য যাচাই করুন, আর প্রতিষ্ঠান সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন।</p>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="partner.html">Protisht<span>han</span><em>Partner</em></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#how">কীভাবে কাজ করে</a>
+      <a href="#earn">আয়ের হিসাব</a>
+      <a href="#why">সুবিধা</a>
+      <a href="#faq">প্রশ্নোত্তর</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="partner-login.html">লগইন</a>
+      <a class="btn btn-primary" href="#apply">আবেদন করুন</a>
+    </div>
+  </div>
+</header>
 
-    <div class="stats">
-      <div class="stat"><b>৫০%</b><span>প্রথম পেমেন্টে</span></div>
-      <div class="stat"><b>২৫%</b><span>প্রতিটি পরের পেমেন্টে</span></div>
-      <div class="stat"><b>৩ জন</b><span>প্রতি উপজেলায়</span></div>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow"><i></i>Partner প্রোগ্রাম · প্রতি উপজেলায় মাত্র ৩ জন</div>
+      <h1><span class="nw"><span class="grad">Protishthan Partner</span>-এ</span><br>রেজিস্ট্রেশন করুন</h1>
+      <p class="hero-sub">নিজের উপজেলার শিক্ষা প্রতিষ্ঠান যাচাই করুন, আর প্রতিষ্ঠান সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন।</p>
+      <ul class="hero-checks">
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>প্রথম পেমেন্টের ৫০%, তারপর প্রতিটি পেমেন্টের ২৫%</li>
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>প্রথম নির্ভুল যাচাইয়ে প্রতিষ্ঠান আপনার প্রোফাইলে যুক্ত থাকে</li>
+        <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>নিজের ড্যাশবোর্ড আর কাজ শেখার গাইড</li>
+      </ul>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#apply">এখনই আবেদন করুন</a>
+        <a class="btn btn-outline" href="#earn">আয়ের হিসাব দেখুন</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>৫০%</b><span>প্রথম পেমেন্টে</span></div>
+        <div><b>২৫%</b><span>প্রতিটি পরের পেমেন্টে</span></div>
+        <div><b>৩ জন</b><span>প্রতি উপজেলায়</span></div>
+        <div><b>৪৯৫</b><span>উপজেলা</span></div>
+      </div>
     </div>
 
-    <ul class="checks">
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>প্রথম নির্ভুল যাচাইয়ে প্রতিষ্ঠান আপনার প্রোফাইলে যুক্ত থাকে</li>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>প্রতিষ্ঠান যতদিন সার্ভিস চালু রাখে, আয়ও ততদিন চলে</li>
-      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg>নিজের ড্যাশবোর্ড আর কাজ শেখার গাইড</li>
-    </ul>
-  </div>
-  <div class="left-footer"><p>© 2026 Protishthan Partner</p></div>
-</div>
+    <div class="apply" id="apply">
+      <!-- SIGNUP FORM -->
+      <form id="signupForm" novalidate onsubmit="doSignup();return false">
+        <div class="form-title">Partner আবেদন</div>
+        <div class="form-sub">৩ মিনিটের ফর্ম। জমা দেওয়ার পর Admin যাচাই করে অনুমোদন দেবেন।</div>
 
-<div class="right">
-  <div class="right-inner">
+        <div class="err-box" id="errBox" role="alert"></div>
 
-    <!-- SIGNUP FORM -->
-    <div class="m-head"><div class="m-logo">Protisht<span>han</span> Partner</div><div class="m-line">প্রথম পেমেন্টে ৫০% · পরের প্রতিটিতে ২৫% · প্রতি উপজেলায় মাত্র ৩ জন</div></div>
-    <form id="signupForm" novalidate onsubmit="doSignup();return false">
-      <div class="form-title">Partner আবেদন</div>
-      <div class="form-sub">৩ মিনিটের ফর্ম। জমা দেওয়ার পর Admin যাচাই করে অনুমোদন দেবেন।</div>
+        <div class="sec"><i>১</i>আপনার পরিচয়</div>
 
-      <div class="err-box" id="errBox" role="alert"></div>
-
-      <div class="sec"><i>১</i>আপনার পরিচয়</div>
-
-      <div class="field">
-        <label for="fullName">পুরো নাম <b class="req">*</b></label>
-        <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
-        <input type="text" id="fullName" placeholder="যেমন: মোহাম্মদ রফিকুল ইসলাম" autocomplete="name" maxlength="80"></div>
-        <div class="msg"></div>
-      </div>
-
-      <div class="field-row">
         <div class="field">
-          <label for="phone">মোবাইল নম্বর <b class="req">*</b></label>
-          <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
-          <input type="tel" id="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" maxlength="16"></div>
+          <label for="fullName">পুরো নাম <b class="req">*</b></label>
+          <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+          <input type="text" id="fullName" placeholder="যেমন: মোহাম্মদ রফিকুল ইসলাম" autocomplete="name" maxlength="80"></div>
           <div class="msg"></div>
         </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="phone">মোবাইল নম্বর <b class="req">*</b></label>
+            <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
+            <input type="tel" id="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" maxlength="16"></div>
+            <div class="msg"></div>
+          </div>
+          <div class="field">
+            <label for="email">ইমেইল <b class="req">*</b></label>
+            <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+            <input type="email" id="email" placeholder="you@gmail.com" autocomplete="email" inputmode="email"></div>
+            <div class="msg"></div>
+          </div>
+        </div>
+
+        <div class="sec"><i>২</i>আপনার এলাকা</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="district">জেলা <b class="req">*</b></label>
+            <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            <select id="district" onchange="onDistrictChange()">
+              <option value="">জেলা বাছুন</option>
+            </select></div>
+            <div class="msg"></div>
+          </div>
+          <div class="field">
+            <label for="upazila">উপজেলা <b class="req">*</b></label>
+            <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg>
+            <select id="upazila" onchange="checkUpazilaAvailability()" disabled>
+              <option value="">আগে জেলা বাছুন</option>
+            </select></div>
+            <div class="msg"></div>
+          </div>
+        </div>
+        <div id="districtStatus" class="seat" aria-live="polite"></div>
+
+        <div class="sec"><i>৩</i>লগইনের পাসওয়ার্ড</div>
+
         <div class="field">
-          <label for="email">ইমেইল <b class="req">*</b></label>
-          <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
-          <input type="email" id="email" placeholder="you@gmail.com" autocomplete="email" inputmode="email"></div>
+          <label for="password">পাসওয়ার্ড <b class="req">*</b></label>
+          <div class="pass-wrap inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" id="password" placeholder="কমপক্ষে ৮ অক্ষর" autocomplete="new-password" oninput="passMeter()">
+            <button type="button" class="eye" id="eyeBtn" onclick="togglePass(this)" aria-label="পাসওয়ার্ড দেখান">
+              <svg id="eyeIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <div class="meter" id="meter" aria-hidden="true"><i></i><i></i><i></i><span id="meterTxt"></span></div>
           <div class="msg"></div>
         </div>
+
+        <button class="submit-btn" id="signupBtn" type="submit"><span id="signupLbl">আবেদন জমা দিন</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <div class="note">আবেদন করলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
+        <div class="alt">আগেই অ্যাকাউন্ট আছে? <a href="partner-login.html">লগইন করুন</a></div>
+      </form>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>আবেদন জমা হয়েছে!</h2>
+        <div class="status-badge">অনুমোদনের অপেক্ষায়</div>
+        <p>আপনার Partner আবেদনটি Admin-এর কাছে পাঠানো হয়েছে। রিভিউ শেষ হওয়া পর্যন্ত আপনি সীমিত সুবিধাসহ ড্যাশবোর্ড দেখতে পারবেন। এখন লগইন করুন।</p>
+        <button class="submit-btn" style="max-width:220px;margin:0 auto" onclick="window.location.href='partner-login.html'">লগইন করুন</button>
       </div>
-
-      <div class="sec"><i>২</i>আপনার এলাকা</div>
-
-      <div class="field-row">
-        <div class="field">
-          <label for="district">জেলা <b class="req">*</b></label>
-          <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          <select id="district" onchange="onDistrictChange()">
-            <option value="">জেলা বাছুন</option>
-          </select></div>
-          <div class="msg"></div>
-        </div>
-        <div class="field">
-          <label for="upazila">উপজেলা <b class="req">*</b></label>
-          <div class="inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg>
-          <select id="upazila" onchange="checkUpazilaAvailability()" disabled>
-            <option value="">আগে জেলা বাছুন</option>
-          </select></div>
-          <div class="msg"></div>
-        </div>
-      </div>
-      <div id="districtStatus" class="seat" aria-live="polite"></div>
-
-      <div class="sec"><i>৩</i>লগইনের পাসওয়ার্ড</div>
-
-      <div class="field">
-        <label for="password">পাসওয়ার্ড <b class="req">*</b></label>
-        <div class="pass-wrap inp"><svg class="lead" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <input type="password" id="password" placeholder="কমপক্ষে ৮ অক্ষর" autocomplete="new-password" oninput="passMeter()">
-          <button type="button" class="eye" id="eyeBtn" onclick="togglePass(this)" aria-label="পাসওয়ার্ড দেখান">
-            <svg id="eyeIconOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-            <svg id="eyeIconClosed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 4.22-5.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-          </button>
-        </div>
-        <div class="meter" id="meter" aria-hidden="true"><i></i><i></i><i></i><span id="meterTxt"></span></div>
-        <div class="msg"></div>
-      </div>
-
-      <button class="submit-btn" id="signupBtn" type="submit"><span id="signupLbl">আবেদন জমা দিন</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      <div class="note">আবেদন করলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
-      <div class="alt">আগেই অ্যাকাউন্ট আছে? <a href="partner-login.html">লগইন করুন</a></div>
-    </form>
-
-    <!-- SUCCESS SCREEN -->
-    <div class="success-screen" id="successScreen">
-      <div class="success-ic">🎉</div>
-      <h2>আবেদন জমা হয়েছে!</h2>
-      <div class="status-badge">⏳ Review Pending</div>
-      <p>আপনার Partner আবেদনটি Admin-এর কাছে পাঠানো হয়েছে। রিভিউ সম্পন্ন হওয়া পর্যন্ত আপনি limited access সহ আপনার ড্যাশবোর্ড দেখতে পারবেন। এখন লগইন করুন।</p>
-      <button class="submit-btn" onclick="window.location.href='partner-login.html'">লগইন করুন →</button>
     </div>
-
   </div>
-</div>
+</section>
+
+<section class="s" id="how">
+  <div class="wrap">
+    <div class="s-head">
+      <span class="kicker">কীভাবে কাজ করে</span>
+      <h2>৪ ধাপে শুরু করুন</h2>
+      <p>আবেদন থেকে প্রথম আয় পর্যন্ত পুরো পথ সহজ আর পরিষ্কার।</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-n">১</div><h3>আবেদন করুন</h3><p>ওপরের ফর্মে নাম, মোবাইল আর আপনার উপজেলা দিয়ে আবেদন জমা দিন। সময় লাগে মাত্র ৩ মিনিট।</p></div>
+      <div class="step"><div class="step-n">২</div><h3>অনুমোদন পান</h3><p>Admin আপনার আবেদন রিভিউ করে অনুমোদন দেন। অনুমোদনের আগে সীমিত সুবিধাসহ ড্যাশবোর্ড দেখা যায়।</p></div>
+      <div class="step"><div class="step-n">৩</div><h3>প্রতিষ্ঠান যাচাই করুন</h3><p>নিজের উপজেলার প্রতিষ্ঠানের তথ্য ঠিক আছে কিনা যাচাই করুন। প্রথম নির্ভুল যাচাইয়ে প্রতিষ্ঠান আপনার প্রোফাইলে যুক্ত হয়।</p></div>
+      <div class="step"><div class="step-n">৪</div><h3>আয় শুরু করুন</h3><p>আপনার যাচাই করা প্রতিষ্ঠান Protishthan-এর সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আপনার কমিশন জমা হয়।</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="s alt-bg" id="earn">
+  <div class="wrap">
+    <div class="earn">
+      <div>
+        <span class="kicker">আয়ের হিসাব</span>
+        <h2>প্রতিষ্ঠান যতদিন সার্ভিস চালায়, আয়ও ততদিন চলে</h2>
+        <p>এক-বার-দেওয়া বোনাস নয়। প্রতিষ্ঠান প্রতিবার সার্ভিসের টাকা দিলে আপনার ড্যাশবোর্ডে কমিশন যোগ হয়।</p>
+        <div class="rules">
+          <div class="rule"><b>৫০%</b><span>প্রতিষ্ঠানের <strong>প্রথম পেমেন্টের</strong> ওপর কমিশন</span></div>
+          <div class="rule"><b>২৫%</b><span>এরপর <strong>প্রতিটি পেমেন্টের</strong> ওপর কমিশন, যতদিন প্রতিষ্ঠান সার্ভিস চালু রাখে</span></div>
+        </div>
+      </div>
+
+      <div class="calc" id="calc">
+        <h3>আপনার সম্ভাব্য আয়</h3>
+        <div class="cs">নিজে হিসাব করে দেখুন</div>
+        <div class="calc-row">
+          <label for="cCount">আপনার যাচাই করা প্রতিষ্ঠান যারা সার্ভিস নিয়েছে <b id="cCountV">৫ টি</b></label>
+          <input type="range" id="cCount" min="1" max="30" value="5" oninput="calcUpdate()">
+        </div>
+        <div class="calc-row">
+          <label>প্রতিষ্ঠানের মাসিক প্ল্যান</label>
+          <div class="plans">
+            <button type="button" class="plan on" data-p="599" onclick="calcPlan(this)">৳৫৯৯<small>প্রতি মাসে</small></button>
+            <button type="button" class="plan" data-p="1199" onclick="calcPlan(this)">৳১,১৯৯<small>প্রতি মাসে</small></button>
+          </div>
+        </div>
+        <div class="calc-out">
+          <div><b id="cFirst">৳০</b><span>প্রথম মাসে</span></div>
+          <div><b id="cMonthly">৳০</b><span>পরের প্রতি মাসে</span></div>
+          <div class="wide"><b id="cYear">৳০</b><span>প্রথম ১২ মাসে মোট</span></div>
+        </div>
+        <div class="disc">এটি উদাহরণ হিসাব। প্রতিষ্ঠান প্রতি মাসে পেমেন্ট করলে তবেই কমিশন হয়, তাই প্রকৃত আয় প্রতিষ্ঠানের পেমেন্টের ওপর নির্ভর করে।</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="why">
+  <div class="wrap">
+    <div class="s-head">
+      <span class="kicker">কেন Partner হবেন</span>
+      <h2>আপনার জন্য যা যা থাকছে</h2>
+      <p>আয়ের পাশাপাশি নিজের এলাকায় একটা পরিচয় আর কাজ করার সব সরঞ্জাম।</p>
+    </div>
+    <div class="grid3">
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><h3>নিয়মিত মাসিক আয়</h3><p>প্রতিষ্ঠান সার্ভিস চালু রাখলে প্রতি পেমেন্ট থেকে কমিশন, মাসের পর মাস।</p></div>
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div><h3>প্রতিষ্ঠান আপনার প্রোফাইলে</h3><p>যে প্রতিষ্ঠান আপনি প্রথম নির্ভুলভাবে যাচাই করবেন, সেটি আপনার প্রোফাইলে যুক্ত থাকে।</p></div>
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8v6M14 11h6"/></svg></div><h3>সীমিত আসন</h3><p>প্রতি উপজেলায় সর্বোচ্চ ৩ জন Partner। ফর্মেই দেখা যায় আপনার উপজেলায় জায়গা আছে কিনা।</p></div>
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 14h3"/></svg></div><h3>নিজের ড্যাশবোর্ড</h3><p>আপনার প্রতিষ্ঠান, মোট আয়, জমা আর পরিশোধের হিসাব সব এক জায়গায়।</p></div>
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></div><h3>কাজ শেখার গাইড</h3><p>কীভাবে যাচাই করবেন, কীভাবে প্রতিষ্ঠানকে বোঝাবেন, সব ধাপে ধাপে শেখানো থাকবে।</p></div>
+      <div class="card"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div><h3>স্বচ্ছ হিসাব</h3><p>কোন প্রতিষ্ঠান কবে কত দিল, আপনার কমিশন কত, সবটাই ড্যাশবোর্ডে দেখা যায়।</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="s alt-bg" id="faq">
+  <div class="wrap">
+    <div class="s-head">
+      <span class="kicker">প্রশ্নোত্তর</span>
+      <h2>সাধারণ জিজ্ঞাসা</h2>
+    </div>
+    <div class="faq">
+      <details><summary>কারা Partner হিসেবে আবেদন করতে পারবেন?</summary><p>যিনি নিজের উপজেলার শিক্ষা প্রতিষ্ঠান সম্পর্কে জানেন এবং সেগুলোর তথ্য যাচাই করতে পারবেন, তিনি আবেদন করতে পারেন। আবেদন রিভিউ করে Admin অনুমোদন দেন।</p></details>
+      <details><summary>প্রতি উপজেলায় কতজন Partner থাকতে পারেন?</summary><p>প্রতি উপজেলায় সর্বোচ্চ ৩ জন। ফর্মে জেলা আর উপজেলা বাছাই করলেই দেখতে পাবেন সেখানে আর কতজনের জায়গা আছে।</p></details>
+      <details><summary>কমিশন কীভাবে হিসাব হয়?</summary><p>আপনার যাচাই করা প্রতিষ্ঠান Protishthan-এর সার্ভিসের জন্য প্রথমবার টাকা দিলে সেই পেমেন্টের ৫০% আপনার কমিশন। এরপর প্রতিটি পেমেন্টের ২৫%, যতদিন প্রতিষ্ঠান সার্ভিস চালু রাখে।</p></details>
+      <details><summary>প্রতিষ্ঠান কীভাবে আমার হয়?</summary><p>যে প্রতিষ্ঠান আপনি প্রথম নির্ভুলভাবে যাচাই করবেন, সেটি আপনার প্রোফাইলে যুক্ত থাকে। সেই প্রতিষ্ঠানের পেমেন্ট থেকেই আপনার কমিশন হয়।</p></details>
+      <details><summary>আবেদন জমা দেওয়ার পর কী হবে?</summary><p>আপনার আবেদন Admin-এর কাছে যায়। রিভিউ শেষ হওয়া পর্যন্ত আপনি সীমিত সুবিধাসহ ড্যাশবোর্ড দেখতে পারবেন। অনুমোদন পেলে পুরো সুবিধা চালু হয়।</p></details>
+      <details><summary>আমার আয় কোথায় দেখব?</summary><p>লগইন করে আপনার ড্যাশবোর্ডে মোট আয়, জমা থাকা কমিশন আর পরিশোধের হিসাব দেখতে পারবেন।</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="s" style="padding-top:72px">
+  <div class="wrap">
+    <div class="cta">
+      <h2>আপনার উপজেলার জায়গাটা এখনই নিশ্চিত করুন</h2>
+      <p>প্রতি উপজেলায় মাত্র ৩ জন। আসন ফুরিয়ে যাওয়ার আগে আবেদন করুন।</p>
+      <a class="btn btn-primary" href="#apply">আবেদন করুন</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="index.html">Protisht<span>han</span></a>
+    <nav>
+      <a href="index.html">হোম</a>
+      <a href="partner-login.html">Partner লগইন</a>
+      <a href="privacy.html">গোপনীয়তা নীতি</a>
+      <a href="terms.html">শর্ত</a>
+    </nav>
+    <p>© 2026 Protishthan Partner</p>
+  </div>
+</footer>
 
 <script>
 const BD_LOCATIONS = [{"n": "কক্সবাজার", "u": ["ঈদগাঁও", "উখিয়া", "কক্সবাজার সদর", "কুতুবদিয়া", "চকরিয়া", "টেকনাফ", "পেকুয়া", "মহেশখালী", "রামু"]}, {"n": "কিশোরগঞ্জ", "u": ["অষ্টগ্রাম", "ইটনা", "কটিয়াদী", "করিমগঞ্জ", "কিশোরগঞ্জ সদর", "কুলিয়ারচর", "তাড়াইল", "নিকলী", "পাকুন্দিয়া", "বাজিতপুর", "ভৈরব", "মিঠামইন", "হোসেনপুর"]}, {"n": "কুমিল্লা", "u": ["কুমিল্লা সদর", "চান্দিনা", "চৌদ্দগ্রাম", "তিতাস", "দাউদকান্দি", "দেবিদ্বার", "নাঙ্গলকোট", "বরুড়া", "বুড়িচং", "ব্রাহ্মণপাড়া", "মনোহরগঞ্জ", "মুরাদনগর", "মেঘনা", "লাকসাম", "লালমাই", "সদর দক্ষিণ", "হোমনা"]}, {"n": "কুষ্টিয়া", "u": ["কুমারখালী", "কুষ্টিয়া সদর", "খোকসা", "দৌলতপুর", "ভেড়ামারা", "মিরপুর"]}, {"n": "কুড়িগ্রাম", "u": ["উলিপুর", "কুড়িগ্রাম সদর", "চর রাজিবপুর", "চিলমারী", "নাগেশ্বরী", "ফুলবাড়ী", "ভুরুঙ্গামারী", "রাজারহাট", "রৌমারী"]}, {"n": "খাগড়াছড়ি", "u": ["খাগড়াছড়ি সদর", "গুইমারা", "দিঘীনালা", "পানছড়ি", "মহালছড়ি", "মাটিরাঙ্গা", "মানিকছড়ি", "রামগড়", "লক্ষীছড়ি"]}, {"n": "খুলনা", "u": ["কয়রা", "ডুমুরিয়া", "তেরখাদা", "দাকোপ", "দিঘলিয়া", "পাইকগাছা", "ফুলতলা", "বটিয়াঘাটা", "রূপসা"]}, {"n": "গাইবান্ধা", "u": ["গাইবান্ধা সদর", "গোবিন্দগঞ্জ", "পলাশবাড়ী", "ফুলছড়ি", "সাঘাটা", "সাদুল্লাপুর", "সুন্দরগঞ্জ"]}, {"n": "গাজীপুর", "u": ["কাপাসিয়া", "কালিয়াকৈর", "কালীগঞ্জ", "গাজীপুর সদর", "শ্রীপুর"]}, {"n": "গোপালগঞ্জ", "u": ["কাশিয়ানী", "কোটালীপাড়া", "গোপালগঞ্জ সদর", "টুংগীপাড়া", "মুকসুদপুর"]}, {"n": "চট্টগ্রাম", "u": ["আনোয়ারা", "কর্ণফুলী", "চন্দনাইশ", "পটিয়া", "ফটিকছড়ি", "বাঁশখালী", "বোয়ালখালী", "মীরসরাই", "রাউজান", "রাঙ্গুনিয়া", "লোহাগাড়া", "সন্দ্বীপ", "সাতকানিয়া", "সীতাকুন্ড", "হাটহাজারী"]}, {"n": "চাঁদপুর", "u": ["কচুয়া", "চাঁদপুর সদর", "ফরিদগঞ্জ", "মতলব উত্তর", "মতলব দক্ষিণ", "শাহরাস্তি	", "হাইমচর", "হাজীগঞ্জ"]}, {"n": "চাঁপাইনবাবগঞ্জ", "u": ["গোমস্তাপুর", "চাঁপাইনবাবগঞ্জ সদর", "নাচোল", "ভোলাহাট", "শিবগঞ্জ"]}, {"n": "চুয়াডাঙ্গা", "u": ["আলমডাঙ্গা", "চুয়াডাঙ্গা সদর", "জীবননগর", "দামুড়হুদা"]}, {"n": "জামালপুর", "u": ["ইসলামপুর", "জামালপুর সদর", "দেওয়ানগঞ্জ", "বকশীগঞ্জ", "মাদারগঞ্জ", "মেলান্দহ", "সরিষাবাড়ী"]}, {"n": "জয়পুরহাট", "u": ["আক্কেলপুর", "কালাই", "ক্ষেতলাল", "জয়পুরহাট সদর", "পাঁচবিবি"]}, {"n": "ঝালকাঠি", "u": ["কাঠালিয়া", "ঝালকাঠি সদর", "নলছিটি", "রাজাপুর"]}, {"n": "ঝিনাইদহ", "u": ["কালীগঞ্জ", "কোটচাঁদপুর", "ঝিনাইদহ সদর", "মহেশপুর", "শৈলকুপা", "হরিণাকুন্ডু"]}, {"n": "টাঙ্গাইল", "u": ["কালিহাতী", "গোপালপুর", "ঘাটাইল", "টাঙ্গাইল সদর", "দেলদুয়ার", "ধনবাড়ী", "নাগরপুর", "বাসাইল", "ভুয়াপুর", "মধুপুর", "মির্জাপুর", "সখিপুর"]}, {"n": "ঠাকুরগাঁও", "u": ["ঠাকুরগাঁও সদর", "পীরগঞ্জ", "বালিয়াডাঙ্গী", "রাণীশংকৈল", "হরিপুর"]}, {"n": "ঢাকা", "u": ["কেরাণীগঞ্জ", "দোহার", "ধামরাই", "নবাবগঞ্জ", "সাভার"]}, {"n": "দিনাজপুর", "u": ["কাহারোল", "খানসামা", "ঘোড়াঘাট", "চিরিরবন্দর", "দিনাজপুর সদর", "নবাবগঞ্জ", "পার্বতীপুর", "ফুলবাড়ী", "বিরল", "বিরামপুর", "বীরগঞ্জ", "বোচাগঞ্জ", "হাকিমপুর"]}, {"n": "নওগাঁ", "u": ["আত্রাই", "ধামইরহাট", "নওগাঁ সদর", "নিয়ামতপুর", "পত্নিতলা", "পোরশা", "বদলগাছী", "মহাদেবপুর", "মান্দা", "রাণীনগর", "সাপাহার"]}, {"n": "নড়াইল", "u": ["কালিয়া", "নড়াইল সদর", "লোহাগড়া"]}, {"n": "নরসিংদী", "u": ["নরসিংদী সদর", "পলাশ", "বেলাবো", "মনোহরদী", "রায়পুরা", "শিবপুর"]}, {"n": "নাটোর", "u": ["গুরুদাসপুর", "নলডাঙ্গা", "নাটোর সদর", "বড়াইগ্রাম", "বাগাতিপাড়া", "লালপুর", "সিংড়া"]}, {"n": "নারায়ণগঞ্জ", "u": ["আড়াইহাজার", "নারায়নগঞ্জ সদর", "বন্দর", "রূপগঞ্জ", "সোনারগাঁ"]}, {"n": "নীলফামারী", "u": ["কিশোরগঞ্জ", "জলঢাকা", "ডিমলা", "ডোমার", "নীলফামারী সদর", "সৈয়দপুর"]}, {"n": "নেত্রকোণা", "u": ["আটপাড়া", "কলমাকান্দা", "কেন্দুয়া", "খালিয়াজুরী", "দুর্গাপুর", "নেত্রকোণা সদর", "পূর্বধলা", "বারহাট্টা", "মদন", "মোহনগঞ্জ"]}, {"n": "নোয়াখালী", "u": ["কবিরহাট", "কোম্পানীগঞ্জ", "চাটখিল", "নোয়াখালী সদর", "বেগমগঞ্জ", "সুবর্ণচর", "সেনবাগ", "সোনাইমুড়ী", "হাতিয়া"]}, {"n": "পঞ্চগড়", "u": ["আটোয়ারী", "তেতুলিয়া", "দেবীগঞ্জ", "পঞ্চগড় সদর", "বোদা"]}, {"n": "পটুয়াখালী", "u": ["কলাপাড়া", "গলাচিপা", "দশমিনা", "দুমকি", "পটুয়াখালী সদর", "বাউফল", "মির্জাগঞ্জ", "রাঙ্গাবালী"]}, {"n": "পাবনা", "u": ["আটঘরিয়া", "ঈশ্বরদী", "চাটমোহর", "পাবনা সদর", "ফরিদপুর", "বেড়া", "ভাঙ্গুড়া", "সাঁথিয়া", "সুজানগর"]}, {"n": "পিরোজপুর", "u": ["কাউখালী", "জিয়ানগর", "নাজিরপুর", "নেছারাবাদ", "পিরোজপুর সদর", "ভান্ডারিয়া", "মঠবাড়ীয়া"]}, {"n": "ফরিদপুর", "u": ["আলফাডাঙ্গা", "চরভদ্রাসন", "নগরকান্দা", "ফরিদপুর সদর", "বোয়ালমারী", "ভাঙ্গা", "মধুখালী", "সদরপুর", "সালথা"]}, {"n": "ফেনী", "u": ["ছাগলনাইয়া", "দাগনভূঞা", "পরশুরাম", "ফুলগাজী", "ফেনী সদর", "সোনাগাজী"]}, {"n": "বগুড়া", "u": ["আদমদিঘি", "কাহালু", "গাবতলী", "দুপচাচিঁয়া", "ধুনট", "নন্দিগ্রাম", "বগুড়া সদর", "শাজাহানপুর", "শিবগঞ্জ", "শেরপুর", "সারিয়াকান্দি", "সোনাতলা"]}, {"n": "বরগুনা", "u": ["আমতলী", "তালতলি", "পাথরঘাটা", "বরগুনা সদর", "বামনা", "বেতাগী"]}, {"n": "বরিশাল", "u": ["আগৈলঝাড়া", "উজিরপুর", "গৌরনদী", "বরিশাল সদর", "বাকেরগঞ্জ", "বানারীপাড়া", "বাবুগঞ্জ", "মুলাদী", "মেহেন্দিগঞ্জ", "হিজলা"]}, {"n": "বাগেরহাট", "u": ["কচুয়া", "চিতলমারী", "ফকিরহাট", "বাগেরহাট সদর", "মোংলা", "মোল্লাহাট", "মোড়েলগঞ্জ", "রামপাল", "শরণখোলা"]}, {"n": "বান্দরবান", "u": ["আলীকদম", "থানচি", "নাইক্ষ্যংছড়ি", "বান্দরবান সদর", "রুমা", "রোয়াংছড়ি", "লামা"]}, {"n": "ব্রাহ্মণবাড়িয়া", "u": ["আখাউড়া", "আশুগঞ্জ", "কসবা", "নবীনগর", "নাসিরনগর", "বাঞ্ছারামপুর", "বিজয়নগর", "ব্রাহ্মণবাড়িয়া সদর", "সরাইল"]}, {"n": "ভোলা", "u": ["চরফ্যাশন", "তজুমদ্দিন", "দৌলতখান", "বোরহান উদ্দিন", "ভোলা সদর", "মনপুরা", "লালমোহন"]}, {"n": "মাগুরা", "u": ["মহম্মদপুর", "মাগুরা সদর", "শালিখা", "শ্রীপুর"]}, {"n": "মাদারীপুর", "u": ["কালকিনি", "ডাসার", "মাদারীপুর সদর", "রাজৈর", "শিবচর"]}, {"n": "মানিকগঞ্জ", "u": ["ঘিওর", "দৌলতপুর", "মানিকগঞ্জ সদর", "শিবালয়", "সাটুরিয়া", "সিংগাইর", "হরিরামপুর"]}, {"n": "মুন্সিগঞ্জ", "u": ["গজারিয়া", "টংগীবাড়ি", "মুন্সিগঞ্জ সদর", "লৌহজং", "শ্রীনগর", "সিরাজদিখান"]}, {"n": "মেহেরপুর", "u": ["গাংনী", "মুজিবনগর", "মেহেরপুর সদর"]}, {"n": "মৌলভীবাজার", "u": ["কমলগঞ্জ", "কুলাউড়া", "জুড়ী", "বড়লেখা", "মৌলভীবাজার সদর", "রাজনগর", "শ্রীমঙ্গল"]}, {"n": "ময়মনসিংহ", "u": ["ঈশ্বরগঞ্জ", "গফরগাঁও", "গৌরীপুর", "তারাকান্দা", "ত্রিশাল", "ধোবাউড়া", "নান্দাইল", "ফুলপুর", "ফুলবাড়ীয়া", "ভালুকা", "মুক্তাগাছা", "ময়মনসিংহ সদর", "হালুয়াঘাট"]}, {"n": "যশোর", "u": ["অভয়নগর", "কেশবপুর", "চৌগাছা", "ঝিকরগাছা", "বাঘারপাড়া", "মণিরামপুর", "যশোর সদর", "শার্শা"]}, {"n": "রংপুর", "u": ["কাউনিয়া", "গংগাচড়া", "তারাগঞ্জ", "পীরগঞ্জ", "পীরগাছা", "বদরগঞ্জ", "মিঠাপুকুর", "রংপুর সদর"]}, {"n": "রাঙ্গামাটি", "u": ["কাউখালী", "কাপ্তাই", "জুরাছড়ি", "নানিয়ারচর", "বরকল", "বাঘাইছড়ি", "বিলাইছড়ি", "রাঙ্গামাটি সদর", "রাজস্থলী", "লংগদু"]}, {"n": "রাজবাড়ী", "u": ["কালুখালী", "গোয়ালন্দ", "পাংশা", "বালিয়াকান্দি", "রাজবাড়ী সদর"]}, {"n": "রাজশাহী", "u": ["গোদাগাড়ী", "চারঘাট", "তানোর", "দুর্গাপুর", "পবা", "পুঠিয়া", "বাগমারা", "বাঘা", "মোহনপুর"]}, {"n": "লক্ষ্মীপুর", "u": ["কমলনগর", "রামগঞ্জ", "রামগতি", "রায়পুর", "লক্ষ্মীপুর সদর"]}, {"n": "লালমনিরহাট", "u": ["আদিতমারী", "কালীগঞ্জ", "পাটগ্রাম", "লালমনিরহাট সদর", "হাতীবান্ধা"]}, {"n": "শরীয়তপুর", "u": ["গোসাইরহাট", "জাজিরা", "ডামুড্যা", "নড়িয়া", "ভেদরগঞ্জ", "শরিয়তপুর সদর"]}, {"n": "শেরপুর", "u": ["ঝিনাইগাতী", "নকলা", "নালিতাবাড়ী", "শেরপুর সদর", "শ্রীবরদী"]}, {"n": "সাতক্ষীরা", "u": ["আশাশুনি", "কলারোয়া", "কালিগঞ্জ", "তালা", "দেবহাটা", "শ্যামনগর", "সাতক্ষীরা সদর"]}, {"n": "সিরাজগঞ্জ", "u": ["উল্লাপাড়া", "কাজীপুর", "কামারখন্দ", "চৌহালি", "তাড়াশ", "বেলকুচি", "রায়গঞ্জ", "শাহজাদপুর", "সিরাজগঞ্জ সদর"]}, {"n": "সিলেট", "u": ["ওসমানী নগর", "কানাইঘাট", "কোম্পানীগঞ্জ", "গোলাপগঞ্জ", "গোয়াইনঘাট", "জকিগঞ্জ", "জৈন্তাপুর", "দক্ষিণ সুরমা", "ফেঞ্চুগঞ্জ", "বালাগঞ্জ", "বিশ্বনাথ", "বিয়ানীবাজার", "সিলেট সদর"]}, {"n": "সুনামগঞ্জ", "u": ["ছাতক", "জগন্নাথপুর", "জামালগঞ্জ", "তাহিরপুর", "দক্ষিণ সুনামগঞ্জ", "দিরাই", "দোয়ারাবাজার", "ধর্মপাশা", "বিশ্বম্ভরপুর", "মধ্যনগর", "শাল্লা", "সুনামগঞ্জ সদর"]}, {"n": "হবিগঞ্জ", "u": ["আজমিরীগঞ্জ", "চুনারুঘাট", "নবীগঞ্জ", "বানিয়াচং", "বাহুবল", "মাধবপুর", "লাখাই", "হবিগঞ্জ সদর"]}];
@@ -404,6 +602,23 @@ async function doSignup(){
   document.getElementById('signupForm').style.display='none';
   document.getElementById('successScreen').classList.add('show');
 }
+
+/* earnings calculator */
+let CALC_PLAN = 599;
+function bn(n){ return Math.round(n).toLocaleString('bn-BD'); }
+function calcPlan(btn){
+  document.querySelectorAll('.plan').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); CALC_PLAN = Number(btn.getAttribute('data-p')); calcUpdate();
+}
+function calcUpdate(){
+  const n = Number(document.getElementById('cCount').value);
+  const first = n * CALC_PLAN * 0.5, monthly = n * CALC_PLAN * 0.25;
+  document.getElementById('cCountV').textContent = bn(n) + ' টি';
+  document.getElementById('cFirst').textContent = '৳' + bn(first);
+  document.getElementById('cMonthly').textContent = '৳' + bn(monthly);
+  document.getElementById('cYear').textContent = '৳' + bn(first + 11 * monthly);
+}
+calcUpdate();
 </script>
 </body>
 </html>
