@@ -79,7 +79,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       </ul>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
-      <div class="mb-fine">আমরা শুধু আপনার <b>নাম আর ইমেইল</b> রাখি। পাসওয়ার্ড লাগে না। Google-এর স্ক্রিনে "প্রোফাইল ছবি"ও লেখা থাকে, ওটা Google-এর একসাথে দেওয়া অনুমতি — আমরা ছবি রাখি না, দেখাইও না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
+      <div class="mb-fine">আমরা শুধু আপনার <b>নাম আর ইমেইল</b> রাখি। পাসওয়ার্ড লাগে না। Google-এর স্ক্রিনে "প্রোফাইল ছবি"ও লেখা থাকে, ওটা Google-এর একসাথে দেওয়া অনুমতি — আমরা Google-এর ছবি রাখি না, দেখাইও না।<br>বয়স ১৩ বছর বা তার বেশি হতে হবে। এগিয়ে গেলে আমাদের <a href="privacy.html" style="color:#1A56DB">গোপনীয়তা নীতি</a> ও <a href="terms.html" style="color:#1A56DB">শর্ত</a> মেনে নিচ্ছেন বলে ধরা হবে।</div>
     </div>`;
     document.body.appendChild(ov);
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
@@ -149,7 +149,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         return;
       }
       slot.innerHTML = `<div class="mb-wrap${light ? ' mb-light' : ''}">
-        <button type="button" class="mb-av" aria-haspopup="menu" aria-label="আমার অ্যাকাউন্ট">${esc(initial(ME))}</button>
+        <button type="button" class="mb-av" aria-haspopup="menu" aria-label="আমার অ্যাকাউন্ট">${ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME))}</button>
         <div class="mb-menu" role="menu">
           <div class="mb-who"><b>${esc(ME.display_name || 'সদস্য')}</b><span>${esc(ME.email || '')}</span></div>
           <a href="member.html">আমার পাতা</a>
@@ -190,10 +190,23 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     return on;
   }
 
+  // change the signed-in member's own name / picture (RLS + column grants allow only these two fields)
+  async function updateProfile(patch){
+    if(!ME) throw new Error('NOT_SIGNED_IN');
+    const upd = {};
+    if('display_name' in patch) upd.display_name = patch.display_name;
+    if('avatar_url' in patch) upd.avatar_url = patch.avatar_url;
+    const { data, error } = await sb.from('members').update(upd).eq('user_id', ME.user_id).select().single();
+    if(error) throw error;
+    ME = data; render();
+    listeners.forEach(cb => { try{ cb(ME); }catch(e){ console.error(e); } });
+    return ME;
+  }
+
   P.member = {
     sb, ready: () => READY, current: () => ME,
     onChange(cb){ listeners.push(cb); },
-    signIn: openModal, signOut, toast, esc,
+    signIn: openModal, signOut, toast, esc, updateProfile,
     saved: { has: isSaved, toggle: toggleSaved, list: loadSaved }
   };
 })();
