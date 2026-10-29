@@ -10,11 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--blue:#1A56DB;--blue-light:#EEF3FF;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669;--red:#DC2626;--amber:#D97706}
+:root{--blue:#1A56DB;--blue-2:#2563EB;--violet:#7C3AED;--gold:#FDE68A;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669;--red:#DC2626;--r:20px;--shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px rgba(15,32,72,.06)}
+html{scroll-behavior:smooth;scroll-padding-top:130px}
 body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
-.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
-.container{max-width:1000px;margin:0 auto;padding:0 24px}
+.container{max-width:1160px;margin:0 auto;padding:0 24px}
 a{color:inherit}
+button{font-family:inherit}
+:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:2px;border-radius:8px}
+.ic{display:inline-block;flex-shrink:0;vertical-align:middle}
 
 /* top bar: same floating nav as the home page */
 nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
@@ -35,66 +38,196 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:900px){.nav-links{display:none}}
 @media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
 
-.hero{background:radial-gradient(900px 340px at 80% -10%,rgba(124,58,237,.32),transparent),linear-gradient(160deg,#0A1628,#0F2048 55%,#1A3570);color:#fff;padding:112px 0 84px}
-.who{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.avatar{width:76px;height:76px;border-radius:50%;border:3px solid rgba(255,255,255,.4);overflow:hidden;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;flex:none}
-.avatar img{width:100%;height:100%;object-fit:cover}
-.who h1{font-size:clamp(24px,3.6vw,34px);line-height:1.2}
-.who p{color:rgba(255,255,255,.7);font-size:14px;word-break:break-all}
-.chip{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;font-weight:700;color:#FDE68A;background:rgba(253,230,138,.1);border:1px solid rgba(253,230,138,.28);padding:3px 11px;border-radius:100px}
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;color:#fff;padding:118px 0 92px;background:linear-gradient(160deg,#0A1628 0%,#0F2048 52%,#1A3570 100%)}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 75%)}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none}
+.orb.a{width:420px;height:420px;right:-80px;top:-120px;background:radial-gradient(circle,rgba(124,58,237,.7),transparent 70%);animation:drift 14s ease-in-out infinite alternate}
+.orb.b{width:340px;height:340px;left:-90px;bottom:-140px;background:radial-gradient(circle,rgba(37,99,235,.7),transparent 70%);animation:drift 17s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:translate(40px,30px) scale(1.12)}}
+.hero-in{position:relative;display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center}
+.who{display:flex;align-items:center;gap:22px;min-width:0}
+.avatar-wrap{position:relative;flex:none}
+.avatar{width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 38px 'Inter','Hind Siliguri',sans-serif;background:linear-gradient(135deg,#3B82F6,#7C3AED);border:3px solid rgba(255,255,255,.35);box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.avatar-wrap::after{content:'';position:absolute;right:2px;bottom:4px;width:18px;height:18px;border-radius:50%;background:#10B981;border:3px solid #0F2048}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--gold);background:rgba(253,230,138,.1);border:1px solid rgba(253,230,138,.28);padding:3px 12px;border-radius:100px;margin-bottom:8px}
+.who h1{font-size:clamp(26px,3.8vw,40px);line-height:1.15;letter-spacing:-.4px;word-break:break-word}
+.who .mail{color:rgba(255,255,255,.68);font-size:14.5px;word-break:break-all;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:100px;padding:4px 12px;backdrop-filter:blur(8px)}
+.hero-stats{display:flex;gap:12px}
+.stat{min-width:128px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.stat .k{font-size:12px;color:rgba(255,255,255,.65);font-weight:600}
+.stat .v{font:800 28px/1.1 'Inter','Hind Siliguri',sans-serif;margin-top:4px;letter-spacing:-.5px}
+.stat .s{font-size:12px;color:rgba(255,255,255,.6)}
+.ring{position:relative;width:46px;height:46px;float:right;margin-top:-4px}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 11px 'Inter',sans-serif}
 
-main{margin-top:-46px;position:relative;z-index:2;padding-bottom:30px}
-.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
-@media(max-width:860px){.grid{grid-template-columns:1fr}}
-.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 8px 28px rgba(15,32,72,.06)}
-.card h2{font-size:18px;line-height:1.3;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.card h2 small{font-size:12.5px;font-weight:600;color:var(--text-3)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:12px;padding:10px 16px;font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
-.btn-blue{background:var(--blue);color:#fff}
+/* ---------- section nav ---------- */
+.subnav{position:sticky;top:88px;z-index:60;margin-top:-30px}
+.subnav-in{display:flex;gap:4px;padding:6px;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow-x:auto;scrollbar-width:none}
+.subnav-in::-webkit-scrollbar{display:none}
+.subnav a{flex:none;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:14px;font-weight:600;color:var(--text-2);padding:9px 15px;border-radius:12px;transition:background .15s,color .15s}
+.subnav a:hover{background:var(--surface);color:var(--text)}
+.subnav a.on{background:var(--blue);color:#fff;box-shadow:0 6px 16px rgba(26,86,219,.32)}
+.subnav .n{font-size:11px;font-weight:700;background:rgba(15,23,42,.08);border-radius:100px;padding:0 7px;line-height:18px}
+.subnav a.on .n{background:rgba(255,255,255,.25)}
+
+/* ---------- layout ---------- */
+main{padding:26px 0 40px}
+.sec{margin-bottom:26px}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sec-h h2{font-size:21px;line-height:1.3;letter-spacing:-.2px}
+.sec-h p{font-size:13.5px;color:var(--text-3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.hero-in{grid-template-columns:1fr}.hero-stats{overflow-x:auto}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:13px;padding:11px 18px;font-weight:700;font-size:14.5px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn-blue{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.3)}
 .btn-line{background:#fff;color:var(--text);border:1.5px solid var(--border)}
-.btn-gold{background:#FDE68A;color:#78350F}
+.btn-line:hover{background:var(--surface)}
+.btn-gold{background:var(--gold);color:#78350F;box-shadow:0 8px 20px rgba(253,230,138,.25)}
 .btn-red{background:#FEF2F2;color:var(--red)}
+.btn-sm{padding:8px 14px;font-size:13.5px;border-radius:11px}
 
-.saved-list{list-style:none}
-.saved-list li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.saved-list li:last-child{border-bottom:none}
-.saved-ic{width:44px;height:44px;border-radius:12px;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
-.saved-main{flex:1;min-width:0}
-.saved-main a{font-weight:700;font-size:15px;line-height:1.35;text-decoration:none;display:block}
-.saved-main a:hover{color:var(--blue)}
-.saved-main span{font-size:12.5px;color:var(--text-3)}
-.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-.tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:100px;background:var(--bg);color:var(--text-2)}
+/* ---------- start checklist + quick actions ---------- */
+.start{display:grid;grid-template-columns:1.1fr 1fr;gap:22px}
+@media(max-width:860px){.start{grid-template-columns:1fr}}
+.prog{height:8px;border-radius:8px;background:var(--bg);overflow:hidden;margin:6px 0 16px}
+.prog i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,#2563EB,#7C3AED);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.steps{list-style:none;display:grid;gap:8px}
+.steps li{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;border:1px solid var(--border);background:var(--surface);transition:border-color .2s}
+.steps li.done{background:#F0FDF4;border-color:#BBF7D0}
+.steps .dot{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;border:2px solid var(--border);color:var(--text-3);background:#fff;font:700 13px 'Inter',sans-serif}
+.steps li.done .dot{background:var(--green);border-color:var(--green);color:#fff}
+.steps b{display:block;font-size:14.5px;line-height:1.3}
+.steps span{font-size:12.5px;color:var(--text-3)}
+.steps a{margin-left:auto;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;white-space:nowrap}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qa a{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:16px;border:1px solid var(--border);background:#fff;text-decoration:none;transition:transform .18s,box-shadow .18s,border-color .18s}
+.qa a:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,32,72,.1);border-color:#C7D7FE}
+.qa .ti{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff}
+.qa b{display:block;font-size:15px;line-height:1.3}
+.qa div span{display:block;font-size:12.5px;color:var(--text-3);line-height:1.4;margin-top:1px}
+.g1{background:linear-gradient(135deg,#3B82F6,#2563EB)}.g2{background:linear-gradient(135deg,#8B5CF6,#7C3AED)}.g3{background:linear-gradient(135deg,#F59E0B,#D97706)}.g4{background:linear-gradient(135deg,#10B981,#059669)}
+
+/* ---------- saved institutions ---------- */
+.saved{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:640px){.saved{grid-template-columns:1fr}}
+.inst{position:relative;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:18px;border:1px solid var(--border);background:#fff;transition:transform .18s,box-shadow .18s,opacity .25s}
+.inst:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(15,32,72,.1)}
+.inst.gone{opacity:0;transform:scale(.96)}
+.inst-top{display:flex;gap:12px;align-items:flex-start}
+.t-ic{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center}
+.t-school{background:#EEF3FF;color:#1A56DB}.t-madrasa{background:#F3E8FF;color:#7C3AED}.t-college{background:#FFF7ED;color:#D97706}.t-coach{background:#ECFDF5;color:#059669}
+.inst h3{font-size:16px;line-height:1.35;word-break:break-word}
+.inst h3 a{text-decoration:none}.inst h3 a:hover{color:var(--blue)}
+.loc{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--bg);color:var(--text-2)}
 .tag.g{background:#ECFDF5;color:var(--green)}
-.x{border:none;background:none;color:var(--text-3);font-size:20px;line-height:1;cursor:pointer;padding:6px;border-radius:8px}
-.x:hover{background:#FEF2F2;color:var(--red)}
-.empty{text-align:center;padding:26px 14px;color:var(--text-2);font-size:14px}
-.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
-.empty .btn{margin-top:12px}
+.inst-act{display:flex;gap:8px;margin-top:auto}
+.inst-act .btn{flex:1}
+.unsave{width:40px;height:40px;border-radius:11px;border:1.5px solid var(--border);background:#fff;color:#F59E0B;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;transition:background .15s,border-color .15s}
+.unsave:hover{background:#FFFBEB;border-color:#FDE68A}
 
-.army{background:radial-gradient(400px 160px at 100% 0,rgba(124,58,237,.45),transparent),linear-gradient(150deg,#0A1628,#1A3570);color:#fff;border:none}
-.army p{color:rgba(255,255,255,.78);font-size:13.5px;margin-bottom:12px}
-.army ul{list-style:none;margin-bottom:14px}
-.army li{position:relative;padding-left:18px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:4px}
-.army li::before{content:'';position:absolute;left:3px;top:9px;width:6px;height:6px;border-radius:50%;background:#FDE68A}
-.soon{display:flex;flex-direction:column;gap:10px}
-.soon div{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-2)}
-.soon b{color:var(--text);display:block;font-size:14px}
-.soon i{flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-style:normal}
-.card-mini{display:flex;gap:12px;align-items:center}
-.card-mini .pic{width:54px;height:62px;border-radius:12px;background:var(--bg);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;color:var(--text-3)}
-.card-mini .pic img{width:100%;height:100%;object-fit:cover}
-.card-mini b{display:block;font-size:15px}
-.card-mini span{font-size:12.5px;color:var(--text-3)}
-.sign{max-width:520px;margin:0 auto;text-align:center;padding:34px 24px}
-.sign h2{justify-content:center;font-size:22px}
-.sign p{color:var(--text-2);margin-bottom:16px}
-.danger{font-size:12.5px;color:var(--text-3)}
-.danger button{background:none;border:none;color:var(--red);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;text-decoration:underline;padding:0}
-.skel{background:linear-gradient(90deg,#EEF2F7 25%,#F8FAFC 50%,#EEF2F7 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:8px;height:16px;margin:10px 0}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 16px;color:var(--text-2)}
+.empty .art{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,#EEF3FF,#F3E8FF);color:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.empty b{font-size:17px;color:var(--text);margin-bottom:4px}
+.empty p{font-size:14px;max-width:380px;margin-bottom:14px}
+
+/* ---------- mini card preview ---------- */
+.mc{border-radius:22px;padding:16px;color:#fff;background:linear-gradient(150deg,var(--b1),var(--b2));position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(15,32,72,.25)}
+.mc::before{content:'';position:absolute;inset:0;background:radial-gradient(260px 120px at 90% 0,rgba(255,255,255,.18),transparent)}
+.mc-top{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:700}
+.mc-top .l{display:flex;align-items:center;gap:8px;font-size:16px}
+.mc-top .no{font:700 11px 'Inter',sans-serif;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:3px 8px;letter-spacing:.5px}
+.mc-in{position:relative;background:#fff;color:var(--text);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.mc-in::before{content:'';position:absolute;left:0;right:0;top:0;height:5px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,#2563EB,#7C3AED,#F472B6,#FBBF24)}
+.mc-row{display:flex;gap:14px;align-items:center;margin-top:4px}
+.mc-ph{width:64px;height:76px;border-radius:12px;overflow:hidden;flex:none;background:#EEF2FF;border:2px solid var(--ac);display:flex;align-items:flex-end;justify-content:center;color:#C7D2FE}
+.mc-ph img{width:100%;height:100%;object-fit:cover}
+.mc-nm small{font-size:11px;color:var(--text-3);font-weight:600}
+.mc-nm b{display:block;font-size:18px;line-height:1.25;word-break:break-word}
+.mc-pill{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:700;color:#fff;border-radius:100px;padding:2px 11px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.mc-edu{list-style:none;margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;display:grid;gap:7px}
+.mc-edu li{display:flex;gap:9px;align-items:center;font-size:13px;min-width:0}
+.mc-edu i{width:9px;height:9px;border-radius:50%;background:var(--ac);flex:none}
+.mc-edu em{font-style:normal;font-size:11.5px;color:var(--text-3);flex:none}
+.mc-edu span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.mc-edu u{text-decoration:none;margin-left:auto;font-size:11.5px;font-weight:700;color:var(--text-2);background:var(--bg);border-radius:8px;padding:1px 8px;flex:none}
+.mc.ghost{opacity:.75;filter:saturate(.7)}
+
+/* ---------- partner ---------- */
+.partner{position:relative;overflow:hidden;color:#fff;border:none;background:linear-gradient(150deg,#0A1628,#1A3570)}
+.partner::before{content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.6),transparent 70%)}
+.partner>*{position:relative}
+.partner .tagline{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.partner h2{font-size:21px;margin-bottom:6px}
+.partner p{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:14px}
+.p-steps{list-style:none;display:grid;gap:10px;margin-bottom:16px;counter-reset:s}
+.p-steps li{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;color:rgba(255,255,255,.88);counter-increment:s}
+.p-steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;background:rgba(253,230,138,.16);border:1px solid rgba(253,230,138,.4);color:var(--gold);font:700 12px 'Inter',sans-serif;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.p-note{margin-top:12px;font-size:12.5px;color:rgba(255,255,255,.6)}
+
+/* ---------- roadmap ---------- */
+.road{display:grid;gap:10px}
+.road div{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;border:1px dashed var(--border);background:var(--surface)}
+.road .ri{width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-2);flex:none}
+.road b{font-size:14.5px;display:flex;align-items:center;gap:8px;line-height:1.3}
+.road span{font-size:12.5px;color:var(--text-3);display:block}
+.soon{font-size:10.5px;font-weight:700;background:#FEF3C7;color:#92400E;border-radius:100px;padding:1px 8px}
+
+/* ---------- account ---------- */
+.rows{display:grid}
+.rows div{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);font-size:14px}
+.rows div:last-child{border-bottom:none}
+.rows span{color:var(--text-3)}
+.rows b{font-weight:600;text-align:right;word-break:break-all}
+.priv{display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px 14px;border-radius:14px;background:#ECFDF5;border:1px solid #BBF7D0;font-size:13px;color:#065F46}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.links{margin-top:14px;font-size:13px;color:var(--text-3)}
+.links a{color:var(--text-2)}
+
+/* ---------- guest gate ---------- */
+.gate{max-width:560px;margin:10px auto 0;text-align:center;padding:36px 28px}
+.gate .art{width:78px;height:78px;border-radius:24px;margin:0 auto 14px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 34px rgba(37,99,235,.35)}
+.gate h2{font-size:24px;margin-bottom:6px}
+.gate>p{color:var(--text-2);margin-bottom:18px}
+.perks{list-style:none;display:grid;gap:10px;text-align:left;max-width:380px;margin:0 auto 22px}
+.perks li{display:flex;gap:11px;align-items:center;font-size:14.5px;color:#334155}
+.perks .pi{width:34px;height:34px;border-radius:11px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;flex:none}
+.gbtn{display:inline-flex;align-items:center;gap:10px;padding:13px 26px;border-radius:14px;border:1.5px solid #CBD5E1;background:#fff;font:700 15.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;box-shadow:var(--shadow)}
+.gbtn:hover{background:#F8FAFC}
+
+/* ---------- skeleton, toast, modal ---------- */
+.skel{background:linear-gradient(90deg,#EEF2F7 25%,#F8FAFC 50%,#EEF2F7 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:12px}
 @keyframes sk{to{background-position:-200% 0}}
-.foot{text-align:center;padding:24px 16px 40px;color:var(--text-3);font-size:13px}
-@media(max-width:600px){.container{padding:0 16px}.hero{padding:96px 0 76px}}
+.dlg{position:fixed;inset:0;z-index:2200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,40,.6);backdrop-filter:blur(4px)}
+.dlg.show{display:flex}
+.dlg-box{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:26px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.dlg-box .wi{width:52px;height:52px;border-radius:16px;background:#FEF2F2;color:var(--red);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.dlg-box h3{font-size:20px;margin-bottom:6px}
+.dlg-box p{font-size:14.5px;color:var(--text-2);margin-bottom:18px}
+.dlg-box .acts .btn{flex:1}
+.foot{text-align:center;padding:10px 16px 44px;color:var(--text-3);font-size:13px}
+.foot a{color:var(--text-2)}
+@media(max-width:600px){
+  .container{padding:0 16px}
+  .hero{padding:100px 0 84px}
+  .who{align-items:flex-start;gap:16px}
+  .avatar{width:68px;height:68px;font-size:28px}
+  .hero-stats{gap:8px}
+  .hero-stats .stat{min-width:0;flex:1;padding:12px 12px}
+  .stat .v{font-size:22px}
+  .subnav{top:76px}
+  .card{padding:18px}
+  .qa{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){.orb{animation:none}html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -109,120 +242,305 @@ main{margin-top:-46px;position:relative;z-index:2;padding-bottom:30px}
   <div class="nav-cta" data-member-slot="nav"></div>
 </nav>
 
-<section class="hero">
-  <div class="container">
-    <div class="who" id="who">
-      <div class="avatar" id="avatar">…</div>
-      <div><h1 id="name">আমার পাতা</h1><p id="mail"></p><span class="chip" id="chip" style="display:none">✦ Protishthan সদস্য</span></div>
+<header class="hero">
+  <div class="orb a"></div><div class="orb b"></div>
+  <div class="container hero-in">
+    <div class="who">
+      <div class="avatar-wrap"><div class="avatar" id="avatar" aria-hidden="true">?</div></div>
+      <div>
+        <span class="eyebrow"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Protishthan সদস্য</span>
+        <h1 id="name">আমার পাতা</h1>
+        <p class="mail" id="mail"></p>
+        <div class="chips" id="chips"></div>
+      </div>
+    </div>
+    <div class="hero-stats" id="heroStats" style="display:none">
+      <div class="stat"><div class="k">সেভ করা</div><div class="v" id="stSaved">—</div><div class="s">প্রতিষ্ঠান</div></div>
+      <div class="stat"><div class="k">শিক্ষিত কার্ড</div><div class="v" id="stCard">—</div><div class="s" id="stCardS"></div></div>
+      <div class="stat"><div class="k">প্রোফাইল</div><div class="v" id="stPct">—</div><div class="s">সম্পূর্ণ</div></div>
     </div>
   </div>
-</section>
+</header>
+
+<div class="subnav" id="subnav" style="display:none">
+  <div class="container"><div class="subnav-in" role="tablist" aria-label="বিভাগ">
+    <a href="#overview" class="on"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>ওভারভিউ</a>
+    <a href="#saved"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>সেভ করা <span class="n" id="navSaved">০</span></a>
+    <a href="#card"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 10h3M15 13h2M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/></svg>আমার কার্ড</a>
+    <a href="#partner"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Partner</a>
+    <a href="#account"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>অ্যাকাউন্ট</a>
+  </div></div>
+</div>
 
 <main class="container">
-  <div id="gate" class="card sign" style="display:none">
-    <h2>আমার পাতা দেখতে যোগ দিন</h2>
-    <p>বিনামূল্যে Google দিয়ে যোগ দিলে আপনার সেভ করা প্রতিষ্ঠান আর শিক্ষিত কার্ড যেকোনো ফোনে পাবেন।</p>
-    <button class="btn btn-blue" type="button" onclick="Protishthan.member.signIn()">যোগ দিন</button>
-  </div>
 
-  <div id="body" class="grid" style="display:none">
-    <div>
-      <section class="card" id="saved">
-        <h2>সেভ করা প্রতিষ্ঠান <small id="savedCount"></small></h2>
-        <ul class="saved-list" id="savedList"><li><div class="skel" style="width:70%"></div></li></ul>
-      </section>
-      <section class="card">
-        <h2>আমার শিক্ষিত কার্ড</h2>
-        <div id="cardBox"><div class="skel" style="width:60%"></div></div>
-      </section>
-    </div>
-    <div>
-      <section class="card army">
-        <h2 style="color:#fff">Protishthan Partner</h2>
-        <p>নিজের উপজেলার প্রতিষ্ঠানের তথ্য যাচাই করুন, আর সেই প্রতিষ্ঠান সার্ভিস নিলে প্রতিটি পেমেন্ট থেকে আয় করুন।</p>
-        <ul><li>প্রথম পেমেন্টের ৫০%, পরের প্রতিটির ২৫%</li><li>প্রতি উপজেলায় মাত্র ৩ জন</li></ul>
-        <a class="btn btn-gold" href="partner.html?ref=member">Partner হতে আবেদন করুন →</a>
-      </section>
-      <section class="card">
-        <h2>শীঘ্রই আসছে</h2>
-        <div class="soon">
-          <div><i>🔔</i><span><b>নোটিফিকেশন</b>সেভ করা প্রতিষ্ঠানে ভর্তি, নোটিস, ফলাফল</span></div>
-          <div><i>♟</i><span><b>দৈনিক খেলা ও লিগ</b>পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে এগিয়ে নিন</span></div>
-          <div><i>★</i><span><b>রিভিউ ও অ্যালামনাই</b>নিজের স্কুলের সাবেকদের খুঁজে পান</span></div>
+  <!-- signed-out -->
+  <section id="gate" class="card gate" style="display:none">
+    <div class="art"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <h2>আপনার পাতা দেখতে যোগ দিন</h2>
+    <p>বিনামূল্যে, এক ক্লিকে। আপনার তথ্য শুধু আপনার।</p>
+    <ul class="perks">
+      <li><span class="pi"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>পছন্দের প্রতিষ্ঠান সেভ করে এক জায়গায় রাখুন</li>
+      <li><span class="pi"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/></svg></span>শিক্ষিত কার্ড যেকোনো ফোনে পান</li>
+      <li><span class="pi"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>Partner হয়ে নিজের এলাকার তথ্য যাচাই করে আয় করুন</li>
+    </ul>
+    <button class="gbtn" type="button" onclick="Protishthan.member.signIn()"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Google দিয়ে চালিয়ে যান</button>
+  </section>
+
+  <!-- signed-in -->
+  <div id="app" style="display:none">
+
+    <section class="sec" id="overview">
+      <div class="start">
+        <div class="card">
+          <div class="sec-h" style="margin-bottom:4px"><div><h2>শুরু করুন</h2><p id="progTxt">৩টির মধ্যে ১টি সম্পন্ন</p></div></div>
+          <div class="prog"><i id="progBar"></i></div>
+          <ul class="steps" id="steps"></ul>
         </div>
-      </section>
-      <section class="card danger">
-        আমার সব তথ্য (সেভ করা প্রতিষ্ঠান, কার্ড, প্রোফাইল) মুছে ফেলতে চান? <button type="button" onclick="deleteMyData()">তথ্য মুছে দিন</button>
-      </section>
+        <div class="card">
+          <div class="sec-h" style="margin-bottom:12px"><div><h2>দ্রুত যান</h2></div></div>
+          <div class="qa">
+            <a href="index.html"><span class="ti g1"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><div><b>প্রতিষ্ঠান খুঁজুন</b><span>স্কুল, কলেজ, মাদ্রাসা</span></div></a>
+            <a href="results.html"><span class="ti g2"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/></svg></span><div><b>বোর্ড ফলাফল</b><span>পাসের হার ও র‍্যাংকিং</span></div></a>
+            <a href="card.html"><span class="ti g3"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 10h3M15 13h2"/></svg></span><div><b>শিক্ষিত কার্ড</b><span>৩০ সেকেন্ডে বানান</span></div></a>
+            <a href="software.html"><span class="ti g4"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><div><b>স্কুল সফটওয়্যার</b><span>প্রতিষ্ঠানের জন্য</span></div></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div>
+        <section class="sec" id="saved">
+          <div class="sec-h"><div><h2>সেভ করা প্রতিষ্ঠান</h2><p id="savedSub">পছন্দের প্রতিষ্ঠান এখানে জমা থাকে</p></div><a class="btn btn-line btn-sm" href="index.html">আরও খুঁজুন</a></div>
+          <div class="saved" id="savedList">
+            <div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div>
+          </div>
+        </section>
+
+        <section class="sec" id="card">
+          <div class="sec-h"><div><h2>আমার শিক্ষিত কার্ড</h2><p id="cardSub">সব ডিভাইসে একই কার্ড</p></div></div>
+          <div class="card" id="cardBox"><div class="skel" style="height:190px"></div></div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="sec" id="partner">
+          <div class="card partner">
+            <span class="tagline"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>আয়ের সুযোগ</span>
+            <h2>Protishthan Partner</h2>
+            <p>নিজের উপজেলার প্রতিষ্ঠানের তথ্য যাচাই করুন। সেই প্রতিষ্ঠান সার্ভিস নিলে আপনি আয় করবেন।</p>
+            <ol class="p-steps">
+              <li>আবেদন করুন, Admin অনুমোদন দেবেন</li>
+              <li>প্রতিষ্ঠানের তথ্য যাচাই করুন — যাচাই করা প্রতিষ্ঠান আপনার নামে যুক্ত থাকবে</li>
+              <li>সেটি সার্ভিস নিলে <b>প্রথম পেমেন্টের ৫০%</b>, পরের প্রতিটির <b>২৫%</b></li>
+            </ol>
+            <a class="btn btn-gold" href="partner.html?ref=member">Partner হতে আবেদন করুন
+              <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <div class="p-note">প্রতি উপজেলায় মাত্র ৩ জন · আয়ের কোনো নিশ্চয়তা নেই, শর্ত প্রযোজ্য</div>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="sec-h"><div><h2>শীঘ্রই আসছে</h2></div></div>
+          <div class="card">
+            <div class="road">
+              <div><span class="ri"><svg class="ic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><p><b>নোটিফিকেশন <i class="soon">শীঘ্রই</i></b><span>সেভ করা প্রতিষ্ঠানে ভর্তি, নোটিস, ফলাফল</span></p></div>
+              <div><span class="ri"><svg class="ic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 0 1-2-2V5h4M18 9h2a2 2 0 0 0 2-2V5h-4M6 3h12v6a6 6 0 0 1-12 0z"/><path d="M12 15v3M8 21h8"/></svg></span><p><b>দৈনিক খেলা ও লিগ <i class="soon">শীঘ্রই</i></b><span>পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে এগিয়ে নিন</span></p></div>
+              <div><span class="ri"><svg class="ic" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></span><p><b>রিভিউ ও অ্যালামনাই <i class="soon">শীঘ্রই</i></b><span>নিজের স্কুলের সাবেকদের খুঁজে পান</span></p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="account">
+          <div class="sec-h"><div><h2>অ্যাকাউন্ট</h2></div></div>
+          <div class="card">
+            <div class="rows" id="rows"></div>
+            <div class="priv"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>আমরা শুধু আপনার <b>নাম আর ইমেইল</b> রাখি। প্রোফাইল ছবি আমরা সংরক্ষণ বা প্রদর্শন করি না, কোনো তথ্য বিক্রিও করি না।</span></div>
+            <div class="acts">
+              <button class="btn btn-line btn-sm" type="button" onclick="Protishthan.member.signOut()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>লগআউট</button>
+              <button class="btn btn-red btn-sm" type="button" onclick="openDelete()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>আমার তথ্য মুছে দিন</button>
+            </div>
+            <p class="links"><a href="privacy.html">গোপনীয়তা নীতি</a> · <a href="terms.html">ব্যবহারের শর্ত</a></p>
+          </div>
+        </section>
+      </aside>
     </div>
   </div>
 </main>
 
-<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</a> · <a href="card.html">শিক্ষিত কার্ড</a></footer>
+<div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT">
+  <div class="dlg-box">
+    <div class="wi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg></div>
+    <h3 id="dlgT">সব তথ্য মুছে ফেলবেন?</h3>
+    <p>আপনার সেভ করা প্রতিষ্ঠান, শিক্ষিত কার্ড আর প্রোফাইল চিরতরে মুছে যাবে। এটা ফেরানো যায় না।</p>
+    <div class="acts"><button class="btn btn-line" type="button" onclick="closeDelete()">না, থাক</button><button class="btn btn-red" id="delBtn" type="button" onclick="deleteMyData()">হ্যাঁ, মুছে দিন</button></div>
+  </div>
+</div>
+
+<footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">তথ্যভান্ডার</a> · <a href="card.html">শিক্ষিত কার্ড</a> · <a href="privacy.html">গোপনীয়তা নীতি</a></footer>
 
 <script>
 const M = Protishthan.member, esc = M.esc;
 const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/[0-9]/g, d => BN[d]);
-const TYPE_IC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg>';
+const $ = id => document.getElementById(id);
+const IC = {
+  school: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>',
+  madrasa: '<path d="M5 21v-7c0-3.9 3.1-7 7-7s7 3.1 7 7v7"/><path d="M12 3v4M3 21h18M10 21v-4h4v4"/>',
+  college: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
+  coach: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  bookmark: '<path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+  cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>'
+};
+const ico = (n, s = 20, extra = '') => '<svg class="ic" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' + extra + '>' + IC[n] + '</svg>';
+const THEMES = { night: ['#0A1628', '#1A3570', '#2563EB', '#7C3AED'], green: ['#03382B', '#047857', '#047857', '#10B981'], gold: ['#451A03', '#B45309', '#B45309', '#F59E0B'] };
+const LEVELS = [['school', 'মাধ্যমিক'], ['college', 'উচ্চ মাধ্যমিক'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
+const STATE = { saved: null, card: null };
 
+function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
+
+/* ---------- hero ---------- */
 async function render(){
-  await M.ready(); const me = M.current();
-  document.getElementById('gate').style.display = me ? 'none' : 'block';
-  document.getElementById('body').style.display = me ? 'grid' : 'none';
-  if(!me){
-    document.getElementById('name').textContent = 'আমার পাতা'; document.getElementById('mail').textContent = ''; document.getElementById('chip').style.display = 'none';
-    document.getElementById('avatar').innerHTML = '?'; return;
-  }
-  document.getElementById('name').textContent = me.display_name || 'সদস্য';
-  document.getElementById('mail').textContent = me.email || '';
-  document.getElementById('chip').style.display = 'inline-flex';
-  document.getElementById('avatar').textContent = String(me.display_name || me.email || '?').charAt(0).toUpperCase();
+  await M.ready();
+  const me = M.current();
+  $('gate').style.display = me ? 'none' : 'block';
+  $('app').style.display = me ? 'block' : 'none';
+  $('subnav').style.display = me ? 'block' : 'none';
+  $('heroStats').style.display = me ? 'flex' : 'none';
+  if(!me){ $('name').textContent = 'আমার পাতা'; $('mail').textContent = ''; $('chips').innerHTML = ''; $('avatar').textContent = '?'; return; }
+  const nm = me.display_name || 'সদস্য';
+  $('name').textContent = nm;
+  $('mail').textContent = me.email || '';
+  $('avatar').textContent = String(nm || me.email || '?').charAt(0).toUpperCase();
+  const no = 'PM-' + String(me.user_id || '').replace(/-/g, '').slice(0, 6).toUpperCase();
+  const since = me.created_at ? new Date(me.created_at).toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' }) : '';
+  $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + 'সদস্য নং ' + esc(no) + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
+  renderAccount(me, since);
   loadSaved(); loadCard();
 }
 
+function renderAccount(me, since){
+  const last = me.last_seen ? new Date(me.last_seen).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  $('rows').innerHTML = [['নাম', me.display_name || '—'], ['ইমেইল', me.email || '—'], ['যোগ দিয়েছেন', since || '—'], ['সর্বশেষ এসেছেন', last], ['লগইন', 'Google']].map(r => '<div><span>' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>').join('');
+}
+
+/* ---------- progress / checklist ---------- */
+function updateProgress(){
+  const savedN = STATE.saved ? STATE.saved.length : 0, hasCard = !!(STATE.card && (STATE.card.name || STATE.card.photo));
+  const steps = [
+    { done: true, t: 'Google দিয়ে যোগ দিয়েছেন', s: 'অ্যাকাউন্ট তৈরি হয়েছে' },
+    { done: savedN > 0, t: 'একটি প্রতিষ্ঠান সেভ করুন', s: 'যেকোনো প্রতিষ্ঠানের পাতায় "সেভ করুন" চাপুন', href: 'index.html', cta: 'খুঁজুন' },
+    { done: hasCard, t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, নিজের শিক্ষাজীবন দিয়ে', href: 'card.html', cta: 'বানান' }
+  ];
+  const n = steps.filter(x => x.done).length, pct = Math.round(n * 100 / steps.length);
+  $('steps').innerHTML = steps.map((x, i) => '<li class="' + (x.done ? 'done' : '') + '"><span class="dot">' + (x.done ? ico('check', 16, 'stroke-width="3"') : bn(i + 1)) + '</span><div><b>' + x.t + '</b><span>' + x.s + '</span></div>' + (!x.done && x.href ? '<a href="' + x.href + '">' + x.cta + ' →</a>' : '') + '</li>').join('');
+  $('progBar').style.width = pct + '%';
+  $('progTxt').textContent = n === steps.length ? 'সব ধাপ সম্পন্ন — দারুণ!' : steps.length + 'টির মধ্যে ' + bn(n) + 'টি সম্পন্ন';
+  $('stPct').textContent = bn(pct) + '%';
+  $('stSaved').textContent = bn(savedN);
+  $('navSaved').textContent = bn(savedN);
+  $('stCard').textContent = hasCard ? 'আছে' : 'নেই';
+  $('stCardS').textContent = hasCard ? 'সেভ করা' : 'এখনো বানাননি';
+}
+
+/* ---------- saved institutions ---------- */
 async function loadSaved(){
-  const list = document.getElementById('savedList');
-  const { data, error } = await M.sb.from('saved_institutions').select('listing_id,created_at,listing_submissions(id,institution_name,institution_type,district,upazila,desired_slug,ownership,admission_status)').order('created_at', { ascending:false });
-  if(error){ list.innerHTML = '<li><div class="empty">তালিকা লোড হয়নি।<br><small>' + esc(error.message) + '</small></div></li>'; return; }
-  const rows = (data || []).filter(r=>r.listing_submissions);
-  document.getElementById('savedCount').textContent = rows.length ? bn(rows.length) + 'টি' : '';
-  if(!rows.length){ list.innerHTML = '<li style="display:block"><div class="empty"><b>এখনো কিছু সেভ করেননি</b>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে এখানে জমা হবে।<br><a class="btn btn-blue" href="index.html">প্রতিষ্ঠান খুঁজুন</a></div></li>'; return; }
-  list.innerHTML = rows.map(r=>{
-    const s = r.listing_submissions;
-    return '<li data-id="' + esc(s.id) + '"><span class="saved-ic">' + TYPE_IC + '</span><div class="saved-main"><a href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' + esc(s.institution_name) + '</a><span>' + esc([s.upazila, s.district].filter(Boolean).join(', ')) + '</span><div class="tags">' +
-      (s.institution_type ? '<span class="tag">' + esc(s.institution_type) + '</span>' : '') + (s.ownership ? '<span class="tag">' + esc(s.ownership) + '</span>' : '') + (s.admission_status === 'খোলা' ? '<span class="tag g">ভর্তি চলছে</span>' : '') + '</div></div><button class="x" type="button" aria-label="সরান" onclick="unsave(\'' + esc(s.id) + '\')">×</button></li>';
+  const box = $('savedList');
+  const { data, error } = await M.sb.from('saved_institutions').select('listing_id,created_at,listing_submissions(id,institution_name,institution_type,district,upazila,desired_slug,ownership,admission_status)').order('created_at', { ascending: false });
+  if(error){ box.innerHTML = '<div class="card empty" style="grid-column:1/-1"><b>তালিকা লোড হয়নি</b><p>' + esc(error.message) + '</p></div>'; return; }
+  const rows = (data || []).filter(r => r.listing_submissions);
+  STATE.saved = rows; updateProgress();
+  $('savedSub').textContent = rows.length ? bn(rows.length) + 'টি প্রতিষ্ঠান সেভ করা আছে' : 'পছন্দের প্রতিষ্ঠান এখানে জমা থাকে';
+  if(!rows.length){
+    box.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="art">' + ico('bookmark', 30) + '</div><b>এখনো কিছু সেভ করেননি</b><p>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে সেটা এখানে জমা হবে, পরে সহজে খুঁজে পাবেন।</p><a class="btn btn-blue" href="index.html">প্রতিষ্ঠান খুঁজুন</a></div>';
+    return;
+  }
+  box.innerHTML = rows.map(r => {
+    const s = r.listing_submissions, k = typeKey(s.institution_type);
+    return '<article class="inst" data-id="' + esc(s.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3><a href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' + esc(s.institution_name) + '</a></h3><div class="loc">' + ico('pin', 13) + esc([s.upazila, s.district].filter(Boolean).join(', ') || 'এলাকা দেওয়া নেই') + '</div></div></div><div class="tags">' +
+      (s.institution_type ? '<span class="tag">' + esc(s.institution_type) + '</span>' : '') + (s.ownership ? '<span class="tag">' + esc(s.ownership) + '</span>' : '') + (s.admission_status === 'খোলা' ? '<span class="tag g">ভর্তি চলছে</span>' : '') +
+      '</div><div class="inst-act"><a class="btn btn-line btn-sm" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">পাতা দেখুন ' + ico('arrow', 15) + '</a><button class="unsave" type="button" aria-label="সেভ থেকে সরান" title="সেভ থেকে সরান" onclick="unsave(\'' + esc(s.id) + '\')">' + ico('star', 18, 'fill="currentColor"') + '</button></div></article>';
   }).join('');
 }
 async function unsave(id){
+  const el = document.querySelector('.inst[data-id="' + id + '"]'); if(el) el.classList.add('gone');
   await M.saved.toggle(id, false);
-  const li = document.querySelector('#savedList li[data-id="' + id + '"]'); if(li) li.remove();
-  if(!document.querySelector('#savedList li')) loadSaved();
+  setTimeout(() => { if(el) el.remove(); STATE.saved = (STATE.saved || []).filter(r => r.listing_id !== id); updateProgress(); if(!STATE.saved.length) loadSaved(); else $('savedSub').textContent = bn(STATE.saved.length) + 'টি প্রতিষ্ঠান সেভ করা আছে'; }, 250);
   M.toast('সেভ থেকে সরানো হয়েছে');
 }
 
+/* ---------- the member's card ---------- */
+function autoTitle(d){
+  const e = d.edu || {}, has = k => e[k] && String(e[k].name || '').trim();
+  const studying = (d.badges || []).includes('এখনো পড়ছি') || LEVELS.some(l => e[l[0]] && e[l[0]].current);
+  if(has('masters') && !e.masters.current) return 'ডাবল ডিগ্রিধারী নাগরিক';
+  if(has('bachelor') && !e.bachelor.current) return 'সার্টিফায়েড শিক্ষিত নাগরিক';
+  if(studying) return 'চিরছাত্র';
+  if(has('college')) return 'উচ্চ মাধ্যমিক পাস বীর';
+  if(has('school')) return 'মাধ্যমিক পাস যোদ্ধা';
+  return 'সার্টিফায়েড শিক্ষিত নাগরিক';
+}
+function cardPreview(d, ghost){
+  const t = THEMES[d.theme] || THEMES.night, e = d.edu || {};
+  const rows = LEVELS.filter(l => e[l[0]] && String(e[l[0]].name || '').trim()).slice(0, 3);
+  const title = d.title || autoTitle(d);
+  return '<div class="mc' + (ghost ? ' ghost' : '') + '" style="--b1:' + t[0] + ';--b2:' + t[1] + ';--ac:' + t[2] + ';--ac2:' + t[3] + '"><div class="mc-top"><span class="l">' + ico('cap', 20) + 'শিক্ষিত কার্ড</span><span class="no">SHIKKHITO</span></div><div class="mc-in"><div class="mc-row"><div class="mc-ph">' + (d.photo ? '<img src="' + esc(d.photo) + '" alt="">' : ico('user', 44)) + '</div><div class="mc-nm"><small>নাম</small><b>' + esc(d.name || 'আপনার নাম') + '</b><span class="mc-pill">' + esc(title) + '</span></div></div>' +
+    (rows.length ? '<ul class="mc-edu">' + rows.map(l => { const x = e[l[0]]; return '<li><i></i><em>' + l[1] + '</em><span>' + esc(x.name) + '</span>' + (x.current ? '<u>চলমান</u>' : x.year ? '<u>' + bn(x.year) + '</u>' : '') + '</li>'; }).join('') + '</ul>' : '') + '</div></div>';
+}
 async function loadCard(){
-  const box = document.getElementById('cardBox');
+  const box = $('cardBox');
   const { data } = await M.sb.from('member_cards').select('data,updated_at').maybeSingle();
   const d = data && data.data;
-  if(!d || !(d.name || d.photo)){ box.innerHTML = '<div class="empty" style="padding:8px 0"><b>এখনো কার্ড বানাননি</b>৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান — সব ডিভাইসে পাবেন।<br><a class="btn btn-blue" href="card.html">কার্ড বানান</a></div>'; return; }
-  const edu = Object.values(d.edu || {}).filter(e=>e && e.name).map(e=>e.name);
-  box.innerHTML = '<div class="card-mini"><div class="pic">' + (d.photo ? '<img src="' + esc(d.photo) + '" alt="">' : '👤') + '</div><div><b>' + esc(d.name || 'নাম দেওয়া হয়নি') + '</b><span>' + esc(edu.slice(0, 2).join(' · ') || 'প্রতিষ্ঠান যোগ করা হয়নি') + '</span></div></div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-blue" href="card.html">কার্ড খুলুন</a></div>';
+  const has = !!(d && (d.name || d.photo));
+  STATE.card = has ? d : null; updateProgress();
+  if(!has){
+    $('cardSub').textContent = 'এখনো কার্ড বানাননি';
+    box.innerHTML = '<div class="empty" style="padding:6px 0 4px"><div style="width:100%;max-width:340px;margin-bottom:16px">' + cardPreview({ name: 'আপনার নাম', theme: 'night', edu: { school: { name: 'আপনার স্কুল', year: '২০১৫' }, college: { name: 'আপনার কলেজ', year: '২০১৭' } } }, true) + '</div><b>নিজের শিক্ষিত কার্ড বানান</b><p>৩০ সেকেন্ডে নিজের শিক্ষাজীবন নিয়ে একটা মজার কার্ড বানান, তারপর সব ডিভাইসে পান আর বন্ধুদের সাথে শেয়ার করুন।</p><a class="btn btn-blue" href="card.html">কার্ড বানান ' + ico('arrow', 16) + '</a></div>';
+    return;
+  }
+  $('cardSub').textContent = data.updated_at ? 'শেষ বদল: ' + new Date(data.updated_at).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' }) : 'সব ডিভাইসে একই কার্ড';
+  box.innerHTML = '<div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center" class="cardgrid">' + cardPreview(d, false) + '<div><b style="font-size:16px">কার্ড তৈরি আছে</b><p style="font-size:13.5px;color:var(--text-2);margin:4px 0 14px">যেকোনো ডিভাইস থেকে খুলে বদলাতে, ডাউনলোড করতে বা শেয়ার করতে পারবেন।</p><div class="acts"><a class="btn btn-blue btn-sm" href="card.html">কার্ড খুলুন</a><a class="btn btn-line btn-sm" href="card.html">ডাউনলোড</a></div></div></div>';
 }
 
+/* ---------- delete my data ---------- */
+function openDelete(){ $('dlg').classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeDelete(){ $('dlg').classList.remove('show'); document.body.style.overflow = ''; }
 async function deleteMyData(){
-  if(!confirm('আপনার সব তথ্য মুছে ফেলবেন? সেভ করা প্রতিষ্ঠান, কার্ড আর প্রোফাইল চিরতরে চলে যাবে।')) return;
   const me = M.current(); if(!me) return;
+  const btn = $('delBtn'); btn.disabled = true; btn.textContent = 'মোছা হচ্ছে…';
   for(const t of ['saved_institutions', 'member_cards', 'members']){
     const { error } = await M.sb.from(t).delete().eq('user_id', me.user_id);
-    if(error){ alert('মোছা যায়নি (' + t + '): ' + error.message); return; }
+    if(error){ btn.disabled = false; btn.textContent = 'হ্যাঁ, মুছে দিন'; closeDelete(); M.toast('মোছা যায়নি (' + t + '): ' + error.message); return; }
   }
   try{ localStorage.removeItem('shikkhito_card_v1'); }catch(e){}
   await M.signOut();
 }
+$('dlg').addEventListener('click', e => { if(e.target === $('dlg')) closeDelete(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDelete(); });
 
-document.getElementById('fy').textContent = bn(new Date().getFullYear());
-const navEl = document.getElementById('nav');
-window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40), { passive:true });
+/* ---------- section nav highlight ---------- */
+const links = [...document.querySelectorAll('.subnav a')];
+let lockUntil = 0;
+// the left column (overview / saved / card) drives the highlight; Partner and Account sit in the side column, so they light up when tapped
+function spy(){
+  if(Date.now() < lockUntil) return;
+  const y = window.scrollY + 170; let cur = 0;
+  ['overview', 'saved', 'card'].forEach((id, i) => { const s = document.getElementById(id); if(s && s.getBoundingClientRect().top + window.scrollY <= y) cur = i; });
+  const idx = { overview: 0, saved: 1, card: 2 };
+  links.forEach(a => a.classList.toggle('on', idx[a.getAttribute('href').slice(1)] === cur));
+}
+links.forEach(a => a.addEventListener('click', () => { lockUntil = Date.now() + 1500; links.forEach(x => x.classList.toggle('on', x === a)); }));
+window.addEventListener('scroll', spy, { passive: true });
+
+$('fy').textContent = bn(new Date().getFullYear());
+const navEl = $('nav');
+window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+if(window.matchMedia('(max-width:700px)').matches){ const st = document.createElement('style'); st.textContent = '.cardgrid{grid-template-columns:1fr!important}'; document.head.appendChild(st); }
 M.onChange(render);
 render();
 </script>
