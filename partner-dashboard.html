@@ -137,6 +137,91 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
 .modal-head h2{font-size:18px;font-weight:800}
 .modal-close{background:var(--surface);border:none;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px}
+/* ---- visual refresh ---- */
+body{background:#F4F6FB;-webkit-font-smoothing:antialiased}
+.sidebar{width:252px;background:linear-gradient(175deg,#0A1628 0%,#0F2048 55%,#1A3570 100%);box-shadow:4px 0 30px -10px rgba(10,22,40,.4)}
+:root{--sidebar:252px}
+.sidebar-logo{padding:26px 22px 18px}
+.sidebar-logo .name{font-size:20px}
+.sidebar-logo .inst{font-size:12px;color:rgba(255,255,255,.5);margin-top:6px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:100px;padding:4px 11px;max-width:100%}
+.sidebar-section{padding:6px 22px 10px}
+.nav-item{padding:11px 14px;margin:2px 10px;font-size:14px;border-radius:12px;width:calc(100% - 20px)}
+.nav-item.active{background:linear-gradient(135deg,rgba(37,99,235,.75),rgba(79,70,229,.7));box-shadow:0 8px 20px -8px rgba(37,99,235,.7)}
+.nav-icon{display:flex;align-items:center;justify-content:center;width:20px;font-size:0}
+.nav-icon svg{display:block}
+.user-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px}
+.user-avatar{background:linear-gradient(135deg,#2563EB,#7C3AED);border-radius:10px}
+.logout-btn{margin-top:10px;padding:9px;border-radius:10px;font-size:12.5px;color:rgba(255,255,255,.5)}
+.logout-btn:hover{background:rgba(255,255,255,.07)}
+
+.main{padding:34px 44px 60px;max-width:1240px}
+.page-head{margin-bottom:26px}
+.page-title{font-size:27px;letter-spacing:-.7px}
+.page-sub{font-size:14px;margin-top:5px}
+
+.add-btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#1A56DB,#4F46E5);box-shadow:0 10px 22px -8px rgba(37,99,235,.55);padding:10px 18px;border-radius:12px;font-size:13.5px;transition:transform .15s,box-shadow .15s}
+.add-btn:hover{background:linear-gradient(135deg,#1A56DB,#4F46E5);transform:translateY(-1px);box-shadow:0 14px 28px -8px rgba(37,99,235,.6)}
+td .add-btn{background:var(--blue-light);color:var(--blue);box-shadow:none;padding:7px 13px!important;border-radius:10px}
+td .add-btn:hover{background:#DCE7FF;transform:none;box-shadow:none}
+
+.banner{border-radius:18px;padding:18px 22px;align-items:center;box-shadow:0 1px 2px rgba(15,32,72,.04)}
+.banner-ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:0}
+.banner.pending .banner-ic{background:rgba(217,119,6,.14);color:var(--amber)}
+.banner.rejected .banner-ic{background:rgba(220,38,38,.12);color:var(--red)}
+.banner.approved .banner-ic{background:rgba(5,150,105,.14);color:var(--green)}
+
+.stat-grid{gap:16px}
+.stat-card{border-radius:20px;padding:20px;border:1px solid #E8EDF5;box-shadow:0 1px 2px rgba(15,32,72,.04);transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 16px 34px -18px rgba(15,32,72,.3)}
+.stat-ic{width:42px;height:42px;border-radius:13px;margin-bottom:14px;font-size:0}
+.stat-val{font-size:28px;letter-spacing:-.8px}
+.stat-lbl{font-size:13px;margin-top:3px}
+
+.card{border-radius:22px;padding:22px 24px;border:1px solid #E8EDF5;box-shadow:0 1px 2px rgba(15,32,72,.04);overflow-x:auto}
+.card-title{font-size:16px;letter-spacing:-.2px}
+table{min-width:520px}
+th{padding:11px 12px;background:#F8FAFC;font-size:11.5px}
+th:first-child{border-radius:10px 0 0 10px}th:last-child{border-radius:0 10px 10px 0}
+td{padding:14px 12px;border-bottom:1px solid #EEF2F7}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:#F8FAFF}
+tbody tr:last-child td{border-bottom:none}
+.pill{padding:4px 11px;font-size:12px}
+.pill::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px}
+.empty-state{padding:48px 20px;font-size:14px}
+
+.comm-hero-card{border-radius:24px;padding:30px 32px;box-shadow:0 24px 50px -24px rgba(26,53,112,.7)}
+.comm-hero-ic{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:0;margin-bottom:14px}
+.comm-hero-val{font-size:44px}
+.comm-rule-chip{border-radius:18px;padding:14px 20px}
+.profile-item{padding:14px 0}
+
+.modal-overlay{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.modal-box{border-radius:24px;box-shadow:0 40px 90px -30px rgba(0,0,0,.5)}
+.modal-close{width:34px;height:34px;border-radius:10px}
+.modal-close:hover{background:#E2E8F0}
+.submit-btn-inst{height:48px;border-radius:13px;background:linear-gradient(135deg,#1A56DB,#4F46E5);box-shadow:0 10px 22px -8px rgba(37,99,235,.5)}
+.submit-btn-inst:hover{background:linear-gradient(135deg,#1A56DB,#4F46E5)}
+
+/* mobile top bar + bottom nav */
+.mtop,.bnav{display:none}
+.bn-item.disabled{opacity:.35;pointer-events:none}
+@media (max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:80px 16px 100px}
+  .page-title{font-size:23px}
+  .stat-val{font-size:24px}
+  .comm-hero-val{font-size:34px}
+  .mtop{display:flex;position:fixed;top:0;left:0;right:0;z-index:90;height:60px;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(10,22,40,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .mt-brand{font-size:19px;font-weight:900;color:#fff;letter-spacing:-.5px;display:flex;align-items:center;gap:9px}
+  .mt-brand span{opacity:.5}
+  .mt-brand em{font-style:normal;font-size:11px;font-weight:700;color:#BFD3FF;background:rgba(96,165,250,.16);border:1px solid rgba(96,165,250,.3);border-radius:100px;padding:2px 9px}
+  .mt-out{width:38px;height:38px;border-radius:11px;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .bnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:90;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid #E2E8F0;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border:none;background:none;border-radius:12px;font:600 11px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer}
+  .bn-item.active{color:var(--blue);background:var(--blue-light)}
+  .comm-hero-card{padding:24px}
+}
 </style>
 </head>
 <body>
@@ -151,19 +236,19 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
   <nav class="sidebar-nav">
     <div class="sidebar-section">মূল মেনু</div>
     <button class="nav-item active" id="nav-overview" onclick="showView('overview')">
-      <span class="nav-icon">📊</span><span>Overview</span>
+      <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span>Overview</span>
     </button>
     <button class="nav-item" id="nav-institutions" onclick="showView('institutions')">
-      <span class="nav-icon">🏫</span><span>আমার প্রতিষ্ঠান</span>
+      <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></span><span>আমার প্রতিষ্ঠান</span>
     </button>
     <button class="nav-item" id="nav-commission" onclick="showView('commission')">
-      <span class="nav-icon">💰</span><span>কমিশন</span>
+      <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.2A6 6 0 1 1 9.2 15.5"/><path d="M9 7v4M7.5 9H10.5"/></svg></span><span>কমিশন</span>
     </button>
     <button class="nav-item" id="nav-mysubmissions" onclick="showView('mysubmissions')">
-      <span class="nav-icon">📥</span><span>আমার Submission</span>
+      <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8"/><path d="M3 13v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6h-5l-1.5 2h-5L8 13z"/></svg></span><span>আমার Submission</span>
     </button>
     <button class="nav-item" id="nav-profile" onclick="showView('profile')">
-      <span class="nav-icon">👤</span><span>প্রোফাইল</span>
+      <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span><span>প্রোফাইল</span>
     </button>
   </nav>
   <div class="sidebar-bottom">
@@ -186,30 +271,30 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
   <div class="view active" id="view-overview">
     <div class="page-head">
       <div>
-        <div class="page-title">ওভারভিউ</div>
+        <div class="page-title" id="greetTitle">ওভারভিউ</div>
         <div class="page-sub" id="overviewSub">আপনার এলাকার সারসংক্ষেপ</div>
       </div>
-      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+      <a class="add-btn" href="list-institution.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> নতুন প্রতিষ্ঠান যুক্ত করুন</a>
     </div>
 
     <div class="stat-grid" id="statGrid">
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--blue-light);color:var(--blue)">🏫</div>
+        <div class="stat-ic" style="background:var(--blue-light);color:var(--blue)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></div>
         <div class="stat-val" id="statTotal">—</div>
         <div class="stat-lbl">আমার মোট প্রতিষ্ঠান</div>
       </div>
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--surface);color:var(--text-2)">🆓</div>
+        <div class="stat-ic" style="background:var(--surface);color:var(--text-2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg></div>
         <div class="stat-val" id="statFree">—</div>
         <div class="stat-lbl">Free Plan</div>
       </div>
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">💳</div>
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h3"/></svg></div>
         <div class="stat-val" id="statPaid">—</div>
         <div class="stat-lbl">Paid Plan</div>
       </div>
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--purple-l);color:var(--purple)">💰</div>
+        <div class="stat-ic" style="background:var(--purple-l);color:var(--purple)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.2A6 6 0 1 1 9.2 15.5"/><path d="M9 7v4M7.5 9H10.5"/></svg></div>
         <div class="stat-val" id="statCommission">—</div>
         <div class="stat-lbl">কমিশন (দেওয়া বাকি)</div>
       </div>
@@ -228,7 +313,7 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
         <div class="page-title">আমার প্রতিষ্ঠান</div>
         <div class="page-sub">আপনার প্রোফাইলে যুক্ত সব প্রতিষ্ঠান</div>
       </div>
-      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+      <a class="add-btn" href="list-institution.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> নতুন প্রতিষ্ঠান যুক্ত করুন</a>
     </div>
     <div class="card">
       <div id="fullInstTable"></div>
@@ -257,12 +342,12 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
     <div class="comm-hero-grid">
       <div class="comm-hero-card">
         <div class="comm-hero-glow"></div>
-        <div class="comm-hero-ic">💰</div>
+        <div class="comm-hero-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.2A6 6 0 1 1 9.2 15.5"/><path d="M9 7v4M7.5 9H10.5"/></svg></div>
         <div class="comm-hero-lbl">মোট আয় (দেওয়া বাকি <span id="commPending">৳০</span>)</div>
         <div class="comm-hero-val" id="commTotal">৳০</div>
       </div>
       <div class="stat-card" style="display:flex;flex-direction:column;justify-content:center">
-        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">🏫</div>
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></div>
         <div class="stat-val" id="commInstCount">—</div>
         <div class="stat-lbl">টাকা দিয়েছে এমন প্রতিষ্ঠান</div>
       </div>
@@ -281,21 +366,21 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
         <div class="page-title">আমার Submission</div>
         <div class="page-sub">এই জেলায় submit করা সব directory listing-এর status</div>
       </div>
-      <a class="add-btn" href="list-institution.html">+ নতুন প্রতিষ্ঠান যুক্ত করুন</a>
+      <a class="add-btn" href="list-institution.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> নতুন প্রতিষ্ঠান যুক্ত করুন</a>
     </div>
     <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--amber-l);color:var(--amber)">⏳</div>
+        <div class="stat-ic" style="background:var(--amber-l);color:var(--amber)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg></div>
         <div class="stat-val" id="subPendingCount">—</div>
         <div class="stat-lbl">Pending</div>
       </div>
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--green-l);color:var(--green)">✅</div>
+        <div class="stat-ic" style="background:var(--green-l);color:var(--green)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg></div>
         <div class="stat-val" id="subApprovedCount">—</div>
         <div class="stat-lbl">Approved</div>
       </div>
       <div class="stat-card">
-        <div class="stat-ic" style="background:var(--red-l);color:var(--red)">❌</div>
+        <div class="stat-ic" style="background:var(--red-l);color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>
         <div class="stat-val" id="subRejectedCount">—</div>
         <div class="stat-lbl">Rejected</div>
       </div>
@@ -314,6 +399,15 @@ td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--text)}
   </div>
 
 </main>
+
+<header class="mtop"><div class="mt-brand">Protisht<span>han</span><em>Partner</em></div><button class="mt-out" onclick="doLogout()" aria-label="লগআউট"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></button></header>
+<nav class="bnav" aria-label="মেনু">
+  <button class="bn-item active" id="bn-overview" onclick="showView('overview')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>ওভারভিউ</span></button>
+  <button class="bn-item" id="bn-institutions" onclick="showView('institutions')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg><span>প্রতিষ্ঠান</span></button>
+  <button class="bn-item" id="bn-commission" onclick="showView('commission')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="6"/><path d="M15.5 9.2A6 6 0 1 1 9.2 15.5"/><path d="M9 7v4M7.5 9H10.5"/></svg><span>কমিশন</span></button>
+  <button class="bn-item" id="bn-mysubmissions" onclick="showView('mysubmissions')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l3-8h12l3 8"/><path d="M3 13v6a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-6h-5l-1.5 2h-5L8 13z"/></svg><span>Submission</span></button>
+  <button class="bn-item" id="bn-profile" onclick="showView('profile')"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg><span>প্রোফাইল</span></button>
+</nav>
 
 <div class="modal-overlay" id="instEditModal">
   <div class="modal-box" style="max-width:480px">
@@ -365,6 +459,8 @@ async function init(){
   document.getElementById('userName').textContent = agent.full_name;
   document.getElementById('userAvatar').textContent = (agent.full_name||'এ').charAt(0);
 
+  document.getElementById('greetTitle').textContent = 'স্বাগতম, ' + (agent.full_name || '').split(' ')[0];
+  document.getElementById('overviewSub').textContent = areaName() + ' এলাকার সারসংক্ষেপ';
   renderStatusBanner();
   renderProfile();
 
@@ -379,6 +475,7 @@ async function init(){
     document.getElementById('nav-institutions').onclick = null;
     document.getElementById('nav-commission').onclick = null;
     document.getElementById('nav-mysubmissions').onclick = null;
+    ['institutions', 'commission', 'mysubmissions'].forEach(k => { const b = document.getElementById('bn-' + k); if(b){ b.classList.add('disabled'); b.onclick = null; } });
     document.getElementById('statGrid').classList.add('disabled-overlay');
     document.getElementById('recentInstTable').innerHTML = '<div class="empty-state">Admin অনুমোদনের পর এই তথ্য দেখতে পারবেন।</div>';
   }
@@ -389,11 +486,11 @@ function areaName(){ return (agent.upazila ? agent.upazila + ', ' : '') + agent.
 function renderStatusBanner(){
   const wrap = document.getElementById('statusBannerWrap');
   if(agent.status === 'pending_review'){
-    wrap.innerHTML = `<div class="banner pending"><div class="banner-ic">⏳</div><div><div class="banner-t">Review Pending</div><div class="banner-s">আপনার Partner আবেদনটি Admin রিভিউ করছেন। অনুমোদন না হওয়া পর্যন্ত প্রতিষ্ঠান ও কমিশন তথ্য দেখা যাবে না — কিন্তু আপনার প্রোফাইল ও ড্যাশবোর্ড অ্যাক্সেস চালু আছে।</div></div>`;
+    wrap.innerHTML = `<div class="banner pending"><div class="banner-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg></div><div><div class="banner-t">Review Pending</div><div class="banner-s">আপনার Partner আবেদনটি Admin রিভিউ করছেন। অনুমোদন না হওয়া পর্যন্ত প্রতিষ্ঠান ও কমিশন তথ্য দেখা যাবে না — কিন্তু আপনার প্রোফাইল ও ড্যাশবোর্ড অ্যাক্সেস চালু আছে।</div></div>`;
   } else if(agent.status === 'rejected'){
-    wrap.innerHTML = `<div class="banner rejected"><div class="banner-ic">❌</div><div><div class="banner-t">আবেদন প্রত্যাখ্যাত হয়েছে</div><div class="banner-s">আপনার Partner আবেদনটি অনুমোদন পায়নি। বিস্তারিত জানতে Admin-এর সাথে যোগাযোগ করুন।</div></div>`;
+    wrap.innerHTML = `<div class="banner rejected"><div class="banner-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div><div><div class="banner-t">আবেদন প্রত্যাখ্যাত হয়েছে</div><div class="banner-s">আপনার Partner আবেদনটি অনুমোদন পায়নি। বিস্তারিত জানতে Admin-এর সাথে যোগাযোগ করুন।</div></div>`;
   } else {
-    wrap.innerHTML = `<div class="banner approved"><div class="banner-ic">✅</div><div><div class="banner-t">আপনি Protishthan Partner-এর অনুমোদিত সদস্য</div><div class="banner-s">${escapeHtml(areaName())} এলাকার জন্য আপনি দায়িত্বপ্রাপ্ত। নতুন প্রতিষ্ঠান যুক্ত করুন এবং কমিশন ট্র্যাক করুন।</div></div>`;
+    wrap.innerHTML = `<div class="banner approved"><div class="banner-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l3 3 5-6"/></svg></div><div><div class="banner-t">আপনি Protishthan Partner-এর অনুমোদিত সদস্য</div><div class="banner-s">${escapeHtml(areaName())} এলাকার জন্য আপনি দায়িত্বপ্রাপ্ত। নতুন প্রতিষ্ঠান যুক্ত করুন এবং কমিশন ট্র্যাক করুন।</div></div>`;
   }
 }
 
@@ -404,7 +501,7 @@ function renderProfile(){
     ['ফোন', agent.phone||'—'],
     ['জেলা', agent.district],
     ['উপজেলা', agent.upazila||'—'],
-    ['Status', agent.status],
+    ['অবস্থা', ({ approved: 'অনুমোদিত', pending_review: 'অনুমোদনের অপেক্ষায়', rejected: 'প্রত্যাখ্যাত' })[agent.status] || agent.status],
     ['যোগদানের তারিখ', new Date(agent.created_at).toLocaleDateString('bn-BD')],
   ];
   document.getElementById('profileGrid').innerHTML = fields.map(f=>`<div class="profile-item"><div class="k">${f[0]}</div><div class="v">${escapeHtml(f[1])}</div></div>`).join('');
@@ -437,7 +534,7 @@ function renderInstTable(rows, showEdit){
     const planKey = r.plan || 'free';
     const isPaid = planKey !== 'free';
     html += `<tr><td style="font-weight:600">${escapeHtml(r.name)}</td><td><span class="pill ${isPaid?'paid':'free'}">${PLAN_LABEL[planKey]||planKey}</span></td><td style="color:var(--text-3)">${escapeHtml(r.phone||'-')}</td><td style="color:var(--text-3)">${new Date(r.created_at).toLocaleDateString('bn-BD')}</td>`;
-    if(showEdit) html += `<td><button class="add-btn" style="padding:6px 12px;font-size:12px" onclick="openInstEditModal('${r.id}')">✏️ Edit</button></td>`;
+    if(showEdit) html += `<td><button class="add-btn" style="padding:6px 12px;font-size:12px" onclick="openInstEditModal('${r.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> সম্পাদনা</button></td>`;
     html += '</tr>';
   });
   html += '</tbody></table>';
@@ -455,7 +552,7 @@ function openInstEditModal(id){
   html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">উপজেলা</label><input id="editInstUpazila" value="${escapeHtml(inst.upazila||'')}" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit"></div>`;
   html += `<div><label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:5px">প্ল্যান</label><div style="padding:10px 12px;border:1.5px dashed var(--border);border-radius:10px;font-size:13px;color:var(--text-2)">${PLAN_LABEL[inst.plan||'free']||inst.plan} — শুধু Admin পরিবর্তন করতে পারবেন</div></div>`;
   
-  html += `<div style="font-size:11.5px;color:var(--text-3)">⚠️ Email, জেলা ও প্ল্যান পরিবর্তন করা যাবে না — Admin-এর সাথে যোগাযোগ করুন।</div>`;
+  html += `<div style="font-size:11.5px;color:var(--text-3)">Email, জেলা ও প্ল্যান পরিবর্তন করা যাবে না — Admin-এর সাথে যোগাযোগ করুন।</div>`;
   html += `<button class="submit-btn-inst" onclick="saveInstEdit('${inst.id}')">সেভ করুন</button>`;
   html += '</div>';
   document.getElementById('instEditBody').innerHTML = html;
@@ -634,6 +731,8 @@ function showView(name){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('nav-'+name).classList.add('active');
+  document.querySelectorAll('.bn-item').forEach(n => n.classList.toggle('active', n.id === 'bn-' + name));
+  window.scrollTo(0, 0);
 }
 
 async function doLogout(){
