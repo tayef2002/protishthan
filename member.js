@@ -83,9 +83,9 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     ov = document.createElement('div'); ov.className = 'mb-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
     ov.innerHTML = `<div class="mb-box">
       <button type="button" class="mb-x" aria-label="বন্ধ করুন">×</button>
-      <div class="mb-logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg></div>
+      <div class="mb-logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></div>
       <h2>Protishthan-এ স্বাগতম</h2>
-      <p class="sub" id="mbSub">বিনামূল্যে, মাত্র এক ক্লিকে।</p>
+      <p class="sub" id="mbSub">৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।</p>
       <ul class="mb-perks">
         <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></i>পছন্দের প্রতিষ্ঠান সেভ করুন</li>
         <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/></svg></i>শিক্ষিত কার্ড সবসময় সাথে থাকবে</li>
@@ -103,7 +103,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   }
   function openModal(reason){
     if(!ov) buildModal();
-    document.getElementById('mbSub').textContent = reason || 'বিনামূল্যে, মাত্র এক ক্লিকে।';
+    document.getElementById('mbSub').textContent = reason || '৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।';
     document.getElementById('mbErr').style.display = 'none';
     document.getElementById('mbGoogle').disabled = false;
     ov.classList.add('show'); document.body.style.overflow = 'hidden';
