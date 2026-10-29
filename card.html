@@ -587,7 +587,7 @@ function openAvatars(){ renderAvatars(); document.getElementById('avModal').clas
 function closeAvatars(){ document.getElementById('avModal').classList.remove('show'); document.body.style.overflow = ''; }
 function renderAvatars(){
   const A = window.ProtAvatars; if(!A) return;
-  document.getElementById('avTabs').innerHTML = [['all', 'সব'], ['pro', 'পেশাদার'], ['fun', 'মজার']].map(t => '<button type="button" class="' + (AV_TAB === t[0] ? 'on' : '') + '" onclick="AV_TAB=\'' + t[0] + '\';renderAvatars()">' + t[1] + '</button>').join('');
+  document.getElementById('avTabs').innerHTML = [['all', 'সব'], ['pro', 'পেশাদার'], ['trad', 'ঐতিহ্যবাহী'], ['student', 'শিক্ষার্থী']].map(t => '<button type="button" class="' + (AV_TAB === t[0] ? 'on' : '') + '" onclick="AV_TAB=\'' + t[0] + '\';renderAvatars()">' + t[1] + '</button>').join('');
   document.getElementById('avSkins').innerHTML = '<span>ত্বকের রং</span>' + A.SKINS.map((c, i) => '<button type="button" aria-label="ত্বকের রং ' + (i + 1) + '" class="' + (AV_SKIN === i ? 'on' : '') + '" style="background:' + c + '" onclick="AV_SKIN=' + i + ';try{localStorage.setItem(\'sk_av_skin\',' + i + ')}catch(e){};renderAvatars()"></button>').join('');
   document.getElementById('avGrid').innerHTML = A.list.filter(a => AV_TAB === 'all' || a.group === AV_TAB).map(a => '<button type="button" class="av-item" onclick="pickAvatar(\'' + a.id + '\')"><img alt="" loading="lazy" src="' + A.dataUrl(a.spec, AV_SKIN) + '"><span>' + a.label + '</span></button>').join('');
 }
