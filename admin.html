@@ -141,6 +141,11 @@ body.locked .gate{display:flex}
 .gate button{width:100%;padding:12px;border:none;border-radius:var(--r);background:var(--blue);color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer}
 .gate button:disabled{opacity:.6;cursor:default}
 .gate-err{display:none;background:var(--red-l);color:var(--red);border:1px solid #FECACA;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:14px}
+.gate-link{display:block;width:100%;margin-top:12px;background:none!important;border:none;color:var(--blue)!important;font-size:13.5px!important;font-weight:600!important;text-align:center;padding:6px!important;cursor:pointer;font-family:inherit}
+.gate-link:hover{text-decoration:underline}
+.gate-ok{display:none;background:var(--green-l);color:var(--green);border:1px solid #A7F3D0;border-radius:8px;padding:9px 12px;font-size:12.5px;margin-bottom:14px;line-height:1.5}
+.gate-back{display:inline-flex;align-items:center;gap:6px;background:none!important;border:none;color:var(--text-2)!important;font-size:13px!important;font-weight:600!important;width:auto!important;padding:0!important;margin-bottom:12px;cursor:pointer;font-family:inherit}
+.gate input.code{letter-spacing:.35em;font-size:20px;text-align:center;font-weight:700;font-family:'Inter',sans-serif}
 .gate-wait{font-size:13px;color:var(--text-3);text-align:center}
 .admin-logout{margin-top:10px;width:100%;padding:8px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-family:inherit;font-size:12px;cursor:pointer}
 .admin-logout:hover{background:rgba(255,255,255,.12);color:#fff}
@@ -190,6 +195,34 @@ body.locked .gate{display:flex}
       <label for="gatePass">পাসওয়ার্ড</label>
       <input type="password" id="gatePass" autocomplete="current-password" required>
       <button type="submit" id="gateBtn">লগইন করুন</button>
+      <button type="button" class="gate-link" onclick="showForgot()">পাসওয়ার্ড ভুলে গেছেন?</button>
+    </form>
+
+    <form id="forgotForm" style="display:none" onsubmit="return false" autocomplete="off">
+      <button type="button" class="gate-back" onclick="backToLogin()">← লগইনে ফিরুন</button>
+      <div class="gate-err" id="fgErr"></div>
+      <div class="gate-ok" id="fgOk"></div>
+
+      <div id="fgStep1">
+        <div style="font-size:14.5px;font-weight:700;margin-bottom:4px">নতুন পাসওয়ার্ড</div>
+        <div style="font-size:12.5px;color:var(--text-2);margin-bottom:14px">আপনার ইমেইল দিন। ইনবক্সে একটা কোড যাবে।</div>
+        <label for="fgEmail">ইমেইল</label>
+        <input type="email" id="fgEmail" autocomplete="username">
+        <button type="button" id="fgSend" onclick="sendResetCode()">কোড পাঠান</button>
+      </div>
+
+      <div id="fgStep2" style="display:none">
+        <div style="font-size:14.5px;font-weight:700;margin-bottom:4px">কোডটা লিখুন</div>
+        <div style="font-size:12.5px;color:var(--text-2);margin-bottom:14px" id="fgSentTo"></div>
+        <label for="fgCode">ইমেইলে পাওয়া কোড</label>
+        <input type="text" id="fgCode" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••">
+        <label for="fgPass">নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)</label>
+        <input type="password" id="fgPass" autocomplete="new-password">
+        <label for="fgPass2">আবার লিখুন</label>
+        <input type="password" id="fgPass2" autocomplete="new-password">
+        <button type="button" id="fgSave" onclick="saveNewPassword()">পাসওয়ার্ড বদলান</button>
+        <button type="button" class="gate-link" id="fgResend" onclick="sendResetCode(true)">কোড আবার পাঠান</button>
+      </div>
     </form>
   </div>
 </div>
@@ -229,6 +262,51 @@ async function adminLogin(e){
   if(!(await checkAdmin(data.session))){ await sbAdmin.auth.signOut(); btn.disabled = false; gateError('এই অ্যাকাউন্টটি Admin নয়।'); return; }
   document.getElementById('gatePass').value = '';
   unlockAdmin(data.session);
+}
+/* ---- forgot password: email a one-time code, then set a new password ---- */
+let fgEmail = '', fgCool = 0;
+function fgMsg(kind, msg){ const e = document.getElementById('fgErr'), o = document.getElementById('fgOk'); e.style.display = 'none'; o.style.display = 'none'; if(!msg) return; const t = kind === 'ok' ? o : e; t.textContent = msg; t.style.display = 'block'; }
+function showForgot(){
+  gateError(''); document.getElementById('gateForm').style.display = 'none'; document.getElementById('forgotForm').style.display = 'block';
+  document.getElementById('fgStep1').style.display = 'block'; document.getElementById('fgStep2').style.display = 'none'; fgMsg();
+  const m = document.getElementById('gateEmail').value.trim(); if(m) document.getElementById('fgEmail').value = m;
+  setTimeout(() => document.getElementById('fgEmail').focus(), 50);
+}
+function backToLogin(){ fgMsg(); document.getElementById('forgotForm').style.display = 'none'; document.getElementById('gateForm').style.display = 'block'; }
+function fgTick(){
+  const b = document.getElementById('fgResend'); if(!b) return;
+  const left = Math.ceil((fgCool - Date.now()) / 1000);
+  if(left > 0){ b.disabled = true; b.textContent = 'কোড আবার পাঠান (' + left + ' সে.)'; setTimeout(fgTick, 500); } else { b.disabled = false; b.textContent = 'কোড আবার পাঠান'; }
+}
+async function sendResetCode(again){
+  const email = (again ? fgEmail : document.getElementById('fgEmail').value).trim();
+  if(!/^\S+@\S+\.\S+$/.test(email)){ fgMsg('err', 'সঠিক ইমেইল লিখুন।'); return; }
+  const btn = document.getElementById('fgSend'); btn.disabled = true; fgMsg();
+  const { error } = await sbAdmin.auth.resetPasswordForEmail(email);
+  btn.disabled = false;
+  if(error){
+    const t = /rate|seconds|too many/i.test(error.message) ? 'একটু অপেক্ষা করে আবার চেষ্টা করুন (বারবার পাঠানো যায় না)।' : /not authorized|smtp|sending|email/i.test(error.message) ? 'ইমেইল পাঠানো যায়নি। Supabase-এ ইমেইল পাঠানোর ব্যবস্থা (SMTP) চালু আছে কিনা দেখুন। (' + error.message + ')' : error.message;
+    fgMsg('err', t); return;
+  }
+  fgEmail = email; fgCool = Date.now() + 60000; fgTick();
+  document.getElementById('fgStep1').style.display = 'none'; document.getElementById('fgStep2').style.display = 'block';
+  document.getElementById('fgSentTo').textContent = email + ' ঠিকানায় একটা কোড পাঠানো হয়েছে (ইনবক্স বা স্প্যাম ফোল্ডার দেখুন)। কোডটা কয়েক মিনিটের মধ্যে ব্যবহার করুন।';
+  setTimeout(() => document.getElementById('fgCode').focus(), 50);
+}
+async function saveNewPassword(){
+  const code = document.getElementById('fgCode').value.replace(/\s+/g, ''), p1 = document.getElementById('fgPass').value, p2 = document.getElementById('fgPass2').value;
+  if(!/^\d{6,10}$/.test(code)){ fgMsg('err', 'ইমেইলে আসা কোডটা (শুধু সংখ্যা) লিখুন।'); return; }
+  if(p1.length < 8){ fgMsg('err', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); return; }
+  if(p1 !== p2){ fgMsg('err', 'দুটো পাসওয়ার্ড মিলছে না।'); return; }
+  const btn = document.getElementById('fgSave'); btn.disabled = true; fgMsg();
+  const v = await sbAdmin.auth.verifyOtp({ email: fgEmail, token: code, type: 'recovery' });
+  if(v.error || !v.data || !v.data.session){ btn.disabled = false; fgMsg('err', 'কোডটা ভুল বা মেয়াদ শেষ। ঠিক করে লিখুন, অথবা "কোড আবার পাঠান" চাপুন।'); return; }
+  const u = await sbAdmin.auth.updateUser({ password: p1 });
+  if(u.error){ btn.disabled = false; await sbAdmin.auth.signOut(); fgMsg('err', 'পাসওয়ার্ড বদলানো যায়নি: ' + u.error.message); return; }
+  const session = v.data.session;
+  if(!(await checkAdmin(session))){ await sbAdmin.auth.signOut(); btn.disabled = false; backToLogin(); gateError('পাসওয়ার্ড বদলেছে, কিন্তু এই অ্যাকাউন্টটি Admin নয়।'); return; }
+  ['fgCode', 'fgPass', 'fgPass2'].forEach(id => { document.getElementById(id).value = ''; });
+  btn.disabled = false; unlockAdmin(session);
 }
 async function adminLogout(){ await sbAdmin.auth.signOut(); location.reload(); }
 sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
