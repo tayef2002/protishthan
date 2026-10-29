@@ -632,7 +632,7 @@ document.getElementById('fName').addEventListener('input', e=>{ S.name = e.targe
 document.getElementById('eduRows').addEventListener('input', e=>{
   const k = e.target.dataset.k, f = e.target.dataset.f; if(!k) return;
   const ed = S.edu[k];
-  if(f === 'name'){ ed.name = e.target.value; ed.slug = ''; ed.district = ''; showAc(k, e.target.value); }
+  if(f === 'name'){ ed.name = e.target.value; ed.slug = ''; ed.district = ''; showAc(k, e.target.value); scheduleUnlSave(k); }
   if(f === 'year'){ e.target.value = e.target.value.replace(/[^0-9০-৯]/g,''); ed.year = e.target.value; }
   syncEduRow(k); refreshTitles(); draw();
 });
@@ -657,10 +657,10 @@ function showAc(k, q){
   const ql = q.toLowerCase();
   const hits = INST.filter(s=>(s.institution_name||'').toLowerCase().includes(ql) || (s.district||'').includes(q)).slice(0, 7);
   list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
-    `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে</div>`;
+    `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`;
   list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
     const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
-    ac.querySelector('input').value = ed.name; ac.classList.remove('open'); syncEduRow(k); refreshTitles(); draw();
+    ac.querySelector('input').value = ed.name; ac.classList.remove('open'); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
   }));
   ac.classList.add('open');
 }
@@ -727,22 +727,45 @@ const UNL_SAVED = new Set();
 const unlKey = n => String(n || '').trim().toLowerCase();
 function updateUnl(k){
   const ed = S.edu[k], box = document.getElementById('unl-' + k); if(!box) return;
-  const nm = (ed.name || '').trim();
-  if(nm.length < 2 || ed.slug){ box.style.display = 'none'; return; }
+  const nm = (ed.name || '').trim(), key = unlKey(nm), M = MB();
+  const free = document.querySelector('#ac-' + k + ' .u-saved');
+  if(nm.length < 2 || ed.slug){ box.style.display = 'none'; if(free) free.textContent = ''; return; }
   const link = '<a href="list-institution.html?name=' + encodeURIComponent(nm) + '">তালিকাভুক্ত করুন</a>';
-  box.innerHTML = UNL_SAVED.has(unlKey(nm))
-    ? '<span class="u-ok">✓ আপনার প্রোফাইলে সেভ হয়েছে</span>' + link
-    : '<span class="u-t">তথ্যভান্ডারে এই প্রতিষ্ঠান নেই</span><button type="button" onclick="saveUnl(\'' + k + '\')">প্রোফাইলে সেভ করুন</button>' + link;
+  const signed = !!(M && M.current && M.current());
+  if(signed && UNL_SAVED.has(key)){
+    box.innerHTML = '<span class="u-ok">✓ আপনার প্রোফাইলে এই প্রতিষ্ঠান সেভ হয়েছে</span><a href="member.html#saved">প্রোফাইলে দেখুন</a>' + link;
+    if(free) free.textContent = ' · আপনার প্রোফাইলে এই প্রতিষ্ঠান সেভ হয়েছে ✓';
+  } else if(signed){
+    box.innerHTML = '<span class="u-t">প্রোফাইলে সেভ হচ্ছে…</span>' + link;
+    if(free) free.textContent = '';
+  } else {
+    box.innerHTML = '<span class="u-t">তথ্যভান্ডারে এই প্রতিষ্ঠান নেই</span><button type="button" onclick="saveUnl(\'' + k + '\')">সাইন আপ করে প্রোফাইলে সেভ করুন</button>' + link;
+    if(free) free.textContent = '';
+  }
   box.style.display = 'flex';
 }
-async function saveUnl(k){
-  const nm = (S.edu[k].name || '').trim(); if(nm.length < 2) return;
+/* signed-in members: a name that is not in the directory is kept in their profile on its own, once they stop typing */
+const UNL_ID = {}, UNL_NAME = {}, UNL_T = {};
+function scheduleUnlSave(k){ clearTimeout(UNL_T[k]); UNL_T[k] = setTimeout(() => autoSaveUnl(k), 1100); }
+async function autoSaveUnl(k){
+  const ed = S.edu[k], nm = (ed.name || '').trim(), key = unlKey(nm), M = MB(); if(!M) return;
+  await M.ready(); if(!M.current()){ updateUnl(k); return; }
+  if(ed.slug || nm.length < 3){                         // listed (or too short): nothing to keep, drop the earlier auto-saved one
+    if(UNL_ID[k]){ try{ await M.sb.from('member_custom_institutions').delete().eq('id', UNL_ID[k]); }catch(e){} delete UNL_ID[k]; delete UNL_NAME[k]; }
+    updateUnl(k); return;
+  }
+  if(UNL_NAME[k] === key){ updateUnl(k); return; }
+  if(UNL_ID[k]){ try{ await M.sb.from('member_custom_institutions').delete().eq('id', UNL_ID[k]); }catch(e){} delete UNL_ID[k]; }
+  const { data, error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name: nm }).select('id').single();
+  if(error && !/duplicate|unique/i.test(error.message)){ return; }
+  if(data && data.id) UNL_ID[k] = data.id;
+  UNL_NAME[k] = key; UNL_SAVED.add(key); updateUnl(k);
+}
+async function saveUnl(k){          // signed-out visitors: this is the sign-up nudge
   const M = MB(); if(!M){ toast('একটু পরে আবার চেষ্টা করুন'); return; }
   await M.ready();
   if(!M.current()){ M.signIn('প্রতিষ্ঠান প্রোফাইলে সেভ করে রাখতে সাইন আপ করুন'); return; }
-  const { error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name: nm });
-  if(error && !/duplicate|unique/i.test(error.message)){ toast(/TOO_MANY/.test(error.message) ? 'সর্বোচ্চ ৩০টি সেভ করা যায়' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন'); return; }
-  UNL_SAVED.add(unlKey(nm)); updateUnl(k); toast('আপনার প্রোফাইলে সেভ হয়েছে ✓');
+  autoSaveUnl(k);
 }
 
 function syncEduRow(k){
