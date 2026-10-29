@@ -241,6 +241,28 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 .gbtn{display:inline-flex;align-items:center;gap:10px;padding:13px 26px;border-radius:14px;border:1.5px solid #CBD5E1;background:#fff;font:700 15.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;box-shadow:var(--shadow)}
 .gbtn:hover{background:#F8FAFC}
 
+.im-st{font-weight:700}
+.im-st.im-d{background:#F1F5F9;color:#475569}.im-st.im-p{background:#FEF3C7;color:#92400E}.im-st.im-a{background:#DCFCE7;color:#166534}.im-st.im-r{background:#FEE2E2;color:#991B1B}
+.im-pub{background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;border:none}
+.im-ov{position:fixed;inset:0;z-index:2200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(10,22,40,.6);backdrop-filter:blur(6px)}
+.im-ov.show{display:flex}
+.im-sheet{width:min(720px,100%);max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:24px;box-shadow:0 40px 100px -20px rgba(2,8,23,.55);overflow:hidden}
+.im-h{display:flex;justify-content:space-between;gap:14px;padding:22px 24px 10px}
+.im-h h3{font-size:20px;font-weight:800;letter-spacing:-.3px}.im-h p{font-size:13.5px;color:#64748B;margin-top:4px}
+.im-x{flex:none;width:36px;height:36px;border:none;border-radius:50%;background:#F1F5F9;font-size:20px;cursor:pointer}
+.im-b{overflow-y:auto;padding:6px 24px 14px}
+.im-sec{font-size:12px;font-weight:800;letter-spacing:.4px;color:#2563EB;margin:18px 0 8px;text-transform:uppercase}
+.im-f{margin-bottom:12px}.im-f label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin-bottom:6px}
+.im-i{width:100%;padding:11px 13px;border:1.5px solid #E2E8F0;border-radius:12px;font:inherit;font-size:14.5px;outline:none;background:#fff}
+.im-i:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+textarea.im-i{resize:vertical}
+.im-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.im-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.im-chips{display:flex;flex-wrap:wrap;gap:8px}
+.im-chip{border:1.5px solid #E2E8F0;background:#fff;border-radius:100px;padding:7px 14px;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:#475569;cursor:pointer}
+.im-chip.on{background:#EEF3FF;border-color:#2563EB;color:#1A56DB}
+.im-err{color:#DC2626;font-size:13px;min-height:18px;margin-top:6px}
+.im-foot{display:flex;gap:10px;justify-content:flex-end;padding:14px 24px 18px;border-top:1px solid #EEF2F7;flex-wrap:wrap}
+@media(max-width:640px){.im-ov{align-items:flex-end;padding:0}.im-sheet{width:100%;border-radius:24px 24px 0 0;max-height:94vh}.im-2,.im-3{grid-template-columns:1fr}.im-h,.im-b,.im-foot{padding-left:18px;padding-right:18px}}
 /* ---------- skeleton, toast, modal ---------- */
 .skel{background:linear-gradient(90deg,#EEF2F7 25%,#F8FAFC 50%,#EEF2F7 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:12px}
 @keyframes sk{to{background-position:-200% 0}}
@@ -574,20 +596,93 @@ function updateProgress(){
 }
 
 /* ---------- saved institutions ---------- */
+/* ---------- institutions the member keeps themselves (not in the directory yet) ---------- */
+const IM_FIELDS = ['name', 'itype', 'district', 'upazila', 'contact_name', 'contact_phone', 'address_note', 'founding_year', 'student_count', 'teacher_count', 'medium', 'class_range', 'gender_type', 'admission_status', 'fee_range', 'facilities', 'achievements', 'description', 'facebook_link', 'ownership'];
+const IM_STATUS = { draft: ['খসড়া', 'd'], pending: ['অনুমোদনের অপেক্ষায়', 'p'], approved: ['প্রকাশিত', 'a'], rejected: ['প্রত্যাখ্যাত', 'r'] };
+const IM_MEDIUM = ['বাংলা মিডিয়াম', 'ইংলিশ মিডিয়াম', 'ইংলিশ ভার্সন', 'কওমি মাদ্রাসা', 'আলিয়া মাদ্রাসা', 'হিফজ বিভাগ', 'ক্যামব্রিজ/ও-লেভেল', 'এবতেদায়ি/নূরানী'];
+const IM_FACIL = ['আবাসিক', 'পরিবহন', 'লাইব্রেরি', 'ক্যান্টিন', 'কম্পিউটার ল্যাব', 'খেলার মাঠ'];
+const IM_ACH = ['ভালো বোর্ড রিজাল্ট', 'অভিজ্ঞ শিক্ষক প্যানেল', 'নিজস্ব ক্যাম্পাস', 'ডিজিটাল ক্লাসরুম'];
+function imState(c){ return !c.listing_id ? 'draft' : (c.__ls || 'pending'); }
 async function loadCustom(){
   let box = $('customList'); if(!box){ const sv = $('savedList'); box = document.createElement('div'); box.id = 'customList'; box.className = 'saved'; box.style.marginTop = '14px'; sv.parentNode.insertBefore(box, sv.nextSibling); }
-  const { data, error } = await M.sb.from('member_custom_institutions').select('id,name,itype,district,created_at').order('created_at', { ascending: false });
+  const { data, error } = await M.sb.from('member_custom_institutions').select('*').order('created_at', { ascending: false });
   if(error){ box.innerHTML = ''; return; }
-  STATE.custom = data || [];
-  box.innerHTML = STATE.custom.map(c => {
-    const k = typeKey(c.itype), q = 'name=' + encodeURIComponent(c.name) + (c.itype ? '&type=' + encodeURIComponent(c.itype) : '') + (c.district ? '&district=' + encodeURIComponent(c.district) : '');
-    return '<article class="inst" data-cid="' + esc(c.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3>' + esc(c.name) + '</h3><p>' + esc([c.itype, c.district].filter(Boolean).join(' · ') || 'আপনার সেভ করা') + '</p></div></div><div class="tags"><span class="tag">তালিকাভুক্ত নয়</span><span class="tag">শুধু আপনি দেখছেন</span></div><div class="inst-act"><a class="btn btn-line btn-sm" href="list-institution.html?' + q + '">তালিকাভুক্ত করুন ' + ico('arrow', 15) + '</a><button class="unsave" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('x', 16) + '</button></div></article>';
+  const rows = data || [];
+  const ids = rows.map(r => r.listing_id).filter(Boolean);
+  if(ids.length){ const { data: ls } = await M.sb.from('listing_submissions').select('id,status,desired_slug,prn_number').in('id', ids); const m = {}; (ls || []).forEach(l => m[l.id] = l); rows.forEach(r => { const l = m[r.listing_id]; if(l){ r.__ls = l.status; r.__slug = l.desired_slug; } }); }
+  STATE.custom = rows;
+  box.innerHTML = rows.map(c => {
+    const k = typeKey(c.itype), st = IM_STATUS[imState(c)];
+    const done = c.itype && c.district && c.upazila && c.contact_name && c.contact_phone;
+    let act = '<button class="btn btn-line btn-sm" type="button" onclick="imOpen(\'' + esc(c.id) + '\')">' + (c.listing_id ? 'তথ্য সম্পাদনা' : 'তথ্য যোগ করুন') + '</button>';
+    if(!c.listing_id) act += '<button class="btn btn-sm im-pub" type="button" onclick="imPublish(\'' + esc(c.id) + '\')" ' + (done ? '' : 'title="আগে ধরন, জেলা, উপজেলা ও যোগাযোগের তথ্য দিন"') + '>প্রকাশ করুন</button>';
+    if(c.__ls === 'approved' && c.__slug && !/^pending-/.test(c.__slug)) act += '<a class="btn btn-line btn-sm" href="institution-detail.html?slug=' + encodeURIComponent(c.__slug) + '">পাতা দেখুন ' + ico('arrow', 15) + '</a>';
+    return '<article class="inst" data-cid="' + esc(c.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3>' + esc(c.name) + '</h3><p>' + esc([c.itype, c.upazila, c.district].filter(Boolean).join(' · ') || 'তথ্য এখনো দেওয়া হয়নি') + '</p></div></div>' +
+      '<div class="tags"><span class="tag im-st im-' + st[1] + '">' + st[0] + '</span>' + (c.listing_id ? '' : '<span class="tag">শুধু আপনি দেখছেন</span>') + '</div>' +
+      '<div class="inst-act">' + act + (c.listing_id ? '' : '<button class="unsave" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('x', 16) + '</button>') + '</div></article>';
   }).join('');
 }
 async function delCustom(id){
   const el = document.querySelector('.inst[data-cid="' + id + '"]'); if(el) el.classList.add('gone');
   await M.sb.from('member_custom_institutions').delete().eq('id', id);
   setTimeout(() => { if(el) el.remove(); }, 250); M.toast('মুছে ফেলা হয়েছে');
+}
+function imChips(name, opts, sel, multi){
+  return '<div class="im-chips" data-chips="' + name + '" data-multi="' + (multi ? 1 : 0) + '">' + opts.map(o => '<button type="button" class="im-chip' + ((multi ? (sel || []).includes(o) : sel === o) ? ' on' : '') + '" data-v="' + esc(o) + '">' + esc(o) + '</button>').join('') + '</div>';
+}
+function imOpen(id){
+  const c = (STATE.custom || []).find(x => x.id === id); if(!c) return;
+  let ov = $('imDlg'); if(!ov){ ov = document.createElement('div'); ov.id = 'imDlg'; ov.className = 'im-ov'; ov.addEventListener('click', e => { if(e.target === ov) imClose(); }); document.body.appendChild(ov); }
+  const L = window.BD_LOCATIONS || [], dI = L.findIndex(d => d.n === c.district);
+  const f = (lbl, el) => '<div class="im-f"><label>' + lbl + '</label>' + el + '</div>';
+  const inp = (n, v, ph, extra) => '<input class="im-i" data-f="' + n + '" value="' + esc(v || '') + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(c.name) + '</h3><p>' + (c.listing_id ? 'এখানে যা বদলাবেন, তথ্যভান্ডারের পাতায়ও তা হালনাগাদ হবে।' : 'তথ্য ঠিক হলে "প্রকাশ করুন" চাপুন। অনুমোদনের পর হোম পেজের খোঁজে দেখা যাবে।') + '</p></div><button type="button" class="im-x" onclick="imClose()" aria-label="বন্ধ করুন">×</button></header><div class="im-b" data-id="' + esc(id) + '">' +
+    '<div class="im-sec">মূল তথ্য</div>' + f('প্রতিষ্ঠানের নাম *', inp('name', c.name, '', 'maxlength="120"')) + f('ধরন *', imChips('itype', ['মাদ্রাসা', 'স্কুল', 'কলেজ', 'কোচিং সেন্টার'], c.itype, false)) +
+    '<div class="im-2">' + f('জেলা *', '<select class="im-i" data-f="district" onchange="imDist(this)"><option value="">বাছুন</option>' + L.map((d, i) => '<option value="' + i + '"' + (i === dI ? ' selected' : '') + '>' + esc(d.n) + '</option>').join('') + '</select>') + f('উপজেলা *', '<select class="im-i" data-f="upazila" id="imUp"><option value="">আগে জেলা বাছুন</option>' + (dI > -1 ? L[dI].u.map(u => '<option' + (u === c.upazila ? ' selected' : '') + '>' + esc(u) + '</option>').join('') : '') + '</select>') + '</div>' +
+    f('ঠিকানা / বিবরণ', '<textarea class="im-i" data-f="address_note" rows="2" maxlength="300">' + esc(c.address_note || '') + '</textarea>') +
+    '<div class="im-sec">যোগাযোগ</div><div class="im-2">' + f('যোগাযোগের নাম *', inp('contact_name', c.contact_name, 'যিনি তথ্য দেবেন')) + f('WhatsApp নম্বর *', inp('contact_phone', c.contact_phone, '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div>' +
+    '<div class="im-sec">প্রতিষ্ঠানের বিস্তারিত</div><div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('founding_year', c.founding_year, 'যেমন ২০০৫')) + f('শিক্ষার্থী সংখ্যা', inp('student_count', c.student_count, 'আনুমানিক')) + f('শিক্ষক সংখ্যা', inp('teacher_count', c.teacher_count, 'আনুমানিক')) + '</div>' +
+    f('মাধ্যম / ধারা', imChips('medium', IM_MEDIUM, c.medium, true)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', c.class_range, 'যেমন: প্লে থেকে দশম')) +
+    f('ছাত্র/ছাত্রী', imChips('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], c.gender_type, false)) + f('মালিকানা', imChips('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], c.ownership, false)) + f('ভর্তি', imChips('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], c.admission_status, false)) +
+    f('মাসিক ফি (আনুমানিক)', inp('fee_range', c.fee_range, 'যেমন: ৫০০-১০০০ টাকা')) + f('সুযোগ-সুবিধা', imChips('facilities', IM_FACIL, c.facilities, true)) + f('বিশেষত্ব', imChips('achievements', IM_ACH, c.achievements, true)) +
+    f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(c.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', c.facebook_link, 'https://facebook.com/...')) +
+    '<div class="im-err" id="imErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" onclick="imClose()">বাতিল</button><button type="button" class="btn btn-fill" id="imSave" onclick="imSave(\'' + esc(id) + '\',false)">সেভ করুন</button>' + (c.listing_id ? '' : '<button type="button" class="btn im-pub" onclick="imSave(\'' + esc(id) + '\',true)">সেভ করে প্রকাশ করুন</button>') + '</footer></div>';
+  ov.classList.add('show'); document.body.style.overflow = 'hidden';
+  ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } }));
+}
+function imDist(sel){ const L = window.BD_LOCATIONS || [], d = L[sel.value]; $('imUp').innerHTML = '<option value="">' + (d ? 'বাছুন' : 'আগে জেলা বাছুন') + '</option>' + (d ? d.u.map(u => '<option>' + esc(u) + '</option>').join('') : ''); }
+function imClose(){ const ov = $('imDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
+function imRead(){
+  const root = $('imDlg'), o = {}, L = window.BD_LOCATIONS || [];
+  root.querySelectorAll('[data-f]').forEach(el => { o[el.dataset.f] = el.value.trim(); });
+  o.district = o.district !== '' && L[o.district] ? L[o.district].n : null;
+  root.querySelectorAll('.im-chips').forEach(g => { const v = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); if(g.dataset.multi === '1') o[g.dataset.chips] = v.length ? v : null; else o[g.dataset.chips] = v[0] || null; });
+  Object.keys(o).forEach(k => { if(o[k] === '') o[k] = null; });
+  o.updated_at = new Date().toISOString();
+  return o;
+}
+async function imSave(id, publish){
+  const err = $('imErr'); err.textContent = '';
+  const o = imRead(), c = (STATE.custom || []).find(x => x.id === id);
+  if(!o.name || o.name.length < 2){ err.textContent = 'প্রতিষ্ঠানের নাম লিখুন।'; return; }
+  if(o.contact_phone && !/^01[0-9]{9}$/.test(o.contact_phone)){ err.textContent = 'সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)।'; return; }
+  if(publish && !(o.itype && o.district && o.upazila && o.contact_name && o.contact_phone)){ err.textContent = 'প্রকাশ করতে ধরন, জেলা, উপজেলা, যোগাযোগের নাম ও WhatsApp নম্বর লাগবে।'; return; }
+  const btn = $('imSave'); btn.disabled = true;
+  try{
+    const { error } = await M.sb.from('member_custom_institutions').update(o).eq('id', id); if(error) throw error;
+    if(c && c.listing_id){ const r = await M.sb.rpc('sync_member_institution', { p_id: id }); if(r.error) throw r.error; }
+    if(publish){ const r = await M.sb.rpc('publish_member_institution', { p_id: id }); if(r.error) throw r.error; }
+    imClose(); await loadCustom();
+    M.toast(publish ? 'প্রকাশের জন্য পাঠানো হয়েছে, অনুমোদনের অপেক্ষায় ✓' : (c && c.listing_id ? 'তথ্যভান্ডারেও হালনাগাদ হয়েছে ✓' : 'সেভ হয়েছে ✓'));
+  }catch(e){ err.textContent = /BAD_PHONE/.test(e.message) ? 'সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)।' : /MISSING/.test(e.message) ? 'প্রয়োজনীয় তথ্য বাকি আছে।' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন।'; }
+  btn.disabled = false;
+}
+async function imPublish(id){
+  const c = (STATE.custom || []).find(x => x.id === id);
+  if(!c || !(c.itype && c.district && c.upazila && c.contact_name && c.contact_phone)){ imOpen(id); setTimeout(() => { const e = $('imErr'); if(e) e.textContent = 'প্রকাশ করতে ধরন, জেলা, উপজেলা, যোগাযোগের নাম ও WhatsApp নম্বর লাগবে।'; }, 80); return; }
+  const r = await M.sb.rpc('publish_member_institution', { p_id: id });
+  if(r.error){ M.toast('প্রকাশ করা যায়নি, তথ্য দেখে আবার চেষ্টা করুন'); return; }
+  M.toast('প্রকাশের জন্য পাঠানো হয়েছে, অনুমোদনের অপেক্ষায় ✓'); loadCustom();
 }
 async function loadSaved(){
   loadCustom();
@@ -800,5 +895,6 @@ if(window.matchMedia('(max-width:700px)').matches){ const st = document.createEl
 M.onChange(render);
 render();
 </script>
+<script src="bd-locations.js"></script>
 </body>
 </html>
