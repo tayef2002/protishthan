@@ -170,7 +170,12 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .crop-actions{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px}
 .save-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:12px;color:var(--text-3)}
 .save-row span{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:600}
-.save-row .cloud-join{flex-basis:100%;text-align:center;border:1.5px solid #C7D7FE;background:#EEF3FF;color:#1A56DB;border-radius:10px;padding:8px 12px}
+.cloud-box{margin-top:12px;border:1px solid #DDE6FB;background:linear-gradient(180deg,#F8FAFF,#F1F5FF);border-radius:16px;padding:15px 16px 16px}
+.cloud-box .cb-t{font-size:14.5px;font-weight:800;color:#0F172A;line-height:1.4;letter-spacing:-.1px}
+.cloud-box .cb-s{font-size:12.5px;color:#64748B;margin:4px 0 13px;line-height:1.6}
+.g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:13px;border:1.5px solid #CBD5E1;background:#fff;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;cursor:pointer;transition:background .15s,box-shadow .15s,transform .15s}
+.g-btn:hover{background:#F8FAFC;box-shadow:0 8px 20px -8px rgba(15,23,42,.25);transform:translateY(-1px)}
+.g-btn svg{flex:none}
 .save-row button{border:none;background:none;color:#DC2626;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:2px 0}
 .army-invite{display:block;margin-top:16px;padding:20px;border-radius:20px;text-decoration:none;color:#fff;background:radial-gradient(400px 160px at 100% 0,rgba(124,58,237,.45),transparent),linear-gradient(150deg,#0A1628,#1A3570);box-shadow:0 14px 34px rgba(15,32,72,.25);transition:transform .2s}
 .army-invite:hover{transform:translateY(-2px)}
@@ -274,8 +279,12 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
         <div class="chips" id="badgeChips"></div>
         <div class="save-row">
           <span id="saveNote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার তথ্য এই ব্রাউজারে নিজে থেকেই সংরক্ষিত থাকে</span>
-          <button type="button" id="cloudJoin" class="cloud-join" onclick="Protishthan.member.signIn('কার্ডটা সব ডিভাইসে পেতে যোগ দিন')">সব ডিভাইসে পেতে যোগ দিন</button>
           <button type="button" id="resetRow" style="display:none" onclick="resetCard()">সব মুছে নতুন করে শুরু করুন</button>
+        </div>
+        <div class="cloud-box" id="cloudBox">
+          <div class="cb-t">কার্ডের সব তথ্য সেভ ও নিয়মিত আপডেট করুন</div>
+          <div class="cb-s">Google দিয়ে সাইন আপ করলে কার্ড আপনার অ্যাকাউন্টে থাকবে, যেকোনো ফোনে পাবেন আর যখন খুশি বদলাতে পারবেন।</div>
+          <button type="button" id="cloudJoin" class="g-btn" onclick="Protishthan.member.signIn('কার্ডের সব তথ্য সেভ ও আপডেট করতে সাইন আপ করুন')"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span>Google দিয়ে সাইন আপ করুন</span></button>
         </div>
       </div>
 
@@ -929,7 +938,7 @@ async function syncCloud(){
   }
 }
 function updateCloudNote(me){
-  const note = document.getElementById('saveNote'), join = document.getElementById('cloudJoin');
+  const note = document.getElementById('saveNote'), join = document.getElementById('cloudBox');
   if(me){ if(note) note.lastChild.textContent = 'আপনার তথ্য অ্যাকাউন্টে সেভ হচ্ছে — যেকোনো ফোনে পাবেন'; if(join) join.style.display = 'none'; }
   else if(join) join.style.display = '';
 }
