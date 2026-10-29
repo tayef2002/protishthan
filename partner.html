@@ -211,6 +211,30 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
   .cta{padding:44px 20px;border-radius:22px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+/* two-step form */
+.stepbar{display:flex;align-items:center;gap:12px;margin:0 0 22px}
+.sb{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text-3);white-space:nowrap;transition:color .3s}
+.sb i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#EEF2F7;color:var(--text-3);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;transition:background .3s,color .3s,box-shadow .3s}
+.sb.on{color:var(--text)}
+.sb.on i{background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;box-shadow:0 6px 14px -4px rgba(37,99,235,.55)}
+.sb.done i{background:var(--green);color:#fff}
+.sb.done{color:var(--text-2)}
+.sb-line{flex:1;height:4px;border-radius:4px;background:#EEF2F7;overflow:hidden;min-width:24px}
+.sb-line b{display:block;height:100%;width:0;background:linear-gradient(90deg,#1A56DB,#4F46E5);border-radius:4px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.pane[hidden]{display:none}
+.pane.in-r{animation:inR .42s cubic-bezier(.2,.8,.2,1)}
+.pane.in-l{animation:inL .42s cubic-bezier(.2,.8,.2,1)}
+@keyframes inR{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+.recap{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:6px}
+.recap-t{display:flex;flex-direction:column;min-width:0}
+.recap-t b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recap-t span{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.recap-edit{flex:none;background:#fff;border:1px solid var(--border);border-radius:9px;padding:6px 12px;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:var(--blue);cursor:pointer}
+.recap-edit:hover{background:var(--blue-light)}
+.back-link{display:block;width:100%;margin-top:10px;background:none;border:none;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:var(--text-2);cursor:pointer;padding:8px}
+.back-link:hover{color:var(--text)}
+@media (prefers-reduced-motion:reduce){.pane.in-r,.pane.in-l{animation:none}}
 </style>
 </head>
 <body>
@@ -256,12 +280,15 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
 
     <div class="apply" id="apply">
       <!-- SIGNUP FORM -->
-      <form id="signupForm" novalidate onsubmit="doSignup();return false">
+      <form id="signupForm" novalidate onsubmit="formSubmit();return false">
         <div class="form-title">Partner আবেদন</div>
         <div class="form-sub">৩ মিনিটের ফর্ম। জমা দেওয়ার পর Admin যাচাই করে অনুমোদন দেবেন।</div>
 
+        <div class="stepbar" aria-label="ধাপ"><div class="sb on" id="sb1"><i>১</i><span>পরিচয় ও এলাকা</span></div><div class="sb-line"><b id="sbFill"></b></div><div class="sb" id="sb2"><i>২</i><span>পাসওয়ার্ড</span></div></div>
+
         <div class="err-box" id="errBox" role="alert"></div>
 
+        <div class="pane" id="pane1">
         <div class="sec"><i>১</i>আপনার পরিচয়</div>
 
         <div class="field">
@@ -308,7 +335,12 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
         </div>
         <div id="districtStatus" class="seat" aria-live="polite"></div>
 
-        <div class="sec"><i>৩</i>লগইনের পাসওয়ার্ড</div>
+        <button class="submit-btn" id="nextBtn" type="submit"><span>পরবর্তী ধাপ</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+
+        <div class="pane" id="pane2" hidden>
+        <div class="recap"><div class="recap-t"><b id="recapName">—</b><span id="recapArea">—</span></div><button type="button" class="recap-edit" onclick="goStep(1)">বদলান</button></div>
+        <div class="sec"><i>২</i>লগইনের পাসওয়ার্ড</div>
 
         <div class="field">
           <label for="password">পাসওয়ার্ড <b class="req">*</b></label>
@@ -324,6 +356,8 @@ footer p{font-size:13px;color:var(--text-3);width:100%;text-align:center;margin-
         </div>
 
         <button class="submit-btn" id="signupBtn" type="submit"><span id="signupLbl">আবেদন জমা দিন</span><svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button type="button" class="back-link" onclick="goStep(1)">← আগের ধাপে ফিরুন</button>
+        </div>
         <div class="note">আবেদন করলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
         <div class="alt">আগেই অ্যাকাউন্ট আছে? <a href="partner-login.html">লগইন করুন</a></div>
       </form>
@@ -553,7 +587,7 @@ async function doSignup(){
   if(!district) flag('district', 'জেলা বাছুন।');
   if(district && !upazila) flag('upazila', 'উপজেলা বাছুন।');
   if(password.length < 8) flag('password', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।');
-  if(bad){ showErr(''); const el = document.getElementById(bad); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }); return; }
+  if(bad){ showErr(''); if(bad !== 'password' && STEP === 2) goStep(1); const el = document.getElementById(bad); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }); return; }
   showErr('');
 
   const btn = document.getElementById('signupBtn');
@@ -602,6 +636,42 @@ async function doSignup(){
   document.getElementById('signupForm').style.display='none';
   document.getElementById('successScreen').classList.add('show');
 }
+
+/* two-step form */
+let STEP = 1;
+function goStep(n){
+  const dir = n > STEP ? 'in-r' : 'in-l', p1 = document.getElementById('pane1'), p2 = document.getElementById('pane2');
+  const show = n === 1 ? p1 : p2, hide = n === 1 ? p2 : p1;
+  hide.hidden = true; show.hidden = false;
+  show.classList.remove('in-r', 'in-l'); void show.offsetWidth; show.classList.add(dir);
+  STEP = n; showErr('');
+  document.getElementById('sb1').className = 'sb ' + (n === 1 ? 'on' : 'done');
+  document.getElementById('sb1').querySelector('i').textContent = n === 1 ? '১' : '✓';
+  document.getElementById('sb2').className = 'sb' + (n === 2 ? ' on' : '');
+  document.getElementById('sbFill').style.width = n === 2 ? '100%' : '0';
+  setTimeout(() => { const f = document.getElementById(n === 2 ? 'password' : 'fullName'); if(f) f.focus({ preventScroll: true }); }, 60);
+}
+function validateStep1(){
+  let bad = null; const flag = (id, msg) => { fieldErr(id, msg); if(!bad) bad = id; };
+  const name = document.getElementById('fullName').value.trim(), phone = normPhone(document.getElementById('phone').value), email = document.getElementById('email').value.trim();
+  const district = document.getElementById('district').value, upazila = document.getElementById('upazila').value;
+  ['fullName', 'phone', 'email', 'district', 'upazila'].forEach(id => fieldErr(id, ''));
+  if(name.length < 3) flag('fullName', 'আপনার পুরো নাম লিখুন।');
+  if(!/^01[3-9][0-9]{8}$/.test(phone)) flag('phone', 'সঠিক মোবাইল নম্বর দিন (যেমন 01712345678)।');
+  if(!/^[^ @]+@[^ @]+[.][^ @]+$/.test(email)) flag('email', 'সঠিক ইমেইল ঠিকানা দিন।');
+  if(!district) flag('district', 'জেলা বাছুন।');
+  if(district && !upazila) flag('upazila', 'উপজেলা বাছুন।');
+  if(district && upazila && document.getElementById('districtStatus').classList.contains('full')) flag('upazila', 'এই উপজেলায় Partner পূর্ণ। অন্য উপজেলা বাছুন।');
+  return bad;
+}
+function goStep2(){
+  const bad = validateStep1();
+  if(bad){ const el = document.getElementById(bad); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.focus({ preventScroll: true }); return; }
+  document.getElementById('recapName').textContent = document.getElementById('fullName').value.trim();
+  document.getElementById('recapArea').textContent = document.getElementById('upazila').value + ', ' + document.getElementById('district').value;
+  goStep(2);
+}
+function formSubmit(){ if(STEP === 1) goStep2(); else doSignup(); }
 
 /* earnings calculator */
 let CALC_PLAN = 599;
