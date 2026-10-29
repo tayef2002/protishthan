@@ -160,6 +160,11 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .stream-seg button:hover{border-color:#93B4F5}
 .stream-seg button.on{border-color:var(--blue);background:#EEF3FF;color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
 .stream-seg button.on small{color:#5B84D8}
+.unl{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;margin:8px 0 2px;padding:9px 12px;border-radius:12px;background:#F8FAFF;border:1px dashed #C9D8F5;font-size:13px;color:#475569}
+.unl .u-t{font-weight:600}
+.unl button,.unl a{border:none;background:#fff;border-radius:100px;padding:5px 12px;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:var(--blue);cursor:pointer;text-decoration:none;box-shadow:0 0 0 1px #C9D8F5;transition:background .15s}
+.unl button:hover,.unl a:hover{background:#EEF3FF}
+.unl .u-ok{color:#16A34A;font-weight:700}
 .edu-head{flex-wrap:wrap}
 .trk{margin-left:auto;display:inline-flex;background:#F1F5F9;border-radius:10px;padding:3px;gap:2px}
 .trk button{border:none;background:none;border-radius:8px;padding:5px 11px;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer;transition:background .15s,color .15s}
@@ -590,6 +595,7 @@ document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
         <div class="ydd-menu" role="listbox"></div>
       </div>
     </div>
+    <div class="unl" id="unl-${l.key}" style="display:none"></div>
     <div class="linked" id="lk-${l.key}" style="display:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>তথ্যভান্ডারে পাওয়া গেছে</div>
     <label class="cur"><input type="checkbox" data-k="${l.key}" data-f="current"> এখানে এখনো পড়ছি</label>
   </div>`).join('');
@@ -716,7 +722,31 @@ function setTrack(t){
   document.querySelectorAll('#streamSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   refreshTitles(); draw();
 }
+/* an institution that is not in the directory: keep it in the member's profile, and list it later if they wish */
+const UNL_SAVED = new Set();
+const unlKey = n => String(n || '').trim().toLowerCase();
+function updateUnl(k){
+  const ed = S.edu[k], box = document.getElementById('unl-' + k); if(!box) return;
+  const nm = (ed.name || '').trim();
+  if(nm.length < 2 || ed.slug){ box.style.display = 'none'; return; }
+  const link = '<a href="list-institution.html?name=' + encodeURIComponent(nm) + '">তালিকাভুক্ত করুন</a>';
+  box.innerHTML = UNL_SAVED.has(unlKey(nm))
+    ? '<span class="u-ok">✓ আপনার প্রোফাইলে সেভ হয়েছে</span>' + link
+    : '<span class="u-t">তথ্যভান্ডারে এই প্রতিষ্ঠান নেই</span><button type="button" onclick="saveUnl(\'' + k + '\')">প্রোফাইলে সেভ করুন</button>' + link;
+  box.style.display = 'flex';
+}
+async function saveUnl(k){
+  const nm = (S.edu[k].name || '').trim(); if(nm.length < 2) return;
+  const M = MB(); if(!M){ toast('একটু পরে আবার চেষ্টা করুন'); return; }
+  await M.ready();
+  if(!M.current()){ M.signIn('প্রতিষ্ঠান প্রোফাইলে সেভ করে রাখতে সাইন আপ করুন'); return; }
+  const { error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name: nm });
+  if(error && !/duplicate|unique/i.test(error.message)){ toast(/TOO_MANY/.test(error.message) ? 'সর্বোচ্চ ৩০টি সেভ করা যায়' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন'); return; }
+  UNL_SAVED.add(unlKey(nm)); updateUnl(k); toast('আপনার প্রোফাইলে সেভ হয়েছে ✓');
+}
+
 function syncEduRow(k){
+  updateUnl(k);
   syncYearUI(k);
   const lv = LEVELS.find(l => l.key === k), tr = S.edu[k].track || 'g';
   const sub = document.getElementById('sub-' + k); if(sub && lv) sub.textContent = tr === 'g' ? lv.sub : lvName(lv, S.edu[k]);
