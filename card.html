@@ -121,7 +121,24 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .edu-ic{width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .edu-title{font-weight:700;font-size:14.5px}
 .edu-title small{display:block;font-weight:500;color:var(--text-3);font-size:12px;margin-top:-3px}
-.edu-grid{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px}
+.edu-grid{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:8px}
+.ydd{position:relative}
+.ydd-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;color:var(--text)}
+.ydd-btn .ydd-t.ph{color:#94A3B8}
+.ydd-btn svg{flex:none;color:#94A3B8;transition:transform .2s}
+.ydd.open .ydd-btn{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.ydd.open .ydd-btn svg{transform:rotate(180deg)}
+.ydd.auto .ydd-t{color:#64748B}
+.ydd.auto .ydd-t::after{content:' ~';color:#94A3B8;font-weight:700}
+.ydd-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);width:100%;min-width:168px;max-height:272px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 22px 44px -14px rgba(15,23,42,.3);z-index:40;padding:6px;scrollbar-width:thin}
+.ydd.open .ydd-menu{display:block;animation:yIn .16s ease-out}
+@keyframes yIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ydd-menu button{display:flex;align-items:center;justify-content:space-between;width:100%;border:none;background:none;border-radius:9px;padding:9px 12px;font:600 14.5px 'Hind Siliguri','Inter',sans-serif;color:#334155;cursor:pointer;text-align:left}
+.ydd-menu button:hover{background:#F1F5F9}
+.ydd-menu button.on{background:#EEF3FF;color:var(--blue)}
+.ydd-menu button small{font-size:11px;font-weight:700;color:#16A34A;background:#DCFCE7;border-radius:100px;padding:1px 8px}
+.ydd-menu .ydd-clear{color:#DC2626;font-size:13px;border-bottom:1px solid #EEF2F7;border-radius:9px 9px 0 0;margin-bottom:4px}
+@media(max-width:560px){.ydd-menu{min-width:100%}}
 .ac{position:relative}
 .ac-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.14);z-index:30;max-height:240px;overflow-y:auto;padding:4px}
 .ac.open .ac-list{display:block}
@@ -456,7 +473,7 @@ const THEMES = {
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
 const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
-LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'' });
+LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false });
 
 let cardNo = '';
 try{ cardNo = localStorage.getItem('sk_no') || ''; }catch(e){}
@@ -477,7 +494,11 @@ document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
         <input class="inp" data-k="${l.key}" data-f="name" placeholder="${l.ph}" autocomplete="off">
         <div class="ac-list"></div>
       </div>
-      <input class="inp" data-k="${l.key}" data-f="year" inputmode="numeric" maxlength="4" placeholder="পাসের সাল">
+      <div class="ydd" id="yd-${l.key}">
+        <input type="hidden" data-k="${l.key}" data-f="year">
+        <button type="button" class="inp ydd-btn" aria-haspopup="listbox" onclick="toggleYear('${l.key}')"><span class="ydd-t ph">পাসের সাল</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="ydd-menu" role="listbox"></div>
+      </div>
     </div>
     <div class="linked" id="lk-${l.key}" style="display:none"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>তথ্যভান্ডারে পাওয়া গেছে</div>
     <label class="cur"><input type="checkbox" data-k="${l.key}" data-f="current"> এখানে এখনো পড়ছি</label>
@@ -547,7 +568,60 @@ function showAc(k, q){
   }));
   ac.classList.add('open');
 }
+/* ---- year dropdown + automatic years ---- */
+const CUR_YEAR = new Date().getFullYear();
+const YEAR_GAP = { jsc: 3, school: 2, college: 2, bachelor: 4, masters: 1 };   // years from the previous level (PSC→JSC 3, JSC→SSC 2, SSC→HSC 2, HSC→degree 4, degree→masters 1)
+const LV = () => LEVELS.map(l => l.key);
+function syncYearUI(k){
+  const ed = S.edu[k], box = document.getElementById('yd-' + k); if(!box) return;
+  const t = box.querySelector('.ydd-t'); t.textContent = ed.year ? bn(ed.year) : 'পাসের সাল'; t.classList.toggle('ph', !ed.year);
+  box.classList.toggle('auto', !!ed.yAuto && !!ed.year);
+}
+function setYear(k, y, auto){
+  const ed = S.edu[k]; ed.year = y ? String(y) : ''; ed.yAuto = !!(auto && y);
+  const h = document.querySelector('[data-k="' + k + '"][data-f="year"]'); if(h) h.value = ed.year;
+  syncYearUI(k);
+}
+function suggestYear(k){      // a likely year for this level, worked out from its neighbours
+  const keys = LV(), i = keys.indexOf(k);
+  for(let j = i - 1; j >= 0; j--){ const y = +S.edu[keys[j]].year; if(y){ let v = y; for(let m = j + 1; m <= i; m++) v += YEAR_GAP[keys[m]]; return v; } }
+  for(let j = i + 1; j < keys.length; j++){ const y = +S.edu[keys[j]].year; if(y){ let v = y; for(let m = j; m > i; m--) v -= YEAR_GAP[keys[m]]; return v; } }
+  return 0;
+}
+function cascadeYears(from){  // fill the other levels' empty (or earlier auto-filled) years around the one just set
+  const keys = LV(), i = keys.indexOf(from); let prev = +S.edu[from].year; if(!prev) return;
+  for(let j = i + 1; j < keys.length; j++){
+    const ed = S.edu[keys[j]]; if(ed.year && !ed.yAuto){ prev = +ed.year; continue; }
+    const y = prev + YEAR_GAP[keys[j]]; if(y > CUR_YEAR + 6){ setYear(keys[j], '', false); continue; }
+    setYear(keys[j], y, true); prev = y;
+  }
+  let next = +S.edu[from].year;
+  for(let j = i - 1; j >= 0; j--){
+    const ed = S.edu[keys[j]]; if(ed.year && !ed.yAuto){ next = +ed.year; continue; }
+    const y = next - YEAR_GAP[keys[j + 1]]; if(y < 1950) break;
+    setYear(keys[j], y, true); next = y;
+  }
+}
+function closeYears(){ document.querySelectorAll('.ydd.open').forEach(b => b.classList.remove('open')); }
+function toggleYear(k){
+  const box = document.getElementById('yd-' + k), was = box.classList.contains('open'); closeYears(); if(was) return;
+  const ed = S.edu[k], sug = suggestYear(k), menu = box.querySelector('.ydd-menu'); let h = ed.year ? '<button type="button" class="ydd-clear" onclick="pickYear(\'' + k + '\',0)">বাদ দিন</button>' : '';
+  for(let y = CUR_YEAR + 6; y >= 1960; y--) h += '<button type="button" role="option" data-y="' + y + '" class="' + (String(y) === ed.year ? 'on' : '') + '" onclick="pickYear(\'' + k + '\',' + y + ')"><span>' + bn(y) + '</span>' + (!ed.year && y === sug ? '<small>সম্ভাব্য</small>' : '') + '</button>';
+  menu.innerHTML = h; box.classList.add('open');
+  const target = menu.querySelector('.on') || menu.querySelector('[data-y="' + (sug || CUR_YEAR - 12) + '"]') || menu.querySelector('[data-y="' + (CUR_YEAR - 12) + '"]');
+  if(target) menu.scrollTop = target.offsetTop - menu.clientHeight / 2 + 18;
+}
+function pickYear(k, y){
+  closeYears();
+  setYear(k, y, false);
+  if(y) cascadeYears(k);
+  syncEduRow(k); refreshTitles(); draw();
+}
+document.addEventListener('click', e => { if(!e.target.closest('.ydd')) closeYears(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeYears(); });
+
 function syncEduRow(k){
+  syncYearUI(k);
   const ed = S.edu[k];
   document.getElementById('edu-' + k).classList.toggle('filled', !!ed.name.trim());
   document.getElementById('lk-' + k).style.display = ed.slug ? 'inline-flex' : 'none';
@@ -1121,7 +1195,7 @@ function restoreState(){
   document.querySelectorAll('#badgeChips .chip').forEach(c=>c.classList.toggle('on', S.badges.has(c.dataset.b)));
   LEVELS.forEach(l=>{
     const e = (d.edu || {})[l.key]; if(!e) return;
-    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'' });
+    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'', yAuto:!!e.yAuto });
     document.querySelector('[data-k="'+l.key+'"][data-f="name"]').value = S.edu[l.key].name;
     document.querySelector('[data-k="'+l.key+'"][data-f="year"]').value = S.edu[l.key].year;
     document.querySelector('[data-k="'+l.key+'"][data-f="current"]').checked = S.edu[l.key].current;
