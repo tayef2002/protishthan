@@ -47,6 +47,34 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .hero h1{font-size:clamp(34px,5vw,58px);line-height:1.15;font-weight:700;margin:16px 0 10px;letter-spacing:-.5px}
 .hero h1 span{background:linear-gradient(135deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p{font-size:17px;color:rgba(255,255,255,.75);max-width:660px;margin:0 auto}
+.lb{margin-top:34px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:28px 28px 22px;box-shadow:0 18px 44px -28px rgba(15,32,72,.25)}
+.lb-kick{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--blue);background:#EEF3FF;border-radius:100px;padding:4px 12px;margin-bottom:10px}
+.lb h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.6px;line-height:1.25;margin-bottom:6px}
+.lb-head p{font-size:14.5px;color:var(--text-2);max-width:640px}
+.lb-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:20px 0 14px}
+.lb-seg{display:inline-flex;background:#F1F5F9;border-radius:13px;padding:4px;gap:2px;flex-wrap:wrap}
+.lb-seg button{border:none;background:none;border-radius:10px;padding:8px 15px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer}
+.lb-seg button:hover{color:#0F172A}
+.lb-seg button.on{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(15,23,42,.14)}
+.lb-sel{border:1px solid var(--border);border-radius:12px;padding:10px 14px;font:600 14px 'Hind Siliguri','Inter',sans-serif;color:#334155;background:#fff;min-width:170px;cursor:pointer}
+.lb-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.lb-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 16px;border:1px solid #E8EDF5;border-radius:16px;background:#fff;position:relative;overflow:hidden}
+.lb-row .bar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(37,99,235,.09),rgba(37,99,235,.02));pointer-events:none}
+.lb-row>*{position:relative}
+.lb-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#64748B;background:#F1F5F9}
+.lb-row.r1 .lb-rank{background:linear-gradient(135deg,#FDE68A,#F59E0B);color:#78350F}
+.lb-row.r2 .lb-rank{background:linear-gradient(135deg,#F1F5F9,#CBD5E1);color:#334155}
+.lb-row.r3 .lb-rank{background:linear-gradient(135deg,#FED7AA,#EA8A3C);color:#7C2D12}
+.lb-name{font-weight:800;font-size:15.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-meta{font-size:12.5px;color:var(--text-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-n{text-align:right;font-weight:800;font-size:19px;letter-spacing:-.4px;color:#0F172A;line-height:1.1}
+.lb-n small{display:block;font-size:11.5px;font-weight:600;color:var(--text-3);letter-spacing:0}
+.lb-empty{padding:26px 10px;text-align:center;color:var(--text-3);font-size:14px;border:1px dashed var(--border);border-radius:16px}
+.lb-find{margin-top:20px;padding-top:18px;border-top:1px solid #EEF2F7}
+.lb-find label{display:block;font-size:13.5px;font-weight:800;margin-bottom:8px}
+.lb-found{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.lb-note{font-size:12.5px;color:var(--text-3);margin-top:16px}.lb-note a{color:var(--blue);font-weight:700;text-decoration:none}
+@media(max-width:560px){.lb{padding:22px 16px 18px;border-radius:20px}.lb-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:10px 12px}.lb-rank{width:32px;height:32px;font-size:14px}.lb-sel{width:100%}.lb-name{font-size:14.5px}}
 .dl-live{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:9px 18px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:14.5px;font-weight:600;color:rgba(255,255,255,.92)}
 .dl-live b{color:#FDE68A;font-weight:800;font-size:16px;letter-spacing:-.2px}
 .dl-live i{width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
@@ -431,6 +459,23 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
       </a>
     </aside>
   </div>
+
+  <section class="lb" id="lb" aria-labelledby="lbT">
+    <div class="lb-head">
+      <div><span class="lb-kick">লিডারবোর্ড</span><h2 id="lbT">শিক্ষিত কার্ডে সেরা প্রতিষ্ঠান</h2><p>কোন প্রতিষ্ঠান থেকে কতজন শিক্ষিত কার্ড বানিয়েছেন। একজন একটা প্রতিষ্ঠানে একবারই গোনা হন।</p></div>
+    </div>
+    <div class="lb-tools">
+      <div class="lb-seg" id="lbType" role="group" aria-label="ধরন"></div>
+      <select class="lb-sel" id="lbDistrict" aria-label="জেলা"><option value="">সারা দেশ</option></select>
+    </div>
+    <ol class="lb-list" id="lbList"><li class="lb-empty">লোড হচ্ছে…</li></ol>
+    <div class="lb-find">
+      <label for="lbQ">আপনার প্রতিষ্ঠান কত নম্বরে?</label>
+      <input class="inp" id="lbQ" placeholder="প্রতিষ্ঠানের নাম লিখুন" autocomplete="off">
+      <div class="lb-found" id="lbFound"></div>
+    </div>
+    <p class="lb-note">শুধু তথ্যভান্ডারে নিবন্ধিত প্রতিষ্ঠান গোনা হয়। আপনার প্রতিষ্ঠান তালিকায় না থাকলে <a href="list-institution.html">বিনামূল্যে যুক্ত করুন</a>।</p>
+  </section>
 </main>
 
 <footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার</a></footer>
@@ -512,7 +557,7 @@ if(!cardNo){ cardNo = String(Math.floor(100000 + Math.random()*900000)); try{ lo
 /* ---------------- institutions ---------------- */
 let INST = [];
 sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').or('is_hidden.is.null,is_hidden.eq.false').limit(2000)
-  .then(({data})=>{ INST = data || []; }).catch(()=>{});
+  .then(({data})=>{ INST = data || []; fillLbDistricts(); }).catch(()=>{});
 
 /* ---------------- form UI ---------------- */
 const LEVEL_IC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>';
@@ -1142,6 +1187,54 @@ function draw(){
 }
 
 /* ---------------- export / share ---------------- */
+/* ---------------- institution leaderboard ---------------- */
+const LB_TYPES = [['', 'সব'], ['স্কুল', 'স্কুল'], ['কলেজ', 'কলেজ'], ['মাদ্রাসা', 'মাদ্রাসা'], ['কোচিং সেন্টার', 'কোচিং']];
+let lbType = '', lbDistrict = '';
+const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
+function lbRow(r, max){
+  const w = Math.max(6, Math.round(Number(r.n) / Math.max(1, max) * 100));
+  return '<li class="lb-row r' + Math.min(Number(r.rank), 4) + '"><span class="bar" style="width:' + w + '%"></span><span class="lb-rank">' + bn(r.rank) + '</span><div style="min-width:0"><div class="lb-name">' + esc(r.name) + '</div><div class="lb-meta">' + esc([r.itype, r.upazila, r.district].filter(Boolean).join(' · ')) + '</div></div><div class="lb-n">' + bn(r.n) + '<small>শিক্ষিত কার্ড</small></div></li>';
+}
+async function loadLeaderboard(){
+  const list = document.getElementById('lbList'); if(!list) return;
+  try{
+    const { data, error } = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null });
+    if(error) throw error;
+    if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!</li>'; return; }
+    const max = Math.max(...data.map(r => Number(r.n)));
+    list.innerHTML = data.map(r => lbRow(r, max)).join('');
+  }catch(e){ list.innerHTML = '<li class="lb-empty">লিডারবোর্ড এখন লোড করা যাচ্ছে না।</li>'; }
+}
+(function initLeaderboard(){
+  const seg = document.getElementById('lbType'); if(!seg) return;
+  const paint = () => { seg.innerHTML = LB_TYPES.map(t => '<button type="button" class="' + (lbType === t[0] ? 'on' : '') + '" data-t="' + esc(t[0]) + '">' + t[1] + '</button>').join(''); };
+  paint();
+  seg.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; lbType = b.dataset.t; paint(); loadLeaderboard(); });
+  const sel = document.getElementById('lbDistrict');
+  sel.addEventListener('change', () => { lbDistrict = sel.value; loadLeaderboard(); });
+  let t = 0; const q = document.getElementById('lbQ'), out = document.getElementById('lbFound');
+  q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(async () => {
+    const v = q.value.trim(); if(v.length < 2){ out.innerHTML = ''; return; }
+    try{
+      const { data, error } = await sb.rpc('card_institute_find', { p_q: v }); if(error) throw error;
+      out.innerHTML = (data && data.length) ? '<ol class="lb-list">' + data.map(r => Number(r.n) > 0 ? lbRow(r, Number(r.n)) : '<li class="lb-row"><span class="lb-rank">–</span><div style="min-width:0"><div class="lb-name">' + esc(r.name) + '</div><div class="lb-meta">' + esc([r.itype, r.district].filter(Boolean).join(' · ')) + '</div></div><div class="lb-n" style="font-size:13px;font-weight:700;color:#64748B">এখনো কেউ<br>বানায়নি</div></li>').join('') + '</ol>' : '<div class="lb-empty">এই নামে তথ্যভান্ডারে কোনো প্রতিষ্ঠান পাওয়া যায়নি।</div>';
+    }catch(e){ out.innerHTML = ''; }
+  }, 280); });
+  loadLeaderboard(); setInterval(() => { if(!document.hidden) loadLeaderboard(); }, 60000);
+})();
+/* the district list comes from the directory, once it has loaded */
+function fillLbDistricts(){
+  const sel = document.getElementById('lbDistrict'); if(!sel || !INST.length) return;
+  const ds = [...new Set(INST.map(x => x.district).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'bn'));
+  sel.innerHTML = '<option value="">সারা দেশ</option>' + ds.map(d => '<option>' + esc(d) + '</option>').join('');
+}
+/* each person counts once per listed institution (the server checks the listing and removes repeats) */
+async function countMyInstitutes(){
+  const slugs = [...new Set(filledLevels().map(l => S.edu[l.key].slug).filter(Boolean))]; if(!slugs.length) return;
+  const d = deviceId(); if(!d) return;
+  try{ await sb.rpc('count_card_institutes', { p_device: d, p_slugs: slugs }); loadLeaderboard(); }catch(e){}
+}
+
 /* ---------------- live download counter ---------------- */
 const DL_MIN_SHOW = 1;           // show the badge as soon as the first card is downloaded
 let dlShown = 0, dlRaf = 0;
@@ -1179,7 +1272,7 @@ async function downloadCard(){
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   toast('কার্ড ডাউনলোড হয়েছে — এবার শেয়ার করুন!');
-  countMyDownload();
+  countMyDownload(); countMyInstitutes();
 }
 async function shareImage(){
   draw();
