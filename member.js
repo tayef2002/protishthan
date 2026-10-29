@@ -33,6 +33,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-menu a,.mb-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:9px 12px;border:none;background:none;border-radius:10px;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;text-decoration:none;cursor:pointer;text-align:left}
 .mb-menu a:hover,.mb-menu button:hover{background:#F1F5F9}
 .mb-menu .mb-out{color:#DC2626}
+.mb-menu .mb-sm{font-size:12.5px;font-weight:500;color:#475569;padding:7px 12px}
 .mb-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,22,40,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
 .mb-ov.show{display:flex}
 .mb-box{width:100%;max-width:410px;background:#fff;border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;font-family:'Hind Siliguri','Inter',sans-serif;color:#0F172A;max-height:92vh;overflow:auto}
@@ -155,6 +156,8 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
           <a href="member.html#saved">সেভ করা প্রতিষ্ঠান</a>
           <a href="card.html">আমার শিক্ষিত কার্ড</a>
           <a href="army.html">Protishthan Army</a>
+          <a href="terms.html" class="mb-sm">ব্যবহারের শর্ত</a>
+          <a href="privacy.html" class="mb-sm">গোপনীয়তা নীতি</a>
           <button type="button" class="mb-out">লগআউট</button>
         </div></div>`;
       const menu = slot.querySelector('.mb-menu');
