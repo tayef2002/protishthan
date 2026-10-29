@@ -26,6 +26,26 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-av img{width:100%;height:100%;object-fit:cover;display:block}
 .mb-light .mb-av{border-color:#E2E8F0}
 .mb-av{text-decoration:none}
+.mb-bar{display:inline-flex;align-items:center;gap:8px}
+.mb-ic{position:relative;width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;color:#fff;text-decoration:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);transition:background .15s,transform .15s}
+.mb-ic:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+.mb-dot{position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%;background:#F59E0B;box-shadow:0 0 0 2px rgba(15,32,72,.9);display:none}
+.mb-prof{display:inline-flex;align-items:center;gap:9px;height:42px;padding:4px 16px 4px 4px;border-radius:100px;text-decoration:none;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font:700 14px 'Hind Siliguri','Inter',sans-serif;white-space:nowrap;transition:background .15s,transform .15s}
+.mb-prof:hover{background:rgba(255,255,255,.22);transform:translateY(-1px)}
+.mb-prof.on{background:rgba(255,255,255,.95);color:#1A56DB;border-color:#fff}
+.mb-pa{width:32px;height:32px;border-radius:50%;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;font:800 14px 'Inter','Hind Siliguri',sans-serif;color:#fff;background:linear-gradient(135deg,#3B82F6,#7C3AED)}
+.mb-pa img{width:100%;height:100%;object-fit:cover;display:block}
+.mb-nw{position:relative}
+.mb-pop{position:absolute;right:-6px;top:52px;width:316px;background:#fff;color:#0F172A;border:1px solid #E2E8F0;border-radius:18px;box-shadow:0 20px 50px rgba(15,23,42,.22);padding:14px;display:none;z-index:600;font-family:'Hind Siliguri','Inter',sans-serif;text-align:left}
+.mb-pop.open{display:block}
+.mb-pop h4{font-size:15px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between}
+.mb-pop h4 i{font-style:normal;font-size:10.5px;font-weight:700;background:#FEF3C7;color:#92400E;border-radius:100px;padding:1px 9px}
+.mb-pop .empty{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:#F8FAFF;border:1px dashed #E2E8F0}
+.mb-pop .empty span{width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center;color:#1A56DB;flex:none}
+.mb-pop .empty b{display:block;font-size:13.5px;line-height:1.35}
+.mb-pop .empty p{font-size:12.5px;color:#64748B;margin:2px 0 0;line-height:1.5}
+@media(max-width:700px){.mb-pt{display:none}.mb-prof{padding:4px;width:42px;justify-content:center}.mb-bar{gap:6px}.mb-ic,.mb-prof{height:38px}.mb-ic{width:38px}.mb-pa{width:30px;height:30px}.mb-pop{position:fixed;left:12px;right:12px;top:78px;width:auto}}
+@media(max-width:400px){.mb-bar .mb-partner{display:none}}
 .mb-ov{position:fixed;inset:0;z-index:2000;background:rgba(10,22,40,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
 .mb-ov.show{display:flex}
 .mb-box{width:100%;max-width:410px;background:#fff;border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;font-family:'Hind Siliguri','Inter',sans-serif;color:#0F172A;max-height:92vh;overflow:auto}
@@ -140,11 +160,27 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         slot.querySelectorAll('.mb-join,.mb-login').forEach(b => b.addEventListener('click', () => openModal()));
         return;
       }
-      slot.innerHTML = `<span class="mb-wrap${light ? ' mb-light' : ''}"><a class="mb-av" href="member.html" aria-label="আমার প্রোফাইল" title="${esc(ME.display_name || 'আমার প্রোফাইল')}">${ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME))}</a></span>`;
-      // on the profile page itself the avatar just scrolls to the top
-      slot.querySelector('.mb-av').addEventListener('click', e => { if(/\/member(\.html)?$/.test(location.pathname)){ e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+      const face = ME.avatar_url ? `<img src="${esc(ME.avatar_url)}" alt="">` : esc(initial(ME));
+      const onProfile = /\/member(\.html)?$/.test(location.pathname);
+      if(light){
+        slot.innerHTML = `<span class="mb-wrap mb-light"><a class="mb-av" href="member.html" aria-label="আমার প্রোফাইল" title="আমার প্রোফাইল">${face}</a></span>`;
+      } else {
+        slot.innerHTML = `<span class="mb-bar">
+          <a class="mb-ic mb-partner" href="partner.html" aria-label="Protishthan Partner" title="Protishthan Partner"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></a>
+          <span class="mb-nw"><button type="button" class="mb-ic mb-bell" aria-label="নোটিফিকেশন" aria-haspopup="true" title="নোটিফিকেশন"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i class="mb-dot"></i></button>
+            <div class="mb-pop" role="dialog" aria-label="নোটিফিকেশন"><h4>নোটিফিকেশন <i>শীঘ্রই</i></h4><div class="empty"><span><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><div><b>এখনো কোনো নোটিফিকেশন নেই</b><p>সেভ করা প্রতিষ্ঠানের ভর্তি, নোটিস আর ফলাফলের খবর এখানে আসবে।</p></div></div></div></span>
+          <a class="mb-prof${onProfile ? ' on' : ''}" href="member.html" aria-label="আমার প্রোফাইল" title="${esc(ME.display_name || 'আমার প্রোফাইল')}"><span class="mb-pa">${face}</span><span class="mb-pt">আমার প্রোফাইল</span></a>
+        </span>`;
+        const bell = slot.querySelector('.mb-bell'), pop = slot.querySelector('.mb-pop');
+        bell.addEventListener('click', e => { e.stopPropagation(); pop.classList.toggle('open'); });
+      }
+      // on the profile page itself the profile button just scrolls to the top
+      const prof = slot.querySelector('.mb-av, .mb-prof');
+      if(prof) prof.addEventListener('click', e => { if(onProfile){ e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
     });
   }
+  document.addEventListener('click', e => { if(!e.target.closest('.mb-nw')) document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); });
   document.addEventListener('DOMContentLoaded', render);
   if(document.readyState !== 'loading') render();
 
