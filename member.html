@@ -155,6 +155,10 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 /* ---------- saved institutions ---------- */
 .saved{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 @media(max-width:640px){.saved{grid-template-columns:1fr}}
+.saved .more-btn{grid-column:1/-1;justify-self:center;border:1.5px solid var(--border);background:#fff;border-radius:100px;padding:9px 20px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:var(--blue);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
+.saved .more-btn:hover{background:#EEF3FF}
+.saved .more-btn svg{transition:transform .2s}.saved .more-btn.open svg{transform:rotate(180deg)}
+.saved .inst.hide-extra{display:none}
 .inst{position:relative;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:18px;border:1px solid var(--border);background:#fff;transition:transform .18s,box-shadow .18s,opacity .25s}
 .inst:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(15,32,72,.1)}
 .inst.gone{opacity:0;transform:scale(.96)}
@@ -609,6 +613,15 @@ const IM_MEDIUM = ['বাংলা মিডিয়াম', 'ইংলিশ 
 const IM_FACIL = ['আবাসিক', 'পরিবহন', 'লাইব্রেরি', 'ক্যান্টিন', 'কম্পিউটার ল্যাব', 'খেলার মাঠ'];
 const IM_ACH = ['ভালো বোর্ড রিজাল্ট', 'অভিজ্ঞ শিক্ষক প্যানেল', 'নিজস্ব ক্যাম্পাস', 'ডিজিটাল ক্লাসরুম'];
 function imState(c){ return !c.listing_id ? 'draft' : (c.__ls || 'pending'); }
+let IM_ALL = false;
+function applyCustomFold(){
+  const box = $('customList'); if(!box) return;
+  const items = [...box.querySelectorAll('.inst')];
+  items.forEach((el, i) => el.classList.toggle('hide-extra', !IM_ALL && i >= 2));
+  const b = box.querySelector('.more-btn'), rest = items.length - 2;
+  if(b){ if(rest <= 0){ b.remove(); } else { b.classList.toggle('open', IM_ALL); b.firstChild.textContent = IM_ALL ? 'কম দেখুন' : 'আরও ' + rest.toLocaleString('bn-BD') + 'টি দেখুন'; } }
+}
+function toggleCustomAll(){ IM_ALL = !IM_ALL; applyCustomFold(); }
 async function loadCustom(){
   let box = $('customList'); if(!box){ const sv = $('savedList'); box = document.createElement('div'); box.id = 'customList'; box.className = 'saved'; box.style.marginTop = '14px'; sv.parentNode.insertBefore(box, sv.nextSibling); }
   const { data, error } = await M.sb.from('member_custom_institutions').select('*').order('created_at', { ascending: false });
@@ -617,7 +630,7 @@ async function loadCustom(){
   const ids = rows.map(r => r.listing_id).filter(Boolean);
   if(ids.length){ const { data: ls } = await M.sb.from('listing_submissions').select('id,status,desired_slug,prn_number').in('id', ids); const m = {}; (ls || []).forEach(l => m[l.id] = l); rows.forEach(r => { const l = m[r.listing_id]; if(l){ r.__ls = l.status; r.__slug = l.desired_slug; } }); }
   STATE.custom = rows;
-  box.innerHTML = rows.map(c => {
+  box.innerHTML = rows.map((c, i) => {
     const k = typeKey(c.itype), st = IM_STATUS[imState(c)];
     const done = c.itype && c.district && c.upazila && c.contact_name && c.contact_phone;
     let act = '<button class="btn btn-line btn-sm" type="button" onclick="imOpen(\'' + esc(c.id) + '\')">' + (c.listing_id ? 'তথ্য সম্পাদনা' : 'তথ্য যোগ করুন') + '</button>';
@@ -626,12 +639,13 @@ async function loadCustom(){
     return '<article class="inst" data-cid="' + esc(c.id) + '"><div class="inst-top"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div style="min-width:0"><h3>' + esc(c.name) + '</h3><p>' + esc([c.itype, c.upazila, c.district].filter(Boolean).join(' · ') || 'তথ্য এখনো দেওয়া হয়নি') + '</p></div></div>' +
       '<div class="tags"><span class="tag im-st im-' + st[1] + '">' + st[0] + '</span>' + (c.listing_id ? '' : '<span class="tag">শুধু আপনি দেখছেন</span>') + '</div>' +
       '<div class="inst-act">' + act + (c.listing_id ? '' : '<button class="unsave del" type="button" aria-label="মুছুন" title="মুছুন" onclick="delCustom(\'' + esc(c.id) + '\')">' + ico('trash', 17) + '</button>') + '</div></article>';
-  }).join('');
+  }).join('') + (rows.length > 2 ? '<button type="button" class="more-btn' + (IM_ALL ? ' open' : '') + '" onclick="toggleCustomAll()"><span>' + (IM_ALL ? 'কম দেখুন' : 'আরও ' + (rows.length - 2).toLocaleString('bn-BD') + 'টি দেখুন') + '</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>' : '');
+  applyCustomFold();
 }
 async function delCustom(id){
   const el = document.querySelector('.inst[data-cid="' + id + '"]'); if(el) el.classList.add('gone');
   await M.sb.from('member_custom_institutions').delete().eq('id', id);
-  setTimeout(() => { if(el) el.remove(); }, 250); M.toast('মুছে ফেলা হয়েছে');
+  setTimeout(() => { if(el) el.remove(); applyCustomFold(); }, 250); M.toast('মুছে ফেলা হয়েছে');
 }
 function imChips(name, opts, sel, multi){
   return '<div class="im-chips" data-chips="' + name + '" data-multi="' + (multi ? 1 : 0) + '">' + opts.map(o => '<button type="button" class="im-chip' + ((multi ? (sel || []).includes(o) : sel === o) ? ' on' : '') + '" data-v="' + esc(o) + '">' + esc(o) + '</button>').join('') + '</div>';
