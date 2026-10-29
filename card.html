@@ -124,6 +124,11 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .edu.filled{border-color:#BFD3FE;background:#FAFCFF}
 .edu-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .edu-ic{width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.edu-head{flex-wrap:wrap}
+.trk{margin-left:auto;display:inline-flex;background:#F1F5F9;border-radius:10px;padding:3px;gap:2px}
+.trk button{border:none;background:none;border-radius:8px;padding:5px 11px;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer;transition:background .15s,color .15s}
+.trk button:hover{color:#0F172A}
+.trk button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(15,23,42,.14)}
 .edu-title{font-weight:700;font-size:14.5px}
 .edu-title small{display:block;font-weight:500;color:var(--text-3);font-size:12px;margin-top:-3px}
 .edu-grid{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:8px}
@@ -461,13 +466,16 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'
 
 /* ---------------- state ---------------- */
 const LEVELS = [
-  { key:'psc',     title:'প্রাথমিক', sub:'PSC / ইবতেদায়ি', ph:'প্রাথমিক বিদ্যালয় বা মাদ্রাসার নাম' },
-  { key:'jsc',     title:'জুনিয়র', sub:'JSC / JDC', ph:'স্কুল বা মাদ্রাসার নাম' },
-  { key:'school',  title:'মাধ্যমিক', sub:'SSC / দাখিল', ph:'স্কুল বা মাদ্রাসার নাম' },
-  { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC / আলিম', ph:'কলেজ বা মাদ্রাসার নাম' },
-  { key:'bachelor',title:'স্নাতক', sub:'অনার্স / ডিগ্রি / ফাজিল', ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
-  { key:'masters', title:'স্নাতকোত্তর', sub:'মাস্টার্স / কামিল', ph:'বিশ্ববিদ্যালয়ের নাম' }
+  { key:'psc',     title:'প্রাথমিক',      sub:'PSC / ইবতেদায়ি',          names:{ g:'PSC', a:'ইবতেদায়ি', q:'ইবতেদাইয়্যাহ' },           ph:'প্রাথমিক বিদ্যালয় বা মাদ্রাসার নাম' },
+  { key:'jsc',     title:'জুনিয়র',       sub:'JSC / JDC',                 names:{ g:'JSC', a:'JDC', q:'মুতাওয়াসসিতাহ' },              ph:'স্কুল বা মাদ্রাসার নাম' },
+  { key:'school',  title:'মাধ্যমিক',      sub:'SSC / দাখিল',               names:{ g:'SSC', a:'দাখিল', q:'সানাবিয়্যাহ আম্মাহ' },        ph:'স্কুল বা মাদ্রাসার নাম' },
+  { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC / আলিম',               names:{ g:'HSC', a:'আলিম', q:'সানাবিয়্যাহ খাস্সাহ' },        ph:'কলেজ বা মাদ্রাসার নাম' },
+  { key:'bachelor',title:'স্নাতক',        sub:'অনার্স / ডিগ্রি / ফাজিল',   names:{ g:'অনার্স / ডিগ্রি', a:'ফাজিল', q:'ফযীলত' },       ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
+  { key:'masters', title:'স্নাতকোত্তর',   sub:'মাস্টার্স / কামিল',         names:{ g:'মাস্টার্স', a:'কামিল', q:'তাকমীল (দাওরা)' },       ph:'বিশ্ববিদ্যালয় বা মাদ্রাসার নাম' }
 ];
+const TRACKS = [['g', 'সাধারণ'], ['a', 'আলিয়া'], ['q', 'কওমি']];
+const lvName = (l, ed) => (l.names[(ed && ed.track) || 'g'] || l.names.g);
+const lvLabel = (l, ed, short) => (short && ed.track === 'q') ? lvName(l, ed) : l.title + ' · ' + lvName(l, ed);
 const BADGES = ['প্রথম প্রজন্মের গ্র্যাজুয়েট', 'শিক্ষক', 'হাফেজ', 'আলেম', 'ডাক্তার', 'ইঞ্জিনিয়ার', 'আইনজীবী', 'বিসিএস ক্যাডার', 'গবেষক', 'স্বর্ণপদকপ্রাপ্ত', 'বৃত্তিপ্রাপ্ত', 'উদ্যোক্তা', 'প্রবাসী', 'এখনো পড়ছি'];
 const TITLES = ['সার্টিফায়েড শিক্ষিত নাগরিক', 'ডাবল ডিগ্রিধারী নাগরিক', 'চিরছাত্র', 'জ্ঞানের ফেরিওয়ালা', 'বইপোকা', 'ভবিষ্যতের প্রফেসর'];
 const THEMES = {
@@ -479,7 +487,7 @@ const THEMES = {
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
 const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
-LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false });
+LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false, track:'g' });
 
 let cardNo = '';
 try{ cardNo = localStorage.getItem('sk_no') || ''; }catch(e){}
@@ -494,7 +502,8 @@ sb.from('listing_submissions').select('institution_name,institution_type,distric
 const LEVEL_IC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>';
 document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
   <div class="edu" id="edu-${l.key}">
-    <div class="edu-head"><span class="edu-ic">${LEVEL_IC}</span><div class="edu-title">${l.title}<small>${l.sub}</small></div></div>
+    <div class="edu-head"><span class="edu-ic">${LEVEL_IC}</span><div class="edu-title">${l.title}<small id="sub-${l.key}">${l.sub}</small></div>
+      <div class="trk" id="trk-${l.key}" role="group" aria-label="ধারা">${TRACKS.map(t => `<button type="button" data-t="${t[0]}" class="${t[0]==='g'?'on':''}" onclick="setTrack('${l.key}','${t[0]}')">${t[1]}</button>`).join('')}</div></div>
     <div class="edu-grid">
       <div class="ac" id="ac-${l.key}">
         <input class="inp" data-k="${l.key}" data-f="name" placeholder="${l.ph}" autocomplete="off">
@@ -626,8 +635,14 @@ function pickYear(k, y){
 document.addEventListener('click', e => { if(!e.target.closest('.ydd')) closeYears(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeYears(); });
 
+function setTrack(k, t){
+  S.edu[k].track = t; syncEduRow(k); refreshTitles(); draw();
+}
 function syncEduRow(k){
   syncYearUI(k);
+  const lv = LEVELS.find(l => l.key === k), tr = S.edu[k].track || 'g';
+  const sub = document.getElementById('sub-' + k); if(sub && lv) sub.textContent = tr === 'g' ? lv.sub : (tr === 'a' ? 'আলিয়া · ' : 'কওমি · ') + lvName(lv, S.edu[k]);
+  document.querySelectorAll('#trk-' + k + ' button').forEach(b => b.classList.toggle('on', b.dataset.t === tr));
   const ed = S.edu[k];
   document.getElementById('edu-' + k).classList.toggle('filled', !!ed.name.trim());
   document.getElementById('lk-' + k).style.display = ed.slug ? 'inline-flex' : 'none';
@@ -1052,7 +1067,7 @@ function draw(){
       // the year keeps its own badge, same size as in the single-column layout, at the right end of the label line
       ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
       ctx.fillStyle = '#64748B'; ctx.font = F(600, 20);
-      const lab = fitText(l.title + ' · ' + l.sub.split(' / ')[0], colW - 50 - yw - 40);
+      const lab = fitText(lvLabel(l, ed, true), colW - 50 - yw - 40);
       ctx.fillText(lab, x0 + 50, y + 12);
       if(ed.slug) verifiedTick(x0 + 50 + ctx.measureText(lab).width + 16, y + 5, 10);
       if(yr) pill(x0 + colW - yw, y - 13, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 34);
@@ -1066,8 +1081,8 @@ function draw(){
     if(i < shown.length - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28*sc, 3, rh - 6*sc); }
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 15*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 6.5*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.fillStyle = '#64748B'; ctx.font = F(600, fLbl); ctx.fillText(l.title + ' · ' + l.sub, ex + 50, y + 12*sc);
-    if(ed.slug) verifiedTick(ex + 50 + ctx.measureText(l.title + ' · ' + l.sub).width + 18, y + 12*sc - 7, 11);
+    ctx.fillStyle = '#64748B'; ctx.font = F(600, fLbl); ctx.fillText(lvLabel(l, ed), ex + 50, y + 12*sc);
+    if(ed.slug) verifiedTick(ex + 50 + ctx.measureText(lvLabel(l, ed)).width + 18, y + 12*sc - 7, 11);
     const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
     ctx.font = F(700, fYr); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
     ctx.fillStyle = T.ink; ctx.font = F(700, fName);
@@ -1226,7 +1241,7 @@ function restoreState(){
   document.querySelectorAll('#badgeChips .chip').forEach(c=>c.classList.toggle('on', S.badges.has(c.dataset.b)));
   LEVELS.forEach(l=>{
     const e = (d.edu || {})[l.key]; if(!e) return;
-    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'', yAuto:!!e.yAuto });
+    Object.assign(S.edu[l.key], { name:e.name||'', district:e.district||'', year:e.year||'', current:!!e.current, slug:e.slug||'', yAuto:!!e.yAuto, track:(e.track === 'a' || e.track === 'q') ? e.track : 'g' });
     document.querySelector('[data-k="'+l.key+'"][data-f="name"]').value = S.edu[l.key].name;
     document.querySelector('[data-k="'+l.key+'"][data-f="year"]').value = S.edu[l.key].year;
     document.querySelector('[data-k="'+l.key+'"][data-f="current"]').checked = S.edu[l.key].current;
