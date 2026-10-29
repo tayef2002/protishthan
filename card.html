@@ -826,7 +826,6 @@ function draw(){
   // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
   const shown = rows.slice(0, 6), twoCol = shown.length > 4;
   const sc = 1, rh = rowH, fLbl = 21, fName = 31, fYr = 23;
-  if(twoCol) seal(cx + cw - 44 - sealR, py + ph - 70, sealR, T.accent);   // full-size stamp, parked in the free space beside the photo so it never covers a name or a year
   if(twoCol){
     // five or six levels: two columns of three so the text stays large (names wrap to two lines instead of shrinking)
     const gap = 36, colW = (cw - 88 - gap) / 2, rh2 = 96;
@@ -872,6 +871,9 @@ function draw(){
     const x = cx + 74 + (i % 2)*440, y = bTop + 62 + Math.floor(i / 2)*36;
     tick(x, y, ok); ctx.fillStyle = '#334155'; ctx.font = F(600, 23); ctx.fillText(fitText(t, 380), x + 26, y + 8);
   });
+
+  // two-column mode: the full-size stamp is pressed last, lightly over the text and the edge of the benefits box, like a real stamp
+  if(twoCol) seal(cx + 514, ry0 + 240, sealR, T.accent);
 
   // footer with a proper safe zone at the bottom
   const fy = cy + ch + 40, qs = 112;
