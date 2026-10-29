@@ -6,7 +6,8 @@
   'use strict';
   if(window.Protishthan && window.Protishthan.member) return;
   const P = window.Protishthan = window.Protishthan || {};
-  const sb = supabase.createClient('https://eoqeeuujvpydhmfteqqj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU', { auth: { storageKey: 'prot-member' } });
+  const SB_URL = 'https://eoqeeuujvpydhmfteqqj.supabase.co', SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU';
+  const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'prot-member' } });
 
   let ME = null, SAVED = null, resolveReady;
   const READY = new Promise(r => resolveReady = r);
@@ -98,6 +99,11 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   async function google(){
     const btn = document.getElementById('mbGoogle'), err = document.getElementById('mbErr');
     btn.disabled = true; err.style.display = 'none';
+    // if the Google provider isn't switched on yet, say so nicely instead of sending the visitor to a raw error page
+    try{
+      const st = await fetch(SB_URL + '/auth/v1/settings', { headers: { apikey: SB_KEY } }).then(r => r.json());
+      if(st && st.external && st.external.google === false){ btn.disabled = false; err.textContent = 'Google দিয়ে যোগ দেওয়া এখনো চালু হয়নি — একটু পরে আবার চেষ্টা করুন।'; err.style.display = 'block'; return; }
+    }catch(e){}
     const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + location.search, queryParams: { prompt: 'select_account' } } });
     if(error){ btn.disabled = false; err.textContent = 'এখন চালু করা যাচ্ছে না: ' + error.message; err.style.display = 'block'; }
   }
