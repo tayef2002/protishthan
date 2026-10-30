@@ -671,6 +671,23 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   .filter-row{gap:8px}
   .inst-right{display:none}
 }
+
+/* ---- SHORT HERO: search first, the city scene as a lower strip (the top of the scene is cropped, everything keeps moving) ---- */
+.search-hero{padding:94px 5% clamp(110px,10.5vw,160px)}
+.search-hero h1{font-size:clamp(26px,3.3vw,42px);margin-bottom:6px}
+.search-hero p{font-size:14.5px;margin-bottom:16px}
+.edu-scene{height:clamp(140px,15.2vw,230px);overflow:hidden}
+.edu-scene svg{position:absolute;left:0;bottom:0;width:100%;height:auto;aspect-ratio:1440/300;max-width:none}
+.hero-moon-wrap{top:104px}
+@media(min-width:769px){.search-hero h1 br{display:none}}
+@media(max-width:768px){
+  .search-hero{padding:84px 5% 118px}
+  .search-hero p{display:none}
+  .edu-scene{height:150px}
+  .edu-scene svg{width:auto;height:100%;left:calc(50% - 800/1440*150px*1440/300)}
+  .hero-moon-wrap{top:80px}
+}
+@media(max-width:420px){.edu-scene svg{left:calc(50% - 845/1440*150px*1440/300)}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
