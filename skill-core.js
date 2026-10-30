@@ -434,51 +434,65 @@
   // Facebook cover: 1640x720 (2x of 820x360). Desktop shows the middle 1640x624, phones the middle 1280x720,
   // and the profile photo covers the bottom-left, so the words and the certificate stay inside x 392-1430, y 110-610.
   async function drawCover(p, logo, S){
-    S = S || 1;
+    S = S || 1; setPalette(p.theme);
     const W = 1640, H = 720, cv = document.createElement('canvas'); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
     const c = cv.getContext('2d'); c.scale(S, S); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     const T = (THEMES[p.theme] && THEMES[p.theme].dark) ? THEMES[p.theme] : THEMES.midnight;
     const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, T.bg); bg.addColorStop(.55, T.bg2); bg.addColorStop(1, T.bg); c.fillStyle = bg; c.fillRect(0, 0, W, H);
     const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 10, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = a; c.fillStyle = g; c.fillRect(0, 0, W, H); c.globalAlpha = 1; };
-    glow(1190, 350, 600, '#E3C275', .34); glow(260, 160, 560, T.a1, .22); glow(900, 760, 520, T.a2, .22);
-    c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
-    rosette(c, 250, 400, 400, 17, 6, 10, 'rgba(227,194,117,.26)', 1.3); rosette(c, 250, 400, 255, 13, 5, 8, 'rgba(147,197,253,.2)', 1.1);
-    rosette(c, 1590, 760, 330, 13, 5, 8, 'rgba(227,194,117,.2)', 1.1);
+    glow(1200, 340, 640, '#E3C275', .40); glow(300, 140, 560, T.a1, .22); glow(880, 780, 520, T.a2, .24);
+    // soft light beams, like a stage
+    const beam = (x, w, a) => { const g = c.createLinearGradient(x, 0, x + w, H); g.addColorStop(0, 'rgba(255,236,180,' + a + ')'); g.addColorStop(1, 'rgba(255,236,180,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(x, 0); c.lineTo(x + w * .4, 0); c.lineTo(x + w * .4 - 460, H); c.lineTo(x - 460, H); c.closePath(); c.fill(); };
+    beam(1010, 300, .11); beam(1320, 190, .09); beam(640, 150, .06);
+    c.strokeStyle = 'rgba(255,255,255,.035)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
+    rosette(c, 250, 410, 400, 17, 6, 10, 'rgba(227,194,117,.24)', 1.3); rosette(c, 250, 410, 255, 13, 5, 8, 'rgba(147,197,253,.18)', 1.1);
+    // the emblem: a very large, faint version of the certificate seal, cut by the right edge
+    c.save(); c.globalAlpha = .14; seal(c, 1500, 400, 330); c.restore();
     const star = (x, y, r, a) => { c.save(); c.globalAlpha = a; c.fillStyle = '#F1DA9E'; c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r); c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill(); c.restore(); };
-    star(520, 92, 9, .8); star(940, 70, 7, .6); star(1500, 120, 8, .7); star(1010, 650, 8, .6); star(430, 640, 6, .55); star(1560, 600, 7, .6);
-    c.strokeStyle = 'rgba(227,194,117,.35)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40);
+    star(520, 88, 9, .85); star(960, 66, 7, .65); star(1520, 108, 9, .8); star(1030, 654, 8, .65); star(436, 648, 6, .6); star(1570, 596, 8, .65); star(760, 120, 5, .5); star(1380, 660, 6, .55);
+    c.strokeStyle = 'rgba(227,194,117,.4)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40); c.strokeStyle = 'rgba(227,194,117,.16)'; c.strokeRect(30, 30, W - 60, H - 60);
 
-    // optional round avatar at the upper left: above the spot where Facebook puts its own profile photo, and inside the phone crop
+    // the avatar, with a double gold ring
     const useAv = p.cover_avatar !== false;
-    const avImg = useAv ? await loadImg(avatarSrc(p.avatar)) : null;
-    if(useAv) avatar(c, avImg, p, 292, 300, 92, T);
-    // words, stacked and centred on the middle line
-    const name = (p.display_name || 'Your Name').trim(), x0 = useAv ? 430 : 392, mw = useAv ? 415 : 450;
-    c.textAlign = 'left';
-    c.font = '400 100px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 104, 50, mw);
-    c.font = 'italic 600 33px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
-    c.font = '600 22px ' + BODY;
-    const chips = (p.skills || []).slice(0, 4).map(s => (s.n.length > 20 ? s.n.slice(0, 19) + '…' : s.n)), rows = []; let row = [], rw = 0;
-    chips.forEach(t => { const w = c.measureText(t).width + 40; if(rw + w > mw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
-    const soc = validSocials(p).length ? 40 : 0;
-    const h1 = 22, h2 = fs * .95, h3 = hl.length * 38, h4 = rows.length * 54, h5 = soc, h6 = 26;
-    const gaps = 14 + 12 + 20 + (rows.length ? 18 : 0) + (soc ? 24 : 0) + 22;
-    const total = h1 + h2 + h3 + h4 + h5 + h6 + gaps;
-    let y = Math.max(104, 360 - total / 2);
-    c.fillStyle = T.a1 === '#6EA8FF' ? '#E3C275' : '#E3C275'; c.font = '700 17px ' + LSERIF; spaced(c, '4px'); c.fillText('SELF-ISSUED SKILL CERTIFICATE', x0, y + 16); spaced(c, '0px'); y += h1 + 14;
-    c.fillStyle = '#FFFFFF'; c.font = '400 ' + fs + 'px ' + SCRIPT; c.fillText(name, x0, y + fs * .72); y += h2 + 12;
-    c.fillStyle = '#C3CFEE'; c.font = 'italic 600 33px ' + LSERIF; hl.forEach((ln, i) => c.fillText(ln, x0, y + 28 + i * 38)); y += h3 + 20;
-    if(rows.length){
-      c.font = '600 22px ' + BODY;
-      rows.forEach(r => { let px = x0; r.forEach(([t, w]) => { c.fillStyle = 'rgba(255,255,255,.09)'; rr(c, px, y, w, 44, 22); c.fill(); c.strokeStyle = 'rgba(227,194,117,.55)'; c.lineWidth = 1.5; rr(c, px, y, w, 44, 22); c.stroke(); c.fillStyle = '#FFFFFF'; c.fillText(t, px + 20, y + 29); px += w + 10; }); y += 54; });
-      y += 18 - 10;
+    if(useAv){
+      const avImg = await loadImg(avatarSrc(p.avatar));
+      avatar(c, avImg, p, 300, 318, 94, T);
+      c.strokeStyle = 'rgba(227,194,117,.55)'; c.lineWidth = 2; c.beginPath(); c.arc(300, 318, 94 + 18, 0, Math.PI * 2); c.stroke();
+      c.strokeStyle = 'rgba(227,194,117,.22)'; c.lineWidth = 1.5; c.beginPath(); c.arc(300, 318, 94 + 29, 0, Math.PI * 2); c.stroke();
     }
-    if(soc){ socialRow(c, p, x0, y + 24, 40, true); y += 24 + 40; }
-    y += 22; c.fillStyle = '#E3C275'; c.font = '600 22px Inter,sans-serif'; c.fillText(urlOf(p), x0, y + 18);
+    // words
+    const name = (p.display_name || 'Your Name').trim(), x0 = useAv ? 440 : 392, mw = useAv ? 420 : 460;
+    c.textAlign = 'left';
+    const slogan = 'আমার স্কিল, আমার আইডেন্টিটি'; c.font = '400 40px ' + SERIF; const sfs = fit(c, slogan, '400', SERIF, 40, 24, mw);
+    c.font = '400 112px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 112, 52, mw);
+    c.font = 'italic 600 36px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
+    c.font = '600 24px ' + BODY;
+    const chips = (p.skills || []).slice(0, 4).map(s => (s.n.length > 20 ? s.n.slice(0, 19) + '…' : s.n)), rows = []; let row = [], rw = 0;
+    chips.forEach(t => { const w = c.measureText(t).width + 44; if(rw + w > mw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
+    const soc = validSocials(p).length ? 46 : 0;
+    const hA = sfs * 1.05, hB = fs * .95, hC = hl.length * 42, hD = rows.length * 60, hE = soc, hF = 28;
+    const total = hA + 10 + hB + 8 + hC + 18 + (rows.length ? hD + 14 : 0) + (soc ? hE + 20 : 0) + hF;
+    let y = Math.max(96, 360 - total / 2);
+    const foilG = c.createLinearGradient(x0, 0, x0 + mw, 0); foilG.addColorStop(0, '#E9CE88'); foilG.addColorStop(.5, '#F7E7B0'); foilG.addColorStop(1, '#D4A94F');
+    c.fillStyle = foilG; c.font = '400 ' + sfs + 'px ' + SERIF; c.fillText(slogan, x0, y + sfs * .85); y += hA + 10;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 18; c.shadowOffsetY = 4; c.fillStyle = '#FFFFFF'; c.font = '400 ' + fs + 'px ' + SCRIPT; c.fillText(name, x0, y + fs * .72); c.restore(); y += hB + 8;
+    c.fillStyle = '#C9D4F2'; c.font = 'italic 600 36px ' + LSERIF; hl.forEach((ln, i) => c.fillText(ln, x0, y + 30 + i * 42)); y += hC + 18;
+    if(rows.length){
+      c.font = '600 24px ' + BODY;
+      rows.forEach(r => { let px = x0; r.forEach(([t, w]) => { c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, px, y, w, 50, 25); c.fill(); c.strokeStyle = 'rgba(227,194,117,.65)'; c.lineWidth = 1.6; rr(c, px, y, w, 50, 25); c.stroke(); c.fillStyle = '#FFFFFF'; c.fillText(t, px + 22, y + 33); px += w + 10; }); y += 60; });
+      y += 14 - 10;
+    }
+    if(soc){ socialRow(c, p, x0, y, 46, true); y += soc + 20; }
+    c.fillStyle = '#E3C275'; c.font = '600 25px Inter,sans-serif'; c.fillText(urlOf(p), x0, y + 22);
 
-    // the certificate, slightly tilted, on the right
+    // the certificate on the right, framed by gold corner marks
     const cert = await drawCert(p, 1600, 1131, logo, Math.max(1, S)), cw = useAv ? 490 : 520, ch = Math.round(cw * 1131 / 1600);
-    c.save(); c.translate(useAv ? 1190 : 1168, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
+    c.save(); c.translate(useAv ? 1190 : 1168, 350); c.rotate(-.05);
+    c.shadowColor = 'rgba(0,0,0,.65)'; c.shadowBlur = 56; c.shadowOffsetY = 28; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.shadowColor = 'transparent';
+    c.strokeStyle = '#E3C275'; c.lineWidth = 3.5; c.lineCap = 'round';
+    const bx = cw / 2 + 20, by = ch / 2 + 20, L = 40;
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => { c.beginPath(); c.moveTo(sx * bx, sy * (by - L)); c.lineTo(sx * bx, sy * by); c.lineTo(sx * (bx - L), sy * by); c.stroke(); });
+    c.restore();
     brand(c, logo, useAv ? 1214 : 1192, 598, 30, { ink: '#FFFFFF' });
     return cv;
   }
