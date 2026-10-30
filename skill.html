@@ -199,7 +199,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 #cvCert,#cvPost{width:auto;height:auto;max-width:100%;max-height:max(340px,calc(100vh - 345px));margin:0 auto}
 .pv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;padding:5px 10px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
 .pv-bar .dots{display:flex;gap:8px;align-items:center}
-.pv-bar .dots small{font-size:12.5px;font-weight:600;color:var(--text-3);margin-right:2px}
+.pv-bar .dots{align-items:center}
+.pv-bar .dots small{display:inline-flex;align-items:center;height:26px;font:700 13px/1 'Inter',sans-serif;letter-spacing:.02em;color:#64748B;margin-right:4px}
 .dot{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);padding:0;transition:transform .15s}
 .dot:hover{transform:scale(1.12)}
 .dot.on{box-shadow:0 0 0 2px var(--blue)}
@@ -396,7 +397,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
     <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
-    <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>রং</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
+    <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
       <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
