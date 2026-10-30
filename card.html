@@ -1709,7 +1709,7 @@ window.addEventListener('scroll', ()=>navEl.classList.toggle('scrolled', window.
   }
   sky.appendChild(frag);
 })();
-document.getElementById('fy').textContent = bn(new Date().getFullYear());
+const fyEl = document.getElementById('fy'); if(fyEl) fyEl.textContent = bn(new Date().getFullYear());
 refreshTitles();
 restoreState();
 lastSnap = JSON.stringify(snapshot());
