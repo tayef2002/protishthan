@@ -14,13 +14,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cinzel:wght@500;600;700&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/skill.css?v=4">
+<link rel="stylesheet" href="/skill.css?v=5">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=10"></script>
+<script src="/skill-core.js?v=11"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -155,6 +155,20 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .lvb{border:none;border-radius:9px;padding:7px 4px;background:transparent;font:600 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
 .lvb.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
 .empty{padding:20px;text-align:center;border:1.5px dashed var(--border);border-radius:16px;color:var(--text-3);font-size:14px;margin-top:14px}
+.soc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px}
+.soc-t{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 4px 10px;border:1.5px solid var(--border);border-radius:16px;background:#fff;font:600 12px 'Inter','Hind Siliguri',sans-serif;color:#475569;transition:transform .2s,border-color .2s,box-shadow .2s}
+.soc-t i{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--c);box-shadow:0 8px 16px -8px var(--c)}
+.soc-t:hover{transform:translateY(-2px);border-color:var(--c)}
+.soc-t.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,#fff)}
+.soc-t.on::after{content:"✓";position:absolute;right:7px;top:6px;width:18px;height:18px;border-radius:50%;background:#059669;color:#fff;font:800 11px/18px 'Inter',sans-serif;text-align:center}
+.soc-card{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1.5px solid var(--border);border-radius:16px;background:#FCFDFF;margin-top:10px;animation:rowin .3s cubic-bezier(.2,.8,.2,1)}
+.soc-card:focus-within{border-color:#B6C8F5;box-shadow:0 0 0 4px rgba(26,86,219,.07)}
+.soc-ic{flex:none;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--c)}
+.soc-f{flex:1;min-width:0}
+.soc-in{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:11px;background:#fff;overflow:hidden}
+.soc-in:focus-within{border-color:var(--blue)}
+.soc-in span{padding:0 0 0 11px;color:#94A3B8;font:500 13.5px 'Inter',sans-serif;white-space:nowrap}
+.soc-in input{flex:1;min-width:0;border:none;outline:none;padding:9px 11px 9px 2px;font:600 14.5px 'Inter',sans-serif;color:var(--text);background:transparent}
 .cnt-pill{margin-left:auto;padding:3px 11px;border-radius:100px;background:#F1F5F9;color:#64748B;font:700 12.5px 'Inter','Hind Siliguri',sans-serif}
 .lk-card{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1.5px solid var(--border);border-radius:16px;background:#FCFDFF;margin-top:10px;transition:border-color .2s,box-shadow .2s;animation:rowin .3s cubic-bezier(.2,.8,.2,1)}
 .lk-card:focus-within{border-color:#B6C8F5;box-shadow:0 0 0 4px rgba(26,86,219,.07)}
@@ -368,15 +382,22 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="sk-list" id="skList"></div>
     </section>
 
+    <section class="panel" id="s4b">
+      <h2><span class="n" id="nSoc">৪</span>সোশ্যাল মিডিয়া <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small><span class="cnt-pill" id="socCount">০/৮</span></h2>
+      <p class="sub">প্রোফাইলে নামের নিচে গোল আইকন হয়ে দেখাবে। প্ল্যাটফর্ম বেছে শুধু ইউজারনেম লিখুন।</p>
+      <div class="soc-grid" id="socGrid"></div>
+      <div id="socList"></div>
+    </section>
+
     <section class="panel" id="s4">
-      <h2><span class="n" id="n4">৪</span>আপনার কাজ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small><span class="cnt-pill" id="lkCount">০/৩</span></h2>
+      <h2><span class="n" id="n4">৫</span>আপনার কাজ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small><span class="cnt-pill" id="lkCount">০/৩</span></h2>
       <p class="sub">কাজের প্রমাণই সবচেয়ে বড় পরিচয়। সেরা ৩টা কাজের লিংক দিন।</p>
       <div id="lkList"></div>
       <div class="lk-add" id="lkAdd"><span class="lk-add-t">যোগ করুন</span><div class="lk-add-c" id="lkChips"></div></div>
     </section>
 
     <section class="panel" id="s5">
-      <h2><span class="n done" id="n5">৫</span>ডিজাইন</h2>
+      <h2><span class="n done" id="n5">৬</span>ডিজাইন</h2>
       <p class="sub">থিম বাছলে প্রোফাইল ও সনদ, দুটোর রংই বদলায় (নেভি, সবুজ, মেরুন...)। ছোট ব্যাজ সর্বোচ্চ ২টা।</p>
       <div class="themes" id="themes"></div>
       <label class="f">ব্যাজ</label>
@@ -389,7 +410,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     </section>
 
     <section class="panel" id="s6">
-      <h2><span class="n" id="n6">৬</span>আপনার লিংক ও প্রকাশ</h2>
+      <h2><span class="n" id="n6">৭</span>আপনার লিংক ও প্রকাশ</h2>
       <p class="sub">প্রকাশ না করা পর্যন্ত এই পেজ শুধু আপনি দেখতে পাবেন।</p>
       <label class="f" for="fUser">আপনার লিংক</label>
       <div class="uwrap"><span>protishthan.com/s/</span><input id="fUser" maxlength="30" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your-name"></div>
@@ -443,7 +464,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
+  let S = { socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
   let USER = null, ROW = null, uOk = null, skin = 1, googleUrl = '';
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -452,12 +473,39 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   const validUser = u => /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(u);
   const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){} return d; };
 
+  const SO = V.SOCIAL;
+  const SO_PH = { facebook: 'username or page name', instagram: 'username', youtube: 'channel name', linkedin: 'profile name', x: 'username', tiktok: 'username', whatsapp: 'number with country code, e.g. 88017…', telegram: 'username', github: 'username', behance: 'username' };
+  const soHandle = (p, u) => (u && SO[p] && u.indexOf(SO[p].pre) === 0) ? u.slice(SO[p].pre.length) : (u || '');
+  const soPrefix = p => SO[p].pre.replace(/^https:\/\/(www\.)?/, '');
+  function cleanSocials(){
+    const seen = new Set(), out = [];
+    (S.socials || []).forEach(x => { if(x && SO[x.p] && x.u && !seen.has(x.p) && V.socialOk(x.p, x.u)){ seen.add(x.p); out.push({ p: x.p, u: x.u }); } });
+    return out;
+  }
+  function soState(x){
+    if(!x.u) return { cls: '', msg: 'ইউজারনেম বা লিংক লিখুন' };
+    if(!V.socialOk(x.p, x.u)) return { cls: 'bad', msg: 'এটা ' + SO[x.p].n + '-এর লিংক মনে হচ্ছে না' };
+    return { cls: 'ok', msg: '✓ ' + V.hostOf(x.u) };
+  }
+  function paintSocialCard(i){
+    const el = $('socList').querySelector('.soc-card[data-i="' + i + '"]'); if(!el) return;
+    const st = soState(S.socials[i]), t = el.querySelector('.lk-st'); t.className = 'lk-st ' + st.cls; t.textContent = st.msg;
+  }
+  function paintSocials(){
+    const have = new Set((S.socials || []).map(x => x.p));
+    $('socGrid').innerHTML = Object.keys(SO).map(k => '<button type="button" class="soc-t' + (have.has(k) ? ' on' : '') + '" data-p="' + k + '" style="--c:' + SO[k].c + '"><i>' + V.socialSvg(k, 20) + '</i>' + SO[k].n + '</button>').join('');
+    $('socList').innerHTML = (S.socials || []).map((x, i) => '<div class="soc-card" data-i="' + i + '" style="--c:' + SO[x.p].c + '"><div class="soc-ic">' + V.socialSvg(x.p, 20) + '</div><div class="soc-f"><div class="soc-in"><span>' + soPrefix(x.p) + '</span><input data-i="' + i + '" maxlength="120" autocapitalize="off" spellcheck="false" inputmode="' + (x.p === 'whatsapp' ? 'tel' : 'text') + '" placeholder="' + SO_PH[x.p] + '" value="' + V.esc(soHandle(x.p, x.u)) + '" aria-label="' + SO[x.p].n + '"></div><div class="lk-st"></div></div><button class="ib del" type="button" data-a="rs" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div>').join('');
+    (S.socials || []).forEach((x, i) => paintSocialCard(i));
+    $('socCount').textContent = V.bn((S.socials || []).length) + '/৮';
+    $('nSoc').classList.toggle('done', cleanSocials().length > 0);
+  }
   function clean(){
     return {
       username: (S.username || '').trim().toLowerCase(), display_name: S.display_name.trim(), headline: S.headline.trim(), about: S.about.trim(),
       skills: S.skills.filter(s => s.n.trim()).map(s => ({ n: s.n.trim(), l: s.l })),
       links: S.links.map(l => ({ t: l.t.trim(), u: normUrl(l.u) })).filter(l => l.u),
-      badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null
+      badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null,
+      socials: cleanSocials()
     };
   }
   const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom });
@@ -614,7 +662,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
     $('fPostTop').value = S.post_top || ''; $('fPostBot').value = S.post_bottom || ''; $('cTop').textContent = (S.post_top || '').length + '/40'; $('cBot').textContent = (S.post_bottom || '').length + '/50';
     $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
-    buildAvatarGrid(); paintAvatar(); paintSkills(); paintLinks(); paintThemes(); paintHeads(); paintPreview();
+    buildAvatarGrid(); paintAvatar(); paintSkills(); paintSocials(); paintLinks(); paintThemes(); paintHeads(); paintPreview();
   }
 
   /* ---------- username ---------- */
@@ -648,6 +696,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   /* ---------- saving ---------- */
   const errMsg = e => {
     const m = String((e && (e.message || e.details)) || e || '');
+    if(/socials/i.test(m) && /column|schema/i.test(m)) return 'সোশ্যাল সেভ করতে নতুন SQL (2026-11-03_skill_socials) চালাতে হবে';
+    if(/BAD_SOCIALS/.test(m)) return 'একটা সোশ্যাল লিংক ঠিক নয়';
     if(/ENGLISH_ONLY/.test(m)) return 'নাম, পদবি ও স্কিল শুধু ইংরেজিতে লিখুন';
     if(/BAD_TEXT/.test(m)) return 'কোনো লেখায় অনুপযুক্ত শব্দ আছে';
     if(/USERNAME_RESERVED/.test(m)) return 'এই ইউজারনেম ব্যবহার করা যাবে না';
@@ -667,6 +717,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(!validUser(d.username) || uOk === false){ setSt('ইউজারনেম ঠিক করুন', 'err'); return { ok: false }; }
     setSt('সেভ হচ্ছে…', '');
     const patch = Object.assign({}, d, { published: ROW ? ROW.published : false }, extra || {});
+    if(!(ROW && 'socials' in ROW) && !d.socials.length) delete patch.socials;       // (the column comes with the 2026-11-03 migration)
     try{
       const res = ROW
         ? await M.sb.from('skill_profiles').update(patch).eq('user_id', USER.user_id).select().single()
@@ -735,6 +786,15 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       else if(a === 'lv') S.skills[i].l = Number(b.dataset.l);
       paintSkills(); paintPreview(); autosave();
     });
+    on('socGrid', 'click', e => {
+      const b = e.target.closest('[data-p]'); if(!b) return; const k = b.dataset.p; S.socials = S.socials || [];
+      const at = S.socials.findIndex(x => x.p === k);
+      if(at < 0){ if(S.socials.length >= 8){ toast('সর্বোচ্চ ৮টা'); return; } S.socials.push({ p: k, u: '' }); paintSocials(); paintPreview(); autosave(); }
+      const ins = $('socList').querySelectorAll('input'), el = ins[at < 0 ? ins.length - 1 : at]; if(el){ el.focus(); el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    });
+    on('socList', 'input', e => { const t = e.target; if(t.dataset.i == null) return; const i = Number(t.dataset.i); S.socials[i].u = V.socialUrl(S.socials[i].p, t.value); paintSocialCard(i); $('nSoc').classList.toggle('done', cleanSocials().length > 0); paintPreview(); autosave(); });
+    on('socList', 'focusout', e => { const t = e.target; if(t.dataset.i == null) return; const x = S.socials[Number(t.dataset.i)]; if(x && x.u) t.value = soHandle(x.p, x.u); });
+    on('socList', 'click', e => { const b = e.target.closest('[data-a="rs"]'); if(!b) return; S.socials.splice(Number(b.dataset.i), 1); paintSocials(); paintPreview(); autosave(); });
     on('lkChips', 'click', e => {
       const b = e.target.closest('[data-p]'); if(!b) return; if(S.links.length >= 3){ toast('সর্বোচ্চ ৩টা লিংক'); return; }
       const p = PF.find(x => x.k === b.dataset.p) || PF[PF.length - 1];
@@ -788,7 +848,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();

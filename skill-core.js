@@ -32,6 +32,39 @@
     for(const k in t) if(h === k || h.endsWith('.' + k)) return t[k];
     return (h[0] || '↗').toUpperCase();
   }
+  const SOCIAL = {
+    facebook:  { n: 'Facebook',  c: '#1877F2', pre: 'https://www.facebook.com/',  doms: ['facebook.com', 'fb.com', 'fb.me'], d: 'M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z' },
+    instagram: { n: 'Instagram', c: '#D6249F', pre: 'https://www.instagram.com/', doms: ['instagram.com'], d: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zM16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01' },
+    youtube:   { n: 'YouTube',   c: '#E62117', pre: 'https://www.youtube.com/@',  doms: ['youtube.com', 'youtu.be'], d: 'M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33zM9.75 15.02L15.5 11.75 9.75 8.48z' },
+    linkedin:  { n: 'LinkedIn',  c: '#0A66C2', pre: 'https://www.linkedin.com/in/', doms: ['linkedin.com'], d: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM4 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z' },
+    x:         { n: 'X',         c: '#111827', pre: 'https://x.com/',             doms: ['x.com', 'twitter.com'], d: 'M4 4l16 16M20 4L4 20' },
+    tiktok:    { n: 'TikTok',    c: '#111827', pre: 'https://www.tiktok.com/@',   doms: ['tiktok.com'], d: 'M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.3 2.4 1.9 4 4.5 4.3' },
+    whatsapp:  { n: 'WhatsApp',  c: '#25D366', pre: 'https://wa.me/',             doms: ['wa.me', 'whatsapp.com'], d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' },
+    telegram:  { n: 'Telegram',  c: '#229ED9', pre: 'https://t.me/',              doms: ['t.me', 'telegram.me'], d: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' },
+    github:    { n: 'GitHub',    c: '#24292F', pre: 'https://github.com/',        doms: ['github.com'], d: 'M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22' },
+    behance:   { n: 'Behance',   c: '#1769FF', pre: 'https://www.behance.net/',   doms: ['behance.net'], t: 'Be' }
+  };
+  // a handle ("tayef"), "@tayef" or a pasted link all become the full address
+  function socialUrl(k, v){
+    v = String(v == null ? '' : v).trim(); const S = SOCIAL[k]; if(!v || !S) return '';
+    if(/^https?:\/\//i.test(v)) return v.replace(/^http:\/\//i, 'https://');
+    if(/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}\//i.test(v)) return 'https://' + v;
+    v = v.replace(/^@/, ''); if(k === 'whatsapp') v = v.replace(/[^0-9]/g, '');
+    return v ? S.pre + v : '';
+  }
+  function socialOk(k, u){
+    try{
+      const S = SOCIAL[k]; if(!S || !/^https:\/\//.test(u)) return false; const x = new URL(u);
+      const h = x.hostname.replace(/^www\./, '').toLowerCase(); if(!S.doms.some(d => h === d || h.endsWith('.' + d))) return false;
+      return (x.pathname + x.search).replace(/\//g, '').length > 0;          // an address with nothing after the domain is not a profile
+    }catch(e){ return false; }
+  }
+  function socialSvg(k, size){
+    const S = SOCIAL[k]; if(!S) return '';
+    const inner = S.d ? '<path d="' + S.d + '"/>' : '<text x="12" y="16.5" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="800" fill="currentColor" stroke="none">' + S.t + '</text>';
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+  }
+  const validSocials = p => (Array.isArray(p && p.socials) ? p.socials : []).filter(s => s && SOCIAL[s.p] && s.u && socialOk(s.p, s.u));
   const SPARK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>';
   const ARROW = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
   const SHIELD = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
@@ -54,6 +87,8 @@
     if(p.headline) h += '<p class="sk-hl' + R() + '">' + esc(p.headline) + '</p>';
     else if(opt.embed) h += '<p class="sk-hl' + R() + '" style="opacity:.45">আপনার পদবি বা পরিচয়</p>';
     if(badges.length) h += '<div class="sk-badges' + R() + '">' + badges.filter(b => BADGES[b]).map(b => '<span class="sk-chip">' + SPARK + esc(BADGES[b]) + '</span>').join('') + '</div>';
+    const soc = validSocials(p);
+    if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc" aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 20) + '</a>').join('') + '</div>';
     h += '</div>';
     if(p.about) h += '<p class="sk-about' + R() + '">' + esc(p.about).replace(/\n/g, '<br>') + '</p>';
     if(skills.length || links.length || p.views != null){
@@ -146,6 +181,22 @@
     c.fillStyle = dark;
     for(let r = 0; r < n; r++) for(let k = 0; k < n; k++) if(q.isDark(r, k)) c.fillRect(x + k * cell, y + r * cell, Math.ceil(cell), Math.ceil(cell));
     return true;
+  }
+  // draws up to six round social icons starting at x; returns the width used (so a caller can centre the row)
+  function socialRow(c, p, x, y, size, draw){
+    const list = validSocials(p).slice(0, 6); if(!list.length) return 0;
+    const gap = Math.round(size * .36), total = list.length * size + (list.length - 1) * gap;
+    if(!draw) return total;
+    list.forEach((s, i) => {
+      const cx = x + i * (size + gap) + size / 2, cy = y + size / 2, S = SOCIAL[s.p];
+      c.fillStyle = 'rgba(255,255,255,.1)'; c.beginPath(); c.arc(cx, cy, size / 2, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = 'rgba(255,255,255,.3)'; c.lineWidth = 1.5; c.stroke();
+      c.save(); c.translate(cx - size * .3, cy - size * .3); c.scale(size * .6 / 24, size * .6 / 24);
+      c.strokeStyle = '#FFFFFF'; c.fillStyle = '#FFFFFF'; c.lineWidth = 1.9; c.lineCap = 'round'; c.lineJoin = 'round';
+      if(S.d) c.stroke(new Path2D(S.d)); else { c.font = '800 11.5px Inter,sans-serif'; c.textAlign = 'center'; c.fillText(S.t, 12, 16.5); c.textAlign = 'left'; }
+      c.restore();
+    });
+    return total;
   }
   const urlOf = p => SITE.replace('https://', '') + '/s/' + (p.username || 'your-name');
   const BODY = '"Hind Siliguri",Inter,sans-serif', HEAD = '"Hind Siliguri",Inter,sans-serif';
@@ -341,6 +392,7 @@
     c.fillStyle = GOLD2; c.font = '700 17px ' + LSERIF; spaced(c, '3px'); c.fillText('SELF-ISSUED SKILL CERTIFICATE', 56, 200); spaced(c, '0px');
     c.fillStyle = '#FFFFFF'; const fs = fit(c, name, '400', SCRIPT, 74, 40, 350); let yy = 200 + 16 + fs * .8; c.fillText(name, 56, yy);
     c.fillStyle = '#B7C4EE'; c.font = 'italic 600 28px ' + LSERIF; yy += 14; for(const ln of wrap(c, p.headline || '', 340, 3)){ yy += 36; c.fillText(ln, 56, yy); }
+    if(yy < H - 250) socialRow(c, p, 56, yy + 26, 40, true);
     const px = 56, py = H - 124, ph = 52, label = 'আপনারটাও বানান', pw = 250;
     const pg = c.createLinearGradient(px, 0, px + pw, 0); pg.addColorStop(0, '#E3C275'); pg.addColorStop(1, '#C99A3F'); c.fillStyle = pg; rr(c, px, py, pw, ph, 26); c.fill();
     c.fillStyle = '#1B2A5A'; c.font = '800 21px ' + BODY; c.textAlign = 'center'; c.fillText(label + '  →', px + pw / 2, py + 34); c.textAlign = 'left';
@@ -369,6 +421,7 @@
     const url = urlOf(p); c.font = '700 33px Inter,sans-serif'; const uw = c.measureText(url).width + 84, ux = (W - uw) / 2, uy = by + 40;
     c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, ux, uy, uw, 74, 37); c.fill(); c.strokeStyle = 'rgba(227,194,117,.8)'; c.lineWidth = 2; rr(c, ux, uy, uw, 74, 37); c.stroke();
     c.fillStyle = '#FFFFFF'; c.fillText(url, W / 2, uy + 49);
+    { const tw = socialRow(c, p, 0, 0, 44, false); if(tw) socialRow(c, p, (W - tw) / 2, uy + 74 + 26, 44, true); }
     c.fillStyle = '#93A3D6'; c.font = '500 25px ' + BODY; c.fillText('আপনারটাও বানান: protishthan.com/skill (ফ্রি, ৩ মিনিটে)', W / 2, H - 44);
     c.textAlign = 'left';
     return cv;
@@ -445,6 +498,6 @@
     return b;
   }
 
-  window.SkillView = { html, mount, esc, avatarSrc, hostOf, LEVELS, BADGES, THEMES, bn, initials };
+  window.SkillView = { html, mount, esc, avatarSrc, hostOf, LEVELS, BADGES, THEMES, bn, initials, SOCIAL, socialUrl, socialOk, socialSvg };
   window.SkillCanvas = { draw, ogBlob, urlOf };
 })();
