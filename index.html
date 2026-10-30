@@ -692,23 +692,61 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 }
 @media(max-width:420px){.edu-scene svg{left:calc(50% - 845/1440*150px*1440/300)}}
 
-/* ---- DAY version of the hero (students go to school, madrasa and college in daylight): sky, sun, clouds, brighter city ---- */
-.cloud{position:absolute;display:none;height:34px;border-radius:40px;background:#fff;opacity:.92;animation:cloudDrift linear infinite}
-.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
-.cloud::before{width:46px;height:46px;left:16px;top:-22px}.cloud::after{width:34px;height:34px;right:16px;top:-14px}
-.cloud.c1{width:120px;top:16%;left:-160px;animation-duration:70s}
-.cloud.c2{width:90px;top:34%;left:-120px;animation-duration:95s;animation-delay:-40s;opacity:.8}
-.cloud.c3{width:150px;top:8%;left:-200px;animation-duration:120s;animation-delay:-80s;opacity:.7}
-@keyframes cloudDrift{to{transform:translateX(calc(100vw + 400px))}}
-.search-hero.day{background:linear-gradient(180deg,#4FB0F3 0%,#86CDFB 52%,#CFEBFF 100%)}
-.search-hero.day .search-grid,.search-hero.day .search-glow,.search-hero.day .hero-star,.search-hero.day .shooting-star{display:none}
-.search-hero.day .cloud{display:block}
-.search-hero.day .hero-moon{box-shadow:none;background:#FDE047;transform:none;filter:drop-shadow(0 0 16px rgba(253,224,71,.85))}
-.search-hero.day .hero-moon-halo{background:radial-gradient(circle,rgba(253,224,71,.55),rgba(253,224,71,0) 70%)}
-.search-hero.day h1{color:#0B2A5B}
-.search-hero.day h1 span{background:linear-gradient(135deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent}
-.search-hero.day p{color:#1E3A8A}
-.search-hero.day .edu-scene svg{filter:brightness(1.55) saturate(1.05)}
+/* ---- LIGHT BRAND HERO: soft blue-lavender card, navy title, a freshly drawn daytime scene (no dark blue, no shadows) ---- */
+.search-hero{margin:96px auto 0;width:calc(100% - 48px);max-width:1152px;padding:54px 28px clamp(150px,16vw,190px);border-radius:32px;border:1px solid #D9E4FB;background:radial-gradient(560px 320px at 94% 4%,rgba(124,92,255,.17),transparent 62%),radial-gradient(520px 300px at 3% 0,rgba(34,211,238,.16),transparent 62%),linear-gradient(180deg,#F4F8FF,#E8EFFF)}
+.search-grid{background-image:linear-gradient(rgba(26,86,219,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,86,219,.06) 1px,transparent 1px)}
+.search-glow,.hero-sky{display:none}
+.search-hero h1{font-size:clamp(30px,4.4vw,54px);font-weight:900;color:#0B1B4D;letter-spacing:-.02em;line-height:1.12;margin-bottom:10px}
+.search-hero h1 span{background:linear-gradient(120deg,#1A56DB,#7C3AED 58%,#0891B2);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hsheen 7s ease-in-out infinite alternate}
+@keyframes hsheen{from{background-position:0 0}to{background-position:100% 0}}
+.search-hero p{font-size:15px;color:#475569;margin-bottom:20px}
+.type-tabs{background:#fff;border:1px solid #D9E4FB;backdrop-filter:none;-webkit-backdrop-filter:none}
+.qf{color:#475569}
+.qf:hover{color:#0B1B4D;background:#F1F5FF}
+.qf.active{background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;box-shadow:none}
+.search-box{border:1px solid #D9E4FB;box-shadow:none}
+.search-box:focus-within{box-shadow:0 0 0 4px rgba(26,86,219,.15)}
+.search-hero .search-hint,.search-hero .sh-note{color:#475569}
+.edu-scene{height:clamp(150px,19vw,220px);overflow:hidden;border-radius:0 0 32px 32px}
+.edu-scene svg{position:absolute;left:0;bottom:0;width:100%;height:auto;aspect-ratio:1440/300;max-width:none}
+.edu-scene *{transform-box:fill-box}
+.stats-bar{background:transparent;padding:18px 5% 4px}
+.stat-item{color:#64748B}.stat-num{color:#0B1B4D}
+.search-help{color:#475569;position:relative;z-index:2}
+.search-help a{color:#1A56DB;border-bottom:1px dashed rgba(26,86,219,.5)}
+.search-help a:hover{color:#4F46E5}
+/* scene motion */
+.ls-walk{opacity:0;animation:lsWalk var(--t,16s) linear infinite;animation-delay:var(--d,0s)}
+@keyframes lsWalk{0%{transform:translateX(0);opacity:0}6%{opacity:1}74%{opacity:1}90%,100%{transform:translateX(var(--dx));opacity:0}}
+.ls-bob{animation:lsBob .45s ease-in-out infinite alternate}
+@keyframes lsBob{to{transform:translateY(-1.6px)}}
+.ls-train{animation:lsTrain 26s linear infinite}
+@keyframes lsTrain{from{transform:translateX(-260px)}to{transform:translateX(1500px)}}
+.ls-bus{animation:lsBus 22s linear infinite}
+@keyframes lsBus{from{transform:translateX(-170px)}to{transform:translateX(1500px)}}
+.ls-rick{animation:lsRick 30s linear infinite;animation-delay:-12s}
+@keyframes lsRick{from{transform:translateX(1500px) scale(-1 1)}to{transform:translateX(-140px) scale(-1 1)}}
+.ls-sbus{animation:lsSbus 36s linear infinite;animation-delay:-20s}
+@keyframes lsSbus{from{transform:translateX(1500px)}to{transform:translateX(-140px)}}
+.ls-flag{transform-origin:left center;animation:lsFlag 2.6s ease-in-out infinite}
+@keyframes lsFlag{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.93)}}
+.ls-abc{opacity:0;animation:lsAbc 8s ease-out infinite}
+.ls-abc.a2{animation-delay:-2s}.ls-abc.a3{animation-delay:-4s}.ls-abc.a4{animation-delay:-6s}
+@keyframes lsAbc{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
+.ls-cap{animation:lsCap 2.8s ease-in-out infinite}.ls-cap.c2{animation-delay:-.9s}.ls-cap.c3{animation-delay:-1.8s}
+@keyframes lsCap{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-34px) rotate(200deg)}}
+.ls-wave{transform-origin:left center;animation:lsWave .5s ease-in-out infinite alternate}
+@keyframes lsWave{from{transform:rotate(-30deg)}to{transform:rotate(20deg)}}
+.ls-cloud{animation:lsCloud 60s ease-in-out infinite alternate}.ls-cloud.c2{animation-duration:80s}
+@keyframes lsCloud{from{transform:translateX(-40px)}to{transform:translateX(60px)}}
+@media(prefers-reduced-motion:reduce){.edu-scene *,.search-hero h1 span{animation:none!important}.ls-walk{opacity:1}}
+@media(max-width:768px){
+  .search-hero{margin-top:84px;width:calc(100% - 24px);padding:40px 14px 132px;border-radius:24px}
+  .search-hero h1{font-size:clamp(23px,6.4vw,30px)}
+  .search-hero p{display:none}
+  .edu-scene{height:150px;border-radius:0 0 24px 24px}
+  .edu-scene svg{width:auto;height:100%;left:calc(50% - 760/1440*150px*1440/300)}
+}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -754,7 +792,6 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   <div class="search-grid"></div>
   <div class="search-glow"></div>
   <div class="hero-sky" id="heroSky" aria-hidden="true">
-    <i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
     <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
     <div class="shooting-star" style="top:16%;left:62%"></div>
     <div class="shooting-star s2" style="top:30%;left:88%"></div>
@@ -805,465 +842,53 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   <!-- EDUCATION SCENE (decorative, animated) -->
   <div class="edu-scene" aria-hidden="true">
     <svg viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <!-- people: feet at y=0, facing right -->
-        <g id="pKid">
-          <rect x="-3.5" y="-9" width="3" height="9" fill="#1E3A8A"/><rect x=".5" y="-9" width="3" height="9" fill="#1E3A8A"/>
-          <rect x="-4.5" y="-19" width="9" height="11" rx="2" fill="#F1F5F9"/>
-          <rect x="-9" y="-18" width="5" height="9" rx="1.5" fill="#DC2626"/>
-          <circle cy="-23" r="4" fill="#E9B98F"/><path d="M-4-24a4 4 0 0 1 8 0z" fill="#1F2937"/>
-        </g>
-        <g id="pGirl">
-          <path d="M-5 0L-3.5-17H3.5L5 0Z" fill="#2563EB"/>
-          <rect x="-8.5" y="-17" width="4.5" height="8" rx="1.5" fill="#EC4899"/>
-          <circle cy="-21" r="4.6" fill="#F1F5F9"/><circle cx=".8" cy="-21" r="2.8" fill="#E9B98F"/>
-        </g>
-        <g id="pMan">
-          <rect x="-3.5" y="-8" width="3" height="8" fill="#E2E8F0"/><rect x=".5" y="-8" width="3" height="8" fill="#E2E8F0"/>
-          <path d="M-5.5-7L-4.5-25H4.5L5.5-7Z" fill="#F8FAFC"/>
-          <circle cy="-29" r="4.4" fill="#C68B59"/><path d="M-4.4-30a4.4 4.4 0 0 1 8.8 0z" fill="#F8FAFC"/>
-          <path d="M-1.5-26.5a4 4 0 0 0 5.5-.5" stroke="#1F2937" stroke-width="2" fill="none"/>
-        </g>
-        <g id="pMKid">
-          <rect x="-3" y="-6" width="2.6" height="6" fill="#E2E8F0"/><rect x=".4" y="-6" width="2.6" height="6" fill="#E2E8F0"/>
-          <path d="M-4.5-5L-3.5-18H3.5L4.5-5Z" fill="#F8FAFC"/>
-          <circle cy="-21.5" r="3.8" fill="#E9B98F"/><path d="M-3.8-22.5a3.8 3.8 0 0 1 7.6 0z" fill="#F8FAFC"/>
-        </g>
-        <g id="pWoman">
-          <path d="M-6 0L-4-24H4L6 0Z" fill="#DB2777"/><path d="M-4-24L6 0H2L-3-14Z" fill="#BE185D"/>
-          <circle cy="-28" r="4.4" fill="#E9B98F"/><path d="M-5-27a5 5 0 0 1 10 0v4h-2v-3a3 3 0 0 0-6 0v3h-2z" fill="#DB2777"/>
-        </g>
-        <g id="pGrad">
-          <path d="M-6.5 0L-4.5-23H4.5L6.5 0Z" fill="#111827"/><path d="M-2-23L0-15L2-23Z" fill="#F8FAFC"/>
-          <circle cy="-27" r="4.2" fill="#E9B98F"/>
-        </g>
-        <!-- graduation cap -->
-        <g id="gCap"><path d="M0-5L13 0L0 5L-13 0Z" fill="#111827" stroke="#334155" stroke-width=".8"/><rect x="-6" y="1.5" width="12" height="5" rx="1" fill="#1F2937"/><path d="M0 0L9 3L9 10" stroke="#FBBF24" stroke-width="1.5" fill="none"/></g>
-        <pattern id="cityWin" width="9" height="11" patternUnits="userSpaceOnUse"><rect x="2.5" y="3" width="3.2" height="4.2" fill="#FDE68A" opacity=".42"/></pattern>
-        <radialGradient id="fogGrad"><stop offset="0" stop-color="#CBD5E1" stop-opacity=".32"/><stop offset=".6" stop-color="#94A3B8" stop-opacity=".14"/><stop offset="1" stop-color="#94A3B8" stop-opacity="0"/></radialGradient>
-        <linearGradient id="lineFade" gradientUnits="userSpaceOnUse" x1="1450" y1="0" x2="40" y2="0"><stop offset="0" stop-color="#8696AE"/><stop offset=".45" stop-color="#7F8FA8"/><stop offset=".8" stop-color="#6B7C99" stop-opacity=".45"/><stop offset="1" stop-color="#6B7C99" stop-opacity="0"/></linearGradient>
-        <linearGradient id="lineFadeLite" gradientUnits="userSpaceOnUse" x1="1450" y1="0" x2="40" y2="0"><stop offset="0" stop-color="#B4C0D3"/><stop offset=".45" stop-color="#A3B1C6"/><stop offset=".8" stop-color="#94A3B8" stop-opacity=".4"/><stop offset="1" stop-color="#94A3B8" stop-opacity="0"/></linearGradient>
-        <radialGradient id="collegeGlow"><stop offset="0" stop-color="#FDE68A" stop-opacity=".26"/><stop offset=".55" stop-color="#F59E0B" stop-opacity=".1"/><stop offset="1" stop-color="#F59E0B" stop-opacity="0"/></radialGradient>
-      </defs>
-
-      <!-- far hills -->
-      <path d="M0 214Q120 182 260 204T540 198T820 192T1100 200T1440 188V300H0Z" fill="#132B5E"/>
-
-      <!-- footpath + road -->
-      <rect x="0" y="248" width="1440" height="10" fill="#1B3366"/>
-      <rect x="0" y="257" width="1440" height="2" fill="#2B4A8C"/>
-      <rect x="0" y="259" width="1440" height="41" fill="#0E1E44"/>
-      <g fill="#334E8C"><rect x="10" y="287" width="44" height="2.5" rx="1"/><rect x="130" y="287" width="44" height="2.5" rx="1"/><rect x="250" y="287" width="44" height="2.5" rx="1"/><rect x="370" y="287" width="44" height="2.5" rx="1"/><rect x="490" y="287" width="44" height="2.5" rx="1"/><rect x="610" y="287" width="44" height="2.5" rx="1"/><rect x="730" y="287" width="44" height="2.5" rx="1"/><rect x="850" y="287" width="44" height="2.5" rx="1"/><rect x="970" y="287" width="44" height="2.5" rx="1"/><rect x="1090" y="287" width="44" height="2.5" rx="1"/><rect x="1210" y="287" width="44" height="2.5" rx="1"/><rect x="1330" y="287" width="44" height="2.5" rx="1"/></g>
-
-      <!-- ============ 6. DHAKA: skyline + METRO RAIL + COLLEGE under the viaduct ============ -->
-      <g>
-        <!-- city skyline behind -->
-        <g fill="#152D63">
-          <rect x="1146" y="72" width="40" height="176"/><rect x="1192" y="92" width="34" height="156"/>
-          <rect x="1232" y="66" width="46" height="182"/><rect x="1284" y="98" width="30" height="150"/>
-          <rect x="1320" y="78" width="42" height="170"/><rect x="1368" y="104" width="28" height="144"/>
-          <rect x="1400" y="70" width="40" height="178"/>
-        </g>
-        <g fill="url(#cityWin)">
-          <rect x="1146" y="72" width="40" height="176"/><rect x="1192" y="92" width="34" height="156"/>
-          <rect x="1232" y="66" width="46" height="182"/><rect x="1284" y="98" width="30" height="150"/>
-          <rect x="1320" y="78" width="42" height="170"/><rect x="1368" y="104" width="28" height="144"/>
-          <rect x="1400" y="70" width="40" height="178"/>
-        </g>
-        <rect x="1253" y="56" width="2" height="10" fill="#94A3B8"/><circle class="es-beacon" cx="1254" cy="55" r="2" fill="#F87171"/>
-
-        <!-- COLLEGE: red-brick colonial-style building (Dhaka College / Curzon Hall feel), the metro passes in front -->
-        <g>
-          <ellipse class="es-cglow" cx="1233" cy="172" rx="128" ry="96" fill="url(#collegeGlow)"/>
-          <!-- wings -->
-          <rect x="1138" y="138" width="60" height="110" fill="#8B3A2B"/>
-          <rect x="1268" y="138" width="60" height="110" fill="#8B3A2B"/>
-          <rect x="1135" y="134" width="66" height="6" fill="#F3E3C3"/><rect x="1265" y="134" width="66" height="6" fill="#F3E3C3"/>
-          <g fill="#F3E3C3"><rect x="1138" y="170" width="60" height="2.5"/><rect x="1268" y="170" width="60" height="2.5"/><rect x="1138" y="202" width="60" height="2.5"/><rect x="1268" y="202" width="60" height="2.5"/></g>
-          <!-- central block + clock tower -->
-          <rect x="1196" y="110" width="74" height="138" fill="#9A4130"/>
-          <rect x="1192" y="106" width="82" height="6" fill="#F3E3C3"/>
-          <rect x="1213" y="80" width="40" height="28" fill="#9A4130"/>
-          <rect x="1210" y="78" width="46" height="4" fill="#F3E3C3"/>
-          <path d="M1213 78L1233 60L1253 78Z" fill="#7C2D12"/>
-          <circle cx="1233" cy="94" r="9.5" fill="#F8FAFC" stroke="#F3E3C3" stroke-width="2"/>
-          <line x1="1233" y1="94" x2="1233" y2="88" stroke="#1F2937" stroke-width="1.6" stroke-linecap="round"/>
-          <line class="es-chand" x1="1233" y1="94" x2="1239" y2="94" stroke="#DC2626" stroke-width="1.3" stroke-linecap="round"/>
-          <!-- brick courses -->
-          <g fill="#7C2D12" opacity=".35">
-            <rect x="1138" y="152" width="60" height="1"/><rect x="1268" y="152" width="60" height="1"/><rect x="1196" y="124" width="74" height="1"/>
-            <rect x="1138" y="186" width="60" height="1"/><rect x="1268" y="186" width="60" height="1"/><rect x="1196" y="186" width="74" height="1"/>
-            <rect x="1138" y="220" width="60" height="1"/><rect x="1268" y="220" width="60" height="1"/>
-          </g>
-          <!-- lit arched windows: 3 floors on each wing -->
-          <g fill="#FCD34D">
-            <path class="es-win" d="M1148 166v-10a5 5 0 0 1 10 0v10Z"/><path d="M1163 166v-10a5 5 0 0 1 10 0v10Z" opacity=".85"/><path d="M1178 166v-10a5 5 0 0 1 10 0v10Z" opacity=".9"/>
-            <path d="M1148 198v-12a5 5 0 0 1 10 0v12Z" opacity=".9"/><path class="es-win d2" d="M1163 198v-12a5 5 0 0 1 10 0v12Z"/><path d="M1178 198v-12a5 5 0 0 1 10 0v12Z" opacity=".85"/>
-            <path d="M1148 232v-14a5 5 0 0 1 10 0v14Z" opacity=".85"/><path d="M1163 232v-14a5 5 0 0 1 10 0v14Z" opacity=".9"/><path class="es-win d1" d="M1178 232v-14a5 5 0 0 1 10 0v14Z"/>
-            <path d="M1278 166v-10a5 5 0 0 1 10 0v10Z" opacity=".9"/><path class="es-win d3" d="M1293 166v-10a5 5 0 0 1 10 0v10Z"/><path d="M1308 166v-10a5 5 0 0 1 10 0v10Z" opacity=".85"/>
-            <path class="es-win d1" d="M1278 198v-12a5 5 0 0 1 10 0v12Z"/><path d="M1293 198v-12a5 5 0 0 1 10 0v12Z" opacity=".85"/><path d="M1308 198v-12a5 5 0 0 1 10 0v12Z" opacity=".9"/>
-            <path d="M1278 232v-14a5 5 0 0 1 10 0v14Z" opacity=".9"/><path d="M1293 232v-14a5 5 0 0 1 10 0v14Z" opacity=".85"/><path class="es-win d2" d="M1308 232v-14a5 5 0 0 1 10 0v14Z"/>
-            <path d="M1204 182v-12a5 5 0 0 1 10 0v12Z" opacity=".9"/><path class="es-win d3" d="M1252 182v-12a5 5 0 0 1 10 0v12Z"/>
-          </g>
-          <!-- name board -->
-          <rect x="1201" y="134" width="64" height="22" rx="2" fill="#F3E3C3" stroke="#7C2D12" stroke-width="1.5"/>
-          <text x="1233" y="150" text-anchor="middle" font-size="13" font-weight="800" fill="#7C2D12" font-family="Hind Siliguri, sans-serif">কলেজ</text>
-          <!-- portico: pediment + columns + door + steps -->
-          <path d="M1200 196L1233 180L1266 196Z" fill="#F3E3C3"/><path d="M1206 194L1233 182.5L1260 194Z" fill="#E7D3AE"/>
-          <rect x="1200" y="196" width="66" height="5" fill="#F3E3C3"/>
-          <path d="M1222 240v-24a11 11 0 0 1 22 0v24Z" fill="#2A140C"/>
-          <path d="M1225 240v-22a8 8 0 0 1 16 0v22Z" fill="#FBBF24" opacity=".35"/>
-          <g fill="#FFF7E6"><rect x="1204" y="201" width="5" height="39"/><rect x="1214" y="201" width="5" height="39"/><rect x="1247" y="201" width="5" height="39"/><rect x="1257" y="201" width="5" height="39"/></g>
-          <rect x="1194" y="240" width="78" height="3" fill="#E7D3AE"/><rect x="1190" y="243" width="86" height="3" fill="#D6C29B"/><rect x="1186" y="246" width="94" height="2" fill="#C7B38D"/>
-          <!-- flag on the right wing -->
-          <rect x="1322" y="104" width="2" height="30" fill="#CBD5E1"/>
-          <g class="es-flag"><rect x="1324" y="105" width="20" height="13" fill="#15803D"/><circle cx="1332.5" cy="111.5" r="4" fill="#DC2626"/></g>
-          <!-- uplights at the base -->
-          <path d="M1150 248L1140 196L1166 196Z" fill="#FDE68A" opacity=".08"/><path d="M1316 248L1300 196L1326 196Z" fill="#FDE68A" opacity=".08"/>
-        </g>
-
-        <!-- viaduct: one straight line in perspective, near (right edge) -> far (upper left, into the fog) -->
-        <g fill="url(#lineFade)">
-          <rect x="1419.3" y="143.4" width="17.4" height="103.9"/><path d="M1404.1 142.4H1451.9L1443.2 153.1H1412.8Z"/>
-          <rect x="1303.9" y="134.9" width="16.2" height="108.6"/><path d="M1289.8 133.9H1334.2L1326.2 143.9H1297.8Z"/>
-          
-          <rect x="1105" y="120.2" width="14.1" height="116.8"/><path d="M1092.6 119.2H1131.4L1124.3 128.2H1099.7Z"/>
-          <rect x="1065.2" y="117.2" width="13.7" height="118.5"/><path d="M1053.2 116.2H1090.8L1084 125.1H1060Z"/>
-          <rect x="933.9" y="107.5" width="12.3" height="123.8"/><path d="M923.1 106.5H956.9L950.8 114.7H929.2Z"/>
-          <rect x="774.6" y="95.8" width="10.7" height="130.3"/><path d="M765.3 94.8H794.7L789.3 102.1H770.7Z"/>
-          <rect x="615.5" y="84" width="9" height="136.9"/><path d="M607.6 83H632.4L627.9 89.5H612.1Z"/>
-          <rect x="456.3" y="72.3" width="7.4" height="143.4"/><path d="M449.9 71.3H470.1L466.4 76.9H453.6Z"/>
-          <rect x="297.1" y="60.5" width="5.7" height="149.9"/><path d="M292.2 59.5H307.8L305 64.4H295Z"/>
-          <rect x="147.9" y="49.5" width="4.2" height="156.1"/><path d="M144.3 48.5H155.7L153.6 52.6H146.4Z"/>
-        </g>
-        <g stroke="url(#lineFadeLite)"><line x1="1410" y1="123.5" x2="1410" y2="91.3" stroke-width="1.72"/><line x1="1290" y1="116" x2="1290" y2="86.1" stroke-width="1.59"/><line x1="1170" y1="108.5" x2="1170" y2="80.9" stroke-width="1.47"/><line x1="1050" y1="101" x2="1050" y2="75.7" stroke-width="1.35"/><line x1="930" y1="93.5" x2="930" y2="70.5" stroke-width="1.22"/><line x1="810" y1="85.9" x2="810" y2="65.4" stroke-width="1.10"/><line x1="690" y1="78.4" x2="690" y2="60.2" stroke-width="0.97"/><line x1="570" y1="70.9" x2="570" y2="55" stroke-width="0.85"/><line x1="450" y1="63.4" x2="450" y2="49.8" stroke-width="0.73"/><line x1="330" y1="55.9" x2="330" y2="44.6" stroke-width="0.60"/><line x1="210" y1="48.4" x2="210" y2="39.4" stroke-width="0.48"/><line x1="90" y1="40.9" x2="90" y2="34.3" stroke-width="0.35"/></g>
-        <path d="M1450 95L-20 30.5" stroke="url(#lineFadeLite)" stroke-width=".9" fill="none"/>
-
-        <!-- METRO train (MRT livery: white, green + red stripes): enters from the right, stops at the station,
-             then runs on west behind the Shaheed Minar, madrasa, mosque and school and leaves past the left edge -->
-        <g class="es-metro"><g transform="translate(1450,97)"><g>
-          <path d="M0 22V11Q2 3 13 1H280V22Z" fill="#F1F5F9"/>
-          <path d="M2 11Q4 5 13 3H17V12H2Z" fill="#0F172A"/>
-          <rect x="22" y="5" width="252" height="7" rx="1.5" fill="#1E3A5F"/>
-          <g fill="#FDE68A" opacity=".55"><rect x="22" y="5" width="252" height="7" rx="1.5"/></g>
-          <g fill="#0F172A" opacity=".75">
-            <circle cx="34" cy="10" r="2"/><circle cx="52" cy="10.5" r="2"/><circle cx="71" cy="10" r="2"/><circle cx="112" cy="10.5" r="2"/>
-            <circle cx="130" cy="10" r="2"/><circle cx="158" cy="10" r="2"/><circle cx="204" cy="10.5" r="2"/><circle cx="226" cy="10" r="2"/><circle cx="252" cy="10" r="2"/>
-          </g>
-          <g fill="#CBD5E1"><rect x="92" y="1" width="2" height="21"/><rect x="186" y="1" width="2" height="21"/></g>
-          <rect x="0" y="14" width="280" height="3.4" fill="#16A34A"/>
-          <rect x="0" y="17.8" width="280" height="1.6" fill="#DC2626"/>
-          <g fill="#E2E8F0" stroke="#94A3B8" stroke-width=".6"><rect x="40" y="5" width="8" height="15"/><rect x="138" y="5" width="8" height="15"/><rect x="232" y="5" width="8" height="15"/></g>
-          <circle class="es-headlight" cx="3.5" cy="17" r="1.8" fill="#FEF9C3"/>
-          <path d="M130 1L138-6L146 1" stroke="#64748B" stroke-width="1.4" fill="none"/>
-          <g fill="#334155"><rect x="10" y="22" width="26" height="3" rx="1"/><rect x="62" y="22" width="26" height="3" rx="1"/><rect x="100" y="22" width="26" height="3" rx="1"/><rect x="152" y="22" width="26" height="3" rx="1"/><rect x="196" y="22" width="26" height="3" rx="1"/><rect x="246" y="22" width="26" height="3" rx="1"/></g>
-        </g></g></g>
-
-        <!-- viaduct deck -->
-        <path d="M1450 126L-20 34L-20 38L1450 146Z" fill="url(#lineFade)"/>
-        <path d="M1450 126L-20 34" stroke="url(#lineFadeLite)" stroke-width="2.6"/>
-        <path d="M1450 146L-20 38" stroke="#5B6B86" stroke-opacity=".7" stroke-width="2"/>
-
-        <!-- winter fog (kuasha) swallowing the far end of the line -->
-        <g class="es-fog">
-          <ellipse cx="170" cy="60" rx="430" ry="70" fill="url(#fogGrad)"/>
-          <ellipse class="f2" cx="420" cy="92" rx="360" ry="46" fill="url(#fogGrad)"/>
-          <ellipse class="f3" cx="40" cy="34" rx="300" ry="54" fill="url(#fogGrad)"/>
-        </g>
-
-        <!-- STATION (curved roof, glass hall) -->
-        <g style="transform-box:view-box;transform-origin:0 0" transform="translate(1052,101.1) skewY(3.58) scale(0.843) translate(-1052,-118)">
-        <rect x="1052" y="92" width="80" height="46" rx="3" fill="#2B4A8C"/>
-        <rect x="1058" y="102" width="68" height="24" fill="#7DD3FC" opacity=".28"/>
-        <rect class="es-win" x="1058" y="102" width="68" height="24" fill="#FDE68A" opacity=".35"/>
-        <g fill="#2B4A8C"><rect x="1074" y="102" width="2" height="24"/><rect x="1091" y="102" width="2" height="24"/><rect x="1108" y="102" width="2" height="24"/></g>
-        <path d="M1046 95Q1092 70 1138 95Z" fill="#CBD5E1"/>
-        <path d="M1052 95Q1092 76 1132 95" stroke="#94A3B8" stroke-width="1" fill="none"/>
-        <rect x="1063" y="128" width="58" height="12" rx="2" fill="#15803D"/>
-        <circle cx="1070" cy="134" r="3" fill="#DC2626"/>
-        <text x="1096" y="137.5" text-anchor="middle" font-size="8" font-weight="700" fill="#FFFFFF" font-family="Hind Siliguri, sans-serif">মেট্রোরেল</text>
-        </g>
-
-        <!-- graduates tossing caps in front of the college -->
-        <use href="#pGrad" x="1172" y="256"/><use href="#pGrad" x="1294" y="256"/><use href="#pGrad" x="1186" y="257"/>
-        <g transform="translate(1172,226)"><use class="es-cap" href="#gCap"/></g>
-        <g transform="translate(1294,226)"><use class="es-cap c2" href="#gCap"/></g>
-        <g transform="translate(1186,228)"><use class="es-cap c3" href="#gCap"/></g>
-      </g>
-
-      <!-- ============ 1. SCHOOL ============ -->
-      <g>
-        <rect x="60" y="140" width="250" height="108" fill="#1D3B7A"/>
-        <path d="M48 142L185 104L322 142Z" fill="#244A93"/>
-        <rect x="158" y="114" width="54" height="14" rx="2" fill="#0F2048"/>
-        <text x="185" y="124.5" text-anchor="middle" font-size="9" font-weight="700" fill="#93C5FD" font-family="Hind Siliguri, sans-serif">বিদ্যালয়</text>
-        <g fill="#FBBF24">
-          <rect class="es-win" x="78" y="154" width="22" height="18" rx="2"/><rect x="112" y="154" width="22" height="18" rx="2" opacity=".85"/>
-          <rect x="236" y="154" width="22" height="18" rx="2" opacity=".85"/><rect class="es-win d2" x="270" y="154" width="22" height="18" rx="2"/>
-          <rect x="78" y="192" width="22" height="18" rx="2" opacity=".85"/><rect class="es-win d1" x="112" y="192" width="22" height="18" rx="2"/>
-          <rect x="236" y="192" width="22" height="18" rx="2" opacity=".85"/><rect x="270" y="192" width="22" height="18" rx="2" opacity=".85"/>
-        </g>
-        <path d="M163 248v-40a22 18 0 0 1 44 0v40Z" fill="#0F2048"/>
-        <rect x="300" y="70" width="2.5" height="72" fill="#94A3B8"/>
-        <g class="es-flag"><rect x="302.5" y="72" width="34" height="21" fill="#15803D"/><circle cx="317" cy="82.5" r="6.5" fill="#DC2626"/></g>
-        <!-- boundary wall + gate -->
-        <rect x="52" y="234" width="104" height="14" fill="#16306A"/><rect x="214" y="234" width="104" height="14" fill="#16306A"/>
-        <rect x="148" y="214" width="10" height="34" fill="#244A93"/><rect x="212" y="214" width="10" height="34" fill="#244A93"/>
-        <path d="M148 216Q185 196 222 216" stroke="#3B6FE0" stroke-width="4" fill="none"/>
-        <!-- alphabet floating up -->
-        <g font-family="Hind Siliguri, sans-serif" font-weight="700" font-size="15">
-          <text class="es-abc" x="96" y="136" fill="#93C5FD">অ</text>
-          <text class="es-abc a2" x="138" y="136" fill="#FDE68A">A</text>
-          <text class="es-abc a3" x="232" y="136" fill="#C4B5FD">ক</text>
-          <text class="es-abc a4" x="272" y="136" fill="#86EFAC">১</text>
-          <text class="es-abc a5" x="186" y="100" fill="#F9A8D4">আ</text>
-        </g>
-      </g>
-
-      <!-- ============ 2. JHALMURI VENDOR on the footpath ============ -->
-      <g>
-        <rect x="373" y="196" width="2" height="42" fill="#CBD5E1"/>
-        <path d="M344 202Q374 182 404 202Z" fill="#DC2626"/><path d="M359 192Q374 182 389 192L384 202H364Z" fill="#FBBF24"/>
-        <rect x="346" y="236" width="56" height="14" rx="2" fill="#B45309"/>
-        <rect x="346" y="236" width="56" height="3" fill="#D97706"/>
-        <rect x="360" y="226" width="10" height="10" rx="2" fill="#FDE68A" opacity=".9"/>
-        <circle cx="358" cy="254" r="5" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><circle cx="390" cy="254" r="5" fill="none" stroke="#CBD5E1" stroke-width="1.6"/>
-        <!-- kettle + steam -->
-        <path d="M384 236v-6a5 4 0 0 1 10 0v6Z" fill="#94A3B8"/><path d="M394 231l4-3" stroke="#94A3B8" stroke-width="1.6"/>
-        <g stroke="#E2E8F0" stroke-width="1.6" fill="none" stroke-linecap="round">
-          <path class="es-steam" d="M398 226q-3-5 0-9t0-9"/><path class="es-steam s2" d="M402 227q-3-5 0-9t0-9"/>
-        </g>
-        <!-- vendor (lungi + genji + gamchha) -->
-        <g transform="translate(416,256)">
-          <path d="M-5.5 0L-5-12H5L5.5 0Z" fill="#0E7490"/><path d="M-5-12H5L4.5-6H-4.5Z" fill="#155E75" opacity=".6"/>
-          <path d="M-5-11L-4.5-26H4.5L5-11Z" fill="#F1F5F9"/><path d="M-5-26L5-19" stroke="#DC2626" stroke-width="3"/>
-          <circle cy="-30" r="4.4" fill="#A16207"/><path d="M-4.4-31a4.4 4.4 0 0 1 8.8 0z" fill="#1F2937"/>
-          <g class="es-shake"><path d="M-4-22L-13-20" stroke="#A16207" stroke-width="3" stroke-linecap="round"/><rect x="-21" y="-25" width="8" height="10" rx="2" fill="#FDE68A"/></g>
-        </g>
-        <!-- customer kid with paper cone -->
-        <use href="#pKid" x="334" y="256"/>
-        <path d="M338 236l7-3-1 7z" fill="#FDE68A"/>
-      </g>
-
-      <!-- ============ 3. MOSQUE ============ -->
-      <g>
-        <rect x="448" y="86" width="14" height="162" fill="#244A93"/>
-        <path d="M446 88Q455 72 464 88Z" fill="#2B56A8"/><path d="M455 66a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
-        <rect x="448" y="120" width="14" height="4" fill="#3B6FE0"/><rect x="448" y="170" width="14" height="4" fill="#3B6FE0"/>
-        <rect x="472" y="170" width="150" height="78" fill="#1D3B7A"/>
-        <rect x="468" y="164" width="158" height="8" fill="#244A93"/>
-        <path d="M497 166a50 46 0 0 1 100 0Z" fill="#2B56A8"/>
-        <rect x="545" y="108" width="4" height="12" fill="#FDE68A"/><path d="M547 98a5 5 0 1 0 4 7a4 4 0 1 1-4-7z" fill="#FDE68A"/>
-        <g fill="#FBBF24">
-          <path class="es-win d3" d="M484 236v-26a9 9 0 0 1 18 0v26Z" opacity=".9"/>
-          <path d="M592 236v-26a9 9 0 0 1 18 0v26Z" opacity=".85"/>
-        </g>
-        <path class="es-door" d="M529 248v-36a18 18 0 0 1 36 0v36Z" fill="#FCD34D"/>
-        <!-- musollis walking in -->
-        <g transform="translate(0,256)"><use class="es-enter" href="#pMan" x="0" y="0"/></g>
-        <g transform="translate(0,256)"><use class="es-enter e2" href="#pMan" x="0" y="0"/></g>
-      </g>
-
-      <!-- ============ 4. MADRASA ============ -->
-      <g>
-        <rect x="668" y="152" width="204" height="96" fill="#1D3B7A"/>
-        <g fill="#244A93">
-          <path d="M668 154a12 12 0 0 1 24 0Z"/><path d="M696 154a12 12 0 0 1 24 0Z"/><path d="M724 154a12 12 0 0 1 24 0Z"/>
-          <path d="M792 154a12 12 0 0 1 24 0Z"/><path d="M820 154a12 12 0 0 1 24 0Z"/><path d="M848 154a12 12 0 0 1 24 0Z"/>
-        </g>
-        <rect x="744" y="128" width="52" height="26" rx="3" fill="#244A93"/>
-        <text x="770" y="145" text-anchor="middle" font-size="10" font-weight="700" fill="#FDE68A" font-family="Hind Siliguri, sans-serif">মাদ্রাসা</text>
-        <g fill="#FBBF24">
-          <path class="es-win" d="M684 200v-18a8 8 0 0 1 16 0v18Z" opacity=".9"/><path d="M714 200v-18a8 8 0 0 1 16 0v18Z" opacity=".85"/>
-          <path d="M810 200v-18a8 8 0 0 1 16 0v18Z" opacity=".85"/><path class="es-win d2" d="M840 200v-18a8 8 0 0 1 16 0v18Z" opacity=".9"/>
-        </g>
-        <path d="M756 248v-30a14 14 0 0 1 28 0v30Z" fill="#0F2048"/>
-        <!-- students playing ball -->
-        <g transform="translate(704,256)"><g class="es-kickL"><use href="#pMKid"/></g></g>
-        <g transform="translate(812,256) scale(-1,1)"><g class="es-kickR"><use href="#pMKid"/></g></g>
-        <g transform="translate(0,252)"><circle class="es-ball" cx="0" cy="0" r="3.4" fill="#F8FAFC" stroke="#94A3B8" stroke-width=".8"/></g>
-        <!-- reciting on a rehal, rocking -->
-        <g transform="translate(852,256)">
-          <rect x="-12" y="-2" width="24" height="2.5" rx="1" fill="#15803D"/>
-          <g class="es-rock">
-            <path d="M-6 0L-5-12H5L6 0Z" fill="#F8FAFC"/>
-            <circle cy="-15.5" r="3.8" fill="#E9B98F"/><path d="M-3.8-16.5a3.8 3.8 0 0 1 7.6 0z" fill="#F8FAFC"/>
-          </g>
-          <path d="M8-1L13-8M13-1L8-8" stroke="#B45309" stroke-width="1.6"/>
-          <path d="M7-9L10.5-7L14-9V-12L10.5-10L7-12Z" fill="#FEF3C7"/>
-        </g>
-      </g>
-
-      <!-- ============ 5. SHAHEED MINAR ============ -->
-      <g>
-        <circle cx="980" cy="160" r="56" fill="#DC2626" opacity=".85"/>
-        <rect x="894" y="240" width="172" height="8" fill="#334E8C"/>
-        <g fill="#E2E8F0">
-          <rect x="912" y="178" width="7" height="62"/><rect x="926" y="178" width="7" height="62"/><rect x="912" y="174" width="21" height="5"/>
-          <rect x="1027" y="178" width="7" height="62"/><rect x="1041" y="178" width="7" height="62"/><rect x="1027" y="174" width="21" height="5"/>
-          <rect x="950" y="158" width="7" height="82"/><rect x="1003" y="158" width="7" height="82"/><rect x="950" y="154" width="60" height="5"/>
-          <rect x="968" y="118" width="7" height="122"/><rect x="985" y="118" width="7" height="122"/>
-          <path d="M964 120H996L1004 104H972Z"/>
-        </g>
-        <!-- wreaths -->
-        <g><circle cx="940" cy="238" r="4.5" fill="#F472B6"/><circle cx="946" cy="236" r="3.5" fill="#FBBF24"/><circle cx="952" cy="238.5" r="4" fill="#F87171"/></g>
-        <g><circle cx="976" cy="238" r="4.5" fill="#FBBF24"/><circle cx="982" cy="236" r="3.8" fill="#F87171"/><circle cx="988" cy="238.5" r="4" fill="#F472B6"/></g>
-        <g><circle cx="1012" cy="238" r="4" fill="#F87171"/><circle cx="1018" cy="236" r="3.5" fill="#F472B6"/><circle cx="1024" cy="238.5" r="4.5" fill="#FBBF24"/></g>
-      </g>
-
-      <!-- ============ 7. BOOK STACK + READING UNDER THE BANYAN ============ -->
-      <g>
-        <rect x="1334" y="236" width="44" height="12" rx="2" fill="#2563EB"/>
-        <rect x="1338" y="224" width="38" height="12" rx="2" fill="#7C3AED"/>
-        <rect x="1332" y="212" width="42" height="12" rx="2" fill="#0EA5E9"/>
-        <rect x="1340" y="200" width="32" height="12" rx="2" fill="#F59E0B"/>
-        <g fill="#E0E7FF" opacity=".55"><rect x="1338" y="241" width="34" height="2"/><rect x="1342" y="229" width="30" height="2"/><rect x="1336" y="217" width="34" height="2"/><rect x="1344" y="205" width="24" height="2"/></g>
-        <g class="es-sway">
-          <rect x="1408" y="196" width="11" height="52" fill="#3F2A1D"/>
-          <path d="M1411 210q-7 18-2 38M1417 212q7 16 3 36" stroke="#3F2A1D" stroke-width="2" fill="none"/>
-          <circle cx="1414" cy="182" r="28" fill="#166534"/><circle cx="1388" cy="196" r="18" fill="#15803D"/><circle cx="1440" cy="194" r="20" fill="#15803D"/><circle cx="1418" cy="160" r="17" fill="#14532D"/>
-        </g>
-        <g transform="translate(1394,256)">
-          <path d="M-7 0Q-6-6 0-6H5L6 0Z" fill="#1E3A8A"/>
-          <rect x="-5" y="-17" width="9" height="12" rx="2" fill="#F1F5F9"/>
-          <circle cx="0" cy="-21" r="4" fill="#E9B98F"/><path d="M-4-22a4 4 0 0 1 8 0z" fill="#1F2937"/>
-          <path d="M3-11L10-13L10-6L3-4Z" fill="#FEF3C7"/><path d="M3-11L-3-13L-3-6L3-4Z" fill="#FDE68A"/>
-          <path class="es-page" d="M3-11L10-13L10-6L3-4Z" fill="#FFFBEB"/>
-        </g>
-      </g>
-
-      <!-- trees between buildings -->
-      <g class="es-sway"><rect x="20" y="214" width="5" height="34" fill="#3F2A1D"/><circle cx="22" cy="206" r="17" fill="#166534"/><circle cx="33" cy="214" r="11" fill="#15803D"/></g>
-      <g class="es-sway d2"><rect x="642" y="216" width="4" height="32" fill="#3F2A1D"/><circle cx="644" cy="210" r="13" fill="#15803D"/></g>
-      <g class="es-sway d1"><rect x="884" y="220" width="4" height="28" fill="#3F2A1D"/><circle cx="886" cy="212" r="12" fill="#166534"/></g>
-
-      <!-- guardian walking the child home from school (hand in hand) -->
-      <g transform="translate(185,256)"><g class="es-home">
-        <g class="es-bob"><use href="#pWoman"/></g>
-        <path d="M5-15L10-12" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
-        <g class="es-bob d1" transform="translate(13,0)"><use href="#pGirl"/></g>
-      </g></g>
-      <g transform="translate(185,256)"><g class="es-home h2">
-        <g class="es-bob d2"><use href="#pMan"/></g>
-        <path d="M5-16L10-13" stroke="#C68B59" stroke-width="2" stroke-linecap="round"/>
-        <g class="es-bob" transform="translate(13,0)"><use href="#pKid"/></g>
-      </g></g>
-
-      <!-- ================= ROAD =================
-           kerb lane (y=270): the bicycle story
-           middle lane (y=284, heading left): rickshaw, CNG, motorcycle
-           front lane (y=298, heading right): local bus, school bus
-           All share one 30s cycle and are phased so nothing passes in front of the story's key moments. -->
-
-      <!-- STORY: madrasa student gives his school friend a lift, drops him at the school gate,
-           the friend says thanks, then the madrasa student rides on to the madrasa -->
-      <g class="sb-bike">
-        <g class="sb-wheel"><circle cx="-15" cy="-7" r="7" fill="none" stroke="#E2E8F0" stroke-width="1.7"/><path d="M-22-7H-8M-15-14V0" stroke="#CBD5E1" stroke-width=".9"/></g>
-        <g class="sb-wheel"><circle cx="15" cy="-7" r="7" fill="none" stroke="#E2E8F0" stroke-width="1.7"/><path d="M8-7H22M15-14V0" stroke="#CBD5E1" stroke-width=".9"/></g>
-        <path d="M-15-7L-4-18H7L15-7M-4-18L1-7H-15M7-18L9-24M6-24H12" stroke="#F59E0B" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="-21" y="-17" width="13" height="2.2" rx="1" fill="#94A3B8"/>
-        <rect x="-8" y="-21" width="8" height="2.4" rx="1.2" fill="#1F2937"/>
-      </g>
-      <!-- school friend on the carrier -->
-      <g class="sb-pass">
-        <rect x="-15.5" y="-17" width="3" height="9" fill="#1E3A8A"/>
-        <rect x="-18" y="-30" width="8" height="13" rx="2" fill="#F1F5F9"/>
-        <rect x="-22" y="-29" width="4.5" height="9" rx="1.5" fill="#DC2626"/>
-        <circle cx="-14" cy="-34" r="3.8" fill="#E9B98F"/><path d="M-17.8-35a3.8 3.8 0 0 1 7.6 0z" fill="#1F2937"/>
-        <path d="M-11-26L-5-28" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
-      </g>
-      <!-- madrasa student riding (panjabi + tupi) -->
-      <g class="sb-rider">
-        <path d="M-3-21L2-12L0-7" stroke="#E2E8F0" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M-6-21L-3-38H3L4-21Z" fill="#F8FAFC"/>
-        <path d="M1-33L9-24" stroke="#E9B98F" stroke-width="2.2" stroke-linecap="round"/>
-        <circle cx="1" cy="-42" r="4.2" fill="#E9B98F"/><path d="M-3.2-43a4.2 4.2 0 0 1 8.4 0z" fill="#F8FAFC"/>
-      </g>
-      <!-- the friend standing, waving thanks, then walking in through the gate -->
-      <g class="sb-kid"><use href="#pKid"/><path class="sb-wave" d="M3-17L9-27" stroke="#E9B98F" stroke-width="2.4" stroke-linecap="round"/></g>
-      <!-- the madrasa student walking into the madrasa -->
-      <g class="sb-mkid"><use href="#pMKid"/></g>
-      <!-- speech bubbles -->
-      <g transform="translate(140,228)"><g class="sb-bub b1">
-        <rect x="-44" y="-17" width="88" height="17" rx="8.5" fill="#FFFFFF"/><path d="M18-1L30-1L28 7Z" fill="#FFFFFF"/>
-        <text x="-5" y="-5.2" text-anchor="middle" font-size="9" font-weight="700" fill="#0F172A" font-family="Hind Siliguri, sans-serif">ধন্যবাদ ভাই!</text><path d="M30.5-4.5s-4-2.4-4-5.5a2.2 2.2 0 0 1 4-1.3 2.2 2.2 0 0 1 4 1.3c0 3.1-4 5.5-4 5.5z" fill="#EF4444"/>
-      </g></g>
-      <g transform="translate(236,206)"><g class="sb-bub b2">
-        <rect x="-52" y="-17" width="104" height="17" rx="8.5" fill="#FEF3C7"/><path d="M-36-1L-24-1L-40 7Z" fill="#FEF3C7"/>
-        <text x="0" y="-5.2" text-anchor="middle" font-size="9" font-weight="700" fill="#7C2D12" font-family="Hind Siliguri, sans-serif">কাল আবার দেখা হবে!</text>
-      </g></g>
-
-      <!-- middle lane: rickshaw with guardian + child (heading left) -->
-      <g transform="translate(0,284)"><g class="es-ride">
-        <path d="M24-40Q38-58 56-40Z" fill="#DC2626"/><path d="M24-40H56" stroke="#FBBF24" stroke-width="2"/>
-        <circle cx="34" cy="-33" r="3.6" fill="#E9B98F"/><path d="M30-30L38-30L39-20H29Z" fill="#DB2777"/>
-        <circle cx="46" cy="-31" r="3" fill="#E9B98F"/><path d="M43-28H49L50-20H42Z" fill="#F1F5F9"/>
-        <path d="M22-20H58L54-12H26Z" fill="#F59E0B"/>
-        <line x1="-6" y1="-14" x2="26" y2="-14" stroke="#CBD5E1" stroke-width="2"/>
-        <circle cx="0" cy="-28" r="3.6" fill="#A16207"/>
-        <path d="M0-25L4-15L-2-8" stroke="#F8FAFC" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <g class="es-wheel"><circle cx="-6" cy="-7" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M-13-7H1M-6-14V0" stroke="#CBD5E1"/></g>
-        <g class="es-wheel"><circle cx="44" cy="-7" r="7" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><path d="M37-7H51M44-14V0" stroke="#CBD5E1"/></g>
-      </g></g>
-
-      <!-- middle lane: CNG auto-rickshaw (green, heading left) -->
-      <g transform="translate(0,284)"><g class="es-cng">
-        <path d="M-18-5V-14Q-18-20-11-21H16V-5Z" fill="#16A34A"/>
-        <path d="M-11-21Q-9-31 1-31H16V-21Z" fill="#111827"/>
-        <path d="M-15-14Q-15-19-10-19H-6V-12H-15Z" fill="#7DD3FC" opacity=".55"/>
-        <g stroke="#14532D" stroke-width="1"><line x1="2" y1="-20" x2="2" y2="-6"/><line x1="7" y1="-20" x2="7" y2="-6"/><line x1="12" y1="-20" x2="12" y2="-6"/></g>
-        <circle cx="-3" cy="-16" r="2.8" fill="#A16207"/>
-        <circle cx="-18" cy="-10" r="1.5" fill="#FEF9C3"/>
-        <g class="es-wheel"><circle cx="-13" cy="-3.6" r="3.6" fill="#111827" stroke="#CBD5E1" stroke-width="1.2"/><line x1="-16" y1="-3.6" x2="-10" y2="-3.6" stroke="#CBD5E1" stroke-width=".7"/></g>
-        <g class="es-wheel"><circle cx="10" cy="-4" r="4" fill="#111827" stroke="#CBD5E1" stroke-width="1.2"/><line x1="7" y1="-4" x2="13" y2="-4" stroke="#CBD5E1" stroke-width=".7"/></g>
-      </g></g>
-
-      <!-- middle lane: motorcycle with helmeted rider (heading left) -->
-      <g transform="translate(0,284)"><g class="es-moto">
-        <path d="M-11-8L-5-14H7L11-8Z" fill="#DC2626"/><path d="M-11-8L-15-15" stroke="#CBD5E1" stroke-width="1.6"/>
-        <path d="M3-14L0-26" stroke="#1E3A8A" stroke-width="5" stroke-linecap="round"/>
-        <path d="M1-22L-10-16" stroke="#E9B98F" stroke-width="2" stroke-linecap="round"/>
-        <path d="M3-14L-2-8" stroke="#1F2937" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="-1" cy="-30" r="4.4" fill="#1D4ED8"/><path d="M-5.4-30H-1V-27.5H-5Z" fill="#0F172A"/>
-        <circle cx="-15" cy="-12" r="1.4" fill="#FEF9C3"/>
-        <g class="es-wheel"><circle cx="-11" cy="-5" r="5" fill="none" stroke="#E2E8F0" stroke-width="1.6"/><line x1="-16" y1="-5" x2="-6" y2="-5" stroke="#CBD5E1" stroke-width=".7"/></g>
-        <g class="es-wheel"><circle cx="11" cy="-5" r="5" fill="none" stroke="#E2E8F0" stroke-width="1.6"/><line x1="6" y1="-5" x2="16" y2="-5" stroke="#CBD5E1" stroke-width=".7"/></g>
-      </g></g>
-
-      <!-- front lane: local bus (heading right) -->
-      <g transform="translate(0,298)"><g class="es-bus">
-        <path d="M0-8V-38Q0-42 4-42H96Q102-42 104-35V-8Z" fill="#15803D"/>
-        <rect x="0" y="-42" width="98" height="4" fill="#DC2626"/>
-        <rect x="5" y="-35" width="80" height="13" rx="1.5" fill="#1E3A5F"/>
-        <rect class="es-win" x="5" y="-35" width="80" height="13" rx="1.5" fill="#FDE68A" opacity=".5"/>
-        <g fill="#0F172A" opacity=".75"><circle cx="12" cy="-26" r="2.4"/><circle cx="22" cy="-25.5" r="2.4"/><circle cx="35" cy="-26" r="2.4"/><circle cx="44" cy="-25.5" r="2.4"/><circle cx="58" cy="-26" r="2.4"/><circle cx="70" cy="-25.5" r="2.4"/><circle cx="79" cy="-26" r="2.4"/></g>
-        <g fill="#15803D"><rect x="24" y="-35" width="2" height="13"/><rect x="46" y="-35" width="2" height="13"/><rect x="66" y="-35" width="2" height="13"/></g>
-        <path d="M89-36H99Q103-34 103.5-24H89Z" fill="#0F172A"/>
-        <rect x="88" y="-22" width="9" height="14" fill="#0F2048" opacity=".7"/>
-        <rect x="0" y="-21" width="88" height="2.5" fill="#F8FAFC" opacity=".85"/>
-        <text x="44" y="-11" text-anchor="middle" font-size="7" font-weight="700" fill="#F8FAFC" font-family="Hind Siliguri, sans-serif">মতিঝিল ↔ মিরপুর</text>
-        <circle cx="102" cy="-13" r="1.8" fill="#FEF9C3"/>
-        <rect x="-1" y="-10" width="106" height="3" rx="1" fill="#334155"/>
-        <g class="es-wheel cw"><circle cx="20" cy="-6.5" r="6.5" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="14" y1="-6.5" x2="26" y2="-6.5" stroke="#94A3B8"/></g>
-        <g class="es-wheel cw"><circle cx="82" cy="-6.5" r="6.5" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="76" y1="-6.5" x2="88" y2="-6.5" stroke="#94A3B8"/></g>
-      </g></g>
-
-      <!-- front lane: yellow school bus with children (heading right) -->
-      <g transform="translate(0,298)"><g class="es-sbus">
-        <path d="M0-8V-34Q0-38 4-38H74Q80-38 84-28V-8Z" fill="#FACC15"/>
-        <rect x="5" y="-32" width="62" height="11" rx="1.5" fill="#1E3A5F"/>
-        <rect class="es-win d2" x="5" y="-32" width="62" height="11" rx="1.5" fill="#FDE68A" opacity=".5"/>
-        <g fill="#E9B98F"><circle cx="12" cy="-24.5" r="2.3"/><circle cx="23" cy="-25" r="2.3"/><circle cx="34" cy="-24.5" r="2.3"/><circle cx="46" cy="-25" r="2.3"/><circle cx="58" cy="-24.5" r="2.3"/></g>
-        <g fill="#1F2937"><path d="M9.7-25.5a2.3 2.3 0 0 1 4.6 0z"/><path d="M31.7-25.5a2.3 2.3 0 0 1 4.6 0z"/><path d="M55.7-25.5a2.3 2.3 0 0 1 4.6 0z"/></g>
-        <path d="M70-32H78Q82-30 82.5-22H70Z" fill="#0F172A"/>
-        <rect x="0" y="-19" width="84" height="2" fill="#111827"/>
-        <text x="36" y="-10.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#111827" font-family="Hind Siliguri, sans-serif">স্কুল বাস</text>
-        <circle cx="82" cy="-13" r="1.7" fill="#FEF9C3"/>
-        <rect x="-1" y="-10" width="86" height="3" rx="1" fill="#334155"/>
-        <g class="es-wheel cw"><circle cx="16" cy="-6" r="6" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="10" y1="-6" x2="22" y2="-6" stroke="#94A3B8"/></g>
-        <g class="es-wheel cw"><circle cx="66" cy="-6" r="6" fill="#111827" stroke="#94A3B8" stroke-width="1.4"/><line x1="60" y1="-6" x2="72" y2="-6" stroke="#94A3B8"/></g>
-      </g></g>
-    </svg>
+<defs>
+ <g id="ls-kid"><rect x="-3.5" y="-10" width="3" height="10" rx="1" fill="#1E3A8A"/><rect x=".5" y="-10" width="3" height="10" rx="1" fill="#1E3A8A"/><rect x="-5" y="-21" width="10" height="12" rx="3" fill="#fff" stroke="#C7D6F5" stroke-width=".8"/><rect x="-10" y="-20" width="6" height="10" rx="2" fill="#F43F5E"/><circle cy="-25.5" r="4.5" fill="#F2C6A0"/><path d="M-4.6-26.5a4.6 4.6 0 0 1 9.2 0z" fill="#3F2A1D"/></g>
+ <g id="ls-girl"><rect x="-3" y="-8" width="2.6" height="8" rx="1" fill="#F2C6A0"/><rect x=".4" y="-8" width="2.6" height="8" rx="1" fill="#F2C6A0"/><path d="M-5.5-8L-3.8-21H3.8L5.5-8Z" fill="#4F46E5"/><rect x="-4" y="-21" width="8" height="6" rx="2" fill="#fff"/><rect x="-10" y="-20" width="6" height="9" rx="2" fill="#F59E0B"/><circle cy="-25.5" r="4.5" fill="#F2C6A0"/><path d="M-4.7-26a4.7 4.7 0 0 1 9.4 0z" fill="#3F2A1D"/><rect x="-5.2" y="-26" width="2" height="9" rx="1" fill="#3F2A1D"/></g>
+ <g id="ls-mad"><rect x="-3.2" y="-8" width="2.8" height="8" rx="1" fill="#F2C6A0"/><rect x=".4" y="-8" width="2.8" height="8" rx="1" fill="#F2C6A0"/><rect x="-5.5" y="-22" width="11" height="15" rx="3" fill="#F8FAFC" stroke="#B8C7EA" stroke-width=".8"/><rect x="2.5" y="-19" width="5.5" height="7" rx="1" fill="#10B981"/><circle cy="-26.5" r="4.5" fill="#F2C6A0"/><path d="M-4.5-27.5a4.5 4.5 0 0 1 9 0z" fill="#fff" stroke="#B8C7EA" stroke-width=".6"/></g>
+ <g id="ls-grad"><rect x="-3.5" y="-6" width="3" height="6" fill="#1E1B4B"/><rect x=".5" y="-6" width="3" height="6" fill="#1E1B4B"/><rect x="-6.5" y="-24" width="13" height="19" rx="3" fill="#4F46E5"/><circle cy="-28.5" r="4.5" fill="#F2C6A0"/><rect x="-6.5" y="-35" width="13" height="2.6" fill="#1E1B4B"/><path d="M-4 -37.5H4L6.5 -35H-6.5Z" fill="#1E1B4B"/><path d="M5.5-35v7" stroke="#F5B316" stroke-width="1.2"/></g>
+ <g id="ls-tree"><rect x="-3" y="-26" width="6" height="26" rx="2" fill="#B7791F"/><circle cx="0" cy="-40" r="17" fill="#34D399"/><circle cx="-12" cy="-30" r="11" fill="#10B981"/><circle cx="12" cy="-30" r="11" fill="#10B981"/></g>
+ <g id="ls-cap"><path d="M-8 0L0-4 8 0 0 4Z" fill="#1E1B4B"/><path d="M-4 1.5v3.5q4 2 8 0V1.5" fill="#312E81"/><path d="M7 0v6" stroke="#F5B316" stroke-width="1.2"/></g>
+</defs>
+<g class="ls-cloud c1"><ellipse cx="170" cy="46" rx="44" ry="11" fill="#DCE6FB"/><ellipse cx="150" cy="40" rx="22" ry="12" fill="#DCE6FB"/><ellipse cx="192" cy="41" rx="24" ry="13" fill="#DCE6FB"/></g><g class="ls-cloud c2"><ellipse cx="1180" cy="34" rx="52" ry="12" fill="#DCE6FB"/><ellipse cx="1158" cy="27" rx="26" ry="13" fill="#DCE6FB"/><ellipse cx="1206" cy="28" rx="28" ry="15" fill="#DCE6FB"/></g><g opacity=".95"><rect x="0" y="148" width="28" height="114" fill="#E4ECFC"/><rect x="29" y="175" width="61" height="87" fill="#E4ECFC"/><rect x="96" y="175" width="62" height="87" fill="#DBE5FA"/><rect x="163" y="196" width="65" height="66" fill="#E4ECFC"/><rect x="233" y="209" width="60" height="53" fill="#DBE5FA"/><rect x="296" y="156" width="70" height="106" fill="#E4ECFC"/><rect x="370" y="164" width="70" height="98" fill="#DBE5FA"/><rect x="444" y="149" width="69" height="113" fill="#E4ECFC"/><rect x="515" y="189" width="66" height="73" fill="#E4ECFC"/><rect x="583" y="192" width="47" height="70" fill="#DBE5FA"/><rect x="634" y="151" width="61" height="111" fill="#E4ECFC"/><rect x="697" y="177" width="53" height="85" fill="#E4ECFC"/><rect x="751" y="209" width="69" height="53" fill="#E4ECFC"/><rect x="822" y="148" width="58" height="114" fill="#DBE5FA"/><rect x="881" y="193" width="46" height="69" fill="#E4ECFC"/><rect x="930" y="175" width="43" height="87" fill="#DBE5FA"/><rect x="974" y="180" width="69" height="82" fill="#DBE5FA"/><rect x="1048" y="176" width="57" height="86" fill="#DBE5FA"/><rect x="1110" y="185" width="71" height="77" fill="#DBE5FA"/><rect x="1183" y="188" width="54" height="74" fill="#E4ECFC"/><rect x="1240" y="151" width="64" height="111" fill="#E4ECFC"/><rect x="1310" y="184" width="31" height="78" fill="#E4ECFC"/><rect x="1341" y="197" width="73" height="65" fill="#DBE5FA"/><rect x="1415" y="171" width="49" height="91" fill="#E4ECFC"/></g><g><rect x="0" y="92" width="1440" height="14" fill="#C4D2F2"/><rect x="0" y="90" width="1440" height="3" fill="#B3C4EB"/><rect x="40" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="210" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="380" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="550" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="720" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="890" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="1060" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="1230" y="104" width="20" height="158" fill="#D3DEF6"/><rect x="1400" y="104" width="20" height="158" fill="#D3DEF6"/></g><g class="ls-train"><g><rect x="0" y="62" width="214" height="28" rx="12" fill="#fff" stroke="#B3C4EB" stroke-width="1.5"/><rect x="14" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="35" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="56" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="77" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="98" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="119" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="140" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="161" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="182" y="69" width="15" height="10" fill="#BFD8FF" rx="2"/><rect x="0" y="82" width="214" height="3.5" fill="#10B981"/><rect x="0" y="86" width="214" height="2" fill="#EF4444"/><path d="M198 66q14 4 16 14l-16 2z" fill="#E0EAFD"/><circle cx="208" cy="82" r="2" fill="#FDE68A"/></g></g><rect x="0" y="258" width="1440" height="12" fill="#EDF2FD"/><rect x="0" y="268" width="1440" height="32" fill="#D6DFF3"/><path d="M0 285H1440" stroke="#fff" stroke-width="3" stroke-dasharray="34 30" opacity=".85"/><g>
+ <polygon points="54,152 185,104 316,152" fill="#1A56DB"/><polygon points="54,152 185,104 185,112 70,152" fill="#2F6CF0"/>
+ <rect x="68" y="150" width="234" height="112" fill="#fff" stroke="#C7D6F5" stroke-width="1.5"/><rect x="68" y="150" width="234" height="9" fill="#E9F0FF"/>
+ <rect x="92" y="176" width="26" height="36" fill="#DCEAFF" stroke="#1A56DB" stroke-width="2" rx="3"/><path d="M105 176v36M92 194h26" stroke="#1A56DB" stroke-width="1.4"/><rect x="132" y="176" width="26" height="36" fill="#DCEAFF" stroke="#1A56DB" stroke-width="2" rx="3"/><path d="M145 176v36M132 194h26" stroke="#1A56DB" stroke-width="1.4"/><rect x="218" y="176" width="26" height="36" fill="#DCEAFF" stroke="#1A56DB" stroke-width="2" rx="3"/><path d="M231 176v36M218 194h26" stroke="#1A56DB" stroke-width="1.4"/><rect x="258" y="176" width="26" height="36" fill="#DCEAFF" stroke="#1A56DB" stroke-width="2" rx="3"/><path d="M271 176v36M258 194h26" stroke="#1A56DB" stroke-width="1.4"/>
+ <path d="M166 262V226a19 19 0 0 1 38 0V262Z" fill="#4F46E5"/><path d="M185 207v55" stroke="#818CF8" stroke-width="1.5"/>
+ <rect x="125" y="128" width="120" height="24" fill="#1A56DB" rx="7"/><text x="185" y="146" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="16" font-weight="700" fill="#fff">বিদ্যালয়</text>
+ <line x1="312" y1="76" x2="312" y2="152" stroke="#94A3B8" stroke-width="2"/><g class="ls-flag"><rect x="312" y="76" width="36" height="22" fill="#10B981"/><circle cx="328" cy="87" r="6.5" fill="#EF4444"/></g>
+ <rect x="34" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="47" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="60" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="73" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="86" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="99" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="112" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="125" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="138" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="151" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="164" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="177" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="190" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="203" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="216" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="229" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="242" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="255" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="268" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="281" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="294" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="307" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="320" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="333" y="243" width="3" height="17" fill="#C4D3F3"/><rect x="30" y="260" width="320" height="3" fill="#C4D3F3"/>
+ <text class="ls-abc" x="118" y="108" font-family="Hind Siliguri,sans-serif" font-size="17" font-weight="800" fill="#4F46E5">অ</text><text class="ls-abc a2" x="170" y="96" font-family="Inter,sans-serif" font-size="16" font-weight="800" fill="#F59E0B">A</text><text class="ls-abc a3" x="222" y="104" font-family="Hind Siliguri,sans-serif" font-size="17" font-weight="800" fill="#10B981">আ</text><text class="ls-abc a4" x="258" y="90" font-family="Inter,sans-serif" font-size="15" font-weight="800" fill="#EC4899">B</text>
+</g><g class="ls-walk" style="--dx:150px;--t:15s;--d:-1s"><use class="ls-bob" href="#ls-kid" x="20" y="260"/></g><g class="ls-walk" style="--dx:166px;--t:15s;--d:-4s"><use class="ls-bob" href="#ls-girl" x="2" y="260"/></g><g class="ls-walk" style="--dx:186px;--t:15s;--d:-8s"><use class="ls-bob" href="#ls-kid" x="-12" y="260"/></g><g transform="translate(222 260)"><rect x="-3.5" y="-12" width="3" height="12" fill="#334155"/><rect x=".5" y="-12" width="3" height="12" fill="#334155"/><rect x="-5.5" y="-26" width="11" height="15" rx="3" fill="#A78BFA"/><circle cy="-31" r="5" fill="#F2C6A0"/><path d="M-5-32a5 5 0 0 1 10 0z" fill="#1F2937"/><rect class="ls-wave" x="4" y="-26" width="9" height="3" rx="1.5" fill="#F2C6A0"/></g><use href="#ls-tree" x="352" y="262" transform="translate(352 262) scale(.9) translate(-352 -262)"/><g>
+ <rect x="396" y="168" width="156" height="94" fill="#fff" stroke="#C7D6F5" stroke-width="1.5"/>
+ <path d="M410 168a64 64 0 0 1 128 0Z" fill="#4F46E5"/><path d="M410 168a64 64 0 0 1 20-46q-10 22-8 46Z" fill="#6366F1"/>
+ <line x1="474" y1="104" x2="474" y2="84" stroke="#F5B316" stroke-width="2.4"/><path d="M474 76a7 7 0 1 0 6 10 5.5 5.5 0 1 1-6-10Z" fill="#F5B316"/>
+ <rect x="428" y="206" width="92" height="20" fill="#10B981" rx="6"/><text x="474" y="221" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="14" font-weight="700" fill="#fff">মাদ্রাসা</text>
+ <path d="M410 262V235a13 13 0 0 1 26 0V262Z" fill="#DCEAFF" stroke="#4F46E5" stroke-width="2"/><path d="M500 262V235a13 13 0 0 1 26 0V262Z" fill="#DCEAFF" stroke="#4F46E5" stroke-width="2"/><path d="M455 262V245a19 19 0 0 1 38 0V262Z" fill="#4F46E5"/>
+ <rect x="560" y="122" width="20" height="140" fill="#fff" stroke="#C7D6F5" stroke-width="1.5"/><rect x="556" y="118" width="28" height="8" fill="#E9F0FF"/>
+ <path d="M556 118L570 92 584 118Z" fill="#4F46E5"/><line x1="570" y1="92" x2="570" y2="80" stroke="#F5B316" stroke-width="2"/><path d="M570 72a6 6 0 1 0 5 8.5 4.6 4.6 0 1 1-5-8.5Z" fill="#F5B316"/>
+ <path d="M564 168V152a6 6 0 0 1 12 0V168Z" fill="#DCEAFF"/><path d="M564 212V196a6 6 0 0 1 12 0V212Z" fill="#DCEAFF"/>
+ <rect x="380" y="256" width="230" height="6" fill="#E9F0FF"/>
+</g><g transform="translate(640 260) scale(-1 1)"><g class="ls-walk" style="--dx:170px;--t:17s;--d:-2s"><use class="ls-bob" href="#ls-mad" x="0" y="0"/></g><g class="ls-walk" style="--dx:190px;--t:17s;--d:-9s"><use class="ls-bob" href="#ls-mad" x="14" y="0"/></g></g><g>
+ <circle cx="712" cy="178" r="48" fill="#F87171"/>
+ <rect x="654" y="242" width="120" height="20" fill="#fff" stroke="#C7D6F5" stroke-width="1.5" rx="3"/>
+ <rect x="662" y="150" width="12" height="92" fill="#fff" stroke="#C7D6F5" stroke-width="1.2"/><rect x="678" y="128" width="12" height="114" fill="#fff" stroke="#C7D6F5" stroke-width="1.2"/><rect x="700" y="100" width="24" height="142" fill="#fff" stroke="#C7D6F5" stroke-width="1.4"/><rect x="734" y="128" width="12" height="114" fill="#fff" stroke="#C7D6F5" stroke-width="1.2"/><rect x="750" y="150" width="12" height="92" fill="#fff" stroke="#C7D6F5" stroke-width="1.2"/>
+ <circle cx="670" cy="238" r="4.5" fill="#F472B6"/><circle cx="688" cy="238" r="4.5" fill="#F5B316"/><circle cx="712" cy="238" r="4.5" fill="#F472B6"/><circle cx="736" cy="238" r="4.5" fill="#F5B316"/><circle cx="754" cy="238" r="4.5" fill="#F472B6"/>
+</g><use href="#ls-tree" x="802" y="262" transform="translate(802 262) scale(.85) translate(-802 -262)"/><g>
+ <rect x="812" y="190" width="102" height="72" fill="#F6C3A6" rx="2"/><rect x="978" y="190" width="102" height="72" fill="#F6C3A6" rx="2"/>
+ <rect x="906" y="148" width="80" height="114" fill="#F3B393"/>
+ <path d="M900 148L946 118 992 148Z" fill="#E9A284"/>
+ <rect x="926" y="102" width="40" height="48" fill="#F3B393"/><polygon points="920,102 946,70 972,102" fill="#4F46E5"/><circle cx="946" cy="128" r="12" fill="#fff" stroke="#1A56DB" stroke-width="2.4"/><path d="M946 121v7l5 3" stroke="#1A56DB" stroke-width="2" fill="none" stroke-linecap="round"/>
+ <rect x="920" y="164" width="52" height="17" fill="#1A56DB" rx="5"/><text x="946" y="177" text-anchor="middle" font-family="Hind Siliguri,sans-serif" font-size="13" font-weight="700" fill="#fff">কলেজ</text>
+ <rect x="914" y="188" width="7" height="74" fill="#fff"/><rect x="930" y="188" width="7" height="74" fill="#fff"/><rect x="962" y="188" width="7" height="74" fill="#fff"/><rect x="978" y="188" width="7" height="74" fill="#fff"/><path d="M944 262V227a13 13 0 0 1 26 0V262Z" fill="#1A56DB"/>
+ <path d="M826 244V214a10 10 0 0 1 20 0V244Z" fill="#E6F0FF" stroke="#1A56DB" stroke-width="1.8"/><path d="M862 244V214a10 10 0 0 1 20 0V244Z" fill="#E6F0FF" stroke="#1A56DB" stroke-width="1.8"/><path d="M996 244V214a10 10 0 0 1 20 0V244Z" fill="#E6F0FF" stroke="#1A56DB" stroke-width="1.8"/><path d="M1038 244V214a10 10 0 0 1 20 0V244Z" fill="#E6F0FF" stroke="#1A56DB" stroke-width="1.8"/>
+ <rect x="904" y="256" width="84" height="6" fill="#fff"/><rect x="900" y="260" width="92" height="4" fill="#E9F0FF"/>
+</g><use href="#ls-grad" x="1000" y="262"/><use href="#ls-grad" x="1022" y="262"/><use href="#ls-grad" x="1044" y="262"/><use class="ls-cap" href="#ls-cap" x="1000" y="216"/><use class="ls-cap c2" href="#ls-cap" x="1022" y="216"/><use class="ls-cap c3" href="#ls-cap" x="1044" y="216"/><use href="#ls-tree" x="1098" y="262" transform="translate(1098 262) scale(.9) translate(-1098 -262)"/><g><use href="#ls-tree" x="1190" y="262" transform="translate(1190 262) scale(1.45) translate(-1190 -262)"/>
+ <g transform="translate(1176 262)"><rect x="-8" y="-5" width="16" height="5" rx="2" fill="#4F46E5"/><rect x="-5" y="-20" width="10" height="15" rx="3" fill="#EC4899"/><circle cy="-24" r="4.5" fill="#F2C6A0"/><path d="M-4.7-25a4.7 4.7 0 0 1 9.4 0z" fill="#3F2A1D"/><path d="M-1 -15l9 -3 -2 8 -9 3z" fill="#fff" stroke="#B8C7EA" stroke-width=".8"/></g>
+ <rect x="1262" y="250" width="34" height="6" fill="#1A56DB" rx="2"/><rect x="1264" y="243" width="30" height="7" fill="#F5B316" rx="2"/><rect x="1266" y="236" width="26" height="7" fill="#10B981" rx="2"/><rect x="1268" y="229" width="22" height="7" fill="#7C3AED" rx="2"/>
+ <g transform="translate(1356 260)"><rect x="-26" y="-22" width="52" height="4" rx="2" fill="#94A3B8"/><rect x="-22" y="-18" width="44" height="14" rx="2" fill="#FDE68A"/><circle cx="-14" cy="-2" r="5" fill="none" stroke="#475569" stroke-width="2"/><circle cx="14" cy="-2" r="5" fill="none" stroke="#475569" stroke-width="2"/><line x1="0" y1="-22" x2="0" y2="-54" stroke="#94A3B8" stroke-width="2"/><path d="M-30-48q30-18 60 0Z" fill="#F43F5E"/><path d="M-15-52v4M0-54v6M15-52v4" stroke="#fff" stroke-width="3"/><rect x="32" y="-26" width="9" height="12" rx="3" fill="#3B82F6"/><circle cx="36.5" cy="-31" r="4" fill="#F2C6A0"/></g>
+ <use href="#ls-tree" x="1412" y="262" transform="translate(1412 262) scale(.8) translate(-1412 -262)"/>
+</g><g class="ls-bus"><g transform="translate(0 285)"><rect x="0" y="-34" width="122" height="30" rx="9" fill="#1A56DB"/><rect x="0" y="-16" width="122" height="4" fill="#F5B316"/><rect x="10" y="-29" width="16" height="11" fill="#DCEAFF" rx="2"/><rect x="31" y="-29" width="16" height="11" fill="#DCEAFF" rx="2"/><rect x="52" y="-29" width="16" height="11" fill="#DCEAFF" rx="2"/><rect x="73" y="-29" width="16" height="11" fill="#DCEAFF" rx="2"/><rect x="94" y="-29" width="16" height="11" fill="#DCEAFF" rx="2"/><path d="M104-29h12q6 0 6 8v6h-18z" fill="#BFD8FF"/><circle cx="26" cy="-3" r="8" fill="#334155"/><circle cx="26" cy="-3" r="3" fill="#CBD5E1"/><circle cx="96" cy="-3" r="8" fill="#334155"/><circle cx="96" cy="-3" r="3" fill="#CBD5E1"/></g></g><g class="ls-rick"><g transform="translate(0 285)"><circle cx="0" cy="-9" r="9" fill="none" stroke="#334155" stroke-width="2.4"/><circle cx="40" cy="-9" r="9" fill="none" stroke="#334155" stroke-width="2.4"/><path d="M-2-9L14-22H36L40-9" stroke="#475569" stroke-width="2.2" fill="none"/><rect x="14" y="-34" width="26" height="12" rx="3" fill="#F5B316"/><path d="M12-34q16-20 34 0Z" fill="#EC4899"/><path d="M14-34q8-12 18-12" stroke="#BE185D" stroke-width="1.5" fill="none"/><circle cx="26" cy="-42" r="4" fill="#F2C6A0"/><rect x="21" y="-38" width="10" height="5" rx="2" fill="#4F46E5"/><g transform="translate(-6 0)"><rect x="-3" y="-36" width="9" height="16" rx="3" fill="#10B981"/><circle cx="1.5" cy="-41" r="4.5" fill="#F2C6A0"/><path d="M-3-42a4.5 4.5 0 0 1 9 0z" fill="#3F2A1D"/></g></g></g><g class="ls-sbus"><g transform="translate(0 276)"><rect x="0" y="-30" width="96" height="26" rx="8" fill="#FBBF24"/><rect x="8" y="-26" width="14" height="10" fill="#FFF7D6" rx="2"/><rect x="28" y="-26" width="14" height="10" fill="#FFF7D6" rx="2"/><rect x="48" y="-26" width="14" height="10" fill="#FFF7D6" rx="2"/><rect x="68" y="-26" width="14" height="10" fill="#FFF7D6" rx="2"/><rect x="0" y="-14" width="96" height="3" fill="#1E1B4B"/><circle cx="22" cy="-3" r="7" fill="#334155"/><circle cx="74" cy="-3" r="7" fill="#334155"/></g></g></svg>
   </div>
 </div>
 
@@ -2443,6 +2068,5 @@ loadApprovedInstitutions();
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40)},{ passive:true});
 </script>
-<script>if(/[?&]day(=|&|$)/.test(location.search)){ var h = document.querySelector(".search-hero"); if(h) h.classList.add("day"); }</script>
 </body>
 </html>
