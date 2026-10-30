@@ -162,7 +162,18 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .pv-tabs{display:flex;gap:4px;padding:5px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2);margin-bottom:12px}
 .pv-tabs button{flex:1;border:none;border-radius:11px;padding:9px 6px;background:transparent;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .2s}
 .pv-tabs button.on{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 8px 18px -8px rgba(79,70,229,.7)}
-.pv-body{border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(15,23,42,.45);max-height:calc(100vh - 190px);overflow-y:auto;scrollbar-width:thin}
+.pv-body{border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(15,23,42,.45)}
+.pv-body.scroll{max-height:calc(100vh - 250px);overflow-y:auto;scrollbar-width:thin}
+#cvCert,#cvPost{width:auto;height:auto;max-width:100%;max-height:calc(100vh - 330px);margin:0 auto}
+.pv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:8px 10px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
+.pv-bar .dots{display:flex;gap:8px;align-items:center}
+.pv-bar .dots small{font-size:12.5px;font-weight:600;color:var(--text-3);margin-right:2px}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);padding:0;transition:transform .15s}
+.dot:hover{transform:scale(1.12)}
+.dot.on{box-shadow:0 0 0 2px var(--blue)}
+.pv-bar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.pv-bar .sm{height:36px;padding:0 13px;font-size:13px;border-radius:10px}
+.btn-pri.sm{height:36px;padding:0 15px;font-size:13.5px;border-radius:10px;box-shadow:none}
 .pv-pane{display:none}.pv-pane.on{display:block}
 .pv-canvas{display:block;width:100%;height:auto;border-radius:20px;background:#0B1020}
 .pv-cap{margin-top:10px;text-align:center;font-size:12.5px;color:var(--text-3)}
@@ -300,6 +311,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="themes" id="themes"></div>
       <label class="f">ব্যাজ</label>
       <div class="chips" id="badges"></div>
+      <label class="f" for="fPostTop" style="margin-top:20px">Facebook পোস্ট ছবির উপরের লেখা <span class="c" id="cTop"></span></label>
+      <input class="fi" id="fPostTop" maxlength="40" placeholder="আমার স্কিলই আমার সনদ">
+      <label class="f" for="fPostBot">পোস্ট ছবির নিচের লেখা <span class="c" id="cBot"></span></label>
+      <input class="fi" id="fPostBot" maxlength="50" placeholder="কাগজের সনদ নয়, কাজের সনদ">
+      <div class="hint">লেখাটা বদলালে ডানে পোস্ট ছবি নিজে থেকে খুলে দেখাবে।</div>
     </section>
 
     <section class="panel" id="s6">
@@ -323,21 +339,14 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
+    <div class="pv-bar"><div class="dots"><small>রং</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
-      <div class="pv-pane on" id="pvPf"><div id="pvMount"></div></div>
-      <div class="pv-pane" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCert">সনদ ডাউনলোড করুন</button><button class="btn-line zoom-b" type="button" data-zoom="cert">🔍 বড় করে দেখুন</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
-      <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff">
-        <canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas>
-        <label class="f" for="fPostTop" style="margin-top:14px">ছবির উপরের লেখা <span class="c" id="cTop"></span></label>
-        <input class="fi" id="fPostTop" maxlength="40" placeholder="আমার স্কিলই আমার সনদ">
-        <label class="f" for="fPostBot">ছবির নিচের লেখা <span class="c" id="cBot"></span></label>
-        <input class="fi" id="fPostBot" maxlength="50" placeholder="কাগজের সনদ নয়, কাজের সনদ">
-        <div class="dl" style="gap:10px;flex-wrap:wrap"><button class="btn-line" type="button" id="dlPost">ছবি ডাউনলোড করুন</button><button class="btn-line zoom-b" type="button" data-zoom="post">🔍 বড় করে দেখুন</button><button class="btn-line" type="button" id="cpCap">ক্যাপশন কপি করুন</button></div>
-        <div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন।</div>
-      </div>
-      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="dl"><button class="btn-line zoom-b" type="button" data-zoom="certog">🔍 বড় করে দেখুন</button></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
+      <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
+      <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
+      <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas><div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন। উপরের-নিচের লেখা বদলাতে বাঁয়ে "ডিজাইন" অংশে যান।</div></div>
+      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
   </aside>
 </div>
@@ -426,6 +435,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   function paintThemes(){
     $('themes').innerHTML = Object.keys(V.THEMES).map(k => '<button type="button" class="th' + (S.theme === k ? ' on' : '') + '" data-t="' + k + '"><i style="background:' + THEME_BG[k] + '"></i><span>' + V.THEMES[k].name + '</span></button>').join('');
+    $('pvDots').innerHTML = Object.keys(V.THEMES).map(k => '<button type="button" class="dot' + (S.theme === k ? ' on' : '') + '" data-t="' + k + '" title="' + V.THEMES[k].name + '" aria-label="' + V.THEMES[k].name + '" style="background:' + THEME_BG[k] + '"></button>').join('');
     $('badges').innerHTML = Object.keys(V.BADGES).map(k => { const on = S.badges.includes(k); return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-b="' + k + '"' + (!on && S.badges.length >= 2 ? ' disabled' : '') + '>' + V.BADGES[k] + '</button>'; }).join('');
   }
   function paintHeads(){ $('headSugg').innerHTML = HEADS.map(h => '<button type="button" class="chip" data-h="' + V.esc(h) + '">' + V.esc(h) + '</button>').join(''); }
@@ -462,6 +472,18 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     try{ const cv = await C.draw(Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at }), 'cert'); const t = $('cvMini'); t.getContext('2d').drawImage(cv, 0, 0, t.width, t.height); }catch(e){}
   }
   /* ---------- the full-screen viewer ---------- */
+  let PV = 'ct';
+  function setTab(k){
+    PV = k;
+    document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x.dataset.p === k));
+    const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', lk: 'pvLk' };
+    Object.keys(map).forEach(q => $(map[q]).classList.toggle('on', q === k));
+    $('barCap').style.display = k === 'po' ? '' : 'none';
+    $('barDl').style.display = (k === 'ct' || k === 'po') ? '' : 'none';
+    $('barZoom').style.display = k === 'pf' ? 'none' : '';
+    document.querySelector('.pv-body').classList.toggle('scroll', k === 'pf');
+    drawCanvases();
+  }
   let LBK = 'cert';
   async function zoom(kind){
     LBK = kind; $('lb').classList.remove('zoom'); $('lbImg').removeAttribute('src'); $('lb').classList.add('show'); document.body.style.overflow = 'hidden';
@@ -621,17 +643,15 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('lbZoom', 'click', () => $('lbImg').click());
     on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : 'cert'));
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
-    on('shCard', 'click', () => downloadCard('post')); on('dlPost', 'click', () => downloadCard('post')); on('dlCert', 'click', () => downloadCard('cert'));
+    on('shCard', 'click', () => downloadCard('post')); 
     on('fPostTop', 'input', e => { S.post_top = e.target.value; $('cTop').textContent = S.post_top.length + '/40'; saveDraft(); debounce('cv', drawCanvases, 350); });
     on('fPostBot', 'input', e => { S.post_bottom = e.target.value; $('cBot').textContent = S.post_bottom.length + '/50'; saveDraft(); debounce('cv', drawCanvases, 350); });
-    on('cpCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
-    document.querySelector('.pv-tabs').addEventListener('click', e => {
-      const b = e.target.closest('[data-p]'); if(!b) return;
-      document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x === b));
-      const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', lk: 'pvLk' };
-      Object.keys(map).forEach(k => $(map[k]).classList.toggle('on', k === b.dataset.p));
-      drawCanvases();
-    });
+    on('barCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
+    document.querySelector('.pv-tabs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if(b) setTab(b.dataset.p); });
+    on('pvDots', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
+    on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'lk' ? 'certog' : 'cert'));
+    on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : 'cert'));
+    on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
     on('prevOpen', 'click', () => $('colPrev').classList.add('open')); on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
     window.addEventListener('beforeunload', saveDraft);
