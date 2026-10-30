@@ -344,6 +344,108 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
   body{padding-bottom:74px}
   .toast{bottom:90px}
 }
+
+/* ---- compact light hero: warm ivory-gold card, emerald text (different from the blue skill page) ---- */
+nav#nav{background:rgba(255,255,255,.86);border:1px solid #EADFC4;box-shadow:0 10px 32px -18px rgba(60,40,0,.25)}
+nav#nav.scrolled{background:rgba(255,255,255,.95);border-color:#EADFC4;box-shadow:0 12px 36px -16px rgba(60,40,0,.3)}
+nav#nav .logo{color:#0B3B2A}
+nav#nav .nav-links a{color:#4B5A52}nav#nav .nav-links a:hover,nav#nav .nav-links a.active{color:#0B3B2A}
+nav#nav .btn-ghost-nav{color:#4B5A52}nav#nav .btn-ghost-nav:hover{color:#0B3B2A}
+nav#nav .mb-ic{color:#334155;background:#fff;border-color:#EADFC4}nav#nav .mb-ic:hover{background:#FFF8E6}
+nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-prof:hover{background:#FFF8E6}
+.hero{margin:98px auto 0;width:calc(100% - 48px);max-width:1152px;padding:38px 44px 32px;border-radius:32px;color:#0B3B2A;border:1px solid #F0E0B4;background:radial-gradient(520px 300px at 96% 0,rgba(245,158,11,.22),transparent 62%),radial-gradient(460px 280px at 0 100%,rgba(16,185,129,.15),transparent 62%),linear-gradient(180deg,#FFFCF1,#FCF1D4)}
+.hero .container{display:block;padding:0;max-width:none;text-align:left}
+.hero-fx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-fx>*{position:absolute}
+.hf-ring{fill:none;stroke:rgba(180,120,20,.22);stroke-width:.8}
+.hf-ring.r1{width:520px;height:520px;right:-150px;top:-200px;animation:hfspin 120s linear infinite}
+.hf-ring.r2{width:420px;height:420px;left:-130px;bottom:-230px;stroke:rgba(5,120,85,.18);animation:hfspin 160s linear infinite reverse}
+@keyframes hfspin{to{transform:rotate(360deg)}}
+.hf-sp{width:12px;height:12px;background:#E0A93B;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:.5;animation:hftw 4.5s ease-in-out infinite}
+@keyframes hftw{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:.9;transform:scale(1.15) rotate(20deg)}}
+.hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:36px;align-items:center}
+.hero-copy{text-align:left}
+.hero .eyebrow{background:#fff;border:1px solid #F0E0B4;color:#92400E;font-size:13px;font-weight:600;padding:6px 14px}
+.hero h1{margin:16px 0 12px;font-size:clamp(28px,3.7vw,46px);line-height:1.16;color:#0B3B2A}
+.hero h1 span{background:linear-gradient(120deg,#047857,#0F766E 55%,#B45309);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;max-width:30em;font-size:16px;color:#4B5A52;line-height:1.75}
+.hero .dl-live{background:#fff;border:1px solid #F0E0B4;color:#0B3B2A;margin-top:16px}
+.hero .dl-live b{color:#047857}
+.hero-pills{justify-content:flex-start;margin-top:14px}
+.hero-pills span{color:#334840}.hero-pills .ico{color:#047857}
+.hero-cta{margin-top:20px}
+.hero-go{display:inline-flex;align-items:center;gap:9px;height:50px;padding:0 26px;border:none;border-radius:14px;background:linear-gradient(135deg,#047857,#0F766E);color:#fff;font:700 16px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;box-shadow:0 14px 26px -12px rgba(4,120,87,.7);transition:transform .2s,box-shadow .2s}
+.hero-go:hover{transform:translateY(-2px);box-shadow:0 18px 32px -12px rgba(4,120,87,.8)}
+.app{margin-top:24px}
+/* the little demo: a card that builds itself */
+.hero-stage{position:relative;width:100%;max-width:520px;margin-left:auto}
+.hc-box{position:relative;width:100%;aspect-ratio:520/312}
+.hc-in{position:absolute;left:0;top:0;width:520px;height:312px;transform-origin:0 0}
+.hc-glow{position:absolute;left:110px;top:30px;width:320px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.32),rgba(245,158,11,0) 68%)}
+.hc-card{position:absolute;left:78px;top:22px;width:372px;height:262px;border-radius:20px;padding:14px 16px;color:#fff;background:linear-gradient(145deg,#0B6B47,#064E3B 70%);box-shadow:0 34px 46px -22px rgba(4,60,40,.7),inset 0 0 0 1.5px rgba(227,194,117,.55);overflow:hidden;opacity:0;transform:translateY(18px) scale(.94) rotateY(0);transition:opacity .5s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.hc-card::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#E3C275,#F6E3A6,#E3C275)}
+.hc-top{display:flex;align-items:center;gap:8px}
+.hc-cap{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);color:#F6E3A6}
+.hc-top b{font:800 18px 'Hind Siliguri',sans-serif}
+.hc-top em{margin-left:auto;font:600 9px 'Inter',sans-serif;font-style:normal;letter-spacing:.06em;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2)}
+.hc-body{display:flex;gap:12px;margin-top:11px}
+.hc-ph{position:relative;flex:none;width:66px;height:80px;border-radius:10px;overflow:hidden;background:linear-gradient(160deg,#CDEBDD,#9FD3BC);border:2px solid #F6E3A6;opacity:0;transform:scale(.8);transition:opacity .4s ease,transform .5s cubic-bezier(.3,1.5,.5,1)}
+.hc-ph .hd{position:absolute;left:50%;top:14px;width:26px;height:26px;margin-left:-13px;border-radius:50%;background:#1F6F52}
+.hc-ph .bd{position:absolute;left:50%;top:44px;width:50px;height:44px;margin-left:-25px;border-radius:50%;background:#1F6F52}
+.hc-info{min-width:0}
+.hc-info small{display:block;font-size:9px;color:#A7D8C3;letter-spacing:.04em}
+.hc-name{font:800 21px/1.2 'Hind Siliguri',sans-serif;min-height:26px}
+.hc-cert{display:inline-block;margin-top:5px;padding:3px 10px;border-radius:100px;background:linear-gradient(135deg,#B45309,#92400E);font:700 10.5px 'Hind Siliguri',sans-serif;opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease}
+.hc-ed{margin-top:10px}
+.hc-ed small{display:block;font-size:10px;color:#F6E3A6;font-weight:700;margin-bottom:4px}
+.hc-ed .r{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid rgba(255,255,255,.12);font-size:11.5px;opacity:0;transform:translateX(-14px);transition:opacity .4s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+.hc-ed .r i{flex:none;width:14px;height:14px;border-radius:50%;background:#34D399;position:relative}
+.hc-ed .r i::after{content:"";position:absolute;left:4px;top:2.5px;width:3.5px;height:6.5px;border:solid #064E3B;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.hc-ed .r b{font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ed .r em{font-style:normal;color:#A7D8C3;font-size:10.5px}
+.hc-seal{position:absolute;right:14px;bottom:12px;width:62px;height:62px;color:#F6E3A6;opacity:0;transform:scale(2.2) rotate(-24deg);transition:opacity .25s ease,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.hc-sheen{position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none}
+.hc-drop{position:absolute;left:0;top:120px;width:176px;padding:8px;border-radius:14px;background:#fff;color:#0B3B2A;box-shadow:0 22px 36px -14px rgba(60,40,0,.45);border:1px solid #F0E0B4;opacity:0;transform:translate(-10px,10px) scale(.94);transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.4,.5,1)}
+.hc-drop .q{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;background:#F6F1E2;font:600 12px 'Hind Siliguri',sans-serif;min-height:30px}
+.hc-drop .o{display:flex;flex-direction:column;padding:6px 9px;border-radius:9px;margin-top:3px;opacity:.55}
+.hc-drop .o b{font:700 11.5px 'Hind Siliguri',sans-serif}.hc-drop .o em{font:500 9.5px 'Hind Siliguri',sans-serif;font-style:normal;color:#6B7B73}
+.hc-drop .o.on{opacity:1;background:#E7F6EE;box-shadow:inset 0 0 0 1.5px #34D399}
+.hc-dl{position:absolute;right:-4px;bottom:-12px;min-width:190px;height:40px;border-radius:12px;background:#0B3B2A;color:#fff;overflow:hidden;box-shadow:0 18px 30px -12px rgba(4,60,40,.7);opacity:0;transform:translateY(12px);transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.4,.5,1)}
+.hc-dl span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px;font:700 13px 'Hind Siliguri',sans-serif;z-index:1;transition:opacity .25s}
+.hc-dl .t2{opacity:0;color:#6EE7B7}
+.hc-dl i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#047857,#10B981);opacity:.9}
+.hc-sh{position:absolute;right:6px;top:-2px;display:flex;gap:6px}
+.hc-sh span{padding:6px 11px;border-radius:100px;font:700 11px 'Inter',sans-serif;color:#fff;box-shadow:0 12px 20px -8px rgba(0,0,0,.4);opacity:0;transform:translateY(10px) scale(.8);transition:opacity .35s ease,transform .5s cubic-bezier(.3,1.6,.5,1)}
+.hc-sh .wa{background:#25D366}.hc-sh .fb{background:#1877F2;transition-delay:.15s}
+.hc-in.c1 .hc-card{opacity:1;transform:none}
+.hc-in.c2 .hc-ph{opacity:1;transform:none}
+.hc-in.c2 .hc-cert{opacity:1;transform:none}
+.hc-in.c3 .hc-drop{opacity:1;transform:none}
+.hc-in.c4 .hc-ed .r1{opacity:1;transform:none}
+.hc-in.c5 .hc-ed .r2{opacity:1;transform:none}
+.hc-in.c6 .hc-ed .r3{opacity:1;transform:none}
+.hc-in.c7 .hc-drop{opacity:0;transform:translate(-10px,-6px) scale(.96)}
+.hc-in.c7 .hc-seal{opacity:.95;transform:none}
+.hc-in.c8 .hc-card{transform:perspective(900px) rotateY(-9deg) rotateX(3deg) translateY(-2px)}
+.hc-in.c8 .hc-sheen{animation:hcsheen 1.3s ease-out}
+@keyframes hcsheen{from{left:-60%}to{left:130%}}
+.hc-in.c9 .hc-dl{opacity:1;transform:none}
+.hc-in.c9 .hc-dl i{animation:hcfill 1.7s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes hcfill{to{width:100%}}
+.hc-in.c10 .hc-dl .t1{opacity:0}.hc-in.c10 .hc-dl .t2{opacity:1}
+.hc-in.c11 .hc-sh span{opacity:1;transform:none}
+.hc-in.out .hc-card,.hc-in.out .hc-drop,.hc-in.out .hc-dl,.hc-in.out .hc-sh span{opacity:0!important;transition:opacity .5s ease!important}
+.caret{display:inline-block;width:2px;height:.95em;margin-left:2px;vertical-align:-.12em;background:currentColor;animation:caret .8s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.hs-steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0;padding:0}
+.hs-steps li{position:relative;padding-top:11px;color:#6B7B73;font:600 12.5px/1.4 'Hind Siliguri','Inter',sans-serif;transition:color .3s}
+.hs-steps li i{position:absolute;left:0;right:0;top:0;height:3px;border-radius:3px;background:rgba(4,120,87,.15);overflow:hidden}
+.hs-steps li i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#047857,#D97706);transform:scaleX(0);transform-origin:left;transition:transform .5s ease}
+.hs-steps li.on{color:#0B3B2A}.hs-steps li.on i::after,.hs-steps li.done i::after{transform:scaleX(1)}
+.hs-steps li.done{color:#334840}
+@media(max-width:1020px){.hero-in{grid-template-columns:minmax(0,1fr);gap:26px}.hero-copy{text-align:center}.hero p{margin-left:auto;margin-right:auto}.hero-pills{justify-content:center}.hero-stage{margin:0 auto}.hero{padding:34px 28px 28px}}
+@media(max-width:760px){.hero{margin-top:86px;width:calc(100% - 24px);padding:28px 16px 24px;border-radius:24px}.app{margin-top:16px}}
+@media(prefers-reduced-motion:reduce){.hf-ring,.hf-sp,.caret{animation:none}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -367,23 +469,50 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 </nav>
 
 <section class="hero">
-  <div class="hero-sky" id="heroSky" aria-hidden="true">
-    <svg class="guil" id="guil" preserveAspectRatio="none"></svg>
-    <div class="holo-sweep"></div>
-    <div class="fcard c1"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i><svg class="stamp" viewBox="0 0 100 100"><defs><path id="sT1" d="M18 50a32 32 0 0 1 64 0"/><path id="sB1" d="M12 50a38 38 0 0 0 76 0"/></defs><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="50" cy="50" r="23" fill="none" stroke="currentColor" stroke-width="1.4"/><text font-size="13" font-weight="700" fill="currentColor" font-family="Hind Siliguri,sans-serif"><textPath href="#sT1" startOffset="50%" text-anchor="middle">শিক্ষিত কার্ড</textPath></text><text font-size="8" font-weight="800" fill="currentColor" font-family="Inter,sans-serif" letter-spacing="1.2"><textPath href="#sB1" startOffset="50%" text-anchor="middle">SHIKKHITO CARD</textPath></text><path d="M38 47l12-6 12 6-12 6zM43 50v6c0 2 3.2 3.5 7 3.5s7-1.5 7-3.5v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
-    <div class="fcard c2"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i><svg class="stamp" viewBox="0 0 100 100"><defs><path id="sT2" d="M18 50a32 32 0 0 1 64 0"/><path id="sB2" d="M12 50a38 38 0 0 0 76 0"/></defs><circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="41" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="50" cy="50" r="23" fill="none" stroke="currentColor" stroke-width="1.4"/><text font-size="13" font-weight="700" fill="currentColor" font-family="Hind Siliguri,sans-serif"><textPath href="#sT2" startOffset="50%" text-anchor="middle">শিক্ষিত কার্ড</textPath></text><text font-size="8" font-weight="800" fill="currentColor" font-family="Inter,sans-serif" letter-spacing="1.2"><textPath href="#sB2" startOffset="50%" text-anchor="middle">SHIKKHITO CARD</textPath></text><path d="M38 47l12-6 12 6-12 6zM43 50v6c0 2 3.2 3.5 7 3.5s7-1.5 7-3.5v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span class="done">✓ যাচাইকৃত</span></div>
-    <div class="fcard c3"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i></div>
-    <div class="fcard c4"><i class="ph"></i><i class="ln" style="top:26px;width:52%"></i><i class="ln" style="top:42px;width:34%;opacity:.6"></i><i class="ln" style="top:58px;width:42%;opacity:.45"></i><i class="chip"></i><i class="ft"></i></div>
-  </div>
-  <div class="container">
-    <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#FDE68A"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · বিনামূল্যে · লগইন লাগবে না</span>
-    <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
-    <p>এমন একটা কার্ড, যেটা কেউ দেয়নি — নিজের যোগ্যতায় অর্জন করেছেন। নিজের স্কুল, কলেজ, বিশ্ববিদ্যালয় বাছাই করুন, ছবি দিন, আর ৩০ সেকেন্ডে ডাউনলোড করে শেয়ার করুন।</p>
-    <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>ইতিমধ্যে শিক্ষিত কার্ড <b id="dlCount">০</b>টি ডাউনলোড হয়েছে</span></div>
-    <div class="hero-pills">
-      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৩০ সেকেন্ড</span>
-      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>ছবি আপনার ফোনেই থাকে</span>
-      <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>এক ক্লিকে শেয়ার</span>
+  <div class="hero-fx" aria-hidden="true"><svg class="hf-ring r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="78"/><circle cx="100" cy="100" r="60"/></svg><svg class="hf-ring r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="74"/></svg><i class="hf-sp" style="left:46%;top:14%"></i><i class="hf-sp" style="left:8%;top:78%"></i><i class="hf-sp" style="left:92%;top:84%"></i></div>
+  <div class="hero-in">
+    <div class="hero-copy">
+      <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#D97706"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · ফ্রি · লগইন লাগবে না</span>
+      <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
+      <p>এমন একটা কার্ড, যেটা কেউ আপনাকে দেয়নি, আপনি নিজের যোগ্যতায় অর্জন করেছেন। স্কুল, কলেজ, বিশ্ববিদ্যালয় বেছে নিন, ছবি দিন, ৩০ সেকেন্ডে ডাউনলোড করে শেয়ার করুন।</p>
+      <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>ইতিমধ্যে শিক্ষিত কার্ড <b id="dlCount">০</b>টি ডাউনলোড হয়েছে</span></div>
+      <div class="hero-pills">
+        <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৩০ সেকেন্ড</span>
+        <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>ছবি থাকে আপনার ফোনেই</span>
+        <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>এক ক্লিকে শেয়ার</span>
+      </div>
+      <div class="hero-cta"><button class="hero-go" type="button" id="heroGo">কার্ড বানান <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button></div>
+    </div>
+    <div class="hero-stage" id="stage" aria-label="কীভাবে কার্ড তৈরি হয়">
+      <div class="hc-box" id="hcBox"><div class="hc-in" id="hcIn">
+        <div class="hc-glow"></div>
+        <div class="hc-card" id="hcCard">
+          <div class="hc-top"><span class="hc-cap"><svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></span><b>শিক্ষিত কার্ড</b><em>CARD NO. SK-558601</em></div>
+          <div class="hc-body">
+            <div class="hc-ph"><i class="hd"></i><i class="bd"></i></div>
+            <div class="hc-info">
+              <small>নাম</small>
+              <div class="hc-name"><span id="hcName"></span><i class="caret"></i></div>
+              <span class="hc-cert">সার্টিফায়েড শিক্ষিত নাগরিক</span>
+            </div>
+          </div>
+          <div class="hc-ed"><small>শিক্ষাজীবন</small>
+            <div class="r r1"><i></i><b>সেন্ট গ্রেগরি স্কুল</b><em>এসএসসি · ২০১৬</em></div>
+            <div class="r r2"><i></i><b>নটর ডেম কলেজ</b><em>এইচএসসি · ২০১৮</em></div>
+            <div class="r r3"><i></i><b>ঢাকা বিশ্ববিদ্যালয়</b><em>স্নাতক · ২০২৩</em></div>
+          </div>
+          <div class="hc-seal"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="3 4"/><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="2"/><path d="M50 30l22 10-22 10-22-10z M36 47v10c8 6 20 6 28 0V47" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></div>
+          <i class="hc-sheen"></i>
+        </div>
+        <div class="hc-drop" id="hcDrop"><div class="q"><svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span id="hcQ"></span><i class="caret"></i></div><div class="o o1"><b>নটর ডেম কলেজ</b><em>ঢাকা</em></div><div class="o o2"><b>ঢাকা কলেজ</b><em>ঢাকা</em></div><div class="o o3"><b>ঢাকা বিশ্ববিদ্যালয়</b><em>ঢাকা</em></div></div>
+        <div class="hc-dl" id="hcDl"><span class="t1"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>ডাউনলোড হচ্ছে…</span><span class="t2"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>কার্ড ডাউনলোড হয়েছে</span><i></i></div>
+        <div class="hc-sh"><span class="wa">WhatsApp</span><span class="fb">Facebook</span></div>
+      </div></div>
+      <ol class="hs-steps" id="hsSteps">
+        <li><i></i><span>নাম ও ছবি দিন</span></li>
+        <li><i></i><span>স্কুল-কলেজ বেছে নিন</span></li>
+        <li><i></i><span>ডাউনলোড ও শেয়ার</span></li>
+      </ol>
     </div>
   </div>
 </section>
@@ -1524,6 +1653,38 @@ lastSnap = JSON.stringify(snapshot());
 syncCloud();
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
+</script>
+<script>
+(function(){
+  var stage = document.getElementById('stage'); if(!stage) return;
+  var inn = document.getElementById('hcIn'), box = document.getElementById('hcBox'), steps = Array.prototype.slice.call(document.getElementById('hsSteps').children);
+  var NAME = 'রাফি হাসান', Q = 'নটর', on = function(n){ inn.classList.add('c' + n); };
+  function fit(){ inn.style.transform = 'scale(' + (box.clientWidth / 520) + ')'; } fit(); window.addEventListener('resize', fit);
+  function grp(g){ steps.forEach(function(li, i){ li.classList.toggle('on', i + 1 === g); li.classList.toggle('done', i + 1 < g); }); }
+  var timers = [], run = 0, visible = true;
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+  function stop(){ timers.forEach(clearTimeout); timers = []; }
+  // everything starts together: the card builds itself while the picker, stamp and download play alongside
+  function play(){
+    stop(); var my = ++run; inn.className = 'hc-in'; document.getElementById('hcName').textContent = ''; document.getElementById('hcQ').textContent = ''; document.querySelectorAll('.hc-drop .o').forEach(function(o){ o.classList.remove('on'); }); grp(0);
+    at(100, function(){ on(1); grp(1); }); at(450, function(){ on(2); });
+    for(var i = 1; i <= NAME.length; i++) (function(k){ at(600 + k * 80, function(){ document.getElementById('hcName').textContent = NAME.slice(0, k); }); })(i);
+    at(800, function(){ on(3); });
+    for(var j = 1; j <= Q.length; j++) (function(k){ at(1000 + k * 110, function(){ document.getElementById('hcQ').textContent = Q.slice(0, k); }); })(j);
+    at(1700, function(){ document.querySelector('.hc-drop .o1').classList.add('on'); });
+    at(1950, function(){ on(4); grp(2); }); at(2350, function(){ on(5); }); at(2750, function(){ on(6); });
+    at(3000, function(){ on(7); }); at(3700, function(){ on(8); });
+    at(4500, function(){ on(9); grp(3); }); at(6300, function(){ on(10); }); at(6800, function(){ on(11); });
+    at(10000, function(){ inn.classList.add('out'); }); at(10700, function(){ if(visible && my === run) play(); });
+  }
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){ document.getElementById('hcName').textContent = NAME; for(var n = 1; n <= 11; n++) on(n); document.getElementById('hcDrop').style.display = 'none'; grp(3); }
+  else{
+    play();
+    new IntersectionObserver(function(es){ visible = es[0].isIntersecting; if(visible) play(); else stop(); }, { threshold: .2 }).observe(stage);
+    document.addEventListener('visibilitychange', function(){ if(document.hidden) stop(); else if(visible) play(); });
+  }
+  document.getElementById('heroGo').addEventListener('click', function(){ var a = document.querySelector('.app'); if(a) a.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+})();
 </script>
 </body>
 </html>
