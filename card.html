@@ -474,8 +474,8 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
     <div class="hero-copy">
       <span class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="#D97706"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg> নতুন · ফ্রি · লগইন লাগবে না</span>
       <h1>দেশে কার্ডের অভাব নেই।<br>এবার নিন <span>শিক্ষিত কার্ড</span></h1>
-      <p>এমন একটা কার্ড, যেটা কেউ আপনাকে দেয়নি, আপনি নিজের যোগ্যতায় অর্জন করেছেন। স্কুল, কলেজ, বিশ্ববিদ্যালয় বেছে নিন, ছবি দিন, ৩০ সেকেন্ডে ডাউনলোড করে শেয়ার করুন।</p>
-      <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>ইতিমধ্যে শিক্ষিত কার্ড <b id="dlCount">০</b>টি ডাউনলোড হয়েছে</span></div>
+      <p>এই কার্ড কেউ আপনাকে দেয়নি, নিজের পড়াশোনার জোরে আপনি এটা বানিয়েছেন। স্কুল, কলেজ আর ভার্সিটি বেছে নিন, একটা ছবি দিন, ৩০ সেকেন্ডে কার্ড নামিয়ে শেয়ার করুন।</p>
+      <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>এ পর্যন্ত <b id="dlCount">০</b>টা শিক্ষিত কার্ড ডাউনলোড হয়েছে</span></div>
       <div class="hero-pills">
         <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৩০ সেকেন্ড</span>
         <span><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>ছবি থাকে আপনার ফোনেই</span>
@@ -525,7 +525,7 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
         <div class="step"><span class="step-n">১</span><div><h2>আপনার পরিচয়</h2><small>ডাকনাম দিলেও চলবে</small></div></div>
         <label class="lbl" for="fName">নাম</label>
         <input class="inp" id="fName" maxlength="32" placeholder="যেমন: তায়েফ আহমেদ" autocomplete="name">
-        <label class="lbl">ছবি বা অ্যাভাটার (ঐচ্ছিক)</label>
+        <label class="lbl">ছবি বা অ্যাভাটার (না দিলেও চলবে)</label>
         <div class="photo-row">
           <div class="photo-prev" id="photoPrev"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
           <div>
@@ -533,28 +533,28 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
             <button type="button" class="btn btn-ghost" onclick="document.getElementById('fPhoto').click()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
               <span id="photoBtnTxt">ছবি দিন</span></button>
-            <span class="av-wrap"><button type="button" class="btn btn-ghost" id="avBtn" onclick="openAvatars()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>অ্যাভাটার বাছুন</button>
-            <div class="av-tip" id="avTip" role="status" aria-live="polite" hidden><span class="av-tip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></span><span class="av-tip-t">ছবি ব্যবহার করতে না চাইলে <b>Avatar</b> ব্যবহার করুন।</span><button type="button" class="av-tip-x" onclick="hideAvTip(true)" aria-label="বুঝেছি">বুঝেছি</button></div></span>
+            <span class="av-wrap"><button type="button" class="btn btn-ghost" id="avBtn" onclick="openAvatars()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>অ্যাভাটার বেছে নিন</button>
+            <div class="av-tip" id="avTip" role="status" aria-live="polite" hidden><span class="av-tip-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M8.5 14.5c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/><path d="M9 9.5h.01M15 9.5h.01"/></svg></span><span class="av-tip-t">ছবি দিতে না চাইলে একটা <b>Avatar</b> বেছে নিন।</span><button type="button" class="av-tip-x" onclick="hideAvTip(true)" aria-label="বুঝেছি">বুঝেছি</button></div></span>
             <button type="button" class="btn btn-ghost" id="photoEdit" style="display:none" onclick="openCrop()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>ঠিক করুন</button>
             <button type="button" class="btn btn-ghost btn-del" id="photoRemove" style="display:none" onclick="removePhoto()" aria-label="ছবি মুছুন" title="ছবি মুছুন"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
-            <div class="hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>ছবি কোথাও আপলোড হয় না — শুধু আপনার ফোনে কার্ডে বসে।</div>
+            <div class="hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>ছবি কোথাও পাঠানো হয় না, শুধু আপনার ফোনেই কার্ডে বসে।</div>
           </div>
         </div>
-        <label class="lbl">আপনি কি… (ঐচ্ছিক)</label>
+        <label class="lbl">আপনি কি… (না দিলেও চলবে)</label>
         <div class="chips" id="badgeChips"></div>
         <div class="save-row">
-          <span id="saveNote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার তথ্য এই ব্রাউজারে নিজে থেকেই সংরক্ষিত থাকে</span>
+          <span id="saveNote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21h14a2 2 0 0 0 2-2V8l-5-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/><path d="M7 3v5h8M7 21v-7h10v7"/></svg>আপনার লেখা এই ব্রাউজারে নিজে থেকেই সেভ থাকে</span>
           <button type="button" id="resetRow" style="display:none" onclick="resetCard()">সব মুছে নতুন করে শুরু করুন</button>
         </div>
         <div class="cloud-box" id="cloudBox">
-          <div class="cb-t">কার্ডের সব তথ্য সেভ ও নিয়মিত আপডেট করুন</div>
+          <div class="cb-t">কার্ডের সব তথ্য সেভ করে রাখুন, যখন খুশি বদলান</div>
           <div class="cb-s">Google দিয়ে সাইন আপ করলে কার্ড আপনার অ্যাকাউন্টে থাকবে, যেকোনো ফোনে পাবেন আর যখন খুশি বদলাতে পারবেন।</div>
           <button type="button" id="cloudJoin" class="g-btn" onclick="Protishthan.member.signIn('কার্ডের সব তথ্য সেভ ও আপডেট করতে সাইন আপ করুন')"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span>Google দিয়ে সাইন আপ করুন</span></button>
         </div>
       </div>
 
       <div class="panel">
-        <div class="step"><span class="step-n">২</span><div><h2>শিক্ষাজীবন</h2><small>Protishthan তথ্যভান্ডার থেকে প্রতিষ্ঠান খুঁজুন — না পেলে নিজেই লিখুন</small></div></div>
+        <div class="step"><span class="step-n">২</span><div><h2>শিক্ষাজীবন</h2><small>Protishthan তথ্যভান্ডার থেকে স্কুল-কলেজ খুঁজে নিন, না পেলে নিজেই লিখে দিন</small></div></div>
         <div class="stream">
           <div class="stream-q">আপনি কোন ধারায় পড়াশোনা করেছেন?</div>
           <div class="stream-seg" id="streamSeg" role="group" aria-label="শিক্ষার ধারা">
@@ -575,16 +575,16 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
 
       <h3 class="sec-title">কীভাবে কাজ করে</h3>
       <div class="how">
-        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><b>প্রতিষ্ঠান বাছাই করুন</b><p>দেশের স্কুল, মাদ্রাসা, কলেজ, বিশ্ববিদ্যালয় — তথ্যভান্ডার থেকে খুঁজে নিন।</p></div>
-        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M15 10h3.5M15 13h3"/></svg><b>কার্ড তৈরি হয়ে যায়</b><p>লেখার সাথে সাথেই কার্ড দেখা যায় — ছবি, পদবি, শিক্ষাজীবন সবকিছু।</p></div>
+        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><b>স্কুল-কলেজ বেছে নিন</b><p>দেশের স্কুল, মাদ্রাসা, কলেজ, বিশ্ববিদ্যালয়, সবই তথ্যভান্ডারে খুঁজে পাবেন।</p></div>
+        <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M15 10h3.5M15 13h3"/></svg><b>কার্ড তৈরি হয়ে যায়</b><p>যা লিখছেন, সাথে সাথেই কার্ডে দেখতে পাবেন: ছবি, পদবি, পড়াশোনা সবকিছু।</p></div>
         <div><svg class="ico" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg><b>ডাউনলোড ও শেয়ার</b><p>Facebook, WhatsApp-এ শেয়ার করুন — বন্ধুদেরও বানাতে বলুন।</p></div>
       </div>
 
       <h3 class="sec-title">প্রশ্ন ও উত্তর</h3>
       <div class="faq">
-        <details><summary>এটা কি সরকারি বা অফিশিয়াল কার্ড?</summary><p>না। এটা সম্পূর্ণ মজার, স্ব-ঘোষিত একটা কার্ড — কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়। কার্ডেও এটা স্পষ্ট লেখা থাকে।</p></details>
-        <details><summary>আমার ছবি কি কোথাও সংরক্ষণ হয়?</summary><p>না। ছবি আপনার ডিভাইসের ব্রাউজারেই কার্ডে বসানো হয়, কোনো সার্ভারে পাঠানো হয় না।</p></details>
-        <details><summary>আমার প্রতিষ্ঠান তালিকায় নেই, কী করব?</summary><p>নামটা নিজেই লিখে দিন — কার্ডে বসে যাবে। চাইলে <a href="list-institution.html" style="color:var(--blue);font-weight:700">বিনামূল্যে প্রতিষ্ঠানটি তথ্যভান্ডারে যুক্ত করুন</a>।</p></details>
+        <details><summary>এটা কি সরকারি কার্ড?</summary><p>না। এটা মজার একটা কার্ড, আপনি নিজেই নিজের তথ্য দেন। এটা কোনো সরকারি কাগজ বা সনদ নয়, কার্ডেও পরিষ্কার লেখা থাকে।</p></details>
+        <details><summary>আমার ছবি কি কোথাও জমা থাকে?</summary><p>না। ছবি আপনার ফোনের ব্রাউজারেই কার্ডে বসে, কোনো সার্ভারে পাঠানো হয় না।</p></details>
+        <details><summary>আমার স্কুল বা কলেজ তালিকায় নেই, কী করব?</summary><p>নামটা নিজেই লিখে দিন, কার্ডে বসে যাবে। চাইলে <a href="list-institution.html" style="color:var(--blue);font-weight:700">ফ্রিতে প্রতিষ্ঠানটি তথ্যভান্ডারে যোগ করে দিন</a>।</p></details>
       </div>
     </div>
 
@@ -602,14 +602,14 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
           <button type="button" class="btn btn-wa" onclick="shareWhatsApp()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp</button>
           <button type="button" class="btn btn-ghost wide hide-sm" onclick="shareImage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>ছবিসহ শেয়ার / ক্যাপশন কপি</button>
         </div>
-        <p class="note">এটি একটি স্ব-ঘোষিত মজার কার্ড · কোনো সরকারি নথি বা শিক্ষাগত সনদ নয়।</p>
+        <p class="note">এটা নিজে বানানো একটা মজার কার্ড, কোনো সরকারি কাগজ বা সনদ নয়।</p>
       </div>
       <a class="army-invite" href="partner.html?ref=card">
         <span class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Protishthan Partner</span>
         <b>নিজের উপজেলার প্রতিষ্ঠানের তথ্য ঠিক করুন, আয় করুন</b>
         <ul>
-          <li>যে প্রতিষ্ঠান আপনি যাচাই করবেন, সেটি আপনার প্রোফাইলে যুক্ত থাকবে</li>
-          <li>সেটি Protishthan-এর সার্ভিস নিলে প্রথম পেমেন্টের ৫০%, পরে প্রতি পেমেন্টের ২৫%</li>
+          <li>যে প্রতিষ্ঠান আপনি যাচাই করবেন, সেটা আপনার প্রোফাইলেই থাকবে</li>
+          <li>সেটা Protishthan-এর সার্ভিস নিলে প্রথম পেমেন্টের ৫০%, তারপর প্রতি পেমেন্টের ২৫% পাবেন</li>
           <li>প্রতি উপজেলায় মাত্র ৩ জন</li>
         </ul>
         <span class="ai-btn">Partner হিসেবে যোগ দিন →</span>
@@ -631,7 +631,7 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
       <input class="inp" id="lbQ" placeholder="প্রতিষ্ঠানের নাম লিখুন" autocomplete="off">
       <div class="lb-found" id="lbFound"></div>
     </div>
-    <p class="lb-note">শুধু তথ্যভান্ডারে নিবন্ধিত প্রতিষ্ঠান গোনা হয়। আপনার প্রতিষ্ঠান তালিকায় না থাকলে <a href="list-institution.html">বিনামূল্যে যুক্ত করুন</a>।</p>
+    <p class="lb-note">শুধু তথ্যভান্ডারে থাকা প্রতিষ্ঠান গোনা হয়। আপনারটা তালিকায় না থাকলে <a href="list-institution.html">ফ্রিতে যোগ করে দিন</a>।</p>
   </section>
 </main>
 
@@ -645,7 +645,7 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
   <div class="crop-box" role="dialog" aria-label="ছবি ঠিক করুন">
     <div class="crop-head"><b>ছবি ঠিক করুন</b><button type="button" class="crop-x" onclick="closeCrop(false)" aria-label="বন্ধ করুন">×</button></div>
     <div class="crop-stage"><canvas id="cropCv" width="580" height="660"></canvas></div>
-    <p class="crop-hint">টেনে সরান · স্লাইডার, মাউস হুইল বা দুই আঙুলে জুম করুন · মুখ ডটেড বৃত্তের মধ্যে রাখুন</p>
+    <p class="crop-hint">টেনে সরান। স্লাইডার, মাউস হুইল বা দুই আঙুলে ছোট-বড় করুন। মুখটা ডটেড বৃত্তের ভেতরে রাখুন।</p>
     <div class="crop-zoom">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-3.5-3.5"/></svg>
       <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" aria-label="জুম">
@@ -659,9 +659,9 @@ nav#nav .mb-prof{color:#0B3B2A;background:#fff;border-color:#EADFC4}nav#nav .mb-
   </div>
 </div>
 <div class="avm" id="avModal" onclick="if(event.target===this)closeAvatars()">
-  <div class="avm-sheet" role="dialog" aria-modal="true" aria-label="অ্যাভাটার বাছুন">
+  <div class="avm-sheet" role="dialog" aria-modal="true" aria-label="অ্যাভাটার বেছে নিন">
     <header class="avm-head">
-      <div><h3>অ্যাভাটার বাছুন</h3><p>ছবি ছাড়াই কার্ড বানান। একটায় ট্যাপ করলেই কার্ডে বসে যাবে।</p></div>
+      <div><h3>অ্যাভাটার বেছে নিন</h3><p>ছবি না দিয়েই কার্ড বানান। একটায় ট্যাপ করলেই কার্ডে বসে যাবে।</p></div>
       <button type="button" class="avm-x" onclick="closeAvatars()" aria-label="বন্ধ করুন"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </header>
     <div class="avm-tools">
@@ -839,7 +839,7 @@ function closeYears(){ document.querySelectorAll('.ydd.open').forEach(b => b.cla
 function toggleYear(k){
   const box = document.getElementById('yd-' + k), was = box.classList.contains('open'); closeYears(); if(was) return;
   const ed = S.edu[k], sug = suggestYear(k), menu = box.querySelector('.ydd-menu'); let h = ed.year ? '<button type="button" class="ydd-clear" onclick="pickYear(\'' + k + '\',0)">বাদ দিন</button>' : '';
-  for(let y = CUR_YEAR + 6; y >= 1960; y--) h += '<button type="button" role="option" data-y="' + y + '" class="' + (String(y) === ed.year ? 'on' : '') + '" onclick="pickYear(\'' + k + '\',' + y + ')"><span>' + bn(y) + '</span>' + (!ed.year && y === sug ? '<small>সম্ভাব্য</small>' : '') + '</button>';
+  for(let y = CUR_YEAR + 6; y >= 1960; y--) h += '<button type="button" role="option" data-y="' + y + '" class="' + (String(y) === ed.year ? 'on' : '') + '" onclick="pickYear(\'' + k + '\',' + y + ')"><span>' + bn(y) + '</span>' + (!ed.year && y === sug ? '<small>সম্ভবত</small>' : '') + '</button>';
   menu.innerHTML = h; box.classList.add('open');
   const target = menu.querySelector('.on') || menu.querySelector('[data-y="' + (sug || CUR_YEAR - 12) + '"]') || menu.querySelector('[data-y="' + (CUR_YEAR - 12) + '"]');
   if(target) menu.scrollTop = target.offsetTop - menu.clientHeight / 2 + 18;
@@ -867,7 +867,7 @@ function updateUnl(k){
   const nm = (ed.name || '').trim(), key = unlKey(nm), M = MB();
   const free = document.querySelector('#ac-' + k + ' .u-saved');
   if(nm.length < 2 || ed.slug){ box.style.display = 'none'; if(free) free.textContent = ''; return; }
-  const link = '<a href="list-institution.html?name=' + encodeURIComponent(nm) + '">তালিকাভুক্ত করুন</a>';
+  const link = '<a href="list-institution.html?name=' + encodeURIComponent(nm) + '">তালিকায় যোগ করুন</a>';
   const signed = !!(M && M.current && M.current());
   if(signed && UNL_SAVED.has(key)){
     box.innerHTML = '<span class="u-ok">✓ আপনার প্রোফাইলে এই প্রতিষ্ঠান সেভ হয়েছে</span><a href="member.html#saved">প্রোফাইলে দেখুন</a>' + link;
