@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=16"></script>
+<script src="/skill-core.js?v=17"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -260,24 +260,17 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .sample-note{display:none;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#FFF8E6;border:1px solid #F5DFA0;color:#8A6500;font-size:13px;font-weight:600;text-align:center}
 .pv-canvas,.fbcard canvas{cursor:zoom-in}
 #cvCover{width:100%;height:auto;max-height:none;border-radius:10px;display:block}
-.cov-av{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:9px 12px;border:1.5px solid var(--border);border-radius:13px;background:#fff;cursor:pointer}
+.cov-av{display:flex;align-items:center;gap:12px;margin:0;padding:0;cursor:pointer}
 .cov-av input{position:absolute;opacity:0;pointer-events:none}
 .cov-av .sw{flex:none;width:40px;height:23px;border-radius:23px;background:#CBD5E1;position:relative;transition:background .2s}
 .cov-av .sw::after{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(15,23,42,.3);transition:transform .2s}
 .cov-av input:checked+.sw{background:var(--blue)}.cov-av input:checked+.sw::after{transform:translateX(17px)}
 .cov-av input:focus-visible+.sw{box-shadow:0 0 0 3px rgba(26,86,219,.25)}
 .cov-av .tx{display:flex;flex-direction:column;line-height:1.35}.cov-av .tx b{font-size:13.5px}.cov-av .tx small{font-size:12px;color:var(--text-3)}
-.cov-size{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:10px;padding:9px 12px;border-radius:12px;background:#F0F9FF;border:1px solid #BAE6FD;font-size:12.5px;color:#0C4A6E}
-.cov-size b{font:700 13.5px 'Hind Siliguri','Inter',sans-serif}
-.cov-seg{display:flex;gap:4px;padding:4px;margin-bottom:10px;border-radius:12px;background:#EEF2F8}
-.cov-seg button{flex:1;border:none;border-radius:9px;padding:7px 4px;background:transparent;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
-.cov-seg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
+.cov-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
+.cov-foot .btn-pri{height:44px;font-size:14.5px;padding:0 20px}
+.cov-foot .btn-pri small{font-weight:600;opacity:.8;font-size:12px;margin-left:6px}
 .cov-wrap{position:relative;border-radius:10px;overflow:hidden;line-height:0}
-.cm{position:absolute;background:rgba(8,12,28,.74);pointer-events:none;opacity:0;transition:opacity .25s}
-.cm-t{left:0;right:0;top:0;height:6.667%}.cm-b{left:0;right:0;bottom:0;height:6.667%}
-.cm-l{left:0;top:0;bottom:0;width:10.976%}.cm-r{right:0;top:0;bottom:0;width:10.976%}
-.cov-wrap[data-m=desk] .cm-t,.cov-wrap[data-m=desk] .cm-b{opacity:1}
-.cov-wrap[data-m=mob] .cm-l,.cov-wrap[data-m=mob] .cm-r{opacity:1}
 @media(max-width:1100px){.pv-tabs{overflow-x:auto;scrollbar-width:none}.pv-tabs::-webkit-scrollbar{display:none}.pv-tabs button{flex:1 0 auto;padding:8px 12px;white-space:nowrap}}
 /* full-screen viewer: see the real thing without downloading it */
 .lb{position:fixed;inset:0;z-index:600;display:none;flex-direction:column;background:rgba(5,8,20,.94)}
@@ -458,10 +451,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas><div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন। উপরের-নিচের লেখা বদলাতে বাঁয়ে "ডিজাইন" অংশে যান।</div></div>
       <div class="pv-pane" id="pvCv" style="padding:14px;background:#fff">
-        <label class="cov-av"><input type="checkbox" id="covAv" checked><span class="sw" aria-hidden="true"></span><span class="tx"><b>কভারে আমার ছবি</b><small>বাঁ দিকে গোল। ছবি বদলাতে ধাপ ২-এ যান</small></span></label>
-        <div class="cov-seg" role="group" aria-label="কেমন দেখাবে"><button type="button" class="on" data-cm="all">পুরো ছবি</button><button type="button" data-cm="desk">🖥 ডেস্কটপে</button><button type="button" data-cm="mob">📱 মোবাইলে</button></div>
-        <div class="cov-wrap" id="covWrap" data-m="all"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas><i class="cm cm-t"></i><i class="cm cm-b"></i><i class="cm cm-l"></i><i class="cm cm-r"></i></div>
-        <div class="cov-size"><b>ডাউনলোড মাপ: ১৬৪০ × ৭২০</b> <span>একটাই ফাইল, ডেস্কটপ ও মোবাইল দুটোর জন্য ঠিক</span></div><div class="pv-cap">Facebook-এ: প্রোফাইল বা পেজে "Edit cover photo" → "Upload photo" → এই ফাইল। ঝাপসা অংশ Facebook দুই জায়গায় কেটে ফেলে, তাই সব লেখা ও সনদ মাঝের নিরাপদ জায়গায় রেখেছি। বাঁ-নিচে প্রোফাইল ছবি বসে, ওখানে কিছু নেই।</div>
+        <div class="cov-wrap" id="covWrap"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas></div>
+        <div class="cov-foot">
+          <label class="cov-av"><input type="checkbox" id="covAv" checked><span class="sw" aria-hidden="true"></span><span class="tx"><b>কভারে আমার ছবি</b></span></label>
+          <button class="btn-pri" type="button" id="covDl">⬇ কভার ডাউনলোড <small>১৬৪০×৭২০</small></button>
+        </div>
       </div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
@@ -665,6 +659,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('barCap').style.display = k === 'po' ? '' : 'none';
     $('barDl').style.display = (k === 'ct' || k === 'po' || k === 'cv') ? '' : 'none';
     $('barZoom').style.display = k === 'pf' ? 'none' : '';
+    document.querySelector('.pv-bar').style.display = k === 'cv' ? 'none' : '';              // the cover tab has its own single download button
     $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';
     document.querySelector('.pv-bar .acts').style.display = k === 'pf' ? 'none' : '';   // no empty row left behind
     document.querySelector('.pv-bar').style.justifyContent = k === 'pf' ? 'flex-start' : 'space-between';                       // the colour dots belong to the profile view only
@@ -857,7 +852,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('cvCover', 'click', () => zoom('cover'));
     on('covAv', 'change', e => { S.cover_avatar = e.target.checked; saveDraft(); debounce('cv', drawCanvases, 200); });
-    document.querySelector('.cov-seg').addEventListener('click', e => { const b = e.target.closest('[data-cm]'); if(!b) return; document.querySelectorAll('.cov-seg button').forEach(x => x.classList.toggle('on', x === b)); $('covWrap').setAttribute('data-m', b.dataset.cm); });
+    on('covDl', 'click', () => downloadCard('cover'));
     on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
     on('prevOpen', 'click', () => { $('colPrev').scrollIntoView({ behavior: 'smooth', block: 'start' }); window.setTimeout(() => window.scrollBy(0, -78), 450); });
      on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
