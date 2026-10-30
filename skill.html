@@ -1076,7 +1076,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       document.addEventListener('visibilitychange', () => { if(document.hidden){ timers.forEach(clearTimeout); timers = []; } else if(visible) play(); });
     }
     // the three pictures are drawn by our own renderer once the browser is idle
-    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 400));
+    const idle = fn => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2500 }) : fn()), 1200);
     idle(async () => {
       try{
         const put = async (id, kind, sc) => { const cv = await C.draw(SAMPLE, kind, sc); $(id).src = cv.toDataURL('image/jpeg', .88); };
@@ -1120,6 +1120,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   const m = /[?&]ref=([a-z0-9-]{3,30})/.exec(location.search); if(m){ try{ localStorage.setItem('sk_ref', m[1]); }catch(e){} }
   const mm = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(mm) skin = Number(mm[1]);
   bind();
+  paintAll();                      // show the form and previews from the saved draft at once; sign-in and the server copy refresh them a moment later
   hydrate();
   M.onChange(() => { ROW = null; hydrate(); });
   // numbers for the hero + popular skill suggestions
