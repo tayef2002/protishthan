@@ -691,6 +691,24 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   .hero-moon-wrap{top:30px}
 }
 @media(max-width:420px){.edu-scene svg{left:calc(50% - 845/1440*150px*1440/300)}}
+
+/* ---- DAY version of the hero (students go to school, madrasa and college in daylight): sky, sun, clouds, brighter city ---- */
+.cloud{position:absolute;display:none;height:34px;border-radius:40px;background:#fff;opacity:.92;animation:cloudDrift linear infinite}
+.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud::before{width:46px;height:46px;left:16px;top:-22px}.cloud::after{width:34px;height:34px;right:16px;top:-14px}
+.cloud.c1{width:120px;top:16%;left:-160px;animation-duration:70s}
+.cloud.c2{width:90px;top:34%;left:-120px;animation-duration:95s;animation-delay:-40s;opacity:.8}
+.cloud.c3{width:150px;top:8%;left:-200px;animation-duration:120s;animation-delay:-80s;opacity:.7}
+@keyframes cloudDrift{to{transform:translateX(calc(100vw + 400px))}}
+.search-hero.day{background:linear-gradient(180deg,#4FB0F3 0%,#86CDFB 52%,#CFEBFF 100%)}
+.search-hero.day .search-grid,.search-hero.day .search-glow,.search-hero.day .hero-star,.search-hero.day .shooting-star{display:none}
+.search-hero.day .cloud{display:block}
+.search-hero.day .hero-moon{box-shadow:none;background:#FDE047;transform:none;filter:drop-shadow(0 0 16px rgba(253,224,71,.85))}
+.search-hero.day .hero-moon-halo{background:radial-gradient(circle,rgba(253,224,71,.55),rgba(253,224,71,0) 70%)}
+.search-hero.day h1{color:#0B2A5B}
+.search-hero.day h1 span{background:linear-gradient(135deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent}
+.search-hero.day p{color:#1E3A8A}
+.search-hero.day .edu-scene svg{filter:brightness(1.55) saturate(1.05)}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -736,6 +754,7 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   <div class="search-grid"></div>
   <div class="search-glow"></div>
   <div class="hero-sky" id="heroSky" aria-hidden="true">
+    <i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
     <div class="hero-moon-wrap"><div class="hero-moon-halo"></div><div class="hero-moon"></div></div>
     <div class="shooting-star" style="top:16%;left:62%"></div>
     <div class="shooting-star s2" style="top:30%;left:88%"></div>
@@ -2424,5 +2443,6 @@ loadApprovedInstitutions();
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40)},{ passive:true});
 </script>
+<script>if(/[?&]day(=|&|$)/.test(location.search)){ var h = document.querySelector(".search-hero"); if(h) h.classList.add("day"); }</script>
 </body>
 </html>
