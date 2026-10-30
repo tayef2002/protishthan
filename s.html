@@ -49,10 +49,12 @@ html,body{margin:0;background:#070B16}
 .mc-more{order:2;flex:none;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mut);font:600 12px 'Hind Siliguri',sans-serif;cursor:pointer}
 .mc .ch-msgs{flex:1;height:auto;border:0;border-radius:0;background:transparent}
 .mc .ch-err{margin:0 12px}
-.mc .ch-in{margin:0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);align-items:flex-end}
-.mc .ch-in textarea{border-radius:22px;padding:11px 15px}
-.mc-send{flex:none;width:44px;height:44px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--a2),var(--a1));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mc-send svg{width:20px;height:20px}.mc-send:disabled{opacity:.5}
+.mc .ch-in{margin:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:var(--chip);border-top:1px solid var(--line);align-items:flex-end;gap:8px}
+.mc .ch-in textarea{overflow-y:hidden;scrollbar-width:none;box-sizing:border-box;flex:1;min-height:42px;max-height:110px;padding:10px 16px;border-radius:21px;border:1px solid transparent;background:var(--bg2);color:var(--ink);font:500 15px/22px 'Hind Siliguri','Inter',sans-serif;resize:none;outline:none;display:block;transition:border-color .15s}
+.mc .ch-in textarea:focus{border-color:var(--a1)}
+.mc .ch-in textarea::placeholder{color:var(--mut);opacity:.85}
+.mc-send{flex:none;width:42px;height:42px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--a2),var(--a1));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .2s}
+.mc-send svg{width:20px;height:20px;margin-left:2px}.mc-send:active{transform:scale(.92)}.mc-send:disabled,.mc-send.idle{opacity:.45}
 @media(max-width:700px){.mc{inset:0;width:auto;height:100dvh;border-radius:0;border:0;transform:translateY(100%)}.mc-x .bk{display:block}.mc-x .cl{display:none}.mc-hd{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}.mc-hd .mc-x{order:0;margin-left:0}.mc-more{margin-left:auto}}
 @media(prefers-reduced-motion:reduce){.mc{transition:none}}
 .ch-hd{display:flex;align-items:center;gap:10px;margin:-6px 30px 10px 0;text-align:left}
@@ -235,15 +237,15 @@ html,body{margin:0;background:#070B16}
     CH.busy = true; $('chSend').disabled = true; $('chErr').textContent = '';
     try{
       const r = await Protishthan.member.sb.rpc('skill_chat_send', { p_username: P.username, p_thread: CH.thread, p_body: body });
-      if(r.error) throw r.error; CH.thread = r.data && r.data.thread; tx.value = ''; tx.style.height = ''; await chatPull(false);
+      if(r.error) throw r.error; CH.thread = r.data && r.data.thread; tx.value = ''; tx.style.height = ''; $('chSend').classList.add('idle'); await chatPull(false);
       const box = $('chMsgs'); box.scrollTop = box.scrollHeight;
     }catch(e){ $('chErr').textContent = chMsg(e); }
     CH.busy = false; $('chSend').disabled = false; tx.focus();
   }
-  $('chSend').onclick = chatSend; window.chatClose = chatClose; function chatClose(){ stopChat(); const mc = $('mchat'); mc.classList.remove('show'); mc.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+  $('chSend').classList.add('idle'); $('chSend').onclick = chatSend; window.chatClose = chatClose; function chatClose(){ stopChat(); const mc = $('mchat'); mc.classList.remove('show'); mc.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
   $('chBack').onclick = chatClose; $('chMore').onclick = () => { chatClose(); showContact(); };
   $('chTx').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSend(); } });
-  $('chTx').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(110, e.target.scrollHeight) + 'px'; });
+  $('chTx').addEventListener('input', e => { $('chSend').classList.toggle('idle', !e.target.value.trim()); e.target.style.height = 'auto'; e.target.style.height = Math.min(110, e.target.scrollHeight) + 'px'; e.target.style.overflowY = e.target.scrollHeight > 110 ? 'auto' : 'hidden'; });
   document.addEventListener('click', e => { if(e.target.id === 'ctcOv') stopChat(); });
   async function copy(){
     try{ await navigator.clipboard.writeText(url); toast('লিংক কপি হয়েছে ✓'); }
