@@ -440,16 +440,28 @@
     const T = (THEMES[p.theme] && THEMES[p.theme].dark) ? THEMES[p.theme] : THEMES.midnight;
     const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, T.bg); bg.addColorStop(.55, T.bg2); bg.addColorStop(1, T.bg); c.fillStyle = bg; c.fillRect(0, 0, W, H);
     const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 10, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = a; c.fillStyle = g; c.fillRect(0, 0, W, H); c.globalAlpha = 1; };
-    glow(1200, 340, 640, '#E3C275', .40); glow(300, 140, 560, T.a1, .22); glow(880, 780, 520, T.a2, .24);
+    glow(1200, 340, 640, '#E3C275', .40); glow(300, 140, 620, T.a1, .36); glow(880, 780, 560, T.a2, .32); glow(700, 360, 520, '#2F54C8', .22);
     // soft light beams, like a stage
     const beam = (x, w, a) => { const g = c.createLinearGradient(x, 0, x + w, H); g.addColorStop(0, 'rgba(255,236,180,' + a + ')'); g.addColorStop(1, 'rgba(255,236,180,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(x, 0); c.lineTo(x + w * .4, 0); c.lineTo(x + w * .4 - 460, H); c.lineTo(x - 460, H); c.closePath(); c.fill(); };
-    beam(1010, 300, .11); beam(1320, 190, .09); beam(640, 150, .06);
-    c.strokeStyle = 'rgba(255,255,255,.035)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
-    rosette(c, 250, 410, 400, 17, 6, 10, 'rgba(227,194,117,.24)', 1.3); rosette(c, 250, 410, 255, 13, 5, 8, 'rgba(147,197,253,.18)', 1.1);
+    // fine diagonal security lines, fading out toward the edges
+    c.save(); const lg = c.createRadialGradient(W * .55, H * .5, 80, W * .55, H * .5, 900); lg.addColorStop(0, 'rgba(255,255,255,.07)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); c.strokeStyle = lg; c.lineWidth = 1;
+    for(let x = -H; x < W; x += 14){ c.beginPath(); c.moveTo(x, H); c.lineTo(x + H, 0); c.stroke(); } c.restore();
+    // big orbit rings behind the certificate, one dotted
+    c.save(); c.strokeStyle = 'rgba(227,194,117,.22)'; c.lineWidth = 1.4; c.beginPath(); c.arc(1190, 360, 430, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = 'rgba(147,197,253,.16)'; c.beginPath(); c.arc(1190, 360, 520, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = 'rgba(227,194,117,.3)'; c.setLineDash([2, 9]); c.lineCap = 'round'; c.lineWidth = 2.4; c.beginPath(); c.arc(1190, 360, 475, 0, Math.PI * 2); c.stroke(); c.restore();
+    // a warm light sweeping up from the bottom
+    c.save(); const swp = c.createRadialGradient(W * .5, H + 260, 60, W * .5, H + 260, 760); swp.addColorStop(0, 'rgba(255,214,120,.28)'); swp.addColorStop(1, 'rgba(255,214,120,0)'); c.fillStyle = swp; c.fillRect(0, 0, W, H); c.restore();
+    // golden dust: soft bokeh dots (fixed pattern)
+    { let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+      for(let i = 0; i < 46; i++){ const x = rnd() * W, y = rnd() * H, r = 3 + rnd() * 13, a = .05 + rnd() * .16; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(255,230,160,' + a * 2 + ')'); g.addColorStop(.6, 'rgba(255,220,140,' + a + ')'); g.addColorStop(1, 'rgba(255,220,140,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } }
+        rosette(c, 250, 410, 400, 17, 6, 10, 'rgba(227,194,117,.24)', 1.3); rosette(c, 250, 410, 255, 13, 5, 8, 'rgba(147,197,253,.18)', 1.1);
     // the emblem: a very large, faint version of the certificate seal, cut by the right edge
     c.save(); c.globalAlpha = .14; seal(c, 1500, 400, 330); c.restore();
     const star = (x, y, r, a) => { c.save(); c.globalAlpha = a; c.fillStyle = '#F1DA9E'; c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r); c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill(); c.restore(); };
     star(520, 88, 9, .85); star(960, 66, 7, .65); star(1520, 108, 9, .8); star(1030, 654, 8, .65); star(436, 648, 6, .6); star(1570, 596, 8, .65); star(760, 120, 5, .5); star(1380, 660, 6, .55);
+    { const vg = c.createRadialGradient(W / 2, H / 2, 380, W / 2, H / 2, 1000); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(2,6,23,.34)'); c.fillStyle = vg; c.fillRect(0, 0, W, H); }
+    { let sd = 3; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647; c.fillStyle = 'rgba(255,255,255,.05)'; for(let i = 0; i < 2600; i++){ c.fillRect(rnd() * W, rnd() * H, 1.2, 1.2); } }
     c.strokeStyle = 'rgba(227,194,117,.4)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40); c.strokeStyle = 'rgba(227,194,117,.16)'; c.strokeRect(30, 30, W - 60, H - 60);
 
     // the avatar, with a double gold ring
