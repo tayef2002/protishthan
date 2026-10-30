@@ -3,10 +3,10 @@
 (function(){
   'use strict';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const LEVELS = ['শিখছি', 'মোটামুটি', 'দক্ষ', 'বিশেষজ্ঞ'];
+  const LEVELS = ['শিখছি', 'মোটামুটি', 'ভালো পারি', 'এক্সপার্ট'];
   const BADGES = {
-    'self-taught': 'স্ব-শিক্ষিত', 'freelancer': 'ফ্রিল্যান্সার', 'problem-solver': 'সমস্যা সমাধানকারী', 'zero-degree': 'ডিগ্রি ছাড়াই স্কিলে',
-    'creator': 'ক্রিয়েটর', 'builder': 'নির্মাতা', 'night-owl': 'রাতজাগা কর্মী', 'mentor': 'মেন্টর', 'learner': 'চিরশিক্ষার্থী', 'open-source': 'ওপেন সোর্স'
+    'self-taught': 'নিজে নিজে শেখা', 'freelancer': 'ফ্রিল্যান্সার', 'problem-solver': 'প্রবলেম সলভার', 'zero-degree': 'ডিগ্রি ছাড়াই স্কিলে',
+    'creator': 'ক্রিয়েটর', 'builder': 'বিল্ডার', 'night-owl': 'রাতজাগা কর্মী', 'mentor': 'মেন্টর', 'learner': 'সারাজীবন শিখছি', 'open-source': 'ওপেন সোর্স'
   };
   const THEMES = {
     midnight: { name: 'মিডনাইট', bg: '#070B16', bg2: '#0D1530', ink: '#F4F6FF', mut: '#9AA6C4', a1: '#6EA8FF', a2: '#8B7CFF', a3: '#38E1C6', dark: true },
@@ -89,7 +89,7 @@
     h += '<aside class="sk-side"><div class="sk-card sk-id">';
     h += '<div class="sk-cover" aria-hidden="true"><i></i></div>';
     h += '<div class="sk-head">';
-    h += '<div class="sk-av' + R() + '">' + (av ? '<img src="' + esc(av) + '" alt="" referrerpolicy="no-referrer">' : '<div class="ini">' + esc(initials(p.display_name)) + '</div>') + '<span class="vf" title="স্ব-ঘোষিত স্কিল আইডেন্টিটি">' + SHIELD + '</span></div>';
+    h += '<div class="sk-av' + R() + '">' + (av ? '<img src="' + esc(av) + '" alt="" referrerpolicy="no-referrer">' : '<div class="ini">' + esc(initials(p.display_name)) + '</div>') + '<span class="vf" title="নিজে দেওয়া স্কিল আইডেন্টিটি">' + SHIELD + '</span></div>';
     h += '<h1 class="sk-name' + R() + '">' + (esc(p.display_name) || '<span style="opacity:.4">আপনার নাম</span>') + '</h1>';
     if(p.headline) h += '<p class="sk-hl' + R() + '">' + esc(p.headline) + '</p>';
     else if(opt.embed) h += '<p class="sk-hl' + R() + '" style="opacity:.45">আপনার পদবি বা পরিচয়</p>';
@@ -123,7 +123,7 @@
     if(opt.after) h += '<div class="' + R() + '">' + opt.after + '</div>';
     let when = '';
     if(p.published_at){ const d = new Date(p.published_at); if(!isNaN(d)) when = ' · ' + BN_MONTH[d.getMonth()] + ' ' + String(d.getFullYear()).replace(/[0-9]/g, x => '০১২৩৪৫৬৭৮৯'[x]) + '-এ তৈরি'; }
-    h += '<p class="sk-note' + R() + '">স্ব-ঘোষিত তথ্য: ব্যক্তি নিজে দিয়েছেন, Protishthan যাচাই করেনি' + when + '</p>';
+    h += '<p class="sk-note' + R() + '">এই তথ্য উনি নিজে দিয়েছেন, Protishthan যাচাই করেনি' + when + '</p>';
     h += '</div></div>';
     return h;
   }
@@ -577,7 +577,7 @@
     if(og){
       avatar(c, img, p, 220, 315, 128, T);
       const x = 410, mw = 740;
-      c.fillStyle = T.mut; c.font = '600 24px ' + BODY; c.fillText('স্ব-ঘোষিত স্কিল আইডেন্টিটি', x, 138);
+      c.fillStyle = T.mut; c.font = '600 24px ' + BODY; c.fillText('নিজে দেওয়া স্কিল আইডেন্টিটি', x, 138);
       c.fillStyle = T.ink; const fs = fit(c, p.display_name || 'আপনার নাম', 800, HEAD, 76, 44, mw); c.fillText(p.display_name || 'আপনার নাম', x, 138 + 24 + fs * .95);
       let y = 138 + 24 + fs * .95 + 22;
       c.fillStyle = T.mut; c.font = '500 33px ' + BODY;
@@ -598,14 +598,14 @@
       c.strokeStyle = T.dark ? 'rgba(255,255,255,.12)' : 'rgba(20,20,30,.1)'; c.lineWidth = 2; rr(c, 54, 54, W - 108, H - 108, 56); c.stroke();
       avatar(c, img, p, W / 2, 236, 118, T);
       c.textAlign = 'center';
-      c.fillStyle = T.mut; c.font = '600 25px ' + BODY; c.fillText('স্ব-ঘোষিত স্কিল আইডেন্টিটি', W / 2, 410);
+      c.fillStyle = T.mut; c.font = '600 25px ' + BODY; c.fillText('নিজে দেওয়া স্কিল আইডেন্টিটি', W / 2, 410);
       c.fillStyle = T.ink; const fs = fit(c, p.display_name || 'আপনার নাম', 800, HEAD, 80, 46, W - 190); c.fillText(p.display_name || 'আপনার নাম', W / 2, 410 + 24 + fs * .9);
       let y = 410 + 24 + fs * .9 + 14;
       c.fillStyle = T.mut; c.font = '500 36px ' + BODY;
       for(const ln of wrap(c, p.headline || '', W - 220, 2)){ y += 46; c.fillText(ln, W / 2, y); }
       c.textAlign = 'left';
       y += 46;
-      const lv = ['শিখছি', 'মোটামুটি', 'দক্ষ', 'বিশেষজ্ঞ'];
+      const lv = ['শিখছি', 'মোটামুটি', 'ভালো পারি', 'এক্সপার্ট'];
       const rows = Math.min(skills.length, 6), rowH = rows > 4 ? 64 : rows > 3 ? 74 : 86;
       for(let k = 0; k < rows; k++){
         const s = skills[k], l = Math.max(1, Math.min(4, Number(s.l) || 2)), ry = y + k * rowH;

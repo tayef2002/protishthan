@@ -15,7 +15,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=27"></script>
+<script src="/skill-core.js?v=28"></script>
 <style>
 html,body{margin:0;background:#070B16}
 #sk{min-height:100vh;display:flex;flex-direction:column}
@@ -79,14 +79,14 @@ html,body{margin:0;background:#070B16}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </header>
   <main class="pg" id="pg"><noscript><div class="sk-card nf"><h1>JavaScript চালু করুন</h1><p>এই পেজটি দেখতে ব্রাউজারে JavaScript চালু থাকতে হবে।</p></div></noscript><div class="sk-skeleton"><i></i></div></main>
-  <footer class="ft"><span>© Protishthan</span><span>এখানকার সব তথ্য ব্যক্তি নিজে দিয়েছেন</span><button type="button" id="rpBtn" style="display:none">রিপোর্ট করুন</button><a href="/privacy">গোপনীয়তা নীতি</a><a href="/terms">ব্যবহারের শর্ত</a></footer>
+  <footer class="ft"><span>© Protishthan</span><span>এখানকার সব তথ্য প্রোফাইলের মালিক নিজে দিয়েছেন</span><button type="button" id="rpBtn" style="display:none">রিপোর্ট করুন</button><a href="/privacy">গোপনীয়তা নীতি</a><a href="/terms">ব্যবহারের শর্ত</a></footer>
 </div>
 
 <div class="ov" id="qrOv"><div class="md" role="dialog" aria-modal="true" aria-label="QR কোড"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>QR কোড</h3><p>স্ক্যান করলেই এই প্রোফাইল খুলবে</p><canvas id="qrCv" width="440" height="440"></canvas><div class="u" id="qrUrl"></div></div></div>
 <div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
-  <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">আপত্তিকর বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
+  <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">খারাপ বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
   <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
-<div class="ov" id="ctOv"><div class="md" style="width:min(920px,100%);padding:22px 18px 18px" role="dialog" aria-modal="true" aria-label="সনদ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>স্কিল সনদ</h3><p>কাগজের সনদের চেহারায় এই ব্যক্তির স্ব-ঘোষিত স্কিল</p><div id="ctWait" style="padding:40px 0;color:var(--mut)">তৈরি হচ্ছে…</div><img id="ctImg" alt="স্কিল সনদ" style="width:100%;height:auto;border-radius:10px;display:block"><a class="btn pri" id="ctDl" style="margin-top:14px;justify-content:center" href="#">ছবি ডাউনলোড করুন</a></div></div>
+<div class="ov" id="ctOv"><div class="md" style="width:min(920px,100%);padding:22px 18px 18px" role="dialog" aria-modal="true" aria-label="সনদ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>স্কিল সনদ</h3><p>কাগজের সনদের মতো করে সাজানো, প্রোফাইলের মালিকের নিজে দেওয়া স্কিল</p><div id="ctWait" style="padding:40px 0;color:var(--mut)">তৈরি হচ্ছে…</div><img id="ctImg" alt="স্কিল সনদ" style="width:100%;height:auto;border-radius:10px;display:block"><a class="btn pri" id="ctDl" style="margin-top:14px;justify-content:center" href="#">ছবি ডাউনলোড করুন</a></div></div>
 <div class="tt" id="tt" role="status"></div>
 
 <script>
@@ -118,7 +118,7 @@ html,body{margin:0;background:#070B16}
     P = p;
     if(!p){
       document.title = 'প্রোফাইল পাওয়া যায়নি | Protishthan';
-      pg.innerHTML = '<div class="sk-card nf sk-rise" style="--i:0"><div class="big">' + IC.user + '</div><h1>এই প্রোফাইলটি পাওয়া যায়নি</h1><p>লিংকটা ভুল হতে পারে, অথবা মালিক প্রোফাইলটি এখনো প্রকাশ করেননি বা সরিয়ে নিয়েছেন।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(uname) + '">নিজের স্কিল আইডেন্টিটি বানান ' + IC.arrow + '</a></div>';
+      pg.innerHTML = '<div class="sk-card nf sk-rise" style="--i:0"><div class="big">' + IC.user + '</div><h1>এই প্রোফাইলটি পাওয়া যায়নি</h1><p>লিংকটা ভুল হতে পারে, অথবা প্রোফাইলের মালিক এটা এখনো প্রকাশ করেননি বা সরিয়ে নিয়েছেন।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(uname) + '">নিজের স্কিল আইডেন্টিটি বানান ' + IC.arrow + '</a></div>';
       requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
       return;
     }
