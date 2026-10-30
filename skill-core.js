@@ -304,7 +304,34 @@
     return cv;
   }
 
+  // a 4:5 post picture for Facebook / Instagram: brand on top, the whole certificate in the middle, the person's own lines above and below
+  async function drawPost(p, logo){
+    const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+    const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0A1230'); bg.addColorStop(1, '#1B2A66'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    const gl = c.createRadialGradient(W / 2, 640, 30, W / 2, 640, 760); gl.addColorStop(0, 'rgba(227,194,117,.30)'); gl.addColorStop(1, 'rgba(227,194,117,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
+    brand(c, logo, 64, 50, 56, { ink: '#FFFFFF' });
+    const n = (p.skills || []).length, label = bn(n) + 'টি স্কিল'; c.font = '700 27px ' + BODY; const pw = c.measureText(label).width + 48;
+    const pg = c.createLinearGradient(W - 64 - pw, 0, W - 64, 0); pg.addColorStop(0, '#E3C275'); pg.addColorStop(1, '#C99A3F'); c.fillStyle = pg; rr(c, W - 64 - pw, 56, pw, 50, 25); c.fill();
+    c.fillStyle = NAVY; c.textAlign = 'center'; c.fillText(label, W - 64 - pw / 2, 90);
+    const top = (p.post_top || 'আমার স্কিলই আমার সনদ').trim();
+    c.fillStyle = '#FFFFFF'; c.strokeStyle = '#FFFFFF'; c.lineWidth = 1.4; const ts = fit(c, top, '400', SERIF, 66, 34, W - 140); c.strokeText(top, W / 2, 218); c.fillText(top, W / 2, 218);
+    orn(c, W / 2, 252, 420);
+    const cert = await drawCert(p, 1600, 1131, logo), cw = 968, ch = Math.round(cw * 1131 / 1600), cx = (W - cw) / 2, cy = 296;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 24; c.drawImage(cert, cx, cy, cw, ch); c.restore();
+    c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.strokeRect(cx, cy, cw, ch);
+    const bot = (p.post_bottom || 'কাগজের সনদ নয়, কাজের সনদ').trim(), by = cy + ch + 84;
+    c.fillStyle = GOLD2; c.strokeStyle = GOLD2; c.lineWidth = 1; fit(c, bot, '400', SERIF, 50, 28, W - 140); c.fillText(bot, W / 2, by);
+    const url = urlOf(p); c.font = '700 33px Inter,sans-serif'; const uw = c.measureText(url).width + 84, ux = (W - uw) / 2, uy = by + 40;
+    c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, ux, uy, uw, 74, 37); c.fill(); c.strokeStyle = 'rgba(227,194,117,.8)'; c.lineWidth = 2; rr(c, ux, uy, uw, 74, 37); c.stroke();
+    c.fillStyle = '#FFFFFF'; c.fillText(url, W / 2, uy + 49);
+    c.fillStyle = '#93A3D6'; c.font = '500 25px ' + BODY; c.fillText('আপনারটাও বানান: protishthan.com/skill (ফ্রি, ৩ মিনিটে)', W / 2, H - 44);
+    c.textAlign = 'left';
+    return cv;
+  }
+
   async function draw(p, kind){
+    if(kind === 'post'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawPost(p, logo); }
     if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return kind === 'cert' ? drawCert(p, 1600, 1131, logo) : drawCertOg(p, logo); }
     await fonts();
     const T = THEMES[p.theme] || THEMES.midnight, og = kind === 'og';

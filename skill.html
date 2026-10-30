@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=4"></script>
+<script src="/skill-core.js?v=5"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -291,7 +291,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
         <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>আপনার পেজ এখন লাইভ!</h3>
         <p>লিংকটা কপি করে যেকোনো জায়গায় শেয়ার করুন, প্রিভিউতে আপনার নাম আর স্কিল দেখাবে।</p>
         <div class="lk-copy"><input id="okLink" readonly><button class="btn-line" type="button" id="okCopy">কপি</button></div>
-        <div class="shr"><a id="shWa" target="_blank" rel="noopener">WhatsApp</a><a id="shFb" target="_blank" rel="noopener">Facebook</a><a id="shLi" target="_blank" rel="noopener">LinkedIn</a><a id="shView" target="_blank" rel="noopener">পেজ দেখুন ↗</a><button type="button" id="shCard">কার্ড ছবি ডাউনলোড</button></div>
+        <div class="shr"><a id="shWa" target="_blank" rel="noopener">WhatsApp</a><a id="shFb" target="_blank" rel="noopener">Facebook</a><a id="shLi" target="_blank" rel="noopener">LinkedIn</a><a id="shView" target="_blank" rel="noopener">পেজ দেখুন ↗</a><button type="button" id="shCard">পোস্ট ছবি ডাউনলোড</button></div>
       </div>
       <div class="danger" id="danger" style="display:none"><span>আপনার ডেটা আপনার হাতে।</span><button type="button" id="delBtn">প্রোফাইল মুছে ফেলুন</button></div>
     </section>
@@ -299,11 +299,19 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="ct">সনদ</button><button type="button" data-p="cd">স্টোরি কার্ড</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="pv-body">
       <div class="pv-pane on" id="pvPf"><div id="pvMount"></div></div>
       <div class="pv-pane" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCert">সনদ ডাউনলোড করুন</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
-      <div class="pv-pane" id="pvCd"><canvas class="pv-canvas" id="cvCard" width="1080" height="1350"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCard">ছবি ডাউনলোড করুন</button></div><div class="pv-cap">১০৮০×১৩৫০, Instagram/Facebook স্টোরি ও পোস্টের জন্য</div></div>
+      <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff">
+        <canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas>
+        <label class="f" for="fPostTop" style="margin-top:14px">ছবির উপরের লেখা <span class="c" id="cTop"></span></label>
+        <input class="fi" id="fPostTop" maxlength="40" placeholder="আমার স্কিলই আমার সনদ">
+        <label class="f" for="fPostBot">ছবির নিচের লেখা <span class="c" id="cBot"></span></label>
+        <input class="fi" id="fPostBot" maxlength="50" placeholder="কাগজের সনদ নয়, কাজের সনদ">
+        <div class="dl" style="gap:10px;flex-wrap:wrap"><button class="btn-line" type="button" id="dlPost">ছবি ডাউনলোড করুন</button><button class="btn-line" type="button" id="cpCap">ক্যাপশন কপি করুন</button></div>
+        <div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন।</div>
+      </div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
   </aside>
@@ -328,7 +336,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
+  let S = { username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
   let USER = null, ROW = null, uOk = null, skin = 1, googleUrl = '';
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -345,7 +353,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null
     };
   }
-  const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name') });
+  const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom });
 
   /* ---------- draft (works without signing in) ---------- */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
@@ -401,10 +409,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     progress(); paintPub();
   }
   async function drawCanvases(){
-    if(!$('pvCd').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on')) return;
+    if(!$('pvPo').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on')) return;
     const p = preview();
     try{
-      if($('pvCd').classList.contains('on')){ const cv = await C.draw(p, 'card'); const t = $('cvCard'); t.getContext('2d').clearRect(0, 0, t.width, t.height); t.getContext('2d').drawImage(cv, 0, 0); }
+      if($('pvPo').classList.contains('on')){ const cv = await C.draw(p, 'post'); const t = $('cvPost'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvCt').classList.contains('on')){ const cv = await C.draw(p, 'cert'); const t = $('cvCert'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
     }catch(e){}
@@ -423,6 +431,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   function paintAll(){
     $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
+    $('fPostTop').value = S.post_top || ''; $('fPostBot').value = S.post_bottom || ''; $('cTop').textContent = (S.post_top || '').length + '/40'; $('cBot').textContent = (S.post_bottom || '').length + '/50';
     $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
     buildAvatarGrid(); paintAvatar(); paintSkills(); paintLinks(); paintThemes(); paintHeads(); paintPreview();
   }
@@ -551,11 +560,14 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('pubBtn', 'click', publish); on('pubBtn2', 'click', () => { if(!USER || !$('pubBtn').disabled) publish(); else { toast('আগে সব ঠিকঠাক করুন'); } });
     on('unpubBtn', 'click', unpublish); on('delBtn', 'click', del);
     on('okCopy', 'click', async () => { try{ await navigator.clipboard.writeText($('okLink').value); toast('লিংক কপি হয়েছে ✓'); }catch(e){ $('okLink').select(); } });
-    on('shCard', 'click', () => downloadCard('card')); on('dlCard', 'click', () => downloadCard('card')); on('dlCert', 'click', () => downloadCard('cert'));
+    on('shCard', 'click', () => downloadCard('post')); on('dlPost', 'click', () => downloadCard('post')); on('dlCert', 'click', () => downloadCard('cert'));
+    on('fPostTop', 'input', e => { S.post_top = e.target.value; $('cTop').textContent = S.post_top.length + '/40'; saveDraft(); debounce('cv', drawCanvases, 350); });
+    on('fPostBot', 'input', e => { S.post_bottom = e.target.value; $('cBot').textContent = S.post_bottom.length + '/50'; saveDraft(); debounce('cv', drawCanvases, 350); });
+    on('cpCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
     document.querySelector('.pv-tabs').addEventListener('click', e => {
       const b = e.target.closest('[data-p]'); if(!b) return;
       document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x === b));
-      const map = { pf: 'pvPf', ct: 'pvCt', cd: 'pvCd', lk: 'pvLk' };
+      const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', lk: 'pvLk' };
       Object.keys(map).forEach(k => $(map[k]).classList.toggle('on', k === b.dataset.p));
       drawCanvases();
     });
@@ -563,9 +575,13 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
     window.addEventListener('beforeunload', saveDraft);
   }
+  function caption(){
+    const u = 'https://protishthan.com/s/' + ((ROW && ROW.username) || S.username || 'your-name');
+    return 'কাগজের সনদ ড্রয়ারে পড়ে থাকে, কাজে লাগে স্কিল। আমার স্কিলই আমার সনদ।\n\nআমার স্কিল পেজ: ' + u + '\n\nআপনারটাও বানান (ফ্রি, ৩ মিনিটে): https://protishthan.com/skill';
+  }
   async function downloadCard(kind){
-    kind = kind === 'cert' ? 'cert' : 'card';
-    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-identity-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
+    kind = kind === 'cert' ? 'cert' : 'post';
+    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
@@ -577,7 +593,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published }; const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom }; const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = USER.display_name || '';
