@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=24"></script>
+<script src="/skill-core.js?v=25"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -451,11 +451,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="themes" id="themes"></div>
       <label class="f">ব্যাজ</label>
       <div class="chips" id="badges"></div>
-      <label class="f" for="fPostTop" style="margin-top:20px">Facebook পোস্ট ছবির উপরের লেখা <span class="c" id="cTop"></span></label>
-      <input class="fi" id="fPostTop" maxlength="40" placeholder="আমার স্কিলই আমার সনদ">
-      <label class="f" for="fPostBot">পোস্ট ছবির নিচের লেখা <span class="c" id="cBot"></span></label>
-      <input class="fi" id="fPostBot" maxlength="50" placeholder="কাগজের সনদ নয়, কাজের সনদ">
-      <div class="hint">লেখাটা বদলালে ডানে পোস্ট ছবি নিজে থেকে খুলে দেখাবে।</div>
     </section>
 
     <section class="panel" id="s6">
@@ -526,7 +521,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { photo: '', cover_avatar: true, cover_style: 'royal', socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
+  let S = { photo: '', cover_avatar: true, cover_style: 'royal', socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
   let USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -571,7 +566,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     };
   }
   const preview = () => Object.assign(clean(), {
-    views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom,
+    views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'),
     cover_avatar: S.cover_avatar !== false, cover_style: S.cover_style || 'royal', previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
   });
   // what is downloaded or published: only complete addresses, no "soft" placeholders
@@ -761,7 +756,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   function paintAll(){
     $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
-    $('fPostTop').value = S.post_top || ''; $('fPostBot').value = S.post_bottom || ''; $('cTop').textContent = (S.post_top || '').length + '/40'; $('cBot').textContent = (S.post_bottom || '').length + '/50';
     $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
     buildAvatarGrid(); paintAvatar(); paintSkills(); paintSocials(); paintLinks(); $('covAv').checked = S.cover_avatar !== false; paintThemes(); paintHeads(); paintPreview();
   }
@@ -928,8 +922,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : LBK === 'cover' ? 'cover' : 'cert'));
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
     on('shCard', 'click', () => downloadCard('post')); 
-    on('fPostTop', 'input', e => { S.post_top = e.target.value; $('cTop').textContent = S.post_top.length + '/40'; saveDraft(); debounce('cv', drawCanvases, 350); });
-    on('fPostBot', 'input', e => { S.post_bottom = e.target.value; $('cBot').textContent = S.post_bottom.length + '/50'; saveDraft(); debounce('cv', drawCanvases, 350); });
     on('barCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
     document.querySelector('.pv-tabs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if(b) setTab(b.dataset.p); });
     on('pvDots', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
@@ -941,7 +933,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     paintCovStyle();
     on('covAv', 'change', e => { S.cover_avatar = e.target.checked; saveDraft(); debounce('cv', drawCanvases, 200); });
     on('covDl', 'click', () => downloadCard('cover'));
-    on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
     on('prevOpen', 'click', () => { $('colPrev').scrollIntoView({ behavior: 'smooth', block: 'start' }); window.setTimeout(() => window.scrollBy(0, -78), 450); });
      on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
@@ -964,7 +955,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; const keepPhoto = (S.avatar && S.avatar.indexOf('data:image') === 0 && !(data.avatar && data.avatar.indexOf('data:image') === 0)) ? S.avatar : ''; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: keepPhoto || data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, cover_style: S.cover_style, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; const keepPhoto = (S.avatar && S.avatar.indexOf('data:image') === 0 && !(data.avatar && data.avatar.indexOf('data:image') === 0)) ? S.avatar : ''; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: keepPhoto || data.avatar || S.avatar, published: data.published, cover_avatar: S.cover_avatar, cover_style: S.cover_style, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();
