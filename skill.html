@@ -155,7 +155,23 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .lvb{border:none;border-radius:9px;padding:7px 4px;background:transparent;font:600 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
 .lvb.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
 .empty{padding:20px;text-align:center;border:1.5px dashed var(--border);border-radius:16px;color:var(--text-3);font-size:14px;margin-top:14px}
-.lk-row{display:grid;grid-template-columns:.8fr 1.4fr auto;gap:10px;align-items:center;margin-top:10px}
+.cnt-pill{margin-left:auto;padding:3px 11px;border-radius:100px;background:#F1F5F9;color:#64748B;font:700 12.5px 'Inter','Hind Siliguri',sans-serif}
+.lk-card{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1.5px solid var(--border);border-radius:16px;background:#FCFDFF;margin-top:10px;transition:border-color .2s,box-shadow .2s;animation:rowin .3s cubic-bezier(.2,.8,.2,1)}
+.lk-card:focus-within{border-color:#B6C8F5;box-shadow:0 0 0 4px rgba(26,86,219,.07)}
+.lk-ic{flex:none;width:46px;height:46px;border-radius:13px;color:#fff;display:flex;align-items:center;justify-content:center;font:800 14px 'Inter',sans-serif;letter-spacing:-.02em;background:#64748B;transition:background .25s;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 6px 14px -8px rgba(15,23,42,.5)}
+.lk-ic svg{display:block}
+.lk-f{flex:1;min-width:0;display:grid;gap:7px}
+.fi.sm{padding:9px 12px;font-size:14.5px;border-radius:11px}
+.lk-st{display:flex;align-items:center;gap:6px;min-height:18px;font:600 12px 'Inter','Hind Siliguri',sans-serif;color:#94A3B8}
+.lk-st.ok{color:#059669}.lk-st.bad{color:#DC2626}
+.lk-empty{display:flex;gap:14px;align-items:center;padding:18px;border:1.5px dashed #CBD5E1;border-radius:16px;background:#F8FAFF;color:#64748B;font-size:14px;line-height:1.6}
+.lk-empty i{flex:none;width:44px;height:44px;border-radius:13px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center}
+.lk-add{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px}
+.lk-add-t{font-size:12.5px;font-weight:700;color:var(--text-3);text-transform:none}
+.lk-add-c{display:flex;flex-wrap:wrap;gap:8px}
+.lk-add .chip{padding:6px 12px 6px 8px;gap:8px}
+.lk-add .chip i{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font:800 9.5px 'Inter',sans-serif;font-style:normal}
+.lk-add.full .lk-add-c{opacity:.4;pointer-events:none}
 
 /* theme */
 .themes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
@@ -264,8 +280,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   .panel>.sub{margin-left:0}
   .row2{grid-template-columns:1fr}
   .themes{grid-template-columns:repeat(3,1fr)}
-  .lk-row{grid-template-columns:1fr auto}
-  .lk-row .lb{grid-column:1/-1}
   .add-row{flex-direction:column}
   .lvb{font-size:11.5px}
 }
@@ -355,10 +369,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     </section>
 
     <section class="panel" id="s4">
-      <h2><span class="n" id="n4">৪</span>আপনার কাজ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small></h2>
-      <p class="sub">সর্বোচ্চ ৩টা লিংক: Behance, GitHub, YouTube, পোর্টফোলিও সাইট, যেকোনো কিছু।</p>
+      <h2><span class="n" id="n4">৪</span>আপনার কাজ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small><span class="cnt-pill" id="lkCount">০/৩</span></h2>
+      <p class="sub">কাজের প্রমাণই সবচেয়ে বড় পরিচয়। সেরা ৩টা কাজের লিংক দিন।</p>
       <div id="lkList"></div>
-      <button class="btn-line" type="button" id="addLink" style="margin-top:12px">+ লিংক যোগ করুন</button>
+      <div class="lk-add" id="lkAdd"><span class="lk-add-t">যোগ করুন</span><div class="lk-add-c" id="lkChips"></div></div>
     </section>
 
     <section class="panel" id="s5">
@@ -485,9 +499,43 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('skSugg').innerHTML = (window.__pop || []).concat(SUGG).filter((n, i, a) => a.indexOf(n) === i && !have.has(n.toLowerCase())).slice(0, 12).map(n => '<button type="button" class="chip add" data-n="' + V.esc(n) + '">' + V.esc(n) + '</button>').join('');
     $('addSkill').disabled = S.skills.length >= 8; $('fSkill').disabled = S.skills.length >= 8;
   }
+  const PF = [
+    { k: 'behance', n: 'Behance', h: 'behance.net', pre: 'https://www.behance.net/', c: '#1769FF', t: 'Be' },
+    { k: 'github', n: 'GitHub', h: 'github.com', pre: 'https://github.com/', c: '#24292F', t: 'GH' },
+    { k: 'youtube', n: 'YouTube', h: 'youtube.com', pre: 'https://www.youtube.com/@', c: '#E62117', t: 'YT' },
+    { k: 'linkedin', n: 'LinkedIn', h: 'linkedin.com', pre: 'https://www.linkedin.com/in/', c: '#0A66C2', t: 'in' },
+    { k: 'dribbble', n: 'Dribbble', h: 'dribbble.com', pre: 'https://dribbble.com/', c: '#EA4C89', t: 'Dr' },
+    { k: 'facebook', n: 'Facebook', h: 'facebook.com', pre: 'https://www.facebook.com/', c: '#1877F2', t: 'f' },
+    { k: 'instagram', n: 'Instagram', h: 'instagram.com', pre: 'https://www.instagram.com/', c: '#D6249F', t: 'IG' },
+    { k: 'website', n: 'Website', h: '', pre: 'https://', c: '#475569', t: '' }
+  ];
+  const GLOBE = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>';
+  const LINKIC = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>';
+  function detect(u){
+    const host = V.hostOf(normUrl(u));
+    if(host) for(const p of PF) if(p.h && (host === p.h || host.endsWith('.' + p.h))) return p;
+    return PF[PF.length - 1];
+  }
+  function linkState(l){
+    const u = String(l.u || '').trim();
+    if(!u) return { cls: '', msg: 'লিংক পেস্ট করুন' };
+    const full = normUrl(u);
+    if(!/^https?:\/\/[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(\/\S*)?$/i.test(full)) return { cls: 'bad', msg: 'লিংকটা ঠিক মনে হচ্ছে না' };
+    return { cls: 'ok', msg: '✓ ' + V.hostOf(full) };
+  }
+  function paintLinkCard(i){
+    const el = $('lkList').querySelector('.lk-card[data-i="' + i + '"]'); if(!el) return;
+    const l = S.links[i], p = detect(l.u), st = linkState(l), ic = el.querySelector('.lk-ic'), s2 = el.querySelector('.lk-st');
+    ic.style.background = String(l.u || '').trim() ? p.c : '#64748B'; ic.innerHTML = String(l.u || '').trim() ? (p.t ? V.esc(p.t) : GLOBE) : LINKIC;
+    s2.className = 'lk-st ' + st.cls; s2.textContent = st.msg;
+  }
   function paintLinks(){
-    $('lkList').innerHTML = S.links.length ? S.links.map((l, i) => '<div class="lk-row"><input class="fi lb" data-k="t" data-i="' + i + '" maxlength="30" placeholder="নাম (যেমন Behance)" value="' + V.esc(l.t) + '"><input class="fi" data-k="u" data-i="' + i + '" maxlength="200" inputmode="url" placeholder="https://..." value="' + V.esc(l.u) + '"><button class="ib del" type="button" data-a="rl" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div>').join('') : '<div class="empty">আপনার সেরা কাজের লিংক দিলে পেজটা অনেক বিশ্বাসযোগ্য হয়।</div>';
-    $('addLink').style.display = S.links.length >= 3 ? 'none' : '';
+    $('lkList').innerHTML = S.links.length ? S.links.map((l, i) => '<div class="lk-card" data-i="' + i + '"><div class="lk-ic"></div><div class="lk-f"><input class="fi sm" data-k="t" data-i="' + i + '" maxlength="30" placeholder="Title, e.g. My portfolio" value="' + V.esc(l.t) + '" aria-label="লিংকের নাম"><input class="fi sm" data-k="u" data-i="' + i + '" maxlength="200" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://..." value="' + V.esc(l.u) + '" aria-label="লিংক"><div class="lk-st"></div></div><button class="ib del" type="button" data-a="rl" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div>').join('')
+      : '<div class="lk-empty"><i>' + LINKIC + '</i><div>আপনার সেরা কাজের লিংক দিলে পেজটা অনেক বেশি বিশ্বাসযোগ্য হয়। নিচ থেকে একটা বেছে নিন।</div></div>';
+    S.links.forEach((l, i) => paintLinkCard(i));
+    $('lkCount').textContent = V.bn(S.links.length) + '/৩';
+    $('lkChips').innerHTML = PF.map(p => '<button type="button" class="chip" data-p="' + p.k + '"><i style="background:' + p.c + '">' + (p.t ? V.esc(p.t) : '↗') + '</i>' + p.n + '</button>').join('');
+    $('lkAdd').classList.toggle('full', S.links.length >= 3);
   }
   function paintThemes(){
     $('themes').innerHTML = Object.keys(V.THEMES).map(k => '<button type="button" class="th' + (S.theme === k ? ' on' : '') + '" data-t="' + k + '"><i style="background:' + THEME_BG[k] + '"></i><span>' + V.THEMES[k].name + '</span></button>').join('');
@@ -687,8 +735,13 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       else if(a === 'lv') S.skills[i].l = Number(b.dataset.l);
       paintSkills(); paintPreview(); autosave();
     });
-    on('addLink', 'click', () => { if(S.links.length < 3){ S.links.push({ t: '', u: '' }); paintLinks(); const ins = $('lkList').querySelectorAll('input'); if(ins.length) ins[ins.length - 1].focus(); } });
-    on('lkList', 'input', e => { const t = e.target; if(!t.dataset.k) return; S.links[Number(t.dataset.i)][t.dataset.k] = t.value; if(t.dataset.k === 'u'){ const l = S.links[Number(t.dataset.i)]; if(!l.t.trim()){ const h = V.hostOf(normUrl(l.u)); if(h){ const lab = $('lkList').querySelector('[data-k="t"][data-i="' + t.dataset.i + '"]'); if(lab && !lab.value){ lab.placeholder = h; } } } } paintPreview(); autosave(); });
+    on('lkChips', 'click', e => {
+      const b = e.target.closest('[data-p]'); if(!b) return; if(S.links.length >= 3){ toast('সর্বোচ্চ ৩টা লিংক'); return; }
+      const p = PF.find(x => x.k === b.dataset.p) || PF[PF.length - 1];
+      S.links.push({ t: p.k === 'website' ? '' : p.n, u: p.pre }); paintLinks(); paintPreview(); autosave();
+      const ins = $('lkList').querySelectorAll('[data-k="u"]'), last = ins[ins.length - 1]; if(last){ last.focus(); const n = last.value.length; try{ last.setSelectionRange(n, n); }catch(_){} }
+    });
+    on('lkList', 'input', e => { const t = e.target; if(!t.dataset.k) return; const i = Number(t.dataset.i); S.links[i][t.dataset.k] = t.value; paintLinkCard(i); paintPreview(); autosave(); });
     on('lkList', 'click', e => { const b = e.target.closest('[data-a="rl"]'); if(!b) return; S.links.splice(Number(b.dataset.i), 1); paintLinks(); paintPreview(); autosave(); });
     on('themes', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
     on('badges', 'click', e => { const b = e.target.closest('[data-b]'); if(!b) return; const k = b.dataset.b, i = S.badges.indexOf(k); if(i >= 0) S.badges.splice(i, 1); else if(S.badges.length < 2) S.badges.push(k); paintThemes(); paintPreview(); autosave(); });
