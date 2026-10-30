@@ -74,6 +74,9 @@
   function initials(n){ const w = String(n || '').trim().split(/\s+/).filter(Boolean); return ((w[0] || '?')[0] + ((w[1] || '')[0] || '')).toUpperCase(); }
 
   /* ---------------- the page / preview ---------------- */
+  const BRAND = { 'github.com': '#24292F', 'youtube.com': '#E62117', 'youtu.be': '#E62117', 'linkedin.com': '#0A66C2', 'facebook.com': '#1877F2', 'fb.com': '#1877F2', 'instagram.com': '#D6249F', 'behance.net': '#1769FF', 'dribbble.com': '#EA4C89', 'x.com': '#14171A', 'twitter.com': '#14171A', 'medium.com': '#14171A', 'figma.com': '#A259FF', 'notion.so': '#14171A', 'fiverr.com': '#1DBF73', 'upwork.com': '#14A800', 'vimeo.com': '#1AB7EA', 'tiktok.com': '#14171A', 'pinterest.com': '#E60023', 'telegram.org': '#26A5E4', 't.me': '#26A5E4', 'wa.me': '#25D366', 'drive.google.com': '#1A73E8', 'docs.google.com': '#1A73E8', 'wordpress.com': '#21759B', 'canva.com': '#00C4CC', 'codepen.io': '#14171A', 'kaggle.com': '#20BEFF', 'stackoverflow.com': '#F48024' };
+  function brandOf(h){ for(const k in BRAND) if(h === k || h.endsWith('.' + k)) return BRAND[k]; return ''; }
+  const BN_MONTH = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
   function html(p, opt){
     opt = opt || {};
     p = p || {};
@@ -81,38 +84,47 @@
     const av = avatarSrc(p.avatar);
     let i = 0;
     const R = () => ' sk-rise" style="--i:' + (i++);
-    let h = '<div class="sk-card">';
+    let h = '<div class="sk-wrap">';
+    /* ---- identity (left on desktop, top on phones) ---- */
+    h += '<aside class="sk-side"><div class="sk-card sk-id">';
+    h += '<div class="sk-cover" aria-hidden="true"><i></i></div>';
     h += '<div class="sk-head">';
-    h += '<div class="sk-av' + R() + '">' + (av ? '<img src="' + esc(av) + '" alt="" referrerpolicy="no-referrer">' : '<div class="ini">' + esc(initials(p.display_name)) + '</div>') + '</div>';
-    h += '<span class="sk-self' + R() + '">' + SHIELD + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি</span>';
+    h += '<div class="sk-av' + R() + '">' + (av ? '<img src="' + esc(av) + '" alt="" referrerpolicy="no-referrer">' : '<div class="ini">' + esc(initials(p.display_name)) + '</div>') + '<span class="vf" title="স্ব-ঘোষিত স্কিল আইডেন্টিটি">' + SHIELD + '</span></div>';
     h += '<h1 class="sk-name' + R() + '">' + (esc(p.display_name) || '<span style="opacity:.4">আপনার নাম</span>') + '</h1>';
     if(p.headline) h += '<p class="sk-hl' + R() + '">' + esc(p.headline) + '</p>';
     else if(opt.embed) h += '<p class="sk-hl' + R() + '" style="opacity:.45">আপনার পদবি বা পরিচয়</p>';
     if(badges.length) h += '<div class="sk-badges' + R() + '">' + badges.filter(b => BADGES[b]).map(b => '<span class="sk-chip">' + SPARK + esc(BADGES[b]) + '</span>').join('') + '</div>';
     const soc = validSocials(p);
-    if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => (s.u && socialOk(s.p, s.u) ? '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"' : '<span class="sk-so ghost"') + ' aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 20) + (s.u && socialOk(s.p, s.u) ? '</a>' : '</span>')).join('') + '</div>';
-    h += '</div>';
-    if(p.about) h += '<p class="sk-about' + R() + '">' + esc(p.about).replace(/\n/g, '<br>') + '</p>';
+    if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => (s.u && socialOk(s.p, s.u) ? '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"' : '<span class="sk-so ghost"') + ' aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 19) + (s.u && socialOk(s.p, s.u) ? '</a>' : '</span>')).join('') + '</div>';
+    if(opt.actions) h += '<div class="' + R() + '">' + opt.actions + '</div>';
     if(skills.length || links.length || p.views != null){
-      h += '<div class="sk-stats' + R() + '"><div><b>' + bn(skills.length) + '</b><span>স্কিল</span></div><div><b>' + bn(links.length) + '</b><span>প্রজেক্ট</span></div>' + (p.views != null ? '<div><b>' + bn(p.views) + '</b><span>জন দেখেছেন</span></div>' : '') + '</div>';
+      h += '<div class="sk-stats' + R() + '"><div><b>' + bn(skills.length) + '</b><span>স্কিল</span></div><div><b>' + bn(links.length) + '</b><span>প্রজেক্ট</span></div>' + (p.views != null ? '<div><b>' + bn(p.views) + '</b><span>ভিউ</span></div>' : '') + '</div>';
     }
-    h += '<div class="sk-h' + R() + '">স্কিল</div>';
+    h += '</div></div></aside>';
+    /* ---- main column ---- */
+    h += '<div class="sk-main">';
+    if(p.about) h += '<section class="sk-sec sk-card sk-abt' + R() + '"><div class="sk-h2"><span>পরিচিতি</span></div><p class="sk-about">' + esc(p.about).replace(/\n/g, '<br>') + '</p></section>';
+    h += '<section class="sk-sec' + R() + '"><div class="sk-h2"><span>স্কিল</span>' + (skills.length ? '<small>' + bn(skills.length) + 'টি</small>' : '') + '</div>';
     if(skills.length){
       h += '<div class="sk-skills">' + skills.map((s, k) => {
         const l = Math.max(1, Math.min(4, Number(s.l) || 2));
-        return '<div class="sk-skill sk-rise" style="--i:' + (i + k) + '"><div class="r"><b>' + esc(s.n) + '</b><em>' + LEVELS[l - 1] + '</em></div><div class="sk-bar"><i style="--p:' + (l * 25) + '%;--i:' + k + '"></i></div></div>';
+        return '<div class="sk-skill sk-rise" style="--i:' + (i + k) + '"><div class="r"><b>' + esc(s.n) + '</b><em>' + LEVELS[l - 1] + '</em></div><div class="sk-seg" role="img" aria-label="' + LEVELS[l - 1] + '">' + [1, 2, 3, 4].map(n => '<i' + (n <= l ? ' class="on" style="--k:' + (n + k) + '"' : '') + '></i>').join('') + '</div></div>';
       }).join('') + '</div>';
       i += skills.length;
     } else h += '<div class="sk-empty">এখনো কোনো স্কিল যোগ করা হয়নি</div>';
+    h += '</section>';
     if(links.length){
-      h += '<div class="sk-h' + R() + '">প্রজেক্ট ও কাজ</div><div class="sk-links">' + links.map((l, k) => {
-        const host = hostOf(l.u);
-        return '<a class="sk-link sk-rise" style="--i:' + (i + k) + '" href="' + esc(l.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"><span class="ic">' + esc(iconText(host)) + '</span><span class="t"><b>' + esc(l.t || host) + '</b><em>' + esc(host) + '</em></span>' + ARROW + '</a>';
-      }).join('') + '</div>';
+      h += '<section class="sk-sec' + R() + '"><div class="sk-h2"><span>প্রজেক্ট ও কাজ</span><small>' + bn(links.length) + 'টি</small></div><div class="sk-links">' + links.map((l, k) => {
+        const host = hostOf(l.u), bc = brandOf(host);
+        return '<a class="sk-link sk-rise' + (k === 0 && links.length > 1 ? ' first' : '') + '" style="--i:' + (i + k) + (bc ? ';--bc:' + bc : '') + '" href="' + esc(l.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"><span class="ic">' + esc(iconText(host)) + '</span><span class="t"><b>' + esc(l.t || host) + '</b><em>' + esc(host) + '</em></span><span class="go">' + ARROW + '</span></a>';
+      }).join('') + '</div></section>';
       i += links.length;
-    } else if(opt.embed) h += '<div class="sk-h' + R() + '">প্রজেক্ট ও কাজ</div><div class="sk-empty">আপনার কাজের লিংক এখানে দেখাবে</div>';
-    h += '<p class="sk-note' + R() + '">এই তথ্য ব্যক্তি নিজে দিয়েছেন; Protishthan যাচাই করেনি।</p>';
-    h += '</div>';
+    } else if(opt.embed) h += '<section class="sk-sec' + R() + '"><div class="sk-h2"><span>প্রজেক্ট ও কাজ</span></div><div class="sk-empty">আপনার কাজের লিংক এখানে দেখাবে</div></section>';
+    if(opt.after) h += '<div class="' + R() + '">' + opt.after + '</div>';
+    let when = '';
+    if(p.published_at){ const d = new Date(p.published_at); if(!isNaN(d)) when = ' · ' + BN_MONTH[d.getMonth()] + ' ' + String(d.getFullYear()).replace(/[0-9]/g, x => '০১২৩৪৫৬৭৮৯'[x]) + '-এ তৈরি'; }
+    h += '<p class="sk-note' + R() + '">স্ব-ঘোষিত তথ্য: ব্যক্তি নিজে দিয়েছেন, Protishthan যাচাই করেনি' + when + '</p>';
+    h += '</div></div>';
     return h;
   }
   function mount(el, p, opt){

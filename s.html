@@ -9,34 +9,38 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cinzel:wght@500;600;700&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/skill.css?v=6">
+<link rel="stylesheet" href="/skill.css?v=7">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=25"></script>
+<script src="/skill-core.js?v=27"></script>
 <style>
 html,body{margin:0;background:#070B16}
 #sk{min-height:100vh;display:flex;flex-direction:column}
-.sk-top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(1080px,100%);margin:0 auto;padding:18px 18px 8px}
+.sk-top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(1060px,100%);margin:0 auto;padding:18px 18px 8px}
 .sk-top .logo{display:flex;align-items:center;font:800 19px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.4px;color:var(--ink);text-decoration:none}
 .sk-top .logo>span:last-child{opacity:.6}
 .sk-top .logo .logo-icon{width:36px!important;height:36px!important;border-radius:11px!important}
 .pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:100px;border:1px solid var(--line);background:var(--glass2);color:var(--ink);font:700 13.5px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer;transition:transform .2s,background .2s,border-color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .pill:hover{transform:translateY(-1px);border-color:var(--a1)}
-.pg{position:relative;z-index:2;flex:1;width:min(760px,100%);margin:0 auto;padding:18px 16px 56px}
-.act{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:22px 0 0}
+.pg{position:relative;z-index:2;flex:1;width:min(1060px,100%);margin:0 auto;padding:18px 18px 56px}
+.act{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0 0;width:100%}
+.act .btn{height:auto;min-height:44px;padding:9px 6px;flex-direction:column;gap:4px;justify-content:center;font-size:12.5px;border-radius:14px}
+.act .btn svg{width:18px;height:18px}
+.act .btn.pri{grid-column:1/-1;flex-direction:row;height:48px;gap:9px;font-size:15px}
 .btn{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:var(--glass2);color:var(--ink);font:700 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .btn:hover{transform:translateY(-2px);border-color:var(--a1)}
 .btn.pri{border:none;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1));box-shadow:0 14px 34px -14px var(--a2)}
 .btn.pri:hover{box-shadow:0 18px 40px -12px var(--a2)}
-.cta{margin:34px 0 0;padding:30px 26px;border-radius:26px;text-align:center;background:linear-gradient(150deg,var(--glass2),var(--glass));border:1px solid var(--line);position:relative;overflow:hidden}
-.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 50% 0,color-mix(in srgb,var(--a2) 28%,transparent),transparent 70%);pointer-events:none}
-.cta h2{position:relative;margin:0 0 6px;font:800 clamp(21px,4vw,27px)/1.3 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.01em}
-.cta p{position:relative;margin:0 0 20px;color:var(--mut);font:500 15px/1.6 'Hind Siliguri','Inter',sans-serif}
-.cta .btn{position:relative;height:50px;padding:0 26px;font-size:16px}
-.cta small{position:relative;display:block;margin-top:14px;color:var(--mut);font:500 12.5px 'Hind Siliguri','Inter',sans-serif}
+.cta{position:relative;display:flex;align-items:center;gap:18px;padding:20px 22px;border-radius:22px;background:linear-gradient(120deg,color-mix(in srgb,var(--a2) 30%,transparent),var(--glass));border:1px solid var(--line);overflow:hidden}
+.cta .tx{flex:1;min-width:0}
+.cta h2{margin:0 0 2px;font:800 clamp(17px,2.6vw,20px)/1.35 'Hind Siliguri','Inter',sans-serif}
+.cta p{margin:0;color:var(--mut);font:500 13.5px/1.6 'Hind Siliguri','Inter',sans-serif}
+.cta .btn{flex:none;height:46px;padding:0 20px;flex-direction:row}
+.cta small{display:block;margin-top:2px;color:var(--mut);font:500 12px 'Hind Siliguri','Inter',sans-serif}
+@media(max-width:560px){.cta{flex-direction:column;align-items:stretch;text-align:center}}
 .ft{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;padding:0 16px 30px;color:var(--mut);font:500 12.5px 'Hind Siliguri','Inter',sans-serif}
 .ft a,.ft button{color:var(--mut);background:none;border:none;padding:0;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .ft a:hover,.ft button:hover{color:var(--ink)}
@@ -63,7 +67,7 @@ html,body{margin:0;background:#070B16}
 .sk-skeleton{padding:60px 0;display:flex;justify-content:center}
 .sk-skeleton i{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--a1);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:560px){.btn{flex:1 1 calc(50% - 10px);justify-content:center;padding:0 12px}.btn.pri{flex-basis:100%}}
+
 </style>
 </head>
 <body>
@@ -105,6 +109,7 @@ html,body{margin:0;background:#070B16}
     copy: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="3"/><path d="M5 15V6a2 2 0 012-2h9"/></svg>',
     share: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-4M8.6 13.4l6.8 4"/></svg>',
     qr: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>',
+    cert: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg>',
     arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     user: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
   };
@@ -122,9 +127,9 @@ html,body{margin:0;background:#070B16}
     document.documentElement.style.background = (V.THEMES[p.theme] || V.THEMES.midnight).bg; document.body.style.background = document.documentElement.style.background;
     document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
     $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
-    pg.innerHTML = V.html(p, {}) +
-      '<div class="act sk-rise" style="--i:14"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার করুন</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">সনদ আকারে দেখুন</button></div>' +
-      '<section class="cta sk-rise" style="--i:15"><h2>আপনার স্কিল দিয়েই পরিচিত হোন</h2><p>কাগজের সনদের বাইরে আপনার আসল দক্ষতা। মাত্র ৩ মিনিটে নিজের স্কিল আইডেন্টিটি পেজ বানান, একদম ফ্রি।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">আমারটা বানাই ' + IC.arrow + '</a><small id="ctaN"></small></section>';
+    const actions = '<div class="act"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
+    const after = '<section class="cta"><div class="tx"><h2>আপনিও বানান নিজের স্কিল পেজ</h2><p>ডিগ্রির বাইরে আপনার আসল দক্ষতা। ৩ মিনিটে, একদম ফ্রি।</p><small id="ctaN"></small></div><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">বানাই ' + IC.arrow + '</a></section>';
+    pg.innerHTML = V.html(p, { actions: actions, after: after });
     $('rpBtn').style.display = '';
     $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr; $('bCert').onclick = showCert;
     requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
