@@ -74,6 +74,16 @@
   .ptn .btn-primary-nav{height:38px;padding:0 14px;font-size:13px}
   .ptn .mb-pt{display:none}
 }
+/* bottom tab bar (data-tabs) */
+.sn-tabs{display:none}
+@media(max-width:900px){
+  .ptn.has-tabs .sn-burger,.ptn.has-tabs .sn-drawer{display:none}
+  body.has-tabs{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .sn-tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;position:fixed;left:0;right:0;bottom:0;z-index:250;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #E2E8F0;font-family:'Hind Siliguri','Inter',sans-serif}
+  .sn-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;border-radius:14px;color:#64748B;font-size:12px;font-weight:600;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s}
+  .sn-tab svg{width:23px;height:23px}
+  .sn-tab.on{color:#1A56DB;background:#EAF0FF}
+}
 @media(prefers-reduced-motion:reduce){.ptn *{transition:none!important}}
 
 /* ---- sign in / account area ---- */

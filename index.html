@@ -25,6 +25,7 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 /* ── floating "add your institution" widget (replaces the full-width bottom bar, so nothing at the bottom is covered) ── */
 .nudge{position:fixed;right:20px;bottom:20px;z-index:190;display:none;transition:transform .38s cubic-bezier(.2,.8,.2,1),opacity .3s ease}
 .nudge.ready{display:block}
+@media(max-width:900px){.nudge{bottom:calc(76px + env(safe-area-inset-bottom))}}
 .nudge.tuck{transform:translateY(160%);opacity:0;pointer-events:none}
 .nudge-fab{position:relative;display:inline-flex;align-items:center;height:56px;min-width:56px;padding:0 16px;gap:0;border:none;border-radius:100px;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,#2563EB,#4F46E5);box-shadow:0 12px 30px rgba(37,99,235,.45),0 0 0 1px rgba(255,255,255,.18) inset;transition:transform .2s,box-shadow .2s}
 .nudge-fab:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(37,99,235,.55),0 0 0 1px rgba(255,255,255,.22) inset}
@@ -764,13 +765,13 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="/nav.css?v=4">
+<link rel="stylesheet" href="/nav.css?v=5">
 </head>
 <body>
 
 <!-- NAV -->
-<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
-<script src="/nav.js?v=2"></script>
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-tabs="1"></div>
+<script src="/nav.js?v=4"></script>
 
 <div class="nudge" id="nudge">
   <div class="nudge-panel" id="nudgePanel" role="dialog" aria-label="প্রতিষ্ঠান তালিকাভুক্তি">

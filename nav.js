@@ -9,6 +9,8 @@
   var IC = {
     card:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16c.6-1.7 2-2.6 3.5-2.6s2.9.9 3.5 2.6M15 10h3.5M15 13h3"/></svg>',
     skill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg>',
+    info:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6M12 10v.01"/></svg>',
+    service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
     chev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
@@ -75,6 +77,12 @@
       '<button type="button" class="sn-burger" aria-label="মেনু" aria-expanded="false" aria-controls="snd"><span></span></button>' +
       '<div class="sn-drawer" id="snd">' + drawer + '</div>' +
     '</div>';
+  /* phones: opt in with data-tabs="1" to get a bottom tab bar instead of the hamburger */
+  if(el.dataset.tabs){
+    var tabs = set.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span>' + esc(l.t) + '</span></a>'; }).join('');
+    var tb = document.createElement('div'); tb.className = 'sn-tabs'; tb.setAttribute('role', 'navigation'); tb.setAttribute('aria-label', 'প্রধান মেনু'); tb.innerHTML = tabs; document.body.appendChild(tb);
+    el.classList.add('has-tabs'); document.body.classList.add('has-tabs');
+  }
   el.dataset.ready = '1'; if(!el.dataset.theme) el.dataset.theme = 'dark';
 
   /* behaviour: dropdown on click/hover, drawer on phones, Esc and outside click close everything */
