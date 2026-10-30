@@ -152,7 +152,11 @@
 
   /* ---- সনদ: a certificate in the style of a real one: paper grain, guilloche border and rosettes, embossed seal
      with ribbons, serif Bangla type, a hand signature. It is plainly marked self-issued, not an official document. ---- */
-  const NAVY = '#1B2A5A', GOLD = '#B8893B', GOLD2 = '#E3C275', PAPER = '#FBF7EC', INKM = '#59627E', INK = '#1F2F6B';
+  let NAVY = '#1B2A5A', NRGB = '27,42,90', INK = '#1F2F6B', RIB1 = '#2E4290', RIB2 = '#16224F';
+  const GOLD = '#B8893B', GOLD2 = '#E3C275', PAPER = '#FBF7EC', INKM = '#59627E';
+  // the certificate takes its ink colour from the profile theme (like the cover of a passport)
+  const PALETTES = { midnight: ['#1B2A5A', '27,42,90', '#1F2F6B', '#2E4290', '#16224F'], aurora: ['#0F4D3A', '15,77,58', '#0F4D3A', '#1F7A5C', '#0A3327'], ocean: ['#0E4A63', '14,74,99', '#0E4A63', '#1B7596', '#0A3347'], ember: ['#6B1E2E', '107,30,46', '#5A1626', '#9A3347', '#471320'], paper: ['#2B2B33', '43,43,51', '#26262E', '#4A4A56', '#1B1B21'] };
+  function setPalette(t){ const q = PALETTES[t] || PALETTES.midnight; NAVY = q[0]; NRGB = q[1]; INK = q[2]; RIB1 = q[3]; RIB2 = q[4]; }
   const SERIF = '"Tiro Bangla","Hind Siliguri",serif', LSERIF = '"Cormorant Garamond",Georgia,serif', SIGN = '"Great Vibes","Snell Roundhand","Segoe Script","Brush Script MT",cursive';
   const certNo = u => { let h = 7; for(const ch of String(u || 'x')) h = (h * 31 + ch.charCodeAt(0)) % 900000; return 'SK-' + String(h + 100000); };
   const bnDate = d => { try{ return new Date(d || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); }catch(e){ return ''; } };
@@ -187,9 +191,9 @@
     }
   }
   function band(c, len, w){
-    c.fillStyle = 'rgba(27,42,90,.04)'; c.fillRect(0, 0, len, w);
-    strands(c, len, w, 8, w * .36, .052, 'rgba(27,42,90,.55)', 'rgba(184,137,59,.8)', 1.1);
-    strands(c, len, w, 8, w * .2, -.105, 'rgba(27,42,90,.28)', 'rgba(184,137,59,.45)', .8);
+    c.fillStyle = 'rgba(' + NRGB + ',.04)'; c.fillRect(0, 0, len, w);
+    strands(c, len, w, 8, w * .36, .052, 'rgba(' + NRGB + ',.55)', 'rgba(184,137,59,.8)', 1.1);
+    strands(c, len, w, 8, w * .2, -.105, 'rgba(' + NRGB + ',.28)', 'rgba(184,137,59,.45)', .8);
   }
   function certFrame(c, W, H){
     const m = 34, th = 12, bw = 44, b0 = m + th;
@@ -201,11 +205,11 @@
     [[b0, b0], [W - b0 - bw, b0], [b0, H - b0 - bw], [W - b0 - bw, H - b0 - bw]].forEach(([x, y]) => {
       c.fillStyle = PAPER; c.fillRect(x, y, bw, bw);
       c.strokeStyle = GOLD; c.lineWidth = 2; c.strokeRect(x + 1, y + 1, bw - 2, bw - 2);
-      rosette(c, x + bw / 2, y + bw / 2, bw * .44, 11, 4, 6, 'rgba(27,42,90,.75)', 1); rosette(c, x + bw / 2, y + bw / 2, bw * .3, 9, 5, 4, 'rgba(184,137,59,.9)', 1);
+      rosette(c, x + bw / 2, y + bw / 2, bw * .44, 11, 4, 6, 'rgba(' + NRGB + ',.75)', 1); rosette(c, x + bw / 2, y + bw / 2, bw * .3, 9, 5, 4, 'rgba(184,137,59,.9)', 1);
     });
     const i1 = b0 + bw + 6;
     c.strokeStyle = GOLD; c.lineWidth = 2.5; c.strokeRect(i1, i1, W - i1 * 2, H - i1 * 2);
-    c.strokeStyle = 'rgba(27,42,90,.6)'; c.lineWidth = 1.2; c.strokeRect(i1 + 7, i1 + 7, W - (i1 + 7) * 2, H - (i1 + 7) * 2);
+    c.strokeStyle = 'rgba(' + NRGB + ',.6)'; c.lineWidth = 1.2; c.strokeRect(i1 + 7, i1 + 7, W - (i1 + 7) * 2, H - (i1 + 7) * 2);
   }
   function certPaper(c, W, H){
     const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#FEFBF2'); g.addColorStop(.5, PAPER); g.addColorStop(1, '#F3ECD8');
@@ -218,7 +222,7 @@
   function seal(c, x, y, r){
     // ribbon tails
     [-1, 1].forEach(dir => {
-      const g = c.createLinearGradient(x, y, x + dir * r, y + r * 1.5); g.addColorStop(0, '#2E4290'); g.addColorStop(1, '#16224F');
+      const g = c.createLinearGradient(x, y, x + dir * r, y + r * 1.5); g.addColorStop(0, RIB1); g.addColorStop(1, RIB2);
       c.save(); c.shadowColor = 'rgba(20,20,50,.35)'; c.shadowBlur = r * .15; c.shadowOffsetY = r * .05;
       c.fillStyle = g; c.beginPath(); c.moveTo(x + dir * r * .08, y + r * .5); c.lineTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.lineTo(x + dir * r * .62, y + r * 1.12); c.lineTo(x + dir * r * .38, y + r * 1.34); c.closePath(); c.fill(); c.restore();
       c.strokeStyle = 'rgba(227,194,117,.9)'; c.lineWidth = Math.max(1.5, r * .025); c.beginPath(); c.moveTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.stroke();
@@ -234,7 +238,7 @@
     c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = Math.max(1.5, r * .03); c.beginPath(); c.arc(x, y, r * .72, Math.PI * 1.05, Math.PI * 1.6); c.stroke();
     c.strokeStyle = 'rgba(110,75,15,.5)'; c.lineWidth = Math.max(1, r * .02); c.beginPath(); c.arc(x, y, r * .72, Math.PI * .05, Math.PI * .6); c.stroke();
     // text round the rim (Latin only: Bangla conjuncts must not be split letter by letter)
-    const t = 'CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  ', rad = r * .6; c.fillStyle = 'rgba(27,42,90,.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
+    const t = 'CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  ', rad = r * .6; c.fillStyle = 'rgba(' + NRGB + ',.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
     const step = Math.PI * 2 / t.length; for(let i = 0; i < t.length; i++){ c.save(); c.translate(x, y); c.rotate(i * step - Math.PI / 2); c.fillText(t[i], 0, -rad); c.restore(); }
     c.fillStyle = NAVY; c.beginPath(); const sr = r * .15, sy = y - r * .26; c.moveTo(x, sy - sr); c.quadraticCurveTo(x, sy, x + sr, sy); c.quadraticCurveTo(x, sy, x, sy + sr); c.quadraticCurveTo(x, sy, x - sr, sy); c.quadraticCurveTo(x, sy, x, sy - sr); c.fill();
     c.font = '700 ' + Math.round(r * .21) + 'px ' + LSERIF; spaced(c, '1px'); c.fillText('SELF-ISSUED', x, y + r * .16); spaced(c, '0px');
@@ -277,9 +281,10 @@
     });
     const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#F1DA9E'); g.addColorStop(.5, '#D5AC55'); g.addColorStop(1, '#B8893B');
     c.save(); c.shadowColor = 'rgba(80,55,10,.35)'; c.shadowBlur = 8; c.shadowOffsetY = 3; c.fillStyle = g; c.fillRect(cx - w / 2, y, w, h); c.restore();
-    c.strokeStyle = 'rgba(27,42,90,.55)'; c.lineWidth = 1.5; c.strokeRect(cx - w / 2 + 5, y + 5, w - 10, h - 10);
+    c.strokeStyle = 'rgba(' + NRGB + ',.55)'; c.lineWidth = 1.5; c.strokeRect(cx - w / 2 + 5, y + 5, w - 10, h - 10);
   }
   async function drawCert(p, W, H, logo){
+    setPalette(p.theme);
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
     certPaper(c, W, H);
     c.save(); c.globalAlpha = .085; rosette(c, W / 2, H / 2 + 30, 360, 17, 6, 9, NAVY, 1); c.globalAlpha = .06; rosette(c, W / 2, H / 2 + 30, 250, 13, 5, 8, GOLD, 1.2); c.restore();
@@ -301,17 +306,17 @@
       const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 36 + row * 46;
       diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 31px ' + LSERIF; c.fillText(s.n.length > 24 ? s.n.slice(0, 23) + '…' : s.n, x + 22, yy);
       const l = Math.max(1, Math.min(4, Number(s.l) || 2));
-      for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 400 - d * 24, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(27,42,90,.14)'; c.fill(); if((3 - d) < l){ c.strokeStyle = 'rgba(120,80,10,.5)'; c.lineWidth = 1; c.stroke(); } }
+      for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 400 - d * 24, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(' + NRGB + ',.14)'; c.fill(); if((3 - d) < l){ c.strokeStyle = 'rgba(120,80,10,.5)'; c.lineWidth = 1; c.stroke(); } }
     });
     // footer: QR | date | seal | signature
     const by = H - 318; c.textAlign = 'center';
     const hasQR = qr(c, 150, by + 28, 120, SITE + '/s/' + (p.username || '') + '?ref=cert', NAVY, '#FFFFFF');
     if(hasQR){ c.fillStyle = INKM; c.font = '600 17px ' + LSERIF; spaced(c, '1px'); c.fillText('SCAN TO VIEW WORK', 150 + 60, by + 180); spaced(c, '0px'); }
     c.fillStyle = NAVY; c.font = '700 28px ' + LSERIF; c.fillText(enDate(p.published_at), 530, by + 92);
-    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(400, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('DATE', 530, by + 136); spaced(c, '0px');
+    c.fillStyle = 'rgba(' + NRGB + ',.7)'; c.fillRect(400, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('DATE', 530, by + 136); spaced(c, '0px');
     seal(c, cx, by + 62, 78);
     c.textAlign = 'center'; signature(c, name, 1070, by + 82, 250);
-    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(940, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('ISSUED BY  ·  SELF', 1070, by + 136); spaced(c, '0px');
+    c.fillStyle = 'rgba(' + NRGB + ',.7)'; c.fillRect(940, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('ISSUED BY  ·  SELF', 1070, by + 136); spaced(c, '0px');
     c.fillStyle = INKM; c.font = 'italic 500 21px ' + LSERIF; c.fillText('Self-issued by the holder  ·  not verified by Protishthan', cx, H - 130);
     c.font = '600 16px Inter,sans-serif'; c.fillStyle = GOLD; spaced(c, '1px'); c.fillText(urlOf(p) + '   ·   ' + certNo(p.username), cx, H - 106); spaced(c, '0px');
     return cv;

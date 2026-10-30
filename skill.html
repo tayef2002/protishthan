@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=8"></script>
+<script src="/skill-core.js?v=9"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -46,7 +46,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
 
 /* hero */
-.hero{position:relative;overflow:hidden;padding:128px 20px 108px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
+.hero{position:relative;overflow:hidden;padding:112px 20px 88px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
 .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:54px 54px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%)}
 .hero>*{position:relative}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;color:#DCE6FF}
@@ -61,7 +61,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .hero .cnt{margin-top:18px;font-size:13.5px;color:#9FB2E6;min-height:20px}
 
 /* layout */
-.wrap{position:relative;z-index:2;max-width:1180px;margin:-62px auto 70px;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:26px;align-items:start}
+.wrap{position:relative;z-index:2;max-width:1300px;margin:-62px auto 70px;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 640px;gap:26px;align-items:start}
 .col-form{display:grid;gap:16px;min-width:0}
 .prog{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:18px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
 .prog .bar{flex:1;height:8px;border-radius:8px;background:#EEF2F8;overflow:hidden}
@@ -174,12 +174,35 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .fbcard .t span{display:block;font:400 13px 'Hind Siliguri','Inter',sans-serif;color:#65676B;margin-top:1px}
 .dl{margin-top:12px;display:flex;justify-content:center}
 
+/* the live certificate on top of the form (small screens) */
+.mini{display:none;padding:16px 16px 14px}
+.mini-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.mini-h b{font-size:16px}
+.mini-h span{font-size:12.5px;color:var(--text-3)}
+.mini-b{position:relative;display:block;width:100%;padding:0;border:none;border-radius:14px;overflow:hidden;background:#FBF7EC;box-shadow:0 10px 30px -14px rgba(15,23,42,.45)}
+.mini-b canvas{display:block;width:100%;height:auto}
+.mini-b i{position:absolute;right:10px;bottom:10px;padding:6px 12px;border-radius:100px;background:rgba(15,23,42,.82);color:#fff;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;font-style:normal}
+.zoom-b{display:inline-flex;align-items:center;gap:7px}
+.sample-note{display:none;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#FFF8E6;border:1px solid #F5DFA0;color:#8A6500;font-size:13px;font-weight:600;text-align:center}
+.pv-canvas,.fbcard canvas{cursor:zoom-in}
+/* full-screen viewer: see the real thing without downloading it */
+.lb{position:fixed;inset:0;z-index:600;display:none;flex-direction:column;background:rgba(5,8,20,.94)}
+.lb.show{display:flex}
+.lb-x{position:absolute;right:14px;top:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:24px}
+.lb-body{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:58px 16px 16px;-webkit-overflow-scrolling:touch}
+.lb-body img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6);cursor:zoom-in}
+.lb.zoom .lb-body{align-items:flex-start;justify-content:flex-start}
+.lb.zoom .lb-body img{max-width:none;max-height:none;width:var(--zw,1600px);cursor:zoom-out}
+.lb-bar{display:flex;justify-content:center;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:rgba(255,255,255,.06)}
+.lb-bar button{height:44px;padding:0 20px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:700 14.5px 'Hind Siliguri','Inter',sans-serif}
+.lb-bar button.pri{border:none;background:linear-gradient(135deg,var(--blue),var(--indigo))}
 /* mobile */
 .mbar{display:none}
 .sheet-x{display:none}
-@media(max-width:1000px){
+@media(max-width:1180px){
   .wrap{grid-template-columns:1fr;margin-top:-52px;padding-bottom:90px;z-index:auto}
   .col-form{position:relative;z-index:2}
+  .mini{display:block}
   .col-prev{position:fixed;inset:0;z-index:300;background:#EEF2F8;padding:18px 16px 100px;overflow-y:auto;transform:translateY(100%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),visibility .35s}
   .col-prev.open{transform:none;visibility:visible}
   .pv-body{max-height:none}
@@ -233,6 +256,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
 <div class="wrap">
   <div class="col-form">
+    <section class="panel mini" id="miniCard"><div class="mini-h"><b>আপনার সনদ</b><span id="miniNote">নমুনা: আপনার তথ্য দিলেই বদলে যাবে</span></div><button class="mini-b" type="button" id="miniOpen" aria-label="সনদ বড় করে দেখুন"><canvas id="cvMini" width="800" height="565"></canvas><i>বড় করে দেখুন</i></button></section>
     <div class="prog" role="status"><span>প্রোফাইল</span><div class="bar"><i id="progBar"></i></div><b id="progPct">০%</b></div>
 
     <section class="panel" id="s1">
@@ -272,7 +296,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
     <section class="panel" id="s5">
       <h2><span class="n done" id="n5">৫</span>ডিজাইন</h2>
-      <p class="sub">থিম আর ছোট ব্যাজ (সর্বোচ্চ ২টা) বেছে নিন।</p>
+      <p class="sub">থিম বাছলে প্রোফাইল ও সনদ, দুটোর রংই বদলায় (নেভি, সবুজ, মেরুন...)। ছোট ব্যাজ সর্বোচ্চ ২টা।</p>
       <div class="themes" id="themes"></div>
       <label class="f">ব্যাজ</label>
       <div class="chips" id="badges"></div>
@@ -300,24 +324,26 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
     <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
     <div class="pv-body">
       <div class="pv-pane on" id="pvPf"><div id="pvMount"></div></div>
-      <div class="pv-pane" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCert">সনদ ডাউনলোড করুন</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
+      <div class="pv-pane" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCert">সনদ ডাউনলোড করুন</button><button class="btn-line zoom-b" type="button" data-zoom="cert">🔍 বড় করে দেখুন</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff">
         <canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas>
         <label class="f" for="fPostTop" style="margin-top:14px">ছবির উপরের লেখা <span class="c" id="cTop"></span></label>
         <input class="fi" id="fPostTop" maxlength="40" placeholder="আমার স্কিলই আমার সনদ">
         <label class="f" for="fPostBot">ছবির নিচের লেখা <span class="c" id="cBot"></span></label>
         <input class="fi" id="fPostBot" maxlength="50" placeholder="কাগজের সনদ নয়, কাজের সনদ">
-        <div class="dl" style="gap:10px;flex-wrap:wrap"><button class="btn-line" type="button" id="dlPost">ছবি ডাউনলোড করুন</button><button class="btn-line" type="button" id="cpCap">ক্যাপশন কপি করুন</button></div>
+        <div class="dl" style="gap:10px;flex-wrap:wrap"><button class="btn-line" type="button" id="dlPost">ছবি ডাউনলোড করুন</button><button class="btn-line zoom-b" type="button" data-zoom="post">🔍 বড় করে দেখুন</button><button class="btn-line" type="button" id="cpCap">ক্যাপশন কপি করুন</button></div>
         <div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন।</div>
       </div>
-      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
+      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="dl"><button class="btn-line zoom-b" type="button" data-zoom="certog">🔍 বড় করে দেখুন</button></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
   </aside>
 </div>
 
 <div class="mbar"><button class="btn-line" type="button" id="prevOpen">প্রিভিউ দেখুন</button><button class="btn-pri" type="button" id="pubBtn2">প্রকাশ করুন</button></div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="বড় প্রিভিউ"><button class="lb-x" type="button" id="lbX" aria-label="বন্ধ করুন">×</button><div class="lb-body" id="lbBody"><img id="lbImg" alt=""></div><div class="lb-bar"><button type="button" id="lbZoom">🔍 জুম</button><button class="pri" type="button" id="lbDl">ডাউনলোড</button></div></div>
 <div class="tt" id="tt" role="status"></div>
 
 <script>
@@ -356,6 +382,16 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     };
   }
   const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom });
+
+  let SAMPLE = false;
+  function previewCanvas(){
+    const p = preview(); let sample = false;
+    if(!p.display_name){ p.display_name = 'Your Name'; sample = true; }
+    if(!p.headline){ p.headline = 'Your Role or Profession'; sample = true; }
+    if(!p.skills.length){ p.skills = [{ n: 'Video Editing', l: 4 }, { n: 'Graphic Design', l: 3 }, { n: 'Web Development', l: 3 }, { n: 'Spoken English', l: 2 }]; sample = true; }
+    SAMPLE = sample; $('sampleNote').style.display = sample ? 'block' : 'none'; $('miniNote').textContent = sample ? 'নমুনা: আপনার তথ্য দিলেই বদলে যাবে' : 'লাইভ, যা লিখছেন তাই দেখাচ্ছে';
+    return p;
+  }
 
   /* ---------- draft (works without signing in) ---------- */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
@@ -412,14 +448,27 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     progress(); paintPub();
   }
   async function drawCanvases(){
+    drawMini();
     if(!$('pvPo').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on')) return;
-    const p = preview();
+    const p = Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at });
     try{
       if($('pvPo').classList.contains('on')){ const cv = await C.draw(p, 'post'); const t = $('cvPost'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvCt').classList.contains('on')){ const cv = await C.draw(p, 'cert'); const t = $('cvCert'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
     }catch(e){}
   }
+  async function drawMini(){
+    const box = $('miniCard'); if(!box || !box.offsetParent) return;
+    try{ const cv = await C.draw(Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at }), 'cert'); const t = $('cvMini'); t.getContext('2d').drawImage(cv, 0, 0, t.width, t.height); }catch(e){}
+  }
+  /* ---------- the full-screen viewer ---------- */
+  let LBK = 'cert';
+  async function zoom(kind){
+    LBK = kind; $('lb').classList.remove('zoom'); $('lbImg').removeAttribute('src'); $('lb').classList.add('show'); document.body.style.overflow = 'hidden';
+    try{ const cv = await C.draw(Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at, username: (ROW && ROW.username) || S.username || 'your-name' }), kind); $('lbImg').src = cv.toDataURL('image/jpeg', .92); $('lbImg').dataset.w = cv.width; }
+    catch(e){ closeLb(); toast('বড় করে দেখানো যায়নি'); }
+  }
+  function closeLb(){ $('lb').classList.remove('show', 'zoom'); document.body.style.overflow = ''; }
   function paintPub(){
     const pub = !!(ROW && ROW.published), ok = progress().ok, consent = $('fConsent').checked;
     const label = !USER ? 'সাইন-ইন করে প্রকাশ করুন' : pub ? 'আপডেট সেভ হয়েছে' : 'প্রকাশ করুন';
@@ -566,6 +615,12 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('pubBtn', 'click', publish); on('pubBtn2', 'click', () => { if(!USER || !$('pubBtn').disabled) publish(); else { toast('আগে সব ঠিকঠাক করুন'); } });
     on('unpubBtn', 'click', unpublish); on('delBtn', 'click', del);
     on('okCopy', 'click', async () => { try{ await navigator.clipboard.writeText($('okLink').value); toast('লিংক কপি হয়েছে ✓'); }catch(e){ $('okLink').select(); } });
+    document.addEventListener('click', e => { const z = e.target.closest('[data-zoom]'); if(z) zoom(z.dataset.zoom); });
+    on('cvCert', 'click', () => zoom('cert')); on('cvPost', 'click', () => zoom('post')); on('cvOg', 'click', () => zoom('certog')); on('miniOpen', 'click', () => zoom('cert'));
+    on('lbX', 'click', closeLb); on('lbImg', 'click', () => { const l = $('lb'), im = $('lbImg'); l.classList.toggle('zoom'); im.style.setProperty('--zw', Math.round(Math.min(Number(im.dataset.w) || 1600, 1800) * (innerWidth < 700 ? .9 : 1)) + 'px'); });
+    on('lbZoom', 'click', () => $('lbImg').click());
+    on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : 'cert'));
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
     on('shCard', 'click', () => downloadCard('post')); on('dlPost', 'click', () => downloadCard('post')); on('dlCert', 'click', () => downloadCard('cert'));
     on('fPostTop', 'input', e => { S.post_top = e.target.value; $('cTop').textContent = S.post_top.length + '/40'; saveDraft(); debounce('cv', drawCanvases, 350); });
     on('fPostBot', 'input', e => { S.post_bottom = e.target.value; $('cBot').textContent = S.post_bottom.length + '/50'; saveDraft(); debounce('cv', drawCanvases, 350); });
@@ -587,6 +642,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : 'post';
+    if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
     try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
