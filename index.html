@@ -672,20 +672,23 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   .inst-right{display:none}
 }
 
-/* ---- SHORT HERO: search first, the city scene as a lower strip (the top of the scene is cropped, everything keeps moving) ---- */
-.search-hero{padding:94px 5% clamp(110px,10.5vw,160px)}
-.search-hero h1{font-size:clamp(26px,3.3vw,42px);margin-bottom:6px}
+/* ---- MINI HERO: the night-blue banner as a contained rounded card (like the card page); the city scene stays whole inside it ---- */
+.search-hero{margin:96px auto 0;width:calc(100% - 48px);max-width:1152px;padding:34px 28px clamp(120px,13vw,150px);border-radius:32px;border:1px solid rgba(255,255,255,.12)}
+.search-hero h1{font-size:clamp(26px,3.3vw,40px);margin-bottom:6px}
+.search-hero h1 br{display:none}
 .search-hero p{font-size:14.5px;margin-bottom:16px}
-.edu-scene{height:clamp(140px,15.2vw,230px);overflow:hidden}
+.edu-scene{height:clamp(150px,19vw,220px);overflow:hidden;border-radius:0 0 32px 32px}
 .edu-scene svg{position:absolute;left:0;bottom:0;width:100%;height:auto;aspect-ratio:1440/300;max-width:none}
-.hero-moon-wrap{top:104px}
-@media(min-width:769px){.search-hero h1 br{display:none}}
+.hero-moon-wrap{top:44px;right:6%}
+.stats-bar{background:transparent;padding:18px 5% 4px}
+.stat-item{color:#64748B}
+.stat-num{color:#0B1B4D}
 @media(max-width:768px){
-  .search-hero{padding:84px 5% 118px}
+  .search-hero{margin-top:84px;width:calc(100% - 24px);padding:24px 14px 118px;border-radius:24px}
   .search-hero p{display:none}
-  .edu-scene{height:150px}
+  .edu-scene{height:150px;border-radius:0 0 24px 24px}
   .edu-scene svg{width:auto;height:100%;left:calc(50% - 800/1440*150px*1440/300)}
-  .hero-moon-wrap{top:80px}
+  .hero-moon-wrap{top:30px}
 }
 @media(max-width:420px){.edu-scene svg{left:calc(50% - 845/1440*150px*1440/300)}}
 </style>
@@ -705,7 +708,7 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 <body>
 
 <!-- NAV -->
-<div id="nav" class="ptn" data-theme="dark" data-set="main" data-cta="member"></div>
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
 <script src="/nav.js?v=2"></script>
 
 <div class="nudge" id="nudge">
