@@ -19,6 +19,7 @@
 
   function avatarSrc(a){
     if(!a) return '';
+    if(a.indexOf('data:image/jpeg;base64,') === 0) return a;          // the person's own uploaded photo (256x256)
     if(a.indexOf('av:') === 0){
       const m = a.split(':'), L = window.ProtAvatars && window.ProtAvatars.list;
       const it = L && L.find(x => x.id === m[1]);

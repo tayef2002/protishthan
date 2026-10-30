@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=17"></script>
+<script src="/skill-core.js?v=18"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -123,6 +123,23 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
 /* avatar */
 .av-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.av-act{min-width:0}
+.av-btns{display:flex;flex-wrap:wrap;gap:8px}
+.av-or{display:flex;align-items:center;gap:12px;margin:4px 0 12px;color:var(--text-3);font-size:12.5px;font-weight:600}
+.av-or::before,.av-or::after{content:"";flex:1;height:1px;background:var(--border)}
+.av-opt.me{border-color:#CBD5E1}
+.av-opt.me img{object-fit:cover}
+.crop-ov{position:fixed;inset:0;z-index:620;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,8,20,.72);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.crop-ov.show{display:flex}
+.crop-box{width:min(380px,100%);padding:22px 20px 18px;border-radius:24px;background:#fff;box-shadow:0 40px 90px -20px rgba(0,0,0,.6);text-align:center;animation:rowin .3s cubic-bezier(.2,.8,.2,1)}
+.crop-box h3{font-size:19px;font-weight:800}.crop-box p{margin:2px 0 14px;font-size:13px;color:var(--text-2)}
+.crop-stage{position:relative;width:300px;height:300px;margin:0 auto 14px;border-radius:16px;overflow:hidden;touch-action:none;cursor:grab;background:#0B1020}
+.crop-stage:active{cursor:grabbing}
+.crop-stage canvas{display:block;width:300px;height:300px}
+.crop-stage::after{content:"";position:absolute;inset:10px;border-radius:50%;box-shadow:0 0 0 400px rgba(8,12,28,.62);border:2px solid #fff;pointer-events:none}
+.crop-z{display:flex;align-items:center;gap:10px;margin:0 6px 16px;color:var(--text-3);font-size:12px}
+.crop-z input{flex:1;accent-color:var(--blue)}
+.crop-act{display:flex;gap:10px}.crop-act button{flex:1;justify-content:center}
 .av-cur{flex:none;width:76px;height:76px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px var(--blue),0 10px 24px -10px rgba(26,86,219,.6);background:#EEF3FF;display:flex;align-items:center;justify-content:center;font:800 26px 'Inter',sans-serif;color:var(--blue)}
 .av-cur img{width:100%;height:100%;object-fit:cover}
 .av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px;max-height:236px;overflow:auto;padding:4px 2px}
@@ -381,8 +398,15 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
     <section class="panel" id="s2">
       <h2><span class="n done" id="n2">২</span>ছবি</h2>
-      <p class="sub">আপনার Google ছবি অথবা আমাদের একটা অ্যাভাটার। আলাদা ছবি আপলোড লাগবে না।</p>
-      <div class="av-top"><div class="av-cur" id="avCur"></div><div><button class="btn-line" type="button" id="avGoogle" style="display:none">Google-এর ছবি ব্যবহার করুন</button><div class="hint" id="avHint">অ্যাভাটার বেছে নিন</div></div></div>
+      <p class="sub">নিজের একটা ছবি আপলোড করুন, সবচেয়ে ভালো দেখায়। না চাইলে নিচ থেকে অ্যাভাটার বেছে নিন।</p>
+      <div class="av-top"><div class="av-cur" id="avCur"></div>
+        <div class="av-act">
+          <div class="av-btns"><button class="btn-line" type="button" id="avUp"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>নিজের ছবি আপলোড করুন</button><button class="btn-line" type="button" id="avRm" style="display:none">মুছুন</button></div>
+          <input type="file" id="avFile" accept="image/*" hidden>
+          <div class="hint" id="avHint"></div>
+        </div>
+      </div>
+      <div class="av-or"><span>অথবা অ্যাভাটার বেছে নিন</span></div>
       <div class="skins" id="skins" aria-label="ত্বকের রং"></div>
       <div class="av-grid" id="avGrid"></div>
     </section>
@@ -429,7 +453,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="uwrap"><span>protishthan.com/s/</span><input id="fUser" maxlength="30" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your-name"></div>
       <div class="ust" id="ust" aria-live="polite"></div>
       <div class="hint" id="uWarn" style="display:none;color:#B45309">প্রকাশের পর ইউজারনেম বদলালে পুরনো লিংক আর কাজ করবে না।</div>
-      <label class="consent" id="consentBox"><input type="checkbox" id="fConsent"><span>আমি জানি, প্রকাশ করলে এই পেজ ইন্টারনেটে সবার জন্য খোলা থাকবে এবং Google-এ আসতে পারে। এখানকার সব তথ্য আমি নিজে দিয়েছি, কোনোটাই ভুয়া বা অন্যের নয়। <a href="terms.html" target="_blank" rel="noopener">ব্যবহারের শর্ত</a></span></label>
+      <label class="consent" id="consentBox"><input type="checkbox" id="fConsent"><span>আমি জানি, প্রকাশ করলে এই পেজ ইন্টারনেটে সবার জন্য খোলা থাকবে এবং Google-এ আসতে পারে। এখানকার সব তথ্য ও আমার আপলোড করা ছবি আমি নিজে দিয়েছি; কোনোটাই ভুয়া বা অন্যের নয়, আর ছবিটা সবাই দেখতে পাবে। <a href="terms.html" target="_blank" rel="noopener">ব্যবহারের শর্ত</a></span></label>
       <div class="pub-row"><button class="btn-pri" type="button" id="pubBtn">প্রকাশ করুন</button><button class="btn-line" type="button" id="unpubBtn" style="display:none">প্রকাশ বন্ধ করুন</button><span class="st" id="saveSt"></span></div>
       <div class="ok-box" id="okBox" style="display:none">
         <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>আপনার পেজ এখন লাইভ!</h3>
@@ -464,6 +488,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
 <div class="mbar"><button class="btn-line" type="button" id="prevOpen">প্রিভিউতে যান ↑</button><button class="btn-pri" type="button" id="pubBtn2">প্রকাশ করুন</button></div>
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="বড় প্রিভিউ"><button class="lb-x" type="button" id="lbX" aria-label="বন্ধ করুন">×</button><div class="lb-body" id="lbBody"><img id="lbImg" alt=""></div><div class="lb-bar"><button type="button" id="lbZoom">🔍 জুম</button><button class="pri" type="button" id="lbDl">ডাউনলোড</button></div></div>
+<div class="crop-ov" id="cropOv"><div class="crop-box" role="dialog" aria-modal="true" aria-label="ছবি ঠিক করুন"><h3>ছবি ঠিক করুন</h3><p>টেনে সরান, নিচের স্লাইডারে ছোট-বড় করুন</p><div class="crop-stage" id="cropStage"><canvas id="cropCv" width="300" height="300"></canvas></div><div class="crop-z"><span>ছোট</span><input type="range" id="cropZ" min="100" max="320" value="100" aria-label="জুম"><span>বড়</span></div><div class="crop-act"><button class="btn-line" type="button" id="cropCancel">বাতিল</button><button class="btn-pri" type="button" id="cropOk" style="height:46px;font-size:15px">ঠিক আছে</button></div></div></div>
 <div class="tt" id="tt" role="status"></div>
 
 <script>
@@ -484,8 +509,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { cover_avatar: true, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
-  let USER = null, ROW = null, uOk = null, skin = 1, googleUrl = '';
+  let S = { photo: '', cover_avatar: true, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
+  let USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
   const toast = msg => { const t = $('tt'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2400); };
@@ -547,7 +572,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   /* ---------- draft (works without signing in) ---------- */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} englishOnly(); }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} englishOnly(); fixAvatar(); }
   function englishOnly(){ S.display_name = toEn(S.display_name); S.headline = toEn(S.headline); S.skills = (S.skills || []).map(s => ({ n: toEn(s.n).trim(), l: s.l })).filter(s => s.n); }
 
   /* ---------- paint ---------- */
@@ -555,14 +580,43 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   function paintAvatar(){
     const src = V.avatarSrc(S.avatar), el = $('avCur');
     el.innerHTML = src ? '<img src="' + V.esc(src) + '" alt="" referrerpolicy="no-referrer">' : V.esc(V.initials(S.display_name));
-    $('avGrid').querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', S.avatar === 'av:' + b.dataset.id + ':' + skin));
+    $('avGrid').querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', b.dataset.id === '__photo' ? (!!S.photo && S.avatar === S.photo) : S.avatar === 'av:' + b.dataset.id + ':' + skin));
+    $('avRm').style.display = S.photo ? '' : 'none';
     $('skins').querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === skin));
-    $('avHint').textContent = S.avatar && S.avatar.indexOf('av:') === 0 ? 'অ্যাভাটার বেছে নেওয়া আছে' : 'Google-এর ছবি ব্যবহার হচ্ছে';
+    $('avHint').textContent = S.photo && S.avatar === S.photo ? 'আপনার ছবি ব্যবহার হচ্ছে' : 'অ্যাভাটার ব্যবহার হচ্ছে';
+  }
+  /* ---------- own photo: pick, frame it in a circle, shrink to 256x256 (about 20 KB) ---------- */
+  const CR = { img: null, x: 0, y: 0, s: 1, min: 1, drag: null }, CS = 300, CD = 280, CO = 10;
+  function drawCrop(){ const c = $('cropCv').getContext('2d'); c.fillStyle = '#0B1020'; c.fillRect(0, 0, CS, CS); if(CR.img) c.drawImage(CR.img, CR.x, CR.y, CR.img.width * CR.s, CR.img.height * CR.s); }
+  function clampCrop(){ const w = CR.img.width * CR.s, h = CR.img.height * CR.s; CR.x = Math.min(CO, Math.max(CO + CD - w, CR.x)); CR.y = Math.min(CO, Math.max(CO + CD - h, CR.y)); }
+  function setZoom(v){ if(!CR.img) return; const old = CR.s; CR.s = CR.min * v / 100; const k = CR.s / old; CR.x = CS / 2 - (CS / 2 - CR.x) * k; CR.y = CS / 2 - (CS / 2 - CR.y) * k; clampCrop(); drawCrop(); }
+  function openCrop(file){
+    if(!file) return;
+    if(!/^image\//.test(file.type)){ toast('ছবির ফাইল বাছুন'); return; }
+    if(file.size > 15 * 1024 * 1024){ toast('ছবিটা অনেক বড় (১৫ MB-এর বেশি)'); return; }
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(url); CR.img = im; CR.min = CD / Math.min(im.width, im.height); CR.s = CR.min; CR.x = CS / 2 - im.width * CR.s / 2; CR.y = CS / 2 - im.height * CR.s / 2; $('cropZ').value = 100; drawCrop(); $('cropOv').classList.add('show'); };
+    im.onerror = () => { URL.revokeObjectURL(url); toast('ছবিটা পড়া যায়নি, অন্য ছবি দিন'); };
+    im.src = url;
+  }
+  function cropDone(){
+    if(!CR.img) return;
+    const o = document.createElement('canvas'); o.width = o.height = 256; const x = o.getContext('2d');
+    x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, 256, 256); x.imageSmoothingQuality = 'high';
+    x.drawImage(CR.img, (CO - CR.x) / CR.s, (CO - CR.y) / CR.s, CD / CR.s, CD / CR.s, 0, 0, 256, 256);
+    let q = .86, d = o.toDataURL('image/jpeg', q); while(d.length > 58000 && q > .5){ q -= .08; d = o.toDataURL('image/jpeg', q); }
+    S.photo = d; S.avatar = d; $('cropOv').classList.remove('show'); CR.img = null;
+    buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); toast('ছবি যোগ হয়েছে ✓');
+  }
+  // an old Google-photo address is dropped: we do not use Google profile pictures
+  function fixAvatar(){
+    if(S.avatar && S.avatar.indexOf('https://') === 0) S.avatar = 'av:stu-m:1';
+    if(S.avatar && S.avatar.indexOf('data:image') === 0) S.photo = S.avatar;
   }
   function buildAvatarGrid(){
     const L = window.ProtAvatars ? window.ProtAvatars.list : [];
     $('skins').innerHTML = (window.ProtAvatars ? window.ProtAvatars.SKINS : []).map((c, i) => '<button type="button" style="background:' + c + '" data-i="' + i + '" aria-label="ত্বকের রং ' + (i + 1) + '"></button>').join('');
-    $('avGrid').innerHTML = L.map(a => '<button type="button" class="av-opt" data-id="' + a.id + '" title="' + V.esc(a.label) + '"><img alt="' + V.esc(a.label) + '" src="' + window.ProtAvatars.dataUrl(a.spec, skin) + '"></button>').join('');
+    $('avGrid').innerHTML = (S.photo ? '<button type="button" class="av-opt me" data-id="__photo" title="আমার ছবি"><img alt="আমার ছবি" src="' + S.photo + '"></button>' : '') + L.map(a => '<button type="button" class="av-opt" data-id="' + a.id + '" title="' + V.esc(a.label) + '"><img alt="' + V.esc(a.label) + '" src="' + window.ProtAvatars.dataUrl(a.spec, skin) + '"></button>').join('');
   }
   function paintSkills(){
     const box = $('skList');
@@ -744,7 +798,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(!validUser(d.username) || uOk === false){ setSt('ইউজারনেম ঠিক করুন', 'err'); return { ok: false }; }
     setSt('সেভ হচ্ছে…', '');
     const patch = Object.assign({}, d, { published: ROW ? ROW.published : false }, extra || {});
-    if(!(ROW && 'socials' in ROW) && !d.socials.length) delete patch.socials;       // (the column comes with the 2026-11-03 migration)
+    if(!(ROW && 'socials' in ROW) && !d.socials.length) delete patch.socials;
+    if(ROW && ROW.avatar === patch.avatar) delete patch.avatar;       // (the column comes with the 2026-11-03 migration)
     try{
       const res = ROW
         ? await M.sb.from('skill_profiles').update(patch).eq('user_id', USER.user_id).select().single()
@@ -797,9 +852,19 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('fAbout', 'input', e => { S.about = e.target.value; $('cAbout').textContent = S.about.length + '/160'; paintPreview(); autosave(); });
     on('fUser', 'input', e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); e.target.value = v; S.username = v; checkUser(); paintPreview(); autosave(); });
     on('headSugg', 'click', e => { const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
-    on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
+    on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = b.dataset.id === '__photo' ? S.photo : 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
     on('skins', 'click', e => { const b = e.target.closest('button'); if(!b) return; skin = Number(b.dataset.i); if(S.avatar && S.avatar.indexOf('av:') === 0){ const id = S.avatar.split(':')[1]; S.avatar = 'av:' + id + ':' + skin; } buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); });
-    on('avGoogle', 'click', () => { if(googleUrl){ S.avatar = googleUrl; paintAvatar(); paintPreview(); autosave(); } });
+    on('avUp', 'click', () => $('avFile').click());
+    on('avFile', 'change', e => { openCrop(e.target.files && e.target.files[0]); e.target.value = ''; });
+    on('avRm', 'click', () => { S.photo = ''; if(S.avatar && S.avatar.indexOf('data:image') === 0) S.avatar = 'av:stu-m:' + skin; buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); });
+    on('cropZ', 'input', e => setZoom(Number(e.target.value)));
+    on('cropCancel', 'click', () => { $('cropOv').classList.remove('show'); CR.img = null; });
+    on('cropOk', 'click', cropDone);
+    { const cv = $('cropCv');
+      cv.addEventListener('pointerdown', e => { if(!CR.img) return; cv.setPointerCapture(e.pointerId); CR.drag = { px: e.clientX, py: e.clientY, x: CR.x, y: CR.y }; });
+      cv.addEventListener('pointermove', e => { if(!CR.drag) return; const k = CS / cv.getBoundingClientRect().width; CR.x = CR.drag.x + (e.clientX - CR.drag.px) * k; CR.y = CR.drag.y + (e.clientY - CR.drag.py) * k; clampCrop(); drawCrop(); });
+      const end = () => { CR.drag = null; }; cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+      cv.addEventListener('wheel', e => { if(!CR.img) return; e.preventDefault(); const z = $('cropZ'); z.value = Math.max(100, Math.min(320, Number(z.value) - Math.sign(e.deltaY) * 8)); setZoom(Number(z.value)); }, { passive: false }); }
     const addSkill = n => { n = toEn(n).trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 8){ toast('সর্বোচ্চ ৮টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
     on('addSkill', 'click', () => addSkill($('fSkill').value));
     on('fSkill', 'input', e => { onlyEn(e); });
@@ -873,16 +938,13 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   /* ---------- start ---------- */
   async function hydrate(){
     await M.ready(); USER = M.current();
-    const photo = USER && USER.avatar_url && /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com\//.test(USER.avatar_url) ? USER.avatar_url : '';
-    googleUrl = photo; $('avGoogle').style.display = photo ? '' : 'none';
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();
-        if(photo && (!S.avatar || S.avatar === 'av:stu-m:1')) S.avatar = photo;
         if(!S.username) S.username = await suggestUser(S.display_name);
       }
     } else if(!S.username){ S.username = ''; }
