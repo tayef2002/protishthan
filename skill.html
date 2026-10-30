@@ -203,7 +203,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .dot{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);padding:0;transition:transform .15s}
 .dot:hover{transform:scale(1.12)}
 .dot.on{box-shadow:0 0 0 2px var(--blue)}
-.pv-bar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.pv-bar .acts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 .pv-bar .sm{height:34px;padding:0 13px;font-size:13px;border-radius:10px}
 .btn-pri.sm{height:34px;padding:0 15px;font-size:13.5px;border-radius:10px;box-shadow:none}
 .pv-pane{display:none}.pv-pane.on{display:block}
@@ -396,7 +396,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
     <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
-    <div class="pv-bar"><div class="dots"><small>রং</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
+    <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>রং</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
       <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
@@ -536,6 +536,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('barCap').style.display = k === 'po' ? '' : 'none';
     $('barDl').style.display = (k === 'ct' || k === 'po') ? '' : 'none';
     $('barZoom').style.display = k === 'pf' ? 'none' : '';
+    $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';                       // the colour dots belong to the profile view only
     document.querySelector('.pv-body').classList.toggle('scroll', k === 'pf');
     drawCanvases();
   }
