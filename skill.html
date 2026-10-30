@@ -374,6 +374,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .cov-styles button i{display:block;width:100%;height:30px;border-radius:7px;margin-bottom:4px;border:1px solid rgba(15,23,42,.12)}
 .cov-styles button b{font-size:13px;color:var(--text)}.cov-styles button small{font-size:11px;color:var(--text-3);line-height:1.3}
 .cov-styles button.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.15)}
+.pane-acts{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pane-acts .btn-pri{height:44px;font-size:14.5px;padding:0 22px}
+.pane-acts .btn-line{height:44px;padding:0 18px;font-size:14.5px}
 .cov-foot .btn-pri{height:44px;font-size:14.5px;padding:0 20px}
 .cov-foot .btn-pri small{font-weight:600;opacity:.8;font-size:12px;margin-left:6px}
 .cov-wrap{position:relative;border-radius:10px;overflow:hidden;line-height:0}
@@ -584,7 +587,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
-      <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
+      <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pane-acts"><button class="btn-line" type="button" id="ctZoom">🔍 বড় করে দেখুন</button><button class="btn-pri" type="button" id="ctDl">⬇ ডাউনলোড</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas><div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন। উপরের-নিচের লেখা বদলাতে বাঁয়ে "ডিজাইন" অংশে যান।</div></div>
       <div class="pv-pane" id="pvCv" style="padding:14px;background:#fff">
         <div class="cov-foot">
@@ -833,7 +836,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('barCap').style.display = k === 'po' ? '' : 'none';
     $('barDl').style.display = (k === 'ct' || k === 'po' || k === 'cv') ? '' : 'none';
     $('barZoom').style.display = k === 'pf' ? 'none' : '';
-    document.querySelector('.pv-bar').style.display = k === 'cv' ? 'none' : '';              // the cover tab has its own single download button
+    document.querySelector('.pv-bar').style.display = (k === 'cv' || k === 'ct') ? 'none' : '';              // the cover tab has its own single download button
     $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';
     document.querySelector('.pv-bar .acts').style.display = k === 'pf' ? 'none' : '';   // no empty row left behind
     document.querySelector('.pv-bar').style.justifyContent = k === 'pf' ? 'flex-start' : 'space-between';                       // the colour dots belong to the profile view only
@@ -1029,6 +1032,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('barCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
     document.querySelector('.pv-tabs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if(b) setTab(b.dataset.p); });
     on('pvDots', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
+    on('ctZoom', 'click', () => zoom('cert'));
+    on('ctDl', 'click', () => downloadCard('cert'));
     on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : PV === 'lk' ? 'certog' : 'cert'));
     on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('cvCover', 'click', () => zoom('cover'));
