@@ -183,6 +183,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .prog .bar{height:7px;border-radius:7px;background:#E8EEF8;overflow:hidden}
 .prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6 70%,#22D3EE);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .prog b{flex:none;font:700 15px/1 'Hind Siliguri','Inter',sans-serif;color:#3730A3;background:#EEF2FF;border:1px solid #DCE3FF;padding:8px 11px;border-radius:11px;min-width:56px;text-align:center}
+#skCloud{display:none}
 .cloud-box{margin-top:18px;border:1px solid #DDE6FB;background:linear-gradient(180deg,#F8FAFF,#F1F5FF);border-radius:16px;padding:16px 16px 16px}
 .cloud-box .cb-t{font-size:15px;font-weight:800;color:#0B1B4D;line-height:1.4}
 .cloud-box .cb-l{list-style:none;margin:8px 0 14px;display:grid;gap:8px}
@@ -722,7 +723,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 
   let S = { photo: '', cover_avatar: true, cover_style: 'royal', contact: { whatsapp: '', phone: '', email: '', open: false }, chat: false, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
   $('skCloudJoin').onclick = () => { saveDraft(); M.signIn('আপনার স্কিল পেজ সেভ করতে সাইন আপ করুন'); };
-  let USER = null, ROW = null, uOk = null, skin = 1;
+  let AUTHED = false, USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
   const toast = msg => { const t = $('tt'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2400); };
@@ -953,7 +954,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   function paintPub(){
     const pub = !!(ROW && ROW.published), ok = progress().ok, consent = $('fConsent').checked;
     const label = !USER ? 'সাইন-ইন করে প্রকাশ করুন' : pub ? 'আপডেট সেভ হয়েছে' : 'প্রকাশ করুন';
-    $('skCloud').style.display = USER ? 'none' : '';
+    $('skCloud').style.display = (AUTHED && !USER) ? 'block' : 'none';
     $('pubBtn').textContent = label; $('pubBtn2').textContent = !USER ? 'সাইন-ইন ও প্রকাশ' : pub ? 'প্রকাশিত ✓' : 'প্রকাশ করুন';
     $('pubBtn').disabled = USER ? (pub || !ok || !consent) : false; $('pubBtn2').disabled = $('pubBtn').disabled && !!USER;
     $('unpubBtn').style.display = pub ? '' : 'none';
@@ -1217,7 +1218,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 
   /* ---------- start ---------- */
   async function hydrate(){
-    await M.ready(); USER = M.current();
+    await M.ready(); USER = M.current(); AUTHED = true;
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
