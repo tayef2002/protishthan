@@ -46,7 +46,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
 
 /* hero */
-.hero{position:relative;overflow:hidden;padding:140px 20px 118px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
+.hero{position:relative;overflow:hidden;padding:124px 20px 100px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
 .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:54px 54px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%)}
 .hero>*{position:relative}
 .hero-in{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:52px;align-items:center;max-width:1240px;margin:0 auto;text-align:left}
@@ -58,42 +58,65 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .hero-cta>span{font-size:13.5px;color:#9FB2E6}
 .hero-go{height:52px;padding:0 26px;font-size:16px}
 .hero-stage{position:relative;width:100%;max-width:580px;margin-left:auto}
-.st-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding:2px}
-.st-tabs::-webkit-scrollbar{display:none}
-.st-tabs button{position:relative;flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#C7D4F5;font:600 13px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;overflow:hidden;transition:background .2s,color .2s,border-color .2s}
-.st-tabs button:hover{background:rgba(255,255,255,.13);color:#fff}
-.st-tabs button.on{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);color:#fff}
-.st-tabs button i{position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,#E3C275,#F1DA9E);border-radius:3px}
-.st-tabs button.on i{width:100%;transition:width var(--dur,4.4s) linear}
-.st-tabs.paused button.on i{transition:none}
-.st-frame{position:relative;aspect-ratio:1.18;border-radius:28px;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);box-shadow:0 40px 90px -30px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.st-sl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;transform:translateY(18px) scale(.965);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);pointer-events:none}
-.st-sl.on{opacity:1;transform:none}
-.st-sl>img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);background:rgba(255,255,255,.08);animation:stfloat 5s ease-in-out infinite alternate}
-.st-sl[data-k=po]>img{border-radius:12px}
-@keyframes stfloat{from{transform:translateY(-5px)}to{transform:translateY(6px)}}
-.st-page{position:absolute;inset:0;overflow:hidden}
-.st-page .sk{position:absolute;left:50%;top:0;width:430px;margin-left:-215px;transform-origin:top center;transform:scale(.8);border-radius:0;background:transparent}
-.st-page .sk .sk-bg{display:none}
-.st-sl.on .st-page .sk{animation:stscroll 4.4s ease-in-out both}
-@keyframes stscroll{0%,22%{translate:0 6px}100%{translate:0 -150px}}
-.st-fb{width:100%;max-width:490px;border-radius:12px;background:#fff;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);overflow:hidden;position:relative;padding-bottom:42px}
-.st-fb img{display:block;width:100%;aspect-ratio:1640/624;object-fit:cover;object-position:center}
-.st-fb .av{position:absolute;left:18px;bottom:6px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6EA8FF,#8B7CFF);border:4px solid #fff}
-.st-fb::after{content:"";position:absolute;left:96px;bottom:14px;width:110px;height:10px;border-radius:6px;background:#DDE3EE}
-.st-lk{width:100%;max-width:480px;border-radius:12px;background:#fff;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);overflow:hidden}
-.st-lk img{display:block;width:100%;aspect-ratio:1200/630;object-fit:cover}
-.st-lk .t{padding:11px 14px 13px;background:#F0F2F5;color:#1C1E21;text-align:left}
-.st-lk .t small{display:block;font:500 12px 'Inter',sans-serif;color:#65676B;text-transform:uppercase;letter-spacing:.02em}
-.st-lk .t b{display:block;font:700 15px 'Inter',sans-serif;margin-top:2px}
-.st-cap{margin-top:16px;min-height:52px;text-align:left}
-.st-cap b{display:block;font:800 18px 'Hind Siliguri','Inter',sans-serif;color:#fff}
-.st-cap span{display:block;font:500 14px/1.6 'Hind Siliguri','Inter',sans-serif;color:#B7C6EE}
-.st-cap.sw b,.st-cap.sw span{animation:stcap .5s both}
-@keyframes stcap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media(max-width:1020px){.hero-in{grid-template-columns:minmax(0,1fr);gap:38px;text-align:center}.hero-copy h1,.hero-copy p{margin-left:auto;margin-right:auto}.hero-copy .meta,.hero-cta{justify-content:center}.hero-stage{margin:0 auto}.st-cap{text-align:center}.st-tabs{justify-content:flex-start}}
-@media(max-width:760px){.hero-stage{max-width:100%}.st-sl{padding:14px}.st-frame{aspect-ratio:1.05}.st-page .sk{transform:scale(.72)}}
-@media(prefers-reduced-motion:reduce){.st-sl>img,.st-sl.on .st-page .sk{animation:none}.st-sl{transition:opacity .2s}}
+.hs-box{position:relative;width:100%;aspect-ratio:560/470}
+.hs-in{position:absolute;left:0;top:0;width:560px;height:470px;transform-origin:0 0}
+.hs-glow{position:absolute;left:150px;top:60px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(125,140,255,.42),rgba(125,140,255,0) 68%);filter:blur(8px)}
+.ph{position:absolute;left:26px;top:6px;width:238px;height:452px;border-radius:38px;padding:9px;background:linear-gradient(145deg,#2A3566,#0E1530);box-shadow:0 40px 70px -26px rgba(0,0,0,.85),inset 0 0 0 1.5px rgba(255,255,255,.22);animation:phfloat 6s ease-in-out infinite alternate}
+@keyframes phfloat{from{transform:translateY(-4px)}to{transform:translateY(6px)}}
+.ph-bz{position:absolute;left:50%;top:15px;margin-left:-34px;width:68px;height:19px;border-radius:12px;background:#05080F;z-index:3}
+.ph-scr{position:relative;height:100%;border-radius:30px;overflow:hidden;background:#0B1229;color:#fff;font-family:'Hind Siliguri','Inter',sans-serif;text-align:center}
+.ph-cov{position:relative;height:96px;background:linear-gradient(120deg,#7C3AED,#2563EB 55%,#06B6D4);overflow:hidden}
+.ph-cov b{position:absolute;right:-24px;top:-44px;width:150px;height:150px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);box-shadow:0 0 0 16px rgba(255,255,255,.06)}
+.ph-av{position:relative;width:76px;height:76px;margin:-38px auto 0;border-radius:50%;padding:3px;background:#0B1229}
+.ph-av img{display:block;width:100%;height:100%;border-radius:50%;background:#16224A}
+.ph-av .vf{position:absolute;right:0;bottom:3px;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#6EA8FF,#38E1C6);border:2.5px solid #0B1229}
+.ph-name{margin-top:8px;font:800 20px/1.2 'Hind Siliguri','Inter',sans-serif;min-height:25px;letter-spacing:-.01em}
+.caret{display:inline-block;width:2px;height:19px;margin-left:2px;vertical-align:-3px;background:#8FB4FF;animation:caret .8s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.ph-hl{font-size:12.5px;color:#9AA6C4;margin-top:2px}
+.ph-soc{display:flex;justify-content:center;gap:7px;margin-top:10px}
+.ph-soc i{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff;font-style:normal}
+.ph-sk{display:grid;gap:7px;margin:12px 12px 0}
+.ph-s{padding:8px 11px 9px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);text-align:left}
+.ph-s b{display:block;font:700 12.5px 'Inter',sans-serif}
+.ph-s .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}
+.ph-s .sg i{height:4.5px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden;position:relative}
+.ph-s .sg i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#6EA8FF,#38E1C6);transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--k)*.12s + var(--r)*.28s)}
+.ph-btn{margin:12px 12px 0;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font:700 12.5px 'Hind Siliguri',sans-serif;background:linear-gradient(135deg,#8B7CFF,#5B8CFF)}
+/* what appears when */
+.ph-cov,.ph-av,.ph-hl,.ph-soc i,.ph-s,.ph-btn{opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+.ph-soc i{transform:scale(.4)}
+.hs-in.s1 .ph-cov,.hs-in.s1 .ph-av{opacity:1;transform:none}
+.hs-in.s2 .ph-hl{opacity:1;transform:none}
+.hs-in.s3 .ph-soc i{opacity:1;transform:none}
+.hs-in.s3 .ph-soc i:nth-child(2){transition-delay:.1s}.hs-in.s3 .ph-soc i:nth-child(3){transition-delay:.2s}
+.hs-in.s4 .ph-s{opacity:1;transform:none;transition-delay:calc(var(--r)*.28s)}
+.hs-in.s4 .ph-s .sg i.on::after{transform:scaleX(1)}
+.hs-in.s4 .ph-btn{opacity:1;transform:none;transition-delay:1s}
+.fc{position:absolute;opacity:0;transform:translate(-90px,40px) scale(.6) rotate(0);transition:opacity .45s ease,transform .8s cubic-bezier(.34,1.5,.5,1)}
+.fc img{display:block;width:100%;height:auto;border-radius:7px;box-shadow:0 26px 46px -16px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.25);background:rgba(255,255,255,.1);aspect-ratio:var(--ar)}
+.fc em{position:absolute;left:10px;top:-13px;z-index:2;font:700 11.5px/1 'Hind Siliguri','Inter',sans-serif;font-style:normal;color:#10163A;background:linear-gradient(135deg,#F6E3A6,#E3C275);padding:6px 11px;border-radius:100px;box-shadow:0 8px 16px -6px rgba(0,0,0,.5)}
+.fc-ct{left:262px;top:6px;width:282px;--ar:1600/1131}
+.fc-cv{left:276px;top:222px;width:278px;--ar:1640/720}
+.fc-po{left:418px;top:286px;width:116px;--ar:1080/1350}
+.fc-lk{left:262px;top:404px;width:282px;height:46px;display:flex;align-items:center;gap:10px;padding:0 8px 0 10px;border-radius:14px;background:rgba(255,255,255,.96);color:#10163A;box-shadow:0 22px 40px -14px rgba(0,0,0,.7);font:600 13px 'Inter',sans-serif}
+.fc-lk .ok{flex:none;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#10B981;color:#fff}
+.fc-lk .u{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-lk .u b{color:#4F46E5}
+.fc-lk .cp{flex:none;padding:7px 13px;border-radius:9px;background:#4F46E5;color:#fff;font:700 12px 'Hind Siliguri',sans-serif}
+.hs-in.s5 .fc-ct{opacity:1;transform:rotate(3.5deg)}
+.hs-in.s6 .fc-cv{opacity:1;transform:rotate(-3deg)}
+.hs-in.s7 .fc-po{opacity:1;transform:rotate(6deg)}
+.hs-in.s8 .fc-lk{opacity:1;transform:none}
+.hs-in.out .ph-scr>*,.hs-in.out .fc{opacity:0!important;transition:opacity .5s ease!important}
+.hs-steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 0;padding:0}
+.hs-steps li{position:relative;padding-top:12px;color:#8FA1D6;font:600 12.5px/1.4 'Hind Siliguri','Inter',sans-serif;transition:color .3s}
+.hs-steps li i{position:absolute;left:0;right:0;top:0;height:3px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.hs-steps li i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#E3C275,#F1DA9E);transform:scaleX(0);transform-origin:left;transition:transform .5s ease}
+.hs-steps li.on{color:#fff}.hs-steps li.on i::after,.hs-steps li.done i::after{transform:scaleX(1)}
+.hs-steps li.done{color:#C7D4F5}
+@media(max-width:1020px){.hero-in{grid-template-columns:minmax(0,1fr);gap:30px;text-align:center}.hero-copy h1,.hero-copy p{margin-left:auto;margin-right:auto}.hero-copy .meta,.hero-cta{justify-content:center}.hero-stage{margin:0 auto;max-width:520px}.hs-steps li{text-align:center}}
+@media(prefers-reduced-motion:reduce){.ph{animation:none}.caret{animation:none}}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;color:#DCE6FF}
 .eyebrow i{width:7px;height:7px;border-radius:50%;background:#34D399;box-shadow:0 0 0 4px rgba(52,211,153,.25)}
 .hero h1{margin:26px auto 20px;max-width:20em;font-size:clamp(32px,5vw,60px);line-height:1.18;font-weight:800;letter-spacing:-.02em}
@@ -430,17 +453,36 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="hero-cta"><button class="btn-pri hero-go" type="button" id="heroGo">এখনই শুরু করুন <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><span>ফ্রি · সাইন-আপ লাগে না, শুধু Google</span></div>
       <div class="cnt" id="heroCnt"></div>
     </div>
-    <div class="hero-stage" id="stage" aria-label="এই পেজে যা যা পাবেন">
-      <div class="st-tabs" role="tablist"><button type="button" role="tab" data-k="pg" class="on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/></svg><span>পাবলিক পেজ</span><i></i></button><button type="button" role="tab" data-k="ct"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span><i></i></button><button type="button" role="tab" data-k="po"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span><i></i></button><button type="button" role="tab" data-k="cv"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span><i></i></button><button type="button" role="tab" data-k="lk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg><span>লিংক প্রিভিউ</span><i></i></button></div>
-      <div class="st-frame">
-        <div class="st-sl on" data-k="pg"><div class="st-page" id="stPage"></div></div>
-        <div class="st-sl" data-k="ct"><img id="stCt" alt="স্কিল সনদ" decoding="async"></div>
-        <div class="st-sl" data-k="po"><img id="stPo" alt="Facebook পোস্ট ছবি" decoding="async"></div>
-        <div class="st-sl" data-k="cv"><div class="st-fb"><img id="stCv" alt="Facebook কভার" decoding="async"><div class="av"></div></div></div>
-        <div class="st-sl" data-k="lk"><div class="st-lk"><img id="stLk" alt="লিংক প্রিভিউ" decoding="async"><div class="t"><small>protishthan.com</small><b>Rafi Hasan — Graphic Designer</b></div></div></div>
+    <div class="hero-stage" id="stage" aria-label="এক নজরে: নাম আর স্কিল দিলেই কী কী পাবেন">
+      <div class="hs-box" id="hsBox">
+        <div class="hs-in" id="hsIn">
+          <div class="hs-glow"></div>
+          <div class="ph" id="ph">
+            <div class="ph-bz"><i></i></div>
+            <div class="ph-scr">
+              <div class="ph-cov"><b></b></div>
+              <div class="ph-av"><img id="phAv" alt=""><span class="vf"></span></div>
+              <div class="ph-name"><span id="phName"></span><i class="caret"></i></div>
+              <div class="ph-hl" id="phHl">Graphic Designer &amp; Video Editor</div>
+              <div class="ph-soc" id="phSoc"></div>
+              <div class="ph-sk" id="phSk"></div>
+              <div class="ph-btn">লিংক কপি করুন</div>
+            </div>
+          </div>
+          <div class="fc fc-ct" id="fcCt"><em>সনদ</em><img id="stCt" alt="স্কিল সনদ" decoding="async"></div>
+          <div class="fc fc-cv" id="fcCv"><em>FB কভার</em><img id="stCv" alt="Facebook কভার" decoding="async"></div>
+          <div class="fc fc-po" id="fcPo"><em>পোস্ট</em><img id="stPo" alt="Facebook পোস্ট ছবি" decoding="async"></div>
+          <div class="fc fc-lk" id="fcLk"><span class="ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="u">protishthan.com/s/<b>rafi</b></span><span class="cp">কপি</span></div>
+        </div>
       </div>
-      <div class="st-cap" id="stCap"><b></b><span></span></div>
+      <ol class="hs-steps" id="hsSteps">
+        <li data-n="1"><i></i><span>নাম ও স্কিল দিন</span></li>
+        <li data-n="2"><i></i><span>সনদ পান</span></li>
+        <li data-n="3"><i></i><span>পোস্ট ও কভার</span></li>
+        <li data-n="4"><i></i><span>লিংক শেয়ার</span></li>
+      </ol>
     </div>
+  </div>
   </div>
 </section>
 
@@ -987,47 +1029,43 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
      on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
     window.addEventListener('beforeunload', saveDraft);
-  /* ---------- hero stage: a short, self-playing tour of what you get ---------- */
+  /* ---------- hero: a short live demo (type a name, add skills, get the certificate, post, cover and link) ---------- */
   (function(){
     const stage = $('stage'); if(!stage) return;
-    const SAMPLE = { username: 'rafi-hasan', display_name: 'Rafi Hasan', headline: 'Graphic Designer & Video Editor', theme: 'midnight', avatar: 'av:stu-m:1', badges: ['creator', 'self-taught'], views: 128, published_at: new Date().toISOString(), cover_avatar: true, cover_style: 'royal',
+    const inn = $('hsIn'), box = $('hsBox'), steps = [...$('hsSteps').children];
+    const SAMPLE = { username: 'rafi-hasan', display_name: 'Rafi Hasan', headline: 'Graphic Designer & Video Editor', theme: 'midnight', avatar: 'av:stu-m:1', badges: ['creator'], published_at: new Date().toISOString(), cover_avatar: true, cover_style: 'royal',
       skills: [{ n: 'Video Editing', l: 4 }, { n: 'Graphic Design', l: 3 }, { n: 'UI/UX Design', l: 3 }, { n: 'Motion Graphics', l: 2 }],
-      links: [{ t: 'My Portfolio', u: 'https://www.behance.net/rafi' }, { t: 'Code & Projects', u: 'https://github.com/rafi' }],
-      socials: [{ p: 'facebook', u: 'https://www.facebook.com/rafi' }, { p: 'instagram', u: 'https://www.instagram.com/rafi' }, { p: 'youtube', u: 'https://www.youtube.com/@rafi' }] };
-    const CAP = {
-      pg: ['নিজের অনলাইন পাবলিক পেজ', 'এক লিংকে আপনার স্কিল, কাজ আর সোশ্যাল। সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে সরাসরি দেখান।'],
-      ct: ['স্কিল সনদ', 'আসল সনদের মতো দেখতে, HD মানের সনদ। ডাউনলোড করে শেয়ার করুন।'],
-      po: ['Facebook পোস্ট ছবি', 'ফেসবুক আর ইনস্টাগ্রামে ঠিক মাপে, এক ক্লিকে ডাউনলোড।'],
-      cv: ['Facebook কভার', 'ডেস্কটপ আর মোবাইল দুটোতেই ঠিক বসে, তিনটা ডিজাইনের মধ্যে থেকে বেছে নিন।'],
-      lk: ['লিংক প্রিভিউ', 'লিংক পাঠালেই ফেসবুক, হোয়াটসঅ্যাপে সুন্দর কার্ড হয়ে দেখা যায়।']
-    };
-    const keys = ['pg', 'ct', 'po', 'cv', 'lk'], tabs = [...stage.querySelectorAll('.st-tabs button')], sls = [...stage.querySelectorAll('.st-sl')], cap = $('stCap'), box = stage.querySelector('.st-tabs');
-    const ready = { pg: true, ct: false, po: false, cv: false, lk: false }, DUR = 4400;
-    let cur = 0, timer = null, held = false;
-    stage.style.setProperty('--dur', DUR + 'ms');
-    function show(i, user){
-      cur = i;
-      tabs.forEach((t, j) => t.classList.toggle('on', j === i)); sls.forEach((s, j) => s.classList.toggle('on', j === i));
-      const k = keys[i]; cap.querySelector('b').textContent = CAP[k][0]; cap.querySelector('span').textContent = CAP[k][1];
-      cap.classList.remove('sw'); void cap.offsetWidth; cap.classList.add('sw');
-      const t = tabs[i]; if(box.scrollWidth > box.clientWidth) box.scrollTo({ left: t.offsetLeft - 12, behavior: 'smooth' });
-      // restart the tab progress line
-      box.classList.add('paused'); void box.offsetWidth; box.classList.remove('paused');
-      clearTimeout(timer); if(!held) timer = setTimeout(next, DUR);
+      links: [{ t: 'Portfolio', u: 'https://www.behance.net/rafi' }], socials: [{ p: 'facebook', u: 'https://www.facebook.com/rafi' }, { p: 'instagram', u: 'https://www.instagram.com/rafi' }, { p: 'youtube', u: 'https://www.youtube.com/@rafi' }] };
+    // build the phone's skill rows and social dots once
+    $('phAv').src = V.avatarSrc(SAMPLE.avatar);
+    $('phSoc').innerHTML = SAMPLE.socials.map(x => '<i>' + V.socialSvg(x.p, 14) + '</i>').join('');
+    $('phSk').innerHTML = SAMPLE.skills.slice(0, 3).map((k, r) => '<div class="ph-s" style="--r:' + r + '"><b>' + k.n + '</b><div class="sg">' + [1, 2, 3, 4].map(n => '<i' + (n <= k.l ? ' class="on"' : '') + ' style="--k:' + n + ';--r:' + r + '"></i>').join('') + '</div></div>').join('');
+    // keep the 560x470 stage sharp at any width
+    const fit = () => { const sc = box.clientWidth / 560; inn.style.transform = 'scale(' + sc + ')'; };
+    fit(); window.addEventListener('resize', fit);
+    const NAME = SAMPLE.display_name, still = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const setStep = n => { inn.className = 'hs-in' + [1, 2, 3, 4, 5, 6, 7, 8].filter(i => i <= n).map(i => ' s' + i).join(''); const g = n >= 8 ? 4 : n >= 6 ? 3 : n >= 5 ? 2 : 1; steps.forEach((li, i) => { li.classList.toggle('on', i + 1 === g); li.classList.toggle('done', i + 1 < g); }); };
+    let timers = [], run = 0, visible = true;
+    const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+    function play(){
+      timers.forEach(clearTimeout); timers = []; const my = ++run; $('phName').textContent = ''; setStep(0);
+      at(150, () => setStep(1));
+      for(let i = 1; i <= NAME.length; i++) at(650 + i * 85, () => { $('phName').textContent = NAME.slice(0, i); });
+      at(1800, () => setStep(2)); at(2250, () => setStep(3)); at(2750, () => setStep(4));
+      at(4300, () => setStep(5)); at(5500, () => setStep(6)); at(6600, () => setStep(7)); at(7600, () => setStep(8));
+      at(11200, () => inn.classList.add('out')); at(11900, () => { if(visible && my === run) play(); });
     }
-    function next(){ let n = cur; for(let s = 0; s < keys.length; s++){ n = (n + 1) % keys.length; if(ready[keys[n]]) break; } show(n); }
-    tabs.forEach((t, i) => t.addEventListener('click', () => { if(!ready[keys[i]]) return; show(i, true); }));
-    stage.addEventListener('mouseenter', () => { held = true; clearTimeout(timer); box.classList.add('paused'); });
-    stage.addEventListener('mouseleave', () => { held = false; show(cur); });
-    document.addEventListener('visibilitychange', () => { if(document.hidden){ clearTimeout(timer); } else if(!held) show(cur); });
-    // the first slide is plain HTML and shows at once; the pictures are drawn when the browser is idle
-    try{ V.mount($('stPage'), SAMPLE, { embed: true }); }catch(e){}
-    show(0);
-    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 600));
+    if(still){ $('phName').textContent = NAME; setStep(8); } else {
+      play();
+      new IntersectionObserver(es => { visible = es[0].isIntersecting; if(visible) play(); else { timers.forEach(clearTimeout); timers = []; } }, { threshold: .2 }).observe(stage);
+      document.addEventListener('visibilitychange', () => { if(document.hidden){ timers.forEach(clearTimeout); timers = []; } else if(visible) play(); });
+    }
+    // the three pictures are drawn by our own renderer once the browser is idle
+    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 400));
     idle(async () => {
       try{
-        const put = async (k, id, kind, sc) => { const cv = await C.draw(SAMPLE, kind, sc); $(id).src = cv.toDataURL('image/jpeg', .86); ready[k] = true; };
-        await put('ct', 'stCt', 'cert', .42); await put('po', 'stPo', 'post', .36); await put('cv', 'stCv', 'cover', .5); await put('lk', 'stLk', 'certog');
+        const put = async (id, kind, sc) => { const cv = await C.draw(SAMPLE, kind, sc); $(id).src = cv.toDataURL('image/jpeg', .88); };
+        await put('stCt', 'cert', .45); await put('stCv', 'cover', .5); await put('stPo', 'post', .38);
       }catch(e){}
     });
     $('heroGo').addEventListener('click', () => { const w = document.querySelector('.wrap'); if(w) w.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
