@@ -170,6 +170,11 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:1100px){.fx-chip.x2,.fx-chip.x4,.fx-chip.x6,.fx-cert.c2{display:none}.fx-ros{opacity:.5}}
 @media(max-width:760px){.fx-chip,.fx-cert{display:none}.hero{padding:120px 16px 100px}}
 @media(prefers-reduced-motion:reduce){.fx-ros,.fx-chip,.fx-cert,.fx-sp,.hero h1 span{animation:none}}
+.dl-live{display:inline-flex;align-items:center;gap:9px;margin-top:18px;padding:9px 18px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;font-size:14.5px;font-weight:600;color:#334155}
+.dl-live b{color:#1A56DB;font-weight:800;font-size:16px;letter-spacing:-.2px}
+.dl-live i{width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
+@keyframes dlPulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+@media(prefers-reduced-motion:reduce){.dl-live i{animation:none}}
 .hero .cnt{margin-top:8px;font-size:13px;color:#9FB2E6;min-height:0}
 
 /* layout */
@@ -531,6 +536,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <span class="eyebrow"><i></i>ফ্রি · ৩ মিনিট · আপনার নিজের লিংক</span>
     <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
     <p>আপনি কী পারেন, কী কাজ করেছেন, সব এক পেজে। এক লিংকেই সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে নিজেকে দেখান।</p>
+    <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>এ পর্যন্ত <b id="dlCount">০</b>টা স্কিল সনদ ডাউনলোড হয়েছে</span></div>
     <div class="meta">
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের একটা লিংক</span>
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড আর শেয়ারের ছবি</span>
@@ -1209,10 +1215,29 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     const u = 'https://protishthan.com/s/' + ((ROW && ROW.username) || S.username || 'your-name');
     return 'কাগজের সনদ ড্রয়ারে পড়ে থাকে, কাজে লাগে স্কিল। আমার স্কিলই আমার সনদ।\n\nআমার স্কিল পেজ: ' + u + '\n\nআপনারটাও বানান (ফ্রি, ৩ মিনিটে): https://protishthan.com/skill';
   }
+  /* ---------- live download counter (one count per person, however many times they download) ---------- */
+  let dlShown = 0, dlRaf = 0;
+  function paintDownloads(n){
+    const box = $('dlLive'), el = $('dlCount'); if(!box || !el || !(n >= 1)) return;
+    box.style.display = 'inline-flex';
+    cancelAnimationFrame(dlRaf);
+    const from = dlShown || Math.max(0, n - Math.min(n, 40)), t0 = performance.now();
+    const step = t => { const p = Math.min(1, (t - t0) / 900), v = Math.round(from + (n - from) * (1 - Math.pow(1 - p, 3))); el.textContent = V.bn(v); if(p < 1) dlRaf = requestAnimationFrame(step); };
+    dlRaf = requestAnimationFrame(step); dlShown = n;
+  }
+  async function refreshDownloads(){ if(document.hidden) return; try{ const r = await M.sb.rpc('skill_downloads'); if(!r.error && r.data != null) paintDownloads(Number(r.data)); }catch(e){} }
+  async function countMyDownload(){
+    let done = false; try{ done = localStorage.getItem('sk_skdl_counted') === '1'; }catch(e){}
+    if(done) return;
+    try{ const r = await M.sb.rpc('bump_skill_downloads'); if(!r.error){ try{ localStorage.setItem('sk_skdl_counted', '1'); }catch(e){} if(r.data != null) paintDownloads(Number(r.data)); } }catch(e){}
+  }
+  refreshDownloads(); setInterval(refreshDownloads, 20000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
+
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : kind === 'cover' ? 'cover' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ toast(kind === 'cover' ? 'কভার তৈরি হচ্ছে (১৬৪০×৭২০)…' : 'HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, kind === 'cover' ? 1 : 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', kind === 'cover' ? .97 : .95); document.body.appendChild(a); a.click(); a.remove(); }
+    try{ toast(kind === 'cover' ? 'কভার তৈরি হচ্ছে (১৬৪০×৭২০)…' : 'HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, kind === 'cover' ? 1 : 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', kind === 'cover' ? .97 : .95); document.body.appendChild(a); a.click(); a.remove(); countMyDownload(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
