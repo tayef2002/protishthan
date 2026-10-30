@@ -362,6 +362,27 @@ textarea.im-i{resize:vertical}
 main.container{margin-top:22px}
 @media(max-width:980px){.hero{padding:24px 22px}.stat{min-width:150px}}
 @media(max-width:760px){.hero{margin-top:86px;width:calc(100% - 24px);padding:20px 16px;border-radius:24px}.avatar{width:62px;height:62px;font-size:25px}}
+
+/* ---- skill page card (same idea as the learned card above) ---- */
+.sm{position:relative;overflow:hidden;border-radius:20px;padding:18px;color:var(--ink,#fff);background:linear-gradient(160deg,var(--b1),var(--b2));border:1px solid rgba(255,255,255,.14)}
+.sm.ghost{opacity:.55}
+.sm::before{content:"";position:absolute;right:-40px;top:-60px;width:170px;height:170px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--ac) 55%,transparent);box-shadow:0 0 0 18px color-mix(in srgb,var(--ac) 10%,transparent)}
+.sm-top{position:relative;display:flex;align-items:center;gap:13px}
+.sm-av{flex:none;width:58px;height:58px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--ac2),var(--ac));border:3px solid rgba(255,255,255,.85);font:800 22px 'Inter',sans-serif;color:#fff}
+.sm-av img{width:100%;height:100%;object-fit:cover;display:block}
+.sm-nm b{display:block;font:800 19px/1.25 'Hind Siliguri','Inter',sans-serif;word-break:break-word}
+.sm-nm span{display:block;font-size:13.5px;opacity:.8;margin-top:1px}
+.sm-sk{position:relative;display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.sm-sk i{font-style:normal;padding:4px 11px;border-radius:100px;font:600 12.5px 'Inter','Hind Siliguri',sans-serif;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)}
+.sm-ft{position:relative;margin-top:14px;font:600 12.5px 'Inter',sans-serif;color:var(--ac)}
+.sm-st{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:3px 11px;border-radius:100px;font:700 12px 'Hind Siliguri',sans-serif}
+.sm-st.on{background:#E3F7EE;color:#047857}.sm-st.off{background:#FEF3C7;color:#92400E}
+.sk-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center}
+.sk-info b.t{font-size:16px}
+.sk-info p{font-size:13.5px;color:var(--text-3);margin:4px 0 12px}
+.sk-meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 14px;font-size:13px;color:var(--text-2)}
+.sk-act{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:760px){.sk-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -448,6 +469,10 @@ main.container{margin-top:22px}
           <div class="sec-h"><div><h2>আমার শিক্ষিত কার্ড</h2><p id="cardSub">সব ডিভাইসে একই কার্ড</p></div></div>
           <div class="card" id="cardBox"><div class="skel" style="height:190px"></div></div>
         </section>
+<section class="sec" id="skill">
+          <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
+          <div class="card" id="skillBox"><div class="skel" style="height:190px"></div></div>
+        </section>
       <div class="two">
 <section class="sec" id="partner">
           <div class="card partner">
@@ -513,7 +538,7 @@ main.container{margin-top:22px}
   <div class="dlg-box">
     <div class="wi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg></div>
     <h3 id="dlgT">সব তথ্য মুছে ফেলবেন?</h3>
-    <p>আপনার সেভ করা প্রতিষ্ঠান, শিক্ষিত কার্ড আর প্রোফাইল চিরতরে মুছে যাবে। এটা ফেরানো যায় না।</p>
+    <p>আপনার সেভ করা প্রতিষ্ঠান, শিক্ষিত কার্ড, স্কিল পেজ আর প্রোফাইল চিরতরে মুছে যাবে। এটা ফেরানো যায় না।</p>
     <div class="acts"><button class="btn btn-line" type="button" onclick="closeDelete()">না, থাক</button><button class="btn btn-red" id="delBtn" type="button" onclick="deleteMyData()">হ্যাঁ, মুছে দিন</button></div>
   </div>
 </div>
@@ -555,6 +580,8 @@ main.container{margin-top:22px}
 
 <footer class="foot">© <span id="fy">২০২৬</span> Protishthan · <a href="index.html">তথ্যভান্ডার</a> · <a href="card.html">শিক্ষিত কার্ড</a> · <a href="privacy.html">গোপনীয়তা নীতি</a></footer>
 
+<script src="/avatars.js"></script>
+<script src="/skill-core.js?v=28"></script>
 <script>
 const M = Protishthan.member, esc = M.esc;
 const BN = '০১২৩৪৫৬৭৮৯', bn = v => String(v).replace(/[0-9]/g, d => BN[d]);
@@ -577,7 +604,7 @@ const IC = {
 const ico = (n, s = 20, extra = '') => '<svg class="ic" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' + extra + '>' + IC[n] + '</svg>';
 const THEMES = { night: ['#0A1628', '#1A3570', '#2563EB', '#7C3AED'], green: ['#03382B', '#047857', '#047857', '#10B981'], gold: ['#451A03', '#B45309', '#B45309', '#F59E0B'] };
 const LEVELS = [['school', 'মাধ্যমিক'], ['college', 'উচ্চ মাধ্যমিক'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
-const STATE = { saved: null, card: null };
+const STATE = { saved: null, card: null, skill: null };
 
 function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
 
@@ -601,7 +628,7 @@ async function render(){
   renderShellUser(me);
   $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + (no ? 'সদস্য নং ' + esc(no) : 'Protishthan সদস্য') + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
   renderAccount(me, since);
-  loadSaved(); loadCard();
+  loadSaved(); loadCard(); loadSkill();
 }
 
 function renderAccount(me, since){
@@ -611,11 +638,12 @@ function renderAccount(me, since){
 
 /* ---------- progress / checklist ---------- */
 function updateProgress(){
-  const savedN = STATE.saved ? STATE.saved.length : 0, hasCard = !!(STATE.card && (STATE.card.name || STATE.card.photo));
+  const savedN = STATE.saved ? STATE.saved.length : 0, hasCard = !!(STATE.card && (STATE.card.name || STATE.card.photo)), hasSkill = !!STATE.skill;
   const steps = [
     { done: true, t: 'Google দিয়ে যোগ দিয়েছেন', s: 'অ্যাকাউন্ট তৈরি হয়েছে' },
     { done: savedN > 0, t: 'একটি প্রতিষ্ঠান সেভ করুন', s: 'যেকোনো প্রতিষ্ঠানের পাতায় "সেভ করুন" চাপুন', href: 'index.html', cta: 'খুঁজুন' },
-    { done: hasCard, t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, নিজের শিক্ষাজীবন দিয়ে', href: 'card.html', cta: 'বানান' }
+    { done: hasCard, t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, নিজের শিক্ষাজীবন দিয়ে', href: 'card.html', cta: 'বানান' },
+    { done: hasSkill, t: 'স্কিল পেজ বানান', s: 'নিজের স্কিল দিয়ে ইউনিক লিংক', href: 'skill.html', cta: 'বানান' }
   ];
   const n = steps.filter(x => x.done).length, pct = Math.round(n * 100 / steps.length);
   $('steps').innerHTML = steps.map((x, i) => '<li class="' + (x.done ? 'done' : '') + '"><span class="dot">' + (x.done ? ico('check', 16, 'stroke-width="3"') : bn(i + 1)) + '</span><div><b>' + x.t + '</b><span>' + x.s + '</span></div>' + (!x.done && x.href ? '<a href="' + x.href + '">' + x.cta + ' →</a>' : '') + '</li>').join('');
@@ -786,6 +814,34 @@ async function loadCard(){
   box.innerHTML = '<div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center" class="cardgrid">' + cardPreview(d, false) + '<div><b style="font-size:16px">কার্ড তৈরি আছে</b><p style="font-size:13.5px;color:var(--text-2);margin:4px 0 14px">যেকোনো ডিভাইস থেকে খুলে বদলাতে, ডাউনলোড করতে বা শেয়ার করতে পারবেন।</p><div class="acts"><a class="btn btn-blue btn-sm" href="card.html">কার্ড খুলুন</a><a class="btn btn-line btn-sm" href="card.html">ডাউনলোড</a></div></div></div>';
 }
 
+/* ---------- my skill page (stored in skill_profiles, like the card in member_cards) ---------- */
+const SK_THEMES = { midnight: ['#070B16', '#0D1530', '#6EA8FF', '#8B7CFF', '#F4F6FF'], aurora: ['#04100F', '#08201D', '#34D399', '#22D3EE', '#F1FBF8'], ocean: ['#040F1D', '#08203A', '#38BDF8', '#3B82F6', '#F0F7FF'], ember: ['#150A0B', '#2A1214', '#FB923C', '#F43F5E', '#FFF4F0'], paper: ['#F6F3EC', '#EDE8DC', '#2F5BEA', '#7C3AED', '#17171C'] };
+function skillPreview(p, ghost){
+  const t = SK_THEMES[p.theme] || SK_THEMES.midnight, nm = (p.display_name || '').trim() || 'আপনার নাম';
+  let src = ''; try{ src = (window.SkillView && p.avatar) ? SkillView.avatarSrc(p.avatar) : ''; }catch(e){}
+  const sk = (p.skills || []).slice(0, 4);
+  return '<div class="sm' + (ghost ? ' ghost' : '') + '" style="--b1:' + t[0] + ';--b2:' + t[1] + ';--ac:' + t[2] + ';--ac2:' + t[3] + ';--ink:' + t[4] + '"><div class="sm-top"><span class="sm-av">' + (src ? '<img src="' + esc(src) + '" alt="">' : esc(nm.charAt(0).toUpperCase())) + '</span><div class="sm-nm"><b>' + esc(nm) + '</b><span>' + esc(p.headline || 'আপনার পদবি') + '</span></div></div>' +
+    (sk.length ? '<div class="sm-sk">' + sk.map(x => '<i>' + esc(x.n) + '</i>').join('') + '</div>' : '') +
+    '<div class="sm-ft">protishthan.com/s/' + esc(p.username || 'আপনার-নাম') + '</div></div>';
+}
+async function loadSkill(){
+  const box = $('skillBox'); if(!box) return;
+  let data = null;
+  try{ const r = await M.sb.from('skill_profiles').select('*').eq('user_id', M.current().user_id).maybeSingle(); data = r.data; }catch(e){}
+  const has = !!(data && String(data.display_name || '').trim());
+  STATE.skill = has ? data : null; updateProgress();
+  if(!has){
+    $('skillSub').textContent = 'এখনো বানাননি';
+    box.innerHTML = '<div class="empty" style="padding:6px 0 4px"><div style="width:100%;max-width:340px;margin-bottom:16px">' + skillPreview({ display_name: 'আপনার নাম', headline: 'আপনার পদবি', skills: [{ n: 'Video Editing' }, { n: 'Design' }], theme: 'midnight' }, true) + '</div><b style="font-size:16px">নিজের স্কিল পেজ বানান</b><p style="font-size:13.5px;color:var(--text-3);margin:4px 0 14px;max-width:360px">নাম আর স্কিল দিন, সনদ, কভার আর নিজের লিংক পেয়ে যাবেন। ৩ মিনিটেই হয়ে যায়।</p><a class="btn btn-blue" href="skill.html">স্কিল পেজ বানান</a></div>';
+    return;
+  }
+  const pub = !!data.published, url = 'https://protishthan.com/s/' + data.username;
+  $('skillSub').textContent = data.updated_at ? 'শেষ বদল: ' + new Date(data.updated_at).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' }) : 'সব ডিভাইসে একই পেজ';
+  const nSk = (data.skills || []).length, nLk = (data.links || []).length;
+  box.innerHTML = '<div class="sk-grid">' + skillPreview(data, false) + '<div class="sk-info"><b class="t">' + (pub ? 'স্কিল পেজ লাইভ আছে' : 'স্কিল পেজ তৈরি আছে') + '</b><span class="sm-st ' + (pub ? 'on' : 'off') + '">' + (pub ? 'প্রকাশিত' : 'খসড়া, শুধু আপনি দেখছেন') + '</span><p>' + (pub ? 'লিংকটা শেয়ার করুন, সনদ আর কভারও ডাউনলোড করতে পারবেন।' : 'প্রকাশ করলে সবাই লিংক দিয়ে আপনার পেজ দেখতে পারবে।') + '</p><div class="sk-meta"><span>' + bn(nSk) + 'টি স্কিল</span><span>' + bn(nLk) + 'টি কাজ</span>' + (pub && data.views != null ? '<span>' + bn(data.views) + ' জন দেখেছেন</span>' : '') + '</div><div class="sk-act"><a class="btn btn-blue btn-sm" href="skill.html">এডিট করুন</a>' + (pub ? '<a class="btn btn-line btn-sm" href="/s/' + esc(data.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a><button class="btn btn-line btn-sm" type="button" id="skCopy">লিংক কপি</button>' : '') + '</div></div></div>';
+  const cp = $('skCopy'); if(cp) cp.onclick = async () => { try{ await navigator.clipboard.writeText(url); cp.textContent = 'কপি হয়েছে ✓'; setTimeout(() => cp.textContent = 'লিংক কপি', 1800); }catch(e){} };
+}
+
 /* ---------- edit profile: name + own picture ---------- */
 const ED = { img: null, zoom: 1, ox: 0, oy: 0, cur: null, removed: false, drag: null };
 const STAGE = 176;
@@ -865,7 +921,7 @@ function closeDelete(){ $('dlg').classList.remove('show'); document.body.style.o
 async function deleteMyData(){
   const me = M.current(); if(!me) return;
   const btn = $('delBtn'); btn.disabled = true; btn.textContent = 'মোছা হচ্ছে…';
-  for(const t of ['saved_institutions', 'member_cards', 'members']){
+  for(const t of ['saved_institutions', 'member_cards', 'skill_profiles', 'members']){
     const { error } = await M.sb.from(t).delete().eq('user_id', me.user_id);
     if(error){ btn.disabled = false; btn.textContent = 'হ্যাঁ, মুছে দিন'; closeDelete(); M.toast('মোছা যায়নি (' + t + '): ' + error.message); return; }
   }
@@ -884,6 +940,7 @@ const NAVI = {
   chart: '<path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/>',
   monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
   shield: '<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/>',
   doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
@@ -892,6 +949,7 @@ const NAV = [
     { href: '#overview', i: 'grid', l: 'ওভারভিউ', spy: 'overview' },
     { href: '#saved', i: 'bookmark', l: 'সেভ করা প্রতিষ্ঠান', spy: 'saved', cnt: true },
     { href: '#card', i: 'card', l: 'আমার শিক্ষিত কার্ড', spy: 'card' },
+    { href: '#skill', i: 'award', l: 'আমার স্কিল পেজ', spy: 'skill' },
     { href: '#account', i: 'user', l: 'অ্যাকাউন্ট ও প্রোফাইল', spy: 'account' } ] },
   { t: 'এক্সপ্লোর', items: [
     { href: 'index.html', i: 'search', l: 'প্রতিষ্ঠান খুঁজুন' },
