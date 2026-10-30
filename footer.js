@@ -6,11 +6,11 @@
   var el = document.getElementById('pfoot'); if(!el || el.dataset.ready) return;
 
   var COLS = [
-    { t: 'খুঁজুন', l: [['তথ্যভান্ডার', 'index.html'], ['বোর্ড ফলাফল', 'results.html'], ['প্রতিষ্ঠান যোগ করুন', 'list-institution.html']] },
+    { t: 'খুঁজুন', l: [['তথ্যভান্ডার', 'index.html'], ['বোর্ড ফলাফল', 'results.html'], ['দরকারি তথ্য', 'info.html'], ['প্রতিষ্ঠান যোগ করুন', 'list-institution.html']] },
     { t: 'টুলস', l: [['শিক্ষিত কার্ড', 'card.html'], ['স্কিল আইডেন্টিটি', 'skill.html'], ['স্কুল সফটওয়্যার', 'software.html']] },
     { t: 'আরও', l: [['Partner প্রোগ্রাম', 'partner.html'], ['আমার প্রোফাইল', 'member.html'], ['গোপনীয়তা নীতি', 'privacy.html'], ['ব্যবহারের শর্ত', 'terms.html']] }
   ];
-  var TAGLINE = { card: 'শিক্ষাজীবনের পথচলা, এক কার্ডে', skill: 'এক লিংকে আপনার সব স্কিল' };
+  var TAGLINE = { card: 'শিক্ষাজীবনের পথচলা, এক কার্ডে', skill: 'এক লিংকে আপনার সব স্কিল', info: 'দরকারি তথ্য, এক জায়গায়' };
 
   var R = function(x, y, w, h, fill, ex){ return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + fill + '"' + (ex || '') + '/>'; };
   var arch = function(x, y, w, h, fill, ex){ return '<path d="M' + x + ' ' + (y + h) + 'V' + (y + w / 2) + 'a' + (w / 2) + ' ' + (w / 2) + ' 0 0 1 ' + w + ' 0V' + (y + h) + 'Z" fill="' + fill + '"' + (ex || '') + '/>'; };
@@ -125,8 +125,22 @@
     return s;
   }
 
-  var art = el.dataset.art === 'skill' ? 'skill' : 'card';
-  var svg = '<svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + DEFS + land() + (art === 'skill' ? artSkill() : artCard()) + '</svg>';
+  /* ---------- art 3: the info page: a signpost to every office, a reader on a bench ---------- */
+  function artInfo(){
+    var s = '', cols = ['#1A56DB', '#10B981', '#F59E0B', '#7C3AED', '#0D9488', '#DC2626'];
+    [150, 330, 510, 690, 870, 1050].forEach(function(x, i){
+      s += '<g transform="translate(' + x + ' 288)"><rect x="-2" y="-96" width="4" height="96" fill="#B7791F"/><g class="fl" style="--d:' + (i * .45) + 's"><rect x="-44" y="-132" width="88" height="34" rx="9" fill="' + cols[i] + '"/><path d="M44 -125l14 9-14 9z" fill="' + cols[i] + '"/><rect x="-30" y="-121" width="46" height="5" rx="2.5" fill="#fff" opacity=".9"/><rect x="-30" y="-111" width="30" height="4" rx="2" fill="#fff" opacity=".55"/></g></g>';
+    });
+    s += '<g transform="translate(1190 288)"><rect x="-26" y="-16" width="52" height="5" rx="2" fill="#B7791F"/><rect x="-22" y="-11" width="3" height="11" fill="#8A5A14"/><rect x="19" y="-11" width="3" height="11" fill="#8A5A14"/><g transform="translate(0 -16)"><g class="bob"><use href="#pf-girl"/></g></g><rect x="6" y="-34" width="14" height="10" rx="1.5" fill="#1A56DB"/></g>';
+    s += tree(40, .9) + tree(1290, 1.25) + tree(1390, .85);
+    s += R(1240, 276, 40, 7, '#1A56DB', ' rx="2"') + R(1243, 268, 34, 8, '#F5B316', ' rx="2"') + R(1246, 260, 28, 8, '#10B981', ' rx="2"');
+    s += [[100, 90], [600, 50], [980, 80]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .8) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
+    s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 100)" fill="none" stroke="#7C8DB5" stroke-width="1.8" stroke-linecap="round"/></g>';
+    return s;
+  }
+
+  var art = el.dataset.art === 'skill' ? 'skill' : el.dataset.art === 'info' ? 'info' : 'card';
+  var svg = '<svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + DEFS + land() + (art === 'skill' ? artSkill() : art === 'info' ? artInfo() : artCard()) + '</svg>';
   var cols = COLS.map(function(c){ return '<div><h4>' + c.t + '</h4>' + c.l.map(function(x){ return '<a href="' + x[1] + '">' + x[0] + '</a>'; }).join('') + '</div>'; }).join('');
   el.className = 'pf'; el.dataset.ready = '1';
   el.innerHTML = '<div class="pf-in"><div class="pf-brand"><a class="lg" href="index.html"><i><img src="logo-sm.webp" alt="" width="36" height="36" decoding="async"></i><b>Protisht<span>han</span></b></a><p>বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার, আর আপনার নিজের শিক্ষা ও স্কিলের পরিচয়, সব এক জায়গায়।</p><span class="tag">' + TAGLINE[art] + '</span></div><nav class="pf-cols" aria-label="ফুটার">' + cols + '</nav></div>' +

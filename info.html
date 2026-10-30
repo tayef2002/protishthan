@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>দরকারি তথ্য — বোর্ড ফলাফল, ভর্তি, NTRCA, মাউশি | Protishthan</title>
+<meta name="description" content="শিক্ষার্থী, অভিভাবক ও শিক্ষকের দরকারি সব তথ্য এক জায়গায়: বোর্ড পরীক্ষার ফলাফল, যেখানে ভর্তি চলছে, শিক্ষক নিবন্ধন (NTRCA), মাউশি, মাদ্রাসা বোর্ড ও শিক্ষা মন্ত্রণালয়ের অফিসিয়াল লিংক।">
+<link rel="canonical" href="https://protishthan.com/info">
+<meta property="og:title" content="দরকারি তথ্য — Protishthan">
+<meta property="og:description" content="বোর্ড ফলাফল, ভর্তি চলছে, NTRCA, মাউশি, মাদ্রাসা বোর্ড, শিক্ষা মন্ত্রণালয় — এক জায়গায়।">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<meta name="theme-color" content="#F4F6FB">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<script src="avatars.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nav.css?v=6">
+<link rel="stylesheet" href="/footer.css?v=1">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--text:#0B1B4D;--text-2:#475569;--border:#E2E8F0;--bg:#F4F6FB}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.ico{display:inline-block;flex-shrink:0;vertical-align:middle}
+.wrap{max-width:1152px;margin:0 auto;padding:0 24px}
+.top{margin:96px auto 0;max-width:1152px;padding:56px 40px 48px;border-radius:32px;background:linear-gradient(135deg,#D9EBFF,#E6E4FF);text-align:center}
+.top h1{font:800 clamp(30px,5vw,46px)/1.25 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.5px}
+.top h1 span{background:linear-gradient(90deg,#4F46E5,#1A8FB5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top p{max-width:34em;margin:12px auto 0;color:var(--text-2);font-size:17px}
+.grp{margin:44px 0 0}
+.grp h2{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font:800 20px 'Hind Siliguri','Inter',sans-serif}
+.grp h2 small{color:#64748B;font:500 14px 'Hind Siliguri',sans-serif}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:16px}
+.info-card{display:block;background:#fff;border:1px solid var(--border);border-radius:20px;padding:24px;transition:border-color .2s,transform .2s}
+.info-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.info-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.ii-blue{background:#EFF6FF;color:#2563EB}.ii-green{background:#ECFDF5;color:#059669}.ii-amber{background:#FFFBEB;color:#D97706}
+.ii-purple{background:#F5F3FF;color:#7C3AED}.ii-teal{background:#F0FDFA;color:#0D9488}.ii-red{background:#FEF2F2;color:#DC2626}
+.info-title{font:800 18px 'Hind Siliguri','Inter',sans-serif;margin-bottom:6px}
+.info-desc{color:var(--text-2);font-size:14.5px;line-height:1.7}
+.info-link{display:inline-block;margin-top:12px;color:var(--blue);font-weight:700;font-size:14px}
+.note{margin:32px 0 0;padding:16px 20px;border-radius:16px;background:#fff;border:1px solid var(--border);color:var(--text-2);font-size:14px}
+@media(max-width:900px){.top{margin:84px 12px 0;padding:40px 20px 36px;border-radius:26px}.wrap{padding:0 16px}}
+@media(max-width:560px){.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="info"></div>
+<script src="/nav.js?v=4"></script>
+
+<header class="top">
+  <h1>শিক্ষার <span>দরকারি তথ্য</span>, এক জায়গায়</h1>
+  <p>ফলাফল, ভর্তি আর সরকারি অফিসিয়াল সাইটের লিংক। আর ঘুরে ঘুরে খুঁজতে হবে না।</p>
+</header>
+
+<main class="wrap">
+  <section class="grp">
+    <h2>Protishthan-এ দেখুন <small>আমাদের তথ্যভান্ডার থেকে</small></h2>
+    <div class="info-grid">
+    <a class="info-card" href="results.html">
+      <div class="info-icon ii-blue"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><rect x="5" y="12" width="3" height="7"/><rect x="10.5" y="7" width="3" height="12"/><rect x="16" y="3" width="3" height="16"/></svg></div>
+      <div class="info-title">বোর্ড পরীক্ষার ফলাফল</div>
+      <div class="info-desc">SSC, HSC, দাখিল ও আলিম — কোন প্রতিষ্ঠানে পাসের হার কত, কতজন GPA-5, আর জেলায় কততম।</div>
+      <span class="info-link">প্রতিষ্ঠানের ফলাফল দেখুন →</span>
+    </a>
+    <a class="info-card" href="index.html?admission=1">
+      <div class="info-icon ii-green"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.5h6V4"/><path d="M8.5 11l2 2 4-4"/><path d="M8.5 17h7"/></svg></div>
+      <div class="info-title">যেখানে ভর্তি চলছে</div>
+      <div class="info-desc">তালিকাভুক্ত যেসব প্রতিষ্ঠানে এখন ভর্তি চলছে, সেগুলো এক ক্লিকে দেখুন।</div>
+      <span class="info-link">তালিকা দেখুন →</span>
+    </a>
+    </div>
+  </section>
+  <section class="grp">
+    <h2>সরকারি অফিসিয়াল ওয়েবসাইট <small>নতুন ট্যাবে খুলবে</small></h2>
+    <div class="info-grid">
+    <a class="info-card" href="https://ntrca.gov.bd/" target="_blank" rel="noopener">
+      <div class="info-icon ii-amber"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M3 13h18"/></svg></div>
+      <div class="info-title">শিক্ষক নিবন্ধন ও নিয়োগ</div>
+      <div class="info-desc">শিক্ষক নিবন্ধন পরীক্ষা, গণবিজ্ঞপ্তি ও ফলাফল — NTRCA-এর অফিসিয়াল ওয়েবসাইটে।</div>
+      <span class="info-link">অফিসিয়াল সাইটে দেখুন ↗</span>
+    </a>
+    <a class="info-card" href="https://dshe.gov.bd/" target="_blank" rel="noopener">
+      <div class="info-icon ii-purple"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M12 5V2.5l3 1.2-3 1.2"/></svg></div>
+      <div class="info-title">মাধ্যমিক ও উচ্চ শিক্ষা অধিদপ্তর</div>
+      <div class="info-desc">MPO, উপবৃত্তি ও প্রতিষ্ঠান-সংক্রান্ত নোটিস — মাউশি (DSHE)-এর অফিসিয়াল ওয়েবসাইটে।</div>
+      <span class="info-link">অফিসিয়াল সাইটে দেখুন ↗</span>
+    </a>
+    <a class="info-card" href="https://bmeb.gov.bd/" target="_blank" rel="noopener">
+      <div class="info-icon ii-teal"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M6.5 21v-7a5.5 5.5 0 0 1 11 0v7"/><path d="M12 8.5V6"/><path d="M12.6 3.2a1.5 1.5 0 1 0 .9 2.2"/><path d="M10 21v-3a2 2 0 0 1 4 0v3"/><path d="M3 21v-9l1-1.5 1 1.5v9M19 21v-9l1-1.5 1 1.5v9"/></svg></div>
+      <div class="info-title">মাদ্রাসা শিক্ষা বোর্ড</div>
+      <div class="info-desc">আলিয়া মাদ্রাসার নিবন্ধন, পরীক্ষা ও নোটিস — বাংলাদেশ মাদ্রাসা শিক্ষা বোর্ডের ওয়েবসাইটে।</div>
+      <span class="info-link">অফিসিয়াল সাইটে দেখুন ↗</span>
+    </a>
+    <a class="info-card" href="https://moedu.gov.bd/" target="_blank" rel="noopener">
+      <div class="info-icon ii-red"><svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M4 18h16"/><path d="M12 3L3 8h18z"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/></svg></div>
+      <div class="info-title">শিক্ষা মন্ত্রণালয়</div>
+      <div class="info-desc">সরকারি প্রজ্ঞাপন, সার্কুলার ও নির্দেশনা — শিক্ষা মন্ত্রণালয়ের অফিসিয়াল ওয়েবসাইটে।</div>
+      <span class="info-link">অফিসিয়াল সাইটে দেখুন ↗</span>
+    </a>
+    </div>
+  </section>
+  <p class="note">সরকারি সাইটগুলো সংশ্লিষ্ট দপ্তরের নিজস্ব ওয়েবসাইট। Protishthan এগুলো পরিচালনা করে না, শুধু খুঁজে পেতে সুবিধার জন্য লিংক দেওয়া হয়েছে।</p>
+</main>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=4"></script>
+</body>
+</html>
