@@ -431,7 +431,7 @@
   }
 
   // Facebook cover: 1640x720 (2x of 820x360). Desktop shows the middle 1640x624, phones the middle 1280x720,
-  // and the profile photo covers the bottom-left, so the words and the certificate stay inside x 400-1440, y 110-610.
+  // and the profile photo covers the bottom-left, so the words and the certificate stay inside x 392-1430, y 110-610.
   async function drawCover(p, logo, S){
     S = S || 1;
     const W = 1640, H = 720, cv = document.createElement('canvas'); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
@@ -448,7 +448,7 @@
     c.strokeStyle = 'rgba(227,194,117,.35)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40);
 
     // words, stacked and centred on the middle line
-    const name = (p.display_name || 'Your Name').trim(), x0 = 410, mw = 455;
+    const name = (p.display_name || 'Your Name').trim(), x0 = 392, mw = 450;
     c.textAlign = 'left';
     c.font = '400 100px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 104, 50, mw);
     c.font = 'italic 600 33px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
@@ -473,8 +473,8 @@
 
     // the certificate, slightly tilted, on the right
     const cert = await drawCert(p, 1600, 1131, logo, Math.max(1, S)), cw = 520, ch = Math.round(cw * 1131 / 1600);
-    c.save(); c.translate(1200, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
-    brand(c, logo, 1230, 598, 30, { ink: '#FFFFFF' });
+    c.save(); c.translate(1168, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
+    brand(c, logo, 1192, 598, 30, { ink: '#FFFFFF' });
     return cv;
   }
 

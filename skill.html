@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=14"></script>
+<script src="/skill-core.js?v=15"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -260,6 +260,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .sample-note{display:none;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#FFF8E6;border:1px solid #F5DFA0;color:#8A6500;font-size:13px;font-weight:600;text-align:center}
 .pv-canvas,.fbcard canvas{cursor:zoom-in}
 #cvCover{width:100%;height:auto;max-height:none;border-radius:10px;display:block}
+.cov-size{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:10px;padding:9px 12px;border-radius:12px;background:#F0F9FF;border:1px solid #BAE6FD;font-size:12.5px;color:#0C4A6E}
+.cov-size b{font:700 13.5px 'Hind Siliguri','Inter',sans-serif}
 .cov-seg{display:flex;gap:4px;padding:4px;margin-bottom:10px;border-radius:12px;background:#EEF2F8}
 .cov-seg button{flex:1;border:none;border-radius:9px;padding:7px 4px;background:transparent;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
 .cov-seg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
@@ -451,7 +453,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="pv-pane" id="pvCv" style="padding:14px;background:#fff">
         <div class="cov-seg" role="group" aria-label="কেমন দেখাবে"><button type="button" class="on" data-cm="all">পুরো ছবি</button><button type="button" data-cm="desk">🖥 ডেস্কটপে</button><button type="button" data-cm="mob">📱 মোবাইলে</button></div>
         <div class="cov-wrap" id="covWrap" data-m="all"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas><i class="cm cm-t"></i><i class="cm cm-b"></i><i class="cm cm-l"></i><i class="cm cm-r"></i></div>
-        <div class="pv-cap">Facebook কভারের জন্য (১৬৪০×৭২০)। ঝাপসা অংশ Facebook ডেস্কটপ বা মোবাইলে কেটে ফেলে, সব লেখা মাঝের নিরাপদ জায়গায় আছে। বাঁ-নিচে প্রোফাইল ছবি বসে, ওখানে কিছু রাখিনি।</div>
+        <div class="cov-size"><b>ডাউনলোড মাপ: ১৬৪০ × ৭২০</b> <span>একটাই ফাইল, ডেস্কটপ ও মোবাইল দুটোর জন্য ঠিক</span></div><div class="pv-cap">Facebook-এ: প্রোফাইল বা পেজে "Edit cover photo" → "Upload photo" → এই ফাইল। ঝাপসা অংশ Facebook দুই জায়গায় কেটে ফেলে, তাই সব লেখা ও সনদ মাঝের নিরাপদ জায়গায় রেখেছি। বাঁ-নিচে প্রোফাইল ছবি বসে, ওখানে কিছু নেই।</div>
       </div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
@@ -860,7 +862,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : kind === 'cover' ? 'cover' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ toast('HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .95); document.body.appendChild(a); a.click(); a.remove(); }
+    try{ toast(kind === 'cover' ? 'কভার তৈরি হচ্ছে (১৬৪০×৭২০)…' : 'HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, kind === 'cover' ? 1 : 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', kind === 'cover' ? .97 : .95); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
