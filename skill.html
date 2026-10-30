@@ -404,8 +404,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <label class="f" for="fHead">পদবি বা পরিচয় <small>(ইংরেজিতে, এক লাইনে)</small> <span class="c" id="cHead"></span></label>
       <input class="fi" id="fHead" maxlength="70" placeholder="e.g. Graphic Designer & Video Editor">
       <div class="chips" id="headSugg"></div>
-      <label class="f" for="fAbout">নিজের সম্পর্কে <small>(ঐচ্ছিক)</small> <span class="c" id="cAbout"></span></label>
-      <textarea class="fi" id="fAbout" maxlength="160" placeholder="কী কাজ করেন, কতদিন ধরে, কী নিয়ে গর্ব করেন, ছোট করে লিখুন।"></textarea>
     </section>
 
     <section class="panel" id="s2">
@@ -558,7 +556,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   function clean(){
     return {
-      username: (S.username || '').trim().toLowerCase(), display_name: S.display_name.trim(), headline: S.headline.trim(), about: S.about.trim(),
+      username: (S.username || '').trim().toLowerCase(), display_name: S.display_name.trim(), headline: S.headline.trim(), about: '',
       skills: S.skills.filter(s => s.n.trim()).map(s => ({ n: s.n.trim(), l: s.l })),
       links: S.links.map(l => ({ t: l.t.trim(), u: normUrl(l.u) })).filter(l => l.u),
       badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null,
@@ -688,7 +686,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   function progress(){
     const d = clean();
-    const items = [d.display_name.length >= 2, d.headline.length >= 3, d.about.length >= 20, d.skills.length >= 1, d.skills.length >= 3, d.links.length >= 1, validUser(d.username) && uOk !== false];
+    const items = [d.display_name.length >= 2, d.headline.length >= 3, (d.badges || []).length >= 1, d.skills.length >= 1, d.skills.length >= 3, d.links.length >= 1, validUser(d.username) && uOk !== false];
     const pct = Math.round(items.filter(Boolean).length / items.length * 100);
     $('progBar').style.width = pct + '%'; $('progPct').textContent = V.bn(pct) + '%';
     $('n1').classList.toggle('done', items[0] && items[1]);
@@ -755,8 +753,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(pub){ const u = 'https://protishthan.com/s/' + ROW.username, t = encodeURIComponent((S.display_name || '') + ' — আমার স্কিল আইডেন্টিটি: ' + u); $('okLink').value = u; $('shWa').href = 'https://wa.me/?text=' + t; $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u); $('shLi').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(u); $('shView').href = '/s/' + ROW.username; }
   }
   function paintAll(){
-    $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
-    $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
+    $('fName').value = S.display_name; $('fHead').value = S.headline; $('fUser').value = S.username;
+    $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70';
     buildAvatarGrid(); paintAvatar(); paintSkills(); paintSocials(); paintLinks(); $('covAv').checked = S.cover_avatar !== false; paintThemes(); paintHeads(); paintPreview();
   }
 
@@ -863,7 +861,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     const onlyEn = e => { const v = toEn(e.target.value); if(v !== e.target.value){ e.target.value = v; toast('শুধু ইংরেজি অক্ষরে লিখুন (সনদে এটাই দেখাবে)'); } return v; };
     on('fName', 'input', e => { S.display_name = onlyEn(e); $('cName').textContent = S.display_name.length + '/60'; paintPreview(); autosave(); });
     on('fHead', 'input', e => { S.headline = onlyEn(e); $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
-    on('fAbout', 'input', e => { S.about = e.target.value; $('cAbout').textContent = S.about.length + '/160'; paintPreview(); autosave(); });
     on('fUser', 'input', e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); e.target.value = v; S.username = v; checkUser(); paintPreview(); autosave(); });
     on('headSugg', 'click', e => { const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
     on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = b.dataset.id === '__photo' ? S.photo : 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
