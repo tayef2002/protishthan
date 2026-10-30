@@ -94,7 +94,7 @@
     im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
   });
   async function fonts(){
-    try{ await Promise.all([document.fonts.load('400 48px "Tiro Bangla"'), document.fonts.load('400 48px "Great Vibes"'), document.fonts.load('700 24px "Cormorant Garamond"'), document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('400 48px "Tiro Bangla"'), document.fonts.load('400 48px "Great Vibes"'), document.fonts.load('400 48px "Mrs Saint Delafield"'), document.fonts.load('italic 600 28px "Cormorant Garamond"'), document.fonts.load('700 24px "Cormorant Garamond"'), document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
   }
   function rr(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
   function wrap(c, text, maxW, maxLines){
@@ -234,54 +234,72 @@
     c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = Math.max(1.5, r * .03); c.beginPath(); c.arc(x, y, r * .72, Math.PI * 1.05, Math.PI * 1.6); c.stroke();
     c.strokeStyle = 'rgba(110,75,15,.5)'; c.lineWidth = Math.max(1, r * .02); c.beginPath(); c.arc(x, y, r * .72, Math.PI * .05, Math.PI * .6); c.stroke();
     // text round the rim (Latin only: Bangla conjuncts must not be split letter by letter)
-    const t = 'SELF-ISSUED  ✦  SKILL IDENTITY  ✦  SELF-ISSUED  ✦  SKILL IDENTITY  ✦  ', rad = r * .6; c.fillStyle = 'rgba(27,42,90,.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
+    const t = 'CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  ', rad = r * .6; c.fillStyle = 'rgba(27,42,90,.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
     const step = Math.PI * 2 / t.length; for(let i = 0; i < t.length; i++){ c.save(); c.translate(x, y); c.rotate(i * step - Math.PI / 2); c.fillText(t[i], 0, -rad); c.restore(); }
     c.fillStyle = NAVY; c.beginPath(); const sr = r * .15, sy = y - r * .26; c.moveTo(x, sy - sr); c.quadraticCurveTo(x, sy, x + sr, sy); c.quadraticCurveTo(x, sy, x, sy + sr); c.quadraticCurveTo(x, sy, x - sr, sy); c.quadraticCurveTo(x, sy, x, sy - sr); c.fill();
-    c.font = '400 ' + Math.round(r * .27) + 'px ' + SERIF; c.lineWidth = 1.2; c.strokeStyle = NAVY; c.strokeText('স্ব-ঘোষিত', x, y + r * .17); c.fillText('স্ব-ঘোষিত', x, y + r * .17);
-    c.font = '600 ' + Math.round(r * .15) + 'px ' + BODY; c.fillText('স্কিল সনদ', x, y + r * .4);
+    c.font = '700 ' + Math.round(r * .21) + 'px ' + LSERIF; spaced(c, '1px'); c.fillText('SELF-ISSUED', x, y + r * .16); spaced(c, '0px');
+    c.font = '600 ' + Math.round(r * .11) + 'px Inter,sans-serif'; spaced(c, '2px'); c.fillText('SKILL', x, y + r * .38); spaced(c, '0px');
     c.textAlign = 'left';
   }
   const isLatin = s => /^[\x00-\x7F\s]+$/.test(s);
   function signature(c, name, x, y, maxW){
     const first = (name.split(' ')[0] || name).slice(0, 16);
     c.fillStyle = INK;
-    if(isLatin(first)){ const s = fit(c, first, '400', SIGN, 62, 30, maxW); c.fillText(first, x, y); }
+    if(isLatin(first)){ const s = fit(c, first, '400', HAND, 74, 34, maxW); c.fillText(first, x, y); }
     else { c.save(); c.translate(x, y); c.transform(1, 0, -.22, 1, 0, 0); const s = fit(c, first, '700', BODY, 46, 26, maxW); c.fillText(first, 0, 0); c.restore(); }
+  }
+  const SCRIPT = '"Great Vibes","Snell Roundhand","Segoe Script","Brush Script MT",cursive';
+  const HAND = '"Mrs Saint Delafield","Great Vibes","Segoe Script","Brush Script MT",cursive';
+  const enDate = d => { try{ return new Date(d || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); }catch(e){ return ''; } };
+  function foil(c, x0, x1){
+    const g = c.createLinearGradient(x0, 0, x1, 0);
+    g.addColorStop(0, '#8A6420'); g.addColorStop(.22, '#EBD08A'); g.addColorStop(.5, '#B8893B'); g.addColorStop(.78, '#F2DCA2'); g.addColorStop(1, '#8A6420');
+    return g;
+  }
+  function flourish(c, cx, y, w){
+    c.save(); c.strokeStyle = GOLD; c.lineWidth = 2; c.lineCap = 'round';
+    [-1, 1].forEach(d => {
+      c.beginPath(); c.moveTo(cx + d * 20, y); c.bezierCurveTo(cx + d * w * .18, y - 16, cx + d * w * .34, y + 16, cx + d * w * .5, y); c.stroke();
+      c.beginPath(); c.arc(cx + d * (w * .5 + 12), y, 5.5, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.moveTo(cx + d * w * .5 + d * 22, y); c.lineTo(cx + d * w * .5 + d * 90, y); c.stroke();
+    });
+    c.restore(); diamond(c, cx, y, 8, GOLD);
   }
   async function drawCert(p, W, H, logo){
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
     certPaper(c, W, H);
-    c.save(); c.globalAlpha = .085; rosette(c, W / 2, H / 2 + 20, 360, 17, 6, 9, NAVY, 1); c.globalAlpha = .06; rosette(c, W / 2, H / 2 + 20, 250, 13, 5, 8, GOLD, 1.2); c.restore();
+    c.save(); c.globalAlpha = .085; rosette(c, W / 2, H / 2 + 30, 360, 17, 6, 9, NAVY, 1); c.globalAlpha = .06; rosette(c, W / 2, H / 2 + 30, 250, 13, 5, 8, GOLD, 1.2); c.restore();
     certFrame(c, W, H);
-    const cx = W / 2, name = p.display_name || 'আপনার নাম', skills = (p.skills || []).slice(0, 6);
+    const cx = W / 2, name = (p.display_name || 'Your Name').trim(), skills = (p.skills || []).slice(0, 6);
     c.textAlign = 'center';
-    c.save(); c.shadowColor = 'rgba(184,137,59,.45)'; c.shadowOffsetX = 2; c.shadowOffsetY = 2; c.fillStyle = NAVY; c.strokeStyle = NAVY; c.lineWidth = 1.6; c.font = '400 78px ' + SERIF; c.strokeText('দক্ষতার সনদ', cx, 222); c.fillText('দক্ষতার সনদ', cx, 222); c.restore();
-    c.fillStyle = GOLD; c.font = '700 24px ' + LSERIF; spaced(c, '10px'); c.fillText('CERTIFICATE OF SKILL', cx, 262); spaced(c, '0px');
-    orn(c, cx, 296, 520);
-    c.fillStyle = INKM; c.font = '400 30px ' + SERIF; c.fillText('এই মর্মে ঘোষণা করা যাচ্ছে যে', cx, 350);
-    c.fillStyle = NAVY; c.strokeStyle = NAVY; c.lineWidth = 1.8;
-    const fs = fit(c, name, '400', SERIF, 104, 56, 1000); c.strokeText(name, cx, 350 + 22 + fs * .88); c.fillText(name, cx, 350 + 22 + fs * .88);
-    let y = 350 + 22 + fs * .88 + 22; const g = c.createLinearGradient(cx - 330, 0, cx + 330, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)'); c.fillStyle = g; c.fillRect(cx - 330, y, 660, 2.5);
-    y += 50; c.fillStyle = INKM; c.font = '500 32px ' + BODY; for(const ln of wrap(c, p.headline || '', 920, 1)) c.fillText(ln, cx, y);
-    y += 56; c.fillStyle = INKM; c.font = '400 27px ' + SERIF; c.fillText('নিজের কাজ ও অভিজ্ঞতার মাধ্যমে নিচের দক্ষতাগুলো অর্জন করেছেন', cx, y);
-    y += 22; c.textAlign = 'left';
+    // "Certificate" in gold foil script, "OF SKILL" spaced capitals beneath
+    c.save(); c.shadowColor = 'rgba(27,42,90,.28)'; c.shadowOffsetX = 2; c.shadowOffsetY = 3; c.shadowBlur = 3;
+    c.font = '400 150px ' + SCRIPT; const tw = c.measureText('Certificate').width; c.fillStyle = foil(c, cx - tw / 2, cx + tw / 2); c.fillText('Certificate', cx, 246); c.restore();
+    c.fillStyle = NAVY; c.font = '700 33px ' + LSERIF; spaced(c, '20px'); c.fillText('OF  SKILL', cx + 10, 316); spaced(c, '0px');
+    flourish(c, cx, 352, 420);
+    c.fillStyle = INKM; c.font = '600 22px ' + LSERIF; spaced(c, '6px'); c.fillText('THIS CERTIFICATE IS PROUDLY PRESENTED TO', cx, 402); spaced(c, '0px');
+    c.fillStyle = NAVY; const fs = fit(c, name, '400', SCRIPT, 124, 62, 1040); c.fillText(name, cx, 402 + 26 + fs * .72);
+    let y = 402 + 26 + fs * .72 + 22; const g = c.createLinearGradient(cx - 360, 0, cx + 360, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)'); c.fillStyle = g; c.fillRect(cx - 360, y, 720, 2.5);
+    y += 46; c.fillStyle = INKM; c.font = 'italic 600 34px ' + LSERIF; for(const ln of wrap(c, p.headline || '', 960, 1)) c.fillText(ln, cx, y);
+    y += 48; c.fillStyle = INKM; c.font = 'italic 500 27px ' + LSERIF; c.fillText('in recognition of real, hands-on skill in', cx, y);
+    y += 18; c.textAlign = 'left';
     skills.forEach((s, k) => {
-      const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 36 + row * 52;
-      diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 28px ' + BODY; c.fillText(s.n.length > 21 ? s.n.slice(0, 20) + '…' : s.n, x + 22, yy);
+      const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 36 + row * 46;
+      diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 31px ' + LSERIF; c.fillText(s.n.length > 24 ? s.n.slice(0, 23) + '…' : s.n, x + 22, yy);
       const l = Math.max(1, Math.min(4, Number(s.l) || 2));
       for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 400 - d * 24, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(27,42,90,.14)'; c.fill(); if((3 - d) < l){ c.strokeStyle = 'rgba(120,80,10,.5)'; c.lineWidth = 1; c.stroke(); } }
     });
     // footer: QR | date | seal | signature
     const by = H - 318; c.textAlign = 'center';
     const hasQR = qr(c, 150, by + 28, 120, SITE + '/s/' + (p.username || '') + '?ref=cert', NAVY, '#FFFFFF');
-    if(hasQR){ c.fillStyle = INKM; c.font = '500 17px ' + BODY; c.fillText('কাজের প্রমাণ দেখুন', 150 + 60, by + 180); }
-    c.fillStyle = NAVY; c.font = '700 27px ' + BODY; c.fillText(bnDate(p.published_at), 530, by + 92);
-    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(400, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '500 19px ' + BODY; c.fillText('তারিখ', 530, by + 138);
+    if(hasQR){ c.fillStyle = INKM; c.font = '600 17px ' + LSERIF; spaced(c, '1px'); c.fillText('SCAN TO VIEW WORK', 150 + 60, by + 180); spaced(c, '0px'); }
+    c.fillStyle = NAVY; c.font = '700 28px ' + LSERIF; c.fillText(enDate(p.published_at), 530, by + 92);
+    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(400, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('DATE', 530, by + 136); spaced(c, '0px');
     seal(c, cx, by + 62, 78);
-    c.textAlign = 'center'; signature(c, name, 1070, by + 96, 250);
-    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(940, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '500 19px ' + BODY; c.fillText('ইস্যুকারী: আমি নিজে', 1070, by + 138);
-    c.fillStyle = INKM; c.font = '500 18px ' + BODY; c.fillText('এই সনদ ব্যক্তি নিজে দিয়েছেন (স্ব-ঘোষিত); Protishthan যাচাই করেনি', cx, H - 132);
-    c.font = '600 16px Inter,sans-serif'; c.fillStyle = GOLD; spaced(c, '1px'); c.fillText(urlOf(p) + '   ·   ' + certNo(p.username), cx, H - 108); spaced(c, '0px');
+    c.textAlign = 'center'; signature(c, name, 1070, by + 82, 250);
+    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(940, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '600 18px ' + LSERIF; spaced(c, '4px'); c.fillText('ISSUED BY  ·  SELF', 1070, by + 136); spaced(c, '0px');
+    c.fillStyle = INKM; c.font = 'italic 500 21px ' + LSERIF; c.fillText('Self-issued by the holder  ·  not verified by Protishthan', cx, H - 130);
+    c.font = '600 16px Inter,sans-serif'; c.fillStyle = GOLD; spaced(c, '1px'); c.fillText(urlOf(p) + '   ·   ' + certNo(p.username), cx, H - 106); spaced(c, '0px');
     return cv;
   }
   // the link-preview picture: the certificate shown slightly tilted on a dark backdrop, with a line that makes people want one
@@ -294,9 +312,9 @@
     c.save(); c.translate(805, 318); c.rotate(-.04); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 46; c.shadowOffsetY = 22; c.drawImage(cert, -380, -269, 760, 538); c.restore();
     brand(c, logo, 56, 50, 40, { ink: '#FFFFFF' });
     const name = p.display_name || 'আপনার নাম';
-    c.fillStyle = GOLD2; c.font = '700 21px ' + BODY; c.fillText('স্ব-ঘোষিত স্কিল সনদ', 56, 200);
-    c.fillStyle = '#FFFFFF'; const fs = fit(c, name, '800', HEAD, 54, 34, 340); let yy = 200 + 12 + fs; const nl = wrap(c, name, 340, 2); nl.forEach((ln, i) => c.fillText(ln, 56, yy + i * fs * 1.1)); yy += (nl.length - 1) * fs * 1.1;
-    c.fillStyle = '#B7C4EE'; c.font = '500 24px ' + BODY; yy += 18; for(const ln of wrap(c, p.headline || '', 340, 3)){ yy += 34; c.fillText(ln, 56, yy); }
+    c.fillStyle = GOLD2; c.font = '700 17px ' + LSERIF; spaced(c, '3px'); c.fillText('SELF-ISSUED SKILL CERTIFICATE', 56, 200); spaced(c, '0px');
+    c.fillStyle = '#FFFFFF'; const fs = fit(c, name, '400', SCRIPT, 74, 40, 350); let yy = 200 + 16 + fs * .8; c.fillText(name, 56, yy);
+    c.fillStyle = '#B7C4EE'; c.font = 'italic 600 28px ' + LSERIF; yy += 14; for(const ln of wrap(c, p.headline || '', 340, 3)){ yy += 36; c.fillText(ln, 56, yy); }
     const px = 56, py = H - 124, ph = 52, label = 'আপনারটাও বানান', pw = 250;
     const pg = c.createLinearGradient(px, 0, px + pw, 0); pg.addColorStop(0, '#E3C275'); pg.addColorStop(1, '#C99A3F'); c.fillStyle = pg; rr(c, px, py, pw, ph, 26); c.fill();
     c.fillStyle = '#1B2A5A'; c.font = '800 21px ' + BODY; c.textAlign = 'center'; c.fillText(label + '  →', px + pw / 2, py + 34); c.textAlign = 'left';

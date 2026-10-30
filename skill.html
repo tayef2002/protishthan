@@ -13,14 +13,14 @@
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/skill.css?v=4">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=5"></script>
+<script src="/skill-core.js?v=7"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -238,10 +238,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     <section class="panel" id="s1">
       <h2><span class="n" id="n1">১</span>আপনার পরিচয়</h2>
       <p class="sub">নাম আর একটা লাইনে আপনি কী করেন, সেটাই প্রথম চোখে পড়বে।</p>
-      <label class="f" for="fName">নাম <span class="c" id="cName"></span></label>
-      <input class="fi" id="fName" maxlength="60" autocomplete="name" placeholder="যেমন: তায়েফ আহমেদ">
-      <label class="f" for="fHead">পদবি বা পরিচয় <small>(এক লাইনে)</small> <span class="c" id="cHead"></span></label>
-      <input class="fi" id="fHead" maxlength="70" placeholder="যেমন: গ্রাফিক ডিজাইনার ও ভিডিও এডিটর">
+      <label class="f" for="fName">নাম <small>(ইংরেজিতে, সনদে এটাই দেখাবে)</small> <span class="c" id="cName"></span></label>
+      <input class="fi" id="fName" maxlength="60" autocomplete="name" autocapitalize="words" placeholder="e.g. Tayef Ahmed">
+      <label class="f" for="fHead">পদবি বা পরিচয় <small>(ইংরেজিতে, এক লাইনে)</small> <span class="c" id="cHead"></span></label>
+      <input class="fi" id="fHead" maxlength="70" placeholder="e.g. Graphic Designer & Video Editor">
       <div class="chips" id="headSugg"></div>
       <label class="f" for="fAbout">নিজের সম্পর্কে <small>(ঐচ্ছিক)</small> <span class="c" id="cAbout"></span></label>
       <textarea class="fi" id="fAbout" maxlength="160" placeholder="কী কাজ করেন, কতদিন ধরে, কী নিয়ে গর্ব করেন, ছোট করে লিখুন।"></textarea>
@@ -257,8 +257,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
     <section class="panel" id="s3">
       <h2><span class="n" id="n3">৩</span>আপনার স্কিল</h2>
-      <p class="sub">সর্বোচ্চ ৮টা। প্রতিটার পাশে নিজের লেভেল বেছে নিন। সৎভাবে।</p>
-      <div class="add-row"><input class="fi" id="fSkill" maxlength="30" placeholder="স্কিলের নাম লিখে Enter চাপুন, যেমন: ভিডিও এডিটিং"><button class="btn-line" type="button" id="addSkill">যোগ করুন</button></div>
+      <p class="sub">ইংরেজি নামে, সর্বোচ্চ ৮টা। প্রতিটার পাশে নিজের লেভেল বেছে নিন। সৎভাবে।</p>
+      <div class="add-row"><input class="fi" id="fSkill" maxlength="30" placeholder="Type a skill (English) and press Enter, e.g. Video Editing"><button class="btn-line" type="button" id="addSkill">যোগ করুন</button></div>
       <div class="chips" id="skSugg"></div>
       <div class="sk-list" id="skList"></div>
     </section>
@@ -327,8 +327,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   const M = Protishthan.member, V = SkillView, C = SkillCanvas;
   const DRAFT = 'sk_draft';
   const LV = V.LEVELS;
-  const HEADS = ['ভিডিও এডিটর', 'গ্রাফিক ডিজাইনার', 'ওয়েব ডেভেলপার', 'কনটেন্ট ক্রিয়েটর', 'ফ্রিল্যান্সার', 'ডিজিটাল মার্কেটার', 'শিক্ষার্থী ও স্কিল শিক্ষানবিশ'];
-  const SUGG = ['ভিডিও এডিটিং', 'গ্রাফিক ডিজাইন', 'ওয়েব ডেভেলপমেন্ট', 'UI/UX ডিজাইন', 'ডিজিটাল মার্কেটিং', 'কনটেন্ট রাইটিং', 'স্পোকেন ইংলিশ', 'ফটোগ্রাফি', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'অ্যানিমেশন', 'ভয়েসওভার', 'ক্যালিগ্রাফি', 'হাতের লেখা', 'শিক্ষকতা', 'ফ্রিল্যান্সিং', 'সোশ্যাল মিডিয়া ম্যানেজমেন্ট'];
+  const HEADS = ['Video Editor', 'Graphic Designer', 'Web Developer', 'Content Creator', 'Freelancer', 'Digital Marketer', 'Student & Skill Learner'];
+  const EN_RE = /[^A-Za-z0-9 .,'&+\/#()_@:-]/g;                     // what may be typed in name, headline and skills
+  const toEn = v => String(v == null ? '' : v).replace(EN_RE, '').replace(/ {2,}/g, ' ');
+  const SUGG = ['Video Editing', 'Graphic Design', 'Web Development', 'UI/UX Design', 'Digital Marketing', 'Content Writing', 'Spoken English', 'Photography', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'Animation', 'Voiceover', 'Calligraphy', 'Handwriting', 'Teaching', 'Freelancing', 'Social Media Management', 'Motion Graphics', 'Copywriting', 'Data Analysis', 'WordPress', 'Public Speaking'];
   const IC = {
     up: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
     down: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
@@ -357,7 +359,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   /* ---------- draft (works without signing in) ---------- */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} englishOnly(); }
+  function englishOnly(){ S.display_name = toEn(S.display_name); S.headline = toEn(S.headline); S.skills = (S.skills || []).map(s => ({ n: toEn(s.n).trim(), l: s.l })).filter(s => s.n); }
 
   /* ---------- paint ---------- */
   function setSt(msg, cls){ const e = $('saveSt'); e.textContent = msg || ''; e.className = 'st' + (cls ? ' ' + cls : ''); }
@@ -467,6 +470,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   /* ---------- saving ---------- */
   const errMsg = e => {
     const m = String((e && (e.message || e.details)) || e || '');
+    if(/ENGLISH_ONLY/.test(m)) return 'নাম, পদবি ও স্কিল শুধু ইংরেজিতে লিখুন';
     if(/BAD_TEXT/.test(m)) return 'কোনো লেখায় অনুপযুক্ত শব্দ আছে';
     if(/USERNAME_RESERVED/.test(m)) return 'এই ইউজারনেম ব্যবহার করা যাবে না';
     if(/23505|duplicate|unique/i.test(m)) return 'এই ইউজারনেম আগেই নেওয়া হয়েছে';
@@ -531,16 +535,18 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   /* ---------- events ---------- */
   function bind(){
     const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
-    on('fName', 'input', e => { S.display_name = e.target.value; $('cName').textContent = S.display_name.length + '/60'; paintPreview(); autosave(); });
-    on('fHead', 'input', e => { S.headline = e.target.value; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
+    const onlyEn = e => { const v = toEn(e.target.value); if(v !== e.target.value){ e.target.value = v; toast('শুধু ইংরেজি অক্ষরে লিখুন (সনদে এটাই দেখাবে)'); } return v; };
+    on('fName', 'input', e => { S.display_name = onlyEn(e); $('cName').textContent = S.display_name.length + '/60'; paintPreview(); autosave(); });
+    on('fHead', 'input', e => { S.headline = onlyEn(e); $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
     on('fAbout', 'input', e => { S.about = e.target.value; $('cAbout').textContent = S.about.length + '/160'; paintPreview(); autosave(); });
     on('fUser', 'input', e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); e.target.value = v; S.username = v; checkUser(); paintPreview(); autosave(); });
     on('headSugg', 'click', e => { const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
     on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
     on('skins', 'click', e => { const b = e.target.closest('button'); if(!b) return; skin = Number(b.dataset.i); if(S.avatar && S.avatar.indexOf('av:') === 0){ const id = S.avatar.split(':')[1]; S.avatar = 'av:' + id + ':' + skin; } buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); });
     on('avGoogle', 'click', () => { if(googleUrl){ S.avatar = googleUrl; paintAvatar(); paintPreview(); autosave(); } });
-    const addSkill = n => { n = String(n || '').trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 8){ toast('সর্বোচ্চ ৮টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
+    const addSkill = n => { n = toEn(n).trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 8){ toast('সর্বোচ্চ ৮টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
     on('addSkill', 'click', () => addSkill($('fSkill').value));
+    on('fSkill', 'input', e => { onlyEn(e); });
     on('fSkill', 'keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addSkill(e.target.value); } });
     on('skSugg', 'click', e => { const b = e.target.closest('[data-n]'); if(b) addSkill(b.dataset.n); });
     on('skList', 'click', e => {
@@ -593,10 +599,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom }; const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
-        if(!S.display_name) S.display_name = USER.display_name || '';
+        if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();
         if(photo && (!S.avatar || S.avatar === 'av:stu-m:1')) S.avatar = photo;
         if(!S.username) S.username = await suggestUser(S.display_name);
       }
@@ -613,7 +619,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   hydrate();
   M.onChange(() => { ROW = null; hydrate(); });
   // numbers for the hero + popular skill suggestions
-  try{ M.sb.rpc('skill_popular').then(r => { const d = r && r.data; if(!d) return; if(d.total >= 5) $('heroCnt').textContent = 'ইতিমধ্যে ' + V.bn(d.total) + ' জন নিজের স্কিল আইডেন্টিটি বানিয়েছেন'; window.__pop = (d.skills || []).map(s => s.n); paintSkills(); }, () => {}); }catch(e){}
+  try{ M.sb.rpc('skill_popular').then(r => { const d = r && r.data; if(!d) return; if(d.total >= 5) $('heroCnt').textContent = 'ইতিমধ্যে ' + V.bn(d.total) + ' জন নিজের স্কিল আইডেন্টিটি বানিয়েছেন'; window.__pop = (d.skills || []).map(s => s.n).filter(n => toEn(n) === n); paintSkills(); }, () => {}); }catch(e){}
 })();
 </script>
 </body>
