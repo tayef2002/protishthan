@@ -64,7 +64,8 @@
     const inner = S.d ? '<path d="' + S.d + '"/>' : '<text x="12" y="16.5" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" font-weight="800" fill="currentColor" stroke="none">' + S.t + '</text>';
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
   }
-  const validSocials = p => (Array.isArray(p && p.socials) ? p.socials : []).filter(s => s && SOCIAL[s.p] && s.u && socialOk(s.p, s.u));
+  // on a published page only complete, platform-matching addresses count; the editor's preview (previewAll) also shows platforms that are chosen but not filled in yet
+  const validSocials = p => (Array.isArray(p && p.socials) ? p.socials : []).filter(s => s && SOCIAL[s.p] && (p.previewAll || (s.u && socialOk(s.p, s.u))));
   const SPARK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>';
   const ARROW = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg>';
   const SHIELD = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
@@ -88,7 +89,7 @@
     else if(opt.embed) h += '<p class="sk-hl' + R() + '" style="opacity:.45">আপনার পদবি বা পরিচয়</p>';
     if(badges.length) h += '<div class="sk-badges' + R() + '">' + badges.filter(b => BADGES[b]).map(b => '<span class="sk-chip">' + SPARK + esc(BADGES[b]) + '</span>').join('') + '</div>';
     const soc = validSocials(p);
-    if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc" aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 20) + '</a>').join('') + '</div>';
+    if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => (s.u && socialOk(s.p, s.u) ? '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"' : '<span class="sk-so ghost"') + ' aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 20) + (s.u && socialOk(s.p, s.u) ? '</a>' : '</span>')).join('') + '</div>';
     h += '</div>';
     if(p.about) h += '<p class="sk-about' + R() + '">' + esc(p.about).replace(/\n/g, '<br>') + '</p>';
     if(skills.length || links.length || p.views != null){

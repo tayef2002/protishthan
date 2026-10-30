@@ -14,13 +14,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cinzel:wght@500;600;700&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/skill.css?v=5">
+<link rel="stylesheet" href="/skill.css?v=6">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=11"></script>
+<script src="/skill-core.js?v=12"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -94,7 +94,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 
 /* layout */
 .wrap{position:relative;z-index:2;max-width:1440px;margin:-62px auto 70px;padding:0 20px;display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr);gap:28px;align-items:start}
-.col-form{display:grid;gap:16px;min-width:0}
+.col-form{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
 .prog{display:flex;align-items:center;gap:14px;padding:10px 18px;border-radius:18px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
 .prog .bar{flex:1;height:8px;border-radius:8px;background:#EEF2F8;overflow:hidden}
 .prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6);transition:width .5s cubic-bezier(.2,.8,.2,1)}
@@ -508,7 +508,12 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       socials: cleanSocials()
     };
   }
-  const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom });
+  const preview = () => Object.assign(clean(), {
+    views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom,
+    previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
+  });
+  // what is downloaded or published: only complete addresses, no "soft" placeholders
+  const previewReal = () => Object.assign(preview(), { previewAll: false, socials: cleanSocials() });
 
   let SAMPLE = false;
   function previewCanvas(){
@@ -731,7 +736,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   async function pushOg(){
     if(!ROW || !ROW.published) return;
     try{
-      const b = await C.ogBlob(Object.assign(preview(), { username: ROW.username }));
+      const b = await C.ogBlob(Object.assign(previewReal(), { username: ROW.username }));
       const r = await M.sb.storage.from('skill-og').upload(ROW.og_key + '.jpg', b, { upsert: true, contentType: 'image/jpeg', cacheControl: '300' });
       if(r.error) console.warn('og upload:', r.error.message);
     }catch(e){ console.warn('og image:', e); }
@@ -836,7 +841,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
+    try{ const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
