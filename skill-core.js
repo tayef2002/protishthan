@@ -3,7 +3,7 @@
 (function(){
   'use strict';
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const LEVELS = ['শিখছি', 'মোটামুটি', 'ভালো পারি', 'এক্সপার্ট'];
+  const LEVELS = ['Learning', 'Intermediate', 'Advanced', 'Expert'];
   const BADGES = {
     'self-taught': 'নিজে নিজে শেখা', 'freelancer': 'ফ্রিল্যান্সার', 'problem-solver': 'প্রবলেম সলভার', 'zero-degree': 'ডিগ্রি ছাড়াই স্কিলে',
     'creator': 'ক্রিয়েটর', 'builder': 'বিল্ডার', 'night-owl': 'রাতজাগা কর্মী', 'mentor': 'মেন্টর', 'learner': 'সারাজীবন শিখছি', 'open-source': 'ওপেন সোর্স'
@@ -615,7 +615,7 @@
       for(const ln of wrap(c, p.headline || '', W - 220, 2)){ y += 46; c.fillText(ln, W / 2, y); }
       c.textAlign = 'left';
       y += 46;
-      const lv = ['শিখছি', 'মোটামুটি', 'ভালো পারি', 'এক্সপার্ট'];
+      const lv = ['Learning', 'Intermediate', 'Advanced', 'Expert'];
       const rows = Math.min(skills.length, 6), rowH = rows > 4 ? 64 : rows > 3 ? 74 : 86;
       for(let k = 0; k < rows; k++){
         const s = skills[k], l = Math.max(1, Math.min(4, Number(s.l) || 2)), ry = y + k * rowH;
