@@ -197,7 +197,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .pv-body{border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(15,23,42,.45)}
 .pv-body.scroll{max-height:calc(100vh - 250px);overflow-y:auto;scrollbar-width:thin}
 #cvCert,#cvPost{width:auto;height:auto;max-width:100%;max-height:max(340px,calc(100vh - 345px));margin:0 auto}
-.pv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;padding:5px 10px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
+.pv-bar{display:flex;align-items:center;justify-content:space-between;gap:8px 10px;flex-wrap:wrap;margin-bottom:8px;padding:8px 12px;min-height:46px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
 .pv-bar .dots{display:flex;gap:8px;align-items:center}
 .pv-bar .dots{align-items:center}
 .pv-bar .dots small{display:inline-flex;align-items:center;height:26px;font:700 13px/1 'Inter',sans-serif;letter-spacing:.02em;color:#64748B;margin-right:4px}
@@ -537,7 +537,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('barCap').style.display = k === 'po' ? '' : 'none';
     $('barDl').style.display = (k === 'ct' || k === 'po') ? '' : 'none';
     $('barZoom').style.display = k === 'pf' ? 'none' : '';
-    $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';                       // the colour dots belong to the profile view only
+    $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';
+    document.querySelector('.pv-bar .acts').style.display = k === 'pf' ? 'none' : '';   // no empty row left behind
+    document.querySelector('.pv-bar').style.justifyContent = k === 'pf' ? 'flex-start' : 'space-between';                       // the colour dots belong to the profile view only
     document.querySelector('.pv-body').classList.toggle('scroll', k === 'pf');
     drawCanvases();
   }
