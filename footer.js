@@ -41,38 +41,49 @@
   var tree = function(x, s){ return '<use href="#pf-tree" transform="translate(' + x + ' 288) scale(' + (s || 1) + ')"/>'; };
   var walker = function(cls, x, def, card){ return '<g class="' + cls + '"><g transform="translate(' + x + ' 288)"><g class="bob"><use href="#' + def + '"/>' + (card ? '<g transform="translate(5 -19) scale(.62)"><use href="#pf-card"/></g>' : '') + '</g></g></g>'; };
 
-  /* ---------- art 1: the card page: a campus street, a card for every step ---------- */
+  /* ---------- art 1: the card page: one card grows with you, step by step, until someone verifies it ---------- */
   function artCard(){
     var s = '';
-    // bunting of little cards
-    var pts = [], cards = '';
-    for(var i = 0; i < 11; i++){ var x = 150 + i * 112, y = 52 + Math.round(Math.sin(i * .62) * 20 + 18); pts.push(x + ' ' + (y - 6)); cards += '<g transform="translate(' + (x - 13) + ' ' + (y - 6) + ')"><g class="sway" style="--d:' + (i * .3) + 's"><use href="#pf-card"/></g></g>'; }
-    s += '<path d="M60 40L' + pts.join('L') + 'L1380 40" fill="none" stroke="#9FB0DC" stroke-width="1.6"/>' + R(56, 30, 4, 260, '#C7D6F5') + R(1378, 30, 4, 260, '#C7D6F5') + cards;
-    // SCHOOL
-    s += '<g transform="translate(90 288)"><polygon points="-12,-70 85,-112 182,-70" fill="#1A56DB"/>' + R(0, -70, 170, 70, '#fff', SK) + R(0, -70, 170, 7, '#E9F0FF') + [14, 48, 106, 140].map(function(wx){ return R(wx, -52, 18, 26, '#DCEAFF', ' stroke="#1A56DB" stroke-width="1.6" rx="2"'); }).join('') + arch(70, -42, 30, 42, '#4F46E5') + R(46, -96, 78, 18, '#1A56DB', ' rx="5"') + T(85, -83, 'বিদ্যালয়', 12, '#fff') +
-      '<line x1="176" y1="-112" x2="176" y2="-70" stroke="#94A3B8" stroke-width="2"/><g class="flag"><rect x="176" y="-112" width="28" height="17" fill="#10B981"/><circle cx="190" cy="-103.500" r="5" fill="#EF4444"/></g></g>';
-    s += tree(296, .9);
-    // MADRASA
-    s += '<g transform="translate(332 288)">' + R(0, -78, 150, 78, '#FFF7E0', ' stroke="#E7D9AE" stroke-width="1.5"') + R(-4, -86, 158, 11, '#10B981', ' rx="2"') + '<path d="M0 -86a9 9 0 0 1 18 0z" fill="#059669"/><path d="M132 -86a9 9 0 0 1 18 0z" fill="#059669"/><path d="M52 -86a23 23 0 0 1 46 0z" fill="#10B981"/><circle cx="75" cy="-112" r="2.800" fill="#F5B316"/>' + R(34, -70, 82, 17, '#059669', ' rx="5"') + T(75, -58, 'মাদ্রাসা', 12, '#fff') +
-      [10, 34, 98, 122].map(function(wx){ return arch(wx, -46, 16, 26, '#E6F0FF', ' stroke="#059669" stroke-width="1.6"'); }).join('') + arch(57, -40, 36, 40, '#059669') + '</g>';
-    s += tree(504, .85);
-    // COLLEGE
-    s += '<g transform="translate(540 288)">' + R(0, -62, 64, 62, '#F6C3A6', ' rx="2"') + R(128, -62, 64, 62, '#F6C3A6', ' rx="2"') + R(62, -92, 68, 92, '#F3B393') + '<path d="M58 -92L96 -116 134 -92Z" fill="#E9A284"/>' + R(78, -138, 36, 48, '#F3B393') + '<polygon points="72,-138 96,-164 120,-138" fill="#4F46E5"/><circle cx="96" cy="-118" r="11" fill="#fff" stroke="#1A56DB" stroke-width="2.200"/><path d="M96 -124v6l5 3" stroke="#1A56DB" stroke-width="1.800" fill="none" stroke-linecap="round"/>' + R(72, -86, 48, 16, '#1A56DB', ' rx="5"') + T(96, -74, 'কলেজ', 12, '#fff') + [70, 82, 106, 118].map(function(cx){ return R(cx - 3, -64, 6, 64, '#fff'); }).join('') + arch(88, -42, 16, 42, '#1A56DB') + [14, 40, 138, 164].map(function(wx){ return arch(wx, -44, 16, 30, '#E6F0FF', ' stroke="#1A56DB" stroke-width="1.6"'); }).join('') + '</g>';
-    s += tree(760, .9);
-    // UNIVERSITY
-    s += '<g transform="translate(796 288)">' + R(0, -78, 230, 78, '#fff', SK) + R(0, -78, 230, 7, '#E9F0FF') + '<path d="M80 -78a35 35 0 0 1 70 0z" fill="#fff" stroke="#B9C9EE" stroke-width="1.300"/>' + R(98, -122, 34, 46, '#fff', SK) + '<path d="M92 -122a23 23 0 0 1 46 0z" fill="#4F46E5"/><circle cx="115" cy="-150" r="3" fill="#F5B316"/>' + '<polygon points="70,-78 115,-102 160,-78" fill="#E9F0FF" stroke="#B9C9EE" stroke-width="1.300"/>' + [76, 92, 108, 124, 140].map(function(cx){ return R(cx - 3, -76, 6, 76, '#fff', ' stroke="#CBD7F2" stroke-width=".8"'); }).join('') + R(66, -4, 98, 4, '#E9F0FF') + R(60, 0, 110, 0, '#fff') + R(72, -96, 86, 14, '#1A56DB', ' rx="5"') + T(115, -85, 'বিশ্ববিদ্যালয়', 11, '#fff') + [14, 36, 172, 194].map(function(wx){ return arch(wx, -58, 16, 34, '#E6F0FF', ' stroke="#1A56DB" stroke-width="1.6"'); }).join('') + '<line x1="140" y1="-150" x2="140" y2="-120" stroke="none"/></g>';
-    // graduates + caps
-    [1052, 1074, 1096].forEach(function(gx, i){ s += '<use href="#pf-grad" transform="translate(' + gx + ' 288)"/><g class="cap" style="--d:' + (i * -.9) + 's"><use href="#pf-cap" transform="translate(' + gx + ' 240)"/></g>'; });
-    s += tree(1140, .95);
-    // book stack + park
-    s += R(1186, 276, 40, 7, '#1A56DB', ' rx="2"') + R(1189, 268, 34, 8, '#F5B316', ' rx="2"') + R(1192, 260, 28, 8, '#10B981', ' rx="2"') + R(1195, 252, 22, 8, '#7C3AED', ' rx="2"');
-    s += tree(1300, 1.3) + '<g transform="translate(1348 288)"><rect x="-22" y="-14" width="44" height="5" rx="2" fill="#B7791F"/><rect x="-18" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="15" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="-22" y="-26" width="44" height="4" rx="2" fill="#B7791F"/></g>';
-    // a big card floating over the campus
-    s += '<g class="fl"><g transform="translate(640 66) rotate(-7)"><rect width="118" height="74" rx="11" fill="url(#pf-bigcard)" stroke="#F5B316" stroke-width="1.600"/><rect width="118" height="5" rx="2" fill="#F5B316"/>' + T(12, 22, 'শিক্ষিত কার্ড', 13, '#fff', ' text-anchor="start" font-weight="800"').replace('text-anchor="middle"', '') + R(12, 32, 26, 30, '#C7D2FE', ' rx="5"') + '<circle cx="25" cy="42" r="5.500" fill="#6366F1"/>' + R(16, 50, 18, 10, '#6366F1', ' rx="5"') + R(46, 36, 52, 5, '#fff', ' rx="2.500" opacity=".85"') + R(46, 46, 36, 4, '#fff', ' rx="2" opacity=".5"') + '<circle cx="102" cy="58" r="8" fill="none" stroke="#F5B316" stroke-width="1.400" stroke-dasharray="2 2.400"/></g></g>';
-    // students with cards, walking the road
-    s += walker('w1', 40, 'pf-kid', 1) + walker('w1', 70, 'pf-girl', 1) + walker('w2', 500, 'pf-mad', 1) + walker('w2', 530, 'pf-kid', 1) + walker('w3', 1000, 'pf-girl', 1);
-    s += [[120, 120], [480, 70], [900, 40], [1340, 130]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .7) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
-    s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 110)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g><g class="bird" style="--d:-7s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 150)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g>';
+    var steps = [
+      {x: 70,  w: 200, h: 34,  c: '#10B981', t: 'ক্লাস ১',        p: 'pf-kid'},
+      {x: 270, w: 200, h: 64,  c: '#1A56DB', t: 'এসএসসি',         p: 'pf-girl'},
+      {x: 470, w: 200, h: 94,  c: '#4F46E5', t: 'এইচএসসি',        p: 'pf-mad'},
+      {x: 670, w: 200, h: 124, c: '#7C3AED', t: 'বিশ্ববিদ্যালয়', p: 'pf-grad'},
+      {x: 870, w: 330, h: 154, c: '#F59E0B', t: 'চাকরি',          p: 'pf-girl'}
+    ];
+    // steps
+    steps.forEach(function(st){
+      var top = 288 - st.h;
+      s += R(st.x, top, st.w, st.h, st.c) + R(st.x, top, st.w, 6, '#fff', ' opacity=".38"') + T(st.x + 100, top + 26, st.t, 13, '#fff');
+    });
+    // growth path linking the cards
+    var pts = steps.map(function(st, i){ return (st.x + (i === 4 ? 80 : 100)) + ' ' + (288 - st.h - 80); });
+    for(var i = 0; i < 4; i++){
+      var a = pts[i].split(' '), b = pts[i + 1].split(' ');
+      s += '<path class="flow" d="M' + (+a[0] + 24) + ' ' + a[1] + 'Q' + ((+a[0] + +b[0]) / 2) + ' ' + (Math.min(+a[1], +b[1]) - 26) + ' ' + (+b[0] - 24) + ' ' + b[1] + '" fill="none" stroke="#F5B316" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"/>';
+    }
+    // people + their card, which gets one more gold star each step
+    steps.forEach(function(st, i){
+      var top = 288 - st.h, cx = st.x + (i === 4 ? 80 : 100), p = st.p;
+      s += '<g transform="translate(' + cx + ' ' + top + ')"><g class="bob" style="animation-delay:' + (i * -.12) + 's"><use href="#' + p + '"/></g></g>';
+      s += '<g class="fl" style="--d:' + (i * .5) + 's"><g transform="translate(' + (cx - 18) + ' ' + (top - 92) + ') scale(1.4)"><use href="#pf-card"/></g>';
+      for(var k = 0; k <= i; k++) s += '<path transform="translate(' + (cx - 2 * i * 5 + k * 10 - 0) + ' ' + (top - 52) + ') scale(.9)" d="M0-5L1.600-1.600 5.200-1.200 2.500 1.200 3.200 4.800 0 3 -3.200 4.800 -2.500 1.200 -5.200-1.200 -1.600-1.600Z" fill="#F5B316"/>';
+      s += '</g>';
+    });
+    // the one who checks the card: phone + green tick
+    var vx = 1130, vt = 288 - 154;
+    s += '<g transform="translate(' + vx + ' ' + vt + ')"><g class="bob"><use href="#pf-mad"/></g><rect x="-17" y="-18" width="7" height="12" rx="1.600" fill="#0F172A"/><rect x="-16" y="-17" width="5" height="9" rx="1" fill="#34D399"/></g>';
+    s += '<path class="flow" d="M' + (steps[4].x + 104) + ' ' + (vt - 62) + 'Q' + (vx - 30) + ' ' + (vt - 90) + ' ' + (vx - 6) + ' ' + (vt - 56) + '" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="3 7" stroke-linecap="round"/>';
+    s += '<g class="fl" style="--d:.9s"><g transform="translate(' + (vx + 6) + ' ' + (vt - 86) + ')"><rect x="-46" y="-18" width="92" height="30" rx="15" fill="#fff" stroke="#BDEBD6" stroke-width="1.400"/><circle cx="-28" cy="-3" r="10" fill="#10B981"/><path d="M-33-3l4 4 7-8" fill="none" stroke="#fff" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/>' + T(10, 1, 'যাচাই হয়েছে', 11.5, '#047857') + '</g></g>';
+    // grad caps in the air above the 4th step
+    s += '<g class="cap" style="--d:-.6s"><use href="#pf-cap" transform="translate(790 ' + (288 - 124 - 40) + ')"/></g>';
+    // trees, book stack, park
+    s += tree(36, .8) + tree(1250, 1.2) + tree(1392, .9);
+    s += R(1300, 276, 40, 7, '#1A56DB', ' rx="2"') + R(1303, 268, 34, 8, '#F5B316', ' rx="2"') + R(1306, 260, 28, 8, '#10B981', ' rx="2"');
+    s += '<g transform="translate(1346 288)"><rect x="-22" y="-14" width="44" height="5" rx="2" fill="#B7791F"/><rect x="-18" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="15" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="-22" y="-26" width="44" height="4" rx="2" fill="#B7791F"/></g>';
+    s += walker('w3', 1000 + 40, 'pf-kid', 1).replace('translate(1040 288)', 'translate(1210 288)');
+    s += [[40, 120], [520, 40], [880, 60], [1180, 200]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .7) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
+    s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 100)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g><g class="bird" style="--d:-7s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 140)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g>';
     return s;
   }
 
