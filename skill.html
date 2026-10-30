@@ -1060,18 +1060,21 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     const fit = () => { const sc = box.clientWidth / 560; inn.style.transform = 'scale(' + sc + ')'; };
     fit(); window.addEventListener('resize', fit);
     const NAME = SAMPLE.display_name, still = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    const setStep = n => { inn.className = 'hs-in' + [1, 2, 3, 4, 5, 6, 7, 8].filter(i => i <= n).map(i => ' s' + i).join(''); const g = n >= 8 ? 4 : n >= 6 ? 3 : n >= 5 ? 2 : 1; steps.forEach((li, i) => { li.classList.toggle('on', i + 1 === g); li.classList.toggle('done', i + 1 < g); }); };
+    const grp = g => steps.forEach((li, i) => { li.classList.toggle('on', i + 1 === g); li.classList.toggle('done', i + 1 < g); });
+    const on = n => inn.classList.add('s' + n), reset = () => { inn.className = 'hs-in'; grp(0); };
     let timers = [], run = 0, visible = true;
     const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+    // everything starts together: the phone builds itself while the certificate, cover and post fly out right beside it
     function play(){
-      timers.forEach(clearTimeout); timers = []; const my = ++run; $('phName').textContent = ''; setStep(0);
-      at(150, () => setStep(1));
-      for(let i = 1; i <= NAME.length; i++) at(650 + i * 85, () => { $('phName').textContent = NAME.slice(0, i); });
-      at(1800, () => setStep(2)); at(2250, () => setStep(3)); at(2750, () => setStep(4));
-      at(4300, () => setStep(5)); at(5500, () => setStep(6)); at(6600, () => setStep(7)); at(7600, () => setStep(8));
-      at(11200, () => inn.classList.add('out')); at(11900, () => { if(visible && my === run) play(); });
+      timers.forEach(clearTimeout); timers = []; const my = ++run; $('phName').textContent = ''; reset();
+      at(100, () => { on(1); grp(1); });
+      at(450, () => { on(5); grp(2); });
+      for(let i = 1; i <= NAME.length; i++) at(500 + i * 75, () => { $('phName').textContent = NAME.slice(0, i); });
+      at(1150, () => on(2)); at(1350, () => { on(6); grp(3); }); at(1650, () => on(3));
+      at(2150, () => on(7)); at(2300, () => on(4)); at(3400, () => { on(8); grp(4); });
+      at(8200, () => inn.classList.add('out')); at(8900, () => { if(visible && my === run) play(); });
     }
-    if(still){ $('phName').textContent = NAME; setStep(8); } else {
+    if(still){ $('phName').textContent = NAME; [1,2,3,4,5,6,7,8].forEach(on); grp(4); } else {
       play();
       new IntersectionObserver(es => { visible = es[0].isIntersecting; if(visible) play(); else { timers.forEach(clearTimeout); timers = []; } }, { threshold: .2 }).observe(stage);
       document.addEventListener('visibilitychange', () => { if(document.hidden){ timers.forEach(clearTimeout); timers = []; } else if(visible) play(); });
