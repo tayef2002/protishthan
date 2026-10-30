@@ -94,7 +94,7 @@
     im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
   });
   async function fonts(){
-    try{ await Promise.all([document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('400 48px "Tiro Bangla"'), document.fonts.load('400 48px "Great Vibes"'), document.fonts.load('700 24px "Cormorant Garamond"'), document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
   }
   function rr(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
   function wrap(c, text, maxW, maxLines){
@@ -150,110 +150,162 @@
   const urlOf = p => SITE.replace('https://', '') + '/s/' + (p.username || 'your-name');
   const BODY = '"Hind Siliguri",Inter,sans-serif', HEAD = '"Hind Siliguri",Inter,sans-serif';
 
-  /* ---- সনদ: a certificate-style card. Classic paper, navy and gold. It is plainly marked self-issued. ---- */
-  const NAVY = '#1B2A5A', GOLD = '#B8893B', GOLD2 = '#E3C275', PAPER = '#FBF7EC', INKM = '#5B6580';
+  /* ---- সনদ: a certificate in the style of a real one: paper grain, guilloche border and rosettes, embossed seal
+     with ribbons, serif Bangla type, a hand signature. It is plainly marked self-issued, not an official document. ---- */
+  const NAVY = '#1B2A5A', GOLD = '#B8893B', GOLD2 = '#E3C275', PAPER = '#FBF7EC', INKM = '#59627E', INK = '#1F2F6B';
+  const SERIF = '"Tiro Bangla","Hind Siliguri",serif', LSERIF = '"Cormorant Garamond",Georgia,serif', SIGN = '"Great Vibes","Snell Roundhand","Segoe Script","Brush Script MT",cursive';
   const certNo = u => { let h = 7; for(const ch of String(u || 'x')) h = (h * 31 + ch.charCodeAt(0)) % 900000; return 'SK-' + String(h + 100000); };
   const bnDate = d => { try{ return new Date(d || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); }catch(e){ return ''; } };
-  function spaced(c, v){ try{ c.letterSpacing = v; }catch(e){} }
+  const spaced = (c, v) => { try{ c.letterSpacing = v; }catch(e){} };
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  let NOISE = null;
+  function noisePattern(c){
+    if(!NOISE){
+      const n = document.createElement('canvas'); n.width = n.height = 256; const x = n.getContext('2d'), im = x.createImageData(256, 256), d = im.data;
+      for(let i = 0; i < d.length; i += 4){ const v = Math.random(); d[i] = 120; d[i + 1] = 92; d[i + 2] = 48; d[i + 3] = v > .8 ? Math.floor((v - .8) * 95) : 0; }
+      x.putImageData(im, 0, 0); NOISE = n;
+    }
+    return c.createPattern(NOISE, 'repeat');
+  }
   function diamond(c, x, y, r, col){ c.fillStyle = col; c.beginPath(); c.moveTo(x, y - r); c.lineTo(x + r, y); c.lineTo(x, y + r); c.lineTo(x - r, y); c.closePath(); c.fill(); }
   function orn(c, cx, y, w){
     const g = c.createLinearGradient(cx - w / 2, 0, cx + w / 2, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)');
-    c.fillStyle = g; c.fillRect(cx - w / 2, y - 1, w, 2); diamond(c, cx, y, 7, GOLD);
+    c.fillStyle = g; c.fillRect(cx - w / 2, y - 1, w, 2); diamond(c, cx, y, 7, GOLD); diamond(c, cx - 26, y, 3.5, GOLD); diamond(c, cx + 26, y, 3.5, GOLD);
+  }
+  // a rosette (hypotrochoid): the engraved wheel pattern seen on banknotes and degree certificates
+  function rosette(c, cx, cy, size, R, r, d, col, lw){
+    const turns = r / gcd(R, r), sc = size / (R - r + d), steps = 1600;
+    c.beginPath();
+    for(let i = 0; i <= steps; i++){ const t = i / steps * Math.PI * 2 * turns, x = (R - r) * Math.cos(t) + d * Math.cos((R - r) / r * t), y = (R - r) * Math.sin(t) - d * Math.sin((R - r) / r * t); if(i) c.lineTo(cx + x * sc, cy + y * sc); else c.moveTo(cx + x * sc, cy + y * sc); }
+    c.strokeStyle = col; c.lineWidth = lw; c.stroke();
+  }
+  function strands(c, len, w, n, A, f, a, b, lw){
+    for(let s = 0; s < n; s++){
+      c.beginPath();
+      for(let x = 0; x <= len; x += 3){ const y = w / 2 + Math.sin(x * f + s * Math.PI * 2 / n) * A; if(x) c.lineTo(x, y); else c.moveTo(x, y); }
+      c.strokeStyle = s % 2 ? b : a; c.lineWidth = lw; c.stroke();
+    }
+  }
+  function band(c, len, w){
+    c.fillStyle = 'rgba(27,42,90,.04)'; c.fillRect(0, 0, len, w);
+    strands(c, len, w, 8, w * .36, .052, 'rgba(27,42,90,.55)', 'rgba(184,137,59,.8)', 1.1);
+    strands(c, len, w, 8, w * .2, -.105, 'rgba(27,42,90,.28)', 'rgba(184,137,59,.45)', .8);
+  }
+  function certFrame(c, W, H){
+    const m = 34, th = 12, bw = 44, b0 = m + th;
+    c.strokeStyle = NAVY; c.lineWidth = th; c.strokeRect(m + th / 2, m + th / 2, W - m * 2 - th, H - m * 2 - th);
+    c.save(); c.translate(b0, b0); band(c, W - b0 * 2, bw); c.restore();
+    c.save(); c.translate(b0, H - b0 - bw); band(c, W - b0 * 2, bw); c.restore();
+    c.save(); c.translate(b0, H - b0); c.rotate(-Math.PI / 2); band(c, H - b0 * 2, bw); c.restore();
+    c.save(); c.translate(W - b0, b0); c.rotate(Math.PI / 2); band(c, H - b0 * 2, bw); c.restore();
+    [[b0, b0], [W - b0 - bw, b0], [b0, H - b0 - bw], [W - b0 - bw, H - b0 - bw]].forEach(([x, y]) => {
+      c.fillStyle = PAPER; c.fillRect(x, y, bw, bw);
+      c.strokeStyle = GOLD; c.lineWidth = 2; c.strokeRect(x + 1, y + 1, bw - 2, bw - 2);
+      rosette(c, x + bw / 2, y + bw / 2, bw * .44, 11, 4, 6, 'rgba(27,42,90,.75)', 1); rosette(c, x + bw / 2, y + bw / 2, bw * .3, 9, 5, 4, 'rgba(184,137,59,.9)', 1);
+    });
+    const i1 = b0 + bw + 6;
+    c.strokeStyle = GOLD; c.lineWidth = 2.5; c.strokeRect(i1, i1, W - i1 * 2, H - i1 * 2);
+    c.strokeStyle = 'rgba(27,42,90,.6)'; c.lineWidth = 1.2; c.strokeRect(i1 + 7, i1 + 7, W - (i1 + 7) * 2, H - (i1 + 7) * 2);
+  }
+  function certPaper(c, W, H){
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#FEFBF2'); g.addColorStop(.5, PAPER); g.addColorStop(1, '#F3ECD8');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = noisePattern(c); c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(120,92,48,.05)'; c.lineWidth = 1;                                  // paper fibres
+    for(let i = 0; i < 260; i++){ const x = Math.random() * W, y = Math.random() * H, a = Math.random() * Math.PI, l = 8 + Math.random() * 26; c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + Math.cos(a) * l * .5, y + Math.sin(a) * l * .8, x + Math.cos(a) * l, y + Math.sin(a) * l); c.stroke(); }
+    const v = c.createRadialGradient(W / 2, H / 2, H * .35, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,90,40,0)'); v.addColorStop(1, 'rgba(120,90,40,.16)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
   }
   function seal(c, x, y, r){
-    const n = 30, g = c.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r);
-    g.addColorStop(0, '#F3DA9C'); g.addColorStop(.55, GOLD2); g.addColorStop(1, '#9C7430');
-    c.save(); c.shadowColor = 'rgba(80,55,10,.35)'; c.shadowBlur = r * .25; c.shadowOffsetY = r * .08;
-    c.beginPath();
-    for(let i = 0; i < n * 2; i++){ const a = Math.PI * i / n, rad = i % 2 ? r * .93 : r; c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); }
-    c.closePath(); c.fillStyle = g; c.fill(); c.restore();
-    c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = Math.max(1.5, r * .03); c.beginPath(); c.arc(x, y, r * .74, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = 'rgba(110,75,15,.5)'; c.beginPath(); c.arc(x, y, r * .66, 0, Math.PI * 2); c.stroke();
-    // four-point star
-    c.fillStyle = NAVY; c.beginPath(); const sr = r * .2, sy = y - r * .34;
-    c.moveTo(x, sy - sr); c.quadraticCurveTo(x, sy, x + sr, sy); c.quadraticCurveTo(x, sy, x, sy + sr); c.quadraticCurveTo(x, sy, x - sr, sy); c.quadraticCurveTo(x, sy, x, sy - sr); c.fill();
-    c.textAlign = 'center'; c.fillStyle = NAVY;
-    c.font = '800 ' + Math.round(r * .3) + 'px ' + HEAD; c.fillText('স্ব-ঘোষিত', x, y + r * .16);
-    c.font = '700 ' + Math.round(r * .15) + 'px Inter,sans-serif'; spaced(c, Math.round(r * .03) + 'px'); c.fillText('SELF-ISSUED', x, y + r * .42); spaced(c, '0px');
+    // ribbon tails
+    [-1, 1].forEach(dir => {
+      const g = c.createLinearGradient(x, y, x + dir * r, y + r * 1.5); g.addColorStop(0, '#2E4290'); g.addColorStop(1, '#16224F');
+      c.save(); c.shadowColor = 'rgba(20,20,50,.35)'; c.shadowBlur = r * .15; c.shadowOffsetY = r * .05;
+      c.fillStyle = g; c.beginPath(); c.moveTo(x + dir * r * .08, y + r * .5); c.lineTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.lineTo(x + dir * r * .62, y + r * 1.12); c.lineTo(x + dir * r * .38, y + r * 1.34); c.closePath(); c.fill(); c.restore();
+      c.strokeStyle = 'rgba(227,194,117,.9)'; c.lineWidth = Math.max(1.5, r * .025); c.beginPath(); c.moveTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.stroke();
+    });
+    const n = 38, g = c.createRadialGradient(x - r * .35, y - r * .35, r * .1, x, y, r * 1.02);
+    g.addColorStop(0, '#FBEBB8'); g.addColorStop(.45, '#E0BC6A'); g.addColorStop(1, '#9C7430');
+    c.save(); c.shadowColor = 'rgba(70,48,8,.45)'; c.shadowBlur = r * .3; c.shadowOffsetY = r * .1;
+    c.beginPath(); for(let i = 0; i < n * 2; i++){ const a = Math.PI * i / n, rad = i % 2 ? r * .94 : r; c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); } c.closePath(); c.fillStyle = g; c.fill(); c.restore();
+    c.strokeStyle = 'rgba(110,75,15,.55)'; c.lineWidth = Math.max(1, r * .02);
+    for(let i = 0; i < 72; i++){ const a = Math.PI * 2 * i / 72; c.beginPath(); c.moveTo(x + Math.cos(a) * r * .8, y + Math.sin(a) * r * .8); c.lineTo(x + Math.cos(a) * r * .86, y + Math.sin(a) * r * .86); c.stroke(); }
+    const g2 = c.createRadialGradient(x - r * .25, y - r * .3, r * .05, x, y, r * .72); g2.addColorStop(0, '#F6E2A2'); g2.addColorStop(1, '#CFA64F');
+    c.fillStyle = g2; c.beginPath(); c.arc(x, y, r * .72, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = Math.max(1.5, r * .03); c.beginPath(); c.arc(x, y, r * .72, Math.PI * 1.05, Math.PI * 1.6); c.stroke();
+    c.strokeStyle = 'rgba(110,75,15,.5)'; c.lineWidth = Math.max(1, r * .02); c.beginPath(); c.arc(x, y, r * .72, Math.PI * .05, Math.PI * .6); c.stroke();
+    // text round the rim (Latin only: Bangla conjuncts must not be split letter by letter)
+    const t = 'SELF-ISSUED  ✦  SKILL IDENTITY  ✦  SELF-ISSUED  ✦  SKILL IDENTITY  ✦  ', rad = r * .6; c.fillStyle = 'rgba(27,42,90,.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
+    const step = Math.PI * 2 / t.length; for(let i = 0; i < t.length; i++){ c.save(); c.translate(x, y); c.rotate(i * step - Math.PI / 2); c.fillText(t[i], 0, -rad); c.restore(); }
+    c.fillStyle = NAVY; c.beginPath(); const sr = r * .15, sy = y - r * .26; c.moveTo(x, sy - sr); c.quadraticCurveTo(x, sy, x + sr, sy); c.quadraticCurveTo(x, sy, x, sy + sr); c.quadraticCurveTo(x, sy, x - sr, sy); c.quadraticCurveTo(x, sy, x, sy - sr); c.fill();
+    c.font = '400 ' + Math.round(r * .27) + 'px ' + SERIF; c.lineWidth = 1.2; c.strokeStyle = NAVY; c.strokeText('স্ব-ঘোষিত', x, y + r * .17); c.fillText('স্ব-ঘোষিত', x, y + r * .17);
+    c.font = '600 ' + Math.round(r * .15) + 'px ' + BODY; c.fillText('স্কিল সনদ', x, y + r * .4);
     c.textAlign = 'left';
   }
-  function frame(c, W, H, m){
-    c.strokeStyle = NAVY; c.lineWidth = Math.round(H * .011); c.strokeRect(m, m, W - m * 2, H - m * 2);
-    c.strokeStyle = GOLD; c.lineWidth = Math.max(2, H * .0028); c.strokeRect(m + H * .026, m + H * .026, W - (m + H * .026) * 2, H - (m + H * .026) * 2);
-    c.strokeStyle = 'rgba(27,42,90,.55)'; c.lineWidth = 1.2; c.strokeRect(m + H * .036, m + H * .036, W - (m + H * .036) * 2, H - (m + H * .036) * 2);
-    const o = m + H * .026, r = H * .034;
-    [[o, o, 0], [W - o, o, 1], [W - o, H - o, 2], [o, H - o, 3]].forEach(([x, y, k]) => {
-      c.save(); c.translate(x, y); c.rotate(k * Math.PI / 2); c.fillStyle = PAPER; c.beginPath(); c.moveTo(0, 0); c.lineTo(r, 0); c.arc(0, 0, r, 0, Math.PI / 2); c.closePath(); c.fill();
-      c.strokeStyle = GOLD; c.lineWidth = Math.max(2, H * .0028); c.beginPath(); c.arc(0, 0, r, 0, Math.PI / 2); c.stroke();
-      c.strokeStyle = NAVY; c.lineWidth = 1.2; c.beginPath(); c.arc(0, 0, r * .6, 0, Math.PI / 2); c.stroke(); c.restore();
-    });
-  }
-  function paper(c, W, H){
-    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#FDFAF1'); g.addColorStop(.5, PAPER); g.addColorStop(1, '#F4EEDD');
-    c.fillStyle = g; c.fillRect(0, 0, W, H);
-    c.strokeStyle = 'rgba(184,137,59,.07)'; c.lineWidth = 1;                              // fine security-print waves
-    for(let k = 0; k < 9; k++){ c.beginPath(); for(let x = 0; x <= W; x += 8){ const y = H * .5 + Math.sin(x / (W * .045) + k * .7) * H * .12 + (k - 4) * H * .035; if(x === 0) c.moveTo(x, y); else c.lineTo(x, y); } c.stroke(); }
+  const isLatin = s => /^[\x00-\x7F\s]+$/.test(s);
+  function signature(c, name, x, y, maxW){
+    const first = (name.split(' ')[0] || name).slice(0, 16);
+    c.fillStyle = INK;
+    if(isLatin(first)){ const s = fit(c, first, '400', SIGN, 62, 30, maxW); c.fillText(first, x, y); }
+    else { c.save(); c.translate(x, y); c.transform(1, 0, -.22, 1, 0, 0); const s = fit(c, first, '700', BODY, 46, 26, maxW); c.fillText(first, 0, 0); c.restore(); }
   }
   async function drawCert(p, W, H, logo){
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
-    const big = W >= 1500, S = W / (big ? 1600 : 1200);
-    paper(c, W, H);
-    c.save(); c.globalAlpha = .035; c.fillStyle = NAVY; c.font = '800 ' + Math.round(H * .42) + 'px ' + HEAD; c.textAlign = 'center'; c.translate(W / 2, H * .66); c.rotate(-.12); c.fillText('স্কিল', 0, 0); c.restore();
-    frame(c, W, H, Math.round(H * (big ? .032 : .035)));
+    certPaper(c, W, H);
+    c.save(); c.globalAlpha = .085; rosette(c, W / 2, H / 2 + 20, 360, 17, 6, 9, NAVY, 1); c.globalAlpha = .06; rosette(c, W / 2, H / 2 + 20, 250, 13, 5, 8, GOLD, 1.2); c.restore();
+    certFrame(c, W, H);
+    const cx = W / 2, name = p.display_name || 'আপনার নাম', skills = (p.skills || []).slice(0, 6);
     c.textAlign = 'center';
-    const skills = (p.skills || []).slice(0, big ? 6 : 4), lv = ['শিখছি', 'মোটামুটি', 'দক্ষ', 'বিশেষজ্ঞ'];
-    const cx = W / 2, name = p.display_name || 'আপনার নাম';
-    if(big){
-      c.fillStyle = NAVY; c.font = '800 80px ' + HEAD; c.fillText('দক্ষতার সনদ', cx, 205);
-      c.fillStyle = GOLD; c.font = '700 23px Georgia,serif'; spaced(c, '9px'); c.fillText('CERTIFICATE OF SKILL', cx, 252); spaced(c, '0px');
-      orn(c, cx, 290, 560);
-      c.fillStyle = INKM; c.font = '500 30px ' + BODY; c.fillText('এই মর্মে ঘোষণা করা যাচ্ছে যে', cx, 352);
-      c.fillStyle = NAVY; const fs = fit(c, name, 800, HEAD, 104, 54, 1100); c.fillText(name, cx, 352 + 24 + fs * .86);
-      let y = 352 + 24 + fs * .86 + 20; c.fillStyle = GOLD; c.fillRect(cx - 360, y, 720, 2.5); y += 54;
-      c.fillStyle = INKM; c.font = '500 33px ' + BODY; for(const ln of wrap(c, p.headline || '', 1000, 1)){ c.fillText(ln, cx, y); }
-      y += 56; c.fillStyle = INKM; c.font = '500 27px ' + BODY; c.fillText('নিজের কাজ ও অভিজ্ঞতার মাধ্যমে নিচের দক্ষতাগুলো অর্জন করেছেন', cx, y);
-      y += 30; c.textAlign = 'left';
-      skills.forEach((s, k) => {
-        const col = k % 2, row = Math.floor(k / 2), x = col ? 860 : 270, yy = y + 34 + row * 58;
-        diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 29px ' + BODY; c.fillText(s.n.length > 22 ? s.n.slice(0, 21) + '…' : s.n, x + 22, yy);
-        const l = Math.max(1, Math.min(4, Number(s.l) || 2));
-        for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 410 - d * 24 + 0, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(27,42,90,.14)'; c.fill(); }
-      });
-      // footer: QR | date | seal | signature
-      const by = H - 322;
-      c.textAlign = 'center';
-      const hasQR = qr(c, 128, by + 24, 124, SITE + '/s/' + (p.username || '') + '?ref=cert', NAVY, '#FFFFFF');
-      if(hasQR){ c.fillStyle = INKM; c.font = '500 18px ' + BODY; c.fillText('কাজের প্রমাণ দেখুন', 128 + 62, by + 182); }
-      c.fillStyle = NAVY; c.font = '700 28px ' + BODY; c.fillText(bnDate(p.published_at), 520, by + 98);
-      c.fillStyle = NAVY; c.fillRect(380, by + 114, 280, 1.5); c.fillStyle = INKM; c.font = '500 20px ' + BODY; c.fillText('তারিখ', 520, by + 144);
-      seal(c, cx, by + 96, 82);
-      c.fillStyle = NAVY; c.font = 'italic 700 48px "Segoe Script","Brush Script MT","Lucida Handwriting",cursive'; const sg = fit(c, name.split(' ')[0] || name, 'italic 700', '"Segoe Script","Brush Script MT","Lucida Handwriting",cursive', 48, 28, 270); c.fillText(name.split(' ')[0] || name, 1090, by + 98);
-      c.fillStyle = NAVY; c.fillRect(950, by + 114, 280, 1.5); c.fillStyle = INKM; c.font = '500 20px ' + BODY; c.fillText('ইস্যুকারী: আমি নিজে', 1090, by + 144);
-      c.fillStyle = INKM; c.font = '500 19px ' + BODY; c.fillText('এই সনদ ব্যক্তি নিজে দিয়েছেন (স্ব-ঘোষিত); Protishthan যাচাই করেনি', cx, H - 116);
-      c.font = '600 17px Inter,sans-serif'; c.fillStyle = GOLD; c.fillText(urlOf(p) + '   ·   ' + certNo(p.username), cx, H - 92);
-    } else {
-      // compact version, used as the link-preview picture (1200x630)
-      c.fillStyle = NAVY; c.font = '800 54px ' + HEAD; c.fillText('দক্ষতার সনদ', cx, 120);
-      c.fillStyle = GOLD; c.font = '700 17px Georgia,serif'; spaced(c, '7px'); c.fillText('CERTIFICATE OF SKILL', cx, 152); spaced(c, '0px');
-      orn(c, cx, 180, 420);
-      c.fillStyle = INKM; c.font = '500 22px ' + BODY; c.fillText('এই মর্মে ঘোষণা করা যাচ্ছে যে', cx, 222);
-      c.fillStyle = NAVY; const fs = fit(c, name, 800, HEAD, 76, 44, 860); c.fillText(name, cx, 222 + 14 + fs * .86);
-      let y = 222 + 14 + fs * .86 + 14; c.fillStyle = GOLD; c.fillRect(cx - 250, y, 500, 2); y += 38;
-      c.fillStyle = INKM; c.font = '500 25px ' + BODY; for(const ln of wrap(c, p.headline || '', 820, 1)){ c.fillText(ln, cx, y); }
-      y += 26; c.font = '700 22px ' + BODY;
-      const chips = skills.slice(0, 4).map(s => s.n.length > 18 ? s.n.slice(0, 17) + '…' : s.n);
-      let tw = 0; const ws = chips.map(t => { const w = c.measureText(t).width + 34; tw += w + 12; return w; }); tw -= 12; let px = cx - tw / 2;
-      chips.forEach((t, k) => { c.fillStyle = 'rgba(184,137,59,.14)'; rr(c, px, y, ws[k], 40, 20); c.fill(); c.strokeStyle = GOLD; c.lineWidth = 1.5; rr(c, px, y, ws[k], 40, 20); c.stroke(); c.fillStyle = NAVY; c.fillText(t, px + ws[k] / 2, y + 27); px += ws[k] + 12; });
-      seal(c, 1010, 478, 64);
-      c.fillStyle = NAVY; c.font = 'italic 700 36px "Segoe Script","Brush Script MT","Lucida Handwriting",cursive'; c.fillText((name.split(' ')[0] || name).slice(0, 14), 190, 470);
-      c.fillRect(100, 486, 220, 1.5); c.fillStyle = INKM; c.font = '500 17px ' + BODY; c.fillText('ইস্যুকারী: আমি নিজে', 210, 512);
-      c.fillStyle = INKM; c.font = '500 16px ' + BODY; c.fillText('স্ব-ঘোষিত; Protishthan যাচাই করেনি  ·  ' + urlOf(p), cx, H - 62);
-    }
+    c.save(); c.shadowColor = 'rgba(184,137,59,.45)'; c.shadowOffsetX = 2; c.shadowOffsetY = 2; c.fillStyle = NAVY; c.strokeStyle = NAVY; c.lineWidth = 1.6; c.font = '400 78px ' + SERIF; c.strokeText('দক্ষতার সনদ', cx, 222); c.fillText('দক্ষতার সনদ', cx, 222); c.restore();
+    c.fillStyle = GOLD; c.font = '700 24px ' + LSERIF; spaced(c, '10px'); c.fillText('CERTIFICATE OF SKILL', cx, 262); spaced(c, '0px');
+    orn(c, cx, 296, 520);
+    c.fillStyle = INKM; c.font = '400 30px ' + SERIF; c.fillText('এই মর্মে ঘোষণা করা যাচ্ছে যে', cx, 350);
+    c.fillStyle = NAVY; c.strokeStyle = NAVY; c.lineWidth = 1.8;
+    const fs = fit(c, name, '400', SERIF, 104, 56, 1000); c.strokeText(name, cx, 350 + 22 + fs * .88); c.fillText(name, cx, 350 + 22 + fs * .88);
+    let y = 350 + 22 + fs * .88 + 22; const g = c.createLinearGradient(cx - 330, 0, cx + 330, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)'); c.fillStyle = g; c.fillRect(cx - 330, y, 660, 2.5);
+    y += 50; c.fillStyle = INKM; c.font = '500 32px ' + BODY; for(const ln of wrap(c, p.headline || '', 920, 1)) c.fillText(ln, cx, y);
+    y += 56; c.fillStyle = INKM; c.font = '400 27px ' + SERIF; c.fillText('নিজের কাজ ও অভিজ্ঞতার মাধ্যমে নিচের দক্ষতাগুলো অর্জন করেছেন', cx, y);
+    y += 22; c.textAlign = 'left';
+    skills.forEach((s, k) => {
+      const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 36 + row * 52;
+      diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 28px ' + BODY; c.fillText(s.n.length > 21 ? s.n.slice(0, 20) + '…' : s.n, x + 22, yy);
+      const l = Math.max(1, Math.min(4, Number(s.l) || 2));
+      for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 400 - d * 24, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(27,42,90,.14)'; c.fill(); if((3 - d) < l){ c.strokeStyle = 'rgba(120,80,10,.5)'; c.lineWidth = 1; c.stroke(); } }
+    });
+    // footer: QR | date | seal | signature
+    const by = H - 318; c.textAlign = 'center';
+    const hasQR = qr(c, 150, by + 28, 120, SITE + '/s/' + (p.username || '') + '?ref=cert', NAVY, '#FFFFFF');
+    if(hasQR){ c.fillStyle = INKM; c.font = '500 17px ' + BODY; c.fillText('কাজের প্রমাণ দেখুন', 150 + 60, by + 180); }
+    c.fillStyle = NAVY; c.font = '700 27px ' + BODY; c.fillText(bnDate(p.published_at), 530, by + 92);
+    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(400, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '500 19px ' + BODY; c.fillText('তারিখ', 530, by + 138);
+    seal(c, cx, by + 62, 78);
+    c.textAlign = 'center'; signature(c, name, 1070, by + 96, 250);
+    c.fillStyle = 'rgba(27,42,90,.7)'; c.fillRect(940, by + 108, 260, 1.5); c.fillStyle = INKM; c.font = '500 19px ' + BODY; c.fillText('ইস্যুকারী: আমি নিজে', 1070, by + 138);
+    c.fillStyle = INKM; c.font = '500 18px ' + BODY; c.fillText('এই সনদ ব্যক্তি নিজে দিয়েছেন (স্ব-ঘোষিত); Protishthan যাচাই করেনি', cx, H - 132);
+    c.font = '600 16px Inter,sans-serif'; c.fillStyle = GOLD; spaced(c, '1px'); c.fillText(urlOf(p) + '   ·   ' + certNo(p.username), cx, H - 108); spaced(c, '0px');
+    return cv;
+  }
+  // the link-preview picture: the certificate shown slightly tilted on a dark backdrop, with a line that makes people want one
+  async function drawCertOg(p, logo){
+    const W = 1200, H = 630, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+    const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0A1230'); bg.addColorStop(1, '#1B2A66'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    const gl = c.createRadialGradient(820, 300, 20, 820, 300, 520); gl.addColorStop(0, 'rgba(227,194,117,.35)'); gl.addColorStop(1, 'rgba(227,194,117,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 56){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 56){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
+    const cert = await drawCert(p, 1600, 1131, logo);
+    c.save(); c.translate(805, 318); c.rotate(-.04); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 46; c.shadowOffsetY = 22; c.drawImage(cert, -380, -269, 760, 538); c.restore();
+    brand(c, logo, 56, 50, 40, { ink: '#FFFFFF' });
+    const name = p.display_name || 'আপনার নাম';
+    c.fillStyle = GOLD2; c.font = '700 21px ' + BODY; c.fillText('স্ব-ঘোষিত স্কিল সনদ', 56, 200);
+    c.fillStyle = '#FFFFFF'; const fs = fit(c, name, '800', HEAD, 54, 34, 340); let yy = 200 + 12 + fs; const nl = wrap(c, name, 340, 2); nl.forEach((ln, i) => c.fillText(ln, 56, yy + i * fs * 1.1)); yy += (nl.length - 1) * fs * 1.1;
+    c.fillStyle = '#B7C4EE'; c.font = '500 24px ' + BODY; yy += 18; for(const ln of wrap(c, p.headline || '', 340, 3)){ yy += 34; c.fillText(ln, 56, yy); }
+    const px = 56, py = H - 124, ph = 52, label = 'আপনারটাও বানান', pw = 250;
+    const pg = c.createLinearGradient(px, 0, px + pw, 0); pg.addColorStop(0, '#E3C275'); pg.addColorStop(1, '#C99A3F'); c.fillStyle = pg; rr(c, px, py, pw, ph, 26); c.fill();
+    c.fillStyle = '#1B2A5A'; c.font = '800 21px ' + BODY; c.textAlign = 'center'; c.fillText(label + '  →', px + pw / 2, py + 34); c.textAlign = 'left';
+    c.fillStyle = '#93A3D6'; c.font = '600 19px Inter,sans-serif'; c.fillText('protishthan.com/skill', 56, H - 40);
     return cv;
   }
 
   async function draw(p, kind){
-    if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawCert(p, kind === 'cert' ? 1600 : 1200, kind === 'cert' ? 1131 : 630, logo); }
+    if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return kind === 'cert' ? drawCert(p, 1600, 1131, logo) : drawCertOg(p, logo); }
     await fonts();
     const T = THEMES[p.theme] || THEMES.midnight, og = kind === 'og';
     const W = og ? 1200 : 1080, H = og ? 630 : 1350;
@@ -317,7 +369,9 @@
   const toBlob = (cv, type, q) => new Promise(res => cv.toBlob(res, type, q));
   async function ogBlob(p){
     const cv = await draw(p, 'certog');       // the link preview is the certificate
-    return toBlob(cv, 'image/jpeg', .92);      // ~100 KB: well inside the 400 KB limit, and what WhatsApp/Facebook like
+    let b = await toBlob(cv, 'image/jpeg', .9);
+    if(b && b.size > 380000) b = await toBlob(cv, 'image/jpeg', .78);   // keep it well inside the 400 KB limit
+    return b;
   }
 
   window.SkillView = { html, mount, esc, avatarSrc, hostOf, LEVELS, BADGES, THEMES, bn, initials };
