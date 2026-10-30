@@ -383,6 +383,33 @@ main.container{margin-top:22px}
 .sk-meta{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 14px;font-size:13px;color:var(--text-2)}
 .sk-act{display:flex;flex-wrap:wrap;gap:8px}
 @media(max-width:760px){.sk-grid{grid-template-columns:1fr}}
+
+/* ---- chat inbox ---- */
+.cht{display:grid;grid-template-columns:270px minmax(0,1fr);padding:0;overflow:hidden;min-height:380px}
+.cht-list{border-right:1px solid var(--border);max-height:460px;overflow-y:auto}
+.cht-it{display:flex;align-items:center;gap:11px;width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--border);background:#fff;text-align:left;cursor:pointer;font-family:inherit}
+.cht-it:hover,.cht-it.on{background:#F1F5FF}
+.cht-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3B82F6,#7C3AED);color:#fff;font:800 16px 'Inter',sans-serif}
+.cht-av img{width:100%;height:100%;object-fit:cover;display:block}
+.cht-tx{min-width:0;flex:1}
+.cht-tx b{display:block;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cht-tx span{display:block;font-size:12.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cht-n{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:100px;background:#EF4444;color:#fff;font:800 11.5px/20px 'Inter',sans-serif;text-align:center}
+.cht-role{font-size:10.5px;color:#64748B;font-weight:700}
+.cht-conv{display:flex;flex-direction:column;min-width:0;max-height:460px}
+.cht-empty{margin:auto;padding:30px;text-align:center;color:var(--text-3);font-size:14px}
+.cht-hd{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.cht-hd b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cht-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:14px;background:#F8FAFF;min-height:240px}
+.cht-m{max-width:80%;padding:8px 12px;border-radius:15px;font-size:14.5px;line-height:1.5;word-break:break-word;white-space:pre-wrap}
+.cht-m small{display:block;margin-top:2px;font-size:10.5px;opacity:.6}
+.cht-m.me{align-self:flex-end;color:#fff;background:linear-gradient(135deg,#2563EB,#4F46E5);border-bottom-right-radius:5px}
+.cht-m.th{align-self:flex-start;background:#fff;border:1px solid var(--border);border-bottom-left-radius:5px}
+.cht-in{display:flex;gap:8px;align-items:flex-end;padding:10px 12px;border-top:1px solid var(--border)}
+.cht-in textarea{flex:1;min-height:44px;max-height:110px;padding:11px 13px;border:1.5px solid var(--border);border-radius:13px;font:500 14.5px/1.5 inherit;font-family:inherit;resize:none;outline:none}
+.cht-in textarea:focus{border-color:var(--blue)}
+.cht-err{padding:0 14px 6px;color:#DC2626;font-size:12.5px;font-weight:600;min-height:4px}
+@media(max-width:760px){.cht{grid-template-columns:1fr}.cht-list{border-right:0;border-bottom:1px solid var(--border);max-height:210px}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -468,6 +495,10 @@ main.container{margin-top:22px}
 <section class="sec" id="card">
           <div class="sec-h"><div><h2>আমার শিক্ষিত কার্ড</h2><p id="cardSub">সব ডিভাইসে একই কার্ড</p></div></div>
           <div class="card" id="cardBox"><div class="skel" style="height:190px"></div></div>
+        </section>
+<section class="sec" id="chat">
+          <div class="sec-h"><div><h2>বার্তা</h2><p id="chatSub">আপনার স্কিল পেজে আসা চ্যাট আর আপনি যাদের লিখেছেন</p></div></div>
+          <div class="card cht" id="chatBox"><div class="cht-list" id="chtList"></div><div class="cht-conv" id="chtConv"><div class="cht-empty">কথা বেছে নিন</div></div></div>
         </section>
 <section class="sec" id="skill">
           <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
@@ -628,7 +659,7 @@ async function render(){
   renderShellUser(me);
   $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + (no ? 'সদস্য নং ' + esc(no) : 'Protishthan সদস্য') + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
   renderAccount(me, since);
-  loadSaved(); loadCard(); loadSkill();
+  loadSaved(); loadCard(); loadSkill(); loadChat();
 }
 
 function renderAccount(me, since){
@@ -814,6 +845,51 @@ async function loadCard(){
   box.innerHTML = '<div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center" class="cardgrid">' + cardPreview(d, false) + '<div><b style="font-size:16px">কার্ড তৈরি আছে</b><p style="font-size:13.5px;color:var(--text-2);margin:4px 0 14px">যেকোনো ডিভাইস থেকে খুলে বদলাতে, ডাউনলোড করতে বা শেয়ার করতে পারবেন।</p><div class="acts"><a class="btn btn-blue btn-sm" href="card.html">কার্ড খুলুন</a><a class="btn btn-line btn-sm" href="card.html">ডাউনলোড</a></div></div></div>';
 }
 
+/* ---------- chat inbox (skill_threads / skill_messages through the skill_chat_* functions) ---------- */
+const CHAT = { threads: [], cur: null, last: 0, busy: false };
+const chatTime = at => { try{ return new Date(at).toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); }catch(e){ return ''; } };
+const chatErr = e => { const m = String((e && (e.message || e.details)) || e || ''); return /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান' : /TOO_MANY/.test(m) ? 'আজকের বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে বার্তা পাঠানো বন্ধ আছে' : 'বার্তা পাঠানো যায়নি'; };
+async function loadChat(){
+  try{
+    const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; CHAT.threads = r.data || [];
+  }catch(e){ CHAT.threads = []; }
+  const n = CHAT.threads.reduce((a, t) => a + (t.unread || 0), 0);
+  document.querySelectorAll('.cnt-chat').forEach(x => { x.textContent = bn(n); x.style.display = n ? '' : 'none'; });
+  $('chatSub').textContent = CHAT.threads.length ? (n ? bn(n) + 'টি নতুন বার্তা' : 'আপনার সব চ্যাট এখানে') : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে';
+  $('chtList').innerHTML = CHAT.threads.length ? CHAT.threads.map(t => '<button type="button" class="cht-it' + (CHAT.cur === t.id ? ' on' : '') + '" data-t="' + esc(t.id) + '"><span class="cht-av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').charAt(0).toUpperCase())) + '</span><span class="cht-tx"><b>' + esc(t.name) + '</b><span>' + esc(t.last || '') + '</span><span class="cht-role">' + (t.role === 'owner' ? 'আপনার পেজে' : 'আপনি লিখেছেন') + '</span></span>' + (t.unread ? '<i class="cht-n">' + bn(t.unread) + '</i>' : '') + '</button>').join('') : '<div class="cht-empty" style="padding:26px 16px">এখনো কোনো চ্যাট নেই</div>';
+  if(CHAT.cur) chatPull(false);
+}
+async function chatOpen(id){
+  CHAT.cur = id; CHAT.last = 0;
+  const t = CHAT.threads.find(x => x.id === id) || {};
+  $('chtConv').innerHTML = '<div class="cht-hd"><span class="cht-av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').charAt(0).toUpperCase())) + '</span><b>' + esc(t.name || '') + '</b>' + (t.role === 'visitor' ? '<a class="btn btn-line btn-sm" href="/s/' + esc(t.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a>' : '<button type="button" class="btn btn-line btn-sm" id="chtBlock">' + (t.blocked ? 'আনব্লক' : 'ব্লক করুন') + '</button>') + '</div><div class="cht-msgs" id="chtMsgs"></div><div class="cht-err" id="chtErr"></div><div class="cht-in"><textarea id="chtTx" rows="1" maxlength="1000" placeholder="উত্তর লিখুন…"></textarea><button type="button" class="btn btn-blue" id="chtSend">পাঠান</button></div>';
+  $('chtSend').onclick = chatSendMsg;
+  $('chtTx').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSendMsg(); } });
+  const bl = $('chtBlock'); if(bl) bl.onclick = async () => { const block = !t.blocked; try{ await M.sb.rpc('skill_chat_block', { p_thread: id, p_block: block }); t.blocked = block; bl.textContent = block ? 'আনব্লক' : 'ব্লক করুন'; M.toast(block ? 'ব্লক করা হয়েছে' : 'আনব্লক করা হয়েছে'); }catch(e){ M.toast('করা যায়নি'); } };
+  document.querySelectorAll('.cht-it').forEach(b => b.classList.toggle('on', b.dataset.t === id));
+  await chatPull(true);
+}
+async function chatPull(first){
+  if(!CHAT.cur) return; const box = $('chtMsgs'); if(!box) return;
+  try{
+    const r = await M.sb.rpc('skill_chat_messages', { p_thread: CHAT.cur, p_after: CHAT.last }); const d = r && r.data; if(!d) return;
+    if(d.blocked && d.role === 'visitor') $('chtErr').textContent = 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না';
+    const near = first || box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    (d.messages || []).forEach(m => { const el = document.createElement('div'); el.className = 'cht-m ' + (m.mine ? 'me' : 'th'); el.innerHTML = esc(m.body) + '<small>' + chatTime(m.at) + '</small>'; box.appendChild(el); CHAT.last = Math.max(CHAT.last, m.id); });
+    if(near) box.scrollTop = box.scrollHeight;
+  }catch(e){}
+}
+async function chatSendMsg(){
+  if(CHAT.busy || !CHAT.cur) return; const tx = $('chtTx'), body = tx.value.trim(); if(!body) return; CHAT.busy = true; $('chtSend').disabled = true; $('chtErr').textContent = '';
+  const t = CHAT.threads.find(x => x.id === CHAT.cur) || {};
+  try{ const r = await M.sb.rpc('skill_chat_send', { p_username: t.username, p_thread: CHAT.cur, p_body: body }); if(r.error) throw r.error; tx.value = ''; await chatPull(false); }
+  catch(e){ $('chtErr').textContent = chatErr(e); }
+  CHAT.busy = false; $('chtSend').disabled = false; tx.focus();
+}
+document.addEventListener('click', e => { const b = e.target.closest('.cht-it'); if(b) chatOpen(b.dataset.t); });
+setInterval(() => { if(!document.hidden && M.current()){ if(CHAT.cur) chatPull(false); } }, 6000);
+setInterval(() => { if(!document.hidden && M.current()) loadChat(); }, 30000);
+
 /* ---------- my skill page (stored in skill_profiles, like the card in member_cards) ---------- */
 const SK_THEMES = { midnight: ['#070B16', '#0D1530', '#6EA8FF', '#8B7CFF', '#F4F6FF'], aurora: ['#04100F', '#08201D', '#34D399', '#22D3EE', '#F1FBF8'], ocean: ['#040F1D', '#08203A', '#38BDF8', '#3B82F6', '#F0F7FF'], ember: ['#150A0B', '#2A1214', '#FB923C', '#F43F5E', '#FFF4F0'], paper: ['#F6F3EC', '#EDE8DC', '#2F5BEA', '#7C3AED', '#17171C'] };
 function skillPreview(p, ghost){
@@ -940,6 +1016,7 @@ const NAVI = {
   chart: '<path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/>',
   monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
   shield: '<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/>',
   award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/>',
   doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
@@ -949,6 +1026,7 @@ const NAV = [
     { href: '#overview', i: 'grid', l: 'ওভারভিউ', spy: 'overview' },
     { href: '#saved', i: 'bookmark', l: 'সেভ করা প্রতিষ্ঠান', spy: 'saved', cnt: true },
     { href: '#card', i: 'card', l: 'আমার শিক্ষিত কার্ড', spy: 'card' },
+    { href: '#chat', i: 'chat', l: 'বার্তা', spy: 'chat', cc: true },
     { href: '#skill', i: 'award', l: 'আমার স্কিল পেজ', spy: 'skill' },
     { href: '#account', i: 'user', l: 'অ্যাকাউন্ট ও প্রোফাইল', spy: 'account' } ] },
   { t: 'এক্সপ্লোর', items: [
@@ -962,7 +1040,7 @@ const NAV = [
     { href: 'privacy.html', i: 'lock', l: 'গোপনীয়তা নীতি' } ] }
 ];
 function navHtml(){
-  return NAV.map(g => '<div><p class="sg">' + g.t + '</p>' + g.items.map(it => '<a class="sn" href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
+  return NAV.map(g => '<div><p class="sg">' + g.t + '</p>' + g.items.map(it => '<a class="sn" href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.cc ? '<i class="cht-n cnt-chat" style="display:none">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
 }
 $('sideNav').innerHTML = navHtml(); $('sheetNav').innerHTML = navHtml();
 function renderShellUser(me){

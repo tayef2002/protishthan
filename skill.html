@@ -579,14 +579,15 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     </section>
 
     <section class="panel" id="sCt">
-      <h2><span class="n" id="nCt">৫</span>যোগাযোগ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small></h2>
+      <h2><span class="n" id="nCt">৫</span>যোগাযোগ ও চ্যাট <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small></h2>
       <p class="sub">কেউ কাজের জন্য ডাকতে চাইলে পেজ থেকেই "যোগাযোগ করুন" চেপে সরাসরি পাঠাবে। শুধু যেটা দিতে চান সেটাই দিন।</p>
       <div class="ct-grid">
         <div><label class="f" for="fCtWa">WhatsApp নম্বর</label><input class="fi" id="fCtWa" inputmode="tel" autocomplete="off" placeholder="01XXXXXXXXX"></div>
         <div><label class="f" for="fCtPh">ফোন নম্বর (কলের জন্য)</label><input class="fi" id="fCtPh" inputmode="tel" autocomplete="off" placeholder="01XXXXXXXXX"></div>
         <div class="wide"><label class="f" for="fCtEm">ইমেইল</label><input class="fi" id="fCtEm" type="email" inputmode="email" autocapitalize="off" autocomplete="off" placeholder="name@example.com"></div>
       </div>
-      <label class="ct-open"><input type="checkbox" id="fCtOpen"><span class="sw" aria-hidden="true"></span><span class="tx"><b>কাজের জন্য খোলা আছি</b><small>নামের নিচে সবুজ "কাজের জন্য খোলা" ব্যাজ দেখাবে</small></span></label>
+      <label class="ct-open"><input type="checkbox" id="fCtChat"><span class="sw" aria-hidden="true"></span><span class="tx"><b>সরাসরি চ্যাট চালু করুন</b><small>সাইন-ইন করা ভিজিটর আপনাকে এই সাইটেই বার্তা পাঠাতে পারবে। নম্বর দেখাতে হবে না। বার্তা পাবেন প্রোফাইল পেজের "বার্তা" অংশে।</small></span></label>
+      <label class="ct-open" style="margin-top:10px"><input type="checkbox" id="fCtOpen"><span class="sw" aria-hidden="true"></span><span class="tx"><b>কাজের জন্য খোলা আছি</b><small>নামের নিচে সবুজ "কাজের জন্য খোলা" ব্যাজ দেখাবে</small></span></label>
       <div class="hint" id="ctHint">এই তথ্য প্রকাশের পর ইন্টারনেটে সবাই দেখতে পাবে। চাইলে পরে যেকোনো সময় মুছে দিতে পারবেন।</div>
     </section>
 
@@ -672,7 +673,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { photo: '', cover_avatar: true, cover_style: 'royal', contact: { whatsapp: '', phone: '', email: '', open: false }, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
+  let S = { photo: '', cover_avatar: true, cover_style: 'royal', contact: { whatsapp: '', phone: '', email: '', open: false }, chat: false, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
   let USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -721,7 +722,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       skills: S.skills.filter(s => s.n.trim()).map(s => ({ n: s.n.trim(), l: s.l })),
       links: S.links.map(l => ({ t: l.t.trim(), u: normUrl(l.u) })).filter(l => l.u),
       badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null,
-      socials: cleanSocials(), contact: cleanContact()
+      socials: cleanSocials(), contact: cleanContact(), chat_enabled: !!S.chat
     };
   }
   const preview = () => Object.assign(clean(), {
@@ -915,8 +916,8 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   }
   function paintContact(){
     const c = S.contact || (S.contact = { whatsapp: '', phone: '', email: '', open: false });
-    $('fCtWa').value = c.whatsapp || ''; $('fCtPh').value = c.phone || ''; $('fCtEm').value = c.email || ''; $('fCtOpen').checked = !!c.open;
-    $('nCt').classList.toggle('done', Object.keys(cleanContact()).length > 0);
+    $('fCtWa').value = c.whatsapp || ''; $('fCtPh').value = c.phone || ''; $('fCtEm').value = c.email || ''; $('fCtOpen').checked = !!c.open; $('fCtChat').checked = !!S.chat;
+    $('nCt').classList.toggle('done', Object.keys(cleanContact()).length > 0 || !!S.chat);
   }
   function ctCheck(){
     const c = S.contact, bad = [];
@@ -963,6 +964,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     const m = String((e && (e.message || e.details)) || e || '');
     if(/socials/i.test(m) && /column|schema/i.test(m)) return 'সোশ্যাল লিংক সেভ করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
     if(/contact/i.test(m) && /column|schema/i.test(m)) return 'যোগাযোগের তথ্য সেভ করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
+    if(/chat_enabled/i.test(m) && /column|schema/i.test(m)) return 'চ্যাট চালু করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
     if(/BAD_CONTACT/.test(m)) return 'নম্বর বা ইমেইলটা ঠিক নয়';
     if(/BAD_SOCIALS/.test(m)) return 'একটা সোশ্যাল লিংক ঠিক নয়';
     if(/ENGLISH_ONLY/.test(m)) return 'নাম, পদবি ও স্কিল শুধু ইংরেজিতে লিখুন';
@@ -986,6 +988,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     const patch = Object.assign({}, d, { published: ROW ? ROW.published : false }, extra || {});
     if(!(ROW && 'socials' in ROW) && !d.socials.length) delete patch.socials;
     if(!(ROW && 'contact' in ROW) && !Object.keys(d.contact).length) delete patch.contact;
+    if(!(ROW && 'chat_enabled' in ROW) && !d.chat_enabled) delete patch.chat_enabled;
     if(ROW && ROW.avatar === patch.avatar) delete patch.avatar;       // (the column comes with the 2026-11-03 migration)
     try{
       const res = ROW
@@ -1106,6 +1109,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     $('covStyles').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.cover_style = b.dataset.s; paintCovStyle(); saveDraft(); debounce('cv', drawCanvases, 60); });
     paintCovStyle();
     [['fCtWa', 'whatsapp'], ['fCtPh', 'phone'], ['fCtEm', 'email']].forEach(([id, k]) => on(id, 'input', e => { S.contact = S.contact || {}; S.contact[k] = e.target.value; ctCheck(); autosave(); }));
+    on('fCtChat', 'change', e => { S.chat = e.target.checked; autosave(); });
     on('fCtOpen', 'change', e => { S.contact = S.contact || {}; S.contact.open = e.target.checked; paintPreview(); ctCheck(); autosave(); });
     on('covAv', 'change', e => { S.cover_avatar = e.target.checked; saveDraft(); debounce('cv', drawCanvases, 200); });
     on('covDl', 'click', () => downloadCard('cover'));
@@ -1168,7 +1172,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; const keepPhoto = (S.avatar && S.avatar.indexOf('data:image') === 0 && !(data.avatar && data.avatar.indexOf('data:image') === 0)) ? S.avatar : ''; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: keepPhoto || data.avatar || S.avatar, published: data.published, cover_avatar: S.cover_avatar, cover_style: S.cover_style, contact: Object.assign({ whatsapp: '', phone: '', email: '', open: false }, data.contact || {}), socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; const keepPhoto = (S.avatar && S.avatar.indexOf('data:image') === 0 && !(data.avatar && data.avatar.indexOf('data:image') === 0)) ? S.avatar : ''; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: keepPhoto || data.avatar || S.avatar, published: data.published, cover_avatar: S.cover_avatar, cover_style: S.cover_style, contact: Object.assign({ whatsapp: '', phone: '', email: '', open: false }, data.contact || {}), chat: !!data.chat_enabled, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();

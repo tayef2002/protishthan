@@ -34,6 +34,22 @@ html,body{margin:0;background:#070B16}
 .btn.ctc{width:100%;height:52px;margin-top:18px;justify-content:center;gap:10px;border:none;color:#fff;font-size:16px;background:linear-gradient(135deg,#059669,#10B981)}
 .btn.ctc:hover{filter:brightness(1.08)}
 .ctc-note{margin:2px 0 14px;font:500 13px/1.6 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+.ct-row.btnrow{width:100%;cursor:pointer;font-family:inherit;text-align:left}
+.ct-row.btnrow>i{background:linear-gradient(135deg,var(--a2),var(--a1))}
+.ch-hd{display:flex;align-items:center;gap:10px;margin:-6px 30px 10px 0;text-align:left}
+.ch-hd b{font:800 17px 'Hind Siliguri','Inter',sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-back{flex:none;width:34px;height:34px;border-radius:50%;border:none;background:var(--chip);color:var(--ink);font-size:17px;cursor:pointer}
+.ch-msgs{height:min(46vh,340px);overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:10px;border-radius:16px;background:var(--glass);border:1px solid var(--line);text-align:left}
+.ch-m{max-width:82%;padding:8px 12px;border-radius:15px;font:500 14.5px/1.5 'Hind Siliguri','Inter',sans-serif;word-break:break-word;white-space:pre-wrap}
+.ch-m small{display:block;margin-top:2px;font-size:10.5px;opacity:.6}
+.ch-m.me{align-self:flex-end;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1));border-bottom-right-radius:5px}
+.ch-m.th{align-self:flex-start;background:var(--chip);border:1px solid var(--line);border-bottom-left-radius:5px}
+.ch-empty{margin:auto;max-width:15em;text-align:center;color:var(--mut);font:500 13.5px/1.6 'Hind Siliguri','Inter',sans-serif}
+.ch-err{min-height:18px;margin:6px 2px 0;text-align:left;color:#F87171;font:600 12.5px 'Hind Siliguri','Inter',sans-serif}
+.ch-in{display:flex;gap:8px;align-items:flex-end;margin-top:4px}
+.ch-in textarea{flex:1;min-height:44px;max-height:110px;padding:11px 13px;border-radius:14px;border:1px solid var(--line);background:var(--glass);color:var(--ink);font:500 14.5px/1.5 'Hind Siliguri','Inter',sans-serif;resize:none;outline:none}
+.ch-in textarea:focus{border-color:var(--a1)}
+.ch-in .btn{height:44px;padding:0 16px;flex:none}
 .ct-list{display:grid;gap:9px;text-align:left;margin:0 0 14px}
 .ct-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--glass);text-decoration:none;color:var(--ink);transition:border-color .2s,background .2s}
 .ct-row:hover{border-color:var(--a1);background:var(--glass2)}
@@ -95,7 +111,8 @@ html,body{margin:0;background:#070B16}
 </div>
 
 <div class="ov" id="qrOv"><div class="md" role="dialog" aria-modal="true" aria-label="QR কোড"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>QR কোড</h3><p>স্ক্যান করলেই এই প্রোফাইল খুলবে</p><canvas id="qrCv" width="440" height="440"></canvas><div class="u" id="qrUrl"></div></div></div>
-<div class="ov" id="ctcOv"><div class="md" role="dialog" aria-modal="true" aria-label="যোগাযোগ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3 id="ctcT">যোগাযোগ করুন</h3><p class="ctc-note" id="ctcN"></p><div class="ct-list" id="ctcList"></div><p class="ctc-note" style="margin:0">এই তথ্য প্রোফাইলের মালিক নিজে দিয়েছেন। কেউ বিরক্ত করলে পেজের নিচের "রিপোর্ট করুন" দিয়ে জানান।</p></div></div>
+<div class="ov" id="ctcOv"><div class="md" role="dialog" aria-modal="true" aria-label="যোগাযোগ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><div id="ctcMain"><h3 id="ctcT">যোগাযোগ করুন</h3><p class="ctc-note" id="ctcN"></p><div class="ct-list" id="ctcList"></div><p class="ctc-note" style="margin:0">এই তথ্য প্রোফাইলের মালিক নিজে দিয়েছেন। কেউ বিরক্ত করলে পেজের নিচের "রিপোর্ট করুন" দিয়ে জানান।</p></div>
+<div id="ctcChat" hidden><div class="ch-hd"><button class="ch-back" type="button" id="chBack" aria-label="ফিরে যান">←</button><b id="chName"></b></div><div class="ch-msgs" id="chMsgs" aria-live="polite"></div><div class="ch-err" id="chErr"></div><div class="ch-in"><textarea id="chTx" rows="1" maxlength="1000" placeholder="আপনার বার্তা লিখুন…"></textarea><button type="button" class="btn pri" id="chSend">পাঠান</button></div></div></div></div>
 <div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
   <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">খারাপ বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
   <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
@@ -146,7 +163,7 @@ html,body{margin:0;background:#070B16}
     document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
     $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
     const cl = V.contactList(p);
-    const actions = (cl.length ? '<button class="btn ctc" type="button" id="bContact">' + IC.chat + 'যোগাযোগ করুন</button>' : '') + '<div class="act"><button class="btn ' + (cl.length ? 'full' : 'pri') + '" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
+    const actions = ((cl.length || p.chat) ? '<button class="btn ctc" type="button" id="bContact">' + IC.chat + 'যোগাযোগ করুন</button>' : '') + '<div class="act"><button class="btn ' + ((cl.length || p.chat) ? 'full' : 'pri') + '" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
     const after = '<section class="cta"><div class="tx"><h2>আপনিও বানান নিজের স্কিল পেজ</h2><p>ডিগ্রির বাইরে আপনার আসল দক্ষতা। ৩ মিনিটে, একদম ফ্রি।</p><small id="ctaN"></small></div><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">বানাই ' + IC.arrow + '</a></section>';
     pg.innerHTML = V.html(p, { actions: actions, after: after });
     $('rpBtn').style.display = '';
@@ -159,10 +176,53 @@ html,body{margin:0;background:#070B16}
   const CT_COL = { whatsapp: '#25D366', phone: '#0EA5E9', email: '#6366F1' }, CT_IC = { whatsapp: 'chat', phone: 'phone', email: 'mail' };
   function showContact(){
     $('ctcT').textContent = 'যোগাযোগ করুন'; $('ctcN').textContent = P.display_name + '-কে সরাসরি পাঠান';
-    $('ctcList').innerHTML = V.contactList(P).map(x => '<a class="ct-row" style="--c:' + CT_COL[x.k] + '" href="' + V.esc(x.href) + '"' + (x.k === 'whatsapp' ? ' target="_blank" rel="noopener noreferrer"' : '') + '><i>' + IC[CT_IC[x.k]] + '</i><span><b>' + x.t + '</b><em>' + V.esc(x.v) + '</em></span>' + (x.k === 'email' ? '<button class="cp" type="button" data-cp="' + V.esc(x.v) + '">কপি</button>' : '') + '</a>').join('');
+    $('ctcMain').hidden = false; $('ctcChat').hidden = true; stopChat();
+    $('ctcList').innerHTML = (P.chat ? '<button type="button" class="ct-row btnrow" id="ctChatRow"><i>' + IC.chat + '</i><span><b>এখানেই চ্যাট করুন</b><em>Google দিয়ে সাইন ইন করে সরাসরি বার্তা পাঠান</em></span></button>' : '') + V.contactList(P).map(x => '<a class="ct-row" style="--c:' + CT_COL[x.k] + '" href="' + V.esc(x.href) + '"' + (x.k === 'whatsapp' ? ' target="_blank" rel="noopener noreferrer"' : '') + '><i>' + IC[CT_IC[x.k]] + '</i><span><b>' + x.t + '</b><em>' + V.esc(x.v) + '</em></span>' + (x.k === 'email' ? '<button class="cp" type="button" data-cp="' + V.esc(x.v) + '">কপি</button>' : '') + '</a>').join('');
+    if($('ctChatRow')) $('ctChatRow').onclick = chatOpen;
     $('ctcList').querySelectorAll('[data-cp]').forEach(b => b.addEventListener('click', async e => { e.preventDefault(); try{ await navigator.clipboard.writeText(b.dataset.cp); toast('কপি হয়েছে ✓'); }catch(_){} }));
     open('ctcOv');
   }
+  /* ---- direct chat (visitor side) ---- */
+  const CH = { thread: null, last: 0, timer: null, busy: false, blocked: false };
+  const chMsg = e => { const m = String((e && (e.message || e.details)) || e || ''); return /NEED_LOGIN/.test(m) ? 'আগে সাইন ইন করুন' : /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান, কিছুক্ষণ পরে আবার' : /TOO_MANY/.test(m) ? 'আজকের জন্য বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না' : /CHAT_OFF/.test(m) ? 'এই পেজে এখন চ্যাট বন্ধ আছে' : /SELF/.test(m) ? 'নিজের পেজে নিজেকে বার্তা পাঠানো যায় না' : /BAD_MESSAGE/.test(m) ? 'বার্তা ১ থেকে ১০০০ অক্ষরের মধ্যে হতে হবে' : 'বার্তা পাঠানো যায়নি, আবার চেষ্টা করুন'; };
+  const chTime = at => { try{ return new Date(at).toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); }catch(e){ return ''; } };
+  function stopChat(){ clearInterval(CH.timer); CH.timer = null; }
+  async function chatOpen(){
+    const MB = Protishthan.member; await MB.ready();
+    if(!MB.current()){ MB.signIn('চ্যাট করতে Google দিয়ে সাইন ইন করুন'); return; }
+    $('ctcMain').hidden = true; $('ctcChat').hidden = false; $('chName').textContent = P.display_name; $('chErr').textContent = ''; $('chMsgs').innerHTML = '<div class="ch-empty">লোড হচ্ছে…</div>'; CH.thread = null; CH.last = 0; CH.blocked = false;
+    try{ const r = await MB.sb.rpc('skill_chat_threads'); const t = ((r && r.data) || []).find(x => x.role === 'visitor' && String(x.username).toLowerCase() === String(P.username).toLowerCase()); CH.thread = t ? t.id : null; }catch(e){}
+    $('chMsgs').innerHTML = ''; await chatPull(true); stopChat(); CH.timer = setInterval(() => { if(!document.hidden && !$('ctcChat').hidden && $('ctcOv').classList.contains('show')) chatPull(false); }, 6000);
+    setTimeout(() => $('chTx').focus(), 80);
+  }
+  async function chatPull(first){
+    const box = $('chMsgs');
+    if(!CH.thread){ if(first) box.innerHTML = '<div class="ch-empty">' + V.esc(P.display_name) + '-কে প্রথম বার্তাটা লিখুন। উনি এখানেই উত্তর দেবেন।</div>'; return; }
+    try{
+      const r = await Protishthan.member.sb.rpc('skill_chat_messages', { p_thread: CH.thread, p_after: CH.last }); const d = r && r.data; if(!d) return;
+      CH.blocked = !!d.blocked; if(CH.blocked) $('chErr').textContent = 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না';
+      if((d.messages || []).length){
+        const near = box.scrollHeight - box.scrollTop - box.clientHeight < 80 || first;
+        const em = box.querySelector('.ch-empty'); if(em) em.remove();
+        d.messages.forEach(m => { const el = document.createElement('div'); el.className = 'ch-m ' + (m.mine ? 'me' : 'th'); el.innerHTML = V.esc(m.body) + '<small>' + chTime(m.at) + '</small>'; box.appendChild(el); CH.last = Math.max(CH.last, m.id); });
+        if(near) box.scrollTop = box.scrollHeight;
+      } else if(first && !box.children.length){ box.innerHTML = '<div class="ch-empty">এখনো কোনো বার্তা নেই।</div>'; }
+    }catch(e){}
+  }
+  async function chatSend(){
+    if(CH.busy || CH.blocked) return; const tx = $('chTx'), body = tx.value.trim(); if(!body) return;
+    CH.busy = true; $('chSend').disabled = true; $('chErr').textContent = '';
+    try{
+      const r = await Protishthan.member.sb.rpc('skill_chat_send', { p_username: P.username, p_thread: CH.thread, p_body: body });
+      if(r.error) throw r.error; CH.thread = r.data && r.data.thread; tx.value = ''; tx.style.height = ''; await chatPull(false);
+      const box = $('chMsgs'); box.scrollTop = box.scrollHeight;
+    }catch(e){ $('chErr').textContent = chMsg(e); }
+    CH.busy = false; $('chSend').disabled = false; tx.focus();
+  }
+  $('chSend').onclick = chatSend; $('chBack').onclick = () => { stopChat(); $('ctcChat').hidden = true; $('ctcMain').hidden = false; };
+  $('chTx').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSend(); } });
+  $('chTx').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(110, e.target.scrollHeight) + 'px'; });
+  document.addEventListener('click', e => { if(e.target.id === 'ctcOv') stopChat(); });
   async function copy(){
     try{ await navigator.clipboard.writeText(url); toast('লিংক কপি হয়েছে ✓'); }
     catch(e){ const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); toast('লিংক কপি হয়েছে ✓'); }catch(_){ toast(url); } t.remove(); }

@@ -190,6 +190,8 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
         bell.addEventListener('click', e => { e.stopPropagation(); menu.classList.remove('open'); acc.setAttribute('aria-expanded', 'false'); pop.classList.toggle('open'); });
         acc.addEventListener('click', e => { e.stopPropagation(); pop.classList.remove('open'); const on = !menu.classList.contains('open'); menu.classList.toggle('open', on); acc.setAttribute('aria-expanded', on ? 'true' : 'false'); });
         slot.querySelector('.mb-out').addEventListener('click', () => signOut());
+        // new chat messages: a dot on the bell and a link in its pop-up
+        try{ sb.rpc('skill_chat_unread').then(r => { const n = Number(r && r.data) || 0; if(n < 1) return; const dot = slot.querySelector('.mb-dot'); if(dot) dot.style.display = 'block'; const e = slot.querySelector('.mb-pop .empty'); if(e) e.innerHTML = '<a href="member.html#chat" style="display:flex;gap:10px;align-items:center;width:100%;text-decoration:none;color:inherit"><span style="background:#FEF3C7;color:#92400E;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-weight:800">' + n.toLocaleString('bn-BD') + '</span><div><b>নতুন বার্তা এসেছে</b><p>চ্যাট খুলতে এখানে চাপুন</p></div></a>'; }, () => {}); }catch(e){}
       }
       // on the profile page itself the profile button just scrolls to the top
       const prof = slot.querySelector('.mb-av');
