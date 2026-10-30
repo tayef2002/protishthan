@@ -161,7 +161,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       if(!ME){
         slot.innerHTML = light
           ? '<button type="button" class="tbtn mb-join" style="background:#1A56DB;border-color:#1A56DB;color:#fff"><span>যোগ দিন</span></button>'
-          : '<button type="button" class="btn-ghost-nav mb-login">লগইন</button><button type="button" class="btn-primary-nav mb-join">যোগ দিন</button>';
+          : '<button type="button" class="btn-ghost-nav mb-login">লগইন</button><button type="button" class="btn-primary-nav mb-join">ফ্রিতে যোগ দিন<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>';
         slot.querySelectorAll('.mb-join,.mb-login').forEach(b => b.addEventListener('click', () => openModal(pageWhy())));
         return;
       }
@@ -170,22 +170,34 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       if(light){
         slot.innerHTML = `<span class="mb-wrap mb-light"><a class="mb-av" href="member.html" aria-label="আমার প্রোফাইল" title="আমার প্রোফাইল">${face}</a></span>`;
       } else {
+        const nm = String(ME.display_name || '').trim(), first = nm.split(/\s+/)[0] || 'প্রোফাইল';
+        const I = d => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
         slot.innerHTML = `<span class="mb-bar">
-          <a class="mb-ic mb-partner" href="partner.html" aria-label="Protishthan Partner" title="Protishthan Partner"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></a>
-          <span class="mb-nw"><button type="button" class="mb-ic mb-bell" aria-label="নোটিফিকেশন" aria-haspopup="true" title="নোটিফিকেশন"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i class="mb-dot"></i></button>
-            <div class="mb-pop" role="dialog" aria-label="নোটিফিকেশন"><h4>নোটিফিকেশন <i>শীঘ্রই</i></h4><div class="empty"><span><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><div><b>এখনো কোনো নোটিফিকেশন নেই</b><p>সেভ করা প্রতিষ্ঠানের ভর্তি, নোটিস আর ফলাফলের খবর এখানে আসবে।</p></div></div></div></span>
-          <a class="mb-prof${onProfile ? ' on' : ''}" href="member.html" aria-label="আমার প্রোফাইল" title="${esc(ME.display_name || 'আমার প্রোফাইল')}"><span class="mb-pa">${face}</span><span class="mb-pt">আমার প্রোফাইল</span></a>
+          <span class="mb-nw"><button type="button" class="mb-ic mb-bell" aria-label="নোটিফিকেশন" aria-haspopup="true" title="নোটিফিকেশন">${I('<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>')}<i class="mb-dot"></i></button>
+            <div class="mb-pop" role="dialog" aria-label="নোটিফিকেশন"><h4>নোটিফিকেশন <i>শীঘ্রই</i></h4><div class="empty"><span>${I('<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>')}</span><div><b>এখনো কোনো নোটিফিকেশন নেই</b><p>সেভ করা প্রতিষ্ঠানের ভর্তি, নোটিস আর ফলাফলের খবর এখানে আসবে।</p></div></div></div></span>
+          <span class="mb-aw"><button type="button" class="mb-acc${onProfile ? ' on' : ''}" aria-haspopup="menu" aria-expanded="false" title="${esc(nm || 'আমার প্রোফাইল')}"><span class="mb-pa">${face}</span><span class="mb-pt">${esc(first)}</span><svg class="mb-cv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="mb-menu" role="menu">
+              <div class="mb-hd"><span class="mb-pa big">${face}</span><div><b>${esc(nm || 'আমার প্রোফাইল')}</b><small>${esc(ME.email || '')}</small></div></div>
+              <a role="menuitem" href="member.html">${I('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/>')}আমার প্রোফাইল</a>
+              <a role="menuitem" href="member.html#saved">${I('<path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}সেভ করা প্রতিষ্ঠান</a>
+              <a role="menuitem" href="skill.html">${I('<circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/>')}আমার স্কিল পেজ</a>
+              <a role="menuitem" href="card.html">${I('<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M15 10h3.5M15 13h3"/>')}আমার শিক্ষিত কার্ড</a>
+              <a role="menuitem" href="partner.html">${I('<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>')}Partner প্রোগ্রাম</a>
+              <button type="button" role="menuitem" class="mb-out">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}লগ আউট</button>
+            </div></span>
         </span>`;
-        const bell = slot.querySelector('.mb-bell'), pop = slot.querySelector('.mb-pop');
-        bell.addEventListener('click', e => { e.stopPropagation(); pop.classList.toggle('open'); });
+        const bell = slot.querySelector('.mb-bell'), pop = slot.querySelector('.mb-pop'), acc = slot.querySelector('.mb-acc'), menu = slot.querySelector('.mb-menu');
+        bell.addEventListener('click', e => { e.stopPropagation(); menu.classList.remove('open'); acc.setAttribute('aria-expanded', 'false'); pop.classList.toggle('open'); });
+        acc.addEventListener('click', e => { e.stopPropagation(); pop.classList.remove('open'); const on = !menu.classList.contains('open'); menu.classList.toggle('open', on); acc.setAttribute('aria-expanded', on ? 'true' : 'false'); });
+        slot.querySelector('.mb-out').addEventListener('click', () => signOut());
       }
       // on the profile page itself the profile button just scrolls to the top
-      const prof = slot.querySelector('.mb-av, .mb-prof');
+      const prof = slot.querySelector('.mb-av');
       if(prof) prof.addEventListener('click', e => { if(onProfile){ e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
     });
   }
-  document.addEventListener('click', e => { if(!e.target.closest('.mb-nw')) document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); });
+  document.addEventListener('click', e => { if(!e.target.closest('.mb-nw')) document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); if(!e.target.closest('.mb-aw')) document.querySelectorAll('.mb-menu.open').forEach(m => { m.classList.remove('open'); const b = m.previousElementSibling; if(b) b.setAttribute('aria-expanded', 'false'); }); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ document.querySelectorAll('.mb-pop.open').forEach(p => p.classList.remove('open')); document.querySelectorAll('.mb-menu.open').forEach(m => m.classList.remove('open')); } });
   document.addEventListener('DOMContentLoaded', render);
   if(document.readyState !== 'loading') render();
 

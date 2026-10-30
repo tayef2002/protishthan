@@ -19,13 +19,16 @@
   ];
   var TOOLS_PAGES = TOOLS.map(function(x){ return x.k; });
 
+  /* While there are only a few pages, every page is a plain link in the bar. When the list grows (about 7+), set GROUP_TOOLS = true
+     and the free tools fold into a "ফ্রি টুলস" dropdown (and a section on phones) with no other change. */
+  var GROUP_TOOLS = false;
+
   /* link sets: "main" is the site menu; others are for special pages */
   var SETS = {
     main: [
       { k: 'info',    t: 'তথ্যভান্ডার', href: 'index.html' },
-      { k: 'service', t: 'সার্ভিস',      href: 'software.html' },
-      { k: 'tools',   t: 'ফ্রি টুলস',    menu: TOOLS }
-    ],
+      { k: 'service', t: 'সার্ভিস',      href: 'software.html' }
+    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })),
     partner: [
       { t: 'কীভাবে কাজ করে', href: '#how' }, { t: 'আয়ের হিসাব', href: '#earn' }, { t: 'সুবিধা', href: '#why' }, { t: 'প্রশ্নোত্তর', href: '#faq' }
     ],
