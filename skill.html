@@ -183,6 +183,13 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .prog .bar{height:7px;border-radius:7px;background:#E8EEF8;overflow:hidden}
 .prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6 70%,#22D3EE);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .prog b{flex:none;font:700 15px/1 'Hind Siliguri','Inter',sans-serif;color:#3730A3;background:#EEF2FF;border:1px solid #DCE3FF;padding:8px 11px;border-radius:11px;min-width:56px;text-align:center}
+.cloud-box{margin-top:18px;border:1px solid #DDE6FB;background:linear-gradient(180deg,#F8FAFF,#F1F5FF);border-radius:16px;padding:16px 16px 16px}
+.cloud-box .cb-t{font-size:15px;font-weight:800;color:#0B1B4D;line-height:1.4}
+.cloud-box .cb-l{list-style:none;margin:8px 0 14px;display:grid;gap:8px}
+.cloud-box .cb-l li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.65;color:#475569}
+.cloud-box .cb-l svg{flex:none;margin-top:4px;color:#059669}
+.g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:13px;border:1.5px solid #CBD5E1;background:#fff;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;cursor:pointer;transition:background .15s,transform .15s}
+.g-btn:hover{background:#F8FAFC;transform:translateY(-1px)}.g-btn svg{flex:none}
 .panel{background:#fff;border:1px solid var(--border);border-radius:22px;padding:24px 24px 22px}
 .panel>h2{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:-.01em}
 .panel>h2 .n{flex:none;width:30px;height:30px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;font:700 14px 'Hind Siliguri','Inter',sans-serif;transition:background .3s,color .3s}
@@ -578,6 +585,11 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       <label class="f" for="fHead">পদবি বা পেশা <small>(ইংরেজিতে, এক লাইনে)</small> <span class="c" id="cHead"></span></label>
       <input class="fi" id="fHead" maxlength="70" placeholder="e.g. Graphic Designer & Video Editor">
       <div class="chips" id="headSugg"></div>
+      <div class="cloud-box" id="skCloud">
+        <div class="cb-t">সাইন আপ করলে আপনার কিছুই হারাবে না</div>
+        <ul class="cb-l"><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>আপনার সব তথ্য আপনার প্রোফাইলে সেভ থাকবে। ফোন বা কম্পিউটার, যেখান থেকে খুশি ঢুকে বদলাতে পারবেন।</li><li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>আপনার স্কিল সনদের একটা লাইভ লিংক পাবেন, যেটা সবাই খুলে দেখতে পারবে।</li></ul>
+        <button type="button" class="g-btn" id="skCloudJoin"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg><span>Google দিয়ে সাইন আপ করুন</span></button>
+      </div>
     </section>
 
     <section class="panel" id="s2">
@@ -709,6 +721,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
   let S = { photo: '', cover_avatar: true, cover_style: 'royal', contact: { whatsapp: '', phone: '', email: '', open: false }, chat: false, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
+  $('skCloudJoin').onclick = () => { saveDraft(); M.signIn('আপনার স্কিল পেজ সেভ করতে সাইন আপ করুন'); };
   let USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -940,6 +953,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   function paintPub(){
     const pub = !!(ROW && ROW.published), ok = progress().ok, consent = $('fConsent').checked;
     const label = !USER ? 'সাইন-ইন করে প্রকাশ করুন' : pub ? 'আপডেট সেভ হয়েছে' : 'প্রকাশ করুন';
+    $('skCloud').style.display = USER ? 'none' : '';
     $('pubBtn').textContent = label; $('pubBtn2').textContent = !USER ? 'সাইন-ইন ও প্রকাশ' : pub ? 'প্রকাশিত ✓' : 'প্রকাশ করুন';
     $('pubBtn').disabled = USER ? (pub || !ok || !consent) : false; $('pubBtn2').disabled = $('pubBtn').disabled && !!USER;
     $('unpubBtn').style.display = pub ? '' : 'none';
