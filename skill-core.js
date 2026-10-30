@@ -335,9 +335,9 @@
     c.save(); c.shadowColor = 'rgba(80,55,10,.35)'; c.shadowBlur = 8; c.shadowOffsetY = 3; c.fillStyle = g; c.fillRect(cx - w / 2, y, w, h); c.restore();
     c.strokeStyle = 'rgba(' + NRGB + ',.55)'; c.lineWidth = 1.5; c.strokeRect(cx - w / 2 + 5, y + 5, w - 10, h - 10);
   }
-  async function drawCert(p, W, H, logo){
-    setPalette(p.theme);
-    const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  async function drawCert(p, W, H, logo, S){
+    S = S || 1; setPalette(p.theme);
+    const cv = document.createElement('canvas'); cv.width = Math.round(W * S); cv.height = Math.round(H * S); const c = cv.getContext('2d'); c.scale(S, S);
     certPaper(c, W, H);
     c.save(); c.globalAlpha = .085; rosette(c, W / 2, H / 2 + 30, 360, 17, 6, 9, NAVY, 1); c.globalAlpha = .06; rosette(c, W / 2, H / 2 + 30, 250, 13, 5, 8, GOLD, 1.2); c.restore();
     certFrame(c, W, H);
@@ -386,7 +386,8 @@
     const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0A1230'); bg.addColorStop(1, '#1B2A66'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
     const gl = c.createRadialGradient(820, 300, 20, 820, 300, 520); gl.addColorStop(0, 'rgba(227,194,117,.35)'); gl.addColorStop(1, 'rgba(227,194,117,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
     c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 56){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 56){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
-    const cert = await drawCert(p, 1600, 1131, logo);
+    c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    const cert = await drawCert(p, 1600, 1131, logo, 1.5);        // drawn denser, then reduced: a cleaner edge at the small size
     c.save(); c.translate(805, 318); c.rotate(-.04); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 46; c.shadowOffsetY = 22; c.drawImage(cert, -380, -269, 760, 538); c.restore();
     brand(c, logo, 56, 50, 40, { ink: '#FFFFFF' });
     const name = p.display_name || 'আপনার নাম';
@@ -402,8 +403,9 @@
   }
 
   // a 4:5 post picture for Facebook / Instagram: brand on top, the whole certificate in the middle, the person's own lines above and below
-  async function drawPost(p, logo){
-    const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  async function drawPost(p, logo, S){
+    S = S || 1;
+    const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = Math.round(W * S); cv.height = Math.round(H * S); const c = cv.getContext('2d'); c.scale(S, S); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
     const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0A1230'); bg.addColorStop(1, '#1B2A66'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
     const gl = c.createRadialGradient(W / 2, 640, 30, W / 2, 640, 760); gl.addColorStop(0, 'rgba(227,194,117,.30)'); gl.addColorStop(1, 'rgba(227,194,117,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, H);
     c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
@@ -414,7 +416,7 @@
     const top = (p.post_top || 'আমার স্কিলই আমার সনদ').trim();
     c.fillStyle = '#FFFFFF'; c.strokeStyle = '#FFFFFF'; c.lineWidth = 1.4; const ts = fit(c, top, '400', SERIF, 66, 34, W - 140); c.strokeText(top, W / 2, 218); c.fillText(top, W / 2, 218);
     orn(c, W / 2, 252, 420);
-    const cert = await drawCert(p, 1600, 1131, logo), cw = 968, ch = Math.round(cw * 1131 / 1600), cx = (W - cw) / 2, cy = 296;
+    const cert = await drawCert(p, 1600, 1131, logo, S), cw = 968, ch = Math.round(cw * 1131 / 1600), cx = (W - cw) / 2, cy = 296;
     c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 24; c.drawImage(cert, cx, cy, cw, ch); c.restore();
     c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.strokeRect(cx, cy, cw, ch);
     const bot = (p.post_bottom || 'কাগজের সনদ নয়, কাজের সনদ').trim(), by = cy + ch + 84;
@@ -428,9 +430,9 @@
     return cv;
   }
 
-  async function draw(p, kind){
-    if(kind === 'post'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawPost(p, logo); }
-    if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return kind === 'cert' ? drawCert(p, 1600, 1131, logo) : drawCertOg(p, logo); }
+  async function draw(p, kind, scale){
+    if(kind === 'post'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawPost(p, logo, scale); }
+    if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return kind === 'cert' ? drawCert(p, 1600, 1131, logo, scale) : drawCertOg(p, logo); }
     await fonts();
     const T = THEMES[p.theme] || THEMES.midnight, og = kind === 'og';
     const W = og ? 1200 : 1080, H = og ? 630 : 1350;

@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=12"></script>
+<script src="/skill-core.js?v=13"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -647,7 +647,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   let LBK = 'cert';
   async function zoom(kind){
     LBK = kind; $('lb').classList.remove('zoom'); $('lbImg').removeAttribute('src'); $('lb').classList.add('show'); document.body.style.overflow = 'hidden';
-    try{ const cv = await C.draw(Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at, username: (ROW && ROW.username) || S.username || 'your-name' }), kind); $('lbImg').src = cv.toDataURL('image/jpeg', .92); $('lbImg').dataset.w = cv.width; }
+    try{ const cv = await C.draw(Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at, username: (ROW && ROW.username) || S.username || 'your-name' }), kind, 2); $('lbImg').src = cv.toDataURL('image/jpeg', .94); $('lbImg').dataset.w = cv.width; }
     catch(e){ closeLb(); toast('বড় করে দেখানো যায়নি'); }
   }
   function closeLb(){ $('lb').classList.remove('show', 'zoom'); document.body.style.overflow = ''; }
@@ -816,7 +816,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('okCopy', 'click', async () => { try{ await navigator.clipboard.writeText($('okLink').value); toast('লিংক কপি হয়েছে ✓'); }catch(e){ $('okLink').select(); } });
     document.addEventListener('click', e => { const z = e.target.closest('[data-zoom]'); if(z) zoom(z.dataset.zoom); });
     on('cvCert', 'click', () => zoom('cert')); on('cvPost', 'click', () => zoom('post')); on('cvOg', 'click', () => zoom('certog')); on('miniOpen', 'click', () => zoom('cert'));
-    on('lbX', 'click', closeLb); on('lbImg', 'click', () => { const l = $('lb'), im = $('lbImg'); l.classList.toggle('zoom'); im.style.setProperty('--zw', Math.round(Math.min(Number(im.dataset.w) || 1600, 1800) * (innerWidth < 700 ? .9 : 1)) + 'px'); });
+    on('lbX', 'click', closeLb); on('lbImg', 'click', () => { const l = $('lb'), im = $('lbImg'); l.classList.toggle('zoom'); im.style.setProperty('--zw', Math.round(Math.min(Number(im.dataset.w) || 1600, 2600) * (innerWidth < 700 ? .9 : 1)) + 'px'); });
     on('lbZoom', 'click', () => $('lbImg').click());
     on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : 'cert'));
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
@@ -841,7 +841,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
+    try{ toast('HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .95); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 

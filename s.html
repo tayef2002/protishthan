@@ -15,7 +15,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=12"></script>
+<script src="/skill-core.js?v=13"></script>
 <style>
 html,body{margin:0;background:#070B16}
 #sk{min-height:100vh;display:flex;flex-direction:column}
@@ -150,7 +150,7 @@ html,body{margin:0;background:#070B16}
   }
   async function showCert(){
     open('ctOv'); const img = $('ctImg'); img.removeAttribute('src'); $('ctWait').style.display = '';
-    try{ const cv = await SkillCanvas.draw(Object.assign({}, P, { published_at: P.published_at }), 'cert'); img.src = cv.toDataURL('image/jpeg', .92); $('ctWait').style.display = 'none'; $('ctDl').href = img.src; $('ctDl').download = 'skill-certificate-' + P.username + '.jpg'; }
+    try{ const cv = await SkillCanvas.draw(Object.assign({}, P, { published_at: P.published_at }), 'cert', 2); img.src = cv.toDataURL('image/jpeg', .94); $('ctWait').style.display = 'none'; $('ctDl').href = img.src; $('ctDl').download = 'skill-certificate-' + P.username + '.jpg'; }
     catch(e){ $('ctWait').textContent = 'দেখানো যায়নি, আবার চেষ্টা করুন'; }
   }
   function track(){ try{ Protishthan.member.sb.rpc('skill_track_view', { p_username: P.username, p_device: deviceId() }).then(() => {}, () => {}); }catch(e){} }
