@@ -82,6 +82,7 @@ html,body{margin:0;background:#070B16}
 <div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
   <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">আপত্তিকর বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
   <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
+<div class="ov" id="ctOv"><div class="md" style="width:min(920px,100%);padding:22px 18px 18px" role="dialog" aria-modal="true" aria-label="সনদ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>স্কিল সনদ</h3><p>কাগজের সনদের চেহারায় এই ব্যক্তির স্ব-ঘোষিত স্কিল</p><div id="ctWait" style="padding:40px 0;color:var(--mut)">তৈরি হচ্ছে…</div><img id="ctImg" alt="স্কিল সনদ" style="width:100%;height:auto;border-radius:10px;display:block"><a class="btn pri" id="ctDl" style="margin-top:14px;justify-content:center" href="#">ছবি ডাউনলোড করুন</a></div></div>
 <div class="tt" id="tt" role="status"></div>
 
 <script>
@@ -122,10 +123,10 @@ html,body{margin:0;background:#070B16}
     document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
     $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
     pg.innerHTML = V.html(p, {}) +
-      '<div class="act sk-rise" style="--i:14"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার করুন</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button></div>' +
+      '<div class="act sk-rise" style="--i:14"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার করুন</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">সনদ আকারে দেখুন</button></div>' +
       '<section class="cta sk-rise" style="--i:15"><h2>আপনার স্কিল দিয়েই পরিচিত হোন</h2><p>কাগজের সনদের বাইরে আপনার আসল দক্ষতা। মাত্র ৩ মিনিটে নিজের স্কিল আইডেন্টিটি পেজ বানান, একদম ফ্রি।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">আমারটা বানাই ' + IC.arrow + '</a><small id="ctaN"></small></section>';
     $('rpBtn').style.display = '';
-    $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr;
+    $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr; $('bCert').onclick = showCert;
     requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
     track();
     popular();
@@ -146,6 +147,11 @@ html,body{margin:0;background:#070B16}
       c.fillStyle = '#0B1020'; for(let r = 0; r < n; r++) for(let k = 0; k < n; k++) if(q.isDark(r, k)) c.fillRect(pad + k * cell, pad + r * cell, Math.ceil(cell), Math.ceil(cell));
     }
     $('qrUrl').textContent = url.replace('https://', ''); open('qrOv');
+  }
+  async function showCert(){
+    open('ctOv'); const img = $('ctImg'); img.removeAttribute('src'); $('ctWait').style.display = '';
+    try{ const cv = await SkillCanvas.draw(Object.assign({}, P, { published_at: P.published_at }), 'cert'); img.src = cv.toDataURL('image/jpeg', .92); $('ctWait').style.display = 'none'; $('ctDl').href = img.src; $('ctDl').download = 'skill-certificate-' + P.username + '.jpg'; }
+    catch(e){ $('ctWait').textContent = 'দেখানো যায়নি, আবার চেষ্টা করুন'; }
   }
   function track(){ try{ Protishthan.member.sb.rpc('skill_track_view', { p_username: P.username, p_device: deviceId() }).then(() => {}, () => {}); }catch(e){} }
   function popular(){

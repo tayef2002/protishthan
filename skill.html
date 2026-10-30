@@ -54,6 +54,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .hero h1{margin:18px auto 12px;max-width:16em;font-size:clamp(32px,5.4vw,56px);line-height:1.16;font-weight:800;letter-spacing:-.02em}
 .hero h1 span{background:linear-gradient(120deg,#93C5FD,#C4B5FD 55%,#5EEAD4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{max-width:34em;margin:0 auto;color:#C7D4F5;font-size:clamp(15px,2vw,18px)}
+.hero .quote{margin:18px auto 0;max-width:30em;padding:12px 18px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#E6ECFF;font-weight:600;font-size:clamp(14px,1.9vw,16.5px)}
 .hero .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin-top:24px;color:#B7C6EE;font-size:14px;font-weight:500}
 .hero .meta span{display:inline-flex;align-items:center;gap:8px}
 .hero .meta svg{color:#7DD3FC}
@@ -221,6 +222,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   <span class="eyebrow"><i></i>ফ্রি · ৩ মিনিট · আপনার নিজের লিংক</span>
   <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
   <p>আপনার আসল দক্ষতা, কাজ আর পরিচয় এক সুন্দর পেজে। এক লিংকে সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে নিজেকে তুলে ধরুন।</p>
+  <p class="quote">১৫ বছর পড়ে যে সনদগুলো জমল, কাজে লাগল না। যে স্কিল অর্জন করলেন, সেটাই হোক আপনার সনদ।</p>
   <div class="meta">
     <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের ইউনিক লিংক</span>
     <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড ও শেয়ার কার্ড</span>
@@ -297,9 +299,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="cd">শেয়ার কার্ড</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="ct">সনদ</button><button type="button" data-p="cd">স্টোরি কার্ড</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="pv-body">
       <div class="pv-pane on" id="pvPf"><div id="pvMount"></div></div>
+      <div class="pv-pane" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCert">সনদ ডাউনলোড করুন</button></div><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvCd"><canvas class="pv-canvas" id="cvCard" width="1080" height="1350"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCard">ছবি ডাউনলোড করুন</button></div><div class="pv-cap">১০৮০×১৩৫০, Instagram/Facebook স্টোরি ও পোস্টের জন্য</div></div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
@@ -398,11 +401,12 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     progress(); paintPub();
   }
   async function drawCanvases(){
-    if(!$('pvCd').classList.contains('on') && !$('pvLk').classList.contains('on')) return;
+    if(!$('pvCd').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on')) return;
     const p = preview();
     try{
       if($('pvCd').classList.contains('on')){ const cv = await C.draw(p, 'card'); const t = $('cvCard'); t.getContext('2d').clearRect(0, 0, t.width, t.height); t.getContext('2d').drawImage(cv, 0, 0); }
-      if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'og'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
+      if($('pvCt').classList.contains('on')){ const cv = await C.draw(p, 'cert'); const t = $('cvCert'); t.getContext('2d').drawImage(cv, 0, 0); }
+      if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
     }catch(e){}
   }
   function paintPub(){
@@ -547,11 +551,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('pubBtn', 'click', publish); on('pubBtn2', 'click', () => { if(!USER || !$('pubBtn').disabled) publish(); else { toast('আগে সব ঠিকঠাক করুন'); } });
     on('unpubBtn', 'click', unpublish); on('delBtn', 'click', del);
     on('okCopy', 'click', async () => { try{ await navigator.clipboard.writeText($('okLink').value); toast('লিংক কপি হয়েছে ✓'); }catch(e){ $('okLink').select(); } });
-    on('shCard', 'click', downloadCard); on('dlCard', 'click', downloadCard);
+    on('shCard', 'click', () => downloadCard('card')); on('dlCard', 'click', () => downloadCard('card')); on('dlCert', 'click', () => downloadCard('cert'));
     document.querySelector('.pv-tabs').addEventListener('click', e => {
       const b = e.target.closest('[data-p]'); if(!b) return;
       document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x === b));
-      const map = { pf: 'pvPf', cd: 'pvCd', lk: 'pvLk' };
+      const map = { pf: 'pvPf', ct: 'pvCt', cd: 'pvCd', lk: 'pvLk' };
       Object.keys(map).forEach(k => $(map[k]).classList.toggle('on', k === b.dataset.p));
       drawCanvases();
     });
@@ -559,8 +563,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
     window.addEventListener('beforeunload', saveDraft);
   }
-  async function downloadCard(){
-    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name' }), 'card'); const a = document.createElement('a'); a.download = 'skill-identity-' + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
+  async function downloadCard(kind){
+    kind = kind === 'cert' ? 'cert' : 'card';
+    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-identity-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
