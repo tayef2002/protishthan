@@ -1,0 +1,46 @@
+/* Protishthan — shared full-width footer (footer.css + footer.js). Links live in footer.js, never per page.
+   Use: <div id="pfoot" data-art="card|skill"></div> + <link rel="stylesheet" href="/footer.css"> + <script src="/footer.js"></script> */
+.pf{margin-top:56px;background:#EEF3FF;color:#0B1B4D;font-family:'Hind Siliguri','Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+.pf *{box-sizing:border-box}
+.pf a{text-decoration:none}
+.pf-in{max-width:1152px;margin:0 auto;padding:48px 24px 8px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr);gap:36px}
+.pf-brand .lg{display:inline-flex;align-items:center;gap:10px;font:800 22px/1 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.5px;color:#0B1B4D}
+.pf-brand .lg i{display:flex;width:36px;height:36px;border-radius:11px;overflow:hidden;background:linear-gradient(135deg,#1A56DB,#5B8DEF)}
+.pf-brand .lg i img{display:block;width:100%;height:100%}
+.pf-brand .lg b span{opacity:.55}
+.pf-brand p{margin:14px 0 0;max-width:28em;color:#475569;font-size:15px;line-height:1.75}
+.pf-brand .tag{display:inline-block;margin-top:16px;padding:5px 14px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif}
+.pf-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.pf-cols h4{margin:4px 0 12px;font:800 14px 'Hind Siliguri','Inter',sans-serif;color:#0B1B4D}
+.pf-cols a{display:block;margin:0 0 9px;color:#475569;font:500 14.5px 'Hind Siliguri','Inter',sans-serif;border-bottom:1px solid transparent;width:fit-content;transition:color .15s,border-color .15s}
+.pf-cols a:hover{color:#1A56DB;border-color:rgba(26,86,219,.4)}
+.pf-bar{max-width:1152px;margin:20px auto 0;padding:16px 24px 18px;border-top:1px solid #D9E4FB;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;color:#64748B;font-size:13px}
+.pf-bar a{color:#475569}.pf-bar a:hover{color:#1A56DB}
+.pf-art{line-height:0}
+.pf-art svg{display:block;width:100%;height:auto;min-height:150px}
+/* motion */
+.pf-art .w1{animation:pfWalk 18s linear infinite}.pf-art .w2{animation:pfWalk 22s linear infinite;animation-delay:-8s}.pf-art .w3{animation:pfWalk 26s linear infinite;animation-delay:-15s}
+@keyframes pfWalk{from{transform:translateX(-120px)}to{transform:translateX(220px)}}
+.pf-art .bob{animation:pfBob .5s ease-in-out infinite alternate}
+@keyframes pfBob{to{transform:translateY(-1.6px)}}
+.pf-art .fl{animation:pfFl 4s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+@keyframes pfFl{to{transform:translateY(-7px)}}
+.pf-art .cloud{animation:pfCloud 70s ease-in-out infinite alternate}.pf-art .cloud.c2{animation-duration:95s}
+@keyframes pfCloud{from{transform:translateX(-50px)}to{transform:translateX(70px)}}
+.pf-art .cap{animation:pfCap 2.8s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes pfCap{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-36px) rotate(200deg)}}
+.pf-art .flag{transform-box:fill-box;transform-origin:left center;animation:pfFlag 2.6s ease-in-out infinite}
+@keyframes pfFlag{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.93)}}
+.pf-art .sway{transform-box:fill-box;transform-origin:50% 0;animation:pfSway 3.4s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+@keyframes pfSway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+.pf-art .flow{animation:pfFlow 1.4s linear infinite}
+@keyframes pfFlow{to{stroke-dashoffset:-22}}
+.pf-art .pulse{transform-box:fill-box;transform-origin:center;animation:pfPulse 3.2s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes pfPulse{0%,100%{transform:scale(.6);opacity:.3}50%{transform:scale(1.08);opacity:1}}
+.pf-art .sp{transform-box:fill-box;transform-origin:center;animation:pfSp 3.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes pfSp{0%,100%{opacity:.25;scale:.6}50%{opacity:1;scale:1.15}}
+.pf-art .bird{animation:pfBird 14s linear infinite;animation-delay:var(--d,0s)}
+@keyframes pfBird{from{transform:translateX(-120px)}to{transform:translateX(1560px)}}
+@media(max-width:860px){.pf-in{grid-template-columns:1fr;gap:28px;padding-top:36px}.pf-cols{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-art svg{min-height:130px}}
+@media(max-width:560px){.pf-bar{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.pf-art *{animation:none!important}}
