@@ -36,6 +36,25 @@ html,body{margin:0;background:#070B16}
 .ctc-note{margin:2px 0 14px;font:500 13px/1.6 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
 .ct-row.btnrow{width:100%;cursor:pointer;font-family:inherit;text-align:left}
 .ct-row.btnrow>i{background:linear-gradient(135deg,var(--a2),var(--a1))}
+/* messenger-style chat window: docked bottom-right on desktop, a full page sliding up on phones */
+.mc{position:fixed;z-index:60;right:24px;bottom:0;width:352px;height:min(480px,calc(100dvh - 90px));display:flex;flex-direction:column;border-radius:18px 18px 0 0;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-bottom:0;transform:translateY(110%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.9,.25,1),visibility .35s}
+.mc.show{transform:none;visibility:visible}
+.mc-hd{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.mc-x{flex:none;width:34px;height:34px;border-radius:50%;border:none;background:var(--chip);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mc-x svg{width:18px;height:18px}.mc-x .bk{display:none}
+.mc-hd .mc-x{order:3;margin-left:auto}
+.mc-av{flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--a2),var(--a1));color:#fff;display:flex;align-items:center;justify-content:center;font:800 15px 'Hind Siliguri',sans-serif}
+.mc-av img{width:100%;height:100%;object-fit:cover}
+.mc-t{min-width:0;text-align:left}.mc-t b{display:block;font:800 15px/1.25 'Hind Siliguri','Inter',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mc-t small{display:block;color:var(--mut);font:500 11.5px 'Hind Siliguri',sans-serif}
+.mc-more{order:2;flex:none;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mut);font:600 12px 'Hind Siliguri',sans-serif;cursor:pointer}
+.mc .ch-msgs{flex:1;height:auto;border:0;border-radius:0;background:transparent}
+.mc .ch-err{margin:0 12px}
+.mc .ch-in{margin:0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);align-items:flex-end}
+.mc .ch-in textarea{border-radius:22px;padding:11px 15px}
+.mc-send{flex:none;width:44px;height:44px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--a2),var(--a1));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mc-send svg{width:20px;height:20px}.mc-send:disabled{opacity:.5}
+@media(max-width:700px){.mc{inset:0;width:auto;height:100dvh;border-radius:0;border:0;transform:translateY(100%)}.mc-x .bk{display:block}.mc-x .cl{display:none}.mc-hd{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}.mc-hd .mc-x{order:0;margin-left:0}.mc-more{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.mc{transition:none}}
 .ch-hd{display:flex;align-items:center;gap:10px;margin:-6px 30px 10px 0;text-align:left}
 .ch-hd b{font:800 17px 'Hind Siliguri','Inter',sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ch-back{flex:none;width:34px;height:34px;border-radius:50%;border:none;background:var(--chip);color:var(--ink);font-size:17px;cursor:pointer}
@@ -112,7 +131,8 @@ html,body{margin:0;background:#070B16}
 
 <div class="ov" id="qrOv"><div class="md" role="dialog" aria-modal="true" aria-label="QR কোড"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>QR কোড</h3><p>স্ক্যান করলেই এই প্রোফাইল খুলবে</p><canvas id="qrCv" width="440" height="440"></canvas><div class="u" id="qrUrl"></div></div></div>
 <div class="ov" id="ctcOv"><div class="md" role="dialog" aria-modal="true" aria-label="যোগাযোগ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><div id="ctcMain"><h3 id="ctcT">যোগাযোগ করুন</h3><p class="ctc-note" id="ctcN"></p><div class="ct-list" id="ctcList"></div><p class="ctc-note" style="margin:0">এই তথ্য প্রোফাইলের মালিক নিজে দিয়েছেন। কেউ বিরক্ত করলে পেজের নিচের "রিপোর্ট করুন" দিয়ে জানান।</p></div>
-<div id="ctcChat" hidden><div class="ch-hd"><button class="ch-back" type="button" id="chBack" aria-label="ফিরে যান">←</button><b id="chName"></b></div><div class="ch-msgs" id="chMsgs" aria-live="polite"></div><div class="ch-err" id="chErr"></div><div class="ch-in"><textarea id="chTx" rows="1" maxlength="1000" placeholder="আপনার বার্তা লিখুন…"></textarea><button type="button" class="btn pri" id="chSend">পাঠান</button></div></div></div></div>
+</div></div>
+<div class="mc" id="mchat" role="dialog" aria-label="মেসেজ" aria-hidden="true"><div class="mc-hd"><button class="mc-x" type="button" id="chBack" aria-label="বন্ধ করুন"><svg class="bk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><svg class="cl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span class="mc-av" id="chAv"></span><div class="mc-t"><b id="chName"></b><small>এখানেই উত্তর দেবেন</small></div><button class="mc-more" type="button" id="chMore" hidden>অন্য উপায়</button></div><div class="ch-msgs" id="chMsgs" aria-live="polite"></div><div class="ch-err" id="chErr"></div><div class="ch-in"><textarea id="chTx" rows="1" maxlength="1000" placeholder="আপনার বার্তা লিখুন…"></textarea><button type="button" class="mc-send" id="chSend" aria-label="পাঠান"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-8a.5.5 0 000-.9L3.4 3.6a.5.5 0 00-.7.6L5 11l9 1-9 1-2.3 6.8a.5.5 0 00.7.6z"/></svg></button></div></div>
 <div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
   <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">খারাপ বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
   <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
@@ -133,7 +153,7 @@ html,body{margin:0;background:#070B16}
   const toast = msg => { const t = $('tt'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2200); };
   const open = id => $(id).classList.add('show'), close = id => $(id).classList.remove('show');
   document.querySelectorAll('.ov').forEach(o => { o.addEventListener('click', e => { if(e.target === o || e.target.closest('[data-close]')) o.classList.remove('show'); }); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.ov.show').forEach(o => o.classList.remove('show')); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ document.querySelectorAll('.ov.show').forEach(o => o.classList.remove('show')); if(window.chatClose) window.chatClose(); } });
 
   const IC = {
     copy: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="3"/><path d="M5 15V6a2 2 0 012-2h9"/></svg>',
@@ -163,11 +183,11 @@ html,body{margin:0;background:#070B16}
     document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
     $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
     const cl = V.contactList(p);
-    const actions = ((cl.length || p.chat) ? '<button class="btn ctc" type="button" id="bContact">' + IC.chat + 'যোগাযোগ করুন</button>' : '') + '<div class="act"><button class="btn ' + ((cl.length || p.chat) ? 'full' : 'pri') + '" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
+    const actions = ((cl.length || p.chat) ? '<button class="btn ctc" type="button" id="bContact">' + IC.chat + (p.chat ? 'মেসেজ' : 'যোগাযোগ করুন') + '</button>' : '') + '<div class="act"><button class="btn ' + ((cl.length || p.chat) ? 'full' : 'pri') + '" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
     const after = '<section class="cta"><div class="tx"><h2>আপনিও বানান নিজের স্কিল পেজ</h2><p>ডিগ্রির বাইরে আপনার আসল দক্ষতা। ৩ মিনিটে, একদম ফ্রি।</p><small id="ctaN"></small></div><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">বানাই ' + IC.arrow + '</a></section>';
     pg.innerHTML = V.html(p, { actions: actions, after: after });
     $('rpBtn').style.display = '';
-    if($('bContact')) $('bContact').onclick = showContact;
+    if($('bContact')) $('bContact').onclick = p.chat ? chatOpen : showContact;
     $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr; $('bCert').onclick = showCert;
     requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
     track();
@@ -176,7 +196,7 @@ html,body{margin:0;background:#070B16}
   const CT_COL = { whatsapp: '#25D366', phone: '#0EA5E9', email: '#6366F1' }, CT_IC = { whatsapp: 'chat', phone: 'phone', email: 'mail' };
   function showContact(){
     $('ctcT').textContent = 'যোগাযোগ করুন'; $('ctcN').textContent = P.display_name + '-কে সরাসরি পাঠান';
-    $('ctcMain').hidden = false; $('ctcChat').hidden = true; stopChat();
+    stopChat();
     $('ctcList').innerHTML = (P.chat ? '<button type="button" class="ct-row btnrow" id="ctChatRow"><i>' + IC.chat + '</i><span><b>এখানেই চ্যাট করুন</b><em>Google দিয়ে সাইন ইন করে সরাসরি বার্তা পাঠান</em></span></button>' : '') + V.contactList(P).map(x => '<a class="ct-row" style="--c:' + CT_COL[x.k] + '" href="' + V.esc(x.href) + '"' + (x.k === 'whatsapp' ? ' target="_blank" rel="noopener noreferrer"' : '') + '><i>' + IC[CT_IC[x.k]] + '</i><span><b>' + x.t + '</b><em>' + V.esc(x.v) + '</em></span>' + (x.k === 'email' ? '<button class="cp" type="button" data-cp="' + V.esc(x.v) + '">কপি</button>' : '') + '</a>').join('');
     if($('ctChatRow')) $('ctChatRow').onclick = chatOpen;
     $('ctcList').querySelectorAll('[data-cp]').forEach(b => b.addEventListener('click', async e => { e.preventDefault(); try{ await navigator.clipboard.writeText(b.dataset.cp); toast('কপি হয়েছে ✓'); }catch(_){} }));
@@ -190,9 +210,10 @@ html,body{margin:0;background:#070B16}
   async function chatOpen(){
     const MB = Protishthan.member; await MB.ready();
     if(!MB.current()){ MB.signIn('চ্যাট করতে Google দিয়ে সাইন ইন করুন'); return; }
-    $('ctcMain').hidden = true; $('ctcChat').hidden = false; $('chName').textContent = P.display_name; $('chErr').textContent = ''; $('chMsgs').innerHTML = '<div class="ch-empty">লোড হচ্ছে…</div>'; CH.thread = null; CH.last = 0; CH.blocked = false;
+    close('ctcOv'); const mc = $('mchat'); $('chName').textContent = P.display_name; $('chAv').innerHTML = P.avatar ? '<img alt="" src="' + V.esc(P.avatar) + '">' : V.esc(String(P.display_name || '?').trim().charAt(0).toUpperCase()); $('chMore').hidden = !V.contactList(P).length; mc.classList.add('show'); mc.setAttribute('aria-hidden', 'false'); if(window.matchMedia('(max-width:700px)').matches) document.body.style.overflow = 'hidden';
+     $('chErr').textContent = ''; $('chMsgs').innerHTML = '<div class="ch-empty">লোড হচ্ছে…</div>'; CH.thread = null; CH.last = 0; CH.blocked = false;
     try{ const r = await MB.sb.rpc('skill_chat_threads'); const t = ((r && r.data) || []).find(x => x.role === 'visitor' && String(x.username).toLowerCase() === String(P.username).toLowerCase()); CH.thread = t ? t.id : null; }catch(e){}
-    $('chMsgs').innerHTML = ''; await chatPull(true); stopChat(); CH.timer = setInterval(() => { if(!document.hidden && !$('ctcChat').hidden && $('ctcOv').classList.contains('show')) chatPull(false); }, 6000);
+    $('chMsgs').innerHTML = ''; await chatPull(true); stopChat(); CH.timer = setInterval(() => { if(!document.hidden && $('mchat').classList.contains('show')) chatPull(false); }, 6000);
     setTimeout(() => $('chTx').focus(), 80);
   }
   async function chatPull(first){
@@ -219,7 +240,8 @@ html,body{margin:0;background:#070B16}
     }catch(e){ $('chErr').textContent = chMsg(e); }
     CH.busy = false; $('chSend').disabled = false; tx.focus();
   }
-  $('chSend').onclick = chatSend; $('chBack').onclick = () => { stopChat(); $('ctcChat').hidden = true; $('ctcMain').hidden = false; };
+  $('chSend').onclick = chatSend; window.chatClose = chatClose; function chatClose(){ stopChat(); const mc = $('mchat'); mc.classList.remove('show'); mc.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+  $('chBack').onclick = chatClose; $('chMore').onclick = () => { chatClose(); showContact(); };
   $('chTx').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSend(); } });
   $('chTx').addEventListener('input', e => { e.target.style.height = 'auto'; e.target.style.height = Math.min(110, e.target.scrollHeight) + 'px'; });
   document.addEventListener('click', e => { if(e.target.id === 'ctcOv') stopChat(); });
