@@ -46,9 +46,54 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
 
 /* hero */
-.hero{position:relative;overflow:hidden;padding:150px 20px 128px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
+.hero{position:relative;overflow:hidden;padding:140px 20px 118px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
 .hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:54px 54px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%)}
 .hero>*{position:relative}
+.hero-in{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:52px;align-items:center;max-width:1240px;margin:0 auto;text-align:left}
+.hero-copy .eyebrow{margin:0}
+.hero-copy h1{margin:22px 0 18px;max-width:14em;font-size:clamp(32px,4.1vw,56px)}
+.hero-copy p{margin:0;max-width:34em}
+.hero-copy .meta{justify-content:flex-start;margin-top:26px;gap:10px 20px}
+.hero-cta{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin-top:30px}
+.hero-cta>span{font-size:13.5px;color:#9FB2E6}
+.hero-go{height:52px;padding:0 26px;font-size:16px}
+.hero-stage{position:relative;width:100%;max-width:580px;margin-left:auto}
+.st-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.st-tabs::-webkit-scrollbar{display:none}
+.st-tabs button{position:relative;flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:100px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#C7D4F5;font:600 13px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;overflow:hidden;transition:background .2s,color .2s,border-color .2s}
+.st-tabs button:hover{background:rgba(255,255,255,.13);color:#fff}
+.st-tabs button.on{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);color:#fff}
+.st-tabs button i{position:absolute;left:0;bottom:0;height:3px;width:0;background:linear-gradient(90deg,#E3C275,#F1DA9E);border-radius:3px}
+.st-tabs button.on i{width:100%;transition:width var(--dur,4.4s) linear}
+.st-tabs.paused button.on i{transition:none}
+.st-frame{position:relative;aspect-ratio:1.18;border-radius:28px;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.13),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);box-shadow:0 40px 90px -30px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.st-sl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;transform:translateY(18px) scale(.965);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.st-sl.on{opacity:1;transform:none}
+.st-sl>img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);background:rgba(255,255,255,.08);animation:stfloat 5s ease-in-out infinite alternate}
+.st-sl[data-k=po]>img{border-radius:12px}
+@keyframes stfloat{from{transform:translateY(-5px)}to{transform:translateY(6px)}}
+.st-page{position:absolute;inset:0;overflow:hidden}
+.st-page .sk{position:absolute;left:50%;top:0;width:430px;margin-left:-215px;transform-origin:top center;transform:scale(.8);border-radius:0;background:transparent}
+.st-page .sk .sk-bg{display:none}
+.st-sl.on .st-page .sk{animation:stscroll 4.4s ease-in-out both}
+@keyframes stscroll{0%,22%{translate:0 6px}100%{translate:0 -150px}}
+.st-fb{width:100%;max-width:490px;border-radius:12px;background:#fff;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);overflow:hidden;position:relative;padding-bottom:42px}
+.st-fb img{display:block;width:100%;aspect-ratio:1640/624;object-fit:cover;object-position:center}
+.st-fb .av{position:absolute;left:18px;bottom:6px;width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6EA8FF,#8B7CFF);border:4px solid #fff}
+.st-fb::after{content:"";position:absolute;left:96px;bottom:14px;width:110px;height:10px;border-radius:6px;background:#DDE3EE}
+.st-lk{width:100%;max-width:480px;border-radius:12px;background:#fff;box-shadow:0 26px 50px -18px rgba(0,0,0,.7);overflow:hidden}
+.st-lk img{display:block;width:100%;aspect-ratio:1200/630;object-fit:cover}
+.st-lk .t{padding:11px 14px 13px;background:#F0F2F5;color:#1C1E21;text-align:left}
+.st-lk .t small{display:block;font:500 12px 'Inter',sans-serif;color:#65676B;text-transform:uppercase;letter-spacing:.02em}
+.st-lk .t b{display:block;font:700 15px 'Inter',sans-serif;margin-top:2px}
+.st-cap{margin-top:16px;min-height:52px;text-align:left}
+.st-cap b{display:block;font:800 18px 'Hind Siliguri','Inter',sans-serif;color:#fff}
+.st-cap span{display:block;font:500 14px/1.6 'Hind Siliguri','Inter',sans-serif;color:#B7C6EE}
+.st-cap.sw b,.st-cap.sw span{animation:stcap .5s both}
+@keyframes stcap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:1020px){.hero-in{grid-template-columns:minmax(0,1fr);gap:38px;text-align:center}.hero-copy h1,.hero-copy p{margin-left:auto;margin-right:auto}.hero-copy .meta,.hero-cta{justify-content:center}.hero-stage{margin:0 auto}.st-cap{text-align:center}.st-tabs{justify-content:flex-start}}
+@media(max-width:760px){.hero-stage{max-width:100%}.st-sl{padding:14px}.st-frame{aspect-ratio:1.05}.st-page .sk{transform:scale(.72)}}
+@media(prefers-reduced-motion:reduce){.st-sl>img,.st-sl.on .st-page .sk{animation:none}.st-sl{transition:opacity .2s}}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;color:#DCE6FF}
 .eyebrow i{width:7px;height:7px;border-radius:50%;background:#34D399;box-shadow:0 0 0 4px rgba(52,211,153,.25)}
 .hero h1{margin:26px auto 20px;max-width:20em;font-size:clamp(32px,5vw,60px);line-height:1.18;font-weight:800;letter-spacing:-.02em}
@@ -361,14 +406,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   <div class="hero-fx" aria-hidden="true">
     <svg class="fx-ros r1" viewBox="-100 -100 200 200"><path id="ros1"/></svg>
     <svg class="fx-ros r2" viewBox="-100 -100 200 200"><path id="ros2"/></svg>
-    <div class="fx-cert c1" style="left:3.5%;top:40%;--t:13s;--d:-3s;--r0:-9deg;--r1:-4deg"><i class="t"></i><i class="rb"></i><i class="n"></i><i class="l"></i><i class="l b"></i><i class="s"></i></div>
-    <div class="fx-cert c2" style="right:4%;top:17%;--t:11s;--d:-6s;--r0:8deg;--r1:3deg"><i class="t"></i><i class="rb"></i><i class="n"></i><i class="l"></i><i class="l b"></i><i class="s"></i></div>
-    <div class="fx-chip x1" style="left:15%;top:23%;--t:8s;--d:-2s;--l:100%">Video Editing<b></b></div>
-    <div class="fx-chip x2" style="left:21%;top:70%;--t:10s;--d:-5s;--l:75%">Python<b></b></div>
-    <div class="fx-chip x3" style="right:17%;top:66%;--t:9s;--d:-1s;--l:75%">UI/UX Design<b></b></div>
-    <div class="fx-chip x4" style="right:22%;top:24%;--t:11s;--d:-7s;--l:50%">Photography<b></b></div>
-    <div class="fx-chip x5" style="left:9%;top:80%;--t:12s;--d:-4s;--l:50%">Calligraphy<b></b></div>
-    <div class="fx-chip x6" style="right:7%;top:84%;--t:9.5s;--d:-8s;--l:100%">SEO<b></b></div>
     <i class="fx-sp" style="left:30%;top:16%;--t:4.2s;--d:-1s"></i><i class="fx-sp" style="left:68%;top:12%;--t:5s;--d:-2.5s"></i><i class="fx-sp" style="left:12%;top:58%;--t:3.8s;--d:-.5s"></i>
     <i class="fx-sp" style="left:86%;top:50%;--t:4.6s;--d:-3s"></i><i class="fx-sp" style="left:40%;top:86%;--t:5.4s;--d:-1.8s"></i><i class="fx-sp" style="left:74%;top:78%;--t:4s;--d:-2.2s"></i><i class="fx-sp" style="left:52%;top:9%;--t:6s;--d:-4s"></i>
   </div>
@@ -380,15 +417,31 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       document.getElementById('ros2').setAttribute('d', ros(13, 5, 8, 96));
     })();
   </script>
-  <span class="eyebrow"><i></i>ফ্রি · ৩ মিনিট · আপনার নিজের লিংক</span>
-  <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
-  <p>আপনার আসল দক্ষতা, কাজ আর পরিচয় এক সুন্দর পেজে। এক লিংকে সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে নিজেকে তুলে ধরুন।</p>
-  <div class="meta">
-    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের ইউনিক লিংক</span>
-    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড ও শেয়ার কার্ড</span>
-    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>আপনি চাইলে তবেই প্রকাশ</span>
+  <div class="hero-in">
+    <div class="hero-copy">
+    <span class="eyebrow"><i></i>ফ্রি · ৩ মিনিট · আপনার নিজের লিংক</span>
+    <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
+    <p>আপনার আসল দক্ষতা, কাজ আর পরিচয় এক সুন্দর পেজে। এক লিংকে সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে নিজেকে তুলে ধরুন।</p>
+    <div class="meta">
+      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের ইউনিক লিংক</span>
+      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড ও শেয়ার কার্ড</span>
+      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>আপনি চাইলে তবেই প্রকাশ</span>
+    </div>
+      <div class="hero-cta"><button class="btn-pri hero-go" type="button" id="heroGo">এখনই শুরু করুন <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><span>ফ্রি · সাইন-আপ লাগে না, শুধু Google</span></div>
+      <div class="cnt" id="heroCnt"></div>
+    </div>
+    <div class="hero-stage" id="stage" aria-label="এই পেজে যা যা পাবেন">
+      <div class="st-tabs" role="tablist"><button type="button" role="tab" data-k="pg" class="on"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/></svg><span>পাবলিক পেজ</span><i></i></button><button type="button" role="tab" data-k="ct"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span><i></i></button><button type="button" role="tab" data-k="po"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span><i></i></button><button type="button" role="tab" data-k="cv"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span><i></i></button><button type="button" role="tab" data-k="lk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg><span>লিংক প্রিভিউ</span><i></i></button></div>
+      <div class="st-frame">
+        <div class="st-sl on" data-k="pg"><div class="st-page" id="stPage"></div></div>
+        <div class="st-sl" data-k="ct"><img id="stCt" alt="স্কিল সনদ" decoding="async"></div>
+        <div class="st-sl" data-k="po"><img id="stPo" alt="Facebook পোস্ট ছবি" decoding="async"></div>
+        <div class="st-sl" data-k="cv"><div class="st-fb"><img id="stCv" alt="Facebook কভার" decoding="async"><div class="av"></div></div></div>
+        <div class="st-sl" data-k="lk"><div class="st-lk"><img id="stLk" alt="লিংক প্রিভিউ" decoding="async"><div class="t"><small>protishthan.com</small><b>Rafi Hasan — Graphic Designer</b></div></div></div>
+      </div>
+      <div class="st-cap" id="stCap"><b></b><span></span></div>
+    </div>
   </div>
-  <div class="cnt" id="heroCnt"></div>
 </section>
 
 <div class="wrap">
@@ -934,6 +987,52 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
      on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
     window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
     window.addEventListener('beforeunload', saveDraft);
+  /* ---------- hero stage: a short, self-playing tour of what you get ---------- */
+  (function(){
+    const stage = $('stage'); if(!stage) return;
+    const SAMPLE = { username: 'rafi-hasan', display_name: 'Rafi Hasan', headline: 'Graphic Designer & Video Editor', theme: 'midnight', avatar: 'av:stu-m:1', badges: ['creator', 'self-taught'], views: 128, published_at: new Date().toISOString(), cover_avatar: true, cover_style: 'royal',
+      skills: [{ n: 'Video Editing', l: 4 }, { n: 'Graphic Design', l: 3 }, { n: 'UI/UX Design', l: 3 }, { n: 'Motion Graphics', l: 2 }],
+      links: [{ t: 'My Portfolio', u: 'https://www.behance.net/rafi' }, { t: 'Code & Projects', u: 'https://github.com/rafi' }],
+      socials: [{ p: 'facebook', u: 'https://www.facebook.com/rafi' }, { p: 'instagram', u: 'https://www.instagram.com/rafi' }, { p: 'youtube', u: 'https://www.youtube.com/@rafi' }] };
+    const CAP = {
+      pg: ['নিজের অনলাইন পাবলিক পেজ', 'এক লিংকে আপনার স্কিল, কাজ আর সোশ্যাল। সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে সরাসরি দেখান।'],
+      ct: ['স্কিল সনদ', 'আসল সনদের মতো দেখতে, HD মানের সনদ। ডাউনলোড করে শেয়ার করুন।'],
+      po: ['Facebook পোস্ট ছবি', 'ফেসবুক আর ইনস্টাগ্রামে ঠিক মাপে, এক ক্লিকে ডাউনলোড।'],
+      cv: ['Facebook কভার', 'ডেস্কটপ আর মোবাইল দুটোতেই ঠিক বসে, তিনটা ডিজাইনের মধ্যে থেকে বেছে নিন।'],
+      lk: ['লিংক প্রিভিউ', 'লিংক পাঠালেই ফেসবুক, হোয়াটসঅ্যাপে সুন্দর কার্ড হয়ে দেখা যায়।']
+    };
+    const keys = ['pg', 'ct', 'po', 'cv', 'lk'], tabs = [...stage.querySelectorAll('.st-tabs button')], sls = [...stage.querySelectorAll('.st-sl')], cap = $('stCap'), box = stage.querySelector('.st-tabs');
+    const ready = { pg: true, ct: false, po: false, cv: false, lk: false }, DUR = 4400;
+    let cur = 0, timer = null, held = false;
+    stage.style.setProperty('--dur', DUR + 'ms');
+    function show(i, user){
+      cur = i;
+      tabs.forEach((t, j) => t.classList.toggle('on', j === i)); sls.forEach((s, j) => s.classList.toggle('on', j === i));
+      const k = keys[i]; cap.querySelector('b').textContent = CAP[k][0]; cap.querySelector('span').textContent = CAP[k][1];
+      cap.classList.remove('sw'); void cap.offsetWidth; cap.classList.add('sw');
+      const t = tabs[i]; if(box.scrollWidth > box.clientWidth) box.scrollTo({ left: t.offsetLeft - 12, behavior: 'smooth' });
+      // restart the tab progress line
+      box.classList.add('paused'); void box.offsetWidth; box.classList.remove('paused');
+      clearTimeout(timer); if(!held) timer = setTimeout(next, DUR);
+    }
+    function next(){ let n = cur; for(let s = 0; s < keys.length; s++){ n = (n + 1) % keys.length; if(ready[keys[n]]) break; } show(n); }
+    tabs.forEach((t, i) => t.addEventListener('click', () => { if(!ready[keys[i]]) return; show(i, true); }));
+    stage.addEventListener('mouseenter', () => { held = true; clearTimeout(timer); box.classList.add('paused'); });
+    stage.addEventListener('mouseleave', () => { held = false; show(cur); });
+    document.addEventListener('visibilitychange', () => { if(document.hidden){ clearTimeout(timer); } else if(!held) show(cur); });
+    // the first slide is plain HTML and shows at once; the pictures are drawn when the browser is idle
+    try{ V.mount($('stPage'), SAMPLE, { embed: true }); }catch(e){}
+    show(0);
+    const idle = window.requestIdleCallback || (fn => setTimeout(fn, 600));
+    idle(async () => {
+      try{
+        const put = async (k, id, kind, sc) => { const cv = await C.draw(SAMPLE, kind, sc); $(id).src = cv.toDataURL('image/jpeg', .86); ready[k] = true; };
+        await put('ct', 'stCt', 'cert', .42); await put('po', 'stPo', 'post', .36); await put('cv', 'stCv', 'cover', .5); await put('lk', 'stLk', 'certog');
+      }catch(e){}
+    });
+    $('heroGo').addEventListener('click', () => { const w = document.querySelector('.wrap'); if(w) w.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  })();
+
   }
   function caption(){
     const u = 'https://protishthan.com/s/' + ((ROW && ROW.username) || S.username || 'your-name');
