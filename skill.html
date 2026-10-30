@@ -285,6 +285,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .cov-av input:focus-visible+.sw{box-shadow:0 0 0 3px rgba(26,86,219,.25)}
 .cov-av .tx{display:flex;flex-direction:column;line-height:1.35}.cov-av .tx b{font-size:13.5px}.cov-av .tx small{font-size:12px;color:var(--text-3)}
 .cov-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.cov-styles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.cov-styles button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px;border:1.5px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:border-color .15s,box-shadow .15s}
+.cov-styles button i{display:block;width:100%;height:30px;border-radius:7px;margin-bottom:4px;border:1px solid rgba(15,23,42,.12)}
+.cov-styles button b{font-size:13px;color:var(--text)}.cov-styles button small{font-size:11px;color:var(--text-3);line-height:1.3}
+.cov-styles button.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.15)}
 .cov-foot .btn-pri{height:44px;font-size:14.5px;padding:0 20px}
 .cov-foot .btn-pri small{font-weight:600;opacity:.8;font-size:12px;margin-left:6px}
 .cov-wrap{position:relative;border-radius:10px;overflow:hidden;line-height:0}
@@ -479,6 +484,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
           <label class="cov-av"><input type="checkbox" id="covAv" checked><span class="sw" aria-hidden="true"></span><span class="tx"><b>কভারে আমার ছবি</b></span></label>
           <button class="btn-pri" type="button" id="covDl">⬇ কভার ডাউনলোড <small>১৬৪০×৭২০</small></button>
         </div>
+        <div class="cov-styles" id="covStyles" role="group" aria-label="কভারের ডিজাইন">
+          <button type="button" data-s="royal" class="on"><i style="background:linear-gradient(135deg,#0B1B4D,#24357F 60%,#E3C275)"></i><b>রয়্যাল</b><small>নেভি ও সোনালি</small></button>
+          <button type="button" data-s="aurora"><i style="background:linear-gradient(135deg,#7C3AED,#2563EB 55%,#06B6D4)"></i><b>মডার্ন</b><small>উজ্জ্বল গ্রেডিয়েন্ট</small></button>
+          <button type="button" data-s="classic"><i style="background:linear-gradient(135deg,#FBF6E9 40%,#16235A 41%)"></i><b>ক্লাসিক</b><small>আইভরি ও নেভি</small></button>
+        </div>
         <div class="cov-wrap" id="covWrap"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas></div>
       </div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
@@ -509,7 +519,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { photo: '', cover_avatar: true, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
+  let S = { photo: '', cover_avatar: true, cover_style: 'royal', socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
   let USER = null, ROW = null, uOk = null, skin = 1;
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -555,7 +565,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   const preview = () => Object.assign(clean(), {
     views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom,
-    cover_avatar: S.cover_avatar !== false, previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
+    cover_avatar: S.cover_avatar !== false, cover_style: S.cover_style || 'royal', previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
   });
   // what is downloaded or published: only complete addresses, no "soft" placeholders
   const previewReal = () => Object.assign(preview(), { previewAll: false, socials: cleanSocials() });
@@ -919,6 +929,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : PV === 'lk' ? 'certog' : 'cert'));
     on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('cvCover', 'click', () => zoom('cover'));
+    const paintCovStyle = () => document.querySelectorAll('#covStyles button').forEach(b => b.classList.toggle('on', b.dataset.s === (S.cover_style || 'royal')));
+    $('covStyles').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S.cover_style = b.dataset.s; paintCovStyle(); saveDraft(); debounce('cv', drawCanvases, 60); });
+    paintCovStyle();
     on('covAv', 'change', e => { S.cover_avatar = e.target.checked; saveDraft(); debounce('cv', drawCanvases, 200); });
     on('covDl', 'click', () => downloadCard('cover'));
     on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
@@ -944,7 +957,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, cover_style: S.cover_style, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); fixAvatar(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();
