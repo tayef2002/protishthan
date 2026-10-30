@@ -94,7 +94,7 @@
     im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
   });
   async function fonts(){
-    try{ await Promise.all([document.fonts.load('400 48px "Tiro Bangla"'), document.fonts.load('400 48px "Great Vibes"'), document.fonts.load('400 48px "Mrs Saint Delafield"'), document.fonts.load('italic 600 28px "Cormorant Garamond"'), document.fonts.load('700 24px "Cormorant Garamond"'), document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('400 48px "Tiro Bangla"'), document.fonts.load('400 48px "Great Vibes"'), document.fonts.load('700 48px Cinzel'), document.fonts.load('400 48px "Mrs Saint Delafield"'), document.fonts.load('italic 600 28px "Cormorant Garamond"'), document.fonts.load('700 24px "Cormorant Garamond"'), document.fonts.load('800 48px "Hind Siliguri"'), document.fonts.load('600 28px "Hind Siliguri"'), document.fonts.load('400 24px "Hind Siliguri"'), document.fonts.load('800 48px Inter'), document.fonts.load('500 24px Inter')]); }catch(e){}
   }
   function rr(c, x, y, w, h, r){ c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
   function wrap(c, text, maxW, maxLines){
@@ -249,6 +249,7 @@
     else { c.save(); c.translate(x, y); c.transform(1, 0, -.22, 1, 0, 0); const s = fit(c, first, '700', BODY, 46, 26, maxW); c.fillText(first, 0, 0); c.restore(); }
   }
   const SCRIPT = '"Great Vibes","Snell Roundhand","Segoe Script","Brush Script MT",cursive';
+  const CAPS = '"Cinzel","Cormorant Garamond",Georgia,serif';
   const HAND = '"Mrs Saint Delafield","Great Vibes","Segoe Script","Brush Script MT",cursive';
   const enDate = d => { try{ return new Date(d || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); }catch(e){ return ''; } };
   function foil(c, x0, x1){
@@ -265,6 +266,19 @@
     });
     c.restore(); diamond(c, cx, y, 8, GOLD);
   }
+  // gold ribbon banner with folded ends (y is its top edge)
+  function banner(c, cx, y, w, h){
+    const tail = 44, fold = 16, ty = y + 14;
+    [-1, 1].forEach(d => {
+      const x0 = cx + d * w / 2;
+      c.fillStyle = '#A07A2A'; c.beginPath(); c.moveTo(x0, ty); c.lineTo(x0 + d * (tail + 18), ty); c.lineTo(x0 + d * tail, ty + h / 2); c.lineTo(x0 + d * (tail + 18), ty + h); c.lineTo(x0, ty + h); c.closePath(); c.fill();
+      c.strokeStyle = 'rgba(80,55,10,.45)'; c.lineWidth = 1.2; c.stroke();
+      c.fillStyle = '#6E5016'; c.beginPath(); c.moveTo(x0, y + h); c.lineTo(x0, ty + h); c.lineTo(x0 - d * fold, y + h); c.closePath(); c.fill();
+    });
+    const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#F1DA9E'); g.addColorStop(.5, '#D5AC55'); g.addColorStop(1, '#B8893B');
+    c.save(); c.shadowColor = 'rgba(80,55,10,.35)'; c.shadowBlur = 8; c.shadowOffsetY = 3; c.fillStyle = g; c.fillRect(cx - w / 2, y, w, h); c.restore();
+    c.strokeStyle = 'rgba(27,42,90,.55)'; c.lineWidth = 1.5; c.strokeRect(cx - w / 2 + 5, y + 5, w - 10, h - 10);
+  }
   async function drawCert(p, W, H, logo){
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
     certPaper(c, W, H);
@@ -272,14 +286,14 @@
     certFrame(c, W, H);
     const cx = W / 2, name = (p.display_name || 'Your Name').trim(), skills = (p.skills || []).slice(0, 6);
     c.textAlign = 'center';
-    // "Certificate" in gold foil script, "OF SKILL" spaced capitals beneath
-    c.save(); c.shadowColor = 'rgba(27,42,90,.28)'; c.shadowOffsetX = 2; c.shadowOffsetY = 3; c.shadowBlur = 3;
-    c.font = '400 150px ' + SCRIPT; const tw = c.measureText('Certificate').width; c.fillStyle = foil(c, cx - tw / 2, cx + tw / 2); c.fillText('Certificate', cx, 246); c.restore();
-    c.fillStyle = NAVY; c.font = '700 33px ' + LSERIF; spaced(c, '20px'); c.fillText('OF  SKILL', cx + 10, 316); spaced(c, '0px');
-    flourish(c, cx, 352, 420);
-    c.fillStyle = INKM; c.font = '600 22px ' + LSERIF; spaced(c, '6px'); c.fillText('THIS CERTIFICATE IS PROUDLY PRESENTED TO', cx, 402); spaced(c, '0px');
-    c.fillStyle = NAVY; const fs = fit(c, name, '400', SCRIPT, 124, 62, 1040); c.fillText(name, cx, 402 + 26 + fs * .72);
-    let y = 402 + 26 + fs * .72 + 22; const g = c.createLinearGradient(cx - 360, 0, cx + 360, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)'); c.fillStyle = g; c.fillRect(cx - 360, y, 720, 2.5);
+    // title: engraved capitals (Cinzel) over a gold ribbon banner; the name below is script, so the two never look alike
+    c.save(); c.shadowColor = 'rgba(184,137,59,.55)'; c.shadowOffsetX = 2.5; c.shadowOffsetY = 3; c.shadowBlur = 0;
+    c.fillStyle = NAVY; c.font = '700 98px ' + CAPS; spaced(c, '16px'); c.fillText('CERTIFICATE', cx + 8, 232); spaced(c, '0px'); c.restore();
+    banner(c, cx, 262, 400, 50);
+    c.fillStyle = NAVY; c.font = '700 27px ' + CAPS; spaced(c, '15px'); c.fillText('OF SKILL', cx + 7, 297); spaced(c, '0px');
+    c.fillStyle = INKM; c.font = '500 21px ' + CAPS; spaced(c, '5px'); c.fillText('THIS CERTIFICATE IS PROUDLY PRESENTED TO', cx + 2, 378); spaced(c, '0px');
+    c.fillStyle = NAVY; const fs = fit(c, name, '400', SCRIPT, 126, 62, 1040); c.fillText(name, cx, 378 + 22 + fs * .74);
+    let y = 378 + 22 + fs * .74 + 24; const g = c.createLinearGradient(cx - 360, 0, cx + 360, 0); g.addColorStop(0, 'rgba(184,137,59,0)'); g.addColorStop(.5, GOLD); g.addColorStop(1, 'rgba(184,137,59,0)'); c.fillStyle = g; c.fillRect(cx - 360, y, 720, 2.5);
     y += 46; c.fillStyle = INKM; c.font = 'italic 600 34px ' + LSERIF; for(const ln of wrap(c, p.headline || '', 960, 1)) c.fillText(ln, cx, y);
     y += 48; c.fillStyle = INKM; c.font = 'italic 500 27px ' + LSERIF; c.fillText('in recognition of real, hands-on skill in', cx, y);
     y += 18; c.textAlign = 'left';
