@@ -93,7 +93,8 @@
     h += '<h1 class="sk-name' + R() + '">' + (esc(p.display_name) || '<span style="opacity:.4">আপনার নাম</span>') + '</h1>';
     if(p.headline) h += '<p class="sk-hl' + R() + '">' + esc(p.headline) + '</p>';
     else if(opt.embed) h += '<p class="sk-hl' + R() + '" style="opacity:.45">আপনার পদবি বা পরিচয়</p>';
-    if(badges.length) h += '<div class="sk-badges' + R() + '">' + badges.filter(b => BADGES[b]).map(b => '<span class="sk-chip">' + SPARK + esc(BADGES[b]) + '</span>').join('') + '</div>';
+    const openChip = (p.contact && p.contact.open) ? '<span class="sk-chip sk-open"><i></i>কাজের জন্য খোলা</span>' : '';
+    if(badges.length || openChip) h += '<div class="sk-badges' + R() + '">' + openChip + badges.filter(b => BADGES[b]).map(b => '<span class="sk-chip">' + SPARK + esc(BADGES[b]) + '</span>').join('') + '</div>';
     const soc = validSocials(p);
     if(soc.length) h += '<div class="sk-soc' + R() + '">' + soc.map(s => (s.u && socialOk(s.p, s.u) ? '<a class="sk-so" href="' + esc(s.u) + '" target="_blank" rel="noopener noreferrer nofollow ugc"' : '<span class="sk-so ghost"') + ' aria-label="' + esc(SOCIAL[s.p].n) + '" title="' + esc(SOCIAL[s.p].n) + '" style="--c:' + SOCIAL[s.p].c + '">' + socialSvg(s.p, 19) + (s.u && socialOk(s.p, s.u) ? '</a>' : '</span>')).join('') + '</div>';
     if(opt.actions) h += '<div class="' + R() + '">' + opt.actions + '</div>';
@@ -126,6 +127,15 @@
     h += '<p class="sk-note' + R() + '">এই তথ্য উনি নিজে দিয়েছেন, Protishthan যাচাই করেনি' + when + '</p>';
     h += '</div></div>';
     return h;
+  }
+  /* the contact options of a profile: WhatsApp, phone call, email (each is optional) */
+  function contactList(p){
+    const c = (p && p.contact) || {}, out = [], digits = v => String(v || '').replace(/\D/g, ''), wa = digits(c.whatsapp), ph = digits(c.phone), em = String(c.email || '').trim();
+    const page = SITE + '/s/' + ((p && p.username) || '');
+    if(wa) out.push({ k: 'whatsapp', t: 'WhatsApp', v: '+' + wa, href: 'https://wa.me/' + wa + '?text=' + encodeURIComponent('হ্যালো, আপনার স্কিল পেজ দেখে যোগাযোগ করছি: ' + page) });
+    if(ph) out.push({ k: 'phone', t: 'ফোন করুন', v: '+' + ph, href: 'tel:+' + ph });
+    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) out.push({ k: 'email', t: 'ইমেইল', v: em, href: 'mailto:' + em + '?subject=' + encodeURIComponent('স্কিল পেজ দেখে যোগাযোগ') });
+    return out;
   }
   function mount(el, p, opt){
     opt = opt || {};
@@ -634,6 +644,6 @@
     return b;
   }
 
-  window.SkillView = { html, mount, esc, avatarSrc, hostOf, LEVELS, BADGES, THEMES, bn, initials, SOCIAL, socialUrl, socialOk, socialSvg };
+  window.SkillView = { html, mount, contactList, esc, avatarSrc, hostOf, LEVELS, BADGES, THEMES, bn, initials, SOCIAL, socialUrl, socialOk, socialSvg };
   window.SkillCanvas = { draw, ogBlob, urlOf };
 })();

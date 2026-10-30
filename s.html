@@ -9,13 +9,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cinzel:wght@500;600;700&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/skill.css?v=7">
+<link rel="stylesheet" href="/skill.css?v=8">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=28"></script>
+<script src="/skill-core.js?v=29"></script>
 <style>
 html,body{margin:0;background:#070B16}
 #sk{min-height:100vh;display:flex;flex-direction:column}
@@ -30,6 +30,17 @@ html,body{margin:0;background:#070B16}
 .act .btn{height:auto;min-height:44px;padding:9px 6px;flex-direction:column;gap:4px;justify-content:center;font-size:12.5px;border-radius:14px}
 .act .btn svg{width:18px;height:18px}
 .act .btn.pri{grid-column:1/-1;flex-direction:row;height:48px;gap:9px;font-size:15px}
+.act .btn.full{grid-column:1/-1;flex-direction:row;height:44px;gap:9px;font-size:14.5px}
+.btn.ctc{width:100%;height:52px;margin-top:18px;justify-content:center;gap:10px;border:none;color:#fff;font-size:16px;background:linear-gradient(135deg,#059669,#10B981)}
+.btn.ctc:hover{filter:brightness(1.08)}
+.ctc-note{margin:2px 0 14px;font:500 13px/1.6 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+.ct-list{display:grid;gap:9px;text-align:left;margin:0 0 14px}
+.ct-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--glass);text-decoration:none;color:var(--ink);transition:border-color .2s,background .2s}
+.ct-row:hover{border-color:var(--a1);background:var(--glass2)}
+.ct-row>i{flex:none;width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--c)}
+.ct-row b{display:block;font:700 15px 'Hind Siliguri','Inter',sans-serif}
+.ct-row em{display:block;font:500 13px 'Inter',sans-serif;font-style:normal;color:var(--mut);word-break:break-all}
+.ct-row .cp{margin-left:auto;flex:none;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--chip);color:var(--ink);font:700 12px 'Hind Siliguri',sans-serif;cursor:pointer}
 .btn{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:var(--glass2);color:var(--ink);font:700 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .btn:hover{transform:translateY(-2px);border-color:var(--a1)}
 .btn.pri{border:none;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1));box-shadow:0 14px 34px -14px var(--a2)}
@@ -53,6 +64,7 @@ html,body{margin:0;background:#070B16}
 .ov.show{display:flex}
 .md{position:relative;width:min(400px,100%);padding:26px 24px 22px;border-radius:26px;background:var(--bg2);border:1px solid var(--line);box-shadow:0 40px 90px -20px rgba(0,0,0,.7);text-align:center;animation:mdin .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes mdin{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.md{color:var(--ink)}
 .md h3{margin:0 0 6px;font:800 20px 'Hind Siliguri','Inter',sans-serif}
 .md p{margin:0 0 16px;color:var(--mut);font:500 13.5px/1.6 'Hind Siliguri','Inter',sans-serif}
 .md canvas{width:220px;height:220px;border-radius:16px;background:#fff;display:block;margin:0 auto 12px}
@@ -83,6 +95,7 @@ html,body{margin:0;background:#070B16}
 </div>
 
 <div class="ov" id="qrOv"><div class="md" role="dialog" aria-modal="true" aria-label="QR কোড"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>QR কোড</h3><p>স্ক্যান করলেই এই প্রোফাইল খুলবে</p><canvas id="qrCv" width="440" height="440"></canvas><div class="u" id="qrUrl"></div></div></div>
+<div class="ov" id="ctcOv"><div class="md" role="dialog" aria-modal="true" aria-label="যোগাযোগ"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3 id="ctcT">যোগাযোগ করুন</h3><p class="ctc-note" id="ctcN"></p><div class="ct-list" id="ctcList"></div><p class="ctc-note" style="margin:0">এই তথ্য প্রোফাইলের মালিক নিজে দিয়েছেন। কেউ বিরক্ত করলে পেজের নিচের "রিপোর্ট করুন" দিয়ে জানান।</p></div></div>
 <div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
   <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">খারাপ বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
   <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
@@ -110,6 +123,9 @@ html,body{margin:0;background:#070B16}
     share: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-4M8.6 13.4l6.8 4"/></svg>',
     qr: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>',
     cert: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg>',
+    chat: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>',
+    phone: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+    mail: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>',
     arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     user: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
   };
@@ -123,18 +139,29 @@ html,body{margin:0;background:#070B16}
       return;
     }
     sk.setAttribute('data-theme', V.THEMES[p.theme] ? p.theme : 'midnight');
+    // the pop-up sheets sit outside the themed card, so they get the same colours from the page root
+    const cs = getComputedStyle(sk); ['--bg', '--bg2', '--ink', '--mut', '--glass', '--glass2', '--line', '--chip', '--a1', '--a2', '--a3'].forEach(v => document.documentElement.style.setProperty(v, cs.getPropertyValue(v)));
     document.querySelector('meta[name=theme-color]').setAttribute('content', (V.THEMES[p.theme] || V.THEMES.midnight).bg);
     document.documentElement.style.background = (V.THEMES[p.theme] || V.THEMES.midnight).bg; document.body.style.background = document.documentElement.style.background;
     document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
     $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
-    const actions = '<div class="act"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
+    const cl = V.contactList(p);
+    const actions = (cl.length ? '<button class="btn ctc" type="button" id="bContact">' + IC.chat + 'যোগাযোগ করুন</button>' : '') + '<div class="act"><button class="btn ' + (cl.length ? 'full' : 'pri') + '" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button><button class="btn" type="button" id="bCert">' + IC.cert + 'সনদ</button></div>';
     const after = '<section class="cta"><div class="tx"><h2>আপনিও বানান নিজের স্কিল পেজ</h2><p>ডিগ্রির বাইরে আপনার আসল দক্ষতা। ৩ মিনিটে, একদম ফ্রি।</p><small id="ctaN"></small></div><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">বানাই ' + IC.arrow + '</a></section>';
     pg.innerHTML = V.html(p, { actions: actions, after: after });
     $('rpBtn').style.display = '';
+    if($('bContact')) $('bContact').onclick = showContact;
     $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr; $('bCert').onclick = showCert;
     requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
     track();
     popular();
+  }
+  const CT_COL = { whatsapp: '#25D366', phone: '#0EA5E9', email: '#6366F1' }, CT_IC = { whatsapp: 'chat', phone: 'phone', email: 'mail' };
+  function showContact(){
+    $('ctcT').textContent = 'যোগাযোগ করুন'; $('ctcN').textContent = P.display_name + '-কে সরাসরি পাঠান';
+    $('ctcList').innerHTML = V.contactList(P).map(x => '<a class="ct-row" style="--c:' + CT_COL[x.k] + '" href="' + V.esc(x.href) + '"' + (x.k === 'whatsapp' ? ' target="_blank" rel="noopener noreferrer"' : '') + '><i>' + IC[CT_IC[x.k]] + '</i><span><b>' + x.t + '</b><em>' + V.esc(x.v) + '</em></span>' + (x.k === 'email' ? '<button class="cp" type="button" data-cp="' + V.esc(x.v) + '">কপি</button>' : '') + '</a>').join('');
+    $('ctcList').querySelectorAll('[data-cp]').forEach(b => b.addEventListener('click', async e => { e.preventDefault(); try{ await navigator.clipboard.writeText(b.dataset.cp); toast('কপি হয়েছে ✓'); }catch(_){} }));
+    open('ctcOv');
   }
   async function copy(){
     try{ await navigator.clipboard.writeText(url); toast('লিংক কপি হয়েছে ✓'); }
