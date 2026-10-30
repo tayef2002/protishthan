@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&family=Great+Vibes&family=Cinzel:wght@500;600;700&family=Mrs+Saint+Delafield&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/skill.css?v=7">
+<link rel="preload" as="image" href="/hero-cert.webp"><link rel="preload" as="image" href="/hero-cover.webp"><link rel="preload" as="image" href="/hero-post.webp">
 <link rel="stylesheet" href="/brand.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js"></script>
@@ -483,9 +484,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
               <div class="ph-lnk" id="phLnk"><span class="ic">Be</span><span class="t"><b>Portfolio</b><em>behance.net</em></span><span class="go"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg></span></div>
             </div>
           </div>
-          <div class="fc fc-ct" id="fcCt"><em>সনদ</em><img id="stCt" alt="স্কিল সনদ" decoding="async"></div>
-          <div class="fc fc-cv" id="fcCv"><em>FB কভার</em><img id="stCv" alt="Facebook কভার" decoding="async"></div>
-          <div class="fc fc-po" id="fcPo"><em>পোস্ট</em><img id="stPo" alt="Facebook পোস্ট ছবি" decoding="async"></div>
+          <div class="fc fc-ct" id="fcCt"><em>সনদ</em><img id="stCt" src="/hero-cert.webp" width="800" height="566" alt="স্কিল সনদ"></div>
+          <div class="fc fc-cv" id="fcCv"><em>FB কভার</em><img id="stCv" src="/hero-cover.webp" width="902" height="396" alt="Facebook কভার"></div>
+          <div class="fc fc-po" id="fcPo"><em>পোস্ট</em><img id="stPo" src="/hero-post.webp" width="454" height="567" alt="Facebook পোস্ট ছবি"></div>
           <div class="fc fc-lk" id="fcLk"><span class="ok"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="u">protishthan.com/s/<b>rafi</b></span><span class="cp">কপি</span></div>
         </div>
       </div>
@@ -1075,14 +1076,6 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       new IntersectionObserver(es => { visible = es[0].isIntersecting; if(visible) play(); else { timers.forEach(clearTimeout); timers = []; } }, { threshold: .2 }).observe(stage);
       document.addEventListener('visibilitychange', () => { if(document.hidden){ timers.forEach(clearTimeout); timers = []; } else if(visible) play(); });
     }
-    // the three pictures are drawn by our own renderer once the browser is idle
-    const idle = fn => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 2500 }) : fn()), 1200);
-    idle(async () => {
-      try{
-        const put = async (id, kind, sc) => { const cv = await C.draw(SAMPLE, kind, sc); $(id).src = cv.toDataURL('image/jpeg', .88); };
-        await put('stCt', 'cert', .45); await put('stCv', 'cover', .5); await put('stPo', 'post', .38);
-      }catch(e){}
-    });
     $('heroGo').addEventListener('click', () => { const w = document.querySelector('.wrap'); if(w) w.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   })();
 
