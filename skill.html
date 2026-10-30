@@ -95,11 +95,14 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 /* layout */
 .wrap{position:relative;z-index:2;max-width:1440px;margin:-62px auto 70px;padding:0 20px;display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr);gap:28px;align-items:start}
 .col-form{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;min-width:0}
-.prog{display:flex;align-items:center;gap:14px;padding:10px 18px;border-radius:18px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
-.prog .bar{flex:1;height:8px;border-radius:8px;background:#EEF2F8;overflow:hidden}
-.prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6);transition:width .5s cubic-bezier(.2,.8,.2,1)}
-.prog b{font:700 17px 'Hind Siliguri','Inter',sans-serif;color:var(--blue);min-width:46px;text-align:right;line-height:1}
-.prog span{font-size:13.5px;font-weight:600;color:var(--text-2)}
+.prog{display:flex;align-items:center;gap:14px;height:62px;padding:0 18px 0 12px;border-radius:18px;background:#fff;border:1px solid rgba(255,255,255,.7);box-shadow:0 22px 44px -22px rgba(6,12,56,.7),0 2px 6px rgba(6,12,56,.12)}
+.prog .pi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--blue),#8B5CF6);box-shadow:0 8px 16px -8px rgba(79,70,229,.8)}
+.prog .pi svg{width:19px;height:19px}
+.prog .pt{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.prog .pt span{font:700 14px/1 'Hind Siliguri','Inter',sans-serif;color:var(--text)}
+.prog .bar{height:7px;border-radius:7px;background:#E8EEF8;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6 70%,#22D3EE);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.prog b{flex:none;font:700 15px/1 'Hind Siliguri','Inter',sans-serif;color:#3730A3;background:#EEF2FF;border:1px solid #DCE3FF;padding:8px 11px;border-radius:11px;min-width:56px;text-align:center}
 .panel{background:#fff;border:1px solid var(--border);border-radius:22px;padding:24px 24px 22px;box-shadow:0 8px 30px -18px rgba(15,23,42,.18)}
 .panel>h2{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:-.01em}
 .panel>h2 .n{flex:none;width:30px;height:30px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;font:700 14px 'Hind Siliguri','Inter',sans-serif;transition:background .3s,color .3s}
@@ -238,9 +241,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
 /* preview column */
 .col-prev{position:sticky;top:84px;min-width:0}
-.pv-tabs{display:flex;gap:4px;padding:4px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2);margin-bottom:8px}
-.pv-tabs button{flex:1;border:none;border-radius:11px;padding:7px 6px;background:transparent;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .2s}
-.pv-tabs button.on{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 8px 18px -8px rgba(79,70,229,.7)}
+.pv-tabs{display:flex;gap:4px;height:62px;padding:6px;border-radius:18px;background:#fff;border:1px solid rgba(255,255,255,.7);box-shadow:0 22px 44px -22px rgba(6,12,56,.7),0 2px 6px rgba(6,12,56,.12);margin-bottom:12px}
+.pv-tabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:13px;padding:0 8px;background:transparent;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+.pv-tabs button svg{flex:none;width:17px;height:17px}
+.pv-tabs button:hover{background:#F1F5FF;color:#1E3A8A}
+.pv-tabs button.on{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 10px 20px -8px rgba(79,70,229,.75)}
 .pv-body{border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(15,23,42,.45)}
 .pv-body.scroll{max-height:calc(100vh - 250px);overflow-y:auto;scrollbar-width:thin}
 #cvCert,#cvPost{width:auto;height:auto;max-width:100%;max-height:max(340px,calc(100vh - 345px));margin:0 auto}
@@ -293,7 +298,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .cov-foot .btn-pri{height:44px;font-size:14.5px;padding:0 20px}
 .cov-foot .btn-pri small{font-weight:600;opacity:.8;font-size:12px;margin-left:6px}
 .cov-wrap{position:relative;border-radius:10px;overflow:hidden;line-height:0}
-@media(max-width:1100px){.pv-tabs{overflow-x:auto;scrollbar-width:none}.pv-tabs::-webkit-scrollbar{display:none}.pv-tabs button{flex:1 0 auto;padding:8px 12px;white-space:nowrap}}
+@media(max-width:1100px){.pv-tabs{overflow-x:auto;scrollbar-width:none}.pv-tabs::-webkit-scrollbar{display:none}.pv-tabs button{flex:1 0 auto;padding:0 14px;white-space:nowrap}}
 /* full-screen viewer: see the real thing without downloading it */
 .lb{position:fixed;inset:0;z-index:600;display:none;flex-direction:column;background:rgba(5,8,20,.94)}
 .lb.show{display:flex}
@@ -315,7 +320,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   .col-prev{position:relative;top:auto;z-index:2;order:-1}
   .pv-body.scroll{max-height:none;overflow:visible}
   .sheet-x{display:none}
-  .pv-tabs button{font-size:12.5px;padding:8px 2px}
+  .pv-tabs{height:56px}.prog{height:56px}
+  .pv-tabs button{font-size:12.5px;padding:0 6px;gap:5px}.pv-tabs button svg{width:15px;height:15px}
   .pv-bar{gap:8px}
   .pv-bar .acts{width:100%}
   .pv-bar .acts .btn-line,.pv-bar .acts .btn-pri{flex:1;justify-content:center;white-space:nowrap;padding:0 8px;font-size:12.5px}
@@ -387,7 +393,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 <div class="wrap">
   <div class="col-form">
     <section class="panel mini" id="miniCard"><div class="mini-h"><b>আপনার সনদ</b><span id="miniNote">নমুনা: আপনার তথ্য দিলেই বদলে যাবে</span></div><button class="mini-b" type="button" id="miniOpen" aria-label="সনদ বড় করে দেখুন"><canvas id="cvMini" width="800" height="565"></canvas><i>বড় করে দেখুন</i></button></section>
-    <div class="prog" role="status"><span>প্রোফাইল</span><div class="bar"><i id="progBar"></i></div><b id="progPct">০%</b></div>
+    <div class="prog" role="status"><div class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg></div><div class="pt"><span>প্রোফাইল সম্পূর্ণতা</span><div class="bar"><i id="progBar"></i></div></div><b id="progPct">০%</b></div>
 
     <section class="panel" id="s1">
       <h2><span class="n" id="n1">১</span>আপনার পরিচয়</h2>
@@ -472,7 +478,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="cv">FB কভার</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/></svg><span>প্রোফাইল</span></button><button type="button" class="on" data-p="ct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span></button><button type="button" data-p="po"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span></button><button type="button" data-p="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span></button><button type="button" data-p="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg><span>লিংক প্রিভিউ</span></button></div>
     <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
     <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
