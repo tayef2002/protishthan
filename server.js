@@ -356,6 +356,7 @@ http.createServer((req, res) => {
   }
 
   if (urlPath === '/') urlPath = '/index.html';
+  if (/^\/s\/[^\/]+\/?$/.test(urlPath)) urlPath = '/s.html';   // public skill profile (production serves it through functions/s/[username].js)
   // pretty URLs like Cloudflare Pages: /card -> /card.html
   if (!path.extname(urlPath) && fs.existsSync(path.join(ROOT, urlPath.replace(/\/$/, '') + '.html'))) urlPath = urlPath.replace(/\/$/, '') + '.html';
 

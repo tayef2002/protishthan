@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>আমার স্কিল, আমার আইডেন্টিটি — ফ্রি স্কিল পেজ বানান | Protishthan</title>
+<meta name="description" content="ডিগ্রির বাইরে আপনার আসল দক্ষতা এক লিংকে। ৩ মিনিটে ফ্রি স্কিল আইডেন্টিটি পেজ বানান, সোশ্যাল মিডিয়ায় শেয়ার করুন।">
+<meta property="og:title" content="আমার স্কিল, আমার আইডেন্টিটি — ফ্রি স্কিল পেজ বানান">
+<meta property="og:description" content="ডিগ্রির বাইরে আপনার আসল দক্ষতা এক লিংকে। ৩ মিনিটে ফ্রি, আপনার নিজের লিংকসহ।">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/skill.css?v=1">
+<link rel="stylesheet" href="/brand.css?v=3">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/member.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/avatars.js"></script>
+<script src="/skill-core.js?v=1"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
+html{scroll-behavior:smooth}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+nav#nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:200;width:min(94%,1180px);height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 14px 0 22px;border-radius:18px;background:rgba(15,23,42,.55);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s}
+nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3);border-color:rgba(255,255,255,.14)}
+.logo{font-family:'Inter','Hind Siliguri',sans-serif;font-size:21px;font-weight:800;color:#fff;letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:9px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#5B8DEF);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.logo span{opacity:.6}
+.nav-links{display:flex;gap:26px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.75);font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:#fff}
+.nav-links a.active{font-weight:700}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.btn-ghost-nav{padding:9px 16px;font-size:14px;font-weight:500;color:rgba(255,255,255,.85);text-decoration:none;transition:all .2s}
+.btn-ghost-nav:hover{color:#fff}
+.btn-primary-nav{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 4px 14px rgba(26,86,219,.35)}
+.btn-primary-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.45)}
+@media(max-width:1060px){.nav-links{gap:18px}.btn-ghost-nav{display:none}}
+@media(max-width:900px){.nav-links{display:none}}
+@media(max-width:768px){nav#nav{top:12px;width:92%;height:58px;padding:0 8px 0 16px}.logo{font-size:18px}.logo-icon{width:30px;height:30px}.btn-primary-nav{padding:9px 16px;font-size:13px}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:128px 20px 108px;text-align:center;color:#fff;background:radial-gradient(900px 380px at 78% -8%,rgba(124,92,255,.5),transparent 62%),radial-gradient(760px 340px at 12% 8%,rgba(34,211,238,.28),transparent 62%),linear-gradient(180deg,#0A1230,#0E1A44)}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:54px 54px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 70%)}
+.hero>*{position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:600;color:#DCE6FF}
+.eyebrow i{width:7px;height:7px;border-radius:50%;background:#34D399;box-shadow:0 0 0 4px rgba(52,211,153,.25)}
+.hero h1{margin:18px auto 12px;max-width:16em;font-size:clamp(32px,5.4vw,56px);line-height:1.16;font-weight:800;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(120deg,#93C5FD,#C4B5FD 55%,#5EEAD4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{max-width:34em;margin:0 auto;color:#C7D4F5;font-size:clamp(15px,2vw,18px)}
+.hero .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin-top:24px;color:#B7C6EE;font-size:14px;font-weight:500}
+.hero .meta span{display:inline-flex;align-items:center;gap:8px}
+.hero .meta svg{color:#7DD3FC}
+.hero .cnt{margin-top:18px;font-size:13.5px;color:#9FB2E6;min-height:20px}
+
+/* layout */
+.wrap{position:relative;z-index:2;max-width:1180px;margin:-62px auto 70px;padding:0 20px;display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:26px;align-items:start}
+.col-form{display:grid;gap:16px;min-width:0}
+.prog{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:18px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2)}
+.prog .bar{flex:1;height:8px;border-radius:8px;background:#EEF2F8;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#8B5CF6);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.prog b{font:800 15px 'Inter',sans-serif;color:var(--blue);min-width:42px;text-align:right}
+.prog span{font-size:13.5px;font-weight:600;color:var(--text-2)}
+.panel{background:#fff;border:1px solid var(--border);border-radius:22px;padding:24px 24px 22px;box-shadow:0 8px 30px -18px rgba(15,23,42,.18)}
+.panel>h2{display:flex;align-items:center;gap:12px;font-size:18px;font-weight:700;letter-spacing:-.01em}
+.panel>h2 .n{flex:none;width:30px;height:30px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;font:800 13px 'Inter',sans-serif;transition:background .3s,color .3s}
+.panel>h2 .n.done{background:#DCFCE7;color:#16A34A}
+.panel>.sub{margin:2px 0 14px 42px;font-size:13.5px;color:var(--text-2)}
+.f{display:block;margin:16px 0 7px;font-size:13.5px;font-weight:700;color:#334155}
+.f small{font-weight:500;color:var(--text-3)}
+.f .c{float:right;font-weight:500;color:var(--text-3);font-size:12.5px}
+.fi{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:13px;font:500 15.5px 'Hind Siliguri','Inter',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,86,219,.12)}
+textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
+.fi::placeholder{color:#A9B4C7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{margin-top:7px;font-size:12.5px;color:var(--text-3)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:#fff;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:#334155;transition:all .15s}
+.chip:hover{border-color:var(--blue);color:var(--blue);background:#F5F8FF}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.chip.add::before{content:"+";font-weight:800;margin-right:2px}
+
+/* avatar */
+.av-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.av-cur{flex:none;width:76px;height:76px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px var(--blue),0 10px 24px -10px rgba(26,86,219,.6);background:#EEF3FF;display:flex;align-items:center;justify-content:center;font:800 26px 'Inter',sans-serif;color:var(--blue)}
+.av-cur img{width:100%;height:100%;object-fit:cover}
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:10px;max-height:236px;overflow:auto;padding:4px 2px}
+.av-opt{position:relative;aspect-ratio:1;border-radius:50%;border:2px solid transparent;padding:0;background:none;overflow:hidden;transition:transform .15s,border-color .15s}
+.av-opt img{width:100%;height:100%;display:block}
+.av-opt:hover{transform:scale(1.06)}
+.av-opt.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.18)}
+.skins{display:flex;gap:8px;align-items:center;margin:12px 0 4px}
+.skins button{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--border)}
+.skins button.on{box-shadow:0 0 0 2px var(--blue)}
+.btn-line{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font:700 14px 'Hind Siliguri','Inter',sans-serif;color:var(--text);text-decoration:none;transition:border-color .15s,background .15s}
+.btn-line:hover{border-color:var(--blue);background:#F5F8FF;color:var(--blue)}
+.btn-pri{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:50px;padding:0 26px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;font:800 16px 'Hind Siliguri','Inter',sans-serif;box-shadow:0 14px 30px -12px rgba(79,70,229,.7);text-decoration:none;transition:transform .2s,box-shadow .2s,opacity .2s}
+.btn-pri:hover{transform:translateY(-2px);box-shadow:0 18px 36px -12px rgba(79,70,229,.8)}
+.btn-pri:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* skills */
+.add-row{display:flex;gap:10px}
+.add-row .fi{flex:1}
+.sk-list{display:grid;gap:10px;margin-top:14px}
+.sk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:center;padding:12px 14px;border:1.5px solid var(--border);border-radius:16px;background:#FCFDFF;animation:rowin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes rowin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sk-row .nm{font-weight:700;font-size:15.5px;word-break:break-word}
+.sk-row .tools{display:flex;gap:4px}
+.ib{width:32px;height:32px;border-radius:10px;border:none;background:#F1F5F9;color:#64748B;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.ib:hover{background:#E0E7FF;color:var(--blue)}
+.ib.del:hover{background:#FEE2E2;color:#DC2626}
+.ib:disabled{opacity:.35;cursor:default}
+.lvs{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:4px;border-radius:12px;background:#EEF2F8}
+.lvb{border:none;border-radius:9px;padding:7px 4px;background:transparent;font:600 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
+.lvb.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
+.empty{padding:20px;text-align:center;border:1.5px dashed var(--border);border-radius:16px;color:var(--text-3);font-size:14px;margin-top:14px}
+.lk-row{display:grid;grid-template-columns:.8fr 1.4fr auto;gap:10px;align-items:center;margin-top:10px}
+
+/* theme */
+.themes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.th{border:2px solid var(--border);border-radius:16px;padding:6px;background:#fff;text-align:center;transition:border-color .15s,transform .15s}
+.th:hover{transform:translateY(-2px)}
+.th.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.15)}
+.th i{display:block;height:46px;border-radius:11px;margin-bottom:6px}
+.th span{font-size:12.5px;font-weight:700;color:#475569}
+
+/* username + publish */
+.uwrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:13px;background:#fff;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.uwrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,86,219,.12)}
+.uwrap span{padding:0 0 0 14px;color:var(--text-3);font:500 14.5px 'Inter',sans-serif;white-space:nowrap}
+.uwrap input{flex:1;min-width:0;border:none;outline:none;padding:12px 14px 12px 2px;font:600 15.5px 'Inter',sans-serif;color:var(--text);background:transparent}
+.ust{margin-top:8px;font-size:13px;font-weight:600;min-height:20px}
+.ust.ok{color:#059669}.ust.bad{color:#DC2626}.ust.chk{color:var(--text-3)}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border-radius:16px;background:#F8FAFF;border:1.5px solid var(--border);font-size:13.5px;line-height:1.65;color:#334155;cursor:pointer}
+.consent input{flex:none;width:20px;height:20px;margin-top:3px;accent-color:var(--blue)}
+.consent a{color:var(--blue)}
+.pub-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
+.st{font-size:13px;font-weight:600;color:var(--text-3)}
+.st.err{color:#DC2626}.st.ok{color:#059669}
+.ok-box{margin-top:18px;padding:20px;border-radius:20px;background:linear-gradient(150deg,#ECFDF5,#F0F9FF);border:1.5px solid #A7F3D0;animation:rowin .4s cubic-bezier(.2,.8,.2,1)}
+.ok-box h3{font-size:18px;font-weight:800;color:#065F46;display:flex;align-items:center;gap:10px}
+.ok-box p{font-size:13.5px;color:#047857;margin:4px 0 14px}
+.lk-copy{display:flex;gap:8px}
+.lk-copy input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1.5px solid #A7F3D0;background:#fff;font:600 14px 'Inter',sans-serif;color:#0F172A}
+.shr{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.shr a,.shr button{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:11px;border:1.5px solid #CFE9DD;background:#fff;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;text-decoration:none}
+.shr a:hover,.shr button:hover{border-color:var(--blue);color:var(--blue)}
+.danger{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:13px;color:var(--text-3)}
+.danger button{background:none;border:none;color:#DC2626;font:700 13px 'Hind Siliguri','Inter',sans-serif;text-decoration:underline;text-underline-offset:3px}
+
+/* preview column */
+.col-prev{position:sticky;top:92px;min-width:0}
+.pv-tabs{display:flex;gap:4px;padding:5px;border-radius:15px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 30px -18px rgba(15,23,42,.2);margin-bottom:12px}
+.pv-tabs button{flex:1;border:none;border-radius:11px;padding:9px 6px;background:transparent;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .2s}
+.pv-tabs button.on{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 8px 18px -8px rgba(79,70,229,.7)}
+.pv-body{border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(15,23,42,.45);max-height:calc(100vh - 190px);overflow-y:auto;scrollbar-width:thin}
+.pv-pane{display:none}.pv-pane.on{display:block}
+.pv-canvas{display:block;width:100%;height:auto;border-radius:20px;background:#0B1020}
+.pv-cap{margin-top:10px;text-align:center;font-size:12.5px;color:var(--text-3)}
+.fbcard{border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--border);box-shadow:0 12px 30px -18px rgba(15,23,42,.35)}
+.fbcard canvas{display:block;width:100%;height:auto}
+.fbcard .t{padding:12px 14px;background:#F0F2F5}
+.fbcard .t small{display:block;font:600 11.5px 'Inter',sans-serif;color:#65676B;text-transform:uppercase;letter-spacing:.04em}
+.fbcard .t b{display:block;font:700 15px 'Hind Siliguri','Inter',sans-serif;color:#050505;margin-top:2px}
+.fbcard .t span{display:block;font:400 13px 'Hind Siliguri','Inter',sans-serif;color:#65676B;margin-top:1px}
+.dl{margin-top:12px;display:flex;justify-content:center}
+
+/* mobile */
+.mbar{display:none}
+.sheet-x{display:none}
+@media(max-width:1000px){
+  .wrap{grid-template-columns:1fr;margin-top:-52px;padding-bottom:90px;z-index:auto}
+  .col-form{position:relative;z-index:2}
+  .col-prev{position:fixed;inset:0;z-index:300;background:#EEF2F8;padding:18px 16px 100px;overflow-y:auto;transform:translateY(100%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),visibility .35s}
+  .col-prev.open{transform:none;visibility:visible}
+  .pv-body{max-height:none}
+  .sheet-x{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:800;font-size:17px}
+  .sheet-x button{width:38px;height:38px;border-radius:50%;border:none;background:#fff;font-size:20px;box-shadow:0 4px 12px rgba(15,23,42,.1)}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:250;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--border)}
+  .mbar .btn-line{flex:1;justify-content:center;height:48px}
+  .mbar .btn-pri{flex:1.3;height:48px;font-size:15px}
+}
+@media(max-width:600px){
+  .hero{padding:112px 16px 96px}
+  .panel{padding:20px 16px 18px;border-radius:20px}
+  .panel>.sub{margin-left:0}
+  .row2{grid-template-columns:1fr}
+  .themes{grid-template-columns:repeat(3,1fr)}
+  .lk-row{grid-template-columns:1fr auto}
+  .lk-row .lb{grid-column:1/-1}
+  .add-row{flex-direction:column}
+  .lvb{font-size:11.5px}
+}
+.tt{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);z-index:400;padding:11px 18px;border-radius:100px;background:#0F172A;color:#fff;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;box-shadow:0 16px 40px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.tt.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="logo"><span class="logo-icon"><img src="logo-sm.webp" alt="" width="34" height="34" decoding="async"></span>Protisht<span>han</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">তথ্যভান্ডার</a></li>
+    <li><a href="software.html">সার্ভিস</a></li>
+    <li><a href="card.html">শিক্ষিত কার্ড</a></li>
+    <li><a href="skill.html" class="active">স্কিল আইডেন্টিটি</a></li>
+  </ul>
+  <div class="nav-cta" data-member-slot="nav"></div>
+</nav>
+
+<section class="hero">
+  <span class="eyebrow"><i></i>ফ্রি · ৩ মিনিট · আপনার নিজের লিংক</span>
+  <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
+  <p>আপনার আসল দক্ষতা, কাজ আর পরিচয় এক সুন্দর পেজে। এক লিংকে সিভি, ইন্টারভিউ আর ক্লায়েন্টের সামনে নিজেকে তুলে ধরুন।</p>
+  <div class="meta">
+    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের ইউনিক লিংক</span>
+    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড ও শেয়ার কার্ড</span>
+    <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>আপনি চাইলে তবেই প্রকাশ</span>
+  </div>
+  <div class="cnt" id="heroCnt"></div>
+</section>
+
+<div class="wrap">
+  <div class="col-form">
+    <div class="prog" role="status"><span>প্রোফাইল</span><div class="bar"><i id="progBar"></i></div><b id="progPct">০%</b></div>
+
+    <section class="panel" id="s1">
+      <h2><span class="n" id="n1">১</span>আপনার পরিচয়</h2>
+      <p class="sub">নাম আর একটা লাইনে আপনি কী করেন, সেটাই প্রথম চোখে পড়বে।</p>
+      <label class="f" for="fName">নাম <span class="c" id="cName"></span></label>
+      <input class="fi" id="fName" maxlength="60" autocomplete="name" placeholder="যেমন: তায়েফ আহমেদ">
+      <label class="f" for="fHead">পদবি বা পরিচয় <small>(এক লাইনে)</small> <span class="c" id="cHead"></span></label>
+      <input class="fi" id="fHead" maxlength="70" placeholder="যেমন: গ্রাফিক ডিজাইনার ও ভিডিও এডিটর">
+      <div class="chips" id="headSugg"></div>
+      <label class="f" for="fAbout">নিজের সম্পর্কে <small>(ঐচ্ছিক)</small> <span class="c" id="cAbout"></span></label>
+      <textarea class="fi" id="fAbout" maxlength="160" placeholder="কী কাজ করেন, কতদিন ধরে, কী নিয়ে গর্ব করেন, ছোট করে লিখুন।"></textarea>
+    </section>
+
+    <section class="panel" id="s2">
+      <h2><span class="n done" id="n2">২</span>ছবি</h2>
+      <p class="sub">আপনার Google ছবি অথবা আমাদের একটা অ্যাভাটার। আলাদা ছবি আপলোড লাগবে না।</p>
+      <div class="av-top"><div class="av-cur" id="avCur"></div><div><button class="btn-line" type="button" id="avGoogle" style="display:none">Google-এর ছবি ব্যবহার করুন</button><div class="hint" id="avHint">অ্যাভাটার বেছে নিন</div></div></div>
+      <div class="skins" id="skins" aria-label="ত্বকের রং"></div>
+      <div class="av-grid" id="avGrid"></div>
+    </section>
+
+    <section class="panel" id="s3">
+      <h2><span class="n" id="n3">৩</span>আপনার স্কিল</h2>
+      <p class="sub">সর্বোচ্চ ৮টা। প্রতিটার পাশে নিজের লেভেল বেছে নিন। সৎভাবে।</p>
+      <div class="add-row"><input class="fi" id="fSkill" maxlength="30" placeholder="স্কিলের নাম লিখে Enter চাপুন, যেমন: ভিডিও এডিটিং"><button class="btn-line" type="button" id="addSkill">যোগ করুন</button></div>
+      <div class="chips" id="skSugg"></div>
+      <div class="sk-list" id="skList"></div>
+    </section>
+
+    <section class="panel" id="s4">
+      <h2><span class="n" id="n4">৪</span>আপনার কাজ <small style="font-weight:500;color:#94A3B8;font-size:13px">(ঐচ্ছিক)</small></h2>
+      <p class="sub">সর্বোচ্চ ৩টা লিংক: Behance, GitHub, YouTube, পোর্টফোলিও সাইট, যেকোনো কিছু।</p>
+      <div id="lkList"></div>
+      <button class="btn-line" type="button" id="addLink" style="margin-top:12px">+ লিংক যোগ করুন</button>
+    </section>
+
+    <section class="panel" id="s5">
+      <h2><span class="n done" id="n5">৫</span>ডিজাইন</h2>
+      <p class="sub">থিম আর ছোট ব্যাজ (সর্বোচ্চ ২টা) বেছে নিন।</p>
+      <div class="themes" id="themes"></div>
+      <label class="f">ব্যাজ</label>
+      <div class="chips" id="badges"></div>
+    </section>
+
+    <section class="panel" id="s6">
+      <h2><span class="n" id="n6">৬</span>আপনার লিংক ও প্রকাশ</h2>
+      <p class="sub">প্রকাশ না করা পর্যন্ত এই পেজ শুধু আপনি দেখতে পাবেন।</p>
+      <label class="f" for="fUser">আপনার লিংক</label>
+      <div class="uwrap"><span>protishthan.com/s/</span><input id="fUser" maxlength="30" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="your-name"></div>
+      <div class="ust" id="ust" aria-live="polite"></div>
+      <div class="hint" id="uWarn" style="display:none;color:#B45309">প্রকাশের পর ইউজারনেম বদলালে পুরনো লিংক আর কাজ করবে না।</div>
+      <label class="consent" id="consentBox"><input type="checkbox" id="fConsent"><span>আমি জানি, প্রকাশ করলে এই পেজ ইন্টারনেটে সবার জন্য খোলা থাকবে এবং Google-এ আসতে পারে। এখানকার সব তথ্য আমি নিজে দিয়েছি, কোনোটাই ভুয়া বা অন্যের নয়। <a href="terms.html" target="_blank" rel="noopener">ব্যবহারের শর্ত</a></span></label>
+      <div class="pub-row"><button class="btn-pri" type="button" id="pubBtn">প্রকাশ করুন</button><button class="btn-line" type="button" id="unpubBtn" style="display:none">প্রকাশ বন্ধ করুন</button><span class="st" id="saveSt"></span></div>
+      <div class="ok-box" id="okBox" style="display:none">
+        <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>আপনার পেজ এখন লাইভ!</h3>
+        <p>লিংকটা কপি করে যেকোনো জায়গায় শেয়ার করুন, প্রিভিউতে আপনার নাম আর স্কিল দেখাবে।</p>
+        <div class="lk-copy"><input id="okLink" readonly><button class="btn-line" type="button" id="okCopy">কপি</button></div>
+        <div class="shr"><a id="shWa" target="_blank" rel="noopener">WhatsApp</a><a id="shFb" target="_blank" rel="noopener">Facebook</a><a id="shLi" target="_blank" rel="noopener">LinkedIn</a><a id="shView" target="_blank" rel="noopener">পেজ দেখুন ↗</a><button type="button" id="shCard">কার্ড ছবি ডাউনলোড</button></div>
+      </div>
+      <div class="danger" id="danger" style="display:none"><span>আপনার ডেটা আপনার হাতে।</span><button type="button" id="delBtn">প্রোফাইল মুছে ফেলুন</button></div>
+    </section>
+  </div>
+
+  <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
+    <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="pf">প্রোফাইল</button><button type="button" data-p="cd">শেয়ার কার্ড</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-body">
+      <div class="pv-pane on" id="pvPf"><div id="pvMount"></div></div>
+      <div class="pv-pane" id="pvCd"><canvas class="pv-canvas" id="cvCard" width="1080" height="1350"></canvas><div class="dl"><button class="btn-line" type="button" id="dlCard">ছবি ডাউনলোড করুন</button></div><div class="pv-cap">১০৮০×১৩৫০, Instagram/Facebook স্টোরি ও পোস্টের জন্য</div></div>
+      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
+    </div>
+  </aside>
+</div>
+
+<div class="mbar"><button class="btn-line" type="button" id="prevOpen">প্রিভিউ দেখুন</button><button class="btn-pri" type="button" id="pubBtn2">প্রকাশ করুন</button></div>
+<div class="tt" id="tt" role="status"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const M = Protishthan.member, V = SkillView, C = SkillCanvas;
+  const DRAFT = 'sk_draft';
+  const LV = V.LEVELS;
+  const HEADS = ['ভিডিও এডিটর', 'গ্রাফিক ডিজাইনার', 'ওয়েব ডেভেলপার', 'কনটেন্ট ক্রিয়েটর', 'ফ্রিল্যান্সার', 'ডিজিটাল মার্কেটার', 'শিক্ষার্থী ও স্কিল শিক্ষানবিশ'];
+  const SUGG = ['ভিডিও এডিটিং', 'গ্রাফিক ডিজাইন', 'ওয়েব ডেভেলপমেন্ট', 'UI/UX ডিজাইন', 'ডিজিটাল মার্কেটিং', 'কনটেন্ট রাইটিং', 'স্পোকেন ইংলিশ', 'ফটোগ্রাফি', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'অ্যানিমেশন', 'ভয়েসওভার', 'ক্যালিগ্রাফি', 'হাতের লেখা', 'শিক্ষকতা', 'ফ্রিল্যান্সিং', 'সোশ্যাল মিডিয়া ম্যানেজমেন্ট'];
+  const IC = {
+    up: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+    down: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    x: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+  };
+  const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
+
+  let S = { username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false };
+  let USER = null, ROW = null, uOk = null, skin = 1, googleUrl = '';
+  const T = {};
+  const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
+  const toast = msg => { const t = $('tt'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2400); };
+  const normUrl = u => { u = String(u || '').trim(); if(!u) return ''; return /^https?:\/\//i.test(u) ? u : 'https://' + u; };
+  const validUser = u => /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(u);
+  const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){} return d; };
+
+  function clean(){
+    return {
+      username: (S.username || '').trim().toLowerCase(), display_name: S.display_name.trim(), headline: S.headline.trim(), about: S.about.trim(),
+      skills: S.skills.filter(s => s.n.trim()).map(s => ({ n: s.n.trim(), l: s.l })),
+      links: S.links.map(l => ({ t: l.t.trim(), u: normUrl(l.u) })).filter(l => l.u),
+      badges: S.badges.slice(0, 2), theme: S.theme, avatar: S.avatar || null
+    };
+  }
+  const preview = () => Object.assign(clean(), { views: ROW ? ROW.views : undefined, username: (S.username || 'your-name') });
+
+  /* ---------- draft (works without signing in) ---------- */
+  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} }
+
+  /* ---------- paint ---------- */
+  function setSt(msg, cls){ const e = $('saveSt'); e.textContent = msg || ''; e.className = 'st' + (cls ? ' ' + cls : ''); }
+  function paintAvatar(){
+    const src = V.avatarSrc(S.avatar), el = $('avCur');
+    el.innerHTML = src ? '<img src="' + V.esc(src) + '" alt="" referrerpolicy="no-referrer">' : V.esc(V.initials(S.display_name));
+    $('avGrid').querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', S.avatar === 'av:' + b.dataset.id + ':' + skin));
+    $('skins').querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === skin));
+    $('avHint').textContent = S.avatar && S.avatar.indexOf('av:') === 0 ? 'অ্যাভাটার বেছে নেওয়া আছে' : 'Google-এর ছবি ব্যবহার হচ্ছে';
+  }
+  function buildAvatarGrid(){
+    const L = window.ProtAvatars ? window.ProtAvatars.list : [];
+    $('skins').innerHTML = (window.ProtAvatars ? window.ProtAvatars.SKINS : []).map((c, i) => '<button type="button" style="background:' + c + '" data-i="' + i + '" aria-label="ত্বকের রং ' + (i + 1) + '"></button>').join('');
+    $('avGrid').innerHTML = L.map(a => '<button type="button" class="av-opt" data-id="' + a.id + '" title="' + V.esc(a.label) + '"><img alt="' + V.esc(a.label) + '" src="' + window.ProtAvatars.dataUrl(a.spec, skin) + '"></button>').join('');
+  }
+  function paintSkills(){
+    const box = $('skList');
+    if(!S.skills.length){ box.innerHTML = '<div class="empty">এখনো কোনো স্কিল নেই। উপরে লিখুন বা নিচের পরামর্শ থেকে বেছে নিন।</div>'; }
+    else box.innerHTML = S.skills.map((s, i) => '<div class="sk-row"><div class="nm">' + V.esc(s.n) + '</div><div class="tools"><button class="ib" type="button" data-a="up" data-i="' + i + '" aria-label="উপরে"' + (i === 0 ? ' disabled' : '') + '>' + IC.up + '</button><button class="ib" type="button" data-a="dn" data-i="' + i + '" aria-label="নিচে"' + (i === S.skills.length - 1 ? ' disabled' : '') + '>' + IC.down + '</button><button class="ib del" type="button" data-a="rm" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div><div class="lvs" role="radiogroup" aria-label="লেভেল">' + LV.map((n, k) => '<button type="button" class="lvb' + (s.l === k + 1 ? ' on' : '') + '" data-a="lv" data-i="' + i + '" data-l="' + (k + 1) + '" role="radio" aria-checked="' + (s.l === k + 1) + '">' + n + '</button>').join('') + '</div></div>').join('');
+    const have = new Set(S.skills.map(s => s.n.toLowerCase()));
+    $('skSugg').innerHTML = (window.__pop || []).concat(SUGG).filter((n, i, a) => a.indexOf(n) === i && !have.has(n.toLowerCase())).slice(0, 12).map(n => '<button type="button" class="chip add" data-n="' + V.esc(n) + '">' + V.esc(n) + '</button>').join('');
+    $('addSkill').disabled = S.skills.length >= 8; $('fSkill').disabled = S.skills.length >= 8;
+  }
+  function paintLinks(){
+    $('lkList').innerHTML = S.links.length ? S.links.map((l, i) => '<div class="lk-row"><input class="fi lb" data-k="t" data-i="' + i + '" maxlength="30" placeholder="নাম (যেমন Behance)" value="' + V.esc(l.t) + '"><input class="fi" data-k="u" data-i="' + i + '" maxlength="200" inputmode="url" placeholder="https://..." value="' + V.esc(l.u) + '"><button class="ib del" type="button" data-a="rl" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div>').join('') : '<div class="empty">আপনার সেরা কাজের লিংক দিলে পেজটা অনেক বিশ্বাসযোগ্য হয়।</div>';
+    $('addLink').style.display = S.links.length >= 3 ? 'none' : '';
+  }
+  function paintThemes(){
+    $('themes').innerHTML = Object.keys(V.THEMES).map(k => '<button type="button" class="th' + (S.theme === k ? ' on' : '') + '" data-t="' + k + '"><i style="background:' + THEME_BG[k] + '"></i><span>' + V.THEMES[k].name + '</span></button>').join('');
+    $('badges').innerHTML = Object.keys(V.BADGES).map(k => { const on = S.badges.includes(k); return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-b="' + k + '"' + (!on && S.badges.length >= 2 ? ' disabled' : '') + '>' + V.BADGES[k] + '</button>'; }).join('');
+  }
+  function paintHeads(){ $('headSugg').innerHTML = HEADS.map(h => '<button type="button" class="chip" data-h="' + V.esc(h) + '">' + V.esc(h) + '</button>').join(''); }
+
+  function progress(){
+    const d = clean();
+    const items = [d.display_name.length >= 2, d.headline.length >= 3, d.about.length >= 20, d.skills.length >= 1, d.skills.length >= 3, d.links.length >= 1, validUser(d.username) && uOk !== false];
+    const pct = Math.round(items.filter(Boolean).length / items.length * 100);
+    $('progBar').style.width = pct + '%'; $('progPct').textContent = V.bn(pct) + '%';
+    $('n1').classList.toggle('done', items[0] && items[1]);
+    $('n3').classList.toggle('done', items[3]);
+    $('n4').classList.toggle('done', items[5]);
+    $('n6').classList.toggle('done', !!(ROW && ROW.published));
+    return { ok: items[0] && items[3] && validUser(d.username) && uOk !== false };
+  }
+  function paintPreview(){
+    const p = preview();
+    V.mount($('pvMount'), p, { embed: true });
+    debounce('cv', drawCanvases, 450);
+    progress(); paintPub();
+  }
+  async function drawCanvases(){
+    if(!$('pvCd').classList.contains('on') && !$('pvLk').classList.contains('on')) return;
+    const p = preview();
+    try{
+      if($('pvCd').classList.contains('on')){ const cv = await C.draw(p, 'card'); const t = $('cvCard'); t.getContext('2d').clearRect(0, 0, t.width, t.height); t.getContext('2d').drawImage(cv, 0, 0); }
+      if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'og'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
+    }catch(e){}
+  }
+  function paintPub(){
+    const pub = !!(ROW && ROW.published), ok = progress().ok, consent = $('fConsent').checked;
+    const label = !USER ? 'সাইন-ইন করে প্রকাশ করুন' : pub ? 'আপডেট সেভ হয়েছে' : 'প্রকাশ করুন';
+    $('pubBtn').textContent = label; $('pubBtn2').textContent = !USER ? 'সাইন-ইন ও প্রকাশ' : pub ? 'প্রকাশিত ✓' : 'প্রকাশ করুন';
+    $('pubBtn').disabled = USER ? (pub || !ok || !consent) : false; $('pubBtn2').disabled = $('pubBtn').disabled && !!USER;
+    $('unpubBtn').style.display = pub ? '' : 'none';
+    $('consentBox').style.display = pub ? 'none' : '';
+    $('danger').style.display = ROW ? '' : 'none';
+    $('uWarn').style.display = pub ? '' : 'none';
+    $('okBox').style.display = pub ? '' : 'none';
+    if(pub){ const u = 'https://protishthan.com/s/' + ROW.username, t = encodeURIComponent((S.display_name || '') + ' — আমার স্কিল আইডেন্টিটি: ' + u); $('okLink').value = u; $('shWa').href = 'https://wa.me/?text=' + t; $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u); $('shLi').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(u); $('shView').href = '/s/' + ROW.username; }
+  }
+  function paintAll(){
+    $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
+    $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
+    buildAvatarGrid(); paintAvatar(); paintSkills(); paintLinks(); paintThemes(); paintHeads(); paintPreview();
+  }
+
+  /* ---------- username ---------- */
+  function setU(state, msg){ const e = $('ust'); e.className = 'ust ' + state; e.textContent = msg || ''; }
+  function checkUser(){
+    const v = S.username;
+    if(!v){ uOk = null; setU('', ''); progress(); paintPub(); return; }
+    if(!validUser(v)){ uOk = false; setU('bad', '৩ থেকে ৩০ অক্ষর: ছোট হাতের ইংরেজি অক্ষর, সংখ্যা ও হাইফেন (-)'); progress(); paintPub(); return; }
+    setU('chk', 'যাচাই করা হচ্ছে…');
+    debounce('u', async () => {
+      const mine = v;
+      try{
+        const { data, error } = await M.sb.rpc('skill_username_free', { p: mine });
+        if(mine !== S.username) return;
+        if(error) throw error;
+        uOk = !!data; setU(data ? 'ok' : 'bad', data ? '✓ ' + mine + ' পাওয়া যাচ্ছে' : 'এই নামটি নেওয়া আছে বা ব্যবহার করা যাবে না');
+      }catch(e){ uOk = null; setU('', ''); }
+      progress(); paintPub();
+    }, 420);
+  }
+  async function suggestUser(name){
+    let base = String(name || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 20);
+    if(base.length < 3) base = 'user';
+    for(let i = 0; i < 6; i++){
+      const cand = i === 0 && base !== 'user' ? base : base + '-' + String(Math.floor(1000 + Math.random() * 9000));
+      try{ const { data } = await M.sb.rpc('skill_username_free', { p: cand }); if(data) return cand; }catch(e){ return cand; }
+    }
+    return base + '-' + Date.now().toString(36).slice(-4);
+  }
+
+  /* ---------- saving ---------- */
+  const errMsg = e => {
+    const m = String((e && (e.message || e.details)) || e || '');
+    if(/BAD_TEXT/.test(m)) return 'কোনো লেখায় অনুপযুক্ত শব্দ আছে';
+    if(/USERNAME_RESERVED/.test(m)) return 'এই ইউজারনেম ব্যবহার করা যাবে না';
+    if(/23505|duplicate|unique/i.test(m)) return 'এই ইউজারনেম আগেই নেওয়া হয়েছে';
+    if(/BAD_LINK_URL/.test(m)) return 'একটা লিংক ঠিক নয় (https://... দিয়ে শুরু হতে হবে)';
+    if(/NEED_CONSENT/.test(m)) return 'প্রকাশের আগে সম্মতি দিন';
+    if(/NEED_NAME_AND_SKILL/.test(m)) return 'নাম আর অন্তত একটা স্কিল লাগবে';
+    if(/BAD_AVATAR/.test(m)) return 'ছবিটা ব্যবহার করা যায়নি, অন্য অ্যাভাটার বেছে নিন';
+    if(/violates check|sp_username_chk/.test(m)) return 'ইউজারনেম ঠিক নয়';
+    return 'সেভ হয়নি: ' + m.slice(0, 120);
+  };
+  async function save(extra){
+    saveDraft();
+    if(!USER){ setSt('ড্রাফট এই ডিভাইসে সেভ আছে', ''); return { ok: false, signedOut: true }; }
+    const d = clean();
+    if(!ROW && !d.display_name){ return { ok: false }; }
+    if(!validUser(d.username) || uOk === false){ setSt('ইউজারনেম ঠিক করুন', 'err'); return { ok: false }; }
+    setSt('সেভ হচ্ছে…', '');
+    const patch = Object.assign({}, d, { published: ROW ? ROW.published : false }, extra || {});
+    try{
+      const res = ROW
+        ? await M.sb.from('skill_profiles').update(patch).eq('user_id', USER.user_id).select().single()
+        : await M.sb.from('skill_profiles').insert(Object.assign({ user_id: USER.user_id }, patch)).select().single();
+      if(res.error) throw res.error;
+      ROW = res.data; setSt('সেভ হয়েছে ✓', 'ok');
+      if(ROW.published) debounce('og', pushOg, 2500);
+      return { ok: true };
+    }catch(e){ setSt(errMsg(e), 'err'); return { ok: false, error: e }; }
+  }
+  async function pushOg(){
+    if(!ROW || !ROW.published) return;
+    try{
+      const b = await C.ogBlob(Object.assign(preview(), { username: ROW.username }));
+      const r = await M.sb.storage.from('skill-og').upload(ROW.og_key + '.jpg', b, { upsert: true, contentType: 'image/jpeg', cacheControl: '300' });
+      if(r.error) console.warn('og upload:', r.error.message);
+    }catch(e){ console.warn('og image:', e); }
+  }
+  const autosave = () => { saveDraft(); debounce('save', () => save(), 1200); };
+
+  async function publish(){
+    if(!USER){ saveDraft(); M.signIn('আপনার স্কিল পেজ সেভ ও প্রকাশ করতে সাইন-ইন করুন'); return; }
+    if(!progress().ok){ toast('নাম, অন্তত একটা স্কিল আর ঠিক ইউজারনেম লাগবে'); return; }
+    if(!$('fConsent').checked){ toast('প্রকাশের আগে সম্মতির বক্সে টিক দিন'); $('consentBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    clearTimeout(T.save);
+    $('pubBtn').disabled = true; setSt('প্রকাশ করা হচ্ছে…', '');
+    const r = await save({ published: true, consent_at: new Date().toISOString() });
+    if(!r.ok){ paintPub(); return; }
+    await pushOg(); S.published = true; paintPub(); progress();
+    setSt('', ''); toast('আপনার পেজ এখন লাইভ ✓'); $('okBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  async function unpublish(){
+    clearTimeout(T.save); const r = await save({ published: false });
+    if(r.ok){ paintPub(); toast('প্রকাশ বন্ধ করা হয়েছে'); }
+  }
+  async function del(){
+    if(!ROW || !confirm('প্রোফাইলটা পুরোপুরি মুছে যাবে। নিশ্চিত?')) return;
+    try{ await M.sb.storage.from('skill-og').remove([ROW.og_key + '.jpg']); }catch(e){}
+    const { error } = await M.sb.from('skill_profiles').delete().eq('user_id', USER.user_id);
+    if(error){ toast('মোছা যায়নি: ' + error.message); return; }
+    ROW = null; S.published = false; $('fConsent').checked = false; saveDraft(); paintAll(); setSt('', ''); toast('প্রোফাইল মুছে ফেলা হয়েছে');
+  }
+
+  /* ---------- events ---------- */
+  function bind(){
+    const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
+    on('fName', 'input', e => { S.display_name = e.target.value; $('cName').textContent = S.display_name.length + '/60'; paintPreview(); autosave(); });
+    on('fHead', 'input', e => { S.headline = e.target.value; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
+    on('fAbout', 'input', e => { S.about = e.target.value; $('cAbout').textContent = S.about.length + '/160'; paintPreview(); autosave(); });
+    on('fUser', 'input', e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); e.target.value = v; S.username = v; checkUser(); paintPreview(); autosave(); });
+    on('headSugg', 'click', e => { const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
+    on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
+    on('skins', 'click', e => { const b = e.target.closest('button'); if(!b) return; skin = Number(b.dataset.i); if(S.avatar && S.avatar.indexOf('av:') === 0){ const id = S.avatar.split(':')[1]; S.avatar = 'av:' + id + ':' + skin; } buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); });
+    on('avGoogle', 'click', () => { if(googleUrl){ S.avatar = googleUrl; paintAvatar(); paintPreview(); autosave(); } });
+    const addSkill = n => { n = String(n || '').trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 8){ toast('সর্বোচ্চ ৮টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
+    on('addSkill', 'click', () => addSkill($('fSkill').value));
+    on('fSkill', 'keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addSkill(e.target.value); } });
+    on('skSugg', 'click', e => { const b = e.target.closest('[data-n]'); if(b) addSkill(b.dataset.n); });
+    on('skList', 'click', e => {
+      const b = e.target.closest('[data-a]'); if(!b) return; const i = Number(b.dataset.i), a = b.dataset.a;
+      if(a === 'rm') S.skills.splice(i, 1);
+      else if(a === 'up' && i > 0) [S.skills[i - 1], S.skills[i]] = [S.skills[i], S.skills[i - 1]];
+      else if(a === 'dn' && i < S.skills.length - 1) [S.skills[i + 1], S.skills[i]] = [S.skills[i], S.skills[i + 1]];
+      else if(a === 'lv') S.skills[i].l = Number(b.dataset.l);
+      paintSkills(); paintPreview(); autosave();
+    });
+    on('addLink', 'click', () => { if(S.links.length < 3){ S.links.push({ t: '', u: '' }); paintLinks(); const ins = $('lkList').querySelectorAll('input'); if(ins.length) ins[ins.length - 1].focus(); } });
+    on('lkList', 'input', e => { const t = e.target; if(!t.dataset.k) return; S.links[Number(t.dataset.i)][t.dataset.k] = t.value; if(t.dataset.k === 'u'){ const l = S.links[Number(t.dataset.i)]; if(!l.t.trim()){ const h = V.hostOf(normUrl(l.u)); if(h){ const lab = $('lkList').querySelector('[data-k="t"][data-i="' + t.dataset.i + '"]'); if(lab && !lab.value){ lab.placeholder = h; } } } } paintPreview(); autosave(); });
+    on('lkList', 'click', e => { const b = e.target.closest('[data-a="rl"]'); if(!b) return; S.links.splice(Number(b.dataset.i), 1); paintLinks(); paintPreview(); autosave(); });
+    on('themes', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
+    on('badges', 'click', e => { const b = e.target.closest('[data-b]'); if(!b) return; const k = b.dataset.b, i = S.badges.indexOf(k); if(i >= 0) S.badges.splice(i, 1); else if(S.badges.length < 2) S.badges.push(k); paintThemes(); paintPreview(); autosave(); });
+    on('fConsent', 'change', paintPub);
+    on('pubBtn', 'click', publish); on('pubBtn2', 'click', () => { if(!USER || !$('pubBtn').disabled) publish(); else { toast('আগে সব ঠিকঠাক করুন'); } });
+    on('unpubBtn', 'click', unpublish); on('delBtn', 'click', del);
+    on('okCopy', 'click', async () => { try{ await navigator.clipboard.writeText($('okLink').value); toast('লিংক কপি হয়েছে ✓'); }catch(e){ $('okLink').select(); } });
+    on('shCard', 'click', downloadCard); on('dlCard', 'click', downloadCard);
+    document.querySelector('.pv-tabs').addEventListener('click', e => {
+      const b = e.target.closest('[data-p]'); if(!b) return;
+      document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x === b));
+      const map = { pf: 'pvPf', cd: 'pvCd', lk: 'pvLk' };
+      Object.keys(map).forEach(k => $(map[k]).classList.toggle('on', k === b.dataset.p));
+      drawCanvases();
+    });
+    on('prevOpen', 'click', () => $('colPrev').classList.add('open')); on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
+    window.addEventListener('scroll', () => $('nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+    window.addEventListener('beforeunload', saveDraft);
+  }
+  async function downloadCard(){
+    try{ const cv = await C.draw(Object.assign(preview(), { username: (ROW && ROW.username) || S.username || 'your-name' }), 'card'); const a = document.createElement('a'); a.download = 'skill-identity-' + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .92); document.body.appendChild(a); a.click(); a.remove(); }
+    catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
+  }
+
+  /* ---------- start ---------- */
+  async function hydrate(){
+    await M.ready(); USER = M.current();
+    const photo = USER && USER.avatar_url && /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com\//.test(USER.avatar_url) ? USER.avatar_url : '';
+    googleUrl = photo; $('avGoogle').style.display = photo ? '' : 'none';
+    if(USER){
+      try{
+        const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published }; const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+      }catch(e){}
+      if(!ROW){
+        if(!S.display_name) S.display_name = USER.display_name || '';
+        if(photo && (!S.avatar || S.avatar === 'av:stu-m:1')) S.avatar = photo;
+        if(!S.username) S.username = await suggestUser(S.display_name);
+      }
+    } else if(!S.username){ S.username = ''; }
+    paintAll(); if(S.username) checkUser();
+    if(ROW && ROW.published) { $('fConsent').checked = true; }
+    paintPub();
+  }
+
+  loadDraft();
+  const m = /[?&]ref=([a-z0-9-]{3,30})/.exec(location.search); if(m){ try{ localStorage.setItem('sk_ref', m[1]); }catch(e){} }
+  const mm = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(mm) skin = Number(mm[1]);
+  bind();
+  hydrate();
+  M.onChange(() => { ROW = null; hydrate(); });
+  // numbers for the hero + popular skill suggestions
+  try{ M.sb.rpc('skill_popular').then(r => { const d = r && r.data; if(!d) return; if(d.total >= 5) $('heroCnt').textContent = 'ইতিমধ্যে ' + V.bn(d.total) + ' জন নিজের স্কিল আইডেন্টিটি বানিয়েছেন'; window.__pop = (d.skills || []).map(s => s.n); paintSkills(); }, () => {}); }catch(e){}
+})();
+</script>
+</body>
+</html>

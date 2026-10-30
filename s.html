@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>স্কিল আইডেন্টিটি | Protishthan</title>
+<meta name="theme-color" content="#070B16">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/skill.css?v=1">
+<link rel="stylesheet" href="/brand.css?v=3">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/member.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/avatars.js"></script>
+<script src="/skill-core.js?v=1"></script>
+<style>
+html,body{margin:0;background:#070B16}
+#sk{min-height:100vh;display:flex;flex-direction:column}
+.sk-top{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(1080px,100%);margin:0 auto;padding:18px 18px 8px}
+.sk-top .logo{display:flex;align-items:center;font:800 19px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.4px;color:var(--ink);text-decoration:none}
+.sk-top .logo>span:last-child{opacity:.6}
+.sk-top .logo .logo-icon{width:36px!important;height:36px!important;border-radius:11px!important}
+.pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:100px;border:1px solid var(--line);background:var(--glass2);color:var(--ink);font:700 13.5px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer;transition:transform .2s,background .2s,border-color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.pill:hover{transform:translateY(-1px);border-color:var(--a1)}
+.pg{position:relative;z-index:2;flex:1;width:min(760px,100%);margin:0 auto;padding:18px 16px 56px}
+.act{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:22px 0 0}
+.btn{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:var(--glass2);color:var(--ink);font:700 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn:hover{transform:translateY(-2px);border-color:var(--a1)}
+.btn.pri{border:none;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1));box-shadow:0 14px 34px -14px var(--a2)}
+.btn.pri:hover{box-shadow:0 18px 40px -12px var(--a2)}
+.cta{margin:34px 0 0;padding:30px 26px;border-radius:26px;text-align:center;background:linear-gradient(150deg,var(--glass2),var(--glass));border:1px solid var(--line);position:relative;overflow:hidden}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 50% 0,color-mix(in srgb,var(--a2) 28%,transparent),transparent 70%);pointer-events:none}
+.cta h2{position:relative;margin:0 0 6px;font:800 clamp(21px,4vw,27px)/1.3 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.01em}
+.cta p{position:relative;margin:0 0 20px;color:var(--mut);font:500 15px/1.6 'Hind Siliguri','Inter',sans-serif}
+.cta .btn{position:relative;height:50px;padding:0 26px;font-size:16px}
+.cta small{position:relative;display:block;margin-top:14px;color:var(--mut);font:500 12.5px 'Hind Siliguri','Inter',sans-serif}
+.ft{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;padding:0 16px 30px;color:var(--mut);font:500 12.5px 'Hind Siliguri','Inter',sans-serif}
+.ft a,.ft button{color:var(--mut);background:none;border:none;padding:0;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.ft a:hover,.ft button:hover{color:var(--ink)}
+.nf{padding:54px 30px 46px;text-align:center}
+.nf .big{width:76px;height:76px;margin:0 auto 18px;border-radius:24px;display:flex;align-items:center;justify-content:center;background:var(--chip);border:1px solid var(--line);color:var(--a1)}
+.nf h1{font:800 26px 'Hind Siliguri','Inter',sans-serif;margin:0 0 8px}
+.nf p{color:var(--mut);font:500 15px/1.7 'Hind Siliguri','Inter',sans-serif;margin:0 auto 22px;max-width:28em}
+/* sheets */
+.ov{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,6,14,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ov.show{display:flex}
+.md{position:relative;width:min(400px,100%);padding:26px 24px 22px;border-radius:26px;background:var(--bg2);border:1px solid var(--line);box-shadow:0 40px 90px -20px rgba(0,0,0,.7);text-align:center;animation:mdin .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes mdin{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.md h3{margin:0 0 6px;font:800 20px 'Hind Siliguri','Inter',sans-serif}
+.md p{margin:0 0 16px;color:var(--mut);font:500 13.5px/1.6 'Hind Siliguri','Inter',sans-serif}
+.md canvas{width:220px;height:220px;border-radius:16px;background:#fff;display:block;margin:0 auto 12px}
+.md .u{font:600 13px 'Inter',sans-serif;color:var(--a1);word-break:break-all}
+.md .x{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;border:none;background:var(--chip);color:var(--ink);cursor:pointer;font-size:18px;line-height:1}
+.rs{display:grid;gap:8px;text-align:left;margin:0 0 16px}
+.rs label{display:flex;gap:10px;align-items:center;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--glass);cursor:pointer;font:600 14px 'Hind Siliguri','Inter',sans-serif}
+.rs input{accent-color:var(--a2)}
+.rs label:has(input:checked){border-color:var(--a1);background:var(--glass2)}
+.tt{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:60;padding:11px 18px;border-radius:100px;background:#fff;color:#0B1020;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;box-shadow:0 16px 40px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.tt.show{opacity:1;transform:translate(-50%,0)}
+.sk-skeleton{padding:60px 0;display:flex;justify-content:center}
+.sk-skeleton i{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--a1);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:560px){.btn{flex:1 1 calc(50% - 10px);justify-content:center;padding:0 12px}.btn.pri{flex-basis:100%}}
+</style>
+</head>
+<body>
+<div id="sk" class="sk" data-theme="midnight">
+  <div class="sk-bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="gr"></span></div>
+  <header class="sk-top">
+    <a class="logo" href="/"><span class="logo-icon"><img src="/logo-sm.webp" alt="" width="36" height="36" decoding="async"></span>Protisht<span>han</span></a>
+    <a class="pill" id="topCta" href="/skill">নিজেরটা বানান
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </header>
+  <main class="pg" id="pg"><noscript><div class="sk-card nf"><h1>JavaScript চালু করুন</h1><p>এই পেজটি দেখতে ব্রাউজারে JavaScript চালু থাকতে হবে।</p></div></noscript><div class="sk-skeleton"><i></i></div></main>
+  <footer class="ft"><span>© Protishthan</span><span>এখানকার সব তথ্য ব্যক্তি নিজে দিয়েছেন</span><button type="button" id="rpBtn" style="display:none">রিপোর্ট করুন</button><a href="/privacy">গোপনীয়তা নীতি</a><a href="/terms">ব্যবহারের শর্ত</a></footer>
+</div>
+
+<div class="ov" id="qrOv"><div class="md" role="dialog" aria-modal="true" aria-label="QR কোড"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>QR কোড</h3><p>স্ক্যান করলেই এই প্রোফাইল খুলবে</p><canvas id="qrCv" width="440" height="440"></canvas><div class="u" id="qrUrl"></div></div></div>
+<div class="ov" id="rpOv"><div class="md" role="dialog" aria-modal="true" aria-label="রিপোর্ট"><button class="x" type="button" data-close aria-label="বন্ধ করুন">×</button><h3>প্রোফাইল রিপোর্ট করুন</h3><p>কী সমস্যা, সেটা বেছে নিন। আমরা দেখে ব্যবস্থা নেব।</p>
+  <div class="rs"><label><input type="radio" name="rr" value="fake" checked>ভুয়া বা অন্য কারও পরিচয়</label><label><input type="radio" name="rr" value="abusive">আপত্তিকর বা অশালীন লেখা</label><label><input type="radio" name="rr" value="copyright">আমার কাজ/ছবি অনুমতি ছাড়া ব্যবহার</label><label><input type="radio" name="rr" value="private">ব্যক্তিগত তথ্য ফাঁস</label><label><input type="radio" name="rr" value="other">অন্য কিছু</label></div>
+  <button class="btn pri" type="button" id="rpSend" style="width:100%;justify-content:center">রিপোর্ট পাঠান</button></div></div>
+<div class="tt" id="tt" role="status"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id), V = window.SkillView;
+  const sk = $('sk'), pg = $('pg');
+  const m = location.pathname.match(/\/s\/([^\/?#]+)/);
+  const uname = m ? decodeURIComponent(m[1]).toLowerCase() : '';
+  const url = 'https://protishthan.com/s/' + uname;
+  let P = null;
+
+  const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = 'anon-' + Math.random().toString(36).slice(2, 12); } return d; };
+  const toast = msg => { const t = $('tt'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2200); };
+  const open = id => $(id).classList.add('show'), close = id => $(id).classList.remove('show');
+  document.querySelectorAll('.ov').forEach(o => { o.addEventListener('click', e => { if(e.target === o || e.target.closest('[data-close]')) o.classList.remove('show'); }); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.ov.show').forEach(o => o.classList.remove('show')); });
+
+  const IC = {
+    copy: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="3"/><path d="M5 15V6a2 2 0 012-2h9"/></svg>',
+    share: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-4M8.6 13.4l6.8 4"/></svg>',
+    qr: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>',
+    arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+    user: '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
+  };
+
+  function render(p){
+    P = p;
+    if(!p){
+      document.title = 'প্রোফাইল পাওয়া যায়নি | Protishthan';
+      pg.innerHTML = '<div class="sk-card nf sk-rise" style="--i:0"><div class="big">' + IC.user + '</div><h1>এই প্রোফাইলটি পাওয়া যায়নি</h1><p>লিংকটা ভুল হতে পারে, অথবা মালিক প্রোফাইলটি এখনো প্রকাশ করেননি বা সরিয়ে নিয়েছেন।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(uname) + '">নিজের স্কিল আইডেন্টিটি বানান ' + IC.arrow + '</a></div>';
+      requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
+      return;
+    }
+    sk.setAttribute('data-theme', V.THEMES[p.theme] ? p.theme : 'midnight');
+    document.querySelector('meta[name=theme-color]').setAttribute('content', (V.THEMES[p.theme] || V.THEMES.midnight).bg);
+    document.documentElement.style.background = (V.THEMES[p.theme] || V.THEMES.midnight).bg; document.body.style.background = document.documentElement.style.background;
+    document.title = p.display_name + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan';
+    $('topCta').setAttribute('href', '/skill?ref=' + encodeURIComponent(p.username));
+    pg.innerHTML = V.html(p, {}) +
+      '<div class="act sk-rise" style="--i:14"><button class="btn pri" type="button" id="bCopy">' + IC.copy + 'লিংক কপি করুন</button><button class="btn" type="button" id="bShare">' + IC.share + 'শেয়ার করুন</button><button class="btn" type="button" id="bQr">' + IC.qr + 'QR কোড</button></div>' +
+      '<section class="cta sk-rise" style="--i:15"><h2>আপনার স্কিল দিয়েই পরিচিত হোন</h2><p>কাগজের সনদের বাইরে আপনার আসল দক্ষতা। মাত্র ৩ মিনিটে নিজের স্কিল আইডেন্টিটি পেজ বানান, একদম ফ্রি।</p><a class="btn pri" href="/skill?ref=' + encodeURIComponent(p.username) + '">আমারটা বানাই ' + IC.arrow + '</a><small id="ctaN"></small></section>';
+    $('rpBtn').style.display = '';
+    $('bCopy').onclick = copy; $('bShare').onclick = share; $('bQr').onclick = showQr;
+    requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
+    track();
+    popular();
+  }
+  async function copy(){
+    try{ await navigator.clipboard.writeText(url); toast('লিংক কপি হয়েছে ✓'); }
+    catch(e){ const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); toast('লিংক কপি হয়েছে ✓'); }catch(_){ toast(url); } t.remove(); }
+  }
+  async function share(){
+    const data = { title: P.display_name + ' — স্কিল আইডেন্টিটি', text: (P.headline ? P.headline + '. ' : '') + 'আমার স্কিল, আমার আইডেন্টিটি', url };
+    if(navigator.share){ try{ await navigator.share(data); return; }catch(e){ if(e && e.name === 'AbortError') return; } }
+    copy();
+  }
+  function showQr(){
+    const cv = $('qrCv'), c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, 440, 440);
+    if(typeof qrcode === 'function'){
+      const q = qrcode(0, 'M'); q.addData(url + '?ref=qr'); q.make(); const n = q.getModuleCount(), pad = 28, cell = (440 - pad * 2) / n;
+      c.fillStyle = '#0B1020'; for(let r = 0; r < n; r++) for(let k = 0; k < n; k++) if(q.isDark(r, k)) c.fillRect(pad + k * cell, pad + r * cell, Math.ceil(cell), Math.ceil(cell));
+    }
+    $('qrUrl').textContent = url.replace('https://', ''); open('qrOv');
+  }
+  function track(){ try{ Protishthan.member.sb.rpc('skill_track_view', { p_username: P.username, p_device: deviceId() }).then(() => {}, () => {}); }catch(e){} }
+  function popular(){
+    try{ Protishthan.member.sb.rpc('skill_popular').then(r => { const n = r && r.data && r.data.total; if(n >= 5 && $('ctaN')) $('ctaN').textContent = 'ইতিমধ্যে ' + V.bn(n) + ' জন নিজের স্কিল আইডেন্টিটি বানিয়েছেন'; }, () => {}); }catch(e){}
+  }
+  $('rpBtn').onclick = () => open('rpOv');
+  $('rpSend').onclick = async () => {
+    const reason = (document.querySelector('input[name=rr]:checked') || {}).value || 'other';
+    try{ await Protishthan.member.sb.rpc('report_skill_profile', { p_username: uname, p_reason: reason, p_device: deviceId() }); }catch(e){}
+    close('rpOv'); toast('ধন্যবাদ, রিপোর্ট পাঠানো হয়েছে');
+  };
+
+  (async function boot(){
+    let p;
+    const bt = $('boot');
+    if(bt){ try{ p = JSON.parse(bt.textContent); }catch(e){ p = undefined; } }
+    if(p === undefined){
+      try{ const r = await Protishthan.member.sb.rpc('get_skill_profile', { p_username: uname }); p = r.data || null; }catch(e){ p = null; }
+    }
+    render(p);
+  })();
+})();
+</script>
+</body>
+</html>

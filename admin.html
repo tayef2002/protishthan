@@ -358,6 +358,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-icon">📝</span><span>নাম-অনুরোধ</span>
       <span class="nav-badge" id="namesBadge" style="display:none">0</span>
     </button>
+    <button class="nav-item" id="nav-skills" onclick="showView('skills')">
+      <span class="nav-icon">🪪</span><span>স্কিল প্রোফাইল</span>
+      <span class="nav-badge" id="skillsBadge" style="display:none;background:var(--red,#DC2626)">0</span>
+    </button>
     <button class="nav-item" id="nav-promo" onclick="showView('promo')">
       <span class="nav-icon">📣</span><span>হোম পপআপ</span>
       <span class="nav-badge" id="promoDot" style="display:none;background:var(--green)">চালু</span>
@@ -550,6 +554,15 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         <div class="bill-note" style="margin-top:0">লগইন থাকুক বা না থাকুক, কেউ কার্ডে তালিকার বাইরের নাম লিখলে এখানে জমা হয়। একই ডিভাইস একই নাম একবারই গোনা হয়, তাই বেশি জন যে নাম লিখেছে সেটা উপরে থাকে। যাচাই করে নিজে তালিকাভুক্ত করুন।</div>
         <div style="display:flex;gap:8px;margin:10px 0"><button class="pay-btn" type="button" id="nmF-new" onclick="nmFilter('new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="nmF-all" onclick="nmFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
         <div id="nmList"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-skills">
+      <div class="section-card" style="overflow-x:auto">
+        <div class="sec-h">স্কিল আইডেন্টিটি প্রোফাইল <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="skCount"></span></div>
+        <div class="bill-note" style="margin-top:0">ব্যবহারকারীরা নিজেরা এগুলো বানায় ও প্রকাশ করে। কোনো প্রোফাইল আপত্তিকর, ভুয়া বা রিপোর্ট হলে "লুকান" চাপুন, তখন পেজটি আর কারও কাছে খুলবে না (মালিক নিজে দেখতে পাবে)। রিপোর্ট বেশি থাকা প্রোফাইল উপরে দেখায়।</div>
+        <div style="display:flex;gap:8px;margin:10px 0"><button class="pay-btn" type="button" id="skF-rep" onclick="skFilter('rep')" style="width:auto;padding:8px 14px">রিপোর্ট হয়েছে</button><button class="pay-btn" type="button" id="skF-all" onclick="skFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
+        <div id="skList"></div>
       </div>
     </div>
 
@@ -1232,6 +1245,46 @@ async function nmSet(key, status){
   const r = NM_ROWS.find(x => x.key === key); if(r) r.status = status; loadNames();
 }
 ADMIN_READY.then(() => loadNames());
+navTitles.skills = ['স্কিল প্রোফাইল', 'ব্যবহারকারীদের স্কিল আইডেন্টিটি পেজ ও রিপোর্ট'];
+let SK_ROWS = [], SK_REP = {}, SK_FILTER = 'rep';
+function skEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+function skFilter(f){
+  SK_FILTER = f; const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('skF-rep').style.cssText = 'width:auto;padding:8px 14px' + (f === 'rep' ? '' : off);
+  document.getElementById('skF-all').style.cssText = 'width:auto;padding:8px 14px' + (f === 'all' ? '' : off);
+  renderSkills();
+}
+async function loadSkills(){
+  const box = document.getElementById('skList');
+  const a = await sb.from('skill_profiles').select('user_id,username,display_name,headline,published,hidden,views,updated_at').order('updated_at', { ascending: false }).limit(300);
+  if(a.error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + skEsc(a.error.message) + ' — migrations/2026-11-01_skill_profiles.sql চালানো হয়েছে কি?</div>'; return; }
+  const r = await sb.from('skill_reports').select('user_id,reason,created_at').limit(1000);
+  SK_REP = {}; ((r && r.data) || []).forEach(x => { (SK_REP[x.user_id] = SK_REP[x.user_id] || []).push(x.reason); });
+  SK_ROWS = a.data || [];
+  const reported = SK_ROWS.filter(p => SK_REP[p.user_id] && !p.hidden).length, b = document.getElementById('skillsBadge');
+  b.textContent = reported; b.style.display = reported ? '' : 'none';
+  document.getElementById('skCount').textContent = 'মোট ' + SK_ROWS.length + 'টি, প্রকাশিত ' + SK_ROWS.filter(p => p.published).length + 'টি';
+  renderSkills();
+}
+function renderSkills(){
+  const box = document.getElementById('skList');
+  let rows = SK_ROWS.slice().sort((x, y) => ((SK_REP[y.user_id] || []).length - (SK_REP[x.user_id] || []).length));
+  if(SK_FILTER === 'rep') rows = rows.filter(p => SK_REP[p.user_id]);
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (SK_FILTER === 'rep' ? 'কোনো রিপোর্ট নেই।' : 'এখনো কোনো প্রোফাইল নেই।') + '</div>'; return; }
+  const rl = { fake: 'ভুয়া', abusive: 'আপত্তিকর', copyright: 'কপিরাইট', private: 'ব্যক্তিগত তথ্য', other: 'অন্য' };
+  const th = 'style="padding:8px"';
+  box.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="text-align:left;color:var(--text-3);font-size:12.5px"><th ' + th + '>নাম</th><th ' + th + '>লিংক</th><th ' + th + '>অবস্থা</th><th ' + th + '>ভিউ</th><th ' + th + '>রিপোর্ট</th><th ' + th + '></th></tr></thead><tbody>' + rows.map(p => {
+    const reps = SK_REP[p.user_id] || [], st = p.hidden ? 'লুকানো' : p.published ? 'প্রকাশিত' : 'খসড়া';
+    return '<tr style="border-top:1px solid #E2E8F0"><td style="padding:10px 8px"><b>' + skEsc(p.display_name || '—') + '</b><div style="font-size:12.5px;color:var(--text-3)">' + skEsc(p.headline) + '</div></td><td ' + th + '>' + (p.published && !p.hidden ? '<a href="/s/' + encodeURIComponent(p.username) + '" target="_blank" style="color:var(--blue);font-weight:700">/s/' + skEsc(p.username) + ' ↗</a>' : '<span style="color:var(--text-3)">/s/' + skEsc(p.username) + '</span>') + '</td><td ' + th + '>' + st + '</td><td ' + th + '>' + (p.views || 0) + '</td><td ' + th + '>' + (reps.length ? '<b style="color:#DC2626">' + reps.length + '</b> <span style="font-size:12px;color:var(--text-3)">' + skEsc([...new Set(reps)].map(x => rl[x] || x).join(', ')) + '</span>' : '—') + '</td><td style="padding:8px;white-space:nowrap"><button type="button" data-u="' + skEsc(p.user_id) + '" data-h="' + (p.hidden ? '0' : '1') + '" onclick="skHide(this.dataset.u, this.dataset.h === \'1\')">' + (p.hidden ? 'দেখান' : 'লুকান') + '</button></td></tr>';
+  }).join('') + '</tbody></table>';
+}
+async function skHide(uid, hide){
+  if(hide && !confirm('এই প্রোফাইলটা সবার কাছ থেকে লুকাবেন?')) return;
+  const { error } = await sb.rpc('admin_set_skill_hidden', { p_user: uid, p_hidden: hide });
+  if(error){ alert('হয়নি: ' + error.message); return; }
+  loadSkills();
+}
+ADMIN_READY.then(() => loadSkills());
 navTitles.promo = ['হোম পপআপ', 'হোম পেজে ভিজিটরদের কী দেখানো হবে, কখন, কাকে'];
 let PM_ROW = null;
 const $pm = id => document.getElementById(id);

@@ -1,0 +1,79 @@
+/* আমার স্কিল, আমার আইডেন্টিটি — shared look for the public page (/s/<name>) and the live preview in the editor.
+   Five themes, set with data-theme on .sk. Everything is scoped to .sk so it never touches the host page. */
+.sk{--bg:#070B16;--bg2:#0D1530;--ink:#F4F6FF;--mut:#9AA6C4;--glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.09);--line:rgba(255,255,255,.12);--chip:rgba(255,255,255,.08);--a1:#6EA8FF;--a2:#8B7CFF;--a3:#38E1C6;--shadow:0 30px 80px -24px rgba(0,0,0,.65);
+  position:relative;isolation:isolate;overflow:hidden;color:var(--ink);background:var(--bg);font-family:'Inter','Hind Siliguri',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+.sk[data-theme=aurora]{--bg:#04100F;--bg2:#08201D;--mut:#93B5AD;--a1:#34D399;--a2:#22D3EE;--a3:#A3E635}
+.sk[data-theme=ocean]{--bg:#040F1D;--bg2:#08203A;--mut:#8FA9C7;--a1:#38BDF8;--a2:#3B82F6;--a3:#818CF8}
+.sk[data-theme=ember]{--bg:#150A0B;--bg2:#2A1214;--mut:#C2A09A;--a1:#FB923C;--a2:#F43F5E;--a3:#FACC15}
+.sk[data-theme=paper]{--bg:#F6F3EC;--bg2:#EDE8DC;--ink:#17171C;--mut:#6B6A74;--glass:rgba(255,255,255,.7);--glass2:rgba(255,255,255,.9);--line:rgba(20,20,30,.1);--chip:rgba(20,20,30,.05);--a1:#2F5BEA;--a2:#7C3AED;--a3:#0EA5A4;--shadow:0 24px 60px -28px rgba(40,30,10,.35)}
+.sk *{box-sizing:border-box}
+.sk a{color:inherit}
+
+/* backdrop: soft drifting light + fine grid */
+.sk-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(120% 80% at 50% -10%,var(--bg2),var(--bg) 60%)}
+.sk-bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.34;will-change:transform}
+.sk-bg .b1{width:52vmax;height:52vmax;left:-14vmax;top:-22vmax;background:radial-gradient(circle,var(--a2),transparent 66%);animation:skf1 22s ease-in-out infinite alternate}
+.sk-bg .b2{width:46vmax;height:46vmax;right:-16vmax;top:6vmax;background:radial-gradient(circle,var(--a1),transparent 66%);animation:skf2 26s ease-in-out infinite alternate}
+.sk-bg .b3{width:40vmax;height:40vmax;left:20%;bottom:-24vmax;background:radial-gradient(circle,var(--a3),transparent 66%);opacity:.22;animation:skf1 30s ease-in-out infinite alternate-reverse}
+.sk-bg .gr{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:52px 52px;opacity:.28;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 72%);mask-image:radial-gradient(ellipse at 50% 0,#000 0,transparent 72%)}
+.sk[data-theme=paper] .sk-bg i{opacity:.22}
+@keyframes skf1{to{transform:translate3d(6vmax,4vmax,0) scale(1.08)}}
+@keyframes skf2{to{transform:translate3d(-5vmax,6vmax,0) scale(1.1)}}
+
+/* the card */
+.sk-card{position:relative;width:min(700px,100%);margin:0 auto;padding:40px 34px 34px;border-radius:30px;background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--line);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.07)}
+.sk-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,var(--a1),transparent 38%,transparent 62%,var(--a2));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.45;pointer-events:none}
+.sk-head{display:flex;flex-direction:column;align-items:center;text-align:center}
+.sk-av{position:relative;width:116px;height:116px;border-radius:50%;padding:3px;background:conic-gradient(from 200deg,var(--a1),var(--a2),var(--a3),var(--a1));box-shadow:0 0 0 7px rgba(255,255,255,.035),0 22px 56px -14px var(--a2)}
+.sk-av>*{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);background:var(--bg2)}
+.sk-av .ini{display:flex;align-items:center;justify-content:center;font:800 40px 'Inter','Hind Siliguri',sans-serif;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1))}
+.sk-self{display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:4px 11px;border-radius:100px;background:var(--chip);border:1px solid var(--line);font:600 11.5px 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+.sk-self svg{color:var(--a3)}
+.sk-name{font:800 clamp(28px,5.4vw,42px)/1.18 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.015em;margin:12px 0 4px;padding:.04em 0;color:var(--ink);text-shadow:0 0 38px color-mix(in srgb,var(--a1) 45%,transparent)}
+.sk[data-theme=paper] .sk-name{text-shadow:none}
+.sk-hl{font:500 clamp(15px,2.4vw,18px)/1.5 'Hind Siliguri','Inter',sans-serif;color:var(--mut);max-width:34em}
+.sk-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.sk-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:100px;background:var(--chip);border:1px solid var(--line);font:600 12.5px 'Hind Siliguri','Inter',sans-serif;color:var(--ink)}
+.sk-chip svg{color:var(--a1)}
+.sk-about{margin:20px auto 0;max-width:34em;text-align:center;font:400 15.5px/1.75 'Hind Siliguri','Inter',sans-serif;color:var(--ink);opacity:.86}
+.sk-stats{display:flex;justify-content:center;gap:26px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.sk-stats div{text-align:center}
+.sk-stats b{display:block;font:800 22px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.02em}
+.sk-stats span{font:500 12px 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+
+.sk-h{display:flex;align-items:center;gap:12px;margin:32px 0 14px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+.sk-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.sk-skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.sk-skill{padding:14px 16px 15px;border-radius:18px;background:var(--glass);border:1px solid var(--line);transition:transform .25s,border-color .25s,background .25s}
+.sk-skill:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--a1) 55%,transparent);background:var(--glass2)}
+.sk-skill .r{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:11px}
+.sk-skill b{font:700 15px 'Hind Siliguri','Inter',sans-serif;word-break:break-word}
+.sk-skill em{font:600 11.5px 'Hind Siliguri','Inter',sans-serif;font-style:normal;color:var(--a1);white-space:nowrap}
+.sk-bar{height:6px;border-radius:6px;background:var(--chip);overflow:hidden}
+.sk-bar i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,var(--a1),var(--a3));transform-origin:left;transform:scaleX(0);transition:transform 1.1s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i,0)*90ms + .25s);box-shadow:0 0 14px -2px var(--a1)}
+.in .sk-bar i{transform:scaleX(1)}
+.sk-links{display:grid;gap:10px}
+.sk-link{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:18px;background:var(--glass);border:1px solid var(--line);text-decoration:none;transition:transform .25s,border-color .25s,background .25s}
+.sk-link:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--a1) 55%,transparent);background:var(--glass2)}
+.sk-link .ic{flex:none;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:800 14px 'Inter',sans-serif;color:#fff;background:linear-gradient(135deg,var(--a2),var(--a1))}
+.sk-link .t{min-width:0;flex:1}
+.sk-link .t b{display:block;font:700 15px 'Hind Siliguri','Inter',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sk-link .t em{display:block;font:500 12.5px 'Inter',sans-serif;font-style:normal;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sk-link svg{flex:none;color:var(--mut);transition:transform .25s,color .25s}
+.sk-link:hover svg{transform:translate(3px,-3px);color:var(--a1)}
+.sk-note{margin:26px 0 0;text-align:center;font:500 12.5px/1.6 'Hind Siliguri','Inter',sans-serif;color:var(--mut)}
+.sk-empty{padding:26px;text-align:center;border-radius:18px;border:1px dashed var(--line);color:var(--mut);font:500 14px 'Hind Siliguri','Inter',sans-serif}
+
+/* entrance: staggered rise, then the bars fill */
+.sk-rise{opacity:0;transform:translateY(16px);transition:opacity .75s cubic-bezier(.2,.7,.2,1),transform .75s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*70ms)}
+.in .sk-rise,.sk-rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.sk-rise{opacity:1;transform:none;transition:none}.sk-bar i{transform:none;transition:none}.sk-bg i{animation:none}.sk-skill,.sk-link{transition:none}}
+
+@media(max-width:560px){.sk-card{padding:30px 18px 26px;border-radius:24px}.sk-av{width:100px;height:100px}.sk-skills{grid-template-columns:1fr}.sk-stats{gap:18px}}
+
+/* embedded in the editor: no page-size backdrop, smaller card */
+.sk.sk-embed{border-radius:26px;padding:22px 14px;min-height:0}
+.sk.sk-embed .sk-card{padding:28px 18px 22px;border-radius:24px}
+.sk.sk-embed .sk-av{width:92px;height:92px}
+.sk.sk-embed .sk-name{font-size:28px}
+.sk.sk-embed .sk-skills{grid-template-columns:1fr}
