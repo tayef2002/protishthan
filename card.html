@@ -396,7 +396,10 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .hc-ed .r i::after{content:"";position:absolute;left:4px;top:2.5px;width:3.5px;height:6.5px;border:solid #064E3B;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .hc-ed .r b{font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hc-ed .r em{font-style:normal;color:#A7D8C3;font-size:10.5px}
-.hc-seal{position:absolute;left:196px;top:148px;width:64px;height:64px;color:#F6E3A6;opacity:0;transform:scale(2.2) rotate(-24deg);transition:opacity .25s ease,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.hc-seal{position:absolute;left:190px;top:142px;width:76px;height:76px;color:#F6E3A6;opacity:0;transform:scale(2.2) rotate(-24deg);transition:opacity .25s ease,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.hc-seal::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid currentColor;opacity:0}
+.hc-in.c7 .hc-seal::after{animation:sealRing .7s .18s ease-out}
+@keyframes sealRing{0%{opacity:.7;transform:scale(.9)}100%{opacity:0;transform:scale(1.7)}}
 .hc-sheen{position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);pointer-events:none}
 .hc-drop{position:absolute;left:0;top:140px;width:176px;padding:8px;border-radius:14px;background:#fff;color:#0B3B2A;box-shadow:0 22px 36px -14px rgba(60,40,0,.45);border:1px solid #F0E0B4;opacity:0;transform:translate(-10px,10px) scale(.94);transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.4,.5,1)}
 .hc-drop .q{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;background:#F6F1E2;font:600 12px 'Hind Siliguri',sans-serif;min-height:30px}
@@ -560,7 +563,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
             <div class="r r2"><i></i><b>নটর ডেম কলেজ</b><em>এইচএসসি · ২০১৮</em></div>
             <div class="r r3"><i></i><b>ঢাকা বিশ্ববিদ্যালয়</b><em>স্নাতক · ২০২৩</em></div>
           </div>
-          <div class="hc-seal"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="3 4"/><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="2"/><path d="M50 30l22 10-22 10-22-10z M36 47v10c8 6 20 6 28 0V47" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></div>
+          <div class="hc-seal"><svg viewBox="0 0 100 100"><defs><path id="hsT" d="M20 50A30 30 0 0 1 80 50"/><path id="hsB" d="M9 50A41 41 0 0 0 91 50"/></defs><circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="50" cy="50" r="21" fill="none" stroke="currentColor" stroke-width="1.6"/><text font-family="Hind Siliguri,sans-serif" font-size="12" font-weight="700" fill="currentColor" text-anchor="middle"><textPath href="#hsT" startOffset="50%">শিক্ষিত কার্ড</textPath></text><text font-family="Inter,sans-serif" font-size="8" font-weight="800" letter-spacing="1.4" fill="currentColor" text-anchor="middle"><textPath href="#hsB" startOffset="50%">SHIKKHITO CARD</textPath></text><circle cx="9" cy="50" r="2.2" fill="currentColor"/><circle cx="91" cy="50" r="2.2" fill="currentColor"/><path d="M50 38l12 5.500-12 5.500-12-5.500z M42 48v6c4.500 3.500 11.500 3.500 16 0v-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg></div>
           <i class="hc-sheen"></i>
         </div>
         <div class="hc-drop" id="hcDrop"><div class="q"><svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span id="hcQ"></span><i class="caret"></i></div><div class="o o1"><b>নটর ডেম কলেজ</b><em>ঢাকা</em></div><div class="o o2"><b>ঢাকা কলেজ</b><em>ঢাকা</em></div><div class="o o3"><b>ঢাকা বিশ্ববিদ্যালয়</b><em>ঢাকা</em></div></div>
