@@ -447,8 +447,12 @@
     star(520, 92, 9, .8); star(940, 70, 7, .6); star(1500, 120, 8, .7); star(1010, 650, 8, .6); star(430, 640, 6, .55); star(1560, 600, 7, .6);
     c.strokeStyle = 'rgba(227,194,117,.35)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40);
 
+    // optional round avatar at the upper left: above the spot where Facebook puts its own profile photo, and inside the phone crop
+    const useAv = p.cover_avatar !== false;
+    const avImg = useAv ? await loadImg(avatarSrc(p.avatar)) : null;
+    if(useAv) avatar(c, avImg, p, 292, 300, 92, T);
     // words, stacked and centred on the middle line
-    const name = (p.display_name || 'Your Name').trim(), x0 = 392, mw = 450;
+    const name = (p.display_name || 'Your Name').trim(), x0 = useAv ? 430 : 392, mw = useAv ? 415 : 450;
     c.textAlign = 'left';
     c.font = '400 100px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 104, 50, mw);
     c.font = 'italic 600 33px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
@@ -472,9 +476,9 @@
     y += 22; c.fillStyle = '#E3C275'; c.font = '600 22px Inter,sans-serif'; c.fillText(urlOf(p), x0, y + 18);
 
     // the certificate, slightly tilted, on the right
-    const cert = await drawCert(p, 1600, 1131, logo, Math.max(1, S)), cw = 520, ch = Math.round(cw * 1131 / 1600);
-    c.save(); c.translate(1168, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
-    brand(c, logo, 1192, 598, 30, { ink: '#FFFFFF' });
+    const cert = await drawCert(p, 1600, 1131, logo, Math.max(1, S)), cw = useAv ? 490 : 520, ch = Math.round(cw * 1131 / 1600);
+    c.save(); c.translate(useAv ? 1190 : 1168, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
+    brand(c, logo, useAv ? 1214 : 1192, 598, 30, { ink: '#FFFFFF' });
     return cv;
   }
 

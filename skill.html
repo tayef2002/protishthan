@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=15"></script>
+<script src="/skill-core.js?v=16"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -260,6 +260,13 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .sample-note{display:none;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#FFF8E6;border:1px solid #F5DFA0;color:#8A6500;font-size:13px;font-weight:600;text-align:center}
 .pv-canvas,.fbcard canvas{cursor:zoom-in}
 #cvCover{width:100%;height:auto;max-height:none;border-radius:10px;display:block}
+.cov-av{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:9px 12px;border:1.5px solid var(--border);border-radius:13px;background:#fff;cursor:pointer}
+.cov-av input{position:absolute;opacity:0;pointer-events:none}
+.cov-av .sw{flex:none;width:40px;height:23px;border-radius:23px;background:#CBD5E1;position:relative;transition:background .2s}
+.cov-av .sw::after{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(15,23,42,.3);transition:transform .2s}
+.cov-av input:checked+.sw{background:var(--blue)}.cov-av input:checked+.sw::after{transform:translateX(17px)}
+.cov-av input:focus-visible+.sw{box-shadow:0 0 0 3px rgba(26,86,219,.25)}
+.cov-av .tx{display:flex;flex-direction:column;line-height:1.35}.cov-av .tx b{font-size:13.5px}.cov-av .tx small{font-size:12px;color:var(--text-3)}
 .cov-size{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:10px;padding:9px 12px;border-radius:12px;background:#F0F9FF;border:1px solid #BAE6FD;font-size:12.5px;color:#0C4A6E}
 .cov-size b{font:700 13.5px 'Hind Siliguri','Inter',sans-serif}
 .cov-seg{display:flex;gap:4px;padding:4px;margin-bottom:10px;border-radius:12px;background:#EEF2F8}
@@ -451,6 +458,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas><div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন। উপরের-নিচের লেখা বদলাতে বাঁয়ে "ডিজাইন" অংশে যান।</div></div>
       <div class="pv-pane" id="pvCv" style="padding:14px;background:#fff">
+        <label class="cov-av"><input type="checkbox" id="covAv" checked><span class="sw" aria-hidden="true"></span><span class="tx"><b>কভারে আমার ছবি</b><small>বাঁ দিকে গোল। ছবি বদলাতে ধাপ ২-এ যান</small></span></label>
         <div class="cov-seg" role="group" aria-label="কেমন দেখাবে"><button type="button" class="on" data-cm="all">পুরো ছবি</button><button type="button" data-cm="desk">🖥 ডেস্কটপে</button><button type="button" data-cm="mob">📱 মোবাইলে</button></div>
         <div class="cov-wrap" id="covWrap" data-m="all"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas><i class="cm cm-t"></i><i class="cm cm-b"></i><i class="cm cm-l"></i><i class="cm cm-r"></i></div>
         <div class="cov-size"><b>ডাউনলোড মাপ: ১৬৪০ × ৭২০</b> <span>একটাই ফাইল, ডেস্কটপ ও মোবাইল দুটোর জন্য ঠিক</span></div><div class="pv-cap">Facebook-এ: প্রোফাইল বা পেজে "Edit cover photo" → "Upload photo" → এই ফাইল। ঝাপসা অংশ Facebook দুই জায়গায় কেটে ফেলে, তাই সব লেখা ও সনদ মাঝের নিরাপদ জায়গায় রেখেছি। বাঁ-নিচে প্রোফাইল ছবি বসে, ওখানে কিছু নেই।</div>
@@ -482,7 +490,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   };
   const THEME_BG = { midnight: 'linear-gradient(135deg,#0D1530,#6EA8FF)', aurora: 'linear-gradient(135deg,#08201D,#34D399)', ocean: 'linear-gradient(135deg,#08203A,#38BDF8)', ember: 'linear-gradient(135deg,#2A1214,#FB923C)', paper: 'linear-gradient(135deg,#F6F3EC,#C9B8F5)' };
 
-  let S = { socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
+  let S = { cover_avatar: true, socials: [], username: '', display_name: '', headline: '', about: '', skills: [], links: [], badges: [], theme: 'midnight', avatar: 'av:stu-m:1', published: false, post_top: 'আমার স্কিলই আমার সনদ', post_bottom: 'কাগজের সনদ নয়, কাজের সনদ' };
   let USER = null, ROW = null, uOk = null, skin = 1, googleUrl = '';
   const T = {};
   const debounce = (k, fn, ms) => { clearTimeout(T[k]); T[k] = setTimeout(fn, ms); };
@@ -528,7 +536,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   const preview = () => Object.assign(clean(), {
     views: ROW ? ROW.views : undefined, username: (S.username || 'your-name'), post_top: S.post_top, post_bottom: S.post_bottom,
-    previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
+    cover_avatar: S.cover_avatar !== false, previewAll: true, socials: (S.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: V.socialOk(x.p, x.u) ? x.u : '' }))
   });
   // what is downloaded or published: only complete addresses, no "soft" placeholders
   const previewReal = () => Object.assign(preview(), { previewAll: false, socials: cleanSocials() });
@@ -686,7 +694,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     $('fName').value = S.display_name; $('fHead').value = S.headline; $('fAbout').value = S.about; $('fUser').value = S.username;
     $('fPostTop').value = S.post_top || ''; $('fPostBot').value = S.post_bottom || ''; $('cTop').textContent = (S.post_top || '').length + '/40'; $('cBot').textContent = (S.post_bottom || '').length + '/50';
     $('cName').textContent = S.display_name.length + '/60'; $('cHead').textContent = S.headline.length + '/70'; $('cAbout').textContent = S.about.length + '/160';
-    buildAvatarGrid(); paintAvatar(); paintSkills(); paintSocials(); paintLinks(); paintThemes(); paintHeads(); paintPreview();
+    buildAvatarGrid(); paintAvatar(); paintSkills(); paintSocials(); paintLinks(); $('covAv').checked = S.cover_avatar !== false; paintThemes(); paintHeads(); paintPreview();
   }
 
   /* ---------- username ---------- */
@@ -848,6 +856,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : PV === 'lk' ? 'certog' : 'cert'));
     on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('cvCover', 'click', () => zoom('cover'));
+    on('covAv', 'change', e => { S.cover_avatar = e.target.checked; saveDraft(); debounce('cv', drawCanvases, 200); });
     document.querySelector('.cov-seg').addEventListener('click', e => { const b = e.target.closest('[data-cm]'); if(!b) return; document.querySelectorAll('.cov-seg button').forEach(x => x.classList.toggle('on', x === b)); $('covWrap').setAttribute('data-m', b.dataset.cm); });
     on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
     on('prevOpen', 'click', () => { $('colPrev').scrollIntoView({ behavior: 'smooth', block: 'start' }); window.setTimeout(() => window.scrollBy(0, -78), 450); });
@@ -874,7 +883,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     if(USER){
       try{
         const { data } = await M.sb.from('skill_profiles').select('*').eq('user_id', USER.user_id).maybeSingle();
-        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
+        if(data){ ROW = data; S = { username: data.username, display_name: data.display_name, headline: data.headline, about: data.about, skills: data.skills || [], links: data.links || [], badges: data.badges || [], theme: data.theme, avatar: data.avatar || S.avatar, published: data.published, post_top: S.post_top, post_bottom: S.post_bottom, cover_avatar: S.cover_avatar, socials: (data.socials || []).filter(x => x && SO[x.p]).map(x => ({ p: x.p, u: x.u })) }; englishOnly(); const m = /^av:[^:]+:(\d)$/.exec(S.avatar || ''); if(m) skin = Number(m[1]); }
       }catch(e){}
       if(!ROW){
         if(!S.display_name) S.display_name = toEn(USER.display_name || '').trim();
