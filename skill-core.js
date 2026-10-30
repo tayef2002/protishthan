@@ -430,7 +430,56 @@
     return cv;
   }
 
+  // Facebook cover: 1640x720 (2x of 820x360). Desktop shows the middle 1640x624, phones the middle 1280x720,
+  // and the profile photo covers the bottom-left, so the words and the certificate stay inside x 400-1440, y 110-610.
+  async function drawCover(p, logo, S){
+    S = S || 1;
+    const W = 1640, H = 720, cv = document.createElement('canvas'); cv.width = Math.round(W * S); cv.height = Math.round(H * S);
+    const c = cv.getContext('2d'); c.scale(S, S); c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    const T = (THEMES[p.theme] && THEMES[p.theme].dark) ? THEMES[p.theme] : THEMES.midnight;
+    const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, T.bg); bg.addColorStop(.55, T.bg2); bg.addColorStop(1, T.bg); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+    const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 10, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.globalAlpha = a; c.fillStyle = g; c.fillRect(0, 0, W, H); c.globalAlpha = 1; };
+    glow(1190, 350, 600, '#E3C275', .34); glow(260, 160, 560, T.a1, .22); glow(900, 760, 520, T.a2, .22);
+    c.strokeStyle = 'rgba(255,255,255,.04)'; c.lineWidth = 1; for(let x = 0; x < W; x += 54){ c.beginPath(); c.moveTo(x + .5, 0); c.lineTo(x + .5, H); c.stroke(); } for(let y = 0; y < H; y += 54){ c.beginPath(); c.moveTo(0, y + .5); c.lineTo(W, y + .5); c.stroke(); }
+    rosette(c, 250, 400, 400, 17, 6, 10, 'rgba(227,194,117,.26)', 1.3); rosette(c, 250, 400, 255, 13, 5, 8, 'rgba(147,197,253,.2)', 1.1);
+    rosette(c, 1590, 760, 330, 13, 5, 8, 'rgba(227,194,117,.2)', 1.1);
+    const star = (x, y, r, a) => { c.save(); c.globalAlpha = a; c.fillStyle = '#F1DA9E'; c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r); c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill(); c.restore(); };
+    star(520, 92, 9, .8); star(940, 70, 7, .6); star(1500, 120, 8, .7); star(1010, 650, 8, .6); star(430, 640, 6, .55); star(1560, 600, 7, .6);
+    c.strokeStyle = 'rgba(227,194,117,.35)'; c.lineWidth = 1.5; c.strokeRect(20, 20, W - 40, H - 40);
+
+    // words, stacked and centred on the middle line
+    const name = (p.display_name || 'Your Name').trim(), x0 = 410, mw = 455;
+    c.textAlign = 'left';
+    c.font = '400 100px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 104, 50, mw);
+    c.font = 'italic 600 33px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
+    c.font = '600 22px ' + BODY;
+    const chips = (p.skills || []).slice(0, 4).map(s => (s.n.length > 20 ? s.n.slice(0, 19) + '…' : s.n)), rows = []; let row = [], rw = 0;
+    chips.forEach(t => { const w = c.measureText(t).width + 40; if(rw + w > mw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
+    const soc = validSocials(p).length ? 40 : 0;
+    const h1 = 22, h2 = fs * .95, h3 = hl.length * 38, h4 = rows.length * 54, h5 = soc, h6 = 26;
+    const gaps = 14 + 12 + 20 + (rows.length ? 18 : 0) + (soc ? 24 : 0) + 22;
+    const total = h1 + h2 + h3 + h4 + h5 + h6 + gaps;
+    let y = Math.max(104, 360 - total / 2);
+    c.fillStyle = T.a1 === '#6EA8FF' ? '#E3C275' : '#E3C275'; c.font = '700 17px ' + LSERIF; spaced(c, '4px'); c.fillText('SELF-ISSUED SKILL CERTIFICATE', x0, y + 16); spaced(c, '0px'); y += h1 + 14;
+    c.fillStyle = '#FFFFFF'; c.font = '400 ' + fs + 'px ' + SCRIPT; c.fillText(name, x0, y + fs * .72); y += h2 + 12;
+    c.fillStyle = '#C3CFEE'; c.font = 'italic 600 33px ' + LSERIF; hl.forEach((ln, i) => c.fillText(ln, x0, y + 28 + i * 38)); y += h3 + 20;
+    if(rows.length){
+      c.font = '600 22px ' + BODY;
+      rows.forEach(r => { let px = x0; r.forEach(([t, w]) => { c.fillStyle = 'rgba(255,255,255,.09)'; rr(c, px, y, w, 44, 22); c.fill(); c.strokeStyle = 'rgba(227,194,117,.55)'; c.lineWidth = 1.5; rr(c, px, y, w, 44, 22); c.stroke(); c.fillStyle = '#FFFFFF'; c.fillText(t, px + 20, y + 29); px += w + 10; }); y += 54; });
+      y += 18 - 10;
+    }
+    if(soc){ socialRow(c, p, x0, y + 24, 40, true); y += 24 + 40; }
+    y += 22; c.fillStyle = '#E3C275'; c.font = '600 22px Inter,sans-serif'; c.fillText(urlOf(p), x0, y + 18);
+
+    // the certificate, slightly tilted, on the right
+    const cert = await drawCert(p, 1600, 1131, logo, Math.max(1, S)), cw = 520, ch = Math.round(cw * 1131 / 1600);
+    c.save(); c.translate(1200, 350); c.rotate(-.05); c.shadowColor = 'rgba(0,0,0,.6)'; c.shadowBlur = 50; c.shadowOffsetY = 26; c.drawImage(cert, -cw / 2, -ch / 2, cw, ch); c.restore();
+    brand(c, logo, 1230, 598, 30, { ink: '#FFFFFF' });
+    return cv;
+  }
+
   async function draw(p, kind, scale){
+    if(kind === 'cover'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawCover(p, logo, scale); }
     if(kind === 'post'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return drawPost(p, logo, scale); }
     if(kind === 'cert' || kind === 'certog'){ await fonts(); const logo = await loadImg('/logo-sm.webp'); return kind === 'cert' ? drawCert(p, 1600, 1131, logo, scale) : drawCertOg(p, logo); }
     await fonts();

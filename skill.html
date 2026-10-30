@@ -20,7 +20,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=13"></script>
+<script src="/skill-core.js?v=14"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--indigo:#4F46E5;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--surface:#F8FAFF;--bg:#F4F6FB;--green:#059669}
@@ -259,6 +259,17 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .zoom-b{display:inline-flex;align-items:center;gap:7px}
 .sample-note{display:none;margin:0 0 10px;padding:8px 14px;border-radius:12px;background:#FFF8E6;border:1px solid #F5DFA0;color:#8A6500;font-size:13px;font-weight:600;text-align:center}
 .pv-canvas,.fbcard canvas{cursor:zoom-in}
+#cvCover{width:100%;height:auto;max-height:none;border-radius:10px;display:block}
+.cov-seg{display:flex;gap:4px;padding:4px;margin-bottom:10px;border-radius:12px;background:#EEF2F8}
+.cov-seg button{flex:1;border:none;border-radius:9px;padding:7px 4px;background:transparent;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;transition:all .15s}
+.cov-seg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(15,23,42,.1)}
+.cov-wrap{position:relative;border-radius:10px;overflow:hidden;line-height:0}
+.cm{position:absolute;background:rgba(8,12,28,.74);pointer-events:none;opacity:0;transition:opacity .25s}
+.cm-t{left:0;right:0;top:0;height:6.667%}.cm-b{left:0;right:0;bottom:0;height:6.667%}
+.cm-l{left:0;top:0;bottom:0;width:10.976%}.cm-r{right:0;top:0;bottom:0;width:10.976%}
+.cov-wrap[data-m=desk] .cm-t,.cov-wrap[data-m=desk] .cm-b{opacity:1}
+.cov-wrap[data-m=mob] .cm-l,.cov-wrap[data-m=mob] .cm-r{opacity:1}
+@media(max-width:1100px){.pv-tabs{overflow-x:auto;scrollbar-width:none}.pv-tabs::-webkit-scrollbar{display:none}.pv-tabs button{flex:1 0 auto;padding:8px 12px;white-space:nowrap}}
 /* full-screen viewer: see the real thing without downloading it */
 .lb{position:fixed;inset:0;z-index:600;display:none;flex-direction:column;background:rgba(5,8,20,.94)}
 .lb.show{display:flex}
@@ -430,13 +441,18 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf">প্রোফাইল</button><button type="button" class="on" data-p="ct">সনদ</button><button type="button" data-p="po">পোস্ট ছবি</button><button type="button" data-p="cv">FB কভার</button><button type="button" data-p="lk">লিংক প্রিভিউ</button></div>
     <div class="sample-note" id="sampleNote">নমুনা প্রিভিউ: আপনার নাম ও স্কিল দিলেই এটা আপনার হয়ে যাবে</div>
     <div class="pv-bar"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
       <div class="pv-pane on" id="pvCt" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvCert" width="1600" height="1131" style="background:#FBF7EC"></canvas><div class="pv-cap">কাগজের সনদের চেহারায়, কিন্তু আপনার স্কিলের। A4 ল্যান্ডস্কেপ, প্রিন্টও করা যায়।</div></div>
       <div class="pv-pane" id="pvPo" style="padding:14px;background:#fff"><canvas class="pv-canvas" id="cvPost" width="1080" height="1350"></canvas><div class="pv-cap">Facebook ও Instagram পোস্টের সেরা মাপ (৪:৫)। ছবি পোস্ট করে লিংকটা ক্যাপশনে বা প্রথম কমেন্টে দিন। উপরের-নিচের লেখা বদলাতে বাঁয়ে "ডিজাইন" অংশে যান।</div></div>
+      <div class="pv-pane" id="pvCv" style="padding:14px;background:#fff">
+        <div class="cov-seg" role="group" aria-label="কেমন দেখাবে"><button type="button" class="on" data-cm="all">পুরো ছবি</button><button type="button" data-cm="desk">🖥 ডেস্কটপে</button><button type="button" data-cm="mob">📱 মোবাইলে</button></div>
+        <div class="cov-wrap" id="covWrap" data-m="all"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas><i class="cm cm-t"></i><i class="cm cm-b"></i><i class="cm cm-l"></i><i class="cm cm-r"></i></div>
+        <div class="pv-cap">Facebook কভারের জন্য (১৬৪০×৭২০)। ঝাপসা অংশ Facebook ডেস্কটপ বা মোবাইলে কেটে ফেলে, সব লেখা মাঝের নিরাপদ জায়গায় আছে। বাঁ-নিচে প্রোফাইল ছবি বসে, ওখানে কিছু রাখিনি।</div>
+      </div>
       <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp, LinkedIn-এ লিংক দিলে এমন দেখাবে</div></div>
     </div>
   </aside>
@@ -616,10 +632,11 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   }
   async function drawCanvases(){
     drawMini();
-    if(!$('pvPo').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on')) return;
+    if(!$('pvPo').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on') && !$('pvCv').classList.contains('on')) return;
     const p = Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at });
     try{
       if($('pvPo').classList.contains('on')){ const cv = await C.draw(p, 'post'); const t = $('cvPost'); t.getContext('2d').drawImage(cv, 0, 0); }
+      if($('pvCv').classList.contains('on')){ const cv = await C.draw(p, 'cover'); const t = $('cvCover'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvCt').classList.contains('on')){ const cv = await C.draw(p, 'cert'); const t = $('cvCert'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'স্ব-ঘোষিত স্কিল আইডেন্টিটি।'; }
     }catch(e){}
@@ -633,10 +650,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   function setTab(k){
     PV = k;
     document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x.dataset.p === k));
-    const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', lk: 'pvLk' };
+    const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', cv: 'pvCv', lk: 'pvLk' };
     Object.keys(map).forEach(q => $(map[q]).classList.toggle('on', q === k));
     $('barCap').style.display = k === 'po' ? '' : 'none';
-    $('barDl').style.display = (k === 'ct' || k === 'po') ? '' : 'none';
+    $('barDl').style.display = (k === 'ct' || k === 'po' || k === 'cv') ? '' : 'none';
     $('barZoom').style.display = k === 'pf' ? 'none' : '';
     $('pvDotsWrap').style.display = k === 'pf' ? '' : 'none';
     document.querySelector('.pv-bar .acts').style.display = k === 'pf' ? 'none' : '';   // no empty row left behind
@@ -818,7 +835,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('cvCert', 'click', () => zoom('cert')); on('cvPost', 'click', () => zoom('post')); on('cvOg', 'click', () => zoom('certog')); on('miniOpen', 'click', () => zoom('cert'));
     on('lbX', 'click', closeLb); on('lbImg', 'click', () => { const l = $('lb'), im = $('lbImg'); l.classList.toggle('zoom'); im.style.setProperty('--zw', Math.round(Math.min(Number(im.dataset.w) || 1600, 2600) * (innerWidth < 700 ? .9 : 1)) + 'px'); });
     on('lbZoom', 'click', () => $('lbImg').click());
-    on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : 'cert'));
+    on('lbDl', 'click', () => downloadCard(LBK === 'post' ? 'post' : LBK === 'cover' ? 'cover' : 'cert'));
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
     on('shCard', 'click', () => downloadCard('post')); 
     on('fPostTop', 'input', e => { S.post_top = e.target.value; $('cTop').textContent = S.post_top.length + '/40'; saveDraft(); debounce('cv', drawCanvases, 350); });
@@ -826,8 +843,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     on('barCap', 'click', async () => { try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } });
     document.querySelector('.pv-tabs').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if(b) setTab(b.dataset.p); });
     on('pvDots', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
-    on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'lk' ? 'certog' : 'cert'));
-    on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : 'cert'));
+    on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : PV === 'lk' ? 'certog' : 'cert'));
+    on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
+    on('cvCover', 'click', () => zoom('cover'));
+    document.querySelector('.cov-seg').addEventListener('click', e => { const b = e.target.closest('[data-cm]'); if(!b) return; document.querySelectorAll('.cov-seg button').forEach(x => x.classList.toggle('on', x === b)); $('covWrap').setAttribute('data-m', b.dataset.cm); });
     on('fPostTop', 'focus', () => setTab('po')); on('fPostBot', 'focus', () => setTab('po'));
     on('prevOpen', 'click', () => { $('colPrev').scrollIntoView({ behavior: 'smooth', block: 'start' }); window.setTimeout(() => window.scrollBy(0, -78), 450); });
      on('prevClose', 'click', () => $('colPrev').classList.remove('open'));
@@ -839,9 +858,9 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     return 'কাগজের সনদ ড্রয়ারে পড়ে থাকে, কাজে লাগে স্কিল। আমার স্কিলই আমার সনদ।\n\nআমার স্কিল পেজ: ' + u + '\n\nআপনারটাও বানান (ফ্রি, ৩ মিনিটে): https://protishthan.com/skill';
   }
   async function downloadCard(kind){
-    kind = kind === 'cert' ? 'cert' : 'post';
+    kind = kind === 'cert' ? 'cert' : kind === 'cover' ? 'cover' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ toast('HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .95); document.body.appendChild(a); a.click(); a.remove(); }
+    try{ toast('HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', .95); document.body.appendChild(a); a.click(); a.remove(); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
