@@ -412,8 +412,8 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     </section>
 
     <section class="panel" id="s3">
-      <h2><span class="n" id="n3">৩</span>আপনার স্কিল</h2>
-      <p class="sub">ইংরেজি নামে, সর্বোচ্চ ৮টা। প্রতিটার পাশে নিজের লেভেল বেছে নিন। সৎভাবে।</p>
+      <h2><span class="n" id="n3">৩</span>আপনার স্কিল<span class="cnt-pill" id="skCount">০/৬</span></h2>
+      <p class="sub">ইংরেজি নামে, সর্বোচ্চ ৬টা (সনদে ছয়টাই ধরে)। প্রতিটার পাশে নিজের লেভেল বেছে নিন। সৎভাবে।</p>
       <div class="add-row"><input class="fi" id="fSkill" maxlength="30" placeholder="Type a skill (English) and press Enter, e.g. Video Editing"><button class="btn-line" type="button" id="addSkill">যোগ করুন</button></div>
       <div class="chips" id="skSugg"></div>
       <div class="sk-list" id="skList"></div>
@@ -573,7 +573,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
   /* ---------- draft (works without signing in) ---------- */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify(S)); }catch(e){} }
   function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(d && typeof d === 'object') S = Object.assign(S, d, { published: false }); }catch(e){} englishOnly(); fixAvatar(); }
-  function englishOnly(){ S.display_name = toEn(S.display_name); S.headline = toEn(S.headline); S.skills = (S.skills || []).map(s => ({ n: toEn(s.n).trim(), l: s.l })).filter(s => s.n); }
+  function englishOnly(){ S.display_name = toEn(S.display_name); S.headline = toEn(S.headline); S.skills = (S.skills || []).map(s => ({ n: toEn(s.n).trim(), l: s.l })).filter(s => s.n).slice(0, 6); }
 
   /* ---------- paint ---------- */
   function setSt(msg, cls){ const e = $('saveSt'); e.textContent = msg || ''; e.className = 'st' + (cls ? ' ' + cls : ''); }
@@ -624,7 +624,10 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
     else box.innerHTML = S.skills.map((s, i) => '<div class="sk-row"><div class="nm">' + V.esc(s.n) + '</div><div class="tools"><button class="ib" type="button" data-a="up" data-i="' + i + '" aria-label="উপরে"' + (i === 0 ? ' disabled' : '') + '>' + IC.up + '</button><button class="ib" type="button" data-a="dn" data-i="' + i + '" aria-label="নিচে"' + (i === S.skills.length - 1 ? ' disabled' : '') + '>' + IC.down + '</button><button class="ib del" type="button" data-a="rm" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div><div class="lvs" role="radiogroup" aria-label="লেভেল">' + LV.map((n, k) => '<button type="button" class="lvb' + (s.l === k + 1 ? ' on' : '') + '" data-a="lv" data-i="' + i + '" data-l="' + (k + 1) + '" role="radio" aria-checked="' + (s.l === k + 1) + '">' + n + '</button>').join('') + '</div></div>').join('');
     const have = new Set(S.skills.map(s => s.n.toLowerCase()));
     $('skSugg').innerHTML = (window.__pop || []).concat(SUGG).filter((n, i, a) => a.indexOf(n) === i && !have.has(n.toLowerCase())).slice(0, 12).map(n => '<button type="button" class="chip add" data-n="' + V.esc(n) + '">' + V.esc(n) + '</button>').join('');
-    $('addSkill').disabled = S.skills.length >= 8; $('fSkill').disabled = S.skills.length >= 8;
+    $('addSkill').disabled = S.skills.length >= 6; $('fSkill').disabled = S.skills.length >= 6;
+    $('skCount').textContent = V.bn(S.skills.length) + '/৬';
+    $('skSugg').style.display = S.skills.length >= 6 ? 'none' : '';
+    $('fSkill').placeholder = S.skills.length >= 6 ? 'ছয়টা হয়ে গেছে, আগে একটা মুছুন' : 'Type a skill (English) and press Enter, e.g. Video Editing';
   }
   const PF = [
     { k: 'behance', n: 'Behance', h: 'behance.net', pre: 'https://www.behance.net/', c: '#1769FF', t: 'Be' },
@@ -865,7 +868,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
       cv.addEventListener('pointermove', e => { if(!CR.drag) return; const k = CS / cv.getBoundingClientRect().width; CR.x = CR.drag.x + (e.clientX - CR.drag.px) * k; CR.y = CR.drag.y + (e.clientY - CR.drag.py) * k; clampCrop(); drawCrop(); });
       const end = () => { CR.drag = null; }; cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
       cv.addEventListener('wheel', e => { if(!CR.img) return; e.preventDefault(); const z = $('cropZ'); z.value = Math.max(100, Math.min(320, Number(z.value) - Math.sign(e.deltaY) * 8)); setZoom(Number(z.value)); }, { passive: false }); }
-    const addSkill = n => { n = toEn(n).trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 8){ toast('সর্বোচ্চ ৮টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
+    const addSkill = n => { n = toEn(n).trim().replace(/\s+/g, ' '); if(!n) return; if(S.skills.length >= 6){ toast('সর্বোচ্চ ৬টা স্কিল'); return; } if(S.skills.some(s => s.n.toLowerCase() === n.toLowerCase())){ toast('এটা আগেই যোগ করা আছে'); return; } S.skills.push({ n: n.slice(0, 30), l: 2 }); $('fSkill').value = ''; paintSkills(); paintPreview(); autosave(); };
     on('addSkill', 'click', () => addSkill($('fSkill').value));
     on('fSkill', 'input', e => { onlyEn(e); });
     on('fSkill', 'keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addSkill(e.target.value); } });
