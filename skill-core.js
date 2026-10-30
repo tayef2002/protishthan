@@ -463,18 +463,25 @@
     // words
     const name = (p.display_name || 'Your Name').trim(), x0 = useAv ? 440 : 392, mw = useAv ? 420 : 460;
     c.textAlign = 'left';
-    const slogan = 'আমার স্কিল, আমার আইডেন্টিটি'; const HS = "'Hind Siliguri','Noto Sans Bengali',sans-serif"; c.font = '600 40px ' + HS; const sfs = fit(c, slogan, '600', HS, 40, 24, mw);
+    const slogan = 'আমার স্কিল, আমার আইডেন্টিটি'; const HS = "'Hind Siliguri','Noto Sans Bengali',sans-serif"; c.font = '700 46px ' + HS; const sfs = fit(c, slogan, '700', HS, 46, 26, mw);
     c.font = '400 112px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 112, 52, mw);
     c.font = 'italic 600 36px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
     const cmw = useAv ? 475 : 500; c.font = '600 21px ' + BODY;
     const chips = (p.skills || []).slice(0, 4).map(s => (s.n.length > 20 ? s.n.slice(0, 19) + '…' : s.n)), rows = []; let row = [], rw = 0;
     chips.forEach(t => { const w = c.measureText(t).width + 36; if(rw + w > cmw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
     const soc = validSocials(p).length ? 46 : 0;
-    const hA = sfs * 1.05, hB = fs * .95, hC = hl.length * 42, hD = rows.length * 54, hE = soc, hF = 28;
+    const hA = sfs * 1.05 + 24, hB = fs * .95, hC = hl.length * 42, hD = rows.length * 54, hE = soc, hF = 28;
     const total = hA + 10 + hB + 8 + hC + 18 + (rows.length ? hD + 14 : 0) + (soc ? hE + 20 : 0) + hF;
     let y = Math.max(96, 360 - total / 2);
     const foilG = c.createLinearGradient(x0, 0, x0 + mw, 0); foilG.addColorStop(0, '#E9CE88'); foilG.addColorStop(.5, '#F7E7B0'); foilG.addColorStop(1, '#D4A94F');
-    c.fillStyle = foilG; c.font = '600 ' + sfs + 'px ' + HS; c.shadowColor = 'rgba(227,194,117,.35)'; c.shadowBlur = 14; c.fillText(slogan, x0, y + sfs * .85); c.shadowColor = 'transparent'; c.shadowBlur = 0; y += hA + 10;
+    c.font = '700 ' + sfs + 'px ' + HS;
+    const sw = c.measureText(slogan).width, sb = y + sfs * .85;
+    const foilV = c.createLinearGradient(0, sb - sfs * .8, 0, sb + sfs * .25); foilV.addColorStop(0, '#FFF3C4'); foilV.addColorStop(.45, '#F0D27F'); foilV.addColorStop(1, '#C8963A');
+    c.save(); c.fillStyle = 'rgba(0,0,0,.5)'; c.fillText(slogan, x0 + 2, sb + 3); c.shadowColor = 'rgba(227,194,117,.5)'; c.shadowBlur = 22; c.fillStyle = foilV; c.fillText(slogan, x0, sb); c.restore();
+    const ry = sb + sfs * .34, rg = c.createLinearGradient(x0, 0, x0 + sw, 0); rg.addColorStop(0, 'rgba(241,218,158,.95)'); rg.addColorStop(1, 'rgba(241,218,158,0)');
+    c.strokeStyle = rg; c.lineWidth = 2; c.beginPath(); c.moveTo(x0 + 16, ry); c.lineTo(x0 + sw, ry); c.stroke();
+    c.fillStyle = '#F1DA9E'; c.beginPath(); c.moveTo(x0, ry); c.lineTo(x0 + 8, ry - 6); c.lineTo(x0 + 16, ry); c.lineTo(x0 + 8, ry + 6); c.closePath(); c.fill();
+    y += hA + 10;
     c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 18; c.shadowOffsetY = 4; c.fillStyle = '#FFFFFF'; c.font = '400 ' + fs + 'px ' + SCRIPT; c.fillText(name, x0, y + fs * .72); c.restore(); y += hB + 8;
     c.fillStyle = '#C9D4F2'; c.font = 'italic 600 36px ' + LSERIF; hl.forEach((ln, i) => c.fillText(ln, x0, y + 30 + i * 42)); y += hC + 18;
     if(rows.length){
