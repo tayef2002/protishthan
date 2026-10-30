@@ -463,23 +463,23 @@
     // words
     const name = (p.display_name || 'Your Name').trim(), x0 = useAv ? 440 : 392, mw = useAv ? 420 : 460;
     c.textAlign = 'left';
-    const slogan = 'আমার স্কিল, আমার আইডেন্টিটি'; c.font = '400 40px ' + SERIF; const sfs = fit(c, slogan, '400', SERIF, 40, 24, mw);
+    const slogan = 'আমার স্কিল, আমার আইডেন্টিটি'; const HS = "'Hind Siliguri','Noto Sans Bengali',sans-serif"; c.font = '600 40px ' + HS; const sfs = fit(c, slogan, '600', HS, 40, 24, mw);
     c.font = '400 112px ' + SCRIPT; const fs = fit(c, name, '400', SCRIPT, 112, 52, mw);
     c.font = 'italic 600 36px ' + LSERIF; const hl = wrap(c, p.headline || '', mw, 2);
-    c.font = '600 24px ' + BODY;
+    const cmw = useAv ? 475 : 500; c.font = '600 21px ' + BODY;
     const chips = (p.skills || []).slice(0, 4).map(s => (s.n.length > 20 ? s.n.slice(0, 19) + '…' : s.n)), rows = []; let row = [], rw = 0;
-    chips.forEach(t => { const w = c.measureText(t).width + 44; if(rw + w > mw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
+    chips.forEach(t => { const w = c.measureText(t).width + 36; if(rw + w > cmw && row.length){ rows.push(row); row = []; rw = 0; } row.push([t, w]); rw += w + 10; }); if(row.length) rows.push(row);
     const soc = validSocials(p).length ? 46 : 0;
-    const hA = sfs * 1.05, hB = fs * .95, hC = hl.length * 42, hD = rows.length * 60, hE = soc, hF = 28;
+    const hA = sfs * 1.05, hB = fs * .95, hC = hl.length * 42, hD = rows.length * 54, hE = soc, hF = 28;
     const total = hA + 10 + hB + 8 + hC + 18 + (rows.length ? hD + 14 : 0) + (soc ? hE + 20 : 0) + hF;
     let y = Math.max(96, 360 - total / 2);
     const foilG = c.createLinearGradient(x0, 0, x0 + mw, 0); foilG.addColorStop(0, '#E9CE88'); foilG.addColorStop(.5, '#F7E7B0'); foilG.addColorStop(1, '#D4A94F');
-    c.fillStyle = foilG; c.font = '400 ' + sfs + 'px ' + SERIF; c.fillText(slogan, x0, y + sfs * .85); y += hA + 10;
+    c.fillStyle = foilG; c.font = '600 ' + sfs + 'px ' + HS; c.shadowColor = 'rgba(227,194,117,.35)'; c.shadowBlur = 14; c.fillText(slogan, x0, y + sfs * .85); c.shadowColor = 'transparent'; c.shadowBlur = 0; y += hA + 10;
     c.save(); c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 18; c.shadowOffsetY = 4; c.fillStyle = '#FFFFFF'; c.font = '400 ' + fs + 'px ' + SCRIPT; c.fillText(name, x0, y + fs * .72); c.restore(); y += hB + 8;
     c.fillStyle = '#C9D4F2'; c.font = 'italic 600 36px ' + LSERIF; hl.forEach((ln, i) => c.fillText(ln, x0, y + 30 + i * 42)); y += hC + 18;
     if(rows.length){
-      c.font = '600 24px ' + BODY;
-      rows.forEach(r => { let px = x0; r.forEach(([t, w]) => { c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, px, y, w, 50, 25); c.fill(); c.strokeStyle = 'rgba(227,194,117,.65)'; c.lineWidth = 1.6; rr(c, px, y, w, 50, 25); c.stroke(); c.fillStyle = '#FFFFFF'; c.fillText(t, px + 22, y + 33); px += w + 10; }); y += 60; });
+      c.font = '600 21px ' + BODY;
+      rows.forEach(r => { let px = x0; r.forEach(([t, w]) => { c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, px, y, w, 44, 22); c.fill(); c.strokeStyle = 'rgba(227,194,117,.65)'; c.lineWidth = 1.5; rr(c, px, y, w, 44, 22); c.stroke(); c.fillStyle = '#FFFFFF'; c.fillText(t, px + 18, y + 29); px += w + 10; }); y += 54; });
       y += 14 - 10;
     }
     if(soc){ socialRow(c, p, x0, y, 46, true); y += soc + 20; }
