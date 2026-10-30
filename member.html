@@ -333,6 +333,35 @@ textarea.im-i{resize:vertical}
   .qa{grid-template-columns:1fr 1fr}
 }
 @media(prefers-reduced-motion:reduce){.orb{animation:none}html{scroll-behavior:auto}*{transition:none!important}}
+/* ---- compact light profile banner (same colours as the skill and card pages) ---- */
+.hero{margin:98px auto 0;width:calc(100% - 48px);max-width:1112px;padding:26px 30px;border-radius:32px;color:#0B1B4D;border:1px solid #D9E4FB;background:radial-gradient(560px 320px at 94% 4%,rgba(124,92,255,.17),transparent 62%),radial-gradient(520px 300px at 3% 0,rgba(34,211,238,.16),transparent 62%),linear-gradient(180deg,#F4F8FF,#E8EFFF)}
+.hero::before{background-image:linear-gradient(rgba(26,86,219,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,86,219,.06) 1px,transparent 1px)}
+.orb{display:none}
+.hero .hero-in{padding:0;max-width:none;gap:22px}
+.who{gap:18px}
+.avatar{width:78px;height:78px;font-size:30px;color:#fff;border:3px solid #fff;box-shadow:0 0 0 2px #BFD1FA}
+.avatar-wrap::after{width:16px;height:16px;border:3px solid #fff;right:0;bottom:2px}
+.eyebrow{color:#1A56DB;background:#fff;border:1px solid #D9E4FB;margin-bottom:6px}
+.who h1{font-size:clamp(24px,3vw,32px);color:#0B1B4D}
+.who .mail{color:#475569;font-size:14px}
+.chips{margin-top:10px}
+.chip{color:#334155;background:#fff;border:1px solid #D9E4FB;backdrop-filter:none}
+.edit-pill{color:#1A56DB;background:#fff;border:1px solid #D9E4FB;backdrop-filter:none}
+.edit-pill:hover{background:#F1F5FF}
+.hero-stats{gap:10px}
+.stat{min-width:158px;display:grid;grid-template-columns:38px 1fr;column-gap:11px;align-items:center;padding:12px 14px;border-radius:18px;background:#fff;border:1px solid #D9E4FB;backdrop-filter:none;-webkit-backdrop-filter:none}
+.stat::before{content:"";grid-row:1/4;width:38px;height:38px;border-radius:12px;background-repeat:no-repeat;background-position:center;background-size:20px}
+.stat:nth-child(1)::before{background-color:#E8F0FF;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231A56DB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z'/%3E%3C/svg%3E")}
+.stat:nth-child(2)::before{background-color:#E3F7EE;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2.5'/%3E%3Ccircle cx='9' cy='11' r='2.2'/%3E%3Cpath d='M15 10h3.5M15 13h3'/%3E%3C/svg%3E")}
+.stat:nth-child(3)::before{background-color:#EEE9FF;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C3AED' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6'/%3E%3C/svg%3E")}
+.stat .k{color:#64748B;font-size:12px}
+.stat .v{color:#0B1B4D;font-size:22px;margin-top:1px}
+.stat .s{color:#64748B;font-size:11.5px}
+.hero.loading .avatar,.hero.loading #name,.hero.loading .mail,.hero.loading .chips::before,.hero.loading .chips::after,.hero.loading .stat .v{background-image:linear-gradient(90deg,rgba(26,86,219,.07) 25%,rgba(26,86,219,.15) 50%,rgba(26,86,219,.07) 75%);background-size:200% 100%}
+.hero.loading .avatar{border-color:#fff}
+main.container{margin-top:22px}
+@media(max-width:980px){.hero{padding:24px 22px}.stat{min-width:150px}}
+@media(max-width:760px){.hero{margin-top:86px;width:calc(100% - 24px);padding:20px 16px;border-radius:24px}.avatar{width:62px;height:62px;font-size:25px}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -341,7 +370,7 @@ textarea.im-i{resize:vertical}
 </head>
 <body>
 
-<div id="nav" class="ptn" data-theme="dark" data-set="main" data-cta="member"></div>
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
 <script src="/nav.js?v=2"></script>
 
 <header class="hero loading" id="hero">
