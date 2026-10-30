@@ -302,11 +302,18 @@
     y += 46; c.fillStyle = INKM; c.font = 'italic 600 34px ' + LSERIF; for(const ln of wrap(c, p.headline || '', 960, 1)) c.fillText(ln, cx, y);
     y += 48; c.fillStyle = INKM; c.font = 'italic 500 27px ' + LSERIF; c.fillText('in recognition of real, hands-on skill in', cx, y);
     y += 18; c.textAlign = 'left';
+    const LVN = ['Learning', 'Intermediate', 'Advanced', 'Expert'];
     skills.forEach((s, k) => {
-      const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 36 + row * 46;
-      diamond(c, x, yy - 10, 6, GOLD); c.fillStyle = NAVY; c.font = '700 31px ' + LSERIF; c.fillText(s.n.length > 24 ? s.n.slice(0, 23) + '…' : s.n, x + 22, yy);
+      const col = k % 2, row = Math.floor(k / 2), x = col ? 850 : 290, yy = y + 34 + row * 52, tw = 388;
       const l = Math.max(1, Math.min(4, Number(s.l) || 2));
-      for(let d = 0; d < 4; d++){ c.beginPath(); c.arc(x + 400 - d * 24, yy - 9, 7.5, 0, Math.PI * 2); c.fillStyle = (3 - d) < l ? GOLD : 'rgba(' + NRGB + ',.14)'; c.fill(); if((3 - d) < l){ c.strokeStyle = 'rgba(120,80,10,.5)'; c.lineWidth = 1; c.stroke(); } }
+      diamond(c, x, yy - 10, 6, GOLD);
+      c.fillStyle = NAVY; const nm = s.n.length > 26 ? s.n.slice(0, 25) + '…' : s.n; fit(c, nm, '700', LSERIF, 31, 22, 250); c.fillText(nm, x + 22, yy);
+      c.textAlign = 'right'; c.fillStyle = GOLD; c.font = 'italic 600 22px ' + LSERIF; c.fillText(LVN[l - 1], x + 22 + tw, yy - 2); c.textAlign = 'left';
+      // level bar: a fine gold rule on a pale track, filled to the level
+      c.fillStyle = 'rgba(' + NRGB + ',.10)'; rr(c, x + 22, yy + 10, tw, 5, 2.5); c.fill();
+      const bg = c.createLinearGradient(x + 22, 0, x + 22 + tw, 0); bg.addColorStop(0, '#8A6420'); bg.addColorStop(.5, '#D5AC55'); bg.addColorStop(1, '#B8893B');
+      c.fillStyle = bg; rr(c, x + 22, yy + 10, tw * l / 4, 5, 2.5); c.fill();
+      for(let q = 1; q < 4; q++){ c.fillStyle = PAPER; c.fillRect(x + 22 + tw * q / 4 - 1, yy + 9, 2, 7); }   // quarter marks
     });
     // footer: QR | date | seal | signature
     const by = H - 318; c.textAlign = 'center';
