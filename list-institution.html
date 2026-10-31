@@ -123,6 +123,7 @@ textarea{resize:vertical;min-height:80px}
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<script src="/bnname.js?v=1"></script>
 </head>
 <body>
 
@@ -148,7 +149,7 @@ textarea{resize:vertical;min-height:80px}
       <div class="fstep active" id="step1">
         <div class="field">
           <label>প্রতিষ্ঠানের নাম <span class="req">*</span></label>
-          <input type="text" id="instName" placeholder="যেমন: দারুল উলুম মাদ্রাসা" oninput="updateSlugPreview()">
+          <input type="text" id="instName" placeholder="বাংলায় লিখুন, যেমন: দারুল উলুম মাদ্রাসা" autocomplete="off" lang="bn">
         </div>
 
         <div class="field">
@@ -490,9 +491,14 @@ function onSessionMonthChange(){
 
 function goToStep(step){
   if(step === 2){
-    const name = document.getElementById('instName').value.trim();
+    const name = BnName.norm(document.getElementById('instName').value);
     if(!name){
       alert('প্রতিষ্ঠানের নাম দিন');
+      return;
+    }
+    if(BnName.hasLatin(name)){
+      alert('প্রতিষ্ঠানের নাম বাংলায় লিখুন। ইংরেজি অক্ষর চলবে না।');
+      document.getElementById('instName').focus();
       return;
     }
     if(!selectedType){
@@ -567,7 +573,7 @@ async function submitListing(){
   const btn = document.getElementById('submitBtn');
   btn.classList.add('loading');
 
-  const instName = document.getElementById('instName').value.trim();
+  const instName = BnName.norm(document.getElementById('instName').value);
   const distIdx = document.getElementById('instDistrict').value;
   const district = BD_LOCATIONS[distIdx].n;
   const upazila = document.getElementById('instUpazila').value;
@@ -688,5 +694,6 @@ document.getElementById('contactPhone').addEventListener('input', e=>{
   e.target.value = e.target.value.replace(/[^0-9]/g,'');
 });
 </script>
+<script>BnName.guard(document.getElementById("instName"));</script>
 </body>
 </html>
