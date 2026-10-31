@@ -1451,11 +1451,59 @@ async function saveMissing(){
   if(error){ err.textContent = /duplicate|unique/i.test(error.message) ? 'এই নামে আপনার প্রোফাইলে আগেই সেভ করা আছে।' : /TOO_MANY/.test(error.message) ? 'আপনি সর্বোচ্চ ৩০টি প্রতিষ্ঠান সেভ করতে পারবেন।' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন।'; return; }
   closeMissing(); M.toast('আপনার প্রোফাইলে সেভ হয়েছে ✓');
 }
+/* the imported, not-yet-verified directory (tens of thousands of rows) is read from the server a page at a time, for the place / type / search chosen */
+const SRV = { rows: [], total: 0, loading: false, key: '', args: null, seq: 0, timer: 0 };
+let LAST_LIST = [];
+function srvArgs(searchVal){
+  const district = document.getElementById('filterDistrict').value, upazila = document.getElementById('filterUpazila').value;
+  const q = /^(?:PRN-?)?\d{1,6}$/i.test(searchVal) ? '' : searchVal;
+  const districts = district ? [district] : selectedDivision ? (DIVISION_MAP[selectedDivision] || []) : null;
+  const narrowed = !!(q.length >= 2 || districts || upazila || selectedType);
+  const blocked = !!(document.getElementById('filterMedium').value || document.getElementById('filterAdmissionOpen').classList.contains('on') || CHIP_F.own || CHIP_F.gender || CHIP_F.adm || CHIP_F.fac.size);
+  if(!narrowed || blocked) return null;   // nothing chosen yet (or a filter the imported rows do not have): only verified institutions
+  return { p_q: q || null, p_districts: districts, p_upazila: upazila || null, p_type: selectedType || null };
+}
+function srvSync(args){
+  const key = args ? JSON.stringify(args) : '';
+  if(key === SRV.key) return;
+  SRV.key = key; SRV.args = args; SRV.rows = []; SRV.total = 0; SRV.seq++;
+  clearTimeout(SRV.timer);
+  if(!args){ SRV.loading = false; return; }
+  SRV.loading = true;
+  SRV.timer = setTimeout(() => srvFetch(false), 250);
+}
+async function srvFetch(more){
+  const my = SRV.seq; SRV.loading = true; if(more) renderCards(LAST_LIST);
+  try{
+    const { data, error } = await sb.rpc('directory_browse', { ...SRV.args, p_limit: 30, p_offset: more ? SRV.rows.length : 0 });
+    if(my !== SRV.seq) return;
+    if(error) throw error;
+    SRV.rows = more ? SRV.rows.concat(data || []) : (data || []);
+    SRV.total = (data && data.length) ? Number(data[0].total) : (more ? SRV.total : 0);
+  }catch(e){ if(my !== SRV.seq) return; console.error('directory_browse failed', e); }
+  SRV.loading = false; renderCards(LAST_LIST);
+}
+function srvHtml(){
+  if(!SRV.args) return '';
+  let h = SRV.rows.map(s => {
+    const loc = [s.upazila, s.district].filter(Boolean).map(escapeHtml).join(', ');
+    return '<a class="inst-card" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+      '<div class="ic-top"><div class="inst-logo ' + (typeColor[s.institution_type] || 'ti-school') + '">' + ico(typeIcons[s.institution_type] || 'school', 24) + '</div>' +
+      '<div class="ic-head"><div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
+      '<div class="ic-loc">' + escapeHtml(s.institution_type || 'প্রতিষ্ঠান') + (loc ? ' · ' + ico('pin', 12) + ' ' + loc : '') + '</div></div>' +
+      '<span class="ic-badge" style="color:var(--text-muted,#667085);background:var(--bg,#f2f4f7)">যাচাই বাকি</span></div>' +
+      '<div class="ic-foot"><span class="ic-prn"></span><span class="ic-cta">বিস্তারিত দেখুন →</span></div></a>';
+  }).join('');
+  if(SRV.loading) h += '<div class="inst-empty" style="padding:18px">খোঁজা হচ্ছে…</div>';
+  else if(SRV.rows.length < SRV.total) h += '<div style="text-align:center;padding:14px"><button type="button" style="font:inherit;font-weight:700;padding:10px 20px;border-radius:12px;border:1px solid var(--border);background:var(--white);cursor:pointer" onclick="srvFetch(true)">আরও দেখান (' + bnNum(SRV.total - SRV.rows.length) + 'টি বাকি)</button></div>';
+  return h;
+}
 function renderCards(list){
+  LAST_LIST = list;
   const wrap = document.getElementById('instList');
-  document.getElementById('resultCount').textContent = bnNum(list.length) + 'টি প্রতিষ্ঠান দেখাচ্ছে';
+  document.getElementById('resultCount').textContent = bnNum(list.length + SRV.total) + 'টি প্রতিষ্ঠান' + (SRV.args && SRV.rows.length < SRV.total ? ' পাওয়া গেছে' : ' দেখাচ্ছে');
 
-  if(list.length === 0){
+  if(list.length === 0 && !SRV.rows.length && !SRV.loading){
     wrap.innerHTML = '<div class="inst-empty"><div class="empty-ico">' + ico('search', 30) + '</div><div style="font-weight:700;color:var(--text);margin-bottom:4px">এই ফিল্টারে কোনো প্রতিষ্ঠান পাওয়া যায়নি</div><div>ফিল্টার বদলে দেখুন, অথবা <a href="#" onclick="resetFilters();return false">সব ফিল্টার মুছুন</a> · <a href="list-institution.html">নিজের প্রতিষ্ঠান যুক্ত করুন</a></div></div>' + missingCta();
     return;
   }
@@ -1491,7 +1539,7 @@ function renderCards(list){
       (cardTags.length ? '<div class="inst-tags">' + cardTags.join('') + '</div>' : '') +
       '<div class="ic-foot"><span class="ic-prn">' + (s.prn_number ? 'PRN-' + String(s.prn_number).padStart(4,'0') : '') + '</span><span class="ic-cta">বিস্তারিত দেখুন →</span></div>' +
     '</a>';
-  }).join('') + missingCta();
+  }).join('') + srvHtml() + missingCta();
 
   loadNoticeIndicators(list);
 }
@@ -1607,6 +1655,7 @@ function applyFilters(){
   if(sort === 'popular') filtered.sort((a,b)=>(b.view_count||0)-(a.view_count||0));
   else if(sort === 'name') filtered.sort((a,b)=>String(a.institution_name||'').localeCompare(String(b.institution_name||''),'bn'));
 
+  srvSync(srvArgs(searchVal));
   syncChipUI();
   renderActiveChips({ district, upazila, medium, admissionOnly, searchVal });
   if(typeof refreshCustomSelects === 'function') refreshCustomSelects();
