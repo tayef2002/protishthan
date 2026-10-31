@@ -325,6 +325,8 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0F172A;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .mbar{display:none}
+.btn[data-needname]:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
+.need-hint{margin-top:12px;padding:10px 14px;border-radius:12px;background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;font-size:13.5px;line-height:1.6}
 .pvov{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px;background:rgba(8,15,35,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .pvov.show{display:flex;animation:pvIn .25s ease-out}
 @keyframes pvIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
@@ -677,11 +679,12 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
           <button type="button" class="on" data-f="post">পোস্ট (৪:৫)</button>
           <button type="button" data-f="story">স্টোরি (৯:১৬)</button>
         </div>
+        <div class="need-hint" id="needHint" hidden>আগে বাঁ পাশে আপনার নাম লিখুন, তারপর ডাউনলোড ও শেয়ার চালু হবে।</div>
         <div class="actions">
-          <button type="button" class="btn btn-primary wide" onclick="downloadCard()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>কার্ড ডাউনলোড করুন</button>
-          <button type="button" class="btn btn-fb" onclick="shareFacebook()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook</button>
-          <button type="button" class="btn btn-wa" onclick="shareWhatsApp()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp</button>
-          <button type="button" class="btn btn-ghost wide hide-sm" onclick="shareImage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>ছবিসহ শেয়ার / ক্যাপশন কপি</button>
+          <button type="button" class="btn btn-primary wide" data-needname onclick="downloadCard()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>কার্ড ডাউনলোড করুন</button>
+          <button type="button" class="btn btn-fb" data-needname onclick="shareFacebook()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook</button>
+          <button type="button" class="btn btn-wa" data-needname onclick="shareWhatsApp()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp</button>
+          <button type="button" class="btn btn-ghost wide hide-sm" data-needname onclick="shareImage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>ছবিসহ শেয়ার / ক্যাপশন কপি</button>
         </div>
         <p class="note">এটা নিজে বানানো একটা মজার কার্ড, কোনো সরকারি কাগজ বা সনদ নয়।</p>
       </div>
@@ -722,8 +725,8 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <div class="pvov" id="pvOv" role="dialog" aria-modal="true" aria-label="কার্ডের প্রিভিউ" onclick="if(event.target===this)closePreview()"><img id="pvImg" alt="আপনার কার্ড"><small>এখন পর্যন্ত যা লিখেছেন, কার্ড এমন দেখাচ্ছে</small><button type="button" class="pv-x" onclick="closePreview()">বন্ধ করুন, লেখা চালিয়ে যান</button></div>
 <div class="mbar">
   <button type="button" class="btn btn-ghost mb-pv" onclick="openPreview()" aria-label="কার্ডের প্রিভিউ দেখুন"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>প্রিভিউ</button>
-  <button type="button" class="btn btn-primary" onclick="downloadCard()">ডাউনলোড</button>
-  <button type="button" class="btn btn-ghost" onclick="shareImage()">শেয়ার</button>
+  <button type="button" class="btn btn-primary" id="mbDl" data-needname onclick="downloadCard()">ডাউনলোড</button>
+  <button type="button" class="btn btn-ghost" data-needname onclick="shareImage()">শেয়ার</button>
 </div>
 <div class="crop-modal" id="cropModal" onclick="if(event.target===this)closeCrop(false)">
   <div class="crop-box" role="dialog" aria-label="ছবি ঠিক করুন">
@@ -1341,7 +1344,14 @@ function verifiedTick(x, y, r){          // blue tick: this institution is liste
 }
 const LEVEL_YEARS = { psc: 5, jsc: 8, school: 10, college: 12, bachelor: 16, masters: 17 };   // years of schooling up to the end of each level
 
+function syncNeedName(){
+  const ok = !!String((typeof S !== 'undefined' && S.name) || '').trim();
+  document.querySelectorAll('[data-needname]').forEach(b => { b.disabled = !ok; });
+  const hint = document.getElementById('needHint'); if(hint) hint.hidden = ok;
+  const mb = document.getElementById('mbDl'); if(mb) mb.textContent = ok ? 'ডাউনলোড' : 'আগে নাম দিন';
+}
 function draw(){
+  syncNeedName();
   saveState();
   const T = THEMES[S.theme];
   const story = S.format === 'story';
@@ -1583,10 +1593,9 @@ async function refreshDownloads(){
   if(document.hidden) return;
   try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
-async function countMyDownload(){   // one count per person (per browser), however many times they download
-  let done = false; try{ done = localStorage.getItem('sk_dl_counted') === '1'; }catch(e){}
-  if(done) return;
-  try{ const { data, error } = await sb.rpc('bump_card_downloads'); if(!error){ try{ localStorage.setItem('sk_dl_counted', '1'); }catch(e){} if(data != null) paintDownloads(Number(data)); } }catch(e){}
+async function countMyDownload(){   // once per person per name: the server compares this device and this account with the name on the card
+  const nm = String(S.name || '').trim(); if(!nm) return;
+  try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
 refreshDownloads(); setInterval(refreshDownloads, 20000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
@@ -1602,7 +1611,9 @@ function openPreview(){ draw(); document.getElementById('pvImg').src = cv.toData
 function closePreview(){ document.getElementById('pvOv').classList.remove('show'); document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePreview(); });
 function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
+function needNameToast(){ toast('আগে আপনার নাম লিখুন'); const f = document.getElementById('fName'); if(f){ f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => f.focus(), 350); } }
 async function downloadCard(){
+  if(!String(S.name || '').trim()){ needNameToast(); return; }
   if(Object.values(S.edu).some(ed => ed && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
   draw();
   const blob = await cardBlob(); const a = document.createElement('a');
@@ -1612,10 +1623,11 @@ async function downloadCard(){
   countMyDownload(); countMyInstitutes();
 }
 async function shareImage(){
+  if(!String(S.name || '').trim()){ needNameToast(); return; }
   draw();
   const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
   try{
-    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); return; }
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); countMyDownload(); return; }
   }catch(e){ if(e && e.name === 'AbortError') return; }
   try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
   downloadCard();
