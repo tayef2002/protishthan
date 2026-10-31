@@ -278,6 +278,11 @@ body{display:flex}
         <label>প্রতিষ্ঠানের নাম</label>
         <input type="text" id="fName" autocomplete="off" name="inst_name_field">
       </div>
+      <div class="form-field">
+        <label>ইংরেজি নাম <small style="font-weight:500;color:var(--text-3)">(ঐচ্ছিক)</small></label>
+        <input type="text" id="fNameEn" autocomplete="off" maxlength="120" placeholder="e.g. Darul Uloom Madrasa" name="inst_name_en_field">
+        <div style="font-size:11.5px;color:var(--text-3);margin-top:4px;line-height:1.6">প্রশ্নপত্র, সনদ বা রিপোর্টে ইংরেজি নাম লাগলে এখানে দিন। তথ্যভান্ডারে আপনার প্রতিষ্ঠানের নাম সবসময় বাংলাতেই দেখাবে।</div>
+      </div>
       <div class="form-row">
         <div class="form-field">
           <label>অধ্যক্ষ/পরিচালকের নাম</label>
@@ -578,6 +583,7 @@ async function init(){
   if(topbarInst){ topbarInst.style.display='flex'; topbarInst.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(inst.name) + (inst.prn_number ? ' · PRN-'+String(inst.prn_number).padStart(4,'0') : '') + '</span>'; }
 
   document.getElementById('fName').value = inst.name || '';
+  document.getElementById('fNameEn').value = inst.name_en || '';
   document.getElementById('fPrincipal').value = inst.principal_name || '';
   document.getElementById('fPhone').value = inst.phone || '';
   document.getElementById('fEiin').value = inst.eiin || '';
@@ -648,6 +654,7 @@ async function saveProfile(){
   const distName = distSel.value !== '' ? BD_LOCATIONS[distSel.value].n : '';
   const updates = {
     name: document.getElementById('fName').value.trim(),
+    name_en: document.getElementById('fNameEn').value.trim().replace(/\s+/g, ' ') || null,
     principal_name: document.getElementById('fPrincipal').value.trim(),
     phone: document.getElementById('fPhone').value.trim(),
     district: distName,
@@ -655,7 +662,8 @@ async function saveProfile(){
     institution_type: selectedSettingsType || currentInstitution.institution_type || '',
     eiin: document.getElementById('fEiin').value.trim() || null
   };
-  const { error } = await sb.from('institutions').update(updates).eq('id', currentInstitution.id);
+  let { error } = await sb.from('institutions').update(updates).eq('id', currentInstitution.id);
+  if(error && /name_en/.test(error.message || '')){ delete updates.name_en; ({ error } = await sb.from('institutions').update(updates).eq('id', currentInstitution.id)); if(!error) showToast('ইংরেজি নাম এখনো সেভ হয়নি (ডাটাবেস আপডেট বাকি)'); }   // the column is added by migrations/2026-11-08
   btn.disabled = false; btn.textContent = 'প্রোফাইল সেভ করুন';
   if(error){ showToast('সমস্যা হয়েছে: '+error.message); return; }
   Object.assign(currentInstitution, updates);
