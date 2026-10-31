@@ -925,7 +925,7 @@ function drawArea(){
   }
   $('arList').innerHTML = AREA.rows.map(r => {
     const k = typeKey(r.institution_type), st = areaStatus(r), canDo = !r.mine && r.my_status !== 'pending';
-    return '<div class="ar-row"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div class="ar-main"><h3><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '">' + esc(r.institution_name) + '</a></h3><p>' + esc(r.institution_type || '') + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(5, '0') : '') + (r.source_id ? ' · EIIN ' + esc(r.source_id) : '') + '</p></div><span class="ar-st ' + st[0] + '">' + st[1] + '</span>' +
+    return '<div class="ar-row"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div class="ar-main"><h3><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '">' + esc(r.institution_name) + '</a></h3><p>' + esc(r.institution_type || '') + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + (r.source_id ? ' · EIIN ' + esc(r.source_id) : '') + '</p></div><span class="ar-st ' + st[0] + '">' + st[1] + '</span>' +
       (canDo ? '<button class="btn ' + (r.verification === 'unverified' ? 'btn-blue' : 'btn-line') + ' btn-sm" type="button" onclick="coOpen(\'' + esc(r.id) + '\')">' + (r.verification === 'unverified' ? 'যাচাই করুন' : 'তথ্য যোগ করুন') + '</button>' : '') + '</div>';
   }).join('');
   $('arMore').innerHTML = AREA.rows.length < AREA.total ? '<div style="text-align:center;padding:14px"><button class="btn btn-line" type="button" onclick="fetchArea(true)">আরও দেখান (' + bn(AREA.total - AREA.rows.length) + 'টি বাকি) ' + ico('arrow', 15, 'style="transform:rotate(90deg)"') + '</button></div>' : '';
