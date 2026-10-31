@@ -1458,9 +1458,9 @@ function srvArgs(searchVal){
   const district = document.getElementById('filterDistrict').value, upazila = document.getElementById('filterUpazila').value;
   const q = /^(?:PRN-?)?\d{1,6}$/i.test(searchVal) ? '' : searchVal;
   const districts = district ? [district] : selectedDivision ? (DIVISION_MAP[selectedDivision] || []) : null;
-  const narrowed = !!(q.length >= 2 || districts || upazila || selectedType);
   const blocked = !!(document.getElementById('filterMedium').value || document.getElementById('filterAdmissionOpen').classList.contains('on') || CHIP_F.own || CHIP_F.gender || CHIP_F.adm || CHIP_F.fac.size);
-  if(!narrowed || blocked) return null;   // nothing chosen yet (or a filter the imported rows do not have): only verified institutions
+  if(blocked) return null;   // a filter the imported rows do not have (medium, admission, facilities…): only verified institutions
+  // nothing chosen at all: the server sends a fair daily mix, so a visitor never lands on an empty page
   return { p_q: q || null, p_districts: districts, p_upazila: upazila || null, p_type: selectedType || null };
 }
 function srvSync(args){
@@ -1579,17 +1579,22 @@ async function loadNoticeIndicators(list){
 
 function bnNum(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]); }
 
+let DIR_COUNTS = [];
+async function loadDirCounts(){
+  try{ const { data, error } = await sb.rpc('directory_counts'); if(error) throw error; DIR_COUNTS = (data || []).map(r => ({ t: r.institution_type, d: r.district, n: Number(r.n) })); }catch(e){ console.error('directory_counts failed', e); }
+  updateDivisionCounts();
+}
 function updateDivisionCounts(){
   document.querySelectorAll('.div-count').forEach(el=>{
     const div = el.dataset.div;
     if(!div) return;
     const districtsInDiv = DIVISION_MAP[div] || [];
-    const count = allApproved.filter(s=>districtsInDiv.includes(s.district)).length;
+    const count = allApproved.filter(s=>districtsInDiv.includes(s.district)).length + DIR_COUNTS.filter(r=>districtsInDiv.includes(r.d)).reduce((a,r)=>a+r.n, 0);
     el.textContent = bnNum(count);
   });
   document.querySelectorAll('[data-tcount]').forEach(el=>{
     const t = el.dataset.tcount;
-    el.textContent = bnNum(t ? allApproved.filter(s=>s.institution_type===t).length : allApproved.length);
+    el.textContent = bnNum((t ? allApproved.filter(s=>s.institution_type===t).length : allApproved.length) + DIR_COUNTS.filter(r=>!t || r.t===t).reduce((a,r)=>a+r.n, 0));
   });
 }
 
@@ -2092,6 +2097,7 @@ async function loadApprovedInstitutions(){
   }
   applyFilters();
   updateDivisionCounts();
+  loadDirCounts();
 }
 
 // Floating "add your institution" widget: starts as a labelled pill for 7s on the first visit, then a small round button.
