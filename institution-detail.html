@@ -669,13 +669,7 @@ function render(){
   const age = founded ? new Date().getFullYear() - founded : null;
   const ratio = (students && teachers) ? Math.round(students / teachers) : null;
   const stat = (icn, cls, num, lbl, note) => '<div class="stat"><div class="stat-ic '+cls+'">'+ico(icn,20)+'</div><div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div>'+(note?'<div class="stat-note">'+note+'</div>':'')+'</div>';
-  // an imported listing shows its official facts only until a Partner / the institution adds the real numbers; then the usual four boxes appear
-  if(IMP && !(students || teachers || founded)) document.getElementById('statsGrid').innerHTML =
-    stat('book','si-blue', escapeHtml(r.institution_type || '—'), 'ধরন', '') +
-    stat('idcard','si-green', r.source_id ? escapeHtml(r.source_id) : '—', 'EIIN নম্বর', 'সরকারি শিক্ষা-পরিচয় নম্বর') +
-    stat('pin','si-amber', escapeHtml(r.upazila || '—'), 'উপজেলা / থানা', escapeHtml(r.district || '')) +
-    stat('shield','si-purple', 'যাচাই বাকি', 'তথ্যের অবস্থা', 'প্রতিষ্ঠান দাবি করলে যাচাই হবে');
-  else document.getElementById('statsGrid').innerHTML =
+  document.getElementById('statsGrid').innerHTML =
     stat('users','si-blue', students ? bn(students.toLocaleString('en-IN')) : '—', 'শিক্ষার্থী', r.gender_type ? escapeHtml(r.gender_type) : '') +
     stat('teacher','si-green', teachers ? bn(teachers) : '—', 'শিক্ষক', '') +
     stat('calendar','si-amber', founded ? bn(founded) : '—', 'প্রতিষ্ঠার সাল', age > 0 ? bn(age) + ' বছর ধরে শিক্ষাদান' : '') +
@@ -689,8 +683,7 @@ function render(){
     requestAnimationFrame(()=>{ if(aboutEl.scrollHeight > aboutEl.clientHeight + 4) document.getElementById('aboutMore').style.display = 'inline-block'; });
   } else {
     aboutEl.classList.remove('clamp');
-    if(IMP) aboutEl.innerHTML = '<span class="muted">' + escapeHtml(name) + (r.institution_type ? ' — ' + escapeHtml(r.institution_type) : '') + (loc ? ', ' + escapeHtml(loc) : '') + '। এই তথ্য সরকারি তালিকা (' + escapeHtml(srcName) + ')' + (r.source_id ? ' থেকে, EIIN ' + escapeHtml(r.source_id) : ' থেকে') + ' নেওয়া হয়েছে এবং এখনো প্রতিষ্ঠান কর্তৃপক্ষ যাচাই করেনি। ছবি, ভর্তির তথ্য, ফি ও যোগাযোগ প্রতিষ্ঠান নিজে যোগ করলে এখানে দেখা যাবে।</span>';
-    else aboutEl.innerHTML = '<span class="muted">' + escapeHtml(name) + (r.institution_type ? ' — ' + escapeHtml(r.institution_type) : '') + (loc ? ', ' + escapeHtml(loc) + '।' : '।') +
+    aboutEl.innerHTML = '<span class="muted">' + escapeHtml(name) + (r.institution_type ? ' — ' + escapeHtml(r.institution_type) : '') + (loc ? ', ' + escapeHtml(loc) + '।' : '।') +
       (founded ? ' ' + bn(founded) + ' সালে প্রতিষ্ঠিত।' : '') + ' প্রতিষ্ঠানটি এখনো বিস্তারিত পরিচিতি যোগ করেনি।</span>';
   }
 
