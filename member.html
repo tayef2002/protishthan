@@ -115,6 +115,7 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 .sheet-grip{width:44px;height:5px;border-radius:5px;background:#CBD5E1;margin:4px auto 10px}
 @media(max-width:900px){body{padding-bottom:78px}.foot{padding-bottom:20px}}
 .sec{margin-bottom:26px}
+.sub-h{margin:6px 2px 2px}.sub-h b{display:block;font-size:16px}.sub-h span{display:block;color:var(--text-3);font-size:13.5px;line-height:1.6}
 .sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
 .sec-h h2{font-size:21px;line-height:1.3;letter-spacing:-.2px}
 .sec-h p{font-size:13.5px;color:var(--text-3)}
@@ -718,7 +719,7 @@ async function loadCustom(){
   const ids = rows.map(r => r.listing_id).filter(Boolean);
   if(ids.length){ const { data: ls } = await M.sb.from('listing_submissions').select('id,status,desired_slug,prn_number').in('id', ids); const m = {}; (ls || []).forEach(l => m[l.id] = l); rows.forEach(r => { const l = m[r.listing_id]; if(l){ r.__ls = l.status; r.__slug = l.desired_slug; } }); }
   STATE.custom = rows;
-  box.innerHTML = rows.map((c, i) => {
+  box.innerHTML = (rows.length ? '<div class="sub-h" style="grid-column:1/-1"><b>আমার যোগ করা প্রতিষ্ঠান</b><span>কার্ড বানানোর সময় যেগুলো তথ্যভান্ডারে পাননি, সেগুলো এখানে জমা থাকে। চাইলে তথ্য দিয়ে তালিকায় প্রকাশ করতে পারেন।</span></div>' : '') + rows.map((c, i) => {
     const k = typeKey(c.itype), st = IM_STATUS[imState(c)];
     const done = c.itype && c.district && c.upazila && c.contact_name && c.contact_phone;
     let act = '<button class="btn btn-line btn-sm" type="button" onclick="imOpen(\'' + esc(c.id) + '\')">' + (c.listing_id ? 'তথ্য সম্পাদনা' : 'তথ্য যোগ করুন') + '</button>';
@@ -801,7 +802,7 @@ async function loadSaved(){
   STATE.saved = rows; updateProgress();
   $('savedSub').textContent = rows.length ? bn(rows.length) + 'টি প্রতিষ্ঠান সেভ করা আছে' : 'পছন্দের প্রতিষ্ঠান এখানে জমা থাকে';
   if(!rows.length){
-    box.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="art">' + ico('bookmark', 30) + '</div><b>এখনো কিছু সেভ করেননি</b><p>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে সেটা এখানে জমা হবে, পরে সহজে খুঁজে পাবেন।</p><a class="btn btn-blue" href="index.html">প্রতিষ্ঠান খুঁজুন</a></div>';
+    box.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="art">' + ico('bookmark', 30) + '</div><b>এখনো কোনো প্রতিষ্ঠান সেভ করেননি</b><p>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে সেটা এখানে জমা হবে, পরে সহজে খুঁজে পাবেন।</p><a class="btn btn-blue" href="index.html">প্রতিষ্ঠান খুঁজুন</a></div>';
     return;
   }
   box.innerHTML = rows.map(r => {
