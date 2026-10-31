@@ -690,7 +690,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     </aside>
   </div>
 
-  <section class="lb" id="lb" aria-labelledby="lbT">
+  <section class="lb" id="lb" aria-labelledby="lbT" hidden>
     <div class="lb-head">
       <div><span class="lb-kick">লিডারবোর্ড</span><h2 id="lbT">শিক্ষিত কার্ডে সেরা প্রতিষ্ঠান</h2><p>কোন প্রতিষ্ঠান থেকে কতজন শিক্ষিত কার্ড বানিয়েছেন।</p></div>
     </div>
@@ -1507,11 +1507,15 @@ function lbRow(r, max){
   const w = Math.max(6, Math.round(Number(r.n) / Math.max(1, max) * 100));
   return '<li class="lb-row r' + Math.min(Number(r.rank), 4) + '"><span class="bar" style="width:' + w + '%"></span><span class="lb-rank">' + bn(r.rank) + '</span><div style="min-width:0"><div class="lb-name">' + esc(r.name) + '</div><div class="lb-meta">' + esc([r.itype, r.upazila, r.district].filter(Boolean).join(' · ')) + '</div></div><div class="lb-n">' + bn(r.n) + '<small>শিক্ষিত কার্ড</small></div></li>';
 }
+const LB_MIN_ROWS = 5, LB_MIN_TOTAL = 50;   // the board appears once at least 5 institutions and 50 cards are on it
+let LB_READY = false;
 async function loadLeaderboard(){
   const list = document.getElementById('lbList'); if(!list) return;
   try{
     const { data, error } = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null });
     if(error) throw error;
+    if(!LB_READY && !lbDistrict && !lbType){ const tot = (data || []).reduce((a, r) => a + Number(r.n || 0), 0); if((data || []).length >= LB_MIN_ROWS && tot >= LB_MIN_TOTAL){ LB_READY = true; document.getElementById('lb').hidden = false; } }
+    if(!LB_READY) return;
     if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!</li>'; return; }
     const max = Math.max(...data.map(r => Number(r.n)));
     list.innerHTML = data.map(r => lbRow(r, max)).join('');
@@ -1548,7 +1552,7 @@ async function countMyInstitutes(){
 }
 
 /* ---------------- live download counter ---------------- */
-const DL_MIN_SHOW = 1;           // show the badge as soon as the first card is downloaded
+const DL_MIN_SHOW = 50;          // a tiny number reads as 'nobody uses this': show the badge only from 50 downloads
 let dlShown = 0, dlRaf = 0;
 function paintDownloads(n){
   const box = document.getElementById('dlLive'), el = document.getElementById('dlCount'); if(!box || !el) return;
