@@ -175,6 +175,17 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .dl-live i{width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
 @keyframes dlPulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 @media(prefers-reduced-motion:reduce){.dl-live i{animation:none}}
+.free{margin-top:24px;max-width:36em}
+.free-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;color:#1A56DB;font:800 13.5px 'Hind Siliguri',sans-serif;letter-spacing:.02em}
+.free-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#C7D6F5,transparent)}
+.free-l{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.free-l li{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:14px;background:rgba(255,255,255,.78);border:1px solid #D9E4FB}
+.free-l i{flex:none;width:36px;height:36px;border-radius:11px;background:#EAF0FF;color:#1A56DB;display:flex;align-items:center;justify-content:center}
+.free-l span{min-width:0}
+.free-l b{display:block;color:#0B1B4D;font:700 14.5px/1.35 'Hind Siliguri',sans-serif}
+.free-l small{display:block;color:#64748B;font:500 12px/1.4 'Hind Siliguri',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:1020px){.free{margin-left:auto;margin-right:auto;text-align:left}}
+@media(max-width:520px){.free-l{grid-template-columns:1fr}}
 .hero .cnt{margin-top:8px;font-size:13px;color:#9FB2E6;min-height:0}
 
 /* layout */
@@ -539,11 +550,16 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <h1>ডিগ্রি নয়, <span>আপনার স্কিলই</span> আপনার পরিচয়</h1>
     <p>আপনার কী স্কিল আছে, কাজের পোর্টফোলিও, সব এক পেজে। এক লিংকেই ক্লায়েন্টের সামনে নিজেকে উপস্থাপন করুন।</p>
     <div class="dl-live" id="dlLive" style="display:none" aria-live="polite"><i></i><span>এ পর্যন্ত <b id="dlCount">০</b>টা স্কিল সনদ ডাউনলোড হয়েছে</span></div>
-    <div class="meta">
-      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>নিজের একটা লিংক</span>
-      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg>QR কোড আর শেয়ারের ছবি</span>
-      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>আপনি না চাইলে পেজ প্রকাশ হবে না</span>
+    <div class="free" aria-label="ফ্রিতে যা যা পাবেন">
+      <div class="free-h"><span>ফ্রিতে যা যা পাবেন</span></div>
+      <ul class="free-l">
+        <li><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg></i><span><b>নিজের লিংক</b><small>protishthan.com/s/আপনার-নাম</small></span></li>
+        <li><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg></i><span><b>ডিজিটাল স্কিল সনদ</b><small>Certificate, QR কোডসহ</small></span></li>
+        <li><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9.5" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg></i><span><b>পোস্ট কার্ড</b><small>ফেসবুক ও ইনস্টাগ্রামের জন্য</small></span></li>
+        <li><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-3 7 5"/></svg></i><span><b>ফেসবুক কভার ফটো</b><small>প্রোফাইলে বসানোর মাপে</small></span></li>
+      </ul>
     </div>
+
       <div class="hero-cta"><button class="btn-pri hero-go" type="button" id="heroGo">এখনই শুরু করুন <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><span>সাইন আপ করলে আপনার সনদের সব কিছু সেভ থাকবে</span></div>
       <div class="cnt" id="heroCnt"></div>
     </div>
