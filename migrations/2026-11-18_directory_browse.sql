@@ -28,7 +28,7 @@ begin
     || ')
      select id, institution_name, name_en, institution_type, district, upazila, desired_slug, verification, email_hint, count(*) over ()
      from m
-     order by ' || case when q is null then '' else '(search_key like ''%'' || $4 || ''%'' or search_key_en like ''%'' || $4 || ''%'') desc, (phon_key = $5 or phon_key_en = $5) desc, ' end
+     order by ' || case when q is null then '' else '(search_key like ''%'' || $4 || ''%'' or search_key_en like ''%'' || $4 || ''%'') desc, (phon_key = $5 or phon_key_en = $5) desc, (phon_key like $5 || ''%'' or phon_key_en like $5 || ''%'') desc, ' end
     || 'district, upazila, institution_name, id limit $6 offset $7'
     using p_districts, up, ty, q, p, lim, off;
 end $$;
