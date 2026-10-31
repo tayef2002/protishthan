@@ -27,7 +27,7 @@ if(!KEY){
     if(line){ KEY = line.slice(line.indexOf('=') + 1).trim().replace(/^["']|["']$/g, ''); KEY_FROM = 'the .env file'; }
   }catch(e){}
 }
-const BATCH = 500;
+const BATCH = 200;   // smaller batches: the table keeps several search indexes, so very big inserts can hit the database's time limit
 const file = path.join(OUT_DIR, 'rows.json');
 if(!fs.existsSync(file)){ console.error('out/rows.json not found. Run import.mjs first.'); process.exit(1); }
 const rows = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -49,10 +49,23 @@ const todo = rows.filter(x => !have.has(String(x.source_id)));
 console.log('Already in the database:', have.size, '| to send:', todo.length);
 
 let sent = 0;
+const sleep = ms => new Promise(s => setTimeout(s, ms));
+// one chunk; if the database says "timeout" (or is busy) the chunk is cut in half and tried again, after a short rest
+async function sendChunk(chunk, depth = 0){
+  const r = await fetch(URL_BASE + '/rest/v1/listing_submissions', { method: 'POST', headers: { ...headers, Prefer: 'return=minimal' }, body: JSON.stringify(chunk) });
+  if(r.ok) return;
+  const body = await r.text();
+  if((r.status === 500 || r.status === 503 || r.status === 504 || r.status === 429 || /timeout/i.test(body)) && chunk.length > 1 && depth < 6){
+    await sleep(4000);
+    const mid = Math.ceil(chunk.length / 2);
+    await sendChunk(chunk.slice(0, mid), depth + 1); await sendChunk(chunk.slice(mid), depth + 1); return;
+  }
+  throw new Error(r.status + ' ' + body);
+}
 for(let i = 0; i < todo.length; i += BATCH){
   const chunk = todo.slice(i, i + BATCH);
-  const r = await fetch(URL_BASE + '/rest/v1/listing_submissions', { method: 'POST', headers: { ...headers, Prefer: 'return=minimal' }, body: JSON.stringify(chunk) });
-  if(!r.ok){ console.error('\nStopped at rows ' + (i + 1) + '-' + (i + chunk.length) + ':', r.status, await r.text()); console.error('Nothing after this point was sent. Fix the cause and run again: finished rows are skipped.'); process.exit(1); }
+  try{ await sendChunk(chunk); }
+  catch(e){ console.error('\nStopped at rows ' + (i + 1) + '-' + (i + chunk.length) + ':', e.message); console.error('Nothing after this point was sent. Fix the cause and run again: finished rows are skipped.'); process.exit(1); }
   sent += chunk.length; process.stdout.write('\rsent ' + sent + ' / ' + todo.length);
 }
 
