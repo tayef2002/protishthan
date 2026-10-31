@@ -68,6 +68,14 @@ a{color:inherit}
 .head-meta span{display:inline-flex;align-items:center;gap:6px}
 .head-meta .ico{color:var(--text-3)}
 .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* the person who verified this institution gets the credit */
+.credit{align-items:center;gap:12px;margin-top:14px;padding:10px 16px 10px 10px;border-radius:16px;background:linear-gradient(135deg,#ECFDF5,#EEF3FF);border:1px solid #BBF7D0;width:fit-content;max-width:100%}
+.credit .cav{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#059669,#2563EB);color:#fff;font:800 18px 'Inter',sans-serif;box-shadow:0 6px 16px rgba(5,150,105,.3)}
+.credit .ct{min-width:0;line-height:1.35}
+.credit .ck{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#047857}
+.credit .cn{font-size:16.5px;font-weight:800;color:#0F172A;word-break:break-word}
+.credit .cn i{font-style:normal;font-weight:600;color:#64748B;font-size:13px;margin-right:4px}
+.credit .cs{font-size:12px;color:#64748B;font-weight:600}
 .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:100px;background:var(--surface);color:var(--text-2);border:1px solid var(--border)}
 .badge.green{background:var(--green-light);color:var(--green);border-color:#BBF7D0}
 .badge.amber{background:var(--amber-l);color:var(--amber);border-color:#FDE68A}
@@ -321,6 +329,7 @@ a{color:inherit}
         <h1 id="heroName">—</h1>
         <div class="head-meta" id="heroMeta"></div>
         <div class="badges" id="heroBadges"></div>
+        <div class="credit" id="heroCredit" style="display:none"></div>
       </div>
       <div class="head-actions" id="heroActions"></div>
     </div>
@@ -652,7 +661,16 @@ function render(){
     if(r.source_id && !(inst && inst.eiin)) badges.push('<span class="badge">EIIN '+escapeHtml(r.source_id)+'</span>');
     badges.push('<span class="badge">'+ico('shield',14)+'Protishthan-এ তালিকাভুক্ত</span>');
   }
+  if(r.contributor_name && r.verification === 'verified') badges.unshift('<span class="badge green">'+ico('check',14)+'যাচাইকৃত</span>');
   document.getElementById('heroBadges').innerHTML = badges.join('');
+  // credit for the member who did the field work: "যাচাই করেছেন … by <name>"
+  const cr = document.getElementById('heroCredit');
+  if(r.contributor_name){
+    const how = ({ visited: 'নিজে গিয়ে দেখে', phoned: 'ফোনে কথা বলে', head: 'প্রধানের কাছ থেকে জেনে', official: 'সরকারি নথি দেখে' })[r.verified_method] || '';
+    cr.innerHTML = '<span class="cav">'+escapeHtml(String(r.contributor_name).trim().charAt(0).toUpperCase())+'</span><div class="ct"><div class="ck">'+ico('shield',13)+'তথ্য সংগ্রহ ও যাচাই</div><div class="cn"><i>by</i>'+escapeHtml(r.contributor_name)+'</div><div class="cs" id="creditSub">'+(how ? how + (r.verified_at ? ' · ' + fmtDate(r.verified_at) : '') : (r.verified_at ? fmtDate(r.verified_at) : ''))+'</div></div>';
+    cr.style.display = 'flex';
+    sb.rpc('contributor_count', { p_listing: r.id }).then(({ data }) => { const n = Number(data) || 0; const el = document.getElementById('creditSub'); if(el && n > 1) el.textContent = (el.textContent ? el.textContent + ' · ' : '') + bn(n) + 'টি প্রতিষ্ঠান যাচাই করেছেন'; });
+  }
 
   const phone = r.contact_phone || (inst && inst.phone);
   const acts = ['<a href="#sec-inquiry" class="btn btn-primary" onclick="return focusInquiry()">'+ico('form',16)+'ভর্তির তথ্য জানুন</a>'];

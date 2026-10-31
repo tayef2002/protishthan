@@ -450,6 +450,8 @@ main.container{margin-top:22px}
 .ar-st.todo{background:#FFF7E6;color:#B45309}.ar-st.ok{background:#E7F8EF;color:#047857}.ar-st.mine{background:#EEF3FF;color:var(--blue)}.ar-st.wait{background:#F3F0FF;color:#6D28D9}.ar-st.no{background:#FEF2F2;color:#B91C1C}
 .ar-add{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1.5px dashed #93B4FB;background:#F5F8FF;border-radius:16px;padding:14px 16px;margin-top:12px}
 .ar-add b{font-size:15px}.ar-add span{display:block;font-size:12.5px;color:var(--text-2)}
+.co-credit{display:flex;gap:10px;align-items:flex-start;background:#ECFDF5;border:1px solid #BBF7D0;border-radius:13px;padding:11px 13px;margin:6px 0 12px;font-size:13px;line-height:1.55;color:#065F46;cursor:pointer}
+.co-credit input{margin-top:4px;width:17px;height:17px;accent-color:#059669;flex:none}
 .co-note{background:#FFF7E6;border:1px solid #FDE68A;color:#92400E;border-radius:13px;padding:10px 13px;font-size:13px;line-height:1.55;margin-bottom:12px}
 .ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .ct-grid div{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px}
@@ -942,6 +944,7 @@ async function coOpen(id){
     f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', l.class_range, 'যেমন: প্লে থেকে দশম')) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status)) +
     f('মাসিক ফি (আনুমানিক)', inp('fee_range', l.fee_range, 'যেমন: ৫০০-১০০০ টাকা')) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
     f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(l.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', l.facebook_link, 'https://facebook.com/...')) +
+    '<label class="co-credit"><input type="checkbox" id="coShow" checked><span><b>আমার নাম প্রতিষ্ঠানের পাতায় দেখান</b><br>অনুমোদনের পর পাতায় লেখা থাকবে "তথ্য সংগ্রহ ও যাচাই — by ' + esc((M.current() || {}).display_name || 'আপনার নাম') + '"। সবাই দেখবে, তাই ভালো কাজের স্বীকৃতি আপনার নামেই থাকবে।</span></label>' +
     f('Admin-এর জন্য নোট (ঐচ্ছিক)', '<textarea class="im-i" data-f="__note" rows="2" maxlength="500" placeholder="যেমন: প্রধান শিক্ষকের সঙ্গে কথা হয়েছে"></textarea>') +
     '<div class="im-err" id="coErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" onclick="coClose()">বাতিল</button><button type="button" class="btn btn-fill" id="coSave" onclick="coSubmit(\'' + esc(id) + '\')">জমা দিন</button></footer></div>';
   ov.classList.add('show'); document.body.style.overflow = 'hidden';
@@ -959,7 +962,7 @@ async function coSubmit(id){
   const payload = Object.assign({}, o, chips); Object.keys(payload).forEach(k => { const v = payload[k]; if(v === '' || (Array.isArray(v) && !v.length)) delete payload[k]; });
   if(!Object.keys(payload).length){ err.textContent = 'অন্তত একটি তথ্য দিন।'; return; }
   const btn = $('coSave'); btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
-  const r = await M.sb.rpc('submit_contribution', { p_listing: id, p_payload: payload, p_method: method, p_note: note || null });
+  const r = await M.sb.rpc('submit_contribution', { p_listing: id, p_payload: payload, p_method: method, p_note: note || null, p_show_name: !!($('coShow') && $('coShow').checked) });
   btn.disabled = false; btn.textContent = 'জমা দিন';
   if(r.error){ const m = r.error.message || ''; err.textContent = /ALREADY_PENDING/.test(m) ? 'এই প্রতিষ্ঠানে আপনার একটি জমা আগে থেকেই পর্যালোচনায় আছে।' : /TOO_MANY/.test(m) ? 'আপনার অনেকগুলো জমা পর্যালোচনায় আছে। কিছু অনুমোদন হলে আবার দিন।' : /BAD_PHONE/.test(m) ? 'সঠিক নম্বর দিন (01XXXXXXXXX)।' : /BAD_DATA/.test(m) ? 'কিছু তথ্যের ধরন ঠিক নেই (যেমন সাল বা সংখ্যা)। দেখে আবার দিন।' : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।'; return; }
   coClose(); M.toast('জমা হয়েছে, পর্যালোচনার অপেক্ষায় ✓'); loadArea(); loadContrib();
