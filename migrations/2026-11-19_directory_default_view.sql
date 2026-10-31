@@ -39,11 +39,11 @@ grant execute on function public.directory_browse(text, text[], text, text, int,
 
 create or replace function public.directory_counts()
 returns table (institution_type text, district text, n bigint)
-language sql stable security definer set search_path = public as $
+language sql stable security definer set search_path = public as $$
   select l.institution_type, l.district, count(*) from public.listing_submissions l
   where l.status = 'approved' and l.verification = 'unverified' and coalesce(l.is_hidden, false) = false
   group by l.institution_type, l.district
-$;
+$$;
 revoke all on function public.directory_counts() from public;
 grant execute on function public.directory_counts() to anon, authenticated;
 
