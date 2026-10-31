@@ -1607,8 +1607,10 @@ async function shareImage(){
   try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
   downloadCard();
 }
-function shareFacebook(){ window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=fb'), '_blank', 'noopener,width=640,height=560'); }
-function shareWhatsApp(){ window.open('https://wa.me/?text=' + encodeURIComponent(caption()), '_blank', 'noopener'); }
+/* on phones the picture itself is shared (the system share sheet, where Facebook / WhatsApp are one tap); on a computer only a link can be sent */
+function canShareFiles(){ try{ return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.png', { type: 'image/png' })] })); }catch(e){ return false; } }
+function shareFacebook(){ if(canShareFiles()){ shareImage(); return; } window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=fb'), '_blank', 'noopener,width=640,height=560'); }
+function shareWhatsApp(){ if(canShareFiles()){ shareImage(); return; } window.open('https://wa.me/?text=' + encodeURIComponent(caption()), '_blank', 'noopener'); }
 
 /* ---------------- save in this browser (no login) ---------------- */
 const SAVE_KEY = 'shikkhito_card_v1';
