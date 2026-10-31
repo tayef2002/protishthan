@@ -808,7 +808,7 @@ if(!cardNo){ cardNo = String(Math.floor(100000 + Math.random()*900000)); try{ lo
 
 /* ---------------- institutions ---------------- */
 let INST = [];
-sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').or('is_hidden.is.null,is_hidden.eq.false').limit(2000)
+sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').neq('verification','unverified').or('is_hidden.is.null,is_hidden.eq.false').limit(2000)
   .then(({data})=>{ INST = data || []; fillLbDistricts(); }).catch(()=>{});
 
 /* ---------------- form UI ---------------- */

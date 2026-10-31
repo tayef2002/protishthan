@@ -34,7 +34,7 @@ const opt = (name, def = '') => { const i = argv.indexOf('--' + name); return i 
 const maps = {}; argv.forEach((a, i) => { if(a === '--map' && argv[i + 1] && argv[i + 1].includes('=')){ const [k, ...v] = argv[i + 1].split('='); maps[k.trim()] = v.join('=').trim(); } });
 if(!file){ console.error('Usage: node tools/import-institutions/import.mjs data.csv --source banbeis --source-url https://...'); process.exit(1); }
 const STRICT = argv.includes('--bangla-only');
-const SOURCE = opt('source'), SOURCE_URL = opt('source-url'), BATCH = Number(opt('batch', '400')), OUT = opt('out', path.join(HERE, 'out'));
+const SOURCE = opt('source'), SOURCE_URL = opt('source-url'), BATCH = Number(opt('batch', '2000')), OUT = opt('out', path.join(HERE, 'out'));
 if(!SOURCE){ console.error('--source is required (for example --source banbeis): it is stored with every row.'); process.exit(1); }
 
 // ---- the same Bangla "forgiving key" as bnname.js / bn_key() in the database
@@ -123,14 +123,18 @@ const review = [...sameName.entries()].filter(([, v]) => v.length > 1);
 
 // ---- write
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
+// compact form: only what differs per row goes into VALUES; the constants (status, source, verification ...) are written once per file
 const cols = 'institution_name, institution_type, district, upazila, contact_name, contact_phone, address_note, desired_slug, status, name_en, source, source_url, source_id, collected_at, verification';
 let part = 0;
 for(let i = 0; i < good.length; i += BATCH){
   const chunk = good.slice(i, i + BATCH);
-  const values = chunk.map(g => '(' + [sql(g.nameBn), sql(g.type), sql(g.district), sql(g.upazila), "''", "''", g.address ? sql(g.address) : 'null', sql(g.slug), "'approved'", g.nameEn ? sql(g.nameEn) : 'null', sql(SOURCE), SOURCE_URL ? sql(SOURCE_URL) : 'null', sql(g.sourceId), 'now()', "'unverified'"].join(', ') + ')').join(',\n');
+  const values = chunk.map(g => '(' + [sql(g.nameBn), sql(g.type), sql(g.district), sql(g.upazila), sql(g.slug), g.nameEn ? sql(g.nameEn) : 'null', sql(g.sourceId), g.address ? sql(g.address) : 'null'].join(', ') + ')').join(',' + String.fromCharCode(10));
   fs.writeFileSync(path.join(OUT, 'part-' + String(++part).padStart(4, '0') + '.sql'),
-    '-- ' + chunk.length + ' institutions from ' + SOURCE + ' (rows ' + (i + 1) + '-' + (i + chunk.length) + '). Safe to run twice: rows already imported are skipped.\n' +
-    'insert into public.listing_submissions (' + cols + ')\nvalues\n' + values + '\non conflict (source, source_id) where source is not null do nothing;\n');
+    '-- ' + chunk.length + ' institutions from ' + SOURCE + ' (rows ' + (i + 1) + '-' + (i + chunk.length) + '). Safe to run twice: rows already imported are skipped.' + String.fromCharCode(10) +
+    'insert into public.listing_submissions (' + cols + ')' + String.fromCharCode(10) +
+    "select v.nm, v.ty, v.di, v.up, '', '', v.ad, v.sl, 'approved', v.en, " + sql(SOURCE) + ', ' + (SOURCE_URL ? sql(SOURCE_URL) : 'null') + ", v.sid, now(), 'unverified'" + String.fromCharCode(10) +
+    'from (values' + String.fromCharCode(10) + values + String.fromCharCode(10) + ') as v(nm, ty, di, up, sl, en, sid, ad)' + String.fromCharCode(10) +
+    'on conflict (source, source_id) where source is not null do nothing;' + String.fromCharCode(10));
 }
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));
