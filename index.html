@@ -2019,6 +2019,7 @@ window.addEventListener('scroll', function(){
 });
 
 function hideSuggestions(){
+  SUG_SEQ++;   // a late server answer must not reopen the list
   const box = document.getElementById('searchSuggest');
   box.classList.remove('show');
   box.innerHTML = '';
@@ -2034,21 +2035,32 @@ function suggestItemHtml(s){
   '</a>';
 }
 
+let SUG_SEQ = 0, SUG_TIMER = 0;
 function showSuggestions(query){
   const box = document.getElementById('searchSuggest');
   const q = query.toLowerCase();
-  const matches = allApproved.filter(s=>{
+  const local = allApproved.filter(s=>{
     const haystack = (s.institution_name + ' ' + s.district + ' ' + s.upazila).toLowerCase();
     return haystack.includes(q) || BnName.match(haystack, query);
   }).slice(0, 8);
-
-  if(matches.length === 0){
-    box.innerHTML = '<div class="suggest-empty">কোনো প্রতিষ্ঠান খুঁজে পাওয়া যায়নি</div>';
-  } else {
-    box.innerHTML = '<div class="suggest-label">খুঁজে পাওয়া প্রতিষ্ঠান</div>' + matches.map(suggestItemHtml).join('');
-  }
-  positionSuggestBox();
-  box.classList.add('show');
+  const draw = (list, waiting) => {
+    if(list.length === 0) box.innerHTML = '<div class="suggest-empty">' + (waiting ? 'খোঁজা হচ্ছে…' : 'কোনো প্রতিষ্ঠান খুঁজে পাওয়া যায়নি') + '</div>';
+    else box.innerHTML = '<div class="suggest-label">খুঁজে পাওয়া প্রতিষ্ঠান</div>' + list.map(suggestItemHtml).join('') + (waiting ? '<div class="suggest-empty" style="padding:8px 14px">আরও খোঁজা হচ্ছে…</div>' : '');
+    positionSuggestBox();
+    box.classList.add('show');
+  };
+  // the verified ones show at once; the whole directory (24,000+, not downloaded to this page) is searched on the server and added a moment later
+  const my = ++SUG_SEQ; clearTimeout(SUG_TIMER);
+  const serverOk = query.trim().length >= 2 && !/^(?:PRN-?)?d{1,6}$/i.test(query.trim());
+  draw(local, serverOk);
+  if(!serverOk) return;
+  SUG_TIMER = setTimeout(async () => {
+    let more = [];
+    try{ const { data, error } = await sb.rpc('directory_search', { p_q: query.trim(), p_limit: 8 }); if(!error) more = data || []; }catch(e){ console.error('suggest search failed', e); }
+    if(my !== SUG_SEQ) return;
+    const seen = new Set(local.map(s => s.desired_slug));
+    draw(local.concat(more.filter(s => !seen.has(s.desired_slug))).slice(0, 8), false);
+  }, 180);
 }
 
 function showPopularSuggestions(){
