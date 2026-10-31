@@ -12,6 +12,7 @@
  *   district  Bangla district name        upazila  Bangla upazila name
  *   eiin      the source's own id (EIIN) so the same institution is never imported twice (optional but strongly advised)
  *   address   a short address / village (optional)
+ *   student_count, teacher_count   official numbers, if the source has them (optional; they go in through push.mjs / rows.json, not the SQL part files)
  * If your file uses other column names:  --map name_bn="Institution Name (BN)" --map eiin=EIIN
  *
  * E-mails (optional): --contacts file.csv  (columns: eiin,email). They never go into the public table: out/contacts.json is for push.mjs, which stores them in the closed
@@ -36,6 +37,7 @@ const opt = (name, def = '') => { const i = argv.indexOf('--' + name); return i 
 const maps = {}; argv.forEach((a, i) => { if(a === '--map' && argv[i + 1] && argv[i + 1].includes('=')){ const [k, ...v] = argv[i + 1].split('='); maps[k.trim()] = v.join('=').trim(); } });
 if(!file){ console.error('Usage: node tools/import-institutions/import.mjs data.csv --source banbeis --source-url https://...'); process.exit(1); }
 const STRICT = argv.includes('--bangla-only');
+const SLUG_PREFIX = opt('slug-prefix');   // e.g. --slug-prefix pri: pages become pri-<id> instead of sch-<id> (when two sources use different id systems)
 const SOURCE = opt('source'), SOURCE_URL = opt('source-url'), BATCH = Number(opt('batch', '2000')), OUT = opt('out', path.join(HERE, 'out'));
 if(!SOURCE){ console.error('--source is required (for example --source banbeis): it is stored with every row.'); process.exit(1); }
 
@@ -99,7 +101,7 @@ const sql = s => s == null || s === '' ? "''" : "'" + String(s).replace(/'/g, "'
 const rows = parseCSV(fs.readFileSync(file, 'utf8'));
 const head = rows.shift().map(h => h.trim());
 const col = name => { const want = (maps[name] || name).toLowerCase(); return head.findIndex(h => h.toLowerCase() === want); };
-const C = { name_bn: col('name_bn'), name_en: col('name_en'), type: col('type'), district: col('district'), upazila: col('upazila'), eiin: col('eiin'), address: col('address') };
+const C = { name_bn: col('name_bn'), name_en: col('name_en'), type: col('type'), district: col('district'), upazila: col('upazila'), eiin: col('eiin'), address: col('address'), student_count: col('student_count'), teacher_count: col('teacher_count') };
 for(const need of ['name_bn', 'type', 'district', 'upazila']) if(C[need] < 0){ console.error('Missing column: ' + (maps[need] || need) + '   (header found: ' + head.join(' | ') + ')'); process.exit(1); }
 const get = (r, k) => C[k] < 0 ? '' : (r[C[k]] || '').trim();
 
@@ -130,7 +132,7 @@ rows.forEach(r => {
   if(seen.has(idKey)) return reject(r, 'একই আইডি (EIIN) ফাইলে আগেই আছে');
   seen.set(idKey, 1);
   sameName.set(place, (sameName.get(place) || []).concat(nameBn + (eiin ? ' [' + eiin + ']' : '')));
-  good.push({ nameBn, nameEn, type, district: dist.n, upazila: upa, address: get(r, 'address'), sourceId, slug: CODE[type] + '-' + sourceId, place });
+  good.push({ nameBn, nameEn, type, district: dist.n, upazila: upa, address: get(r, 'address'), sourceId, slug: (SLUG_PREFIX || CODE[type]) + '-' + sourceId, place, students: get(r, 'student_count'), teachers: get(r, 'teacher_count') });
 });
 
 // ---- same name in the same upazila inside this file: kept (real schools share names; the id tells them apart) but listed for a look
@@ -162,7 +164,7 @@ for(let i = 0; i < good.length; i += BATCH){
       'join public.listing_submissions l on l.source = ' + sql(SOURCE) + ' and l.source_id = v.sid' + String.fromCharCode(10) + 'on conflict (listing_id) do nothing;' + String.fromCharCode(10));
   } }
 // the same rows as plain data, for push.mjs (sends them straight to the database)
-fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null }))));
+fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null, ...(g.students ? { student_count: g.students } : {}), ...(g.teachers ? { teacher_count: g.teachers } : {}) }))));
 fs.writeFileSync(path.join(OUT, 'contacts.json'), JSON.stringify(good.filter(g => CONTACTS.has(g.sourceId)).map(g => ({ source_id: g.sourceId, email: CONTACTS.get(g.sourceId), source: SOURCE }))));
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));
