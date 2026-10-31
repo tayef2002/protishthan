@@ -143,6 +143,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .btn-fb{background:#1877F2;color:#fff}
 .hint{font-size:12px;color:var(--text-3);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.ac-nv{font-style:normal;margin-left:6px;padding:1px 8px;border-radius:10px;background:#FEF3C7;color:#92400E;font:600 11px 'Hind Siliguri',sans-serif;vertical-align:1px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:100px;border:1px solid var(--border);background:#fff;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;transition:all .15s}
 .chip:hover{border-color:#C7D7FE}
 .chip.on{background:#EEF3FF;border-color:#93B4FB;color:var(--blue)}
@@ -861,19 +862,25 @@ document.getElementById('eduRows').addEventListener('keydown', e=>{
 });
 document.addEventListener('click', e=>{ document.querySelectorAll('.ac.open').forEach(a=>{ if(!a.contains(e.target)) a.classList.remove('open'); }); });
 
+let acSeq = 0;
 function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
   q = (q||'').trim();
   if(q.length < 2){ ac.classList.remove('open'); return; }
   if(BnName.hasLatin(q)){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">প্রতিষ্ঠানের নাম বাংলায় লিখুন। ইংরেজি অক্ষর চলবে না।</div>'; ac.classList.add('open'); return; }
-  const hits = INST.filter(s=>BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7);
-  list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
-    `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`;
-  list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
-    const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
-    ac.querySelector('input').value = ed.name; ac.classList.remove('open'); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
-  }));
-  ac.classList.add('open');
+  const paint = hits => {
+    list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
+      `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`;
+    list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
+      const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
+      ac.querySelector('input').value = ed.name; ac.classList.remove('open'); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
+    }));
+    ac.classList.add('open');
+  };
+  // at once from what the page already has, then from the server (the directory is searched there, so it can hold tens of thousands)
+  paint(INST.filter(s=>BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7));
+  const seq = ++acSeq;
+  try{ sb.rpc('directory_search', { p_q: BnName.norm(q), p_limit: 7 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(r.data); }, () => {}); }catch(e){}
 }
 /* ---- year dropdown + automatic years ---- */
 const CUR_YEAR = new Date().getFullYear();
