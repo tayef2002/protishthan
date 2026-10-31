@@ -136,6 +136,8 @@ for(let i = 0; i < good.length; i += BATCH){
     'from (values' + String.fromCharCode(10) + values + String.fromCharCode(10) + ') as v(nm, ty, di, up, sl, en, sid, ad)' + String.fromCharCode(10) +
     'on conflict (source, source_id) where source is not null do nothing;' + String.fromCharCode(10));
 }
+// the same rows as plain data, for push.mjs (sends them straight to the database)
+fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified' }))));
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));
 const why = {}; rejected.forEach(x => { const w = x.why.replace(/: ".*$/, ''); why[w] = (why[w] || 0) + 1; });
