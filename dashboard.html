@@ -813,10 +813,10 @@ async function initDashboard(){
     const locParts = [inst.upazila, inst.district].filter(Boolean);
     document.getElementById('bannerInstLoc').textContent = locParts.length ? ('📍 ' + locParts.join(', ')) : '📍 অবস্থান যুক্ত করা হয়নি';
     if(inst.prn_number){
-      document.getElementById('idCardPrn').textContent = 'PRN-'+String(inst.prn_number).padStart(4,'0');
+      document.getElementById('idCardPrn').textContent = 'PRN-'+String(inst.prn_number).padStart(5,'0');
       const prnBadge = document.getElementById('bannerPrnBadge');
       prnBadge.style.display = 'inline-flex';
-      prnBadge.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2.2 2.2L15.5 10"/><circle cx="12" cy="12" r="9.5"/></svg> PRN-'+String(inst.prn_number).padStart(4,'0')+' যাচাইকৃত';
+      prnBadge.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2.2 2.2L15.5 10"/><circle cx="12" cy="12" r="9.5"/></svg> PRN-'+String(inst.prn_number).padStart(5,'0')+' যাচাইকৃত';
     }
     // EIIN — graceful placeholder until the column/form field exists
     if(inst.eiin){

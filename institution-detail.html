@@ -638,7 +638,7 @@ function render(){
 
   const IMP = !!r.source && r.verification === 'unverified', srcName = ({ 'banbeis-2024': 'BANBEIS ২০২৪' })[r.source] || r.source || '';
   const badges = [];
-  if(r.prn_number) badges.push('<span class="badge prn">PRN-'+String(r.prn_number).padStart(4,'0')+'</span>');
+  if(r.prn_number) badges.push('<span class="badge prn">PRN-'+String(r.prn_number).padStart(5,'0')+'</span>');
   if(r.admission_status === 'খোলা') badges.push('<span class="badge green">'+ico('check',14)+'ভর্তি চলছে</span>');
   else if(r.admission_status === 'সীমিত সিট') badges.push('<span class="badge amber">সীমিত সিট</span>');
   else if(r.admission_status === 'বন্ধ') badges.push('<span class="badge gray">ভর্তি বন্ধ</span>');
@@ -734,7 +734,7 @@ function render(){
   const kv = (k, v) => v ? '<div class="kv"><span>'+k+'</span><b>'+escapeHtml(v)+'</b></div>' : '';
   document.getElementById('quickFacts').innerHTML =
     kv('ধরন', r.institution_type) + kv('জেলা', r.district) + kv('উপজেলা / থানা', r.upazila) +
-    kv('PRN', r.prn_number ? 'PRN-' + String(r.prn_number).padStart(4,'0') : '') + kv('EIIN', (inst && inst.eiin) || (!IMP && r.source_id) || '') +
+    kv('PRN', r.prn_number ? 'PRN-' + String(r.prn_number).padStart(5,'0') : '') + kv('EIIN', (inst && inst.eiin) || (!IMP && r.source_id) || '') +
     (IMP ? kv('EIIN', r.source_id) + kv('তথ্য সংগ্রহ', r.collected_at ? fmtDate(r.collected_at) : '') + kv('অবস্থা', 'যাচাই বাকি') : kv('তালিকাভুক্তি', r.created_at ? fmtDate(r.created_at) : ''));
 
   // an imported listing shows the whole profile template; sections with no data yet read "not added yet" and fill in as the Partner / institution adds them

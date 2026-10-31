@@ -678,7 +678,7 @@ function openSubDetail(id){
 
   html += `<div style="background:var(--surface);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text-2)">বর্তমান স্ট্যাটাস: <span class="pill ${s.status}" style="margin-left:4px">${STATUS_LABEL[s.status]||s.status}</span>`;
   if(s.status==='approved'){
-    const prnDisplay = s.prn_number ? ('PRN-' + String(s.prn_number).padStart(4,'0')) : 'নেই';
+    const prnDisplay = s.prn_number ? ('PRN-' + String(s.prn_number).padStart(5,'0')) : 'নেই';
     html += `<br><span style="font-size:12px;color:var(--text-3)">Slug: ${escapeHtml(s.desired_slug||'-')}</span><br><span style="font-size:12px;color:var(--text-3)">PRN: ${prnDisplay}</span>`;
   }
   html += '</div>';

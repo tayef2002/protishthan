@@ -580,7 +580,7 @@ async function init(){
   document.getElementById('userAvatar').textContent = (inst.principal_name||meta.principal_name||'A').slice(0,1);
   document.getElementById('instNameSidebar').textContent = inst.name;
   const topbarInst = document.getElementById('topbarInstName');
-  if(topbarInst){ topbarInst.style.display='flex'; topbarInst.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(inst.name) + (inst.prn_number ? ' · PRN-'+String(inst.prn_number).padStart(4,'0') : '') + '</span>'; }
+  if(topbarInst){ topbarInst.style.display='flex'; topbarInst.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(inst.name) + (inst.prn_number ? ' · PRN-'+String(inst.prn_number).padStart(5,'0') : '') + '</span>'; }
 
   document.getElementById('fName').value = inst.name || '';
   document.getElementById('fNameEn').value = inst.name_en || '';
@@ -606,7 +606,7 @@ async function init(){
     document.getElementById('logoPreview').innerHTML = `<img src="${inst.logo_url}">`;
   }
 
-  document.getElementById('prnVal').textContent = inst.prn_number ? ('PRN-'+String(inst.prn_number).padStart(4,'0')) : 'এখনো পাওয়া যায়নি';
+  document.getElementById('prnVal').textContent = inst.prn_number ? ('PRN-'+String(inst.prn_number).padStart(5,'0')) : 'এখনো পাওয়া যায়নি';
   document.getElementById('eiinVal').textContent = inst.eiin || 'যুক্ত করা হয়নি';
   if(!inst.prn_number) document.getElementById('prnBadgeWrap').classList.add('empty');
   if(!inst.eiin) document.getElementById('eiinBadgeWrap').classList.add('empty');
@@ -671,7 +671,7 @@ async function saveProfile(){
   document.getElementById('userName').textContent = updates.principal_name || 'Admin';
   document.getElementById('userAvatar').textContent = (updates.principal_name||'A').slice(0,1);
   const topbarInst2 = document.getElementById('topbarInstName');
-  if(topbarInst2) topbarInst2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(updates.name) + (currentInstitution.prn_number ? ' · PRN-'+String(currentInstitution.prn_number).padStart(4,'0') : '') + '</span>';
+  if(topbarInst2) topbarInst2.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M4 21V7l8-4 8 4v14"/><path d="M4 21h16M9 21v-6h6v6"/></svg><span>' + escapeHtml(updates.name) + (currentInstitution.prn_number ? ' · PRN-'+String(currentInstitution.prn_number).padStart(5,'0') : '') + '</span>';
   document.getElementById('eiinVal').textContent = updates.eiin || 'যুক্ত করা হয়নি';
   document.getElementById('eiinBadgeWrap').classList.toggle('empty', !updates.eiin);
   // keep auth metadata in sync too, for any page still reading it
