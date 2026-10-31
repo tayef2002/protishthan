@@ -684,7 +684,8 @@ function showSoon(title){
 
 async function loadSubmissions(){
   try{
-    const { data, error } = await sb.from('listing_submissions').select('*').order('created_at', { ascending: false });
+    // hand-submitted listings only: the imported directory (source is not null, tens of thousands of rows) would fill the 1000-row page and hide the real queue
+    const { data, error } = await sb.from('listing_submissions').select('*').is('source', null).order('created_at', { ascending: false });
     if(error) throw error;
     allSubmissions = data || [];
   }catch(e){

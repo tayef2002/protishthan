@@ -139,18 +139,28 @@ const review = [...sameName.entries()].filter(([, v]) => v.length > 1);
 // ---- write
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
 // compact form: only what differs per row goes into VALUES; the constants (status, source, verification ...) are written once per file
-const cols = 'institution_name, institution_type, district, upazila, contact_name, contact_phone, address_note, desired_slug, status, name_en, source, source_url, source_id, collected_at, verification';
+const cols = 'institution_name, institution_type, district, upazila, contact_name, contact_phone, address_note, desired_slug, status, name_en, source, source_url, source_id, collected_at, verification, email_hint';
 let part = 0;
 for(let i = 0; i < good.length; i += BATCH){
   const chunk = good.slice(i, i + BATCH);
-  const values = chunk.map(g => '(' + [sql(g.nameBn), sql(g.type), sql(g.district), sql(g.upazila), sql(g.slug), g.nameEn ? sql(g.nameEn) : 'null', sql(g.sourceId), g.address ? sql(g.address) : 'null'].join(', ') + ')').join(',' + String.fromCharCode(10));
+  const values = chunk.map(g => '(' + [sql(g.nameBn), sql(g.type), sql(g.district), sql(g.upazila), sql(g.slug), g.nameEn ? sql(g.nameEn) : 'null', sql(g.sourceId), g.address ? sql(g.address) : 'null', CONTACTS.has(g.sourceId) ? sql(maskEmail(CONTACTS.get(g.sourceId))) : 'null'].join(', ') + ')').join(',' + String.fromCharCode(10));
   fs.writeFileSync(path.join(OUT, 'part-' + String(++part).padStart(4, '0') + '.sql'),
     '-- ' + chunk.length + ' institutions from ' + SOURCE + ' (rows ' + (i + 1) + '-' + (i + chunk.length) + '). Safe to run twice: rows already imported are skipped.' + String.fromCharCode(10) +
     'insert into public.listing_submissions (' + cols + ')' + String.fromCharCode(10) +
-    "select v.nm, v.ty, v.di, v.up, '', '', v.ad, v.sl, 'approved', v.en, " + sql(SOURCE) + ', ' + (SOURCE_URL ? sql(SOURCE_URL) : 'null') + ", v.sid, now(), 'unverified'" + String.fromCharCode(10) +
-    'from (values' + String.fromCharCode(10) + values + String.fromCharCode(10) + ') as v(nm, ty, di, up, sl, en, sid, ad)' + String.fromCharCode(10) +
+    "select v.nm, v.ty, v.di, v.up, '', '', v.ad, v.sl, 'approved', v.en, " + sql(SOURCE) + ', ' + (SOURCE_URL ? sql(SOURCE_URL) : 'null') + ", v.sid, now(), 'unverified', v.hint" + String.fromCharCode(10) +
+    'from (values' + String.fromCharCode(10) + values + String.fromCharCode(10) + ') as v(nm, ty, di, up, sl, en, sid, ad, hint)' + String.fromCharCode(10) +
     'on conflict (source, source_id) where source is not null do nothing;' + String.fromCharCode(10));
 }
+// the full e-mail addresses go to the closed table, in their own files (email-0001.sql ...), to run AFTER every part-xxxx.sql file
+{ const mails = good.filter(g => CONTACTS.has(g.sourceId)); let ep = 0;
+  for(let i = 0; i < mails.length; i += 3000){
+    const chunk = mails.slice(i, i + 3000);
+    fs.writeFileSync(path.join(OUT, 'email-' + String(++ep).padStart(4, '0') + '.sql'),
+      '-- ' + chunk.length + ' e-mail addresses for ' + SOURCE + ' (closed table, never public). Run after all part-xxxx.sql files. Safe to run twice.' + String.fromCharCode(10) +
+      'insert into public.listing_private_contacts (listing_id, email, source)' + String.fromCharCode(10) +
+      'select l.id, v.em, ' + sql(SOURCE) + ' from (values' + String.fromCharCode(10) + chunk.map(g => '(' + sql(g.sourceId) + ', ' + sql(CONTACTS.get(g.sourceId)) + ')').join(',' + String.fromCharCode(10)) + String.fromCharCode(10) + ') as v(sid, em)' + String.fromCharCode(10) +
+      'join public.listing_submissions l on l.source = ' + sql(SOURCE) + ' and l.source_id = v.sid' + String.fromCharCode(10) + 'on conflict (listing_id) do nothing;' + String.fromCharCode(10));
+  } }
 // the same rows as plain data, for push.mjs (sends them straight to the database)
 fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null }))));
 fs.writeFileSync(path.join(OUT, 'contacts.json'), JSON.stringify(good.filter(g => CONTACTS.has(g.sourceId)).map(g => ({ source_id: g.sourceId, email: CONTACTS.get(g.sourceId), source: SOURCE }))));

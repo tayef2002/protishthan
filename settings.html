@@ -985,19 +985,19 @@ async function loadPublicPage(inst){
   const byId = await sb.from('listing_submissions').select('*').eq('institution_id', inst.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
   data = byId.data;
   if(!data){
-    const byName = await sb.from('listing_submissions').select('*').eq('institution_name', inst.name).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const byName = await sb.from('listing_submissions').select('*').is('source', null).eq('institution_name', inst.name).order('created_at',{ascending:false}).limit(1).maybeSingle();
     data = byName.data;
   }
   if(!data && inst.name){
-    const fuzzy = await sb.from('listing_submissions').select('*').ilike('institution_name', '%'+inst.name.trim()+'%').order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const fuzzy = await sb.from('listing_submissions').select('*').is('source', null).ilike('institution_name', '%'+inst.name.trim()+'%').order('created_at',{ascending:false}).limit(1).maybeSingle();
     data = fuzzy.data;
   }
   if(!data && inst.phone){
-    const byPhone = await sb.from('listing_submissions').select('*').eq('contact_phone', inst.phone).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const byPhone = await sb.from('listing_submissions').select('*').is('source', null).eq('contact_phone', inst.phone).order('created_at',{ascending:false}).limit(1).maybeSingle();
     data = byPhone.data;
   }
   if(!data && inst.district && inst.upazila){
-    const byLoc = await sb.from('listing_submissions').select('*').eq('district', inst.district).eq('upazila', inst.upazila).order('created_at',{ascending:false}).limit(1).maybeSingle();
+    const byLoc = await sb.from('listing_submissions').select('*').is('source', null).eq('district', inst.district).eq('upazila', inst.upazila).order('created_at',{ascending:false}).limit(1).maybeSingle();
     data = byLoc.data;
   }
   currentListing = data;
