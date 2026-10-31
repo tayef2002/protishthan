@@ -8,7 +8,7 @@
  *   name_en   English name from the source
  *   A row needs at least one of the two. English-only rows are accepted: the English name goes to name_en AND (as a placeholder, in Title Case)
  *   to the main name, and the row is flagged needs_bn_name until someone adds the Bangla name (set_bangla_name). Use --bangla-only to refuse them.
- *   type      মাদ্রাসা | স্কুল | কলেজ | কোচিং সেন্টার  (madrasa / school / college / coaching also work)
+ *   type      মাদ্রাসা | স্কুল | কলেজ | কারিগরি | কোচিং সেন্টার  (madrasa / school / college / technical / coaching also work)
  *   district  Bangla district name        upazila  Bangla upazila name
  *   eiin      the source's own id (EIIN) so the same institution is never imported twice (optional but strongly advised)
  *   address   a short address / village (optional)
@@ -52,7 +52,7 @@ const distByKey = new Map(LOC.map(d => [key(d.n), d]));
 const upaByDist = new Map(LOC.map(d => [d.n, new Map(d.u.map(u => [key(u), u]))]));
 
 // ---- types
-const TYPE = { 'মাদ্রাসা': 'মাদ্রাসা', 'মাদরাসা': 'মাদ্রাসা', madrasa: 'মাদ্রাসা', madrasah: 'মাদ্রাসা', 'স্কুল': 'স্কুল', school: 'স্কুল', 'বিদ্যালয়': 'স্কুল', 'কলেজ': 'কলেজ', college: 'কলেজ', 'কোচিং সেন্টার': 'কোচিং সেন্টার', 'কোচিং': 'কোচিং সেন্টার', coaching: 'কোচিং সেন্টার' };
+const TYPE = { 'মাদ্রাসা': 'মাদ্রাসা', 'মাদরাসা': 'মাদ্রাসা', madrasa: 'মাদ্রাসা', madrasah: 'মাদ্রাসা', 'স্কুল': 'স্কুল', school: 'স্কুল', 'বিদ্যালয়': 'স্কুল', 'কলেজ': 'কলেজ', college: 'কলেজ', 'কোচিং সেন্টার': 'কোচিং সেন্টার', 'কোচিং': 'কোচিং সেন্টার', coaching: 'কোচিং সেন্টার', 'কারিগরি': 'কারিগরি', technical: 'কারিগরি', vocational: 'কারিগরি' };
 // ALL-CAPS source names -> Title Case ('DAKHIL MADRASAH' -> 'Dakhil Madrasah'); short all-caps words (BL, MD) stay as they are
 const titleCase = s => s.split(' ').map((w, i) => {
   if(/[a-z]/.test(w) || !/[A-Z]/.test(w)) return w;
@@ -63,7 +63,7 @@ const titleCase = s => s.split(' ').map((w, i) => {
 }).join(' ');
 const hasBangla = s => /[\u0980-\u09FF]/.test(s);
 let englishOnly = 0;
-const CODE = { 'মাদ্রাসা': 'mad', 'স্কুল': 'sch', 'কলেজ': 'col', 'কোচিং সেন্টার': 'coa' };
+const CODE = { 'মাদ্রাসা': 'mad', 'স্কুল': 'sch', 'কলেজ': 'col', 'কোচিং সেন্টার': 'coa', 'কারিগরি': 'tec' };
 
 // ---- a small CSV reader (quotes, commas and line breaks inside quotes)
 function parseCSV(text){

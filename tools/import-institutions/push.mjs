@@ -14,6 +14,8 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DRY = process.argv.includes('--dry');
+const oi = process.argv.indexOf('--out');   // which prepared folder to send (default: out). import.mjs --out <folder> writes one.
+const OUT_DIR = oi > -1 && process.argv[oi + 1] ? path.resolve(process.argv[oi + 1]) : path.join(HERE, 'out');
 const URL_BASE = (process.env.SUPABASE_URL || 'https://eoqeeuujvpydhmfteqqj.supabase.co').replace(/\/$/, '');
 // the key: from the SUPABASE_SERVICE_KEY variable, or else from SUPABASE_SERVICE_ROLE_KEY in the project's own (git-ignored) .env file
 let KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -26,7 +28,7 @@ if(!KEY){
   }catch(e){}
 }
 const BATCH = 500;
-const file = path.join(HERE, 'out', 'rows.json');
+const file = path.join(OUT_DIR, 'rows.json');
 if(!fs.existsSync(file)){ console.error('out/rows.json not found. Run import.mjs first.'); process.exit(1); }
 const rows = JSON.parse(fs.readFileSync(file, 'utf8'));
 const source = rows.length ? rows[0].source : '';
@@ -55,7 +57,7 @@ for(let i = 0; i < todo.length; i += BATCH){
 }
 
 // e-mails: the full address goes into the closed table listing_private_contacts (the public row only has the masked hint)
-const contactsFile = path.join(HERE, 'out', 'contacts.json');
+const contactsFile = path.join(OUT_DIR, 'contacts.json');
 if(fs.existsSync(contactsFile)){
   const contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8'));
   const ids = new Map();
