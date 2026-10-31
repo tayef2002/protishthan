@@ -364,6 +364,9 @@ main.container{margin-top:22px}
 @media(max-width:760px){.hero{margin-top:86px;width:calc(100% - 24px);padding:20px 16px;border-radius:24px}.avatar{width:62px;height:62px;font-size:25px}}
 
 /* ---- skill page card (same idea as the learned card above) ---- */
+.sm-og{position:relative;overflow:hidden;border-radius:18px;border:1px solid #E2E8F0;background:#F1F5F9;aspect-ratio:1200/630}
+.sm-og img{display:block;width:100%;height:100%;object-fit:cover}
+.sm-og-t{position:absolute;left:10px;bottom:10px;padding:4px 11px;border-radius:100px;background:rgba(255,255,255,.92);color:#334155;font:600 11.5px 'Hind Siliguri',sans-serif}
 .sm{position:relative;overflow:hidden;border-radius:20px;padding:18px;color:var(--ink,#fff);background:linear-gradient(160deg,var(--b1),var(--b2));border:1px solid rgba(255,255,255,.14)}
 .sm.ghost{opacity:.55}
 .sm::before{content:"";position:absolute;right:-40px;top:-60px;width:170px;height:170px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--ac) 55%,transparent);box-shadow:0 0 0 18px color-mix(in srgb,var(--ac) 10%,transparent)}
@@ -892,7 +895,14 @@ setInterval(() => { if(!document.hidden && M.current()) loadChat(); }, 30000);
 
 /* ---------- my skill page (stored in skill_profiles, like the card in member_cards) ---------- */
 const SK_THEMES = { midnight: ['#070B16', '#0D1530', '#6EA8FF', '#8B7CFF', '#F4F6FF'], aurora: ['#04100F', '#08201D', '#34D399', '#22D3EE', '#F1FBF8'], ocean: ['#040F1D', '#08203A', '#38BDF8', '#3B82F6', '#F0F7FF'], ember: ['#150A0B', '#2A1214', '#FB923C', '#F43F5E', '#FFF4F0'], paper: ['#F6F3EC', '#EDE8DC', '#2F5BEA', '#7C3AED', '#17171C'] };
+const SK_OG = 'https://eoqeeuujvpydhmfteqqj.supabase.co/storage/v1/object/public/skill-og/';
+/* the card shows the real share-preview image (what Facebook / WhatsApp show for the link) once the page is published; the small mock-up is the fallback */
 function skillPreview(p, ghost){
+  const mock = skillMock(p, ghost);
+  if(ghost || !p.published || !p.og_key) return mock;
+  return '<div class="sm-og"><img alt="লিংক প্রিভিউ" loading="lazy" src="' + SK_OG + esc(p.og_key) + '.jpg?v=' + esc(p.og_version || 1) + '" data-fb="' + encodeURIComponent(mock) + '" onerror="this.parentNode.outerHTML=decodeURIComponent(this.dataset.fb)"><span class="sm-og-t">লিংক শেয়ার করলে এভাবে দেখাবে</span></div>';
+}
+function skillMock(p, ghost){
   const t = SK_THEMES[p.theme] || SK_THEMES.midnight, nm = (p.display_name || '').trim() || 'আপনার নাম';
   let src = ''; try{ src = (window.SkillView && p.avatar) ? SkillView.avatarSrc(p.avatar) : ''; }catch(e){}
   const sk = (p.skills || []).slice(0, 4);
