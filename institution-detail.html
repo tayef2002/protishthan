@@ -632,7 +632,8 @@ function render(){
   if(r.institution_type) meta.push('<span>'+ico(t.ic,16)+escapeHtml(r.institution_type)+'</span>');
   if(loc) meta.push('<span>'+ico('pin',16)+escapeHtml(loc)+'</span>');
   if(founded) meta.push('<span>'+ico('calendar',16)+bn(founded)+' সালে প্রতিষ্ঠিত</span>');
-  if(r.view_count) meta.push('<span>'+ico('eye',16)+bn(r.view_count)+' বার দেখা হয়েছে</span>');
+  // the record was read just before this visit was counted, so +1 includes the visitor who is looking now
+  meta.push('<span>'+ico('eye',16)+bn((Number(r.view_count) || 0) + 1)+' বার দেখা হয়েছে</span>');
   document.getElementById('heroMeta').innerHTML = meta.join('');
 
   const IMP = !!r.source && r.verification === 'unverified', srcName = ({ 'banbeis-2024': 'BANBEIS ২০২৪' })[r.source] || r.source || '';
@@ -647,7 +648,6 @@ function render(){
   if(IMP){
     badges.push('<span class="badge amber">'+ico('shield',14)+'যাচাই বাকি</span>');
     if(r.source_id) badges.push('<span class="badge">EIIN '+escapeHtml(r.source_id)+'</span>');
-    badges.push('<span class="badge">তথ্যসূত্র: '+escapeHtml(srcName)+'</span>');
   } else {
     if(r.source_id && !(inst && inst.eiin)) badges.push('<span class="badge">EIIN '+escapeHtml(r.source_id)+'</span>');
     badges.push('<span class="badge">'+ico('shield',14)+'Protishthan-এ তালিকাভুক্ত</span>');
@@ -735,7 +735,7 @@ function render(){
   document.getElementById('quickFacts').innerHTML =
     kv('ধরন', r.institution_type) + kv('জেলা', r.district) + kv('উপজেলা / থানা', r.upazila) +
     kv('PRN', r.prn_number ? 'PRN-' + String(r.prn_number).padStart(4,'0') : '') + kv('EIIN', (inst && inst.eiin) || (!IMP && r.source_id) || '') +
-    (IMP ? kv('EIIN', r.source_id) + kv('তথ্যসূত্র', srcName) + kv('তথ্য সংগ্রহ', r.collected_at ? fmtDate(r.collected_at) : '') + kv('অবস্থা', 'যাচাই বাকি') : kv('তালিকাভুক্তি', r.created_at ? fmtDate(r.created_at) : ''));
+    (IMP ? kv('EIIN', r.source_id) + kv('তথ্য সংগ্রহ', r.collected_at ? fmtDate(r.collected_at) : '') + kv('অবস্থা', 'যাচাই বাকি') : kv('তালিকাভুক্তি', r.created_at ? fmtDate(r.created_at) : ''));
 
   // an imported listing shows the whole profile template; sections with no data yet read "not added yet" and fill in as the Partner / institution adds them
   if(IMP){
