@@ -14,7 +14,9 @@
  *   address   a short address / village (optional)
  * If your file uses other column names:  --map name_bn="Institution Name (BN)" --map eiin=EIIN
  *
- * What it does NOT do: it never collects phone numbers or e-mails. Imported rows get contact_name = '' and contact_phone = ''.
+ * E-mails (optional): --contacts file.csv  (columns: eiin,email). They never go into the public table: out/contacts.json is for push.mjs, which stores them in the closed
+ * table listing_private_contacts; the public row only gets a masked hint (sha*****ed@gmail.com). Keep that file out of git (*-contacts.csv is ignored).
+ * What it does NOT do: it never collects phone numbers. Imported rows get contact_name = '' and contact_phone = ''.
  * Every row goes in as status 'approved' + verification 'unverified' (shown as "যাচাই হয়নি" until a Partner verifies it).
  * Output (folder tools/import-institutions/out/): part-0001.sql ..., rejected.csv (with the reason), review-same-name.csv, summary.txt
  */
@@ -78,6 +80,19 @@ function parseCSV(text){
   return rows;
 }
 const csvCell = s => { s = String(s == null ? '' : s); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+const MAIL_OK = new Set(['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'live.com', 'icloud.com', 'yahoo.co.uk', 'ymail.com']);
+// same masking as mask_email() in the database: first 3 + ***** + last 2 before the @; unusual domains are hidden too
+function maskEmail(e){
+  e = String(e || '').trim().toLowerCase(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return null;
+  const [lp, dm] = e.split('@'); const shown = lp.length <= 3 ? lp.slice(0, 1) + '*****' : lp.length <= 6 ? lp.slice(0, 2) + '*****' : lp.slice(0, 3) + '*****' + lp.slice(-2);
+  if(MAIL_OK.has(dm)) return shown + '@' + dm;
+  return shown + '@' + dm.split('.')[0].slice(0, 1) + '*****.' + dm.replace(/^[^.]+\./, '');
+}
+const CONTACTS = new Map();
+const contactsFile = opt('contacts');
+if(contactsFile){ const cr = parseCSV(fs.readFileSync(contactsFile, 'utf8')); const ch = cr.shift().map(x => x.trim().toLowerCase()); const ei = ch.indexOf('eiin'), em = ch.indexOf('email');
+  if(ei < 0 || em < 0){ console.error('--contacts needs the columns: eiin,email'); process.exit(1); }
+  cr.forEach(r => { const id = String(r[ei] || '').replace(/\s+/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); const mail = String(r[em] || '').trim().toLowerCase(); if(id && maskEmail(mail)) CONTACTS.set(id, mail); }); }
 const sql = s => s == null || s === '' ? "''" : "'" + String(s).replace(/'/g, "''") + "'";
 
 // ---- read
@@ -137,10 +152,11 @@ for(let i = 0; i < good.length; i += BATCH){
     'on conflict (source, source_id) where source is not null do nothing;' + String.fromCharCode(10));
 }
 // the same rows as plain data, for push.mjs (sends them straight to the database)
-fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified' }))));
+fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null }))));
+fs.writeFileSync(path.join(OUT, 'contacts.json'), JSON.stringify(good.filter(g => CONTACTS.has(g.sourceId)).map(g => ({ source_id: g.sourceId, email: CONTACTS.get(g.sourceId), source: SOURCE }))));
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));
 const why = {}; rejected.forEach(x => { const w = x.why.replace(/: ".*$/, ''); why[w] = (why[w] || 0) + 1; });
-const summary = ['Rows read: ' + rows.length, 'English-only (Bangla name still to add): ' + good.filter(g => !hasBangla(g.nameBn)).length, 'Ready to import: ' + good.length + '  (' + part + ' SQL file(s) of up to ' + BATCH + ' rows)', 'Rejected: ' + rejected.length, ...Object.entries(why).sort((a, b) => b[1] - a[1]).map(([w, n]) => '   ' + n + '  ' + w), 'Same name + same upazila inside the file: ' + review.length + ' place(s) (see review-same-name.csv)', '', 'Next: run part-0001.sql, part-0002.sql ... in the Supabase SQL Editor, in order. Then: select count(*) from public.listing_submissions where source = ' + sql(SOURCE) + ';'].join('\n');
+const summary = ['Rows read: ' + rows.length, 'E-mails kept privately: ' + good.filter(g => CONTACTS.has(g.sourceId)).length, 'English-only (Bangla name still to add): ' + good.filter(g => !hasBangla(g.nameBn)).length, 'Ready to import: ' + good.length + '  (' + part + ' SQL file(s) of up to ' + BATCH + ' rows)', 'Rejected: ' + rejected.length, ...Object.entries(why).sort((a, b) => b[1] - a[1]).map(([w, n]) => '   ' + n + '  ' + w), 'Same name + same upazila inside the file: ' + review.length + ' place(s) (see review-same-name.csv)', '', 'Next: run part-0001.sql, part-0002.sql ... in the Supabase SQL Editor, in order. Then: select count(*) from public.listing_submissions where source = ' + sql(SOURCE) + ';'].join('\n');
 fs.writeFileSync(path.join(OUT, 'summary.txt'), summary + '\n');
 console.log(summary);
