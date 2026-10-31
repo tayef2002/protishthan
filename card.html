@@ -325,6 +325,13 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0F172A;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .mbar{display:none}
+.pvov{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px;background:rgba(8,15,35,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pvov.show{display:flex;animation:pvIn .25s ease-out}
+@keyframes pvIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.pvov img{display:block;max-width:100%;max-height:calc(100dvh - 150px);border-radius:14px}
+.pvov .pv-x{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 22px;border:0;border-radius:22px;background:#fff;color:#0F172A;font:700 15px 'Hind Siliguri',sans-serif}
+.pvov small{color:rgba(255,255,255,.7);font:500 12.5px 'Hind Siliguri',sans-serif}
+@media(prefers-reduced-motion:reduce){.pvov.show{animation:none}}
 .foot{text-align:center;padding:26px 16px 40px;color:var(--text-3);font-size:13px}
 .foot a{color:var(--blue);font-weight:700;text-decoration:none}
 
@@ -341,7 +348,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
   .panel{padding:16px;border-radius:18px}
   .edu-grid{grid-template-columns:1fr}
   .actions .hide-sm{display:none}
-  .mbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+  .mbar{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:200;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
   body{padding-bottom:74px}
   .toast{bottom:90px}
 }
@@ -712,7 +719,9 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <div id="pfoot" data-art="card"></div>
 <script src="/footer.js?v=4"></script>
 
+<div class="pvov" id="pvOv" role="dialog" aria-modal="true" aria-label="কার্ডের প্রিভিউ" onclick="if(event.target===this)closePreview()"><img id="pvImg" alt="আপনার কার্ড"><small>এখন পর্যন্ত যা লিখেছেন, কার্ড এমন দেখাচ্ছে</small><button type="button" class="pv-x" onclick="closePreview()">বন্ধ করুন, লেখা চালিয়ে যান</button></div>
 <div class="mbar">
+  <button type="button" class="btn btn-ghost mb-pv" onclick="openPreview()" aria-label="কার্ডের প্রিভিউ দেখুন"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>প্রিভিউ</button>
   <button type="button" class="btn btn-primary" onclick="downloadCard()">ডাউনলোড</button>
   <button type="button" class="btn btn-ghost" onclick="shareImage()">শেয়ার</button>
 </div>
@@ -1588,6 +1597,10 @@ function caption(){
   return 'সরকার কার্ড দেয়নি, তাই নিজেই বানিয়ে নিলাম 😎' + (names ? '\n' + names + ' — আমার শিক্ষাজীবন।' : '') + '\nতোমারটা বানাও 👉 ' + SHARE_URL + '?ref=share\n#শিক্ষিতকার্ড #ShikkhitoCard';
 }
 function cardBlob(){ return new Promise(res=>cv.toBlob(res, 'image/png')); }
+/* phones: the card is not pinned above the keyboard while typing; this opens it full-size on demand and closes back to the same spot */
+function openPreview(){ draw(); document.getElementById('pvImg').src = cv.toDataURL('image/png'); document.getElementById('pvOv').classList.add('show'); document.body.style.overflow = 'hidden'; if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+function closePreview(){ document.getElementById('pvOv').classList.remove('show'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closePreview(); });
 function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
 async function downloadCard(){
   if(Object.values(S.edu).some(ed => ed && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
