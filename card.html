@@ -883,8 +883,8 @@ function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
   q = (q||'').trim();
   if(q.length < 2){ ac.classList.remove('open'); return; }
-  if(BnName.hasLatin(q)){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">প্রতিষ্ঠানের নাম বাংলায় লিখুন। ইংরেজি অক্ষর চলবে না।</div>'; ac.classList.add('open'); return; }
   const paint = hits => {
+    if(BnName.hasLatin(q) && !hits.length){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">তালিকায় এই নামে কিছু পাওয়া যায়নি। নিজে লিখলে প্রতিষ্ঠানের নাম বাংলায় লিখুন।</div>'; ac.classList.add('open'); return; }
     list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
       (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
@@ -1619,7 +1619,7 @@ function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.tri
 function needNameToast(){ toast('আগে আপনার নাম লিখুন'); const f = document.getElementById('fName'); if(f){ f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => f.focus(), 350); } }
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
-  if(Object.values(S.edu).some(ed => ed && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
+  if(Object.values(S.edu).some(ed => ed && !ed.slug && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
   draw();
   const blob = await cardBlob(); const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();

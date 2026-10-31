@@ -4,8 +4,10 @@
  *   node tools/import-institutions/import.mjs data.csv --source banbeis --source-url https://example.gov.bd/list
  *
  * CSV header (first row), any order. Only name_bn, type, district, upazila are required:
- *   name_bn   institute name in Bangla (English letters are rejected, same rule as the website)
- *   name_en   English name from the source (kept as-is, optional)
+ *   name_bn   institute name in Bangla
+ *   name_en   English name from the source
+ *   A row needs at least one of the two. English-only rows are accepted: the English name goes to name_en AND (as a placeholder, in Title Case)
+ *   to the main name, and the row is flagged needs_bn_name until someone adds the Bangla name (set_bangla_name). Use --bangla-only to refuse them.
  *   type      মাদ্রাসা | স্কুল | কলেজ | কোচিং সেন্টার  (madrasa / school / college / coaching also work)
  *   district  Bangla district name        upazila  Bangla upazila name
  *   eiin      the source's own id (EIIN) so the same institution is never imported twice (optional but strongly advised)
@@ -31,6 +33,7 @@ const file = argv.find(a => !a.startsWith('--') && !a.includes('='));
 const opt = (name, def = '') => { const i = argv.indexOf('--' + name); return i > -1 && argv[i + 1] ? argv[i + 1] : def; };
 const maps = {}; argv.forEach((a, i) => { if(a === '--map' && argv[i + 1] && argv[i + 1].includes('=')){ const [k, ...v] = argv[i + 1].split('='); maps[k.trim()] = v.join('=').trim(); } });
 if(!file){ console.error('Usage: node tools/import-institutions/import.mjs data.csv --source banbeis --source-url https://...'); process.exit(1); }
+const STRICT = argv.includes('--bangla-only');
 const SOURCE = opt('source'), SOURCE_URL = opt('source-url'), BATCH = Number(opt('batch', '400')), OUT = opt('out', path.join(HERE, 'out'));
 if(!SOURCE){ console.error('--source is required (for example --source banbeis): it is stored with every row.'); process.exit(1); }
 
@@ -48,6 +51,16 @@ const upaByDist = new Map(LOC.map(d => [d.n, new Map(d.u.map(u => [key(u), u]))]
 
 // ---- types
 const TYPE = { 'মাদ্রাসা': 'মাদ্রাসা', 'মাদরাসা': 'মাদ্রাসা', madrasa: 'মাদ্রাসা', madrasah: 'মাদ্রাসা', 'স্কুল': 'স্কুল', school: 'স্কুল', 'বিদ্যালয়': 'স্কুল', 'কলেজ': 'কলেজ', college: 'কলেজ', 'কোচিং সেন্টার': 'কোচিং সেন্টার', 'কোচিং': 'কোচিং সেন্টার', coaching: 'কোচিং সেন্টার' };
+// ALL-CAPS source names -> Title Case ('DAKHIL MADRASAH' -> 'Dakhil Madrasah'); short all-caps words (BL, MD) stay as they are
+const titleCase = s => s.split(' ').map((w, i) => {
+  if(/[a-z]/.test(w) || !/[A-Z]/.test(w)) return w;
+  const letters = w.replace(/[^A-Za-z]/g, '');
+  if(/^(AND|THE|OF|FOR)$/.test(letters) && i > 0) return w.toLowerCase();
+  if(letters.length <= 3) return w;
+  return w.toLowerCase().replace(/(^|[^a-z])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+}).join(' ');
+const hasBangla = s => /[\u0980-\u09FF]/.test(s);
+let englishOnly = 0;
 const CODE = { 'মাদ্রাসা': 'mad', 'স্কুল': 'sch', 'কলেজ': 'col', 'কোচিং সেন্টার': 'coa' };
 
 // ---- a small CSV reader (quotes, commas and line breaks inside quotes)
@@ -79,9 +92,15 @@ const get = (r, k) => C[k] < 0 ? '' : (r[C[k]] || '').trim();
 const good = [], rejected = [], seen = new Map(), sameName = new Map();
 const reject = (r, why) => rejected.push({ why, row: r });
 rows.forEach(r => {
-  const nameBn = norm(get(r, 'name_bn')), nameEn = get(r, 'name_en').replace(/\s+/g, ' ');
-  if(!nameBn) return reject(r, 'নাম নেই (name_bn ফাঁকা)');
-  if(hasLatin(nameBn)) return reject(r, 'নামে ইংরেজি অক্ষর আছে, বাংলা নাম লাগবে');
+  const rawBn = norm(get(r, 'name_bn')), rawEn = get(r, 'name_en').replace(/\s+/g, ' ');
+  let nameBn, nameEn;
+  if(rawBn && (!hasLatin(rawBn) || hasBangla(rawBn))){ nameBn = rawBn; nameEn = rawEn ? titleCase(rawEn) : ''; }          // a Bangla name
+  else {                                                                                                                  // English only
+    const eng = rawEn || rawBn;
+    if(!eng) return reject(r, 'নাম নেই (name_bn ও name_en দুটোই ফাঁকা)');
+    if(STRICT) return reject(r, 'নামে ইংরেজি অক্ষর আছে, বাংলা নাম লাগবে');
+    nameEn = titleCase(eng); nameBn = nameEn; englishOnly++;
+  }
   if(nameBn.length < 3) return reject(r, 'নাম খুব ছোট');
   const type = TYPE[get(r, 'type').toLowerCase()] || TYPE[get(r, 'type')];
   if(!type) return reject(r, 'ধরন চেনা যায়নি: "' + get(r, 'type') + '"');
@@ -116,6 +135,6 @@ for(let i = 0; i < good.length; i += BATCH){
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));
 const why = {}; rejected.forEach(x => { const w = x.why.replace(/: ".*$/, ''); why[w] = (why[w] || 0) + 1; });
-const summary = ['Rows read: ' + rows.length, 'Ready to import: ' + good.length + '  (' + part + ' SQL file(s) of up to ' + BATCH + ' rows)', 'Rejected: ' + rejected.length, ...Object.entries(why).sort((a, b) => b[1] - a[1]).map(([w, n]) => '   ' + n + '  ' + w), 'Same name + same upazila inside the file: ' + review.length + ' place(s) (see review-same-name.csv)', '', 'Next: run part-0001.sql, part-0002.sql ... in the Supabase SQL Editor, in order. Then: select count(*) from public.listing_submissions where source = ' + sql(SOURCE) + ';'].join('\n');
+const summary = ['Rows read: ' + rows.length, 'English-only (Bangla name still to add): ' + good.filter(g => !hasBangla(g.nameBn)).length, 'Ready to import: ' + good.length + '  (' + part + ' SQL file(s) of up to ' + BATCH + ' rows)', 'Rejected: ' + rejected.length, ...Object.entries(why).sort((a, b) => b[1] - a[1]).map(([w, n]) => '   ' + n + '  ' + w), 'Same name + same upazila inside the file: ' + review.length + ' place(s) (see review-same-name.csv)', '', 'Next: run part-0001.sql, part-0002.sql ... in the Supabase SQL Editor, in order. Then: select count(*) from public.listing_submissions where source = ' + sql(SOURCE) + ';'].join('\n');
 fs.writeFileSync(path.join(OUT, 'summary.txt'), summary + '\n');
 console.log(summary);
