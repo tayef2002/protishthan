@@ -39,7 +39,7 @@ const headers = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': '
 // what is already there from this source
 const have = new Set();
 for(let from = 0; ; from += 1000){
-  const r = await fetch(URL_BASE + '/rest/v1/listing_submissions?select=source_id&source=eq.' + encodeURIComponent(source) + '&limit=1000&offset=' + from, { headers });
+  const r = await fetch(URL_BASE + '/rest/v1/listing_submissions?select=source_id&source=eq.' + encodeURIComponent(source) + '&order=id&limit=1000&offset=' + from, { headers });
   if(!r.ok){ console.error('Could not read existing rows:', r.status, await r.text()); process.exit(1); }
   const part = await r.json(); part.forEach(x => have.add(String(x.source_id))); if(part.length < 1000) break;
 }
@@ -60,13 +60,13 @@ if(fs.existsSync(contactsFile)){
   const contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8'));
   const ids = new Map();
   for(let from = 0; ; from += 1000){
-    const r = await fetch(URL_BASE + '/rest/v1/listing_submissions?select=id,source_id&source=eq.' + encodeURIComponent(source) + '&limit=1000&offset=' + from, { headers });
+    const r = await fetch(URL_BASE + '/rest/v1/listing_submissions?select=id,source_id&source=eq.' + encodeURIComponent(source) + '&order=id&limit=1000&offset=' + from, { headers });
     if(!r.ok){ console.error('Could not read ids:', r.status, await r.text()); process.exit(1); }
     const part = await r.json(); part.forEach(x => ids.set(String(x.source_id), x.id)); if(part.length < 1000) break;
   }
   const haveMail = new Set();
   for(let from = 0; ; from += 1000){
-    const r = await fetch(URL_BASE + '/rest/v1/listing_private_contacts?select=listing_id&source=eq.' + encodeURIComponent(source) + '&limit=1000&offset=' + from, { headers });
+    const r = await fetch(URL_BASE + '/rest/v1/listing_private_contacts?select=listing_id&source=eq.' + encodeURIComponent(source) + '&order=listing_id&limit=1000&offset=' + from, { headers });
     if(!r.ok){ console.error('Could not read the contacts table (did you run migrations/2026-11-16?):', r.status, await r.text()); process.exit(1); }
     const part = await r.json(); part.forEach(x => haveMail.add(x.listing_id)); if(part.length < 1000) break;
   }
