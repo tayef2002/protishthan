@@ -700,11 +700,13 @@ function render(){
   // facilities
   const facs = listOf(r.facilities, r.other_facility);
   if(facs.length) document.getElementById('facGrid').innerHTML = facs.map(f=>'<div class="fac"><span class="fac-ic">'+ico(FAC_IC[f]||'check',20)+'</span><span>'+escapeHtml(f)+'</span></div>').join('');
+  else if(IMP) document.getElementById('facGrid').innerHTML = '<p class="muted" style="grid-column:1/-1;margin:0">এখনো সুযোগ-সুবিধার তথ্য যোগ করা হয়নি।</p>';
   else document.getElementById('sec-facilities').style.display = 'none';
 
   // achievements (live first)
   const achs = (inst && Array.isArray(inst.achievements) && inst.achievements.length) ? inst.achievements : listOf(r.achievements, r.other_achievement);
   if(achs.length) document.getElementById('achList').innerHTML = achs.map(a=>'<div class="ach"><span class="ach-ic">'+ico('trophy',20)+'</span><span>'+escapeHtml(a)+'</span></div>').join('');
+  else if(IMP) document.getElementById('achList').innerHTML = '<p class="muted" style="grid-column:1/-1;margin:0">এখনো কোনো অর্জনের তথ্য যোগ করা হয়নি।</p>';
   else document.getElementById('sec-achievements').style.display = 'none';
 
   // location + map
@@ -735,6 +737,13 @@ function render(){
     kv('PRN', r.prn_number ? 'PRN-' + String(r.prn_number).padStart(4,'0') : '') + kv('EIIN', (inst && inst.eiin) || (!IMP && r.source_id) || '') +
     (IMP ? kv('EIIN', r.source_id) + kv('তথ্যসূত্র', srcName) + kv('তথ্য সংগ্রহ', r.collected_at ? fmtDate(r.collected_at) : '') + kv('অবস্থা', 'যাচাই বাকি') : kv('তালিকাভুক্তি', r.created_at ? fmtDate(r.created_at) : ''));
 
+  // an imported listing shows the whole profile template; sections with no data yet read "not added yet" and fill in as the Partner / institution adds them
+  if(IMP){
+    const empty = (id, boxId, text) => { document.getElementById(id).style.display = 'block'; const b = document.getElementById(boxId); if(b && !b.innerHTML.trim()) b.innerHTML = '<p class="muted" style="grid-column:1/-1;margin:0">' + text + '</p>'; };
+    empty('sec-gallery', 'galleryGrid', 'এখনো কোনো ছবি যোগ করা হয়নি।');
+    empty('sec-notices', 'noticeList', 'এখনো কোনো নোটিস দেওয়া হয়নি।');
+    empty('sec-reviews', 'rvList', 'এখনো কোনো মতামত নেই।');
+  }
   buildTabs();
   injectJsonLd(r, inst, loc, phone);
 
