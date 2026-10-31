@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>বার্তা | Protishthan</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#F4F6FB">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nav.css?v=8">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--text:#0B1B4D;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--bg:#F4F6FB;--chip:#F1F5F9}
+html,body{height:100%}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid rgba(37,99,235,.4);outline-offset:2px;border-radius:8px}
+
+/* the whole screen below the top bar belongs to the chat: only the lists and the message area scroll */
+.app{position:fixed;left:0;right:0;bottom:0;top:84px;padding:0 20px 20px;display:flex;justify-content:center}
+.msg{position:relative;width:100%;max-width:1152px;height:100%;display:grid;grid-template-columns:340px minmax(0,1fr);background:#fff;border:1px solid var(--border);border-radius:22px;overflow:hidden}
+
+/* ---- left: conversations ---- */
+.lst{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--border)}
+.lst-h{padding:18px 18px 10px}
+.lst-h h1{font:800 22px 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.2px}
+.srch{position:relative;margin-top:10px}
+.srch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3)}
+.srch input{width:100%;height:40px;padding:0 14px 0 38px;border:1px solid transparent;border-radius:20px;background:var(--chip);font:500 14.5px 'Hind Siliguri','Inter',sans-serif;color:var(--text);outline:none}
+.srch input:focus{border-color:var(--blue);background:#fff}
+.flt{display:flex;gap:8px;margin-top:10px}
+.flt button{height:32px;padding:0 14px;border:0;border-radius:16px;background:var(--chip);color:var(--text-2);font:600 13px 'Hind Siliguri',sans-serif}
+.flt button.on{background:#E6EDFF;color:var(--blue)}
+.lst-b{flex:1;overflow-y:auto;padding:4px 8px 10px}
+.it{display:flex;align-items:center;gap:12px;width:100%;padding:11px 10px;border:0;border-radius:14px;background:transparent;text-align:left;transition:background .15s}
+.it:hover{background:#F6F8FD}.it.on{background:#E9F0FF}
+.av{flex:none;width:48px;height:48px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3B82F6,#7C3AED);color:#fff;font:800 18px 'Inter',sans-serif}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.it .tx{flex:1;min-width:0}
+.it .r1{display:flex;align-items:baseline;gap:8px}
+.it .r1 b{flex:1;min-width:0;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.it .r1 time{flex:none;color:var(--text-3);font-size:11.5px}
+.it .r2{display:flex;align-items:center;gap:8px;margin-top:1px}
+.it .r2 span{flex:1;min-width:0;color:var(--text-2);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.it.unr .r1 b,.it.unr .r2 span{font-weight:700;color:var(--text)}
+.it .n{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--blue);color:#fff;font:800 11.5px/20px 'Inter',sans-serif;text-align:center}
+.tag{display:inline-block;margin-top:3px;padding:0 8px;border-radius:10px;background:var(--chip);color:var(--text-2);font-size:11px;font-weight:600}
+.none{padding:40px 22px;text-align:center;color:var(--text-2);font-size:14.5px;line-height:1.8}
+.none b{display:block;margin-bottom:4px;color:var(--text);font-size:16px}
+
+/* ---- right: the open conversation ---- */
+.cv{display:flex;flex-direction:column;min-width:0;min-height:0;background:#F8FAFF}
+.cv-h{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--border)}
+.cv-h .back{display:none;flex:none;width:38px;height:38px;border:0;border-radius:50%;background:var(--chip);color:var(--text);align-items:center;justify-content:center}
+.cv-h .who{flex:1;min-width:0}
+.cv-h .who b{display:block;font-size:16px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-h .who small{display:block;color:var(--text-3);font-size:12px}
+.hb{flex:none;height:34px;padding:0 13px;border:1px solid var(--border);border-radius:17px;background:#fff;color:var(--text-2);font:600 13px 'Hind Siliguri',sans-serif;display:inline-flex;align-items:center}
+.hb:hover{border-color:var(--blue);color:var(--blue)}
+.ms{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:16px 18px}
+.day{align-self:center;margin:10px 0 6px;padding:3px 12px;border-radius:12px;background:#E8EEFB;color:var(--text-2);font-size:11.5px;font-weight:600}
+.m{max-width:min(78%,520px);padding:8px 13px 6px;border-radius:16px;font-size:15px;line-height:1.55;word-break:break-word;white-space:pre-wrap}
+.m small{display:block;margin-top:2px;text-align:right;font-size:10.5px;opacity:.65}
+.m.me{align-self:flex-end;color:#fff;background:linear-gradient(135deg,#2563EB,#4F46E5);border-bottom-right-radius:5px}
+.m.th{align-self:flex-start;background:#fff;border:1px solid var(--border);border-bottom-left-radius:5px}
+.m.gap{margin-top:8px}
+.m a{color:inherit;text-decoration:underline;word-break:break-all}
+.er{min-height:0;padding:0 18px 6px;color:#DC2626;font-size:12.5px;font-weight:600}
+.er:empty{display:none}
+.in{display:flex;gap:8px;align-items:flex-end;padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:var(--chip);border-top:1px solid var(--border)}
+.in textarea{flex:1;box-sizing:border-box;min-height:42px;max-height:120px;padding:10px 16px;border:1px solid transparent;border-radius:21px;background:#fff;color:var(--text);font:500 15px/22px 'Hind Siliguri','Inter',sans-serif;resize:none;outline:none;overflow-y:hidden;scrollbar-width:none;display:block}
+.in textarea:focus{border-color:var(--blue)}
+.send{flex:none;width:42px;height:42px;border:0;border-radius:50%;background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;display:flex;align-items:center;justify-content:center;transition:opacity .2s,transform .15s}
+.send svg{width:20px;height:20px;margin-left:2px}.send:active{transform:scale(.92)}.send.idle,.send:disabled{opacity:.45}
+.blk{padding:12px 18px;background:#FEF2F2;color:#B91C1C;font-size:13.5px;text-align:center;border-top:1px solid #FECACA}
+.empty{margin:auto;padding:30px;text-align:center;color:var(--text-3);font-size:15px;line-height:1.8}
+.empty svg{display:block;margin:0 auto 10px;color:#CBD5E1}
+
+/* ---- signed out ---- */
+.gate{margin:auto;max-width:360px;padding:30px;text-align:center}
+.gate h2{font:800 20px 'Hind Siliguri',sans-serif;margin-bottom:6px}.gate p{color:var(--text-2);font-size:14.5px;margin-bottom:18px}
+.g{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border:1.5px solid #CBD5E1;border-radius:13px;background:#fff;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;color:var(--text)}
+
+/* ---- phones: list first, the chat slides over it as its own page ---- */
+@media(max-width:800px){
+  .app{top:76px;padding:0 0 0}
+  .msg{grid-template-columns:1fr;border-radius:20px 20px 0 0;border-bottom:0}
+  .lst{border-right:0}
+  .cv{position:fixed;inset:0;z-index:320;transform:translateX(100%);visibility:hidden;transition:transform .3s cubic-bezier(.2,.9,.25,1),visibility .3s}
+  .msg.open .cv{transform:none;visibility:visible}
+  .cv-h{padding-top:calc(10px + env(safe-area-inset-top))}
+  .cv-h .back{display:flex}
+  .m{max-width:84%}
+}
+@media(prefers-reduced-motion:reduce){.cv{transition:none}}
+</style>
+</head>
+<body>
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=4"></script>
+
+<main class="app">
+  <div class="msg" id="msg">
+    <section class="lst" aria-label="কথোপকথন">
+      <div class="lst-h">
+        <h1>বার্তা</h1>
+        <label class="srch"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="নাম দিয়ে খুঁজুন" autocomplete="off" lang="bn"></label>
+        <div class="flt" role="tablist"><button type="button" class="on" data-f="all">সব</button><button type="button" data-f="unread">না-পড়া</button></div>
+      </div>
+      <div class="lst-b" id="list"><div class="none">লোড হচ্ছে…</div></div>
+    </section>
+    <section class="cv" id="cv" aria-label="চ্যাট">
+      <div class="empty" id="blank"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>বাঁ পাশ থেকে একটা কথোপকথন বেছে নিন</div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id), M = Protishthan.member;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const S = { threads: [], cur: null, last: 0, busy: false, filter: 'all', q: '', blocked: false, lastDay: '', lastMine: null };
+  const G = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+  const err = e => { const m = String((e && (e.message || e.details)) || e || ''); return /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান, কিছুক্ষণ পরে আবার' : /TOO_MANY/.test(m) ? 'আজকের জন্য বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না' : /CHAT_OFF/.test(m) ? 'এই পেজে এখন চ্যাট বন্ধ আছে' : 'বার্তা পাঠানো যায়নি, আবার চেষ্টা করুন'; };
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  function dayLabel(d){ const n = new Date(), y = new Date(n.getTime() - 864e5); if(sameDay(d, n)) return 'আজ'; if(sameDay(d, y)) return 'গতকাল'; try{ return d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: d.getFullYear() === n.getFullYear() ? undefined : 'numeric' }); }catch(e){ return ''; } }
+  function shortTime(at){ const d = new Date(at), n = new Date(); try{ if(sameDay(d, n)) return d.toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); if(sameDay(d, new Date(n.getTime() - 864e5))) return 'গতকাল'; return d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }); }catch(e){ return ''; } }
+  const clock = at => { try{ return new Date(at).toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); }catch(e){ return ''; } };
+  const linkify = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  const avatar = t => '<span class="av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').trim().charAt(0).toUpperCase())) + '</span>';
+  const isPhone = () => window.matchMedia('(max-width:800px)').matches;
+
+  /* ---------- list ---------- */
+  function paintList(){
+    const q = S.q.trim(), key = window.BnName ? window.BnName.key : s => String(s).toLowerCase();
+    let ts = S.threads.filter(t => (S.filter !== 'unread' || t.unread > 0) && (!q || key(t.name).indexOf(key(q)) > -1));
+    $('list').innerHTML = ts.length ? ts.map(t => '<button type="button" class="it' + (S.cur === t.id ? ' on' : '') + (t.unread ? ' unr' : '') + '" data-t="' + esc(t.id) + '">' + avatar(t) +
+      '<span class="tx"><span class="r1"><b>' + esc(t.name) + '</b><time>' + shortTime(t.last_at) + '</time></span><span class="r2"><span>' + esc(t.last || '') + '</span>' + (t.unread ? '<i class="n">' + bn(t.unread) + '</i>' : '') + '</span>' +
+      '<span class="tag">' + (t.role === 'owner' ? 'আপনার পেজে' : 'আপনি লিখেছেন') + '</span></span></button>').join('')
+      : '<div class="none"><b>' + (S.threads.length ? 'কিছু পাওয়া যায়নি' : 'এখনো কোনো বার্তা নেই') + '</b>' + (S.threads.length ? 'অন্য নামে খুঁজুন, অথবা "সব" ট্যাব দেখুন।' : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে। অন্য কারও পেজে বার্তা পাঠালে সেটাও এখানে দেখবেন।') + '</div>';
+  }
+  async function loadThreads(){
+    try{ const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; S.threads = r.data || []; }catch(e){ if(!S.threads.length) S.threads = []; }
+    paintList();
+  }
+
+  /* ---------- conversation ---------- */
+  function openShell(t){
+    $('cv').innerHTML =
+      '<div class="cv-h"><button type="button" class="back" id="bk" aria-label="ফিরে যান"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' + avatar(t) +
+      '<div class="who"><b>' + esc(t.name) + '</b><small>' + (t.role === 'owner' ? 'আপনার স্কিল পেজে লিখেছেন' : 'আপনি লিখেছেন') + '</small></div>' +
+      (t.role === 'visitor' ? '<a class="hb" href="/s/' + esc(t.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a>' : '<button type="button" class="hb" id="blk">' + (t.blocked ? 'আনব্লক' : 'ব্লক করুন') + '</button>') + '</div>' +
+      '<div class="ms" id="ms" aria-live="polite"></div><div class="er" id="er"></div><div id="blkMsg"></div>' +
+      '<div class="in" id="inb"><textarea id="tx" rows="1" maxlength="1000" placeholder="বার্তা লিখুন…"></textarea><button type="button" class="send idle" id="sd" aria-label="পাঠান"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-8a.5.5 0 000-.9L3.4 3.6a.5.5 0 00-.7.6L5 11l9 1-9 1-2.3 6.8a.5.5 0 00.7.6z"/></svg></button></div>';
+    const tx = $('tx');
+    $('bk').onclick = closeChat;
+    $('sd').onclick = send;
+    tx.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey && !isPhone()){ e.preventDefault(); send(); } });
+    tx.addEventListener('input', () => { tx.style.height = 'auto'; tx.style.height = Math.min(120, tx.scrollHeight) + 'px'; tx.style.overflowY = tx.scrollHeight > 120 ? 'auto' : 'hidden'; $('sd').classList.toggle('idle', !tx.value.trim()); });
+    const bl = $('blk'); if(bl) bl.onclick = async () => { const block = !t.blocked; try{ await M.sb.rpc('skill_chat_block', { p_thread: t.id, p_block: block }); t.blocked = block; bl.textContent = block ? 'আনব্লক' : 'ব্লক করুন'; }catch(e){ $('er').textContent = 'এখন করা যায়নি, আবার চেষ্টা করুন'; } };
+  }
+  async function openChat(id, push){
+    const t = S.threads.find(x => x.id === id); if(!t) return;
+    S.cur = id; S.last = 0; S.lastDay = ''; S.lastMine = null; S.blocked = false;
+    openShell(t); $('msg').classList.add('open'); paintList();
+    if(push !== false){ try{ history.pushState({ t: id }, '', '#' + id); }catch(e){} }
+    await pull(true);
+    if(!isPhone()) setTimeout(() => { const x = $('tx'); if(x) x.focus(); }, 60);
+  }
+  function closeChat(){
+    if(history.state && history.state.t){ history.back(); return; }
+    shut();
+  }
+  function shut(){
+    S.cur = null; $('msg').classList.remove('open'); paintList();
+    $('cv').innerHTML = '<div class="empty" id="blank"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>বাঁ পাশ থেকে একটা কথোপকথন বেছে নিন</div>';
+  }
+  async function pull(first){
+    if(!S.cur) return; const box = $('ms'); if(!box) return; const id = S.cur;
+    try{
+      const r = await M.sb.rpc('skill_chat_messages', { p_thread: id, p_after: S.last }); const d = r && r.data; if(!d || id !== S.cur) return;
+      S.blocked = !!d.blocked;
+      const bm = $('blkMsg'); if(bm) bm.innerHTML = (d.blocked && d.role === 'visitor') ? '<div class="blk">এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না</div>' : '';
+      if(d.blocked && d.role === 'visitor' && $('inb')) $('inb').style.display = 'none';
+      const near = first || box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+      if(first && !(d.messages || []).length) box.innerHTML = '<div class="empty">এখনো কোনো বার্তা নেই। প্রথম বার্তাটা লিখুন।</div>';
+      (d.messages || []).forEach(m => {
+        const em = box.querySelector('.empty'); if(em) em.remove();
+        const at = new Date(m.at), dl = at.toDateString();
+        if(dl !== S.lastDay){ S.lastDay = dl; const el = document.createElement('div'); el.className = 'day'; el.textContent = dayLabel(at); box.appendChild(el); S.lastMine = null; }
+        const el = document.createElement('div'); el.className = 'm ' + (m.mine ? 'me' : 'th') + (S.lastMine !== null && S.lastMine !== !!m.mine ? ' gap' : '');
+        el.innerHTML = linkify(m.body) + '<small>' + clock(m.at) + '</small>'; box.appendChild(el); S.lastMine = !!m.mine; S.last = Math.max(S.last, m.id);
+      });
+      if(near) box.scrollTop = box.scrollHeight;
+      const t = S.threads.find(x => x.id === id); if(t && t.unread){ t.unread = 0; paintList(); }
+    }catch(e){}
+  }
+  async function send(){
+    if(S.busy || !S.cur || S.blocked) return; const tx = $('tx'), body = tx.value.trim(); if(!body) return;
+    const t = S.threads.find(x => x.id === S.cur) || {}; S.busy = true; $('sd').disabled = true; $('er').textContent = '';
+    try{ const r = await M.sb.rpc('skill_chat_send', { p_username: t.username, p_thread: S.cur, p_body: body }); if(r.error) throw r.error; tx.value = ''; tx.style.height = ''; $('sd').classList.add('idle'); await pull(false); const box = $('ms'); box.scrollTop = box.scrollHeight; loadThreads(); }
+    catch(e){ $('er').textContent = err(e); }
+    S.busy = false; $('sd').disabled = false; if(!isPhone()) tx.focus();
+  }
+
+  /* ---------- wiring ---------- */
+  $('list').addEventListener('click', e => { const b = e.target.closest('.it'); if(b) openChat(b.dataset.t); });
+  $('q').addEventListener('input', e => { S.q = e.target.value; paintList(); });
+  document.querySelectorAll('.flt button').forEach(b => b.addEventListener('click', () => { S.filter = b.dataset.f; document.querySelectorAll('.flt button').forEach(x => x.classList.toggle('on', x === b)); paintList(); }));
+  window.addEventListener('popstate', () => { const id = (location.hash || '').slice(1); if(id && S.threads.some(t => t.id === id)) openChat(id, false); else shut(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && S.cur) closeChat(); });
+  setInterval(() => { if(!document.hidden && S.cur) pull(false); }, 5000);
+  setInterval(() => { if(!document.hidden) loadThreads(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadThreads(); pull(false); } });
+
+  (async function boot(){
+    await M.ready();
+    if(!M.current()){
+      $('msg').innerHTML = '<div class="gate" style="grid-column:1/-1"><h2>বার্তা দেখতে সাইন ইন করুন</h2><p>আপনার স্কিল পেজে আসা বার্তা আর আপনি যাদের লিখেছেন, সব এখানে থাকবে।</p><button class="g" type="button" id="gi">' + G + 'Google দিয়ে সাইন ইন করুন</button></div>';
+      $('gi').onclick = () => M.signIn('বার্তা দেখতে সাইন ইন করুন'); return;
+    }
+    await loadThreads();
+    const id = (location.hash || '').slice(1); if(id && S.threads.some(t => t.id === id)) openChat(id, false);
+  })();
+})();
+</script>
+<script src="/bnname.js?v=1"></script>
+</body>
+</html>

@@ -388,6 +388,10 @@ main.container{margin-top:22px}
 @media(max-width:760px){.sk-grid{grid-template-columns:1fr}}
 
 /* ---- chat inbox ---- */
+.msg-card{display:flex;align-items:center;gap:14px;padding:18px 20px}
+.mc-ic{flex:none;width:46px;height:46px;border-radius:13px;background:#EFF6FF;color:#2563EB;display:flex;align-items:center;justify-content:center}
+.mc-tx{flex:1;min-width:0}.mc-tx b{display:flex;align-items:center;gap:8px;font-size:17px}.mc-tx>span{display:block;color:var(--text-3);font-size:14px}
+@media(max-width:560px){.msg-card{flex-wrap:wrap}.msg-card .btn{width:100%;justify-content:center}}
 .cht{display:grid;grid-template-columns:270px minmax(0,1fr);padding:0;overflow:hidden;min-height:380px}
 .cht-list{border-right:1px solid var(--border);max-height:460px;overflow-y:auto}
 .cht-it{display:flex;align-items:center;gap:11px;width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--border);background:#fff;text-align:left;cursor:pointer;font-family:inherit}
@@ -500,8 +504,7 @@ main.container{margin-top:22px}
           <div class="card" id="cardBox"><div class="skel" style="height:190px"></div></div>
         </section>
 <section class="sec" id="chat">
-          <div class="sec-h"><div><h2>বার্তা</h2><p id="chatSub">আপনার স্কিল পেজে আসা চ্যাট আর আপনি যাদের লিখেছেন</p></div></div>
-          <div class="card cht" id="chatBox"><div class="cht-list" id="chtList"></div><div class="cht-conv" id="chtConv"><div class="cht-empty">কথা বেছে নিন</div></div></div>
+          <div class="card msg-card"><span class="mc-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg></span><div class="mc-tx"><b>বার্তা <i class="cnt-chat" style="display:none"></i></b><span id="chatSub">আপনার স্কিল পেজে আসা চ্যাট আর আপনি যাদের লিখেছেন</span></div><a class="btn btn-blue" href="messages.html">বার্তা খুলুন</a></div>
         </section>
 <section class="sec" id="skill">
           <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
@@ -853,44 +856,11 @@ const CHAT = { threads: [], cur: null, last: 0, busy: false };
 const chatTime = at => { try{ return new Date(at).toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); }catch(e){ return ''; } };
 const chatErr = e => { const m = String((e && (e.message || e.details)) || e || ''); return /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান' : /TOO_MANY/.test(m) ? 'আজকের বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে বার্তা পাঠানো বন্ধ আছে' : 'বার্তা পাঠানো যায়নি'; };
 async function loadChat(){
-  try{
-    const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; CHAT.threads = r.data || [];
-  }catch(e){ CHAT.threads = []; }
+  try{ const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; CHAT.threads = r.data || []; }catch(e){ CHAT.threads = []; }
   const n = CHAT.threads.reduce((a, t) => a + (t.unread || 0), 0);
   document.querySelectorAll('.cnt-chat').forEach(x => { x.textContent = bn(n); x.style.display = n ? '' : 'none'; });
   $('chatSub').textContent = CHAT.threads.length ? (n ? bn(n) + 'টি নতুন বার্তা' : 'আপনার সব চ্যাট এখানে') : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে';
-  $('chtList').innerHTML = CHAT.threads.length ? CHAT.threads.map(t => '<button type="button" class="cht-it' + (CHAT.cur === t.id ? ' on' : '') + '" data-t="' + esc(t.id) + '"><span class="cht-av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').charAt(0).toUpperCase())) + '</span><span class="cht-tx"><b>' + esc(t.name) + '</b><span>' + esc(t.last || '') + '</span><span class="cht-role">' + (t.role === 'owner' ? 'আপনার পেজে' : 'আপনি লিখেছেন') + '</span></span>' + (t.unread ? '<i class="cht-n">' + bn(t.unread) + '</i>' : '') + '</button>').join('') : '<div class="cht-empty" style="padding:26px 16px">এখনো কোনো চ্যাট নেই</div>';
-  if(CHAT.cur) chatPull(false);
 }
-async function chatOpen(id){
-  CHAT.cur = id; CHAT.last = 0;
-  const t = CHAT.threads.find(x => x.id === id) || {};
-  $('chtConv').innerHTML = '<div class="cht-hd"><span class="cht-av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').charAt(0).toUpperCase())) + '</span><b>' + esc(t.name || '') + '</b>' + (t.role === 'visitor' ? '<a class="btn btn-line btn-sm" href="/s/' + esc(t.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a>' : '<button type="button" class="btn btn-line btn-sm" id="chtBlock">' + (t.blocked ? 'আনব্লক' : 'ব্লক করুন') + '</button>') + '</div><div class="cht-msgs" id="chtMsgs"></div><div class="cht-err" id="chtErr"></div><div class="cht-in"><textarea id="chtTx" rows="1" maxlength="1000" placeholder="উত্তর লিখুন…"></textarea><button type="button" class="btn btn-blue" id="chtSend">পাঠান</button></div>';
-  $('chtSend').onclick = chatSendMsg;
-  $('chtTx').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); chatSendMsg(); } });
-  const bl = $('chtBlock'); if(bl) bl.onclick = async () => { const block = !t.blocked; try{ await M.sb.rpc('skill_chat_block', { p_thread: id, p_block: block }); t.blocked = block; bl.textContent = block ? 'আনব্লক' : 'ব্লক করুন'; M.toast(block ? 'ব্লক করা হয়েছে' : 'আনব্লক করা হয়েছে'); }catch(e){ M.toast('করা যায়নি'); } };
-  document.querySelectorAll('.cht-it').forEach(b => b.classList.toggle('on', b.dataset.t === id));
-  await chatPull(true);
-}
-async function chatPull(first){
-  if(!CHAT.cur) return; const box = $('chtMsgs'); if(!box) return;
-  try{
-    const r = await M.sb.rpc('skill_chat_messages', { p_thread: CHAT.cur, p_after: CHAT.last }); const d = r && r.data; if(!d) return;
-    if(d.blocked && d.role === 'visitor') $('chtErr').textContent = 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না';
-    const near = first || box.scrollHeight - box.scrollTop - box.clientHeight < 80;
-    (d.messages || []).forEach(m => { const el = document.createElement('div'); el.className = 'cht-m ' + (m.mine ? 'me' : 'th'); el.innerHTML = esc(m.body) + '<small>' + chatTime(m.at) + '</small>'; box.appendChild(el); CHAT.last = Math.max(CHAT.last, m.id); });
-    if(near) box.scrollTop = box.scrollHeight;
-  }catch(e){}
-}
-async function chatSendMsg(){
-  if(CHAT.busy || !CHAT.cur) return; const tx = $('chtTx'), body = tx.value.trim(); if(!body) return; CHAT.busy = true; $('chtSend').disabled = true; $('chtErr').textContent = '';
-  const t = CHAT.threads.find(x => x.id === CHAT.cur) || {};
-  try{ const r = await M.sb.rpc('skill_chat_send', { p_username: t.username, p_thread: CHAT.cur, p_body: body }); if(r.error) throw r.error; tx.value = ''; await chatPull(false); }
-  catch(e){ $('chtErr').textContent = chatErr(e); }
-  CHAT.busy = false; $('chtSend').disabled = false; tx.focus();
-}
-document.addEventListener('click', e => { const b = e.target.closest('.cht-it'); if(b) chatOpen(b.dataset.t); });
-setInterval(() => { if(!document.hidden && M.current()){ if(CHAT.cur) chatPull(false); } }, 6000);
 setInterval(() => { if(!document.hidden && M.current()) loadChat(); }, 30000);
 
 /* ---------- my skill page (stored in skill_profiles, like the card in member_cards) ---------- */
@@ -1036,7 +1006,7 @@ const NAV = [
     { href: '#overview', i: 'grid', l: 'ওভারভিউ', spy: 'overview' },
     { href: '#saved', i: 'bookmark', l: 'সেভ করা প্রতিষ্ঠান', spy: 'saved', cnt: true },
     { href: '#card', i: 'card', l: 'আমার শিক্ষিত কার্ড', spy: 'card' },
-    { href: '#chat', i: 'chat', l: 'বার্তা', spy: 'chat', cc: true },
+    { href: 'messages.html', i: 'chat', l: 'বার্তা', cc: true },
     { href: '#skill', i: 'award', l: 'আমার স্কিল পেজ', spy: 'skill' },
     { href: '#account', i: 'user', l: 'অ্যাকাউন্ট ও প্রোফাইল', spy: 'account' } ] },
   { t: 'এক্সপ্লোর', items: [
