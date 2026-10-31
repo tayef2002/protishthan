@@ -688,7 +688,11 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
         </div>
         <p class="note">এটা নিজে বানানো একটা মজার কার্ড, কোনো সরকারি কাগজ বা সনদ নয়।</p>
       </div>
-      <a class="army-invite" href="partner.html?ref=card">
+    </aside>
+  </div>
+
+  <div class="container" style="max-width:760px;margin-top:8px">
+    <a class="army-invite" href="partner.html?ref=card">
         <span class="ai-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Protishthan Partner</span>
         <b>নিজের উপজেলার প্রতিষ্ঠানের তথ্য ঠিক করুন, আয় করুন</b>
         <ul>
@@ -698,7 +702,6 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
         </ul>
         <span class="ai-btn">Partner হিসেবে যোগ দিন →</span>
       </a>
-    </aside>
   </div>
 
   <section class="lb" id="lb" aria-labelledby="lbT" hidden>
@@ -721,6 +724,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 
 <div id="pfoot" data-art="card"></div>
 <script src="/footer.js?v=4"></script>
+<script src="/analytics.js?v=1"></script>
 
 <div class="pvov" id="pvOv" role="dialog" aria-modal="true" aria-label="কার্ডের প্রিভিউ" onclick="if(event.target===this)closePreview()"><img id="pvImg" alt="আপনার কার্ড"><small>এখন পর্যন্ত যা লিখেছেন, কার্ড এমন দেখাচ্ছে</small><button type="button" class="pv-x" onclick="closePreview()">বন্ধ করুন, লেখা চালিয়ে যান</button></div>
 <div class="mbar">
@@ -851,7 +855,7 @@ document.getElementById('fmtBtns').addEventListener('click', e=>{
   S.format = b.dataset.f; document.querySelectorAll('#fmtBtns button').forEach(x=>x.classList.toggle('on', x===b)); draw();
 });
 
-document.getElementById('fName').addEventListener('input', e=>{ S.name = e.target.value; draw(); });
+document.getElementById('fName').addEventListener('input', e=>{ if(!window.__cardStarted && e.target.value.trim()){ window.__cardStarted = 1; T('card_start'); } S.name = e.target.value; draw(); });
 
 document.getElementById('eduRows').addEventListener('input', e=>{
   const k = e.target.dataset.k, f = e.target.dataset.f; if(!k) return;
@@ -1600,6 +1604,7 @@ async function countMyDownload(){   // once per person per name: the server comp
 refreshDownloads(); setInterval(refreshDownloads, 20000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
+const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };
 function toast(m){ const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2600); }
 function caption(){
   const names = filledLevels().map(l=>S.edu[l.key].name.trim()).slice(0, 3).join(', ');
@@ -1607,7 +1612,7 @@ function caption(){
 }
 function cardBlob(){ return new Promise(res=>cv.toBlob(res, 'image/png')); }
 /* phones: the card is not pinned above the keyboard while typing; this opens it full-size on demand and closes back to the same spot */
-function openPreview(){ draw(); document.getElementById('pvImg').src = cv.toDataURL('image/png'); document.getElementById('pvOv').classList.add('show'); document.body.style.overflow = 'hidden'; if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+function openPreview(){ T('card_preview'); draw(); document.getElementById('pvImg').src = cv.toDataURL('image/png'); document.getElementById('pvOv').classList.add('show'); document.body.style.overflow = 'hidden'; if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
 function closePreview(){ document.getElementById('pvOv').classList.remove('show'); document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePreview(); });
 function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
@@ -1620,14 +1625,14 @@ async function downloadCard(){
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   toast('কার্ড ডাউনলোড হয়েছে — এবার শেয়ার করুন!');
-  countMyDownload(); countMyInstitutes();
+  countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
 async function shareImage(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   draw();
   const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
   try{
-    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); countMyDownload(); return; }
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); countMyDownload(); T('card_share'); return; }
   }catch(e){ if(e && e.name === 'AbortError') return; }
   try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
   downloadCard();
