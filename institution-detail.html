@@ -583,10 +583,11 @@ async function loadDetail(){
   let inst = null;
   try{
     if(record.institution_id){ const r = await sb.from('institutions').select('*').eq('id', record.institution_id).maybeSingle(); inst = r.data; }
-    if(!inst){ const r = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle(); inst = r.data; }
-    if(!inst && record.institution_name){ const r = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle(); inst = r.data; }
-    if(!inst && record.contact_phone){ const r = await sb.from('institutions').select('*').eq('phone', record.contact_phone).limit(1).maybeSingle(); inst = r.data; }
-    if(!inst && record.district && record.upazila){ const r = await sb.from('institutions').select('*').eq('district', record.district).eq('upazila', record.upazila).limit(1).maybeSingle(); inst = r.data; }
+    // an imported (not-yet-claimed) listing is linked ONLY by institution_id: guessing by name / phone / place showed another institution's data on it
+    if(!inst && !record.source){ const r = await sb.from('institutions').select('*').eq('name', record.institution_name).limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && !record.source && record.institution_name){ const r = await sb.from('institutions').select('*').ilike('name', '%'+record.institution_name.trim()+'%').limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && !record.source && record.contact_phone){ const r = await sb.from('institutions').select('*').eq('phone', record.contact_phone).limit(1).maybeSingle(); inst = r.data; }
+    if(!inst && !record.source && record.district && record.upazila){ const r = await sb.from('institutions').select('*').eq('district', record.district).eq('upazila', record.upazila).limit(1).maybeSingle(); inst = r.data; }
   }catch(e){ console.error('institution resolve failed', e); }
   INST = inst;
 
