@@ -144,6 +144,10 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .hint{font-size:12px;color:var(--text-3);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .ac-nv{font-style:normal;margin-left:6px;padding:1px 8px;border-radius:10px;background:#FEF3C7;color:#92400E;font:600 11px 'Hind Siliguri',sans-serif;vertical-align:1px}
+.ac-en{display:block;color:#64748B;font-size:12.5px}
+.ac-snd{background:#E0F2FE;color:#075985}
+.bn-ask{margin:8px 0 0;padding:12px 14px;border-radius:14px;background:#F0F9FF;border:1px solid #BAE6FD;color:#075985;font-size:13.5px;line-height:1.6}
+.bn-ask>div{display:flex;gap:8px;margin-top:8px}.bn-ask input{flex:1;min-width:0;height:40px;padding:0 12px;border:1px solid #BAE6FD;border-radius:10px;font:500 14.5px 'Hind Siliguri',sans-serif;background:#fff}.bn-ask button{flex:none;height:40px;padding:0 16px;border:0;border-radius:10px;background:#0369A1;color:#fff;font:700 14px 'Hind Siliguri',sans-serif}.bn-ask em{display:block;font-style:normal;color:#B91C1C;font-size:12.5px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:100px;border:1px solid var(--border);background:#fff;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;transition:all .15s}
 .chip:hover{border-color:#C7D7FE}
 .chip.on{background:#EEF3FF;border-color:#93B4FB;color:var(--blue)}
@@ -544,7 +548,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <link rel="stylesheet" href="/footer.css?v=1">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<script src="/bnname.js?v=2"></script>
+<script src="/bnname.js?v=3"></script>
 </head>
 <body>
 
@@ -878,6 +882,21 @@ document.getElementById('eduRows').addEventListener('keydown', e=>{
 });
 document.addEventListener('click', e=>{ document.querySelectorAll('.ac.open').forEach(a=>{ if(!a.contains(e.target)) a.classList.remove('open'); }); });
 
+/* an institution that is listed only in English: the visitor may tell us its Bangla name (a Partner confirms it) */
+function clearBanglaAsk(ac){ const o = ac.parentElement && ac.parentElement.querySelector('.bn-ask'); if(o) o.remove(); }
+function offerBanglaName(ac, listingId){
+  clearBanglaAsk(ac);
+  const box = document.createElement('div'); box.className = 'bn-ask';
+  box.innerHTML = '<span>এই প্রতিষ্ঠানের বাংলা নামটা জানেন? লিখে সাহায্য করুন</span><div><input maxlength="120" placeholder="বাংলা নাম" lang="bn" autocomplete="off"><button type="button">পাঠান</button></div><em></em>';
+  ac.insertAdjacentElement('afterend', box);
+  const inp = box.querySelector('input'), msg = box.querySelector('em');
+  box.querySelector('button').onclick = async () => {
+    const v = BnName.norm(inp.value);
+    if(v.length < 3 || BnName.hasLatin(v)){ msg.textContent = 'বাংলা অক্ষরে নাম লিখুন'; return; }
+    try{ const r = await sb.rpc('suggest_bangla_name', { p_listing: listingId, p_name: v, p_device: deviceId() }); if(r.error) throw r.error; box.innerHTML = '<span>ধন্যবাদ! নামটা যাচাইয়ের জন্য পাঠানো হয়েছে।</span>'; setTimeout(() => box.remove(), 3500); }
+    catch(e){ msg.textContent = 'এখন পাঠানো যায়নি, একটু পরে আবার চেষ্টা করুন'; }
+  };
+}
 let acSeq = 0;
 function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
@@ -885,11 +904,11 @@ function showAc(k, q){
   if(q.length < 2){ ac.classList.remove('open'); return; }
   const paint = hits => {
     if(BnName.hasLatin(q) && !hits.length){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">তালিকায় এই নামে কিছু পাওয়া যায়নি। নিজে লিখলে প্রতিষ্ঠানের নাম বাংলায় লিখুন।</div>'; ac.classList.add('open'); return; }
-    list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
+    list.innerHTML = hits.map(s=>`<div class="ac-item" data-id="${esc(s.id || '')}" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}${s.match_kind === 'sound' ? ' <em class="ac-nv ac-snd">সম্ভাব্য মিল</em>' : ''}</b>${s.name_en && s.name_en !== s.institution_name ? '<span class="ac-en">' + esc(s.name_en) + '</span>' : ''}<span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
       (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
       const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
-      ac.querySelector('input').value = ed.name; ac.classList.remove('open'); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
+      ac.querySelector('input').value = ed.name; ac.classList.remove('open'); if(/[A-Za-z]/.test(ed.name) && it.dataset.id) offerBanglaName(ac, it.dataset.id); else clearBanglaAsk(ac); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
     }));
     ac.classList.add('open');
   };
