@@ -2,7 +2,7 @@
 /* Protishthan — sends the rows prepared by import.mjs straight to the database, no copy-paste into the SQL Editor.
  *
  *   1) node tools/import-institutions/import.mjs banbeis-2024.csv --source banbeis-2024 --source-url https://...   (makes out/rows.json)
- *   2) in PowerShell, in YOUR OWN terminal (never paste the key into a chat):
+ *   2) the key is read from SUPABASE_SERVICE_ROLE_KEY in the project's .env file (git-ignored), or else set it yourself in YOUR OWN terminal (never paste it into a chat):
  *        $env:SUPABASE_SERVICE_KEY = "<the service_role key from Supabase > Project Settings > API>"
  *        node tools/import-institutions/push.mjs            (add --dry first to only count, nothing is sent)
  *
@@ -15,7 +15,16 @@ import { fileURLToPath } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DRY = process.argv.includes('--dry');
 const URL_BASE = (process.env.SUPABASE_URL || 'https://eoqeeuujvpydhmfteqqj.supabase.co').replace(/\/$/, '');
-const KEY = process.env.SUPABASE_SERVICE_KEY || '';
+// the key: from the SUPABASE_SERVICE_KEY variable, or else from SUPABASE_SERVICE_ROLE_KEY in the project's own (git-ignored) .env file
+let KEY = process.env.SUPABASE_SERVICE_KEY || '';
+let KEY_FROM = KEY ? 'the terminal variable' : '';
+if(!KEY){
+  try{
+    const env = fs.readFileSync(path.join(HERE, '..', '..', '.env'), 'utf8');
+    const line = env.split(String.fromCharCode(10)).find(l => l.trim().startsWith('SUPABASE_SERVICE_ROLE_KEY'));
+    if(line){ KEY = line.slice(line.indexOf('=') + 1).trim().replace(/^["']|["']$/g, ''); KEY_FROM = 'the .env file'; }
+  }catch(e){}
+}
 const BATCH = 500;
 const file = path.join(HERE, 'out', 'rows.json');
 if(!fs.existsSync(file)){ console.error('out/rows.json not found. Run import.mjs first.'); process.exit(1); }
@@ -23,7 +32,8 @@ const rows = JSON.parse(fs.readFileSync(file, 'utf8'));
 const source = rows.length ? rows[0].source : '';
 console.log('Rows prepared:', rows.length, '| source:', source);
 if(DRY){ console.log('--dry: nothing is sent.'); process.exit(0); }
-if(!KEY){ console.error('Set SUPABASE_SERVICE_KEY first (see the top of this file).'); process.exit(1); }
+if(!KEY){ console.error('No key found: put SUPABASE_SERVICE_ROLE_KEY in the project .env file, or set SUPABASE_SERVICE_KEY (see the top of this file).'); process.exit(1); }
+console.log('Using the key from ' + KEY_FROM + ' (not shown).');
 
 const headers = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
 // what is already there from this source
