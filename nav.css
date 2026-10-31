@@ -129,3 +129,8 @@
   .ptn .mb-menu{position:fixed;left:12px;right:12px;top:76px;width:auto}
   .ptn .btn-primary-nav{padding:0 12px}
 }
+/* smooth page changes: the page crossfades while the top bar stays put (Chrome/Edge/Safari; others just navigate normally) */
+@view-transition{navigation:auto}
+.ptn{view-transition-name:topbar}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}

@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>বার্তা | Protishthan</title>
+<title>Message | Protishthan</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#F4F6FB">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/nav.css?v=8">
+<link rel="stylesheet" href="/nav.css?v=9">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#1A56DB;--text:#0B1B4D;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--bg:#F4F6FB;--chip:#F1F5F9}
@@ -21,11 +21,17 @@ a{color:inherit;text-decoration:none}
 
 /* the whole screen below the top bar belongs to the chat: only the lists and the message area scroll */
 .app{position:fixed;left:0;right:0;bottom:0;top:84px;padding:0 20px 20px;display:flex;justify-content:center}
+@keyframes pgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes barIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.msg{animation:pgIn .38s cubic-bezier(.2,.8,.25,1) both}
 .msg{position:relative;width:100%;max-width:1152px;height:100%;display:grid;grid-template-columns:340px minmax(0,1fr);background:#fff;border:1px solid var(--border);border-radius:22px;overflow:hidden}
 
 /* ---- left: conversations ---- */
 .lst{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--border)}
 .lst-h{padding:18px 18px 10px}
+.top{display:flex;align-items:center;gap:10px}
+.goback{flex:none;width:36px;height:36px;border:0;border-radius:50%;background:var(--chip);color:var(--text);display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s}
+.goback:hover{background:#E6EDFF;color:var(--blue)}.goback:active{transform:scale(.92)}
 .lst-h h1{font:800 22px 'Hind Siliguri','Inter',sans-serif;letter-spacing:-.2px}
 .srch{position:relative;margin-top:10px}
 .srch svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3)}
@@ -95,7 +101,7 @@ a{color:inherit;text-decoration:none}
   .cv-h .back{display:flex}
   .m{max-width:84%}
 }
-@media(prefers-reduced-motion:reduce){.cv{transition:none}}
+@media(prefers-reduced-motion:reduce){.cv{transition:none}.msg,.ptn{animation:none}}
 </style>
 </head>
 <body>
@@ -106,7 +112,7 @@ a{color:inherit;text-decoration:none}
   <div class="msg" id="msg">
     <section class="lst" aria-label="কথোপকথন">
       <div class="lst-h">
-        <h1>বার্তা</h1>
+        <div class="top"><button type="button" class="goback" id="goBack" aria-label="আগের জায়গায় ফিরে যান"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Message</h1></div>
         <label class="srch"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="নাম দিয়ে খুঁজুন" autocomplete="off" lang="bn"></label>
         <div class="flt" role="tablist"><button type="button" class="on" data-f="all">সব</button><button type="button" data-f="unread">না-পড়া</button></div>
       </div>
@@ -168,7 +174,7 @@ a{color:inherit;text-decoration:none}
     const t = S.threads.find(x => x.id === id); if(!t) return;
     S.cur = id; S.last = 0; S.lastDay = ''; S.lastMine = null; S.blocked = false;
     openShell(t); $('msg').classList.add('open'); paintList();
-    if(push !== false){ try{ history.pushState({ t: id }, '', '#' + id); }catch(e){} }
+    if(push !== false){ try{ if(history.state && history.state.t) history.replaceState({ t: id }, '', '#' + id); else history.pushState({ t: id }, '', '#' + id); }catch(e){} }
     await pull(true);
     if(!isPhone()) setTimeout(() => { const x = $('tx'); if(x) x.focus(); }, 60);
   }
@@ -210,6 +216,7 @@ a{color:inherit;text-decoration:none}
 
   /* ---------- wiring ---------- */
   $('list').addEventListener('click', e => { const b = e.target.closest('.it'); if(b) openChat(b.dataset.t); });
+  $('goBack').addEventListener('click', () => { let same = false; try{ same = !!document.referrer && new URL(document.referrer).origin === location.origin; }catch(e){} if(same && history.length > 1) history.back(); else location.href = 'member.html'; });
   $('q').addEventListener('input', e => { S.q = e.target.value; paintList(); });
   document.querySelectorAll('.flt button').forEach(b => b.addEventListener('click', () => { S.filter = b.dataset.f; document.querySelectorAll('.flt button').forEach(x => x.classList.toggle('on', x === b)); paintList(); }));
   window.addEventListener('popstate', () => { const id = (location.hash || '').slice(1); if(id && S.threads.some(t => t.id === id)) openChat(id, false); else shut(); });
@@ -221,7 +228,7 @@ a{color:inherit;text-decoration:none}
   (async function boot(){
     await M.ready();
     if(!M.current()){
-      $('msg').innerHTML = '<div class="gate" style="grid-column:1/-1"><h2>বার্তা দেখতে সাইন ইন করুন</h2><p>আপনার স্কিল পেজে আসা বার্তা আর আপনি যাদের লিখেছেন, সব এখানে থাকবে।</p><button class="g" type="button" id="gi">' + G + 'Google দিয়ে সাইন ইন করুন</button></div>';
+      $('msg').innerHTML = '<div class="gate" style="grid-column:1/-1"><h2>Message দেখতে সাইন ইন করুন</h2><p>আপনার স্কিল পেজে আসা বার্তা আর আপনি যাদের লিখেছেন, সব এখানে থাকবে।</p><button class="g" type="button" id="gi">' + G + 'Google দিয়ে সাইন ইন করুন</button></div>';
       $('gi').onclick = () => M.signIn('বার্তা দেখতে সাইন ইন করুন'); return;
     }
     await loadThreads();
