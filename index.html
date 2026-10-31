@@ -1508,7 +1508,7 @@ function srvHtml(){
       '<div class="ic-head"><div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
       '<div class="ic-loc">' + escapeHtml(s.institution_type || 'প্রতিষ্ঠান') + (loc ? ' · ' + ico('pin', 12) + ' ' + loc : '') + '</div></div>' +
       '<span class="ic-badge" style="color:var(--text-muted,#667085);background:var(--bg,#f2f4f7)">যাচাই বাকি</span></div>' +
-      '<div class="ic-foot"><span class="ic-prn">' + (s.source_id ? 'EIIN ' + escapeHtml(s.source_id) : '') + '</span><span class="ic-cta">বিস্তারিত দেখুন →</span></div></a>';
+      '<div class="ic-foot"><span class="ic-prn">' + [s.prn_number ? 'PRN-' + String(s.prn_number).padStart(4,'0') : '', s.source_id ? 'EIIN ' + escapeHtml(s.source_id) : ''].filter(Boolean).join(' · ') + '</span><span class="ic-cta">বিস্তারিত দেখুন →</span></div></a>';
   }).join('');
   SRV.fresh = 1e9;   // only the newly loaded cards fade in, later re-renders do not replay it
   if(SRV.loading) h += '<div class="srv-more-wrap"><span class="srv-spin"></span> আরও প্রতিষ্ঠান আনা হচ্ছে…</div>';
