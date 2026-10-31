@@ -295,30 +295,80 @@
     for(let i = 0; i < 260; i++){ const x = Math.random() * W, y = Math.random() * H, a = Math.random() * Math.PI, l = 8 + Math.random() * 26; c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + Math.cos(a) * l * .5, y + Math.sin(a) * l * .8, x + Math.cos(a) * l, y + Math.sin(a) * l); c.stroke(); }
     const v = c.createRadialGradient(W / 2, H / 2, H * .35, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,90,40,0)'); v.addColorStop(1, 'rgba(120,90,40,.16)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
   }
-  function seal(c, x, y, r){
-    // ribbon tails
-    [-1, 1].forEach(dir => {
-      const g = c.createLinearGradient(x, y, x + dir * r, y + r * 1.5); g.addColorStop(0, RIB1); g.addColorStop(1, RIB2);
-      c.save(); c.shadowColor = 'rgba(20,20,50,.35)'; c.shadowBlur = r * .15; c.shadowOffsetY = r * .05;
-      c.fillStyle = g; c.beginPath(); c.moveTo(x + dir * r * .08, y + r * .5); c.lineTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.lineTo(x + dir * r * .62, y + r * 1.12); c.lineTo(x + dir * r * .38, y + r * 1.34); c.closePath(); c.fill(); c.restore();
-      c.strokeStyle = 'rgba(227,194,117,.9)'; c.lineWidth = Math.max(1.5, r * .025); c.beginPath(); c.moveTo(x + dir * r * .62, y + r * .46); c.lineTo(x + dir * r * .84, y + r * 1.28); c.stroke();
+  /* the seal: an embossed gold-foil seal like the ones pressed on real diplomas: scalloped edge, brushed-metal (conic) shine,
+     bevelled rings, engraved lettering round the rim, a laurel wreath and a star, and two ribbon tails behind it */
+  function star5(c, x, y, R, r){ c.beginPath(); for(let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); }
+  function arcText(c, str, cx, cy, rad, top, size, track, fill, hl){
+    c.save(); c.font = '700 ' + size + 'px ' + CAPS; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    const chars = [...str], ws = chars.map(ch => c.measureText(ch).width), total = ws.reduce((a, b) => a + b, 0) + track * (chars.length - 1);
+    let acc = 0;
+    chars.forEach((ch, i) => {
+      const mid = acc + ws[i] / 2; acc += ws[i] + track;
+      const frac = (mid - total / 2) / rad, a = top ? -Math.PI / 2 + frac : Math.PI / 2 - frac, yy = top ? -rad : rad;
+      c.save(); c.translate(cx, cy); c.rotate(top ? a + Math.PI / 2 : a - Math.PI / 2);
+      if(hl){ c.fillStyle = hl; c.fillText(ch, size * .035, yy + size * .05); }
+      c.fillStyle = fill; c.fillText(ch, 0, yy); c.restore();
     });
-    const n = 38, g = c.createRadialGradient(x - r * .35, y - r * .35, r * .1, x, y, r * 1.02);
-    g.addColorStop(0, '#FBEBB8'); g.addColorStop(.45, '#E0BC6A'); g.addColorStop(1, '#9C7430');
-    c.save(); c.shadowColor = 'rgba(70,48,8,.45)'; c.shadowBlur = r * .3; c.shadowOffsetY = r * .1;
-    c.beginPath(); for(let i = 0; i < n * 2; i++){ const a = Math.PI * i / n, rad = i % 2 ? r * .94 : r; c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad); } c.closePath(); c.fillStyle = g; c.fill(); c.restore();
-    c.strokeStyle = 'rgba(110,75,15,.55)'; c.lineWidth = Math.max(1, r * .02);
-    for(let i = 0; i < 72; i++){ const a = Math.PI * 2 * i / 72; c.beginPath(); c.moveTo(x + Math.cos(a) * r * .8, y + Math.sin(a) * r * .8); c.lineTo(x + Math.cos(a) * r * .86, y + Math.sin(a) * r * .86); c.stroke(); }
-    const g2 = c.createRadialGradient(x - r * .25, y - r * .3, r * .05, x, y, r * .72); g2.addColorStop(0, '#F6E2A2'); g2.addColorStop(1, '#CFA64F');
-    c.fillStyle = g2; c.beginPath(); c.arc(x, y, r * .72, 0, Math.PI * 2); c.fill();
-    c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = Math.max(1.5, r * .03); c.beginPath(); c.arc(x, y, r * .72, Math.PI * 1.05, Math.PI * 1.6); c.stroke();
-    c.strokeStyle = 'rgba(110,75,15,.5)'; c.lineWidth = Math.max(1, r * .02); c.beginPath(); c.arc(x, y, r * .72, Math.PI * .05, Math.PI * .6); c.stroke();
-    // text round the rim (Latin only: Bangla conjuncts must not be split letter by letter)
-    const t = 'CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  CERTIFICATE OF SKILL  ✦  SELF-ISSUED  ✦  ', rad = r * .6; c.fillStyle = 'rgba(' + NRGB + ',.92)'; c.font = '700 ' + Math.max(8, Math.round(r * .125)) + 'px Inter,sans-serif'; c.textAlign = 'center';
-    const step = Math.PI * 2 / t.length; for(let i = 0; i < t.length; i++){ c.save(); c.translate(x, y); c.rotate(i * step - Math.PI / 2); c.fillText(t[i], 0, -rad); c.restore(); }
-    c.fillStyle = NAVY; c.beginPath(); const sr = r * .15, sy = y - r * .26; c.moveTo(x, sy - sr); c.quadraticCurveTo(x, sy, x + sr, sy); c.quadraticCurveTo(x, sy, x, sy + sr); c.quadraticCurveTo(x, sy, x - sr, sy); c.quadraticCurveTo(x, sy, x, sy - sr); c.fill();
-    c.font = '700 ' + Math.round(r * .21) + 'px ' + LSERIF; spaced(c, '1px'); c.fillText('SELF-ISSUED', x, y + r * .16); spaced(c, '0px');
-    c.font = '600 ' + Math.round(r * .11) + 'px Inter,sans-serif'; spaced(c, '2px'); c.fillText('SKILL', x, y + r * .38); spaced(c, '0px');
+    c.restore();
+  }
+  function seal(c, x, y, r){
+    const TAU = Math.PI * 2, DARK = '#7A5513', LIGHT = 'rgba(255,247,214,.85)';
+    // ribbon tails (behind the seal): a notched end, a soft sheen and thin gold edges
+    [-1, 1].forEach(dir => {
+      const g = c.createLinearGradient(x + dir * r * .1, y + r * .5, x + dir * r * .8, y + r * 1.45); g.addColorStop(0, RIB1); g.addColorStop(1, RIB2);
+      c.save(); c.shadowColor = 'rgba(20,20,50,.32)'; c.shadowBlur = r * .14; c.shadowOffsetY = r * .05;
+      c.fillStyle = g; c.beginPath();
+      c.moveTo(x + dir * r * .06, y + r * .52); c.lineTo(x + dir * r * .6, y + r * .48); c.lineTo(x + dir * r * .86, y + r * 1.4);
+      c.lineTo(x + dir * r * .66, y + r * 1.25); c.lineTo(x + dir * r * .44, y + r * 1.46); c.closePath(); c.fill(); c.restore();
+      c.strokeStyle = 'rgba(255,255,255,.14)'; c.lineWidth = Math.max(1, r * .03); c.beginPath(); c.moveTo(x + dir * r * .3, y + r * .52); c.lineTo(x + dir * r * .54, y + r * 1.36); c.stroke();
+      c.strokeStyle = 'rgba(227,194,117,.95)'; c.lineWidth = Math.max(1.2, r * .02); c.beginPath(); c.moveTo(x + dir * r * .6, y + r * .48); c.lineTo(x + dir * r * .86, y + r * 1.4); c.stroke();
+    });
+
+    // scalloped foil disc with a brushed-metal sheen
+    const n = 56, step = TAU / n, rin = r * .955, rout = r * 1.03;
+    const edge = () => { c.beginPath(); for(let i = 0; i < n; i++){ const a0 = i * step, a1 = a0 + step / 2, a2 = a0 + step; if(!i) c.moveTo(x + Math.cos(a0) * rin, y + Math.sin(a0) * rin); c.quadraticCurveTo(x + Math.cos(a1) * rout, y + Math.sin(a1) * rout, x + Math.cos(a2) * rin, y + Math.sin(a2) * rin); } c.closePath(); };
+    let metal;
+    if(c.createConicGradient){
+      metal = c.createConicGradient(-Math.PI * .75, x, y);
+      [[0, '#F9E9B0'], [.1, '#C9A04A'], [.22, '#F4DD98'], [.34, '#A47E30'], [.47, '#EBD286'], [.6, '#B98D3A'], [.74, '#F7E5A9'], [.86, '#B58A36'], [1, '#F9E9B0']].forEach(s => metal.addColorStop(s[0], s[1]));
+    } else { metal = c.createRadialGradient(x - r * .35, y - r * .35, r * .1, x, y, r); metal.addColorStop(0, '#FBEBB8'); metal.addColorStop(.5, '#E0BC6A'); metal.addColorStop(1, '#9C7430'); }
+    c.save(); c.shadowColor = 'rgba(60,40,6,.42)'; c.shadowBlur = r * .28; c.shadowOffsetY = r * .09; edge(); c.fillStyle = metal; c.fill(); c.restore();
+    const bevel = c.createLinearGradient(x - r, y - r, x + r, y + r); bevel.addColorStop(0, 'rgba(255,250,225,.95)'); bevel.addColorStop(.5, 'rgba(255,255,255,0)'); bevel.addColorStop(1, 'rgba(90,60,8,.7)');
+    edge(); c.strokeStyle = bevel; c.lineWidth = Math.max(1.2, r * .03); c.stroke();
+
+    // raised rim ring and the recessed field
+    const ring = (rad, w, a, b) => { const g = c.createLinearGradient(x - rad, y - rad, x + rad, y + rad); g.addColorStop(0, a); g.addColorStop(1, b); c.beginPath(); c.arc(x, y, rad, 0, TAU); c.strokeStyle = g; c.lineWidth = w; c.stroke(); };
+    ring(r * .86, Math.max(1.5, r * .035), 'rgba(255,248,220,.9)', 'rgba(110,76,14,.75)');
+    ring(r * .835, Math.max(1, r * .02), 'rgba(110,76,14,.6)', 'rgba(255,248,220,.7)');
+    const fld = c.createRadialGradient(x - r * .3, y - r * .35, r * .05, x, y, r * .8); fld.addColorStop(0, '#F8E8B0'); fld.addColorStop(.6, '#E2C072'); fld.addColorStop(1, '#C99B45');
+    c.beginPath(); c.arc(x, y, r * .8, 0, TAU); c.fillStyle = fld; c.fill();
+    ring(r * .8, Math.max(1, r * .025), 'rgba(110,76,14,.7)', 'rgba(255,248,220,.8)');
+    ring(r * .53, Math.max(1, r * .025), 'rgba(255,248,220,.85)', 'rgba(110,76,14,.65)');
+
+    // engraved lettering round the rim: title on top, the plain truth underneath
+    const fs = Math.max(7, Math.round(r * .125));
+    arcText(c, 'SKILL CERTIFICATE', x, y, r * .625, true, fs, r * .03, DARK, LIGHT);
+    arcText(c, 'SELF-ISSUED', x, y, r * .74, false, fs, r * .05, DARK, LIGHT);
+    [-1, 1].forEach(d => { c.fillStyle = DARK; c.save(); c.translate(x + d * r * .685, y); c.rotate(Math.PI / 4); const s = r * .028; c.fillRect(-s, -s, s * 2, s * 2); c.restore(); });
+
+    // laurel wreath round a pressed star
+    const leaf = (px, py, rot, len, wid) => {
+      c.save(); c.translate(px, py); c.rotate(rot);
+      c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(wid, -len * .5, 0, -len); c.quadraticCurveTo(-wid, -len * .5, 0, 0); c.closePath();
+      c.save(); c.translate(len * .03, len * .04); c.fillStyle = LIGHT; c.fill(); c.restore();
+      c.fillStyle = '#8A6420'; c.fill(); c.restore();
+    };
+    [-1, 1].forEach(d => {
+      for(let i = 0; i < 8; i++){
+        const phi = (22 + i * 17) * Math.PI / 180, lr = r * .385;          // phi: 0 = straight down, rising up the side
+        leaf(x + d * Math.sin(phi) * lr, y + Math.cos(phi) * lr, d * (Math.PI / 2 - phi + .5), r * .17, r * .052);
+      }
+    });
+    c.save(); c.translate(x, y - r * .02); star5(c, 0, 0, r * .235, r * .098); c.translate(r * .012, r * .016); c.fillStyle = LIGHT; c.fill(); c.restore();
+    c.save(); star5(c, x, y - r * .02, r * .235, r * .098); const sg = c.createLinearGradient(x - r * .2, y - r * .25, x + r * .2, y + r * .2); sg.addColorStop(0, '#A9812F'); sg.addColorStop(1, '#6F4C0E'); c.fillStyle = sg; c.fill(); c.restore();
+
+    // a soft highlight sweeping across the top-left of the foil
+    c.save(); edge(); c.clip(); const hg = c.createRadialGradient(x - r * .45, y - r * .55, 0, x - r * .45, y - r * .55, r * .9); hg.addColorStop(0, 'rgba(255,255,240,.38)'); hg.addColorStop(1, 'rgba(255,255,240,0)'); c.fillStyle = hg; c.fillRect(x - r * 1.1, y - r * 1.1, r * 2.2, r * 2.2); c.restore();
     c.textAlign = 'left';
   }
   const isLatin = s => /^[\x00-\x7F\s]+$/.test(s);
