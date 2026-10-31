@@ -148,7 +148,7 @@ a{color:inherit;text-decoration:none}
     let ts = S.threads.filter(t => (S.filter !== 'unread' || t.unread > 0) && (!q || key(t.name).indexOf(key(q)) > -1));
     $('list').innerHTML = ts.length ? ts.map(t => '<button type="button" class="it' + (S.cur === t.id ? ' on' : '') + (t.unread ? ' unr' : '') + '" data-t="' + esc(t.id) + '">' + avatar(t) +
       '<span class="tx"><span class="r1"><b>' + esc(t.name) + '</b><time>' + shortTime(t.last_at) + '</time></span><span class="r2"><span>' + esc(t.last || '') + '</span>' + (t.unread ? '<i class="n">' + bn(t.unread) + '</i>' : '') + '</span>' +
-      '<span class="tag">' + (t.role === 'owner' ? 'আপনার পেজে' : 'আপনি লিখেছেন') + '</span></span></button>').join('')
+      '</span></button>').join('')
       : '<div class="none"><b>' + (S.threads.length ? 'কিছু পাওয়া যায়নি' : 'এখনো কোনো বার্তা নেই') + '</b>' + (S.threads.length ? 'অন্য নামে খুঁজুন, অথবা "সব" ট্যাব দেখুন।' : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে। অন্য কারও পেজে বার্তা পাঠালে সেটাও এখানে দেখবেন।') + '</div>';
   }
   async function loadThreads(){
