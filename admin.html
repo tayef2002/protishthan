@@ -354,6 +354,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     <button class="nav-item" id="nav-boardres" onclick="showView('boardres')">
       <span class="nav-icon">📈</span><span>বোর্ড ফলাফল</span>
     </button>
+    <button class="nav-item" id="nav-contribs" onclick="showView('contribs')">
+      <span class="nav-icon">✅</span><span>যাচাই-অবদান</span>
+      <span class="nav-badge" id="contribsBadge" style="display:none">0</span>
+    </button>
     <button class="nav-item" id="nav-names" onclick="showView('names')">
       <span class="nav-icon">📝</span><span>নাম-অনুরোধ</span>
       <span class="nav-badge" id="namesBadge" style="display:none">0</span>
@@ -545,6 +549,15 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
           <div class="sec-h">ডাটাবেসে যা আছে <a href="results.html" target="_blank" style="font-size:12.5px;color:var(--blue)">ফলাফল পাতা ↗</a></div>
           <div id="brAvail"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-contribs">
+      <div class="section-card" style="overflow-x:auto">
+        <div class="sec-h">সদস্যদের যাচাই করা তথ্য <span style="font-size:12.5px;font-weight:500;color:var(--text-3)">"আমার এলাকা" থেকে সদস্যরা যা জমা দিয়েছেন</span></div>
+        <div class="bill-note" style="margin-top:0">অনুমোদন করলে তথ্যগুলো প্রতিষ্ঠানের পাতায় বসে যাবে, প্রতিষ্ঠান "যাচাইকৃত" হবে, আর প্রথম অনুমোদিত সদস্যের নামে যুক্ত থাকবে। ফেরত দিলে কিছুই বদলাবে না।</div>
+        <div style="display:flex;gap:8px;margin:10px 0"><button class="pay-btn" type="button" id="coF-pending" onclick="coFilter('pending')" style="width:auto;padding:8px 14px">পর্যালোচনায়</button><button class="pay-btn" type="button" id="coF-all" onclick="coFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
+        <div id="coList"></div>
       </div>
     </div>
 
@@ -1210,6 +1223,51 @@ ADMIN_READY.then(()=>loadBoardAvail());
 </script>
 <script>
 /* ---------------- home page popup editor (table site_promos, admin-only writes) ---------------- */
+navTitles.contribs = ['যাচাই-অবদান', 'সদস্যদের যাচাই করা প্রতিষ্ঠানের তথ্য পর্যালোচনা'];
+let CO_ROWS = [], CO_FILTER = 'pending';
+const CO_LABEL = { contact_name: 'যোগাযোগের নাম', contact_phone: 'ফোন', address_note: 'ঠিকানা', founding_year: 'প্রতিষ্ঠার সাল', student_count: 'শিক্ষার্থী', teacher_count: 'শিক্ষক', class_range: 'শ্রেণি', gender_type: 'ছাত্র/ছাত্রী', ownership: 'মালিকানা', admission_status: 'ভর্তি', fee_range: 'ফি', description: 'বর্ণনা', facebook_link: 'ফেসবুক', medium: 'মাধ্যম', facilities: 'সুবিধা', achievements: 'বিশেষত্ব' };
+const CO_METHOD = { visited: 'নিজে গিয়ে দেখেছেন', phoned: 'ফোনে কথা বলেছেন', head: 'প্রধান/কর্তৃপক্ষের কাছ থেকে', official: 'সরকারি নথি/ওয়েবসাইট থেকে' };
+function coFilter(f){
+  CO_FILTER = f;
+  const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('coF-pending').style.cssText = 'width:auto;padding:8px 14px' + (f === 'pending' ? '' : off);
+  document.getElementById('coF-all').style.cssText = 'width:auto;padding:8px 14px' + (f === 'all' ? '' : off);
+  renderContribs();
+}
+async function loadContribs(){
+  const box = document.getElementById('coList');
+  const { data, error } = await sb.from('listing_contributions').select('*, listing_submissions(institution_name,institution_type,upazila,district,desired_slug,source_id)').order('created_at', { ascending: false }).limit(300);
+  if(error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + nmEsc(error.message) + ' — migrations/2026-11-24_member_area.sql চালানো হয়েছে কি?</div>'; return; }
+  CO_ROWS = data || [];
+  const ids = [...new Set(CO_ROWS.map(r => r.user_id))];
+  let who = {};
+  if(ids.length){ const m = await sb.from('members').select('user_id,display_name,email').in('user_id', ids); (m.data || []).forEach(x => who[x.user_id] = x); }
+  CO_ROWS.forEach(r => { r.__who = who[r.user_id] || {}; });
+  const open = CO_ROWS.filter(r => r.status === 'pending').length, b = document.getElementById('contribsBadge');
+  b.textContent = open; b.style.display = open ? '' : 'none';
+  renderContribs();
+}
+function renderContribs(){
+  const rows = CO_ROWS.filter(r => CO_FILTER === 'all' || r.status === 'pending'), box = document.getElementById('coList');
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (CO_FILTER === 'all' ? 'এখনো কোনো জমা আসেনি।' : 'পর্যালোচনার অপেক্ষায় কিছু নেই।') + '</div>'; return; }
+  const lab = { pending: 'পর্যালোচনায়', approved: 'অনুমোদিত', rejected: 'ফেরত' };
+  box.innerHTML = rows.map(r => {
+    const l = r.listing_submissions || {}, w = r.__who || {};
+    const fields = Object.keys(r.payload || {}).map(k => { const v = r.payload[k]; return '<div style="display:flex;gap:8px;padding:3px 0"><span style="min-width:110px;color:var(--text-3)">' + nmEsc(CO_LABEL[k] || k) + '</span><b style="font-weight:600;word-break:break-word">' + nmEsc(Array.isArray(v) ? v.join(', ') : v) + '</b></div>'; }).join('');
+    return '<div style="border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="font-size:15.5px">' + nmEsc(l.institution_name || '—') + '</b>' + (l.desired_slug ? ' <a href="institution-detail.html?slug=' + encodeURIComponent(l.desired_slug) + '" target="_blank" style="color:var(--blue);font-size:12.5px">পাতা ↗</a>' : '') + '<div style="font-size:12.5px;color:var(--text-3)">' + nmEsc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (l.source_id ? ' · EIIN ' + nmEsc(l.source_id) : '') + '</div></div><span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px;background:#F1F5F9;height:fit-content">' + lab[r.status] + '</span></div>' +
+      '<div style="font-size:13px;margin:8px 0;color:var(--text-2)">জমা দিয়েছেন: <b>' + nmEsc(w.display_name || '—') + '</b> (' + nmEsc(w.email || '') + ') · ' + nmEsc(CO_METHOD[r.method] || r.method) + ' · ' + new Date(r.created_at).toLocaleDateString('bn-BD') + '</div>' +
+      '<div style="font-size:13.5px;background:#F8FAFF;border-radius:10px;padding:8px 12px">' + (fields || '—') + '</div>' + (r.note ? '<div style="font-size:13px;margin-top:8px"><b>নোট:</b> ' + nmEsc(r.note) + '</div>' : '') + (r.review_note ? '<div style="font-size:13px;margin-top:6px;color:var(--text-3)">আপনার নোট: ' + nmEsc(r.review_note) + '</div>' : '') +
+      (r.status === 'pending' ? '<div style="margin-top:10px;display:flex;gap:8px"><button type="button" class="pay-btn" style="width:auto;padding:8px 16px" data-id="' + nmEsc(r.id) + '" onclick="coReview(this.dataset.id,true)">অনুমোদন করুন</button><button type="button" data-id="' + nmEsc(r.id) + '" onclick="coReview(this.dataset.id,false)">ফেরত দিন</button></div>' : '') + '</div>';
+  }).join('');
+}
+async function coReview(id, ok){
+  let note = null;
+  if(!ok){ note = prompt('ফেরত দেওয়ার কারণ (সদস্য দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
+  const { error } = await sb.rpc('review_contribution', { p_id: id, p_approve: ok, p_note: note || null });
+  if(error){ alert('হয়নি: ' + error.message); return; }
+  loadContribs();
+}
+ADMIN_READY.then(() => loadContribs());
 navTitles.names = ['নাম-অনুরোধ', 'কার্ডে লেখা, তালিকায় না থাকা প্রতিষ্ঠানের নাম'];
 let NM_ROWS = [], NM_FILTER = 'new';
 function nmEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
