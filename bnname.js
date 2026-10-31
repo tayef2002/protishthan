@@ -41,5 +41,22 @@
     check();
     return { check: check, hint: hint };
   }
-  window.BnName = { norm: norm, key: key, match: match, hasLatin: hasLatin, guard: guard };
+  /* one institution, one listing: asks the server whether this name already exists in the district (migrations/2026-11-11).
+     Returns [] when the server cannot be reached, so a network problem never blocks a person; the database has its own guard. */
+  function dupCheck(sb, name, district, upazila){
+    var n = norm(name); if(key(n).length < 2 || !district) return Promise.resolve([]);
+    try{ return Promise.resolve(sb.rpc('directory_check', { p_name: n, p_district: district, p_upazila: upazila || null })).then(function(r){ return (r && !r.error && Array.isArray(r.data)) ? r.data : []; }, function(){ return []; }); }catch(e){ return Promise.resolve([]); }
+  }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* the box shown to the person: same upazila = blocked, other upazila = a heads-up */
+  function dupHtml(rows){
+    if(!rows || !rows.length) return '';
+    var same = rows.filter(function(r){ return r.match_level === 'same_upazila'; }), other = rows.filter(function(r){ return r.match_level !== 'same_upazila'; });
+    var line = function(r){ return '<div class="dup-row"><b>' + esc(r.institution_name) + '</b><span>' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.status === 'pending' ? ' · অনুমোদনের অপেক্ষায়' : '') + (r.verification === 'unverified' ? ' · যাচাই হয়নি' : '') + '</span>' + (r.desired_slug ? '<a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">পাতা দেখুন</a>' : '') + '</div>'; };
+    if(same.length) return '<div class="dup dup-stop"><b>এই নামে প্রতিষ্ঠান আগেই তালিকায় আছে</b><p>একই নামের প্রতিষ্ঠান একই উপজেলায় দুইবার তালিকাভুক্ত করা যায় না। এটা আপনার প্রতিষ্ঠান হলে নতুন করে বানানোর দরকার নেই।</p>' + same.map(line).join('') + '</div>';
+    return '<div class="dup dup-note"><b>এই নামে আপনার জেলায় আরেকটা প্রতিষ্ঠান আছে</b><p>নিচেরটা অন্য উপজেলার। আপনারটা আলাদা হলে চালিয়ে যান।</p>' + other.map(line).join('') + '</div>';
+  }
+  var DUP_CSS = '.dup{margin:12px 0 4px;padding:14px 16px;border-radius:14px;font-family:"Hind Siliguri",sans-serif;line-height:1.6}.dup b{display:block;font-size:15px}.dup p{margin:2px 0 8px;font-size:13.5px}.dup-stop{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}.dup-note{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}.dup-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:8px 10px;border-radius:10px;background:#fff;margin-top:6px;color:#0F172A}.dup-row b{display:inline;font-size:14px}.dup-row span{font-size:12.5px;color:#64748B}.dup-row a{margin-left:auto;color:#1A56DB;font-weight:700;font-size:13px}';
+  try{ var st = document.createElement('style'); st.textContent = DUP_CSS; document.head.appendChild(st); }catch(e){}
+  window.BnName = { norm: norm, key: key, match: match, hasLatin: hasLatin, guard: guard, dupCheck: dupCheck, dupHtml: dupHtml };
 })();

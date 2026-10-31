@@ -783,14 +783,14 @@ async function imSave(id, publish){
     if(publish){ const r = await M.sb.rpc('publish_member_institution', { p_id: id }); if(r.error) throw r.error; }
     imClose(); await loadCustom();
     M.toast(publish ? 'প্রকাশের জন্য পাঠানো হয়েছে, অনুমোদনের অপেক্ষায় ✓' : (c && c.listing_id ? 'তথ্যভান্ডারেও হালনাগাদ হয়েছে ✓' : 'সেভ হয়েছে ✓'));
-  }catch(e){ err.textContent = /BAD_PHONE/.test(e.message) ? 'সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)।' : /MISSING/.test(e.message) ? 'প্রয়োজনীয় তথ্য বাকি আছে।' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন।'; }
+  }catch(e){ err.textContent = /DUPLICATE_INSTITUTION|listing_unique_name_place|duplicate key/.test(e.message) ? 'এই নামে প্রতিষ্ঠান এই উপজেলায় আগেই তালিকায় আছে। ওটাই আপনার হলে নতুন করে বানানোর দরকার নেই।' : /BAD_PHONE/.test(e.message) ? 'সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)।' : /MISSING/.test(e.message) ? 'প্রয়োজনীয় তথ্য বাকি আছে।' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন।'; }
   btn.disabled = false;
 }
 async function imPublish(id){
   const c = (STATE.custom || []).find(x => x.id === id);
   if(!c || !(c.itype && c.district && c.upazila && c.contact_name && c.contact_phone)){ imOpen(id); setTimeout(() => { const e = $('imErr'); if(e) e.textContent = 'প্রকাশ করতে ধরন, জেলা, উপজেলা, যোগাযোগের নাম ও WhatsApp নম্বর লাগবে।'; }, 80); return; }
   const r = await M.sb.rpc('publish_member_institution', { p_id: id });
-  if(r.error){ M.toast('প্রকাশ করা যায়নি, তথ্য দেখে আবার চেষ্টা করুন'); return; }
+  if(r.error){ M.toast(/DUPLICATE_INSTITUTION|listing_unique_name_place|duplicate key/.test(r.error.message || '') ? 'এই নামে প্রতিষ্ঠান এই উপজেলায় আগেই তালিকায় আছে। ওটাই আপনার হলে নতুন করে বানানোর দরকার নেই।' : 'প্রকাশ করা যায়নি, তথ্য দেখে আবার চেষ্টা করুন'); return; }
   M.toast('প্রকাশের জন্য পাঠানো হয়েছে, অনুমোদনের অপেক্ষায় ✓'); loadCustom();
 }
 async function loadSaved(){

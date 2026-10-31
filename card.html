@@ -535,7 +535,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <link rel="stylesheet" href="/footer.css?v=1">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<script src="/bnname.js?v=1"></script>
+<script src="/bnname.js?v=2"></script>
 </head>
 <body>
 
@@ -870,7 +870,7 @@ function showAc(k, q){
   if(BnName.hasLatin(q)){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">প্রতিষ্ঠানের নাম বাংলায় লিখুন। ইংরেজি অক্ষর চলবে না।</div>'; ac.classList.add('open'); return; }
   const paint = hits => {
     list.innerHTML = hits.map(s=>`<div class="ac-item" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}</b><span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
-      `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`;
+      (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
       const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
       ac.querySelector('input').value = ed.name; ac.classList.remove('open'); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
