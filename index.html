@@ -1463,15 +1463,15 @@ function openMissing(prefill){
     document.body.appendChild(dlg);
   }
   document.getElementById('missName').value = prefill || ''; document.getElementById('missErr').textContent = '';
-  const ds = document.getElementById('missDist'); if(ds.options.length < 2 && window.BD_LOCATIONS) ds.innerHTML = '<option value="">বাছুন</option>' + BD_LOCATIONS.map((d, i) => '<option value="' + i + '">' + escapeHtml(d.n) + '</option>').join('');
+  const ds = document.getElementById('missDist'); if(ds.options.length < 2) ds.innerHTML = '<option value="">বাছুন</option>' + BD_LOCATIONS.map((d, i) => '<option value="' + i + '">' + escapeHtml(d.n) + '</option>').join('');
   dlg.classList.add('show'); document.body.style.overflow = 'hidden'; setTimeout(() => document.getElementById('missName').focus(), 60);
 }
 function missUp(){
-  const d = (window.BD_LOCATIONS || [])[document.getElementById('missDist').value], us = document.getElementById('missUp');
+  const d = BD_LOCATIONS[document.getElementById('missDist').value], us = document.getElementById('missUp');
   us.innerHTML = '<option value="">' + (d ? 'বাছুন' : 'আগে জেলা বাছুন') + '</option>' + (d ? d.u.map(u => '<option>' + escapeHtml(u) + '</option>').join('') : '');
 }
 function closeMissing(){ const d = document.getElementById('missDlg'); if(d) d.classList.remove('show'); document.body.style.overflow = ''; }
-function missDistName(){ const d = (window.BD_LOCATIONS || [])[document.getElementById('missDist').value]; return d ? d.n : null; }
+function missDistName(){ const d = BD_LOCATIONS[document.getElementById('missDist').value]; return d ? d.n : null; }
 async function saveMissing(goAdd){
   const M = window.Protishthan && Protishthan.member; const err = document.getElementById('missErr');
   const name = document.getElementById('missName').value.trim();
