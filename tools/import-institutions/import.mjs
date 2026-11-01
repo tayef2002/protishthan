@@ -8,7 +8,7 @@
  *   name_en   English name from the source
  *   A row needs at least one of the two. English-only rows are accepted: the English name goes to name_en AND (as a placeholder, in Title Case)
  *   to the main name, and the row is flagged needs_bn_name until someone adds the Bangla name (set_bangla_name). Use --bangla-only to refuse them.
- *   type      মাদ্রাসা | স্কুল | কলেজ | কারিগরি | কোচিং সেন্টার  (madrasa / school / college / technical / coaching also work)
+ *   type      মাদ্রাসা | স্কুল | কলেজ | কারিগরি | বিশ্ববিদ্যালয় (a university may leave upazila empty) | কোচিং সেন্টার  (madrasa / school / college / technical / coaching also work)
  *   district  Bangla district name        upazila  Bangla upazila name
  *   eiin      the source's own id (EIIN) so the same institution is never imported twice (optional but strongly advised)
  *   address   a short address / village (optional)
@@ -54,7 +54,7 @@ const distByKey = new Map(LOC.map(d => [key(d.n), d]));
 const upaByDist = new Map(LOC.map(d => [d.n, new Map(d.u.map(u => [key(u), u]))]));
 
 // ---- types
-const TYPE = { 'মাদ্রাসা': 'মাদ্রাসা', 'মাদরাসা': 'মাদ্রাসা', madrasa: 'মাদ্রাসা', madrasah: 'মাদ্রাসা', 'স্কুল': 'স্কুল', school: 'স্কুল', 'বিদ্যালয়': 'স্কুল', 'কলেজ': 'কলেজ', college: 'কলেজ', 'কোচিং সেন্টার': 'কোচিং সেন্টার', 'কোচিং': 'কোচিং সেন্টার', coaching: 'কোচিং সেন্টার', 'কারিগরি': 'কারিগরি', technical: 'কারিগরি', vocational: 'কারিগরি' };
+const TYPE = { 'মাদ্রাসা': 'মাদ্রাসা', 'মাদরাসা': 'মাদ্রাসা', madrasa: 'মাদ্রাসা', madrasah: 'মাদ্রাসা', 'স্কুল': 'স্কুল', school: 'স্কুল', 'বিদ্যালয়': 'স্কুল', 'কলেজ': 'কলেজ', college: 'কলেজ', 'কোচিং সেন্টার': 'কোচিং সেন্টার', 'কোচিং': 'কোচিং সেন্টার', coaching: 'কোচিং সেন্টার', 'কারিগরি': 'কারিগরি', technical: 'কারিগরি', vocational: 'কারিগরি', 'বিশ্ববিদ্যালয়': 'বিশ্ববিদ্যালয়', university: 'বিশ্ববিদ্যালয়' };
 // ALL-CAPS source names -> Title Case ('DAKHIL MADRASAH' -> 'Dakhil Madrasah'); short all-caps words (BL, MD) stay as they are
 const titleCase = s => s.split(' ').map((w, i) => {
   if(/[a-z]/.test(w) || !/[A-Z]/.test(w)) return w;
@@ -65,7 +65,7 @@ const titleCase = s => s.split(' ').map((w, i) => {
 }).join(' ');
 const hasBangla = s => /[\u0980-\u09FF]/.test(s);
 let englishOnly = 0;
-const CODE = { 'মাদ্রাসা': 'mad', 'স্কুল': 'sch', 'কলেজ': 'col', 'কোচিং সেন্টার': 'coa', 'কারিগরি': 'tec' };
+const CODE = { 'মাদ্রাসা': 'mad', 'স্কুল': 'sch', 'কলেজ': 'col', 'কোচিং সেন্টার': 'coa', 'কারিগরি': 'tec', 'বিশ্ববিদ্যালয়': 'uni' };
 
 // ---- a small CSV reader (quotes, commas and line breaks inside quotes)
 function parseCSV(text){
@@ -123,8 +123,9 @@ rows.forEach(r => {
   if(!type) return reject(r, 'ধরন চেনা যায়নি: "' + get(r, 'type') + '"');
   const dist = distByKey.get(key(get(r, 'district')));
   if(!dist) return reject(r, 'জেলা চেনা যায়নি: "' + get(r, 'district') + '"');
-  const upa = upaByDist.get(dist.n).get(key(get(r, 'upazila')));
-  if(!upa) return reject(r, 'উপজেলা তালিকায় নেই: "' + get(r, 'upazila') + '" (' + dist.n + ')');
+  // a university is placed by district only (its campus is rarely tied to one upazila); every other type needs a known upazila
+  const upa = type === 'বিশ্ববিদ্যালয়' && !get(r, 'upazila') ? '' : upaByDist.get(dist.n).get(key(get(r, 'upazila')));
+  if(upa == null || (upa === '' && type !== 'বিশ্ববিদ্যালয়')) return reject(r, 'উপজেলা তালিকায় নেই: "' + get(r, 'upazila') + '" (' + dist.n + ')');
   const eiin = get(r, 'eiin').replace(/\s+/g, '');
   const k = key(nameBn), place = dist.n + '|' + upa + '|' + k;
   const sourceId = eiin ? eiin.toLowerCase().replace(/[^a-z0-9]/g, '') : 'x' + crypto.createHash('sha1').update(place + '|' + get(r, 'address')).digest('hex').slice(0, 10);
@@ -164,7 +165,7 @@ for(let i = 0; i < good.length; i += BATCH){
       'join public.listing_submissions l on l.source = ' + sql(SOURCE) + ' and l.source_id = v.sid' + String.fromCharCode(10) + 'on conflict (listing_id) do nothing;' + String.fromCharCode(10));
   } }
 // the same rows as plain data, for push.mjs (sends them straight to the database)
-fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila, contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null, ...(C.student_count > -1 || C.teacher_count > -1 ? { student_count: g.students || null, teacher_count: g.teachers || null } : {}) }))));   // every row must carry the same keys (one bulk insert), so when the file has these columns, all rows get both (null if empty)
+fs.writeFileSync(path.join(OUT, 'rows.json'), JSON.stringify(good.map(g => ({ institution_name: g.nameBn, institution_type: g.type, district: g.district, upazila: g.upazila || '', contact_name: '', contact_phone: '', address_note: g.address || null, desired_slug: g.slug, status: 'approved', name_en: g.nameEn || null, source: SOURCE, source_url: SOURCE_URL || null, source_id: g.sourceId, collected_at: new Date().toISOString(), verification: 'unverified', email_hint: CONTACTS.has(g.sourceId) ? maskEmail(CONTACTS.get(g.sourceId)) : null, ...(C.student_count > -1 || C.teacher_count > -1 ? { student_count: g.students || null, teacher_count: g.teachers || null } : {}) }))));   // every row must carry the same keys (one bulk insert), so when the file has these columns, all rows get both (null if empty)
 fs.writeFileSync(path.join(OUT, 'contacts.json'), JSON.stringify(good.filter(g => CONTACTS.has(g.sourceId)).map(g => ({ source_id: g.sourceId, email: CONTACTS.get(g.sourceId), source: SOURCE }))));
 fs.writeFileSync(path.join(OUT, 'rejected.csv'), '﻿reason,' + head.map(csvCell).join(',') + '\n' + rejected.map(x => csvCell(x.why) + ',' + x.row.map(csvCell).join(',')).join('\n'));
 fs.writeFileSync(path.join(OUT, 'review-same-name.csv'), '﻿district|upazila|name_key,names\n' + review.map(([p, v]) => csvCell(p) + ',' + csvCell(v.join(' ; '))).join('\n'));

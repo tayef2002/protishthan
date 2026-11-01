@@ -165,7 +165,7 @@ main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;paddin
 .inst.gone{opacity:0;transform:scale(.96)}
 .inst-top{display:flex;gap:12px;align-items:flex-start}
 .t-ic{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center}
-.t-school{background:#EEF3FF;color:#1A56DB}.t-madrasa{background:#F3E8FF;color:#7C3AED}.t-college{background:#FFF7ED;color:#D97706}.t-coach{background:#ECFDF5;color:#059669}.t-tech{background:#F0FDFA;color:#0D9488}
+.t-school{background:#EEF3FF;color:#1A56DB}.t-madrasa{background:#F3E8FF;color:#7C3AED}.t-college{background:#FFF7ED;color:#D97706}.t-coach{background:#ECFDF5;color:#059669}.t-tech{background:#F0FDFA;color:#0D9488}.t-uni{background:#EEF2FF;color:#4F46E5}
 .inst h3{font-size:16px;line-height:1.35;word-break:break-word}
 .inst h3 a{text-decoration:none}.inst h3 a:hover{color:var(--blue)}
 .loc{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-3);margin-top:2px}
@@ -677,6 +677,7 @@ const IC = {
   school: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/>',
   madrasa: '<path d="M5 21v-7c0-3.9 3.1-7 7-7s7 3.1 7 7v7"/><path d="M12 3v4M3 21h18M10 21v-4h4v4"/>',
   college: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/>',
+  uni: '<path d="M3 21h18"/><path d="M5 21V11M9 21V11M15 21V11M19 21V11"/><path d="M12 3l9 5H3z"/>',
   tech: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3 17.7 6.3 21l6.3-6.3a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
   coach: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
   pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
@@ -692,7 +693,7 @@ const THEMES = { night: ['#0A1628', '#1A3570', '#2563EB', '#7C3AED'], green: ['#
 const LEVELS = [['school', 'মাধ্যমিক'], ['college', 'উচ্চ মাধ্যমিক'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
 const STATE = { saved: null, card: null, skill: null };
 
-function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কারিগরি' ? 'tech' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
+function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কারিগরি' ? 'tech' : t === 'বিশ্ববিদ্যালয়' ? 'uni' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
 
 /* ---------- hero ---------- */
 async function render(){
@@ -925,7 +926,7 @@ function drawArea(){
   }
   $('arList').innerHTML = AREA.rows.map(r => {
     const k = typeKey(r.institution_type), st = areaStatus(r), canDo = !r.mine && r.my_status !== 'pending';
-    return '<div class="ar-row"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div class="ar-main"><h3><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '">' + esc(r.institution_name) + '</a></h3><p>' + esc(r.institution_type || '') + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + (r.source_id ? ' · EIIN ' + esc(r.source_id) : '') + '</p></div><span class="ar-st ' + st[0] + '">' + st[1] + '</span>' +
+    return '<div class="ar-row"><span class="t-ic t-' + k + '">' + ico(k, 22) + '</span><div class="ar-main"><h3><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '">' + esc(r.institution_name) + '</a></h3><p>' + esc(r.institution_type || '') + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + (/^\d+$/.test(r.source_id || '') ? ' · EIIN ' + esc(r.source_id) : '') + '</p></div><span class="ar-st ' + st[0] + '">' + st[1] + '</span>' +
       (canDo ? '<button class="btn ' + (r.verification === 'unverified' ? 'btn-blue' : 'btn-line') + ' btn-sm" type="button" onclick="coOpen(\'' + esc(r.id) + '\')">' + (r.verification === 'unverified' ? 'যাচাই করুন' : 'তথ্য যোগ করুন') + '</button>' : '') + '</div>';
   }).join('');
   $('arMore').innerHTML = AREA.rows.length < AREA.total ? '<div style="text-align:center;padding:14px"><button class="btn btn-line" type="button" onclick="fetchArea(true)">আরও দেখান (' + bn(AREA.total - AREA.rows.length) + 'টি বাকি) ' + ico('arrow', 15, 'style="transform:rotate(90deg)"') + '</button></div>' : '';
@@ -937,7 +938,7 @@ async function coOpen(id){
   const f = (lbl, el) => '<div class="im-f"><label>' + lbl + '</label>' + el + '</div>';
   const inp = (n, v, ph, extra) => '<input class="im-i" data-f="' + n + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
   const one = (n, opts, sel) => imChips(n, opts, sel, false), many = (n, opts, sel) => imChips(n, opts, sel, true);
-  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (l.source_id ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-x" onclick="coClose()" aria-label="বন্ধ করুন">×</button></header><div class="im-b" data-id="' + esc(id) + '">' +
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-x" onclick="coClose()" aria-label="বন্ধ করুন">×</button></header><div class="im-b" data-id="' + esc(id) + '">' +
     '<div class="co-note">শুধু যে তথ্য আপনি নিশ্চিত, সেটুকুই দিন। ভুল তথ্য দিলে অনুমোদন পাবে না। জমা দিলে Admin পর্যালোচনা করবেন; অনুমোদনের পর প্রতিষ্ঠানটি "যাচাইকৃত" হবে এবং আপনার নামে যুক্ত থাকবে।</div>' +
     '<div class="im-sec">আপনি কীভাবে জেনেছেন? *</div>' + '<div class="im-chips" data-chips="method" data-multi="0">' + CO_METHOD.map(m => '<button type="button" class="im-chip" data-v="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>' +
     '<div class="im-sec">যোগাযোগ</div><div class="im-2">' + f('প্রধান / যোগাযোগের নাম', inp('contact_name', l.contact_name, 'যিনি তথ্য দেন')) + f('WhatsApp / ফোন নম্বর', inp('contact_phone', l.contact_phone, '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div>' + f('ঠিকানা / বিবরণ', '<textarea class="im-i" data-f="address_note" rows="2" maxlength="300">' + esc(l.address_note || '') + '</textarea>') +
