@@ -409,6 +409,10 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 .miss-box{position:relative;width:min(440px,100%);background:#fff;border-radius:22px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.4);font-family:'Hind Siliguri','Inter',sans-serif;animation:missIn .25s ease-out}
 @keyframes missIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .miss-box h3{font-size:20px;margin:0 30px 6px 0}.miss-box p{font-size:13.5px;color:#64748B;margin-bottom:14px}
+.miss-or{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:#94A3B8;font-size:12.5px;font-weight:700}.miss-or::before,.miss-or::after{content:'';flex:1;height:1px;background:#E2E8F0}
+.miss-add{width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid #C7D7FE;background:#F5F8FF;color:#1A56DB;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.miss-add:hover{background:#EAF0FF;border-color:#93B4FB}.miss-add:disabled{opacity:.6;cursor:default}
+.miss-sub{font-size:12.5px;color:#64748B;line-height:1.55;margin-top:8px}
 .miss-box label{display:block;font-size:12.5px;font-weight:700;color:#334155;margin:10px 0 6px}
 .miss-box input,.miss-box select{width:100%;padding:11px 13px;border:1.5px solid #E2E8F0;border-radius:12px;font:inherit;font-size:14.5px;outline:none;background:#fff}
 .miss-box input:focus,.miss-box select:focus{border-color:#1A56DB;box-shadow:0 0 0 3px rgba(26,86,219,.12)}
@@ -1454,7 +1458,7 @@ function openMissing(prefill){
   let dlg = document.getElementById('missDlg');
   if(!dlg){
     dlg = document.createElement('div'); dlg.id = 'missDlg'; dlg.className = 'miss-ov';
-    dlg.innerHTML = '<div class="miss-box" role="dialog" aria-modal="true" aria-label="প্রতিষ্ঠান সেভ করুন"><button type="button" class="miss-x" aria-label="বন্ধ করুন" onclick="closeMissing()">×</button><h3>আপনার প্রোফাইলে সেভ করুন</h3><p>প্রতিষ্ঠানটা এখনো তথ্যভান্ডারে নেই। পুরো নামটা লিখুন, আপনার প্রোফাইলে জমা থাকবে।</p><label>প্রতিষ্ঠানের পুরো নাম *</label><input id="missName" maxlength="120" placeholder="যেমন: দারুল উলুম মাদ্রাসা"><div class="miss-row"><div><label>ধরন</label><select id="missType"><option value="">বাছুন</option><option>মাদ্রাসা</option><option>স্কুল</option><option>কলেজ</option><option>কোচিং সেন্টার</option></select></div><div><label>জেলা</label><input id="missDist" maxlength="60" placeholder="যেমন: কিশোরগঞ্জ"></div></div><div class="miss-err" id="missErr"></div><button type="button" class="btn-miss big" id="missGo" onclick="saveMissing()">সেভ করুন</button></div>';
+    dlg.innerHTML = '<div class="miss-box" role="dialog" aria-modal="true" aria-label="প্রতিষ্ঠান সেভ করুন"><button type="button" class="miss-x" aria-label="বন্ধ করুন" onclick="closeMissing()">×</button><h3>আপনার প্রোফাইলে সেভ করুন</h3><p>প্রতিষ্ঠানটা এখনো তথ্যভান্ডারে নেই। পুরো নামটা লিখুন, আপনার প্রোফাইলে জমা থাকবে।</p><label>প্রতিষ্ঠানের পুরো নাম *</label><input id="missName" maxlength="120" placeholder="যেমন: দারুল উলুম মাদ্রাসা"><div class="miss-row"><div><label>ধরন</label><select id="missType"><option value="">বাছুন</option><option>মাদ্রাসা</option><option>স্কুল</option><option>কলেজ</option><option>কোচিং সেন্টার</option></select></div><div><label>জেলা</label><input id="missDist" maxlength="60" placeholder="যেমন: কিশোরগঞ্জ"></div></div><div class="miss-err" id="missErr"></div><button type="button" class="btn-miss big" id="missGo" onclick="saveMissing()">সেভ করুন</button><div class="miss-or"><span>অথবা</span></div><button type="button" class="miss-add" id="missAdd" onclick="saveMissing(true)">নিজে তথ্য দিয়ে তালিকায় যোগ করুন</button><div class="miss-sub">নাম, ঠিকানা, যোগাযোগ ও বিস্তারিত নিজে লিখুন। অনুমোদনের পর প্রতিষ্ঠানটি তথ্যভান্ডারে আসবে আর আপনার নামে যুক্ত থাকবে।</div></div>';
     dlg.addEventListener('click', e => { if(e.target === dlg) closeMissing(); });
     document.body.appendChild(dlg);
   }
@@ -1462,16 +1466,21 @@ function openMissing(prefill){
   dlg.classList.add('show'); document.body.style.overflow = 'hidden'; setTimeout(() => document.getElementById('missName').focus(), 60);
 }
 function closeMissing(){ const d = document.getElementById('missDlg'); if(d) d.classList.remove('show'); document.body.style.overflow = ''; }
-async function saveMissing(){
+async function saveMissing(goAdd){
   const M = window.Protishthan && Protishthan.member; const err = document.getElementById('missErr');
   const name = document.getElementById('missName').value.trim();
   if(name.length < 2){ err.textContent = 'প্রতিষ্ঠানের নাম লিখুন।'; return; }
   if(!M){ err.textContent = 'একটু পরে আবার চেষ্টা করুন।'; return; }
   await M.ready();
   if(!M.current()){ closeMissing(); M.signIn('প্রতিষ্ঠান সেভ করে রাখতে সাইন আপ করুন'); return; }
-  const btn = document.getElementById('missGo'); btn.disabled = true; btn.textContent = 'সেভ হচ্ছে…';
-  const { error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name, itype: document.getElementById('missType').value || null, district: document.getElementById('missDist').value.trim() || null });
-  btn.disabled = false; btn.textContent = 'সেভ করুন';
+  const btn = document.getElementById(goAdd ? 'missAdd' : 'missGo'), label = btn.textContent; btn.disabled = true; btn.textContent = goAdd ? 'খোলা হচ্ছে…' : 'সেভ হচ্ছে…';
+  let { data: saved, error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name, itype: document.getElementById('missType').value || null, district: document.getElementById('missDist').value.trim() || null }).select('id').single();
+  if(error && goAdd && /duplicate|unique/i.test(error.message)){   // already in the profile: just open its form
+    const ex = await M.sb.from('member_custom_institutions').select('id').ilike('name', name).limit(1).maybeSingle();
+    if(ex.data){ saved = ex.data; error = null; }
+  }
+  btn.disabled = false; btn.textContent = label;
+  if(!error && goAdd && saved){ location.href = 'member.html?add=' + encodeURIComponent(saved.id); return; }
   if(error){ err.textContent = /duplicate|unique/i.test(error.message) ? 'এই নামে আপনার প্রোফাইলে আগেই সেভ করা আছে।' : /TOO_MANY/.test(error.message) ? 'আপনি সর্বোচ্চ ৩০টি প্রতিষ্ঠান সেভ করতে পারবেন।' : 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন।'; return; }
   closeMissing(); M.toast('আপনার প্রোফাইলে সেভ হয়েছে ✓');
 }

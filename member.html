@@ -696,6 +696,14 @@ const STATE = { saved: null, card: null, skill: null };
 function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কারিগরি' ? 'tech' : t === 'বিশ্ববিদ্যালয়' ? 'uni' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
 
 /* ---------- hero ---------- */
+/* from the home page ("add this institution myself"): open the full form for the institution that was just saved */
+async function openAddFromUrl(){
+  const id = new URLSearchParams(location.search).get('add'); if(!id) return;
+  history.replaceState(null, '', location.pathname + location.hash);
+  for(let i = 0; i < 25; i++){ if((STATE.custom || []).some(x => x.id === id)) break; await new Promise(r => setTimeout(r, 300)); }
+  const sec = document.getElementById('saved'); if(sec) sec.scrollIntoView({ block: 'start' });
+  if((STATE.custom || []).some(x => x.id === id)) imOpen(id); else M.toast('প্রতিষ্ঠানটি খুঁজে পাওয়া যায়নি');
+}
 async function render(){
   await M.ready();
   const me = M.current();
@@ -716,6 +724,7 @@ async function render(){
   $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + (no ? 'সদস্য নং ' + esc(no) : 'Protishthan সদস্য') + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
   renderAccount(me, since);
   loadSaved(); loadCard(); loadSkill(); loadChat(); loadArea(); loadContrib();
+  openAddFromUrl();
 }
 
 function renderAccount(me, since){
