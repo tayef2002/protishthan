@@ -836,7 +836,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     $('avGrid').querySelectorAll('.av-opt').forEach(b => b.classList.toggle('on', b.dataset.id === '__photo' ? (!!S.photo && S.avatar === S.photo) : S.avatar === 'av:' + b.dataset.id + ':' + skin));
     $('avRm').style.display = S.photo ? '' : 'none';
     $('skins').querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', i === skin));
-    $('avHint').textContent = S.photo && S.avatar === S.photo ? 'আপনার ছবি ব্যবহার হচ্ছে' : 'অ্যাভাটার ব্যবহার হচ্ছে';
+    $('avHint').textContent = '';
   }
   /* ---------- own photo: pick, frame it in a circle, shrink to 256x256 (about 20 KB) ---------- */
   const CR = { img: null, x: 0, y: 0, s: 1, min: 1, drag: null }, CS = 300, CD = 280, CO = 10;
