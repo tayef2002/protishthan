@@ -228,6 +228,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:100px;border:1.5px solid var(--border);background:#fff;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;color:#334155;transition:all .15s}
 .chip:hover{border-color:var(--blue);color:var(--blue);background:#F5F8FF}
 .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip.more{border-style:dashed;color:var(--blue);background:#F5F8FF}
 .chip:disabled{opacity:.4;cursor:not-allowed}
 .chip.add::before{content:"+";font-weight:800;margin-right:2px}
 
@@ -737,7 +738,9 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   const M = Protishthan.member, V = SkillView, C = SkillCanvas;
   const DRAFT = 'sk_draft';
   const LV = V.LEVELS;
-  const HEADS = ['Video Editor', 'Graphic Designer', 'Web Developer', 'Content Creator', 'Freelancer', 'Digital Marketer', 'Student & Skill Learner'];
+  const HEADS = ['Video Editor', 'Graphic Designer', 'Web Developer', 'Content Creator', 'Freelancer', 'Digital Marketer', 'Student & Skill Learner',
+    'UI/UX Designer', 'Mobile App Developer', 'Social Media Manager', 'SEO Specialist', 'Content Writer', 'Copywriter', 'Photographer', 'Motion Graphics Artist', '3D Artist', 'Illustrator', 'Voice Over Artist', 'Translator', 'Data Entry Specialist', 'Virtual Assistant', 'Customer Support Specialist', 'E-commerce Seller', 'Facebook Ads Expert', 'WordPress Developer', 'Python Developer', 'Data Analyst', 'Online Tutor', 'Teacher', 'Entrepreneur', 'Accountant', 'Engineering Student', 'Fresh Graduate'];
+  let headMore = false; const HEAD_FIRST = 7;
   const EN_RE = /[^A-Za-z0-9 .,'&+\/#()_@:-]/g;                     // what may be typed in name, headline and skills
   const toEn = v => String(v == null ? '' : v).replace(EN_RE, '').replace(/ {2,}/g, ' ');
   const SUGG = ['Video Editing', 'Graphic Design', 'Web Development', 'UI/UX Design', 'Digital Marketing', 'Content Writing', 'Spoken English', 'Photography', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'Animation', 'Voiceover', 'Calligraphy', 'Handwriting', 'Teaching', 'Freelancing', 'Social Media Management', 'Motion Graphics', 'Copywriting', 'Data Analysis', 'WordPress', 'Public Speaking'];
@@ -920,7 +923,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     $('pvDots').innerHTML = Object.keys(V.THEMES).map(k => '<button type="button" class="dot' + (S.theme === k ? ' on' : '') + '" data-t="' + k + '" title="' + V.THEMES[k].name + '" aria-label="' + V.THEMES[k].name + '" style="background:' + THEME_BG[k] + '"></button>').join('');
     $('badges').innerHTML = Object.keys(V.BADGES).map(k => { const on = S.badges.includes(k); return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-b="' + k + '"' + (!on && S.badges.length >= 2 ? ' disabled' : '') + '>' + V.BADGES[k] + '</button>'; }).join('');
   }
-  function paintHeads(){ $('headSugg').innerHTML = HEADS.map(h => '<button type="button" class="chip" data-h="' + V.esc(h) + '">' + V.esc(h) + '</button>').join(''); }
+  function paintHeads(){ $('headSugg').innerHTML = (headMore ? HEADS : HEADS.slice(0, HEAD_FIRST)).map(h => '<button type="button" class="chip" data-h="' + V.esc(h) + '">' + V.esc(h) + '</button>').join('') + '<button type="button" class="chip more" data-more="1" aria-expanded="' + headMore + '">' + (headMore ? 'কম দেখুন ▴' : 'আরও দেখুন ▾') + '</button>'; }
 
   function progress(){
     const d = clean();
@@ -1117,7 +1120,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     on('fName', 'input', e => { S.display_name = onlyEn(e); $('cName').textContent = S.display_name.length + '/60'; paintPreview(); autosave(); });
     on('fHead', 'input', e => { S.headline = onlyEn(e); $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
     on('fUser', 'input', e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); e.target.value = v; S.username = v; checkUser(); paintPreview(); autosave(); });
-    on('headSugg', 'click', e => { const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
+    on('headSugg', 'click', e => { if(e.target.closest('[data-more]')){ headMore = !headMore; paintHeads(); return; } const b = e.target.closest('[data-h]'); if(!b) return; S.headline = b.dataset.h; $('fHead').value = S.headline; $('cHead').textContent = S.headline.length + '/70'; paintPreview(); autosave(); });
     on('avGrid', 'click', e => { const b = e.target.closest('.av-opt'); if(!b) return; S.avatar = b.dataset.id === '__photo' ? S.photo : 'av:' + b.dataset.id + ':' + skin; paintAvatar(); paintPreview(); autosave(); });
     on('skins', 'click', e => { const b = e.target.closest('button'); if(!b) return; skin = Number(b.dataset.i); if(S.avatar && S.avatar.indexOf('av:') === 0){ const id = S.avatar.split(':')[1]; S.avatar = 'av:' + id + ':' + skin; } buildAvatarGrid(); paintAvatar(); paintPreview(); autosave(); });
     on('avUp', 'click', () => $('avFile').click());
