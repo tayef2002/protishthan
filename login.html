@@ -172,7 +172,7 @@ button.fi{cursor:pointer}button.fi:hover{color:var(--blue)}
     <!-- B: the school's own site, drawn live from the form (signup) -->
     <div class="mode" id="modeSignup" aria-hidden="true">
       <div class="site">
-        <div class="sb"><i></i><i></i><i></i><span class="surl" id="pvUrl">আপনার-প্রতিষ্ঠান.protishthan.com</span></div>
+        <div class="sb"><i></i><i></i><i></i><span class="surl" id="pvUrl">institute-name.protishthan.com</span></div>
         <div class="sbody">
           <div class="sbd"><div class="slogo" id="pvLogo">আ</div><div><div class="sname ph" id="pvName">আপনার প্রতিষ্ঠানের নাম</div><div class="smeta"><span class="stype ph" id="pvType">ধরন</span><span class="splace ph" id="pvPlace" style="padding:2px 10px;border-radius:100px">জেলা, উপজেলা</span></div></div></div>
           <div class="snav"><i>পরিচিতি</i><i>নোটিস</i><i>ফলাফল</i><i>ভর্তি</i></div>
@@ -424,7 +424,7 @@ function pv(){
   const ini=name?Array.from(name)[0]:'আ'; const lg=$('pvLogo'); if(ini!==lastInitial){ lg.textContent=ini; lg.classList.remove('pop'); void lg.offsetWidth; lg.classList.add('pop'); lastInitial=ini; }
   const ty=$('pvType'); ty.textContent=t?t.dataset.type:'ধরন'; ty.classList.toggle('ph',!t);
   const pl=$('pvPlace'); pl.textContent=dist?(upa?upa+', ':'')+dist:'জেলা, উপজেলা'; pl.classList.toggle('ph',!dist);
-  const u=$('pvUrl'); u.textContent=(slug||'আপনার-প্রতিষ্ঠান')+'.protishthan.com'; u.classList.toggle('set',!!slug);
+  const u=$('pvUrl'); u.textContent=(slug||'institute-name')+'.protishthan.com'; u.classList.toggle('set',!!slug);
   const ok1=!!(name&&t&&$('principalName').value.trim()&&dist&&upa), ok2=!!(slug&&/^[a-z0-9-]+$/.test(slug)), ok3=!!(/^\S+@\S+\.\S+$/.test($('signupEmail').value.trim())&&$('signupPass').value.length>=8);
   $('td1').classList.toggle('ok',ok1); $('td2').classList.toggle('ok',ok2); $('td3').classList.toggle('ok',ok3);
 }
