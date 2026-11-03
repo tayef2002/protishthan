@@ -2238,7 +2238,7 @@ loadApprovedInstitutions();
   let stop = false; const halt = () => { stop = true; };
   ['touchstart', 'pointerdown', 'wheel'].forEach(ev => strip.addEventListener(ev, halt, { once: true, passive: true }));
   const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  const glide = (from, to, ms) => new Promise(res => { const t0 = performance.now(); (function step(now){ if(stop) return res(); const p = Math.min(1, (now - t0) / ms); strip.scrollLeft = from + (to - from) * ease(p); p < 1 ? requestAnimationFrame(step) : res(); })(t0); });
+  const glide = (from, to, ms) => new Promise(res => { const t0 = performance.now(), iv = setInterval(() => { if(stop){ clearInterval(iv); return res(); } const p = Math.min(1, (performance.now() - t0) / ms); strip.scrollLeft = from + (to - from) * ease(p); if(p >= 1){ clearInterval(iv); res(); } }, 16); });
   setTimeout(async () => {
     const max = strip.scrollWidth - strip.clientWidth; if(max < 8 || stop) return;
     try{ sessionStorage.setItem('qfHint', '1'); }catch(e){}
