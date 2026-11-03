@@ -743,7 +743,9 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   let headMore = false; const HEAD_FIRST = 7;
   const EN_RE = /[^A-Za-z0-9 .,'&+\/#()_@:-]/g;                     // what may be typed in name, headline and skills
   const toEn = v => String(v == null ? '' : v).replace(EN_RE, '').replace(/ {2,}/g, ' ');
-  const SUGG = ['Video Editing', 'Graphic Design', 'Web Development', 'UI/UX Design', 'Digital Marketing', 'Content Writing', 'Spoken English', 'Photography', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'Animation', 'Voiceover', 'Calligraphy', 'Handwriting', 'Teaching', 'Freelancing', 'Social Media Management', 'Motion Graphics', 'Copywriting', 'Data Analysis', 'WordPress', 'Public Speaking'];
+  const SUGG = ['Video Editing', 'Graphic Design', 'Web Development', 'UI/UX Design', 'Digital Marketing', 'Content Writing', 'Spoken English', 'Photography', 'Python', 'JavaScript', 'SEO', 'Excel', 'Canva', 'Animation', 'Voiceover', 'Calligraphy', 'Handwriting', 'Teaching', 'Freelancing', 'Social Media Management', 'Motion Graphics', 'Copywriting', 'Data Analysis', 'WordPress', 'Public Speaking',
+    'Microsoft Word', 'PowerPoint', 'Typing', 'Data Entry', 'Email Marketing', 'Facebook Ads', 'Google Ads', 'Affiliate Marketing', 'E-commerce', 'Dropshipping', 'Customer Support', 'Virtual Assistant', 'Translation', 'Bangla Typing', 'Video Shooting', 'Video Production', 'Photo Editing', 'Photoshop', 'Illustrator', 'Premiere Pro', 'After Effects', 'Figma', 'Logo Design', 'Banner Design', '3D Modeling', 'Blender', 'Mobile App Development', 'React', 'PHP', 'Laravel', 'Java', 'C Programming', 'C++', 'HTML & CSS', 'Node.js', 'SQL', 'Machine Learning', 'AI Tools (ChatGPT)', 'Cyber Security', 'Networking', 'Graphic Animation', 'Cartoon & Illustration', 'Drawing', 'Poetry & Writing', 'Blogging', 'Script Writing', 'YouTube Management', 'Video Thumbnail Design', 'Voice Acting', 'Quran Recitation', 'Arabic Language', 'English Writing', 'IELTS Preparation', 'Math Tutoring', 'Science Tutoring', 'Spoken Bangla', 'Tailoring', 'Cooking', 'Event Management', 'Accounting', 'Bookkeeping', 'Tally', 'Leadership', 'Team Management', 'Communication'];
+  let skMore = false; const SK_FIRST = 12;
   const IC = {
     up: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
     down: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
@@ -874,7 +876,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     if(!S.skills.length){ box.innerHTML = '<div class="empty">এখনো কোনো স্কিল নেই। উপরে লিখুন বা নিচের পরামর্শ থেকে বেছে নিন।</div>'; }
     else box.innerHTML = S.skills.map((s, i) => '<div class="sk-row"><div class="nm">' + V.esc(s.n) + '</div><div class="tools"><button class="ib" type="button" data-a="up" data-i="' + i + '" aria-label="উপরে"' + (i === 0 ? ' disabled' : '') + '>' + IC.up + '</button><button class="ib" type="button" data-a="dn" data-i="' + i + '" aria-label="নিচে"' + (i === S.skills.length - 1 ? ' disabled' : '') + '>' + IC.down + '</button><button class="ib del" type="button" data-a="rm" data-i="' + i + '" aria-label="মুছুন">' + IC.x + '</button></div><div class="lvs" role="radiogroup" aria-label="লেভেল">' + LV.map((n, k) => '<button type="button" class="lvb' + (s.l === k + 1 ? ' on' : '') + '" data-a="lv" data-i="' + i + '" data-l="' + (k + 1) + '" role="radio" aria-checked="' + (s.l === k + 1) + '">' + n + '</button>').join('') + '</div></div>').join('');
     const have = new Set(S.skills.map(s => s.n.toLowerCase()));
-    $('skSugg').innerHTML = (window.__pop || []).concat(SUGG).filter((n, i, a) => a.indexOf(n) === i && !have.has(n.toLowerCase())).slice(0, 12).map(n => '<button type="button" class="chip add" data-n="' + V.esc(n) + '">' + V.esc(n) + '</button>').join('');
+    $('skSugg').innerHTML = (window.__pop || []).concat(SUGG).filter((n, i, a) => a.indexOf(n) === i && !have.has(n.toLowerCase())).slice(0, skMore ? 200 : SK_FIRST).map(n => '<button type="button" class="chip add" data-n="' + V.esc(n) + '">' + V.esc(n) + '</button>').join('') + '<button type="button" class="chip more" data-more="1" aria-expanded="' + skMore + '">' + (skMore ? 'কম দেখুন ▴' : 'আরও দেখুন ▾') + '</button>';
     $('addSkill').disabled = S.skills.length >= 8; $('fSkill').disabled = S.skills.length >= 8;
     $('skCount').textContent = V.bn(S.skills.length) + '/৮';
     $('skSugg').style.display = S.skills.length >= 8 ? 'none' : '';
@@ -1138,7 +1140,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     on('addSkill', 'click', () => addSkill($('fSkill').value));
     on('fSkill', 'input', e => { onlyEn(e); });
     on('fSkill', 'keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addSkill(e.target.value); } });
-    on('skSugg', 'click', e => { const b = e.target.closest('[data-n]'); if(b) addSkill(b.dataset.n); });
+    on('skSugg', 'click', e => { if(e.target.closest('[data-more]')){ skMore = !skMore; paintSkills(); return; } const b = e.target.closest('[data-n]'); if(b) addSkill(b.dataset.n); });
     on('skList', 'click', e => {
       const b = e.target.closest('[data-a]'); if(!b) return; const i = Number(b.dataset.i), a = b.dataset.a;
       if(a === 'rm') S.skills.splice(i, 1);
