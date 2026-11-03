@@ -6,7 +6,7 @@
   var el = document.getElementById('pfoot'); if(!el || el.dataset.ready) return;
 
   var COLS = [
-    { t: 'খুঁজুন', l: [['তথ্যভান্ডার', 'index.html'], ['বোর্ড ফলাফল', 'results.html'], ['দরকারি তথ্য', 'info.html'], ['প্রতিষ্ঠান যোগ করুন', 'list-institution.html']] },
+    { t: 'খুঁজুন', l: [['তথ্যভান্ডার', 'index.html'], ['দরকারি তথ্য', 'info.html'], ['প্রতিষ্ঠান যোগ করুন', 'list-institution.html']] },
     { t: 'টুলস', l: [['শিক্ষিত কার্ড', 'card.html'], ['স্কিল আইডেন্টিটি', 'skill.html'], ['স্কুল সফটওয়্যার', 'software.html']] },
     { t: 'আরও', l: [['Partner প্রোগ্রাম', 'partner.html'], ['আমার প্রোফাইল', 'member.html'], ['গোপনীয়তা নীতি', 'privacy.html'], ['ব্যবহারের শর্ত', 'terms.html']] }
   ];
