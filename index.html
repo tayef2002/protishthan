@@ -2174,7 +2174,7 @@ function useMyLocation(){
 async function loadApprovedInstitutions(){
   try{
     // the imported, not-yet-verified directory (tens of thousands of rows) is searched on the server (card page, directory_search); this page still downloads its whole list, so it only lists verified institutions until its search moves to the server too
-    const { data, error } = await sb.from('listing_submissions').select('*').eq('status','approved').neq('verification','unverified').or('is_hidden.is.null,is_hidden.eq.false').order('created_at', { ascending:false }).limit(1000);
+    const { data, error } = await sb.from('listing_submissions').select('*').eq('status','approved').eq('verification','verified').or('is_hidden.is.null,is_hidden.eq.false').order('created_at', { ascending:false }).limit(1000);
     if(error) throw error;
     allApproved = data || [];
   }catch(e){
