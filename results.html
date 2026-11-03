@@ -141,6 +141,18 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .empty{text-align:center;padding:34px 18px;color:var(--text-2)}
 .empty .ic{width:58px;height:58px;border-radius:16px;background:var(--blue-light);color:var(--blue);display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
 .empty b{display:block;font-size:17px;color:var(--text);margin-bottom:4px}
+.self-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+.self-grid label{display:block;font-size:12.5px;font-weight:700;color:var(--text-2)}
+.self-grid .sel,.self-grid .inp{width:100%;margin-top:5px}
+.self .inp{border:1.5px solid var(--border);border-radius:12px;padding:10px 13px;font-family:inherit;font-size:14.5px;font-weight:600;background:#fff;color:var(--text);outline:none}
+.self .inp:focus{border-color:#93B4FB;box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.self-out{margin-top:14px;border:1.5px solid #A7F3D0;background:linear-gradient(150deg,#ECFDF5,#F0FDF4);border-radius:16px;padding:14px 16px}
+.self-out ol{margin:8px 0 0 18px;font-size:13.5px;color:var(--text-2);line-height:1.8}
+.sc-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sc-chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #BBF7D0;border-radius:100px;padding:6px 8px 6px 14px;font-size:13.5px;font-weight:700}
+.sc-chip button{border:none;background:#059669;color:#fff;border-radius:100px;padding:3px 11px;font:700 12px 'Hind Siliguri',sans-serif;cursor:pointer}
+.self-note{font-size:12.5px;color:var(--text-3);margin-top:12px;line-height:1.6}
+@media(max-width:700px){.self-grid{grid-template-columns:1fr}}
 .own{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:linear-gradient(150deg,#ECFDF5,#F0FDF4);border:1px solid #A7F3D0;border-radius:20px;padding:18px 20px}
 @media(max-width:700px){.own{grid-template-columns:1fr}}
 .own .ic{width:48px;height:48px;border-radius:14px;background:#fff;color:var(--green);display:flex;align-items:center;justify-content:center}
@@ -223,10 +235,18 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
     </div>
   </section>
 
-  <section class="sec own">
-    <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-    <div><b>নিজের ফলাফল ও মার্কশিট দেখবেন?</b><p>রোল আর রেজিস্ট্রেশন নম্বর দিয়ে ব্যক্তিগত ফলাফল শুধু শিক্ষা বোর্ডের অফিসিয়াল সাইটে দেখা যায়। Protishthan কারো ব্যক্তিগত ফলাফল সংরক্ষণ বা প্রকাশ করে না।</p></div>
-    <a class="btn btn-green" href="https://www.educationboardresults.gov.bd/" target="_blank" rel="noopener">অফিসিয়াল সাইটে দেখুন ↗</a>
+  <section class="sec card self" id="selfCheck">
+    <div class="sec-h" style="margin-bottom:10px"><div><h2>নিজের ফলাফল দেখুন</h2><p>রোল ও রেজিস্ট্রেশন নম্বর দিয়ে, শিক্ষা বোর্ডের অফিসিয়াল সাইটে</p></div></div>
+    <div class="self-grid">
+      <label>পরীক্ষা<select class="sel" id="scExam"><option>SSC/Dakhil/Equivalent</option><option>HSC/Alim/Equivalent</option><option>JSC/JDC</option><option>SSC(Vocational)</option><option>HSC(Vocational)</option><option>HSC(BM)</option></select></label>
+      <label>সাল<select class="sel" id="scYear"></select></label>
+      <label>বোর্ড<select class="sel" id="scBoard"><option>Dhaka</option><option>Chattogram</option><option>Cumilla</option><option>Rajshahi</option><option>Jashore</option><option>Barishal</option><option>Sylhet</option><option>Dinajpur</option><option>Mymensingh</option><option>Madrasah</option><option>Technical</option></select></label>
+      <label>রোল নম্বর<input class="inp" id="scRoll" inputmode="numeric" autocomplete="off" placeholder="যেমন 176985"></label>
+      <label>রেজিস্ট্রেশন নম্বর<input class="inp" id="scReg" inputmode="numeric" autocomplete="off" placeholder="যেমন 2118607196"></label>
+      <button class="btn btn-green" type="button" id="scGo">অফিসিয়াল সাইটে খুলুন ↗</button>
+    </div>
+    <div class="self-out" id="scOut" hidden></div>
+    <p class="self-note">🔒 আপনার রোল ও রেজিস্ট্রেশন নম্বর এই পাতার বাইরে কোথাও যায় না এবং সেভও হয় না। ব্যক্তিগত ফলাফল শুধু শিক্ষা বোর্ডের অফিসিয়াল সাইটেই দেখা যায়: সেখানে "আমি রোবট নই" যাচাই পূরণ করতে হয়, যা সবসময় আপনাকেই করতে হবে।</p>
   </section>
 
   <section class="sec">
@@ -255,7 +275,25 @@ const pct = n => bn((Number(n) || 0).toFixed(2)) + '%';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const EXAMS = { SSC: ['SSC', 'DAKHIL'], HSC: ['HSC', 'ALIM'] };
 const EXAM_LABEL = { SSC:'SSC', DAKHIL:'দাখিল', HSC:'HSC', ALIM:'আলিম' };
-const BOARDS = { dhaka:'ঢাকা', rajshahi:'রাজশাহী', cumilla:'কুমিল্লা', jashore:'যশোর', chattogram:'চট্টগ্রাম', barishal:'বরিশাল', sylhet:'সিলেট', dinajpur:'দিনাজপুর', mymensingh:'ময়মনসিংহ', madrasah:'মাদ্রাসা', technical:'কারিগরি' };
+(function selfCheck(){
+  const y = new Date().getFullYear(), ys = document.getElementById('scYear');
+  ys.innerHTML = Array.from({ length: 12 }, (_, i) => '<option>' + (y - i) + '</option>').join('');
+  const go = document.getElementById('scGo'), out = document.getElementById('scOut');
+  const copy = async (btn, text) => { try{ await navigator.clipboard.writeText(text); const o = btn.textContent; btn.textContent = 'কপি হয়েছে ✓'; setTimeout(() => btn.textContent = o, 1400); }catch(e){ prompt('কপি করুন', text); } };
+  go.addEventListener('click', () => {
+    const roll = document.getElementById('scRoll').value.replace(/\D/g, ''), reg = document.getElementById('scReg').value.replace(/\D/g, '');
+    if(roll.length < 3){ document.getElementById('scRoll').focus(); document.getElementById('scRoll').style.borderColor = '#DC2626'; return; }
+    document.getElementById('scRoll').style.borderColor = '';
+    const exam = document.getElementById('scExam').value, year = document.getElementById('scYear').value, board = document.getElementById('scBoard').value;
+    const chip = (label, val) => '<span class="sc-chip">' + label + ': ' + val + '<button type="button" data-copy="' + val + '">কপি</button></span>';
+    out.hidden = false;
+    out.innerHTML = '<b>অফিসিয়াল সাইট নতুন ট্যাবে খুলেছে। সেখানে এগুলো বেছে দিন:</b><div class="sc-chips"><span class="sc-chip">পরীক্ষা: ' + exam + '</span><span class="sc-chip">সাল: ' + year + '</span><span class="sc-chip">বোর্ড: ' + board + '</span>' + chip('রোল', roll) + (reg ? chip('রেজিস্ট্রেশন', reg) : '') + '</div>' +
+      '<ol><li>"Examination", "Year" ও "Board" ঘরে ওপরেরগুলো বাছুন</li><li>রোল ও রেজিস্ট্রেশন ঘরে কপি করা নম্বর বসান</li><li>"আমি রোবট নই" / অঙ্কের যাচাই পূরণ করে <b>Submit</b> চাপুন</li></ol>';
+    out.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(b, b.dataset.copy)));
+    window.open('https://www.educationboardresults.gov.bd/', '_blank', 'noopener');
+  });
+})();
+const BOARDS = { dhaka:'ঢাকা', rajshahi:'রাজশাহী', cumilla:'কুমিল্লা', comilla:'কুমিল্লা', jessore:'যশোর', barisal:'বরিশাল', chittagong:'চট্টগ্রাম', jashore:'যশোর', chattogram:'চট্টগ্রাম', barishal:'বরিশাল', sylhet:'সিলেট', dinajpur:'দিনাজপুর', mymensingh:'ময়মনসিংহ', madrasah:'মাদ্রাসা', technical:'কারিগরি' };
 const BAND_COLORS = { '5':'#7C3AED', '4':'#2563EB', '3.5':'#0EA5E9', '3':'#10B981', '2':'#F59E0B', '1':'#F97316' };
 const BAND_ORDER = ['5', '4', '3.5', '3', '2', '1'];
 const BAND_LABEL = { '5':'GPA 5', '4':'4 – <5', '3.5':'3.5 – <4', '3':'3 – <3.5', '2':'2 – <3', '1':'1 – <2' };
