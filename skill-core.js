@@ -5,8 +5,8 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const LEVELS = ['Learning', 'Intermediate', 'Advanced', 'Expert'];
   const BADGES = {
-    'self-taught': 'নিজে নিজে শেখা', 'freelancer': 'ফ্রিল্যান্সার', 'problem-solver': 'প্রবলেম সলভার', 'zero-degree': 'ডিগ্রি ছাড়াই স্কিলে',
-    'creator': 'ক্রিয়েটর', 'builder': 'বিল্ডার', 'night-owl': 'রাতজাগা কর্মী', 'mentor': 'মেন্টর', 'learner': 'সারাজীবন শিখছি', 'open-source': 'ওপেন সোর্স'
+    'self-taught': 'Self-taught', 'freelancer': 'Freelancer', 'problem-solver': 'Problem Solver', 'zero-degree': 'Skills over Degrees',
+    'creator': 'Creator', 'builder': 'Builder', 'night-owl': 'Night Owl', 'mentor': 'Mentor', 'learner': 'Lifelong Learner', 'open-source': 'Open Source'
   };
   const THEMES = {
     midnight: { name: 'মিডনাইট', bg: '#070B16', bg2: '#0D1530', ink: '#F4F6FF', mut: '#9AA6C4', a1: '#6EA8FF', a2: '#8B7CFF', a3: '#38E1C6', dark: true },
