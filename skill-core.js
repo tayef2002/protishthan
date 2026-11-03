@@ -494,7 +494,7 @@
     const cert = await drawCert(p, 1600, 1131, logo, S), cw = 968, ch = Math.round(cw * 1131 / 1600), cx = (W - cw) / 2, cy = 296;
     c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 24; c.drawImage(cert, cx, cy, cw, ch); c.restore();
     c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.strokeRect(cx, cy, cw, ch);
-    const bot = 'কাগজের সনদ নয়, কাজের সনদ', by = cy + ch + 84;
+    const bot = 'আমার কাজ দেখুন, তারপর কথা বলুন', by = cy + ch + 84;
     c.fillStyle = GOLD2; c.strokeStyle = GOLD2; c.lineWidth = 1; fit(c, bot, '400', SERIF, 50, 28, W - 140); c.fillText(bot, W / 2, by);
     const url = urlOf(p); c.font = '700 33px Inter,sans-serif'; const uw = c.measureText(url).width + 84, ux = (W - uw) / 2, uy = by + 40;
     c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, ux, uy, uw, 74, 37); c.fill(); c.strokeStyle = 'rgba(227,194,117,.8)'; c.lineWidth = 2; rr(c, ux, uy, uw, 74, 37); c.stroke();
