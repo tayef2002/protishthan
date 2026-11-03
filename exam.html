@@ -4543,7 +4543,7 @@ window.addTashkeel = async function(btn){
 
     if(!arWords.length){ alert('Arabic text পাওয়া যায়নি'); return; }
 
-    const res = await fetch('/api/tashkeel?text=' + encodeURIComponent(arWords.join(' ')));
+    const res = await fetch('/api/tashkeel?text=' + encodeURIComponent(arWords.join(' ')), { headers: { Authorization: 'Bearer ' + ((await sb.auth.getSession()).data.session?.access_token || '') } });
     if(!res.ok) throw new Error('API error');
     const data = await res.json();
     let arResult = Array.isArray(data) ? data.map(d=>d.result||'').join(' ') : (data.result||data.text||data.output);
@@ -5004,7 +5004,7 @@ window.addTashkeel = async function(btn){
 
   async function fetchWordSuggestions(word, context, sugBox, wSpan) {
     try {
-      const res = await fetch('/api/tashkeel-word?word=' + encodeURIComponent(word) + '&context=' + encodeURIComponent(context));
+      const res = await fetch('/api/tashkeel-word?word=' + encodeURIComponent(word) + '&context=' + encodeURIComponent(context), { headers: { Authorization: 'Bearer ' + ((await sb.auth.getSession()).data.session?.access_token || '') } });
       const data = await res.json();
       const sug = data.suggestions || [];
       sugBox.innerHTML = '';

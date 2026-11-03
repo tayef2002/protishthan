@@ -1069,10 +1069,10 @@ function triggerScanUpload(){ document.getElementById('scanFileInput').click(); 
 async function handleScanFile(input){
   if(!input.files[0]) return;
   toast('স্ক্যান হচ্ছে... একটু অপেক্ষা করুন');
-  const fd = new FormData();
-  fd.append('image', input.files[0]);
+  const file = input.files[0];
   try{
-    const res = await fetch('/api/scan-form', {method:'POST', body:fd});
+    const b64 = await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=e=>ok(String(e.target.result).split(',')[1]); r.onerror=no; r.readAsDataURL(file); });
+    const res = await fetch('/api/scan-form', {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+((await sb.auth.getSession()).data.session?.access_token||'')}, body: JSON.stringify({ image:b64, mimeType:file.type })});
     const json = await res.json();
     if(json.error){ toast('স্ক্যান ব্যর্থ: '+json.error,'error'); return; }
     const d = json.data || json;

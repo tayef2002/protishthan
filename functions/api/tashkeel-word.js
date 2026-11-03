@@ -1,22 +1,22 @@
 const GROQ_API_KEY = '';
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+import { corsHeaders, guard } from '../_lib/guard.js';
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: CORS });
+export async function onRequestOptions(context) {
+  return new Response(null, { status: 204, headers: corsHeaders(context.request, 'GET, OPTIONS') });
 }
 
 export async function onRequestGet(context) {
+  const CORS = corsHeaders(context.request, 'GET, OPTIONS');
+  const denied = await guard(context.request, CORS);
+  if (denied) return denied;
   const url = new URL(context.request.url);
   const word = url.searchParams.get('word') || '';
   const ctx = url.searchParams.get('context') || '';
   if (!word.trim()) {
     return Response.json({ error: 'empty word' }, { status: 400, headers: CORS });
   }
+  if (word.length > 100 || ctx.length > 1000) return Response.json({ error: 'too long' }, { status: 413, headers: CORS });
 
   const apiKey = context.env.GROQ_API_KEY || GROQ_API_KEY;
 

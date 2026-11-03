@@ -2158,7 +2158,7 @@ async function handleScanAction(){
       document.getElementById('scanProgressFill').style.width = Math.round(((i+1)/scanFiles.length)*100) + '%';
       try {
         const b64 = await new Promise((res,rej) => { const r = new FileReader(); r.onload = e => res(e.target.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(scanFiles[i]); });
-        const resp = await fetch('/api/scan-form', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ image: b64, mimeType: scanFiles[i].type }) });
+        const resp = await fetch('/api/scan-form', { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+((await sb.auth.getSession()).data.session?.access_token||'')}, body: JSON.stringify({ image: b64, mimeType: scanFiles[i].type }) });
         const data = await resp.json();
         if(data.student) scanResults.push(data.student);
         else scanResults.push({ name:'(পড়া যায়নি)', father_name:'', dob:'', desired_class:'', mobile:'', notun_puraton:'নতুন', _err:true });
