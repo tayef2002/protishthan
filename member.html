@@ -70,6 +70,22 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 
 /* ---------- layout ---------- */
 main.container{position:relative;z-index:2;margin-top:-56px;padding-top:0;padding-bottom:56px}
+.content>.view:not(.on),.content>.two.view:not(.on){display:none}
+.content>.view.on{animation:vwIn .26s ease both}@keyframes vwIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ov-k4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.ovk{display:flex;align-items:center;gap:13px;padding:16px;background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:transform .18s,border-color .18s}
+.ovk:hover{transform:translateY(-2px);border-color:#93B4F0}.ovk .ti{flex:none}
+.ovk b{display:block;font:800 26px/1.1 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D;letter-spacing:-.5px}.ovk span:not(.ti){display:block;margin-top:3px;font-size:12.5px;color:#64748B;line-height:1.35}
+.ov-two{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+.ov-area{display:flex;flex-direction:column;justify-content:center}
+.ova-top{display:flex;align-items:center;gap:18px}
+.ova-ring{flex:none;position:relative;width:104px;height:104px;border-radius:50%;background:conic-gradient(#2563EB calc(var(--p)*1%),#E5ECFA 0);display:grid;place-items:center}
+.ova-ring::before{content:'';position:absolute;inset:11px;border-radius:50%;background:#fff}
+.ova-ring b{position:relative;font:800 22px 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D}
+.ova-t h3{margin:0;font-size:17px;color:#0B1B4D}.ova-t p{margin:4px 0 0;font-size:13.5px;color:#64748B;line-height:1.55}
+.ova-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 14px}.ova-nums div{background:#F5F8FF;border-radius:12px;padding:9px 6px;text-align:center}.ova-nums b{display:block;font:800 18px 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D}.ova-nums span{font-size:11.5px;color:#64748B}
+@media(max-width:1020px){.ov-k4{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-two{grid-template-columns:1fr}}
+@media(max-width:420px){.ovk{padding:13px;gap:10px}.ovk b{font-size:22px}.ova-top{flex-direction:column;text-align:center}}
 .shell{display:grid;grid-template-columns:268px minmax(0,1fr);gap:28px;align-items:start}
 .content{min-width:0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
@@ -524,49 +540,56 @@ main.container{margin-top:22px}
       <button class="sn out" type="button" onclick="Protishthan.member.signOut()"><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span class="snl">লগআউট</span></button>
     </aside>
     <div class="content">
-<section class="sec" id="overview">
-      <div class="start">
+<section class="sec view" id="overview">
+      <div class="ov-k4">
+        <a class="ovk" href="#contrib"><span class="ti g1"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><b id="ovAppr">—</b><span>অনুমোদিত অবদান</span></div></a>
+        <a class="ovk" href="#contrib"><span class="ti g2"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b id="ovWait">—</b><span>পর্যালোচনায় আছে</span></div></a>
+        <a class="ovk" href="#saved"><span class="ti g3"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span><div><b id="ovSaved">—</b><span>সেভ করা প্রতিষ্ঠান</span></div></a>
+        <a class="ovk" href="#account"><span class="ti g4"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><div><b id="ovPct">—</b><span>প্রোফাইল সম্পূর্ণ</span></div></a>
+      </div>
+      <div class="ov-two">
+        <div class="card ov-area" id="ovArea"><div class="skel" style="height:150px"></div></div>
         <div class="card">
           <div class="sec-h" style="margin-bottom:4px"><div><h2>শুরু করুন</h2><p id="progTxt">৩টির মধ্যে ১টি সম্পন্ন</p></div></div>
           <div class="prog"><i id="progBar"></i></div>
           <ul class="steps" id="steps"></ul>
         </div>
-        <div class="card">
-          <div class="sec-h" style="margin-bottom:12px"><div><h2>দ্রুত যান</h2></div></div>
-          <div class="qa">
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="sec-h" style="margin-bottom:12px"><div><h2>দ্রুত যান</h2></div></div>
+        <div class="qa">
             <a href="index.html"><span class="ti g1"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span><div><b>প্রতিষ্ঠান খুঁজুন</b><span>স্কুল, কলেজ, মাদ্রাসা</span></div></a>
             <a href="card.html"><span class="ti g3"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 10h3M15 13h2"/></svg></span><div><b>শিক্ষিত কার্ড</b><span>৩০ সেকেন্ডে বানান</span></div></a>
             <a href="software.html"><span class="ti g4"><svg class="ic" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><div><b>স্কুল সফটওয়্যার</b><span>প্রতিষ্ঠানের জন্য</span></div></a>
           </div>
-        </div>
       </div>
     </section>
-<section class="sec" id="area">
+<section class="sec view" id="area">
           <div class="sec-h"><div><h2>আমার এলাকা</h2><p>নিজের উপজেলার প্রতিষ্ঠান দেখুন, তথ্য যাচাই করুন, নতুন প্রতিষ্ঠান যোগ করুন</p></div></div>
           <div id="areaBox"><div class="skel" style="height:180px"></div></div>
         </section>
-<section class="sec" id="contrib">
+<section class="sec view" id="contrib">
           <div class="sec-h"><div><h2>আমার অবদান</h2><p>আপনার যাচাই ও যোগ করা প্রতিষ্ঠান, সব আপনার নামে জমা থাকে</p></div></div>
           <div id="contribBox"><div class="skel" style="height:140px"></div></div>
         </section>
-<section class="sec" id="saved">
+<section class="sec view" id="saved">
           <div class="sec-h"><div><h2>সেভ করা প্রতিষ্ঠান</h2><p id="savedSub">পছন্দের প্রতিষ্ঠান এখানে জমা থাকে</p></div><a class="btn btn-line btn-sm" href="index.html">আরও খুঁজুন</a></div>
           <div class="saved" id="savedList">
             <div class="skel" style="height:150px"></div><div class="skel" style="height:150px"></div>
           </div>
         </section>
-<section class="sec" id="card">
+<section class="sec view" id="card">
           <div class="sec-h"><div><h2>আমার শিক্ষিত কার্ড</h2><p id="cardSub">সব ডিভাইসে একই কার্ড</p></div></div>
           <div class="card" id="cardBox"><div class="skel" style="height:190px"></div></div>
         </section>
-<section class="sec" id="chat">
+<section class="sec view" id="chat">
           <div class="card msg-card"><span class="mc-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg></span><div class="mc-tx"><b>Message <i class="cnt-chat" style="display:none"></i></b><span id="chatSub">আপনার স্কিল পেজে আসা চ্যাট আর আপনি যাদের লিখেছেন</span></div><a class="btn btn-blue" href="messages.html">Message খুলুন</a></div>
         </section>
-<section class="sec" id="skill">
+<section class="sec view" id="skill">
           <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
           <div class="card" id="skillBox"><div class="skel" style="height:190px"></div></div>
         </section>
-      <div class="two">
+      <div class="two view" id="partnerWrap">
 <section class="sec" id="partner">
           <div class="card partner">
             <span class="tagline"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>আয়ের সুযোগ</span>
@@ -593,7 +616,7 @@ main.container{margin-top:22px}
           </div>
         </section>
       </div>
-<section class="sec" id="account">
+<section class="sec view" id="account">
           <div class="sec-h"><div><h2>অ্যাকাউন্ট</h2></div></div>
           <div class="card">
             <div class="rows" id="rows"></div>
@@ -708,7 +731,7 @@ async function openAddFromUrl(){
   const id = new URLSearchParams(location.search).get('add'); if(!id) return;
   history.replaceState(null, '', location.pathname + location.hash);
   for(let i = 0; i < 25; i++){ if((STATE.custom || []).some(x => x.id === id)) break; await new Promise(r => setTimeout(r, 300)); }
-  const sec = document.getElementById('saved'); if(sec) sec.scrollIntoView({ block: 'start' });
+  if(location.hash !== '#saved') location.hash = '#saved';
   if((STATE.custom || []).some(x => x.id === id)) imOpen(id); else M.toast('প্রতিষ্ঠানটি খুঁজে পাওয়া যায়নি');
 }
 async function render(){
@@ -757,6 +780,7 @@ function updateProgress(){
   document.querySelectorAll('.cnt-saved').forEach(e => { e.textContent = bn(savedN); });
   $('stCard').textContent = hasCard ? 'আছে' : 'নেই';
   $('stCardS').textContent = hasCard ? 'সেভ করা' : 'এখনো বানাননি';
+  if(typeof ovRefresh === 'function') ovRefresh();
 }
 
 /* ---------- saved institutions ---------- */
@@ -896,11 +920,11 @@ function areaStatus(r){
 async function loadArea(){
   const me = M.current(), box = $('areaBox'); if(!box || !me) return;
   AREA.d = AREA.d || me.area_district || ''; AREA.u = AREA.u || me.area_upazila || '';
-  if(!AREA.d || !AREA.u){ renderAreaPicker(); return; }
+  if(!AREA.d || !AREA.u){ renderAreaPicker(); if(typeof ovRefresh === 'function') ovRefresh(); return; }
   box.innerHTML = '<div class="skel" style="height:150px"></div>';
   const s = await M.sb.rpc('area_summary', { p_district: AREA.d, p_upazila: AREA.u });
   AREA.sum = (s.data && s.data[0]) || { total: 0, verified: 0, mine: 0, open_mine: 0 };
-  renderAreaShell(); fetchArea(false);
+  renderAreaShell(); fetchArea(false); if(typeof ovRefresh === 'function') ovRefresh();
 }
 function renderAreaPicker(){
   const L = window.BD_LOCATIONS || [];
@@ -1093,6 +1117,7 @@ async function loadContrib(){
   if(error){ box.innerHTML = ''; return; }
   const rows = data || [], ok = rows.filter(r => r.status === 'approved'), wait = rows.filter(r => r.status === 'pending');
   const ST = { pending: ['wait', 'পর্যালোচনায়'], approved: ['ok', 'অনুমোদিত'], rejected: ['no', 'ফেরত'] };
+  OV.appr = ok.length; OV.wait = wait.length; if(typeof ovRefresh === 'function') ovRefresh();
   const linked = [...new Map(ok.filter(r => r.listing_submissions).map(r => [r.listing_submissions.desired_slug, r.listing_submissions])).values()];
   box.innerHTML = '<div class="ct-grid"><div><b>' + bn(linked.length) + '</b><span>আপনার নামে যুক্ত প্রতিষ্ঠান</span></div><div><b>' + bn(wait.length) + '</b><span>পর্যালোচনায়</span></div><div><b>' + bn(rows.length) + '</b><span>মোট জমা</span></div></div>' +
     (rows.length ? '<div class="ar-list">' + rows.slice(0, 8).map(r => { const l = r.listing_submissions || {}, st = ST[r.status]; return '<div class="ar-row"><span class="t-ic t-' + typeKey(l.institution_type) + '">' + ico(typeKey(l.institution_type), 22) + '</span><div class="ar-main"><h3>' + (l.desired_slug ? '<a href="institution-detail.html?slug=' + encodeURIComponent(l.desired_slug) + '">' + esc(l.institution_name) + '</a>' : esc(l.institution_name || '—')) + '</h3><p>' + esc([l.upazila, l.district].filter(Boolean).join(', ')) + ' · ' + new Date(r.created_at).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }) + (r.review_note ? ' · ' + esc(r.review_note) : '') + '</p></div><span class="ar-st ' + st[0] + '">' + st[1] + '</span></div>'; }).join('') + '</div>' :
@@ -1316,18 +1341,33 @@ function closeSheet(){ $('sheet').classList.remove('show'); document.body.style.
 $('sheetNav').addEventListener('click', e => { if(e.target.closest('a')) closeSheet(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
-/* ---------- highlight the section that is on screen ---------- */
-const SPY_IDS = ['overview', 'area', 'contrib', 'saved', 'card', 'partner', 'account'];
-let lockUntil = 0;
-function spy(){
-  if(Date.now() < lockUntil) return;
-  const y = window.scrollY + 150; let cur = 'overview';
-  SPY_IDS.forEach(id => { const el = document.getElementById(id); if(el && el.offsetParent !== null && el.getBoundingClientRect().top + window.scrollY <= y) cur = id; });
-  document.querySelectorAll('[data-spy]').forEach(a => a.classList.toggle('on', a.dataset.spy === cur));
+/* ---------- each menu item is its own page (no endless scrolling) ---------- */
+const VIEWS = { overview: ['overview', 'chat'], area: ['area'], contrib: ['contrib'], saved: ['saved'], card: ['card'], skill: ['skill'], partner: ['partnerWrap'], account: ['account'] };
+let routed = false;
+function route(){
+  let h = (location.hash || '#overview').slice(1); if(h === 'chat') h = 'overview'; if(!VIEWS[h]) h = 'overview';
+  const on = new Set(VIEWS[h]);
+  Object.keys(VIEWS).forEach(k => VIEWS[k].forEach(id => { const el = document.getElementById(id); if(el) el.classList.toggle('on', on.has(id)); }));
+  document.querySelectorAll('[data-spy]').forEach(a => a.classList.toggle('on', a.dataset.spy === h));
+  if(routed){ const sh = document.querySelector('.shell'); if(sh){ const top = sh.getBoundingClientRect().top + window.scrollY - 92; if(window.scrollY > top) window.scrollTo({ top: Math.max(0, top), behavior: 'auto' }); } }
+  routed = true;
 }
-document.addEventListener('click', e => { const a = e.target.closest('[data-spy]'); if(!a) return; lockUntil = Date.now() + 1200; document.querySelectorAll('[data-spy]').forEach(x => x.classList.toggle('on', x.dataset.spy === a.dataset.spy)); });
-window.addEventListener('scroll', spy, { passive: true });
-setTimeout(spy, 50);
+window.addEventListener('hashchange', route);
+route();
+/* ---------- overview numbers and the area snapshot ---------- */
+const OV = { appr: null, wait: null };
+function ovRefresh(){
+  const set = (id, v) => { const e = $(id); if(e) e.textContent = v; };
+  set('ovAppr', OV.appr == null ? '—' : bn(OV.appr)); set('ovWait', OV.wait == null ? '—' : bn(OV.wait));
+  set('ovSaved', STATE.saved ? bn(STATE.saved.length) : '—'); set('ovPct', $('stPct') ? $('stPct').textContent : '—');
+  const box = $('ovArea'); if(!box) return;
+  if(!AREA.d || !AREA.u){ box.innerHTML = '<div class="ova-top"><span class="ti g1" style="flex:none">' + ico('pin', 21) + '</span><div class="ova-t"><h3>আপনার এলাকা বেছে নিন</h3><p>নিজের উপজেলা বেছে সেখানকার প্রতিষ্ঠানের তথ্য যাচাই করুন। প্রতিটি যাচাই আপনার নামে জমা থাকে।</p></div></div><a class="btn btn-blue btn-sm" style="margin-top:16px;align-self:flex-start" href="#area">এলাকা বেছে নিন</a>'; return; }
+  if(!AREA.sum){ box.innerHTML = '<div class="skel" style="height:150px"></div>'; return; }
+  const tot = Number(AREA.sum.total), ver = Number(AREA.sum.verified), pct = tot ? Math.round(ver * 100 / tot) : 0, left = Math.max(0, tot - ver);
+  box.innerHTML = '<div class="ova-top"><div class="ova-ring" style="--p:' + pct + '"><b>' + bn(pct) + '%</b></div><div class="ova-t"><h3>' + esc(AREA.u) + ', ' + esc(AREA.d) + '</h3><p>এই উপজেলার প্রতিষ্ঠানের কত অংশ যাচাই হয়েছে</p></div></div>' +
+    '<div class="ova-nums"><div><b>' + bn(tot) + '</b><span>মোট</span></div><div><b>' + bn(ver) + '</b><span>যাচাইকৃত</span></div><div><b>' + bn(left) + '</b><span>বাকি</span></div></div>' +
+    '<a class="btn btn-blue btn-sm" style="align-self:flex-start" href="#area">যাচাই শুরু করুন ' + ico('arrow', 15) + '</a>';
+}
 
 $('fy').textContent = bn(new Date().getFullYear());
 const navEl = $('nav');
