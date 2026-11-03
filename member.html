@@ -452,6 +452,13 @@ main.container{margin-top:22px}
 .ar-add b{font-size:15px}.ar-add span{display:block;font-size:12.5px;color:var(--text-2)}
 .co-credit{display:flex;gap:10px;align-items:flex-start;background:#ECFDF5;border:1px solid #BBF7D0;border-radius:13px;padding:11px 13px;margin:6px 0 12px;font-size:13px;line-height:1.55;color:#065F46;cursor:pointer}
 .co-credit input{margin-top:4px;width:17px;height:17px;accent-color:#059669;flex:none}
+.co-prog{padding:2px 24px 8px}.co-prog .row{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:#64748B;margin-bottom:8px}.co-prog .row b{color:#0B1B4D;font-size:14px}
+.co-bar{display:flex;gap:6px}.co-bar i{flex:1;height:5px;border-radius:5px;background:#E2E8F0;transition:background .25s}.co-bar i.done{background:#93B4F0}.co-bar i.on{background:#2563EB}
+.co-pane{display:none}.co-pane.on{display:block;animation:coIn .22s ease both}@keyframes coIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.co-ttl{margin:6px 0 2px;font-size:17px;font-weight:800;color:#0B1B4D}.co-sub{margin:0 0 10px;color:#64748B;font-size:13.5px;line-height:1.55}
+.co-sum{border:1.5px solid #E2E8F0;border-radius:14px;overflow:hidden;margin:8px 0 12px}.co-sum div{display:flex;gap:12px;padding:9px 13px;border-bottom:1px solid #EEF2F7;font-size:13.5px}.co-sum div:last-child{border:0}.co-sum span{flex:none;width:34%;color:#64748B}.co-sum b{font-weight:600;color:#0B1B4D;word-break:break-word}
+.co-empty{padding:12px 13px;color:#94A3B8;font-size:13.5px}
+@media(max-width:640px){.co-prog{padding-left:18px;padding-right:18px}}
 .co-note{background:#FFF7E6;border:1px solid #FDE68A;color:#92400E;border-radius:13px;padding:10px 13px;font-size:13px;line-height:1.55;margin-bottom:12px}
 .ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .ct-grid div{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px}
@@ -945,19 +952,68 @@ async function coOpen(id){
   const f = (lbl, el) => '<div class="im-f"><label>' + lbl + '</label>' + el + '</div>';
   const inp = (n, v, ph, extra) => '<input class="im-i" data-f="' + n + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
   const one = (n, opts, sel) => imChips(n, opts, sel, false), many = (n, opts, sel) => imChips(n, opts, sel, true);
-  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-x" onclick="coClose()" aria-label="বন্ধ করুন">×</button></header><div class="im-b" data-id="' + esc(id) + '">' +
-    '<div class="co-note">শুধু যে তথ্য আপনি নিশ্চিত, সেটুকুই দিন। ভুল তথ্য দিলে অনুমোদন পাবে না। জমা দিলে Admin পর্যালোচনা করবেন; অনুমোদনের পর প্রতিষ্ঠানটি "যাচাইকৃত" হবে এবং আপনার নামে যুক্ত থাকবে।</div>' +
-    '<div class="im-sec">আপনি কীভাবে জেনেছেন? *</div>' + '<div class="im-chips" data-chips="method" data-multi="0">' + CO_METHOD.map(m => '<button type="button" class="im-chip" data-v="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>' +
-    '<div class="im-sec">যোগাযোগ</div><div class="im-2">' + f('প্রধান / যোগাযোগের নাম', inp('contact_name', l.contact_name, 'যিনি তথ্য দেন')) + f('WhatsApp / ফোন নম্বর', inp('contact_phone', l.contact_phone, '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div>' + f('ঠিকানা / বিবরণ', '<textarea class="im-i" data-f="address_note" rows="2" maxlength="300">' + esc(l.address_note || '') + '</textarea>') +
-    '<div class="im-sec">প্রতিষ্ঠানের তথ্য</div><div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('founding_year', l.founding_year, 'যেমন ২০০৫')) + f('শিক্ষার্থী সংখ্যা', inp('student_count', l.student_count, 'আনুমানিক')) + f('শিক্ষক সংখ্যা', inp('teacher_count', l.teacher_count, 'আনুমানিক')) + '</div>' +
-    f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', l.class_range, 'যেমন: প্লে থেকে দশম')) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status)) +
-    f('মাসিক ফি (আনুমানিক)', inp('fee_range', l.fee_range, 'যেমন: ৫০০-১০০০ টাকা')) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
-    f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(l.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', l.facebook_link, 'https://facebook.com/...')) +
-    '<label class="co-credit"><input type="checkbox" id="coShow" checked><span><b>আমার নাম প্রতিষ্ঠানের পাতায় দেখান</b><br>অনুমোদনের পর পাতায় লেখা থাকবে "তথ্য সংগ্রহ ও যাচাই — by ' + esc((M.current() || {}).display_name || 'আপনার নাম') + '"। সবাই দেখবে, তাই ভালো কাজের স্বীকৃতি আপনার নামেই থাকবে।</span></label>' +
-    f('Admin-এর জন্য নোট (ঐচ্ছিক)', '<textarea class="im-i" data-f="__note" rows="2" maxlength="500" placeholder="যেমন: প্রধান শিক্ষকের সঙ্গে কথা হয়েছে"></textarea>') +
-    '<div class="im-err" id="coErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" onclick="coClose()">বাতিল</button><button type="button" class="btn btn-fill" id="coSave" onclick="coSubmit(\'' + esc(id) + '\')">জমা দিন</button></footer></div>';
+  const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
+  CO.step = 1;
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-x" onclick="coClose()" aria-label="বন্ধ করুন">×</button></header>' +
+    '<div class="co-prog"><div class="row"><span id="coStepNo"></span><b id="coStepName"></b></div><div class="co-bar" id="coBar"><i></i><i></i><i></i><i></i></div></div>' +
+    '<div class="im-b" data-id="' + esc(id) + '">' +
+    pane(1, 'কীভাবে জেনেছেন?', 'শুধু যে তথ্য আপনি নিশ্চিত, সেটুকুই দিন। ভুল তথ্য দিলে অনুমোদন পাবে না।',
+      '<div class="im-chips" data-chips="method" data-multi="0">' + CO_METHOD.map(m => '<button type="button" class="im-chip" data-v="' + m[0] + '">' + m[1] + '</button>').join('') + '</div>' +
+      '<div class="im-sec">যোগাযোগ</div><div class="im-2">' + f('প্রধান / যোগাযোগের নাম', inp('contact_name', l.contact_name, 'যিনি তথ্য দেন')) + f('WhatsApp / ফোন নম্বর', inp('contact_phone', l.contact_phone, '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div>' + f('ঠিকানা / বিবরণ', '<textarea class="im-i" data-f="address_note" rows="2" maxlength="300">' + esc(l.address_note || '') + '</textarea>')) +
+    pane(2, 'প্রতিষ্ঠানের তথ্য', 'যেটুকু জানেন সেটুকুই লিখুন, বাকিটা ফাঁকা রাখুন।',
+      '<div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('founding_year', l.founding_year, 'যেমন ২০০৫')) + f('শিক্ষার্থী সংখ্যা', inp('student_count', l.student_count, 'আনুমানিক')) + f('শিক্ষক সংখ্যা', inp('teacher_count', l.teacher_count, 'আনুমানিক')) + '</div>' +
+      f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', l.class_range, 'যেমন: প্লে থেকে দশম')) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status))) +
+    pane(3, 'সুযোগ-সুবিধা ও বিবরণ', 'অভিভাবকরা সবচেয়ে বেশি যা জানতে চান।',
+      f('মাসিক ফি (আনুমানিক)', inp('fee_range', l.fee_range, 'যেমন: ৫০০-১০০০ টাকা')) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
+      f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(l.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', l.facebook_link, 'https://facebook.com/...'))) +
+    pane(4, 'দেখে নিন, তারপর জমা দিন', 'জমা দিলে Admin পর্যালোচনা করবেন; অনুমোদনের পর প্রতিষ্ঠানটি "যাচাইকৃত" হবে এবং আপনার নামে যুক্ত থাকবে।',
+      '<div class="co-sum" id="coSum"></div>' +
+      '<label class="co-credit"><input type="checkbox" id="coShow" checked><span><b>আমার নাম প্রতিষ্ঠানের পাতায় দেখান</b><br>অনুমোদনের পর পাতায় লেখা থাকবে "তথ্য সংগ্রহ ও যাচাই — by ' + esc((M.current() || {}).display_name || 'আপনার নাম') + '"। সবাই দেখবে, তাই ভালো কাজের স্বীকৃতি আপনার নামেই থাকবে।</span></label>' +
+      f('Admin-এর জন্য নোট (ঐচ্ছিক)', '<textarea class="im-i" data-f="__note" rows="2" maxlength="500" placeholder="যেমন: প্রধান শিক্ষকের সঙ্গে কথা হয়েছে"></textarea>')) +
+    '<div class="im-err" id="coErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" id="coBack" onclick="coGo(-1)">বাতিল</button><button type="button" class="btn btn-fill" id="coNext" onclick="coGo(1)">পরবর্তী →</button></footer></div>';
+  coPaint();
   ov.classList.add('show'); document.body.style.overflow = 'hidden';
   ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } }));
+}
+const CO = { step: 1 }, CO_STEPS = ['কীভাবে জেনেছেন', 'প্রতিষ্ঠানের তথ্য', 'সুযোগ-সুবিধা', 'জমা দিন'];
+function coCollect(){
+  const root = $('coDlg'), o = {}, chips = {}; let note = '';
+  root.querySelectorAll('[data-f]').forEach(el => { if(el.dataset.f === '__note') note = el.value.trim(); else o[el.dataset.f] = el.value.trim(); });
+  root.querySelectorAll('.im-chips').forEach(g => { const v = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); chips[g.dataset.chips] = g.dataset.multi === '1' ? v : (v[0] || ''); });
+  return { o, chips, note };
+}
+function coPaint(){
+  const root = $('coDlg'), n = CO.step, last = CO_STEPS.length;
+  root.querySelectorAll('.co-pane').forEach(p => p.classList.toggle('on', Number(p.dataset.p) === n));
+  root.querySelectorAll('#coBar i').forEach((i, k) => { i.className = k + 1 < n ? 'done' : k + 1 === n ? 'on' : ''; });
+  $('coStepNo').textContent = 'ধাপ ' + bn(n) + ' / ' + bn(last); $('coStepName').textContent = CO_STEPS[n - 1];
+  $('coBack').textContent = n === 1 ? 'বাতিল' : '← আগের ধাপ';
+  $('coNext').textContent = n === last ? 'জমা দিন' : 'পরবর্তী →';
+  $('coErr').textContent = '';
+  const body = root.querySelector('.im-b'); if(body) body.scrollTop = 0;
+  if(n === last) coSummary();
+}
+function coSummary(){
+  const { o, chips } = coCollect(), L = { contact_name: 'যোগাযোগের নাম', contact_phone: 'ফোন', address_note: 'ঠিকানা', founding_year: 'প্রতিষ্ঠার সাল', student_count: 'শিক্ষার্থী', teacher_count: 'শিক্ষক', class_range: 'শ্রেণি', fee_range: 'মাসিক ফি', description: 'বর্ণনা', facebook_link: 'ফেসবুক', medium: 'মাধ্যম', gender_type: 'ছাত্র/ছাত্রী', ownership: 'মালিকানা', admission_status: 'ভর্তি', facilities: 'সুযোগ-সুবিধা', achievements: 'বিশেষত্ব' };
+  const mt = (CO_METHOD.find(m => m[0] === chips.method) || [])[1] || '';
+  const rows = []; if(mt) rows.push(['কীভাবে জেনেছেন', mt]);
+  Object.keys(L).forEach(k => { const v = k in o ? o[k] : chips[k]; if(Array.isArray(v) ? v.length : v) rows.push([L[k], Array.isArray(v) ? v.join(', ') : v]); });
+  $('coSum').innerHTML = rows.length ? rows.map(r => '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join('') : '<div class="co-empty">এখনো কিছু দেওয়া হয়নি। আগের ধাপে গিয়ে তথ্য দিন।</div>';
+}
+function coCheck(n){
+  const { o, chips } = coCollect();
+  if(n === 1){
+    if(!chips.method) return 'আপনি কীভাবে তথ্য জেনেছেন, সেটা বাছুন।';
+    if(o.contact_phone && !/^01[0-9]{9}$/.test(o.contact_phone)) return 'সঠিক নম্বর দিন (01XXXXXXXXX)।';
+  }
+  return '';
+}
+function coGo(d){
+  const root = $('coDlg'), last = CO_STEPS.length;
+  if(d < 0){ if(CO.step === 1) coClose(); else { CO.step--; coPaint(); } return; }
+  const e = coCheck(CO.step); if(e){ $('coErr').textContent = e; return; }
+  if(CO.step === last){ coSubmit(root.querySelector('.im-b').dataset.id); return; }
+  CO.step++; coPaint();
 }
 function coClose(){ const ov = $('coDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
 async function coSubmit(id){
@@ -966,11 +1022,11 @@ async function coSubmit(id){
   root.querySelectorAll('[data-f]').forEach(el => { if(el.dataset.f === '__note') note = el.value.trim(); else o[el.dataset.f] = el.value.trim(); });
   root.querySelectorAll('.im-chips').forEach(g => { const v = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); chips[g.dataset.chips] = g.dataset.multi === '1' ? v : (v[0] || ''); });
   const method = chips.method; delete chips.method;
-  if(!method){ err.textContent = 'আপনি কীভাবে তথ্য জেনেছেন, সেটা বাছুন।'; return; }
-  if(o.contact_phone && !/^01[0-9]{9}$/.test(o.contact_phone)){ err.textContent = 'সঠিক নম্বর দিন (01XXXXXXXXX)।'; return; }
+  if(!method){ CO.step = 1; coPaint(); $('coErr').textContent = 'আপনি কীভাবে তথ্য জেনেছেন, সেটা বাছুন।'; return; }
+  if(o.contact_phone && !/^01[0-9]{9}$/.test(o.contact_phone)){ CO.step = 1; coPaint(); $('coErr').textContent = 'সঠিক নম্বর দিন (01XXXXXXXXX)।'; return; }
   const payload = Object.assign({}, o, chips); Object.keys(payload).forEach(k => { const v = payload[k]; if(v === '' || (Array.isArray(v) && !v.length)) delete payload[k]; });
   if(!Object.keys(payload).length){ err.textContent = 'অন্তত একটি তথ্য দিন।'; return; }
-  const btn = $('coSave'); btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
+  const btn = $('coNext'); btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
   const r = await M.sb.rpc('submit_contribution', { p_listing: id, p_payload: payload, p_method: method, p_note: note || null, p_show_name: !!($('coShow') && $('coShow').checked) });
   btn.disabled = false; btn.textContent = 'জমা দিন';
   if(r.error){ const m = r.error.message || ''; err.textContent = /ALREADY_PENDING/.test(m) ? 'এই প্রতিষ্ঠানে আপনার একটি জমা আগে থেকেই পর্যালোচনায় আছে।' : /TOO_MANY/.test(m) ? 'আপনার অনেকগুলো জমা পর্যালোচনায় আছে। কিছু অনুমোদন হলে আবার দিন।' : /BAD_PHONE/.test(m) ? 'সঠিক নম্বর দিন (01XXXXXXXXX)।' : /BAD_DATA/.test(m) ? 'কিছু তথ্যের ধরন ঠিক নেই (যেমন সাল বা সংখ্যা)। দেখে আবার দিন।' : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।'; return; }
