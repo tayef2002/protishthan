@@ -765,8 +765,8 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 .ls-abc{opacity:0;animation:lsAbc 8s ease-out infinite}
 .ls-abc.a2{animation-delay:-2s}.ls-abc.a3{animation-delay:-4s}.ls-abc.a4{animation-delay:-6s}
 @keyframes lsAbc{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
-.ls-cap{animation:lsCap 2.8s ease-in-out infinite}.ls-cap.c2{animation-delay:-.9s}.ls-cap.c3{animation-delay:-1.8s}
-@keyframes lsCap{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-34px) rotate(200deg)}}
+.ls-cap{transform-box:fill-box;transform-origin:center;animation:lsCap 4.2s infinite}.ls-cap.c2{animation-delay:.35s}.ls-cap.c3{animation-delay:.7s}
+@keyframes lsCap{0%,10%{transform:translateY(0) rotate(0);animation-timing-function:cubic-bezier(.2,.7,.3,1)}48%{transform:translateY(-54px) rotate(330deg);animation-timing-function:cubic-bezier(.5,0,.8,.4)}86%,100%{transform:translateY(0) rotate(360deg)}}
 .ls-wave{transform-origin:left center;animation:lsWave .5s ease-in-out infinite alternate}
 @keyframes lsWave{from{transform:rotate(-30deg)}to{transform:rotate(20deg)}}
 .ls-cloud{animation:lsCloud 60s ease-in-out infinite alternate}.ls-cloud.c2{animation-duration:80s}

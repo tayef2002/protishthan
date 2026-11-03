@@ -27,8 +27,8 @@
 @keyframes pfFl{to{transform:translateY(-7px)}}
 .pf-art .cloud{animation:pfCloud 70s ease-in-out infinite alternate}.pf-art .cloud.c2{animation-duration:95s}
 @keyframes pfCloud{from{transform:translateX(-50px)}to{transform:translateX(70px)}}
-.pf-art .cap{animation:pfCap 2.8s ease-in-out infinite;animation-delay:var(--d,0s)}
-@keyframes pfCap{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-36px) rotate(200deg)}}
+.pf-art .cap{transform-box:fill-box;transform-origin:center;animation:pfCap 4.2s infinite;animation-delay:var(--d,0s)}
+@keyframes pfCap{0%,10%{transform:translateY(0) rotate(0);animation-timing-function:cubic-bezier(.2,.7,.3,1)}48%{transform:translateY(-54px) rotate(330deg);animation-timing-function:cubic-bezier(.5,0,.8,.4)}86%,100%{transform:translateY(0) rotate(360deg)}}
 .pf-art .flag{transform-box:fill-box;transform-origin:left center;animation:pfFlag 2.6s ease-in-out infinite}
 @keyframes pfFlag{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-4deg) scaleX(.93)}}
 .pf-art .sway{transform-box:fill-box;transform-origin:50% 0;animation:pfSway 3.4s ease-in-out infinite alternate;animation-delay:var(--d,0s)}

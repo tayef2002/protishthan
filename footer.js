@@ -106,7 +106,7 @@
 
     // learners walking between the buildings, graduation caps in the air, trees, birds
     s += walker('w1', 236, 'pf-kid', 1) + walker('w2', 500, 'pf-girl', 1) + walker('w3', 790, 'pf-mad', 1) + walker('w1', 1105, 'pf-grad', 1);
-    s += '<g class="cap" style="--d:-.6s"><use href="#pf-cap" transform="translate(900 ' + (ut - 46) + ')"/></g>';
+    [930, 954, 978].forEach(function(gx, gi){ s += '<g transform="translate(' + gx + ' ' + G + ')"><g class="bob"><use href="#pf-grad"/></g></g><g class="cap" style="--d:' + (gi * .35) + 's"><use href="#pf-cap" transform="translate(' + gx + ' ' + (G - 46) + ')"/></g>'; });
     s += tree(26, .75) + tree(1424, .8);
     s += [[40, 120], [520, 40], [880, 40], [1100, 150]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .7) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
     s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 90)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g><g class="bird" style="--d:-7s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 130)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g>';
