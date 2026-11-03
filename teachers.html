@@ -1000,11 +1000,13 @@ async function saveTeacher(){
 
       // If phone changed, update auth password too
       if(currentTeacher && currentTeacher.phone !== phone && currentTeacher.auth_user_id){
-        await fetch('/api/update-teacher-password', {
+        const { data: { session: pwSession } } = await sb.auth.getSession();   // the server only accepts the institution owner's own signed-in request
+        const pwRes = await fetch('/api/update-teacher-password', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (pwSession ? pwSession.access_token : '') },
           body: JSON.stringify({ user_id: currentTeacher.auth_user_id, new_password: phone })
         });
+        if(!pwRes.ok) showToast('error', 'লগইন পাসওয়ার্ড বদলায়নি', 'ফোন নম্বর সেভ হয়েছে, কিন্তু শিক্ষকের লগইন পাসওয়ার্ড নতুন নম্বরে বদলানো যায়নি। আবার চেষ্টা করুন।');
       }
 
       await syncTeacherPrimaryClass(editTeacherId, primaryClassId);
