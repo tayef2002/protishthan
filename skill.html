@@ -370,6 +370,7 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .pv-pane{display:none}.pv-pane.on{display:block}
 .pv-canvas{display:block;width:100%;height:auto;border-radius:20px;background:#0B1020}
 .pv-cap{margin-top:6px;text-align:center;font-size:12px;color:var(--text-3);line-height:1.5}
+.ok-box .fbcard{margin:10px 0 14px}
 .fbcard{border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--border)}
 .fbcard canvas{display:block;width:100%;height:auto}
 .fbcard .t{padding:12px 14px;background:#F0F2F5}
@@ -690,7 +691,8 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       <div class="pub-row"><button class="btn-pri" type="button" id="pubBtn">প্রকাশ করুন</button><button class="btn-line" type="button" id="unpubBtn" style="display:none">প্রকাশ বন্ধ করুন</button><span class="st" id="saveSt"></span></div>
       <div class="ok-box" id="okBox" style="display:none">
         <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>আপনার পেজ এখন লাইভ!</h3>
-        <p>লিংকটা কপি করে যেখানে খুশি শেয়ার করুন, নাম আর স্কিলসহ সুন্দর একটা প্রিভিউ দেখা যাবে।</p>
+        <p>লিংকটা কপি করে যেখানে খুশি শেয়ার করুন, Facebook, WhatsApp বা LinkedIn-এ এরকম প্রিভিউ দেখা যাবে।</p>
+        <div class="fbcard" id="okCard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div>
         <div class="lk-copy"><input id="okLink" readonly aria-label="আপনার স্কিল পেজের লিংক"><button class="btn-line" type="button" id="okCopy">কপি</button></div>
         <div class="shr"><a id="shWa" target="_blank" rel="noopener">WhatsApp</a><a id="shFb" target="_blank" rel="noopener">Facebook</a><a id="shLi" target="_blank" rel="noopener">LinkedIn</a><a id="shView" target="_blank" rel="noopener">পেজ দেখুন ↗</a><button type="button" id="shCard">পোস্ট ছবি ডাউনলোড</button></div>
       </div>
@@ -700,7 +702,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
-    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/></svg><span>প্রোফাইল</span></button><button type="button" class="on" data-p="ct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span></button><button type="button" data-p="po"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span></button><button type="button" data-p="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span></button><button type="button" data-p="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 006.4 0l3-3a4.5 4.5 0 00-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 00-6.4 0l-3 3a4.5 4.5 0 006.4 6.4l1-1"/></svg><span>লিংক প্রিভিউ</span></button></div>
+    <div class="pv-tabs" role="tablist"><button type="button" data-p="pf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/></svg><span>প্রোফাইল</span></button><button type="button" class="on" data-p="ct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span></button><button type="button" data-p="po"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span></button><button type="button" data-p="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span></button></div>
     <div class="pv-bar" style="display:none"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
@@ -718,7 +720,6 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
         </div>
         <div class="cov-wrap" id="covWrap"><canvas class="pv-canvas" id="cvCover" width="1640" height="720"></canvas></div>
       </div>
-      <div class="pv-pane" id="pvLk" style="padding:14px"><div class="fbcard"><canvas id="cvOg" width="1200" height="630"></canvas><div class="t"><small>protishthan.com</small><b id="lkTitle"></b><span id="lkDesc"></span></div></div><div class="pv-cap">Facebook, WhatsApp বা LinkedIn-এ লিংক পাঠালে এরকম দেখাবে</div></div>
     </div>
   </aside>
 </div>
@@ -946,13 +947,14 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   }
   async function drawCanvases(){
     drawMini();
-    if(!$('pvPo').classList.contains('on') && !$('pvLk').classList.contains('on') && !$('pvCt').classList.contains('on') && !$('pvCv').classList.contains('on')) return;
+    const okOn = !!($('okBox') && $('okBox').offsetParent !== null);
+    if(!$('pvPo').classList.contains('on') && !okOn && !$('pvCt').classList.contains('on') && !$('pvCv').classList.contains('on')) return;
     const p = Object.assign(previewCanvas(), { published_at: ROW && ROW.published_at });
     try{
       if($('pvPo').classList.contains('on')){ const cv = await C.draw(p, 'post'); const t = $('cvPost'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvCv').classList.contains('on')){ const cv = await C.draw(p, 'cover'); const t = $('cvCover'); t.getContext('2d').drawImage(cv, 0, 0); }
       if($('pvCt').classList.contains('on')){ const cv = await C.draw(p, 'cert'); const t = $('cvCert'); t.getContext('2d').drawImage(cv, 0, 0); }
-      if($('pvLk').classList.contains('on')){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'নিজে দেওয়া তথ্য।'; }
+      if(okOn){ const cv = await C.draw(p, 'certog'); const t = $('cvOg'); t.getContext('2d').drawImage(cv, 0, 0); $('lkTitle').textContent = (p.display_name || 'আপনার নাম') + (p.headline ? ' — ' + p.headline : '') + ' | Protishthan'; $('lkDesc').textContent = (p.headline ? p.headline + '. ' : '') + (p.skills.length ? 'স্কিল: ' + p.skills.slice(0, 5).map(s => s.n).join(', ') + '. ' : '') + 'নিজে দেওয়া তথ্য।'; }
     }catch(e){}
   }
   async function drawMini(){
@@ -964,7 +966,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   function setTab(k){
     PV = k;
     document.querySelectorAll('.pv-tabs button').forEach(x => x.classList.toggle('on', x.dataset.p === k));
-    const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', cv: 'pvCv', lk: 'pvLk' };
+    const map = { pf: 'pvPf', ct: 'pvCt', po: 'pvPo', cv: 'pvCv' };
     Object.keys(map).forEach(q => $(map[q]).classList.toggle('on', q === k));
     $('barCap').style.display = k === 'po' ? '' : 'none';
     $('barDl').style.display = (k === 'ct' || k === 'po' || k === 'cv') ? '' : 'none';
@@ -994,6 +996,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     $('danger').style.display = ROW ? '' : 'none';
     $('uWarn').style.display = pub ? '' : 'none';
     $('okBox').style.display = pub ? '' : 'none';
+    if(pub && typeof drawCanvases === 'function') setTimeout(drawCanvases, 0);
     if(pub){ const u = 'https://protishthan.com/s/' + ROW.username, t = encodeURIComponent((S.display_name || '') + ' — আমার স্কিল আইডেন্টিটি: ' + u); $('okLink').value = u; $('shWa').href = 'https://wa.me/?text=' + t; $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u); $('shLi').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(u); $('shView').href = '/s/' + ROW.username; }
   }
   function paintContact(){
@@ -1184,7 +1187,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     on('pvDots', 'click', e => { const b = e.target.closest('[data-t]'); if(!b) return; S.theme = b.dataset.t; paintThemes(); paintPreview(); autosave(); });
     on('ctZoom', 'click', () => zoom('cert'));
     on('ctDl', 'click', () => downloadCard('cert'));
-    on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : PV === 'lk' ? 'certog' : 'cert'));
+    on('barZoom', 'click', () => zoom(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('barDl', 'click', () => downloadCard(PV === 'po' ? 'post' : PV === 'cv' ? 'cover' : 'cert'));
     on('cvCover', 'click', () => zoom('cover'));
     const paintCovStyle = () => document.querySelectorAll('#covStyles button').forEach(b => b.classList.toggle('on', b.dataset.s === (S.cover_style || 'royal')));
