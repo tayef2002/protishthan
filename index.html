@@ -173,6 +173,40 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 @keyframes esKick{0%,100%{transform:rotate(-8deg)}15%,85%{transform:rotate(3deg)}}
 .es-rock{transform-origin:center bottom;animation:esRock 1.6s ease-in-out infinite alternate}
 @keyframes esRock{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+/* guided search ("find a school for my child") */
+.gw-cta{display:flex;align-items:center;gap:13px;width:min(100%,640px);margin:0 auto 12px;padding:11px 16px;border-radius:18px;border:1.5px solid #CFE0FF;background:linear-gradient(135deg,#fff,#EEF4FF);box-shadow:0 10px 26px -14px rgba(26,86,219,.45);cursor:pointer;text-align:left;font-family:inherit;transition:transform .18s,box-shadow .18s,border-color .18s}
+.gw-cta:hover{transform:translateY(-2px);border-color:#93B4F0;box-shadow:0 16px 30px -14px rgba(26,86,219,.55)}
+.gw-ic{flex:none;width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#1A56DB,#7C3AED);color:#fff;display:grid;place-items:center}
+.gw-tx{flex:1;min-width:0}.gw-tx b{display:block;font-size:15.5px;color:#0B1B4D;line-height:1.3}.gw-tx small{display:block;margin-top:1px;font-size:12.5px;color:#64748B}
+.gw-ar{flex:none;color:#1A56DB}
+.gw-ov{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,16,40,.55);backdrop-filter:blur(6px)}
+.gw-ov.show{display:flex}
+.gw-sheet{width:min(560px,100%);max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:26px;box-shadow:0 40px 100px -20px rgba(2,8,23,.55);overflow:hidden;animation:gwUp .28s cubic-bezier(.2,.7,.3,1) both}
+@keyframes gwUp{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.gw-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 24px 4px}.gw-h span{font-size:12.5px;color:#64748B;font-weight:600}
+.gw-x{width:34px;height:34px;border-radius:50%;border:0;background:#F1F5F9;color:#475569;font-size:20px;cursor:pointer;line-height:1}
+.gw-bar{display:flex;gap:6px;padding:8px 24px 0}.gw-bar i{flex:1;height:5px;border-radius:5px;background:#E2E8F0}.gw-bar i.done{background:#93B4F0}.gw-bar i.on{background:#2563EB}
+.gw-b{overflow-y:auto;padding:14px 24px 8px}
+.gw-b h3{margin:0 0 4px;font-size:21px;color:#0B1B4D}.gw-b p.gw-sub{margin:0 0 14px;color:#64748B;font-size:14px}
+.gw-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gw-tile{display:flex;align-items:center;gap:11px;padding:13px;border:1.5px solid #E2E8F0;border-radius:16px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;transition:border-color .15s,background .15s,transform .15s}
+.gw-tile:hover{border-color:#93B4F0;background:#F8FAFF}.gw-tile.on{border-color:#2563EB;background:#EEF4FF;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.gw-tile .gi{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#EEF2FF;color:#4F46E5}
+.gw-tile b{display:block;font-size:14.5px;color:#0B1B4D;line-height:1.25}.gw-tile small{display:block;font-size:12px;color:#64748B;margin-top:1px}
+.gw-skip{display:block;margin:12px auto 0;background:none;border:0;color:#2563EB;font:600 13.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
+.gw-f{margin-bottom:12px}.gw-f label{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px}
+.gw-f select{width:100%;height:48px;padding:0 14px;border:1.5px solid #E2E8F0;border-radius:14px;background:#fff;font:500 15px 'Hind Siliguri','Inter',sans-serif;color:#0F172A}
+.gw-f select:focus{outline:none;border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.14)}
+.gw-mine{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:8px 14px;border-radius:100px;border:1.5px dashed #93B4F0;background:#F5F8FF;color:#1A56DB;font:700 13.5px 'Hind Siliguri',sans-serif;cursor:pointer}
+.gw-err{min-height:18px;color:#DC2626;font-size:13px}
+.gw-foot{display:flex;gap:10px;justify-content:space-between;padding:12px 24px 20px;border-top:1px solid #EEF2F7}
+.gw-btn{height:48px;padding:0 22px;border-radius:14px;border:1.5px solid #D9E4FB;background:#fff;color:#334155;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer}
+.gw-btn.pri{flex:1;border:0;background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;box-shadow:0 10px 22px -10px rgba(26,86,219,.7)}
+.gw-btn:disabled{opacity:.5;cursor:default}
+.gw-banner{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 14px;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,#EEF4FF,#F5F0FF);border:1.5px solid #CFE0FF;color:#1E3A8A;font-size:14.5px}
+.gw-banner b{color:#0B1B4D}.gw-banner button{border:0;background:#fff;border:1px solid #CFE0FF;border-radius:100px;padding:6px 14px;font:700 13px 'Hind Siliguri',sans-serif;color:#1A56DB;cursor:pointer}
+@media(max-width:640px){.gw-ov{align-items:flex-end;padding:0}.gw-sheet{width:100%;border-radius:26px 26px 0 0;max-height:94vh}.gw-tiles{grid-template-columns:1fr}.gw-cta{padding:10px 13px}.gw-tx small{font-size:12px}.gw-h,.gw-bar,.gw-b,.gw-foot{padding-left:18px;padding-right:18px}}
+@media(prefers-reduced-motion:reduce){.gw-sheet{animation:none}}
 /* university: caps tossed */
 .es-cap{opacity:0;animation:esCap 9s ease-out infinite}
 .es-cap.c2{animation-delay:-3s}.es-cap.c3{animation-delay:-6s}
@@ -848,6 +882,11 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
         <span class="qf" role="tab" onclick="quickFilterType('বিশ্ববিদ্যালয়',this)">বিশ্ববিদ্যালয়</span>
         <span class="qf" role="tab" onclick="quickFilterType('কোচিং সেন্টার',this)">কোচিং সেন্টার</span>
       </div>
+      <button type="button" class="gw-cta" onclick="gwOpen()" aria-haspopup="dialog">
+        <span class="gw-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></span>
+        <span class="gw-tx"><b>সন্তানের জন্য প্রতিষ্ঠান খুঁজে দিন</b><small>২টা প্রশ্নের উত্তর দিন, বাকিটা আমরা সাজিয়ে দেব</small></span>
+        <svg class="gw-ar" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
       <div class="search-box-wrap">
         <div class="search-box" id="searchBox">
           <label class="sb-field sb-q" for="mainSearch">
@@ -2249,6 +2288,83 @@ loadApprovedInstitutions();
 <script>
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>40)},{ passive:true});
+</script>
+<script>
+/* guided search: type -> place -> the normal list, filtered */
+(function(){
+  var GW = { step: 1, type: '', d: '', u: '' };
+  var TYPES = [
+    ['স্কুল', 'প্লে থেকে দশম', 'book'], ['মাদ্রাসা', 'ইবতেদায়ি থেকে আলিম', 'mosque'], ['কলেজ', 'একাদশ থেকে মাস্টার্স', 'cap'],
+    ['কারিগরি', 'ডিপ্লোমা, ভোকেশনাল', 'tools'], ['বিশ্ববিদ্যালয়', 'স্নাতক ও স্নাতকোত্তর', 'landmark'], ['কোচিং সেন্টার', 'পড়ার সহায়তা', 'pencil']
+  ];
+  var $g = function(id){ return document.getElementById(id); };
+  var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(m){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
+  var icon = function(n){ try{ return ico(n, 20); }catch(e){ return ''; } };
+  function myArea(){ try{ var m = window.Protishthan && Protishthan.member && Protishthan.member.current && Protishthan.member.current(); return m && m.area_district && m.area_upazila ? { d: m.area_district, u: m.area_upazila } : null; }catch(e){ return null; } }
+  function build(){
+    var ov = $g('gwOv'); if(ov) return ov;
+    ov = document.createElement('div'); ov.id = 'gwOv'; ov.className = 'gw-ov';
+    ov.addEventListener('click', function(e){ if(e.target === ov) gwClose(); });
+    ov.innerHTML = '<div class="gw-sheet" role="dialog" aria-modal="true" aria-labelledby="gwT"><div class="gw-h"><span id="gwStep"></span><button type="button" class="gw-x" onclick="gwClose()" aria-label="বন্ধ করুন">×</button></div><div class="gw-bar"><i></i><i></i></div><div class="gw-b" id="gwBody"></div><div class="gw-foot"><button type="button" class="gw-btn" id="gwBack">বাতিল</button><button type="button" class="gw-btn pri" id="gwNext">পরবর্তী →</button></div></div>';
+    document.body.appendChild(ov);
+    $g('gwBack').addEventListener('click', function(){ if(GW.step === 1) gwClose(); else { GW.step = 1; paint(); } });
+    $g('gwNext').addEventListener('click', function(){ if(GW.step === 1){ if(!GW.type && !GW.any){ $g('gwErr').textContent = 'একটা ধরন বাছুন, বা নিচের "সব ধরন" চাপুন।'; return; } GW.step = 2; paint(); } else finish(); });
+    ov.addEventListener('keydown', function(e){ if(e.key === 'Escape') gwClose(); });
+    return ov;
+  }
+  function paint(){
+    var body = $g('gwBody'), n = GW.step;
+    document.querySelectorAll('#gwOv .gw-bar i').forEach(function(i, k){ i.className = k + 1 < n ? 'done' : k + 1 === n ? 'on' : ''; });
+    $g('gwStep').textContent = 'ধাপ ' + (n === 1 ? '১' : '২') + ' / ২';
+    $g('gwBack').textContent = n === 1 ? 'বাতিল' : '← আগের ধাপ'; $g('gwNext').textContent = n === 1 ? 'পরবর্তী →' : 'প্রতিষ্ঠান দেখুন';
+    if(n === 1){
+      body.innerHTML = '<h3 id="gwT">কোন ধরনের প্রতিষ্ঠান খুঁজছেন?</h3><p class="gw-sub">সন্তানের পড়ার স্তর অনুযায়ী বাছুন।</p><div class="gw-tiles">' +
+        TYPES.map(function(t){ return '<button type="button" class="gw-tile' + (GW.type === t[0] ? ' on' : '') + '" data-t="' + esc(t[0]) + '"><span class="gi">' + icon(t[2]) + '</span><span><b>' + esc(t[0]) + '</b><small>' + esc(t[1]) + '</small></span></button>'; }).join('') +
+        '</div><button type="button" class="gw-skip" id="gwAny">ধরন ঠিক করিনি, সব ধরন দেখান</button><div class="gw-err" id="gwErr"></div>';
+      body.querySelectorAll('.gw-tile').forEach(function(b){ b.addEventListener('click', function(){ GW.type = b.dataset.t; GW.any = false; body.querySelectorAll('.gw-tile').forEach(function(x){ x.classList.toggle('on', x === b); }); $g('gwErr').textContent = ''; }); });
+      $g('gwAny').addEventListener('click', function(){ GW.type = ''; GW.any = true; GW.step = 2; paint(); });
+    } else {
+      var me = myArea();
+      body.innerHTML = '<h3 id="gwT">কোন এলাকায়?</h3><p class="gw-sub">যে এলাকার প্রতিষ্ঠান দেখতে চান, সেটা বাছুন।</p>' +
+        (me ? '<button type="button" class="gw-mine" id="gwMine"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>আমার এলাকা: ' + esc(me.u) + ', ' + esc(me.d) + '</button>' : '') +
+        '<div class="gw-f"><label for="gwD">জেলা</label><select id="gwD"><option value="">জেলা বাছুন</option>' + BD_LOCATIONS.map(function(d){ return '<option' + (GW.d === d.n ? ' selected' : '') + '>' + esc(d.n) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="gw-f"><label for="gwU">উপজেলা / থানা</label><select id="gwU"></select></div><div class="gw-err" id="gwErr"></div>';
+      fillU(); $g('gwD').addEventListener('change', function(){ GW.d = this.value; GW.u = ''; fillU(); }); $g('gwU').addEventListener('change', function(){ GW.u = this.value; });
+      if(me) $g('gwMine').addEventListener('click', function(){ GW.d = me.d; GW.u = me.u; $g('gwD').value = me.d; fillU(); });
+    }
+  }
+  function fillU(){
+    var d = BD_LOCATIONS.find(function(x){ return x.n === GW.d; }), sel = $g('gwU');
+    sel.innerHTML = '<option value="">' + (d ? 'সব উপজেলা' : 'আগে জেলা বাছুন') + '</option>' + (d ? d.u.map(function(u){ return '<option' + (GW.u === u ? ' selected' : '') + '>' + esc(u) + '</option>'; }).join('') : '');
+    sel.disabled = !d;
+  }
+  function finish(){
+    if(!GW.d){ $g('gwErr').textContent = 'আগে জেলা বাছুন।'; return; }
+    selectedType = GW.type; selectedDivision = '';
+    document.querySelectorAll('.div-card').forEach(function(c){ c.classList.remove('sel'); });
+    var ms = $g('mainSearch'); if(ms) ms.value = '';
+    var fm = $g('filterMedium'); if(fm) fm.value = '';
+    try{ var ad = $g('filterAdmissionOpen'); if(ad) ad.classList.remove('on'); CHIP_F.own = ''; CHIP_F.gender = ''; CHIP_F.adm = ''; CHIP_F.fac.clear(); }catch(e){}
+    syncTypeUI();
+    $g('filterDistrict').value = GW.d; onFilterDistrictChange();
+    if(GW.u){ $g('filterUpazila').value = GW.u; }
+    applyFilters();
+    var place = (GW.u ? GW.u + ', ' : '') + GW.d, what = GW.type || 'সব ধরনের প্রতিষ্ঠান';
+    var old = $g('gwBanner'); if(old) old.remove();
+    var b = document.createElement('div'); b.id = 'gwBanner'; b.className = 'gw-banner';
+    b.innerHTML = '<span><b>' + esc(what) + '</b> · ' + esc(place) + '</span><button type="button" id="gwEdit">বদলান</button><button type="button" id="gwOff">✕ সরান</button>';
+    var head = document.querySelector('.r-head'); if(head) head.parentNode.insertBefore(b, head.nextSibling);
+    $g('gwEdit').addEventListener('click', function(){ gwOpen(true); });
+    $g('gwOff').addEventListener('click', function(){ b.remove(); clearScopeFilters(); });
+    gwClose();
+    setTimeout(function(){ var t = document.querySelector('.results'); if(t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+  }
+  window.gwOpen = function(keep){
+    var ov = build(); if(!keep){ GW = { step: 1, type: '', d: '', u: '', any: false }; } else GW.step = 1;
+    paint(); ov.classList.add('show'); document.body.style.overflow = 'hidden';
+  };
+  window.gwClose = function(){ var ov = $g('gwOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; };
+})();
 </script>
 </body>
 </html>
