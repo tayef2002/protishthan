@@ -225,31 +225,63 @@ a{color:inherit}
 .step .n{position:relative;z-index:1;width:68px;height:68px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font:800 26px 'Inter','Hind Siliguri',sans-serif;box-shadow:0 18px 30px -12px rgba(79,70,229,.8)}
 .step h3{font-size:19px;color:#0B1B4D}.step p{font-size:14.5px;color:#64748B;max-width:300px;margin:6px auto 0}
 
-/* offer + calculator */
-.offer{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:42px;align-items:stretch}
-.of-l{padding:34px;border-radius:28px;background:radial-gradient(420px 260px at 90% 0,rgba(124,58,237,.35),transparent 60%),linear-gradient(150deg,#0F1B3D,#0A1228);color:#fff;display:flex;flex-direction:column;gap:20px}
-.of-big{display:flex;align-items:center;gap:18px}.of-big b{font:800 clamp(64px,8vw,92px)/1 'Inter','Hind Siliguri',sans-serif;letter-spacing:-3px;background:linear-gradient(120deg,#7DB1FF,#C4B5FD 60%,#67E8F9);-webkit-background-clip:text;background-clip:text;color:transparent}
-.of-big span{font-size:17px;line-height:1.4;color:rgba(255,255,255,.8)}
-.of-ul{list-style:none;display:grid;gap:12px}.of-ul li{display:flex;gap:11px;font-size:15.5px;color:rgba(255,255,255,.88);line-height:1.5}.of-ul svg{flex:none;margin-top:3px;color:#34D399}.of-ul b{color:#fff}
-.of-l .btn{align-self:flex-start;margin-top:auto}
-.of-r{padding:28px;border-radius:28px;border:1px solid var(--border);box-shadow:0 30px 60px -36px rgba(15,32,72,.4);display:flex;flex-direction:column;gap:16px}
-.ca-h b{display:block;font-size:17px;color:#0B1B4D}.ca-h small{color:#64748B;font-size:13px}
-.ca-n{display:flex;align-items:center;gap:12px}.ca-n input{width:150px;height:56px;padding:0 16px;border:1.5px solid #D9E4FB;border-radius:16px;background:#F8FAFF;font:800 28px 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D}
-.ca-n input:focus{outline:none;border-color:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,.14)}.ca-n span{color:#475569;font-size:16px}
-#caRange{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:8px;background:linear-gradient(90deg,#2563EB var(--p,30%),#E2E8F0 var(--p,30%));outline:none}
-#caRange::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:4px solid #4F46E5;box-shadow:0 6px 14px -4px rgba(79,70,229,.7);cursor:grab}
-#caRange::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid #4F46E5;cursor:grab}
-.ca-res{padding:16px 18px;border-radius:18px;background:linear-gradient(135deg,#EEF4FF,#F5F0FF);display:flex;flex-direction:column;gap:2px}
-.ca-res small{color:#64748B;font-size:13px}.ca-res b{font:800 46px/1.1 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D;letter-spacing:-1px}
-.ca-tag{align-self:flex-start;margin-top:4px;padding:4px 12px;border-radius:100px;background:#fff;border:1px solid #CFE0FF;color:#2563EB;font-size:12.5px;font-weight:700;transition:background .3s,color .3s,border-color .3s}
-.ca-tag.cap{background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;border-color:transparent}
-.ca-chart{position:relative;height:96px}.ca-chart svg{width:100%;height:90px;display:block}
-.ca-chart i{position:absolute;bottom:-2px;font-style:normal;font-size:11.5px;color:#94A3B8}.ca-chart .cp0{left:0}.ca-chart .cp1{left:50%;transform:translateX(-50%)}.ca-chart .cp2{right:0}
-.ca-ex{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.ca-ex button{padding:9px 6px;border-radius:13px;border:1.5px solid #E2E8F0;background:#fff;font:600 12.5px 'Hind Siliguri',sans-serif;color:#475569;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;transition:border-color .2s,background .2s,transform .2s}
-.ca-ex button b{font:800 15px 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D}.ca-ex button:hover{border-color:#93B4F0;transform:translateY(-2px)}.ca-ex button.on{border-color:#2563EB;background:#EEF4FF}
-@media(max-width:1020px){.offer{grid-template-columns:1fr}}
-@media(max-width:640px){.of-l,.of-r{padding:22px}.ca-n input{width:120px;font-size:24px}.ca-res b{font-size:38px}.ca-ex{grid-template-columns:repeat(2,1fr)}}
+/* offer + calculator (dark, premium) */
+.pr{position:relative;overflow:hidden;color:#fff;background:radial-gradient(700px 420px at 85% 0,rgba(124,58,237,.35),transparent 60%),radial-gradient(600px 400px at 0 100%,rgba(37,99,235,.3),transparent 60%),linear-gradient(170deg,#070E22,#0A1228 55%,#101C44)}
+.pr::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:52px 52px;-webkit-mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 40%,#000 25%,transparent 75%)}
+.pr .wrap{position:relative;z-index:1}
+.pr .h2 span{background:linear-gradient(120deg,#7DB1FF,#C4B5FD 55%,#67E8F9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pr-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:22px;margin-top:46px;align-items:stretch}
+.pr-offer,.pr-calc{position:relative;border-radius:30px;padding:34px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 40px 80px -40px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18)}
+.pr-offer::before{content:'';position:absolute;inset:-1px;border-radius:30px;padding:1.5px;background:conic-gradient(from var(--a,0deg),#2563EB,#7C3AED,#22D3EE,#2563EB);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.9;animation:spin 7s linear infinite;pointer-events:none}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}@keyframes spin{to{--a:360deg}}
+.pr-offer{display:flex;flex-direction:column;gap:20px}
+.pr-tag{align-self:flex-start;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:700;color:#DCE6FF}
+.pr-one{display:flex;align-items:flex-end;gap:14px;line-height:.9}
+.pr-one b{font:800 clamp(110px,14vw,170px)/.82 'Inter','Hind Siliguri',sans-serif;letter-spacing:-6px;background:linear-gradient(160deg,#fff 20%,#9DC0FF 60%,#B79CFF);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 18px 40px rgba(99,102,241,.55))}
+.pr-one span{font:700 30px 'Hind Siliguri',sans-serif;color:#DCE6FF;padding-bottom:12px}
+.pr-cap{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(124,58,237,.35));border:1px solid rgba(255,255,255,.2)}
+.pr-cap i{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#fff;color:#4F46E5;font:800 28px/1 'Inter',sans-serif;font-style:normal;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-4px) scale(1.05)}}
+.pr-cap span{font-size:15px;line-height:1.5;color:rgba(255,255,255,.88)}.pr-cap b{color:#fff}
+.pr-ul{list-style:none;display:grid;gap:14px}
+.pr-ul li{display:flex;gap:13px;align-items:flex-start}
+.ob-i{flex:none;width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#7DE3B2}
+.pr-ul b{display:block;font-size:15.5px;color:#fff}.pr-ul small{display:block;font-size:13.5px;color:rgba(255,255,255,.68);line-height:1.5}
+.pr-go{align-self:flex-start;margin-top:auto}
+.pr-calc{display:flex;flex-direction:column;gap:18px}
+.pc-top b{display:block;font-size:18px}.pc-top small{color:rgba(255,255,255,.62);font-size:13px}
+.pc-in{display:flex;align-items:center;gap:12px}
+.pc-in input{width:190px;height:66px;padding:0 20px;border:1.5px solid rgba(255,255,255,.2);border-radius:20px;background:rgba(255,255,255,.07);color:#fff;font:800 38px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-1px}
+.pc-in input:focus{outline:none;border-color:#7DB1FF;box-shadow:0 0 0 5px rgba(99,102,241,.25)}.pc-in span{font-size:18px;color:rgba(255,255,255,.75)}
+.pc-rng{position:relative;padding-bottom:22px}
+#caRange{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:10px;background:linear-gradient(90deg,#3B82F6,#8B5CF6 var(--p,30%),rgba(255,255,255,.16) var(--p,30%));outline:none}
+#caRange::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:#fff;border:6px solid #6366F1;box-shadow:0 0 0 7px rgba(99,102,241,.25),0 10px 20px -6px rgba(0,0,0,.6);cursor:grab;transition:box-shadow .2s}
+#caRange:active::-webkit-slider-thumb{box-shadow:0 0 0 12px rgba(99,102,241,.3),0 10px 20px -6px rgba(0,0,0,.6);cursor:grabbing}
+#caRange::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:6px solid #6366F1;cursor:grab}
+.pc-ticks i{position:absolute;bottom:0;font-style:normal;font-size:12px;color:rgba(255,255,255,.55)}.pc-ticks i:nth-child(2){transform:translateX(-50%)}
+.pc-res{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;padding:20px;border-radius:24px;background:linear-gradient(135deg,rgba(37,99,235,.28),rgba(124,58,237,.28));border:1px solid rgba(255,255,255,.18);transition:background .4s,border-color .4s}
+.pc-res.cap{background:linear-gradient(135deg,rgba(16,185,129,.28),rgba(37,99,235,.3));border-color:rgba(110,231,183,.5)}
+.pc-main small,.pc-avg small{display:block;font-size:12.5px;color:rgba(255,255,255,.7)}
+.pc-num{display:flex;align-items:baseline;gap:8px}.pc-num b{font:800 clamp(52px,6vw,72px)/1 'Inter','Hind Siliguri',sans-serif;letter-spacing:-2px}.pc-num span{font-size:15px;color:rgba(255,255,255,.75)}
+.pc-side{display:flex;flex-direction:column;justify-content:space-between;gap:10px;align-items:flex-start}
+.pc-chip{padding:6px 13px;border-radius:100px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:13px;font-weight:700}
+.pc-res.cap .pc-chip{background:#10B981;border-color:transparent;color:#fff}
+.pc-avg b{font:800 26px 'Inter','Hind Siliguri',sans-serif;color:#7DE3B2}
+.pc-chart{display:flex;align-items:flex-end;gap:8px;height:128px;padding:6px 2px 0;border-bottom:1px solid rgba(255,255,255,.18);position:relative}
+.pc-chart .b{position:relative;flex:1;height:100%;display:flex;align-items:flex-end}
+.pc-chart .b i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:rgba(255,255,255,.14);height:var(--h);transition:background .3s,transform .3s}
+.pc-chart .b.on i{background:linear-gradient(180deg,#A78BFA,#3B82F6);transform:scaleY(1.04);box-shadow:0 0 24px rgba(99,102,241,.6)}
+.pc-chart .b.cap i{background:rgba(110,231,183,.28)}.pc-chart .b.cap.on i{background:linear-gradient(180deg,#6EE7B7,#10B981);box-shadow:0 0 24px rgba(16,185,129,.55)}
+.pc-chart .b em{position:absolute;left:50%;transform:translateX(-50%);bottom:-24px;font-style:normal;font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap}
+.pc-chart .b.cap::after{content:'∞';position:absolute;left:50%;top:-4px;transform:translateX(-50%);font:800 14px 'Inter',sans-serif;color:#6EE7B7}
+.pc-chart .line{position:absolute;left:0;right:0;top:6px;border-top:1.5px dashed rgba(110,231,183,.6)}.pc-chart .line span{position:absolute;right:0;top:-24px;font-size:11.5px;color:#6EE7B7;font-weight:700}
+.pc-ex{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.pc-ex>span{font-size:12.5px;color:rgba(255,255,255,.55);margin-right:4px}
+.pc-ex button{padding:8px 13px;border-radius:13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);font:500 13px 'Hind Siliguri',sans-serif;cursor:pointer;text-align:left;line-height:1.35;transition:background .2s,transform .2s,border-color .2s}
+.pc-ex button b{display:block;font-size:13.5px;color:#fff}.pc-ex button:hover{background:rgba(255,255,255,.14);transform:translateY(-2px);border-color:rgba(255,255,255,.4)}
+@media(max-width:1020px){.pr-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.pr-offer,.pr-calc{padding:22px;border-radius:24px}.pr-one b{font-size:120px}.pc-in input{width:150px;height:58px;font-size:30px}.pc-res{grid-template-columns:1fr}.pc-side{flex-direction:row;align-items:center;flex-wrap:wrap}.pc-chart{gap:5px}.pc-chart .b em{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.pr-offer::before,.pr-cap i{animation:none}}
 /* faq */
 .faq{max-width:780px;margin:38px auto 0;display:grid;gap:10px}
 .qa{border-radius:18px;background:#fff;border:1px solid var(--border);overflow:hidden}
@@ -459,31 +491,41 @@ a{color:inherit}
 </section>
 
 <!-- ═════════ offer ═════════ -->
-<section class="sec" id="pricing" style="background:#fff;border-block:1px solid var(--border)">
+<section class="sec pr" id="pricing">
+  <span class="orb o1"></span><span class="orb o2"></span>
   <div class="wrap">
     <div class="center">
-      <span class="eyebrow rv">সহজ হিসাব</span>
-      <h2 class="h2 rv">শিক্ষার্থী প্রতি <span>মাত্র ১ টাকা</span></h2>
-      <p class="lead rv">মাসে প্রতিটি শিক্ষার্থীর জন্য ১ টাকা। শিক্ষার্থী যত বাড়ুক, মাসের খরচ <b>সর্বোচ্চ ৫০০ টাকা</b>।</p>
+      <span class="eyebrow rv" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#DCE6FF">সহজ হিসাব, কোনো ঝামেলা নেই</span>
+      <h2 class="h2 rv" style="color:#fff">শিক্ষার্থী প্রতি <span>মাত্র ১ টাকা</span></h2>
+      <p class="lead rv" style="color:rgba(255,255,255,.75)">শিক্ষার্থী যত বাড়ুক, আপনার মাসের খরচ কখনো <b style="color:#fff">৫০০ টাকার</b> বেশি হবে না।</p>
     </div>
-    <div class="offer rv">
-      <div class="of-l">
-        <div class="of-big"><b>৳১</b><span>প্রতি শিক্ষার্থী<br>প্রতি মাসে</span></div>
-        <ul class="of-ul">
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><b>৫০০ জন পর্যন্ত:</b> যত জন শিক্ষার্থী, তত টাকা। ৩০০ জন হলে ৳৩০০।</span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><b>৫০০ জনের বেশি:</b> সীমাহীন শিক্ষার্থী, মাসে একই ৳৫০০।</span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>সেটআপ ফি নেই, যেকোনো সময় বাতিল করা যায়।</span></li>
-          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>শিক্ষার্থী বাড়লে বা কমলে হিসাব নিজে থেকেই মেলে।</span></li>
+
+    <div class="pr-grid">
+      <!-- the offer -->
+      <div class="pr-offer rv">
+        <span class="pr-tag">প্রতি শিক্ষার্থী · প্রতি মাসে</span>
+        <div class="pr-one"><b>১</b><span>টাকা</span></div>
+        <div class="pr-cap"><i>∞</i><span>৫০০ জনের পর <b>সীমাহীন শিক্ষার্থী</b>, মাসে একই ৫০০ টাকা</span></div>
+        <ul class="pr-ul">
+          <li><span class="ob-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span><span><b>৫০০ জন পর্যন্ত</b><small>যত জন শিক্ষার্থী, তত টাকা। ৩০০ জনে ৩০০ টাকা।</small></span></li>
+          <li><span class="ob-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><span><b>৫০০ টাকায় থেমে যায়</b><small>১,০০০ বা ১০,০০০ জন, মাসের খরচ একই।</small></span></li>
+          <li><span class="ob-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8l7-5 7 5"/></svg></span><span><b>সেটআপ ফি নেই</b><small>যেকোনো সময় বাতিল করা যায়।</small></span></li>
+          <li><span class="ob-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg></span><span><b>নিজে থেকেই মেলে</b><small>শিক্ষার্থী বাড়লে বা কমলে হিসাব বদলে যায়।</small></span></li>
         </ul>
-        <a class="btn main" href="login.html?tab=signup">বিনামূল্যে শুরু করুন <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn main pr-go" href="login.html?tab=signup">বিনামূল্যে শুরু করুন <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
-      <div class="of-r card" id="calc">
-        <div class="ca-h"><b>আপনার প্রতিষ্ঠানে কত জন শিক্ষার্থী?</b><small>স্লাইডার টেনে দেখুন</small></div>
-        <div class="ca-n"><input type="number" id="caNum" min="1" max="5000" value="300" inputmode="numeric" aria-label="শিক্ষার্থীর সংখ্যা"><span>জন শিক্ষার্থী</span></div>
-        <input type="range" id="caRange" min="10" max="1000" step="10" value="300" aria-label="শিক্ষার্থীর সংখ্যা স্লাইডার">
-        <div class="ca-res"><small>আপনার মাসের খরচ</small><b id="caPrice">৳৩০০</b><span id="caTag" class="ca-tag">প্রতি শিক্ষার্থী ৳১ হিসাবে</span></div>
-        <div class="ca-chart" aria-hidden="true"><svg viewBox="0 0 300 90" preserveAspectRatio="none"><defs><linearGradient id="caG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs><path d="M0 82 L150 8 L300 8" fill="none" stroke="#DCE6FB" stroke-width="3" stroke-dasharray="5 6"/><path id="caLine" d="M0 82 L0 82" fill="none" stroke="url(#caG)" stroke-width="4" stroke-linecap="round"/><circle id="caDot" cx="0" cy="82" r="6" fill="#fff" stroke="#4F46E5" stroke-width="3"/></svg><i class="cp0">০</i><i class="cp1">৫০০ জন</i><i class="cp2">সীমাহীন</i></div>
-        <div class="ca-ex"><button type="button" data-n="100">১০০ জন<b>৳১০০</b></button><button type="button" data-n="300">৩০০ জন<b>৳৩০০</b></button><button type="button" data-n="500">৫০০ জন<b>৳৫০০</b></button><button type="button" data-n="1200">১,২০০ জন<b>৳৫০০</b></button></div>
+
+      <!-- the calculator -->
+      <div class="pr-calc rv" style="--d:.1s" id="calc">
+        <div class="pc-top"><b>আপনার প্রতিষ্ঠানে কত জন শিক্ষার্থী?</b><small>লিখুন, বা স্লাইডার টানুন</small></div>
+        <div class="pc-in"><input type="number" id="caNum" min="1" max="100000" value="300" inputmode="numeric" aria-label="শিক্ষার্থীর সংখ্যা"><span>জন</span></div>
+        <div class="pc-rng"><input type="range" id="caRange" min="10" max="1500" step="10" value="300" aria-label="শিক্ষার্থীর সংখ্যা স্লাইডার"><div class="pc-ticks" aria-hidden="true"><i style="left:0">১০</i><i style="left:33.2%">৫০০</i><i style="right:0">১,৫০০+</i></div></div>
+        <div class="pc-res" id="caBox">
+          <div class="pc-main"><small>আপনার মাসের খরচ</small><div class="pc-num"><b id="caPrice">৩০০</b><span>টাকা / মাস</span></div></div>
+          <div class="pc-side"><div class="pc-chip" id="caTag">১ টাকা × ৩০০ জন</div><div class="pc-avg"><small>প্রতি শিক্ষার্থী গড়ে</small><b id="caAvg">১ টাকা</b></div></div>
+        </div>
+        <div class="pc-chart" aria-hidden="true" id="caBars"></div>
+        <div class="pc-ex"><span>উদাহরণ</span><button type="button" data-n="120"><b>ছোট মাদ্রাসা</b>১২০ জন</button><button type="button" data-n="400"><b>মাঝারি স্কুল</b>৪০০ জন</button><button type="button" data-n="2000"><b>বড় কলেজ</b>২,০০০ জন</button></div>
       </div>
     </div>
   </div>
@@ -613,24 +655,27 @@ a{color:inherit}
 
   /* the offer: Tk 1 per student a month, never more than Tk 500 */
   (function(){
-    var num = $('caNum'), rng = $('caRange'), price = $('caPrice'), tag = $('caTag'), line = $('caLine'), dot = $('caDot'), cur = 0, raf = 0;
+    var num = $('caNum'), rng = $('caRange'), price = $('caPrice'), tag = $('caTag'), avg = $('caAvg'), box = $('caBox'), bars = $('caBars'), cur = 0, raf = 0;
+    var STEPS = [100, 200, 300, 400, 500, 750, 1000, 1500];
+    var fmt = function(n){ return BN(n.toLocaleString('en-US')); };
+    bars.innerHTML = '<div class="line"><span>সর্বোচ্চ ৫০০ টাকা</span></div>' + STEPS.map(function(n, i){ var c = Math.min(n, 500); return '<div class="b' + (n > 500 ? ' cap' : '') + '" data-n="' + n + '"><i style="--h:' + Math.max(8, c / 500 * 88) + '%"></i><em>' + (n > 500 ? fmt(n) + '+' : fmt(n)) + '</em></div>'; }).join('');
     var cost = function(n){ return Math.min(Math.max(n, 0), 500); };
-    function anim(to){ cancelAnimationFrame(raf); var from = cur, t0 = performance.now(); (function f(now){ var p = Math.min(1, (now - t0) / 380), e = 1 - Math.pow(1 - p, 3); cur = Math.round(from + (to - from) * e); price.textContent = '৳' + BN(cur.toLocaleString('en-US')); if(p < 1) raf = requestAnimationFrame(f); })(t0); }
+    function anim(to){ cancelAnimationFrame(raf); var from = cur, t0 = performance.now(); (function f(now){ var p = Math.min(1, (now - t0) / 420), e = 1 - Math.pow(1 - p, 3); cur = Math.round(from + (to - from) * e); price.textContent = fmt(cur); if(p < 1) raf = requestAnimationFrame(f); })(t0); }
     function upd(n, fromRange){
-      n = Math.max(1, Math.min(Math.round(n) || 1, 5000));
-      if(!fromRange) rng.value = Math.min(n, 1000); if(document.activeElement !== num) num.value = n;
+      n = Math.max(1, Math.min(Math.round(n) || 1, 100000));
+      if(!fromRange) rng.value = Math.min(n, 1500); if(document.activeElement !== num) num.value = n;
       rng.style.setProperty('--p', ((rng.value - rng.min) / (rng.max - rng.min) * 100) + '%');
-      var c = cost(n); reduce ? (price.textContent = '৳' + BN(c.toLocaleString('en-US'))) : anim(c);
-      var capped = n > 500;
-      tag.className = 'ca-tag' + (capped ? ' cap' : ''); tag.textContent = capped ? 'সীমাহীন শিক্ষার্থী, মাসে সর্বোচ্চ ৳৫০০' : n === 500 ? 'ঠিক ৫০০ জন, ৳৫০০' : 'প্রতি শিক্ষার্থী ৳১ হিসাবে';
-      var x = Math.min(n, 1000) / 1000 * 300, y = 82 - (Math.min(n, 500) / 500) * 74;
-      line.setAttribute('d', 'M0 82 L' + Math.min(x, 150) + ' ' + y + (x > 150 ? ' L' + x + ' 8' : '')); dot.setAttribute('cx', x); dot.setAttribute('cy', y);
-      document.querySelectorAll('.ca-ex button').forEach(function(b){ b.classList.toggle('on', Number(b.dataset.n) === n); });
+      var c = cost(n), capped = n >= 500; reduce ? (price.textContent = fmt(c)) : anim(c);
+      box.classList.toggle('cap', n > 500);
+      tag.textContent = n > 500 ? 'সীমাহীন শিক্ষার্থী, ৫০০ টাকাতেই থামে' : n === 500 ? 'ঠিক ৫০০ জন, ৫০০ টাকা' : '১ টাকা × ' + fmt(n) + ' জন';
+      var a = c / n; avg.textContent = (a >= 1 ? '১' : BN((Math.round(a * 100) / 100).toString())) + ' টাকা';
+      var on = 0; STEPS.forEach(function(s, i){ if(s <= n) on = i; }); if(n < STEPS[0]) on = -1;
+      [].forEach.call(bars.querySelectorAll('.b'), function(b, i){ b.classList.toggle('on', i === on); });
     }
     rng.addEventListener('input', function(){ num.value = rng.value; upd(Number(rng.value), true); });
     num.addEventListener('input', function(){ if(num.value !== '') upd(Number(num.value)); });
-    num.addEventListener('blur', function(){ upd(Number(num.value) || 1); num.value = Math.max(1, Math.min(Number(num.value) || 1, 5000)); });
-    document.querySelectorAll('.ca-ex button').forEach(function(b){ b.addEventListener('click', function(){ var n = Number(b.dataset.n); num.value = n; upd(n); }); });
+    num.addEventListener('blur', function(){ var v = Math.max(1, Math.min(Number(num.value) || 1, 100000)); num.value = v; upd(v); });
+    document.querySelectorAll('.pc-ex button').forEach(function(b){ b.addEventListener('click', function(){ var n = Number(b.dataset.n); num.value = n; upd(n); }); });
     upd(300);
   })();
 
