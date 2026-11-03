@@ -956,7 +956,7 @@ async function coOpen(id){
   const one = (n, opts, sel) => imChips(n, opts, sel, false), many = (n, opts, sel) => imChips(n, opts, sel, true);
   const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
   CO.step = 1;
-  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-save" onclick="coSaveClose()">সেভ করে বন্ধ করুন</button></header>' +
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-save" onclick="coSaveClose()">Save &amp; Close</button></header>' +
     '<div class="co-prog"><div class="row"><span id="coStepNo"></span><b id="coStepName"></b></div><div class="co-bar" id="coBar"><i></i><i></i><i></i><i></i></div></div>' +
     '<div class="im-b" data-id="' + esc(id) + '">' +
     pane(1, 'কীভাবে জেনেছেন?', 'শুধু যে তথ্য আপনি নিশ্চিত, সেটুকুই দিন। ভুল তথ্য দিলে অনুমোদন পাবে না।',
