@@ -41,49 +41,75 @@
   var tree = function(x, s){ return '<use href="#pf-tree" transform="translate(' + x + ' 288) scale(' + (s || 1) + ')"/>'; };
   var walker = function(cls, x, def, card){ return '<g class="' + cls + '"><g transform="translate(' + x + ' 288)"><g class="bob"><use href="#' + def + '"/>' + (card ? '<g transform="translate(5 -19) scale(.62)"><use href="#pf-card"/></g>' : '') + '</g></g></g>'; };
 
-  /* ---------- art 1: the card page: one card grows with you, step by step, until someone verifies it ---------- */
+  /* ---------- art 1: the card page: one learner's journey across Bangladesh, village school -> city, and one card that collects a star at every stop ---------- */
   function artCard(){
-    var s = '';
-    var steps = [
-      {x: 70,  w: 200, h: 34,  c: '#10B981', t: 'ক্লাস ১',        p: 'pf-kid'},
-      {x: 270, w: 200, h: 64,  c: '#1A56DB', t: 'এসএসসি',         p: 'pf-girl'},
-      {x: 470, w: 200, h: 94,  c: '#4F46E5', t: 'এইচএসসি',        p: 'pf-mad'},
-      {x: 670, w: 200, h: 124, c: '#7C3AED', t: 'বিশ্ববিদ্যালয়', p: 'pf-grad'},
-      {x: 870, w: 330, h: 154, c: '#F59E0B', t: 'চাকরি',          p: 'pf-girl'}
-    ];
-    // steps
-    steps.forEach(function(st){
-      var top = 288 - st.h;
-      s += R(st.x, top, st.w, st.h, st.c) + R(st.x, top, st.w, 6, '#fff', ' opacity=".38"') + T(st.x + 100, top + 26, st.t, 13, '#fff');
+    var s = '', G = 288;
+    var win = function(x, y, w, h, fill){ return R(x, y, w, h, fill, ' rx="2"') + '<path d="M' + (x + w / 2) + ' ' + y + 'v' + h + 'M' + x + ' ' + (y + h / 2) + 'h' + w + '" stroke="#fff" stroke-width="1" opacity=".75"/>'; };
+    var flag = function(x, y){ return '<path d="M' + x + ' ' + y + 'v-24" stroke="#64748B" stroke-width="1.6"/><g class="flag"><rect x="' + x + '" y="' + (y - 24) + '" width="20" height="12" fill="#0B6B3A"/><circle cx="' + (x + 9) + '" cy="' + (y - 18) + '" r="3.6" fill="#DC2626"/></g>'; };
+    var star = function(x, y){ return '<path transform="translate(' + x + ' ' + y + ') scale(.95)" d="M0-5L1.600-1.600 5.200-1.200 2.500 1.200 3.200 4.800 0 3 -3.200 4.800 -2.500 1.200 -5.200-1.200 -1.600-1.600Z" fill="#F5B316"/>'; };
+
+    // 1) the village school: tin roof, brick walls, the national flag
+    var vx = 60, vw = 150, vt = G - 56;
+    s += R(vx, vt, vw, 56, '#FBE3B0') + R(vx, G - 10, vw, 10, '#E9B872') +
+      '<path d="M' + (vx - 10) + ' ' + vt + 'L' + (vx + vw / 2) + ' ' + (vt - 36) + 'L' + (vx + vw + 10) + ' ' + vt + 'Z" fill="#8FA3BF"/><path d="M' + (vx - 10) + ' ' + vt + 'H' + (vx + vw + 10) + '" stroke="#6B7F9E" stroke-width="3"/>' +
+      win(vx + 20, vt + 14, 24, 20, '#7DD3FC') + win(vx + vw - 44, vt + 14, 24, 20, '#7DD3FC') +
+      R(vx + vw / 2 - 10, G - 34, 20, 34, '#B7791F', ' rx="2"') + flag(vx + vw / 2, vt - 36);
+
+    // pond with a shapla (water lily), our national flower
+    s += '<ellipse cx="256" cy="285" rx="36" ry="5.500" fill="#7DD3FC"/><ellipse cx="244" cy="284" rx="9" ry="2.600" fill="#34D399"/><ellipse cx="270" cy="285.500" rx="8" ry="2.400" fill="#10B981"/>' +
+      '<g transform="translate(250 281)"><path d="M0 0Q-5-8 0-12Q5-8 0 0Z" fill="#fff"/><path d="M0 0Q-9-5-8-10Q-2-7 0 0Z" fill="#FDF2F8"/><path d="M0 0Q9-5 8-10Q2-7 0 0Z" fill="#FDF2F8"/><circle cx="0" cy="-3" r="1.600" fill="#F5B316"/></g>';
+
+    // 2) the high school: two floors, bright windows
+    var hx = 300, hw = 170, ht = G - 80;
+    s += R(hx, ht, hw, 80, '#C7DBFF') + R(hx - 5, ht - 9, hw + 10, 10, '#1A56DB') + R(hx, G - 8, hw, 8, '#93B4F0');
+    for(var i = 0; i < 4; i++){ s += win(hx + 14 + i * 38, ht + 12, 24, 18, '#fff') + win(hx + 14 + i * 38, ht + 40, 24, 18, i === 1 || i === 2 ? '#BFDBFE' : '#fff'); }
+    s += R(hx + hw / 2 - 12, G - 34, 24, 34, '#1E3A8A', ' rx="3"');
+
+    // 3) the college: columns and a pediment
+    var cx0 = 560, cw = 200, ct = G - 100;
+    s += R(cx0 - 12, G - 7, cw + 24, 7, '#A5B4FC') + R(cx0, ct, cw, 93, '#D8DEFF') +
+      '<path d="M' + (cx0 - 10) + ' ' + ct + 'L' + (cx0 + cw / 2) + ' ' + (ct - 36) + 'L' + (cx0 + cw + 10) + ' ' + ct + 'Z" fill="#4F46E5"/><circle cx="' + (cx0 + cw / 2) + '" cy="' + (ct - 14) + '" r="7" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="2"/>';
+    for(var k = 0; k < 5; k++){ s += R(cx0 + 14 + k * 41, ct + 8, 11, 85, '#fff', ' rx="2"'); }
+    s += R(cx0 + cw / 2 - 14, G - 44, 28, 37, '#3730A3', ' rx="3"');
+
+    // 4) the university: a dome and arches, with the flag on top
+    var ux = 860, uw = 230, ut = G - 120, mid = ux + uw / 2;
+    s += R(ux, ut + 12, uw, 108, '#E4DDFE') + R(mid - 46, ut - 14, 92, 134, '#CFC3FD') +
+      '<path d="M' + (mid - 36) + ' ' + (ut - 14) + 'a36 36 0 0 1 72 0Z" fill="#7C3AED"/><path d="M' + (mid - 36) + ' ' + (ut - 14) + 'h72" stroke="#F5B316" stroke-width="3"/><circle cx="' + mid + '" cy="' + (ut - 54) + '" r="3.500" fill="#F5B316"/>' +
+      flag(mid + 2, ut - 52).replace('translate', 'translate');
+    for(var a = 0; a < 3; a++){ s += arch(mid - 36 + a * 26, G - 58, 20, 58, '#5B21B6'); }
+    for(var w = 0; w < 2; w++){ s += win(ux + 14 + w * 34, ut + 30, 22, 18, '#fff') + win(ux + 14 + w * 34, ut + 62, 22, 18, '#fff') + win(ux + uw - 36 - w * 34, ut + 30, 22, 18, '#fff') + win(ux + uw - 36 - w * 34, ut + 62, 22, 18, '#fff'); }
+
+    // 5) the city: towers with lights on, where a verified card becomes a career
+    var tw = [[1168, 56, 150, '#1E3A8A'], [1230, 70, 190, '#2563EB'], [1306, 60, 120, '#0EA5E9'], [1372, 46, 86, '#1D4ED8']];
+    tw.forEach(function(t, n){
+      s += R(t[0], G - t[2], t[1], t[2], t[3]);
+      for(var r = 0; r < Math.floor((t[2] - 16) / 17); r++) for(var c = 0; c < Math.floor((t[1] - 8) / 15); c++){
+        s += R(t[0] + 7 + c * 15, G - t[2] + 10 + r * 17, 8, 9, (r * 7 + c * 3 + n) % 4 ? '#FDE68A' : '#93C5FD', ' rx="1.500" opacity="' + ((r + c + n) % 3 ? '.95' : '.45') + '"');
+      }
     });
-    // growth path linking the cards
-    var pts = steps.map(function(st, i){ return (st.x + (i === 4 ? 80 : 100)) + ' ' + (288 - st.h - 80); });
-    for(var i = 0; i < 4; i++){
-      var a = pts[i].split(' '), b = pts[i + 1].split(' ');
-      s += '<path class="flow" d="M' + (+a[0] + 24) + ' ' + a[1] + 'Q' + ((+a[0] + +b[0]) / 2) + ' ' + (Math.min(+a[1], +b[1]) - 26) + ' ' + (+b[0] - 24) + ' ' + b[1] + '" fill="none" stroke="#F5B316" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"/>';
+    s += '<path d="M1265 ' + (G - 190) + 'v-22" stroke="#94A3B8" stroke-width="2"/><circle class="pulse" cx="1265" cy="' + (G - 214) + '" r="3.500" fill="#EF4444"/>';
+
+    // the card travels the route and gets one more star at every stop
+    var stops = [[135, 136, 'প্রাথমিক'], [385, 126, 'মাধ্যমিক'], [660, 100, 'কলেজ'], [975, 62, 'বিশ্ববিদ্যালয়'], [1262, 40, 'কর্মজীবন']];
+    for(var j = 0; j < 4; j++){
+      var p = stops[j], q = stops[j + 1];
+      s += '<path class="flow" d="M' + (p[0] + 28) + ' ' + (p[1] + 8) + 'Q' + ((p[0] + q[0]) / 2) + ' ' + (Math.min(p[1], q[1]) - 34) + ' ' + (q[0] - 28) + ' ' + (q[1] + 8) + '" fill="none" stroke="#F5B316" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"/>';
     }
-    // people + their card, which gets one more gold star each step
-    steps.forEach(function(st, i){
-      var top = 288 - st.h, cx = st.x + (i === 4 ? 80 : 100), p = st.p;
-      s += '<g transform="translate(' + cx + ' ' + top + ')"><g class="bob" style="animation-delay:' + (i * -.12) + 's"><use href="#' + p + '"/></g></g>';
-      s += '<g class="fl" style="--d:' + (i * .5) + 's"><g transform="translate(' + (cx - 18) + ' ' + (top - 92) + ') scale(1.4)"><use href="#pf-card"/></g>';
-      for(var k = 0; k <= i; k++) s += '<path transform="translate(' + (cx - 2 * i * 5 + k * 10 - 0) + ' ' + (top - 52) + ') scale(.9)" d="M0-5L1.600-1.600 5.200-1.200 2.500 1.200 3.200 4.800 0 3 -3.200 4.800 -2.500 1.200 -5.200-1.200 -1.600-1.600Z" fill="#F5B316"/>';
-      s += '</g>';
+    stops.forEach(function(st, m){
+      s += '<g class="fl" style="--d:' + (m * .5) + 's"><g transform="translate(' + (st[0] - 18) + ' ' + (st[1] - 6) + ') scale(1.4)"><use href="#pf-card"/></g>';
+      for(var z = 0; z <= m; z++) s += star(st[0] - m * 5 + z * 10, st[1] + 30);
+      s += '</g>' + T(st[0], 301, st[2], 12, '#1E3A8A');
     });
-    // the one who checks the card: phone + green tick
-    var vx = 1130, vt = 288 - 154;
-    s += '<g transform="translate(' + vx + ' ' + vt + ')"><g class="bob"><use href="#pf-mad"/></g><rect x="-17" y="-18" width="7" height="12" rx="1.600" fill="#0F172A"/><rect x="-16" y="-17" width="5" height="9" rx="1" fill="#34D399"/></g>';
-    s += '<path class="flow" d="M' + (steps[4].x + 104) + ' ' + (vt - 62) + 'Q' + (vx - 30) + ' ' + (vt - 90) + ' ' + (vx - 6) + ' ' + (vt - 56) + '" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="3 7" stroke-linecap="round"/>';
-    s += '<g class="fl" style="--d:.9s"><g transform="translate(' + (vx + 6) + ' ' + (vt - 86) + ')"><rect x="-46" y="-18" width="92" height="30" rx="15" fill="#fff" stroke="#BDEBD6" stroke-width="1.400"/><circle cx="-28" cy="-3" r="10" fill="#10B981"/><path d="M-33-3l4 4 7-8" fill="none" stroke="#fff" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/>' + T(10, 1, 'যাচাই হয়েছে', 11.5, '#047857') + '</g></g>';
-    // grad caps in the air above the 4th step
-    s += '<g class="cap" style="--d:-.6s"><use href="#pf-cap" transform="translate(790 ' + (288 - 124 - 40) + ')"/></g>';
-    // trees, book stack, park
-    s += tree(36, .8) + tree(1250, 1.2) + tree(1392, .9);
-    s += R(1300, 276, 40, 7, '#1A56DB', ' rx="2"') + R(1303, 268, 34, 8, '#F5B316', ' rx="2"') + R(1306, 260, 28, 8, '#10B981', ' rx="2"');
-    s += '<g transform="translate(1346 288)"><rect x="-22" y="-14" width="44" height="5" rx="2" fill="#B7791F"/><rect x="-18" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="15" y="-9" width="3" height="9" fill="#8A5A14"/><rect x="-22" y="-26" width="44" height="4" rx="2" fill="#B7791F"/></g>';
-    s += walker('w3', 1000 + 40, 'pf-kid', 1).replace('translate(1040 288)', 'translate(1210 288)');
-    s += [[40, 120], [520, 40], [880, 60], [1180, 200]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .7) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
-    s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 100)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g><g class="bird" style="--d:-7s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 140)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g>';
+    // the green tick of verification
+    s += '<g class="fl" style="--d:.9s"><g transform="translate(1340 24)"><rect x="-44" y="-15" width="88" height="28" rx="14" fill="#fff" stroke="#BDEBD6" stroke-width="1.400"/><circle cx="-27" cy="-1" r="9.500" fill="#10B981"/><path d="M-31-1l3 3 6-6" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/>' + T(10, 3, 'যাচাই হয়েছে', 11.500, '#047857') + '</g></g>';
+
+    // learners walking between the buildings, graduation caps in the air, trees, birds
+    s += walker('w1', 236, 'pf-kid', 1) + walker('w2', 500, 'pf-girl', 1) + walker('w3', 790, 'pf-mad', 1) + walker('w1', 1105, 'pf-grad', 1);
+    s += '<g class="cap" style="--d:-.6s"><use href="#pf-cap" transform="translate(900 ' + (ut - 46) + ')"/></g>';
+    s += tree(26, .75) + tree(1424, .8);
+    s += [[40, 120], [520, 40], [880, 40], [1100, 150]].map(function(p, i){ return '<path class="sp" style="--d:' + (i * .7) + 's" transform="translate(' + p[0] + ' ' + p[1] + ')" d="M0-6Q0 0 6 0Q0 0 0 6Q0 0-6 0Q0 0 0-6Z" fill="#F5B316"/>'; }).join('');
+    s += '<g class="bird" style="--d:0s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 90)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g><g class="bird" style="--d:-7s"><path d="M0 0q5-6 10 0q5-6 10 0" transform="translate(0 130)" fill="none" stroke="#7C8DB5" stroke-width="1.800" stroke-linecap="round"/></g>';
     return s;
   }
 
