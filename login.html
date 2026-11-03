@@ -1,389 +1,319 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Protishthan — লগইন</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --blue:#1A56DB;--blue-dark:#1044B0;--blue-light:#EEF3FF;
-  --text:#0F172A;--text-2:#475569;--text-3:#94A3B8;
-  --white:#fff;--border:#E2E8F0;--surface:#F8FAFF;
-  --green:#059669;--red:#DC2626;--r:12px;--rl:20px;
-}
-html,body{height:100%;font-family:'Inter','Hind Siliguri',sans-serif;color:var(--text);overflow:hidden}
-body{display:grid;grid-template-columns:1fr 1fr;height:100vh}
-
-/* LEFT */
-.left{background:linear-gradient(145deg,#0A1628 0%,#0F2048 45%,#1A3570 100%);display:flex;flex-direction:column;justify-content:space-between;padding:40px;position:relative;overflow:hidden;height:100vh}
-.left-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
-.left-glow{position:absolute;top:20%;left:30%;transform:translate(-50%,-50%);width:500px;height:400px;background:radial-gradient(ellipse,rgba(26,86,219,.4) 0%,transparent 70%);pointer-events:none}
-.left-glow-2{position:absolute;bottom:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(99,102,241,.25) 0%,transparent 70%);pointer-events:none}
-.logo{font-size:22px;font-weight:900;color:white;letter-spacing:-.5px;text-decoration:none;display:inline-block;margin-bottom:36px}
-.logo span{opacity:.5}
-.hero-text{position:relative;z-index:2}
-.hero-text h2{font-size:clamp(26px,3vw,40px);font-weight:900;color:white;line-height:1.1;letter-spacing:-1px;margin-bottom:12px}
-.hero-text h2 .grad{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero-text p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.7;max-width:300px}
-.activity-section{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
-.activity-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.activity-feed{display:flex;flex-direction:column;gap:8px}
-.activity-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:11px;backdrop-filter:blur(8px);animation:slideIn .4s ease both}
-@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
-.act-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.act-green{background:rgba(52,211,153,.15)}
-.act-blue{background:rgba(96,165,250,.15)}
-.act-purple{background:rgba(167,139,250,.15)}
-.act-text .t{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
-.act-text .s{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
-.act-dot{width:6px;height:6px;border-radius:50%;background:#34D399;margin-left:auto;flex-shrink:0;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.left-footer{position:relative;z-index:2}
-.left-footer p{font-size:11px;color:rgba(255,255,255,.2)}
-
-/* RIGHT */
-.right{background:var(--white);display:flex;justify-content:center;padding:0;overflow-y:auto;height:100vh}
-.right-inner{width:100%;max-width:460px;padding:28px 48px 40px}
-
-/* TABS */
-.tabs{display:flex;background:var(--surface);border-radius:10px;padding:4px;margin-bottom:24px;border:1px solid var(--border);position:sticky;top:0;z-index:10}
-.tabs-wrap{background:white;position:sticky;top:0;z-index:10;padding-top:28px;margin-top:-28px}
-.tab{flex:1;padding:9px;text-align:center;font-size:14px;font-weight:600;border-radius:7px;cursor:pointer;transition:all .25s;color:var(--text-3);border:none;background:none;font-family:inherit}
-.tab.active{background:var(--white);color:var(--blue);box-shadow:0 1px 8px rgba(0,0,0,.08)}
-
-/* FORMS — only one visible at a time */
-.form-panel{display:none}
-.form-panel.active{display:block}
-
-.form-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:5px}
-.form-sub{font-size:13px;color:var(--text-2);margin-bottom:22px;line-height:1.6}
-
-/* ROLE */
-.role-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.role-btn{padding:11px 6px;border:1.5px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit}
-.role-btn:hover{border-color:var(--blue);background:var(--blue-light)}
-.role-btn.selected{border-color:var(--blue);background:var(--blue-light)}
-.role-icon{font-size:20px}
-.role-label{font-size:11px;font-weight:600;color:var(--text-2)}
-.role-btn.selected .role-label{color:var(--blue)}
-
-/* FIELDS */
-.field{margin-bottom:14px}
-.type-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
-.type-chip{padding:9px 16px;border:1.5px solid var(--border);border-radius:100px;background:white;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-2);transition:all .15s}
-.type-chip:hover{border-color:var(--blue)}
-.type-chip.selected{border-color:var(--blue);background:var(--blue);color:white}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.field-row .field{margin-bottom:0}
-.field label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
-.field-wrap{position:relative}
-.field-wrap input{width:100%;padding:11px 14px;padding-right:42px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text);background:var(--white);outline:none;transition:all .2s}
-.field-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.08)}
-.field-wrap input::placeholder{color:var(--text-3)}
-.field-wrap input.error{border-color:var(--red)}
-.field-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-3);cursor:pointer;user-select:none}
-.field-error{font-size:11px;color:var(--red);margin-top:4px;display:none}
-.field-error.show{display:block}
-
-.form-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.remember{display:flex;align-items:center;gap:7px;cursor:pointer}
-.remember input[type=checkbox]{width:15px;height:15px;accent-color:var(--blue);cursor:pointer}
-.remember span{font-size:12px;color:var(--text-2)}
-.forgot{font-size:12px;color:var(--blue);text-decoration:none;font-weight:500}
-.forgot:hover{text-decoration:underline}
-
-/* BUTTON */
-.btn-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--blue),#3B6FE0);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;font-family:inherit;position:relative;overflow:hidden}
-.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,86,219,.35)}
-.btn-submit.loading{pointer-events:none;opacity:.8}
-.btn-submit .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-submit.loading .btn-text{display:none}
-.btn-submit.loading .spinner{display:block}
-
-.bottom-link{text-align:center;margin-top:16px;font-size:12px;color:var(--text-2)}
-.bottom-link a{color:var(--blue);font-weight:600;text-decoration:none}
-
-/* SLUG */
-.slug-preview{font-size:11px;color:var(--blue);font-weight:500;margin-left:6px}
-.slug-suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-3);white-space:nowrap}
-
-/* PASS STRENGTH */
-.pass-bars{display:flex;gap:3px;margin-top:5px}
-.pass-bar{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
-.pass-label{font-size:11px;color:var(--text-3);margin-top:3px}
-
-/* SUCCESS */
-.success-panel{display:none;text-align:center;padding:20px 0}
-.success-panel.show{display:block}
-.success-circle{width:68px;height:68px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
-.success-panel h3{font-size:20px;font-weight:800;margin-bottom:6px}
-.success-panel p{font-size:13px;color:var(--text-2)}
-.progress-wrap{margin-top:16px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.progress-bar{height:100%;background:var(--blue);width:0;transition:width 2s linear;border-radius:2px}
-
-/* TRUST */
-.trust-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-.trust-badge{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-3)}
-
-/* MOBILE */
-@media(max-width:768px){
-  html,body{height:auto;overflow:auto}
-  body{grid-template-columns:1fr}
-  .left{display:none}
-  .right{height:auto;overflow:visible;padding:0;min-height:100vh}
-  .right-inner{padding:24px 20px 60px}
-}
-
-/* TOAST POPUP */
-.toast-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast-overlay.show{opacity:1;pointer-events:all}
-.toast-card{background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center;transform:scale(.9) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.2)}
-.toast-overlay.show .toast-card{transform:scale(1) translateY(0)}
-.toast-icon-wrap{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px}
-.toast-icon-success{background:#ECFDF5}
-.toast-icon-error{background:#FEF2F2}
-.toast-title{font-size:20px;font-weight:800;color:#0F172A;margin-bottom:6px;letter-spacing:-.5px}
-.toast-msg{font-size:14px;color:#475569;line-height:1.6;margin-bottom:20px}
-.toast-progress{height:4px;background:#E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:16px}
-.toast-progress-bar{height:100%;background:linear-gradient(90deg,#1A56DB,#818CF8);border-radius:10px;width:0;transition:width 2s linear}
-.toast-btn{width:100%;padding:11px;background:linear-gradient(135deg,#1A56DB,#3B6FE0);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
-.toast-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,86,219,.3)}
-.toast-btn.red{background:linear-gradient(135deg,#DC2626,#EF4444)}
-</style>
+<title>লগইন ও রেজিস্ট্রেশন | Protishthan</title>
+<meta name="description" content="আপনার প্রতিষ্ঠানের Protishthan অ্যাকাউন্টে লগইন করুন, অথবা বিনামূল্যে নতুন প্রতিষ্ঠান রেজিস্টার করুন।">
+<meta name="theme-color" content="#0A1228">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#2563EB;--blue2:#1A56DB;--violet:#7C3AED;--navy:#0A1228;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--border:#E2E8F0;--bg:#F6F8FD;--green:#10B981;--red:#DC2626}
+html,body{min-height:100%}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:#fff;display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit}
+
+/* ───────── left: brand stage ───────── */
+.left{position:sticky;top:0;height:100vh;color:#fff;padding:36px 48px;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(700px 480px at 85% 0,rgba(124,58,237,.38),transparent 60%),radial-gradient(600px 460px at 0 100%,rgba(37,99,235,.34),transparent 60%),linear-gradient(170deg,#070E22,#0A1228 55%,#101C44)}
+.left::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:52px 52px;-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 25%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 45%,#000 25%,transparent 75%)}
+.left>*{position:relative;z-index:1}
+.logo{display:inline-flex;align-items:center;gap:10px;font:800 22px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.5px;color:#fff;text-decoration:none}
+.logo i{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#2563EB,#7C3AED);display:grid;place-items:center;box-shadow:0 10px 24px -8px rgba(79,70,229,.8)}
+.logo span{opacity:.55}
+.lh{margin:40px 0 0;max-width:460px}
+.lh h1{font-size:clamp(28px,3.2vw,44px);line-height:1.15;font-weight:700;letter-spacing:-.6px;transition:opacity .25s,transform .25s}
+.lh h1 span{background:linear-gradient(120deg,#7DB1FF,#C4B5FD 55%,#67E8F9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lh p{margin-top:12px;color:rgba(255,255,255,.7);font-size:16.5px;line-height:1.65;transition:opacity .25s}
+.lh.swap h1,.lh.swap p{opacity:0;transform:translateY(6px)}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:20px 0}
+.mode{display:none;width:min(480px,100%)}.mode.on{display:block;animation:modeIn .5s cubic-bezier(.2,.7,.3,1) both}
+@keyframes modeIn{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.cap{margin-top:16px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.5)}
+
+/* mode A (login): sample dashboard */
+.dash{border-radius:20px;background:#fff;color:var(--text);box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.3);overflow:hidden;transform:rotate(-1.4deg);animation:float 7s ease-in-out infinite}
+@keyframes float{50%{transform:rotate(-.6deg) translateY(-8px)}}
+.dt{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#EEF2FB;border-bottom:1px solid #E1E8F6}.dt i{width:10px;height:10px;border-radius:50%;background:#FF6058}.dt i:nth-child(2){background:#FFBD2E}.dt i:nth-child(3){background:#28C940}.dt b{margin-left:8px;font:600 12px 'Inter','Hind Siliguri',sans-serif;color:#64748B}
+.db{padding:16px}.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kp div{padding:10px 12px;border-radius:13px;background:#F8FAFF;border:1px solid #E6ECF8}.kp small{display:block;font-size:11px;color:#64748B}.kp b{font:800 20px 'Inter','Hind Siliguri',sans-serif;color:#0B1B4D}
+.bars{display:flex;align-items:flex-end;gap:9px;height:84px;margin-top:12px;padding:12px;border-radius:13px;background:#F8FAFF;border:1px solid #E6ECF8}
+.bars i{flex:1;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#60A5FA,#2563EB);height:var(--h);transform-origin:bottom;animation:grow 1.3s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d)}.bars i.hi{background:linear-gradient(180deg,#A78BFA,#7C3AED)}
+@keyframes grow{from{transform:scaleY(0)}}
+.rw{margin-top:10px;display:grid;gap:7px}.rw div{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:#fff;border:1px solid #E6ECF8;font-size:12.5px;color:#334155}.rw i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green)}.rw i.a{background:#F59E0B}.rw i.b{background:var(--blue)}
+
+/* mode B (signup): live preview of the school's own site + checklist */
+.site{border-radius:20px;background:#fff;color:var(--text);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.3)}
+.sb{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#EEF2FB;border-bottom:1px solid #E1E8F6}.sb i{width:10px;height:10px;border-radius:50%;background:#CBD5E1}
+.surl{flex:1;margin-left:6px;padding:5px 12px;border-radius:100px;background:#fff;font:600 12px 'Inter',sans-serif;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s}.surl.set{color:#1A56DB}
+.sbody{padding:22px}
+.sbd{display:flex;align-items:center;gap:14px}
+.slogo{flex:none;width:58px;height:58px;border-radius:17px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;display:grid;place-items:center;font:800 26px 'Inter','Hind Siliguri',sans-serif;box-shadow:0 14px 26px -12px rgba(79,70,229,.8);transition:transform .3s}.slogo.pop{animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.14)}}
+.sname{font-size:21px;font-weight:700;color:#0B1B4D;line-height:1.25;word-break:break-word}.sname.ph{color:#B6C2D9}
+.smeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:5px;font-size:12.5px;color:#64748B}
+.stype{padding:2px 10px;border-radius:100px;background:#EEF2FF;color:#4F46E5;font-weight:600}.stype.ph,.splace.ph{color:#B6C2D9;background:#F1F5F9}
+.snav{display:flex;gap:8px;margin:18px 0 14px}.snav i{padding:6px 12px;border-radius:100px;background:#F1F5FD;font-style:normal;font-size:12px;font-weight:600;color:#475569}
+.sl{height:9px;border-radius:9px;background:#EDF1F9;margin-bottom:8px}.sl:nth-of-type(1){width:92%}.sl:nth-of-type(2){width:72%}
+.sj{margin-top:10px;height:36px;padding:0 18px;border:0;border-radius:11px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font:700 13px 'Hind Siliguri',sans-serif;animation:pulseB 2s infinite}
+@keyframes pulseB{0%,100%{box-shadow:0 0 0 0 rgba(79,70,229,.45)}50%{box-shadow:0 0 0 10px rgba(79,70,229,0)}}
+.todo{margin-top:18px;display:grid;gap:10px}
+.todo div{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);font-size:14.5px;color:rgba(255,255,255,.8);transition:background .4s,border-color .4s,color .4s}
+.todo i{flex:none;width:24px;height:24px;border-radius:50%;border:1.8px solid rgba(255,255,255,.35);display:grid;place-items:center;color:transparent;transition:.35s}
+.todo div.ok{background:rgba(16,185,129,.16);border-color:rgba(110,231,183,.5);color:#fff}.todo div.ok i{background:#10B981;border-color:#10B981;color:#fff;transform:scale(1.08)}
+.lf{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,.5)}
+
+/* ───────── right: form ───────── */
+.right{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 24px 36px;background:#fff}
+.rt{width:min(430px,100%);display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;font-size:14px}
+.rt a{display:inline-flex;align-items:center;gap:7px;color:var(--text2);text-decoration:none;font-weight:600}.rt a:hover{color:var(--blue2)}
+.rt span{color:var(--text3)}
+.box{width:min(430px,100%);flex:1;display:flex;flex-direction:column}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:#F1F5FD;margin-bottom:26px}
+.tab{height:44px;border:0;border-radius:11px;background:transparent;color:#64748B;font:600 15px 'Hind Siliguri',sans-serif;transition:background .2s,color .2s,box-shadow .2s}
+.tab:hover{color:#0B1B4D}.tab.active{background:#fff;color:#1A56DB;box-shadow:0 1px 3px rgba(15,32,72,.16)}
+.form-panel{display:none}.form-panel.active{display:block;animation:fadeUp .35s ease both}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}}
+.form-title{font-size:28px;line-height:1.25;font-weight:700;color:#0B1B4D;letter-spacing:-.3px}
+.form-sub{margin:6px 0 22px;color:var(--text2);font-size:15.5px}
+.roles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.role{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:#fff;color:#475569;font:600 13px 'Hind Siliguri',sans-serif;transition:border-color .2s,background .2s,transform .2s}
+.role:hover{border-color:#93B4F0;transform:translateY(-2px)}.role.selected{border-color:#2563EB;background:#EEF4FF;color:#1A56DB}
+.field{margin-bottom:16px}
+.field label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px;font-size:14px;font-weight:600;color:#1E293B}
+.field label small{font-weight:500;color:var(--text3);font-size:12.5px}
+.fw{position:relative}
+.fw input,.fw select{width:100%;height:52px;padding:0 44px 0 16px;border:1.5px solid var(--border);border-radius:14px;background:#fff;font:500 16px 'Hind Siliguri','Inter',sans-serif;color:var(--text);transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+.fw select{padding-right:38px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.fw input::placeholder{color:#A9B6CC}
+.fw input:focus,.fw select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(37,99,235,.13)}
+.fw select:disabled{background-color:#F8FAFC;color:var(--text3)}
+.fi{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#A3B2CC;display:grid;place-items:center;border:0;background:none;padding:2px}
+button.fi{cursor:pointer}button.fi:hover{color:var(--blue)}
+.suf{position:absolute;right:14px;top:50%;transform:translateY(-50%);font:600 13px 'Inter',sans-serif;color:#94A3B8;pointer-events:none}
+.field.err input,.field.err select{border-color:var(--red);box-shadow:0 0 0 4px rgba(220,38,38,.1)}
+.fe{display:none;margin-top:6px;font-size:13px;color:var(--red)}.fe.show,.field.err .fe{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.chip{height:48px;border:1.5px solid var(--border);border-radius:13px;background:#fff;color:#475569;font:600 15px 'Hind Siliguri',sans-serif;transition:border-color .2s,background .2s,color .2s,transform .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.chip:hover{border-color:#93B4F0}.chip.selected{border-color:#2563EB;background:#EEF4FF;color:#1A56DB;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.row{display:flex;justify-content:space-between;align-items:center;margin:2px 0 20px;font-size:14px}
+.rem{display:flex;align-items:center;gap:9px;color:var(--text2);cursor:pointer}.rem input{width:18px;height:18px;accent-color:var(--blue)}
+.forgot{color:var(--blue2);font-weight:600;text-decoration:none}.forgot:hover{text-decoration:underline}
+.btn{position:relative;width:100%;height:54px;border:0;border-radius:15px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font:700 16.5px 'Hind Siliguri',sans-serif;box-shadow:0 16px 30px -14px rgba(79,70,229,.85);transition:transform .2s,box-shadow .2s,opacity .2s;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 22px 36px -14px rgba(79,70,229,.95)}
+.btn.line{background:#fff;color:#334155;border:1.5px solid var(--border);box-shadow:none;width:auto;padding:0 22px}.btn.line:hover{border-color:#93B4F0;box-shadow:none}
+.spinner{display:none;width:20px;height:20px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading .spinner{display:block}.btn.loading .btn-text{display:none}.btn.loading{pointer-events:none;opacity:.9}
+.bl{margin-top:20px;text-align:center;font-size:15px;color:var(--text2)}.bl a{color:var(--blue2);font-weight:700;text-decoration:none}.bl a:hover{text-decoration:underline}
+.err-box{display:none;margin-bottom:14px;padding:11px 14px;border-radius:12px;background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;font-size:14px}
+.success{display:none;text-align:center;padding:26px 0}.success.show{display:block}
+.sc{width:68px;height:68px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#DCFCE7;color:#059669;animation:pop .5s}
+.success h3{font-size:22px;color:#0B1B4D}.success p{color:var(--text2);margin:4px 0 16px}
+.pw{height:6px;border-radius:6px;background:#E8EEFA;overflow:hidden;max-width:240px;margin:0 auto}.pw div{height:100%;width:0;background:linear-gradient(90deg,#2563EB,#7C3AED);transition:width 2s linear}
+
+/* signup stepper */
+.sp{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.sp .sd{flex:1;height:5px;border-radius:5px;background:#E4EAF7;transition:background .3s}.sp .sd.done{background:#93B4F0}.sp .sd.on{background:#2563EB}
+.sp-txt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:13px;color:var(--text3)}.sp-txt b{color:#0B1B4D;font-size:14px}
+.step{display:none}.step.on{display:block;animation:stepIn .32s cubic-bezier(.2,.7,.3,1) both}@keyframes stepIn{from{opacity:0;transform:translateX(16px)}}
+.st-t{font-size:23px;font-weight:700;color:#0B1B4D;margin-bottom:4px}.st-s{color:var(--text2);font-size:15px;margin-bottom:18px}
+.nav2{display:flex;gap:10px;margin-top:6px}.nav2 .btn:not(.line){flex:1}
+.pbars{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px}.pbar{height:5px;border-radius:5px;background:#E2E8F0;transition:background .3s}
+.plabel{margin-top:5px;font-size:12.5px;font-weight:600;min-height:18px}
+.terms{margin:12px 0 16px;font-size:13px;color:var(--text3);line-height:1.6}.terms a{color:var(--blue2)}
+.trust{margin-top:24px;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--text3)}.trust span{display:inline-flex;align-items:center;gap:6px}.trust svg{color:#10B981}
+
+/* toast */
+.ov{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,16,40,.55);backdrop-filter:blur(6px)}.ov.show{display:flex}
+.tc{width:min(380px,100%);padding:30px 26px 24px;border-radius:26px;background:#fff;text-align:center;box-shadow:0 40px 90px -20px rgba(2,8,23,.6);animation:fadeUp .3s ease both}
+.ti{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center}.ti.ok{background:#DCFCE7;color:#059669}.ti.no{background:#FEE2E2;color:#DC2626}
+.tt{font-size:21px;font-weight:700;color:#0B1B4D}.tm{margin:6px 0 18px;color:var(--text2);font-size:15px;line-height:1.55}
+.tpw{display:none;height:6px;border-radius:6px;background:#E8EEFA;overflow:hidden;margin:0 0 16px}.tpw div{height:100%;width:0;background:linear-gradient(90deg,#2563EB,#7C3AED);transition:width 2.1s linear}
+.tb{width:100%;height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font:700 15.5px 'Hind Siliguri',sans-serif}.tb.red{background:#DC2626}.tb:disabled{opacity:.7}
+
+@media(max-width:960px){
+  body{grid-template-columns:1fr}.left{display:none}
+  .right{padding:20px 18px 30px}
+  .mhead{display:flex!important}
+}
+.mhead{display:none;width:min(430px,100%);align-items:center;justify-content:space-between;margin-bottom:6px}.mhead .logo{color:#0B1B4D}.mhead .logo span{opacity:.5}
+@media(max-width:420px){.roles{gap:6px}.role{font-size:12px}.grid2{grid-template-columns:1fr}.form-title{font-size:25px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 
-<!-- LEFT -->
-<div class="left">
-  <div class="left-grid"></div>
-  <div class="left-glow"></div>
-  <div class="left-glow-2"></div>
-  <div style="position:relative;z-index:2">
-    <a href="software.html" class="logo">Protisht<span>han</span></a>
-    <div class="hero-text">
-      <h2>স্বাগতম<br><span class="grad">Protishthan এ</span></h2>
-      <p>বাংলাদেশের সব প্রতিষ্ঠান এখন পরিচালনা করছে স্মার্টভাবে।</p>
+<!-- ═════════ LEFT: brand stage ═════════ -->
+<aside class="left">
+  <a href="software.html" class="logo"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></i><b>Protisht<span>han</span></b></a>
+
+  <div class="lh" id="lh">
+    <h1 id="lhT">আবার স্বাগতম,<br><span>আপনার প্রতিষ্ঠানের ড্যাশবোর্ডে</span></h1>
+    <p id="lhP">উপস্থিতি, ফি, ফলাফল আর অভিভাবকের সঙ্গে যোগাযোগ, সব এক জায়গায়।</p>
+  </div>
+
+  <div class="stage">
+    <!-- A: sample dashboard (login) -->
+    <div class="mode on" id="modeLogin" aria-hidden="true">
+      <div class="dash">
+        <div class="dt"><i></i><i></i><i></i><b>আপনার ড্যাশবোর্ড · নমুনা</b></div>
+        <div class="db">
+          <div class="kp"><div><small>উপস্থিতি</small><b>৯২%</b></div><div><small>আজকের আদায়</small><b>২৪,৫০০</b></div><div><small>নতুন আবেদন</small><b>১৮</b></div></div>
+          <div class="bars"><i style="--h:60%;--d:.1s"></i><i style="--h:74%;--d:.2s"></i><i style="--h:66%;--d:.3s"></i><i style="--h:84%;--d:.4s"></i><i style="--h:78%;--d:.5s"></i><i class="hi" style="--h:92%;--d:.6s"></i></div>
+          <div class="rw"><div><i></i>দশম শ্রেণির উপস্থিতি নেওয়া হয়েছে</div><div><i class="a"></i>৫ জনের ফি বাকি</div><div><i class="b"></i>অর্ধবার্ষিক ফলাফল তৈরি</div></div>
+        </div>
+      </div>
+      <div class="cap">নমুনা চিত্র, সত্যিকারের ডেটা নয়</div>
+    </div>
+
+    <!-- B: the school's own site, drawn live from the form (signup) -->
+    <div class="mode" id="modeSignup" aria-hidden="true">
+      <div class="site">
+        <div class="sb"><i></i><i></i><i></i><span class="surl" id="pvUrl">আপনার-প্রতিষ্ঠান.protishthan.com</span></div>
+        <div class="sbody">
+          <div class="sbd"><div class="slogo" id="pvLogo">আ</div><div><div class="sname ph" id="pvName">আপনার প্রতিষ্ঠানের নাম</div><div class="smeta"><span class="stype ph" id="pvType">ধরন</span><span class="splace ph" id="pvPlace" style="padding:2px 10px;border-radius:100px">জেলা, উপজেলা</span></div></div></div>
+          <div class="snav"><i>পরিচিতি</i><i>নোটিস</i><i>ফলাফল</i><i>ভর্তি</i></div>
+          <div class="sl"></div><div class="sl"></div>
+          <button class="sj" type="button" tabindex="-1">ভর্তি চলছে</button>
+        </div>
+      </div>
+      <div class="todo" id="todo">
+        <div id="td1"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>প্রতিষ্ঠানের পরিচয়</div>
+        <div id="td2"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>ওয়েবসাইটের ঠিকানা</div>
+        <div id="td3"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>আপনার অ্যাকাউন্ট</div>
+      </div>
+      <div class="cap">লিখতে থাকুন, আপনার ওয়েবসাইট এখানে সাজতে থাকবে</div>
     </div>
   </div>
-  <div class="activity-section">
-    <div class="activity-title">এইমাত্র হয়েছে</div>
-    <div class="activity-feed" id="actFeed">
-      <div class="activity-item" style="animation-delay:.1s">
-        <div class="act-icon act-green">🔒</div>
-        <div class="act-text"><div class="t">রাফিউল — উপস্থিত</div><div class="s">দারুল উলুম · সকাল ৮:০২</div></div>
-        <div class="act-dot"></div>
+
+  <div class="lf"><span>© <span id="yr"></span> Protishthan</span><span>বাংলাদেশের জন্য তৈরি</span></div>
+</aside>
+
+<!-- ═════════ RIGHT: forms ═════════ -->
+<main class="right">
+  <div class="mhead"><a href="software.html" class="logo"><i><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></i><b>Protisht<span>han</span></b></a></div>
+  <div class="rt"><a href="software.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> সফটওয়্যার পাতা</a><span>প্রতিষ্ঠানের জন্য</span></div>
+
+  <div class="box">
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tabLogin" type="button" onclick="switchTab('login')">লগইন</button>
+      <button class="tab" id="tabSignup" type="button" onclick="switchTab('signup')">নতুন রেজিস্ট্রেশন</button>
+    </div>
+
+    <!-- LOGIN -->
+    <section class="form-panel active" id="loginPanel">
+      <h2 class="form-title">আবার স্বাগতম</h2>
+      <p class="form-sub">আপনার প্রতিষ্ঠানের অ্যাকাউন্টে লগইন করুন।</p>
+
+      <div class="roles" role="group" aria-label="কে লগইন করছেন">
+        <button class="role selected" type="button" onclick="selectRole(this)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg>প্রতিষ্ঠান</button>
+        <button class="role" type="button" onclick="window.location.href='teacher-login.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4h6v7h-6z"/></svg>শিক্ষক</button>
+        <button class="role" type="button" onclick="window.location.href='guardian-login.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="10" r="2.4"/><path d="M2 21c0-3.6 2.7-6 6-6s6 2.4 6 6M14.5 21c0-2.5 1.2-4.2 3-4.8"/></svg>অভিভাবক</button>
+        <button class="role" type="button" onclick="window.location.href='student-login.html'"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>শিক্ষার্থী</button>
       </div>
-      <div class="activity-item" style="animation-delay:.2s">
-        <div class="act-icon act-blue">💬</div>
-        <div class="act-text"><div class="t">WhatsApp পাঠানো হয়েছে</div><div class="s">১২ জন অভিভাবককে</div></div>
-        <div class="act-dot"></div>
+
+      <div class="field" id="fLoginEmail">
+        <label for="loginEmail">ফোন নম্বর বা ইমেইল</label>
+        <div class="fw"><input type="text" id="loginEmail" placeholder="01XXXXXXXXX বা name@example.com" autocomplete="username" inputmode="email"><span class="fi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span></div>
+        <div class="fe" id="loginEmailErr">সঠিক ফোন নম্বর বা ইমেইল দিন</div>
       </div>
-      <div class="activity-item" style="animation-delay:.3s">
-        <div class="act-icon act-purple">💳</div>
-        <div class="act-text"><div class="t">ফি পরিশোধ</div><div class="s">৳১,২০০ — Bkash</div></div>
-        <div class="act-dot"></div>
+      <div class="field" id="fLoginPass">
+        <label for="loginPass">পাসওয়ার্ড</label>
+        <div class="fw"><input type="password" id="loginPass" placeholder="আপনার পাসওয়ার্ড" autocomplete="current-password"><button type="button" class="fi" onclick="togglePass('loginPass',this)" aria-label="পাসওয়ার্ড দেখান"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="fe" id="loginPassErr">পাসওয়ার্ড দিন</div>
       </div>
-      <div class="activity-item" style="animation-delay:.4s">
-        <div class="act-icon act-green">📊</div>
-        <div class="act-text"><div class="t">মাসিক রিপোর্ট তৈরি</div><div class="s">অক্টোবর ২০২৪ · ১৫০ শিক্ষার্থী</div></div>
-        <div class="act-dot"></div>
+
+      <div class="row">
+        <label class="rem"><input type="checkbox"> মনে রাখুন</label>
+        <a href="#" class="forgot" onclick="forgotPass();return false">পাসওয়ার্ড ভুলে গেছেন?</a>
       </div>
+
+      <button class="btn" id="loginBtn" type="button" onclick="doLogin()"><span class="btn-text">লগইন করুন</span><span class="btn-text" style="display:inline-flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><div class="spinner"></div></button>
+
+      <div class="bl">নতুন প্রতিষ্ঠান? <a href="#" onclick="switchTab('signup');return false">বিনামূল্যে রেজিস্ট্রেশন করুন</a></div>
+
+      <div class="success" id="loginSuccess">
+        <div class="sc"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h3>লগইন সফল</h3><p>ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে…</p>
+        <div class="pw"><div id="progressBar"></div></div>
+      </div>
+    </section>
+
+    <!-- SIGNUP: three short steps -->
+    <section class="form-panel" id="signupPanel">
+      <div class="sp-txt"><b id="spName">প্রতিষ্ঠানের পরিচয়</b><span id="spNo">ধাপ ১ / ৩</span></div>
+      <div class="sp"><i class="sd on"></i><i class="sd"></i><i class="sd"></i></div>
+
+      <div class="step on" data-s="1">
+        <h2 class="st-t">আপনার প্রতিষ্ঠানের পরিচয়</h2>
+        <p class="st-s">কয়েকটা তথ্য দিন, আপনার ওয়েবসাইট তৈরি হতে থাকবে।</p>
+        <div class="field" id="fName"><label for="instName">প্রতিষ্ঠানের নাম</label>
+          <div class="fw"><input type="text" id="instName" placeholder="যেমন: দারুল উলুম মাদ্রাসা" oninput="updateSlug();pv()" autocomplete="organization"><span class="fi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/></svg></span></div>
+          <div class="fe">প্রতিষ্ঠানের নাম দিন</div></div>
+        <div class="field" id="fType"><label>প্রতিষ্ঠানের ধরন</label>
+          <div class="chips" id="instTypeGrid">
+            <button type="button" class="chip" data-type="মাদ্রাসা" onclick="selectInstType(this)">মাদ্রাসা</button>
+            <button type="button" class="chip" data-type="স্কুল" onclick="selectInstType(this)">স্কুল</button>
+            <button type="button" class="chip" data-type="কলেজ" onclick="selectInstType(this)">কলেজ</button>
+            <button type="button" class="chip" data-type="কোচিং সেন্টার" onclick="selectInstType(this)">কোচিং সেন্টার</button>
+          </div><div class="fe">একটা ধরন বাছুন</div></div>
+        <div class="field" id="fPrin"><label for="principalName">প্রধান শিক্ষক / অধ্যক্ষের নাম</label>
+          <div class="fw"><input type="text" id="principalName" placeholder="যেমন: মোঃ রফিকুল ইসলাম" autocomplete="off"><span class="fi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span></div>
+          <div class="fe">প্রধানের নাম দিন</div></div>
+        <div class="grid2">
+          <div class="field" id="fDist"><label for="instDistrict">জেলা</label><div class="fw"><select id="instDistrict" onchange="onDistrictChange();pv()"><option value="">নির্বাচন করুন</option></select></div><div class="fe">জেলা বাছুন</div></div>
+          <div class="field" id="fUpa"><label for="instUpazila">উপজেলা / থানা</label><div class="fw"><select id="instUpazila" onchange="pv()" disabled><option value="">আগে জেলা দিন</option></select></div><div class="fe">উপজেলা বাছুন</div></div>
+        </div>
+        <div class="nav2"><button class="btn" type="button" onclick="suGo(2)"><span class="btn-text">পরবর্তী</span><span class="btn-text" style="display:inline-flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
+      </div>
+
+      <div class="step" data-s="2">
+        <h2 class="st-t">আপনার ওয়েবসাইটের ঠিকানা</h2>
+        <p class="st-s">এই ঠিকানাতেই আপনার প্রতিষ্ঠানের নিজস্ব পাতা থাকবে।</p>
+        <div class="field" id="fSlug"><label for="instSlug">ওয়েবসাইটের ঠিকানা <small id="slugPreview"></small></label>
+          <div class="fw"><input type="text" id="instSlug" placeholder="darul-ulum" oninput="validateSlug(this);pv()" style="padding-right:150px" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="suf">.protishthan.com</span></div>
+          <div class="fe" id="slugErr">শুধু ইংরেজি ছোট অক্ষর, সংখ্যা ও হাইফেন (-) ব্যবহার করুন</div></div>
+        <div class="nav2"><button class="btn line" type="button" onclick="suGo(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> আগের ধাপ</button><button class="btn" type="button" onclick="suGo(3)"><span class="btn-text">পরবর্তী</span><span class="btn-text" style="display:inline-flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button></div>
+      </div>
+
+      <div class="step" data-s="3">
+        <h2 class="st-t">আপনার অ্যাকাউন্ট</h2>
+        <p class="st-s">এই তথ্য দিয়েই পরে লগইন করবেন।</p>
+        <div class="field" id="fMail"><label for="signupEmail">ইমেইল</label>
+          <div class="fw"><input type="email" id="signupEmail" name="email" placeholder="name@example.com" autocomplete="email" oninput="pv()"><span class="fi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span></div>
+          <div class="fe">সঠিক ইমেইল ঠিকানা দিন</div></div>
+        <div class="field" id="fPhone"><label for="signupPhone">ফোন নম্বর <small>ফোন নম্বর দিয়েও লগইন করা যাবে</small></label>
+          <div class="fw"><input type="tel" id="signupPhone" name="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" maxlength="11"><span class="fi"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span></div>
+          <div class="fe">১১ অঙ্কের সঠিক নম্বর দিন (01XXXXXXXXX)</div></div>
+        <div class="field" id="fPass"><label for="signupPass">পাসওয়ার্ড তৈরি করুন</label>
+          <div class="fw"><input type="password" id="signupPass" placeholder="কমপক্ষে ৮ অক্ষর" autocomplete="new-password" oninput="checkPass(this.value);pv()"><button type="button" class="fi" onclick="togglePass('signupPass',this)" aria-label="পাসওয়ার্ড দেখান"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          <div class="pbars"><div class="pbar" id="pb1"></div><div class="pbar" id="pb2"></div><div class="pbar" id="pb3"></div><div class="pbar" id="pb4"></div></div>
+          <div class="plabel" id="passLabel"></div>
+          <div class="fe">পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে</div></div>
+        <p class="terms">রেজিস্টার করলে আপনি আমাদের <a href="terms.html" target="_blank" rel="noopener">ব্যবহারের শর্ত</a> ও <a href="privacy.html" target="_blank" rel="noopener">গোপনীয়তা নীতি</a> মেনে নিচ্ছেন।</p>
+        <div class="nav2"><button class="btn line" type="button" onclick="suGo(2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> আগের ধাপ</button><button class="btn" id="signupBtn" type="button" onclick="doSignup()"><span class="btn-text">বিনামূল্যে শুরু করুন</span><div class="spinner"></div></button></div>
+      </div>
+
+      <div class="bl">ইতিমধ্যে অ্যাকাউন্ট আছে? <a href="#" onclick="switchTab('login');return false">লগইন করুন</a></div>
+    </section>
+
+    <div class="trust">
+      <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> নিরাপদ সংযোগ</span><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg> সেটআপ ফি নেই</span><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg> বাংলাদেশে তৈরি</span>
     </div>
   </div>
-  <div class="left-footer">
-    <p>© ২০২৪ Protishthan · Made in Bangladesh 🇧🇩</p>
-  </div>
-</div>
+</main>
 
-<!-- RIGHT -->
-<div class="right">
-  <div class="right-inner">
-
-    <!-- TABS -->
-    <div class="tabs-wrap">
-    <div class="tabs">
-      <button class="tab active" id="tabLogin" onclick="switchTab('login')">লগইন</button>
-      <button class="tab" id="tabSignup" onclick="switchTab('signup')">নতুন রেজিস্ট্রেশন</button>
-    </div>
-    </div>
-
-    <!-- LOGIN PANEL -->
-    <div class="form-panel active" id="loginPanel">
-      <h2 class="form-title">আবার স্বাগতম 👋</h2>
-      <p class="form-sub">আপনার প্রতিষ্ঠানের অ্যাকাউন্টে লগইন করুন</p>
-
-      <div class="role-select">
-        <button class="role-btn selected" onclick="selectRole(this)">
-          <span class="role-icon">👤</span>
-          <span class="role-label">প্রতিষ্ঠান</span>
-        </button>
-        <button class="role-btn" onclick="window.location.href='teacher-login.html'">
-          <span class="role-icon">👨‍🏫</span>
-          <span class="role-label">শিক্ষক</span>
-        </button>
-        <button class="role-btn" onclick="window.location.href='guardian-login.html'">
-          <span class="role-icon">👨‍👩‍👦</span>
-          <span class="role-label">অভিভাবক</span>
-        </button>
-        <button class="role-btn" onclick="window.location.href='student-login.html'">
-          <span class="role-icon">👨‍🎓</span>
-          <span class="role-label">শিক্ষার্থী</span>
-        </button>
-      </div>
-
-      <div class="field">
-        <label>ফোন নম্বর বা ইমেইল</label>
-        <div class="field-wrap">
-          <input type="text" id="loginEmail" placeholder="01XXXXXXXXX বা email@example.com">
-          <span class="field-icon">📱</span>
-        </div>
-        <div class="field-error" id="loginEmailErr">সঠিক ফোন নম্বর বা ইমেইল দিন</div>
-      </div>
-
-      <div class="field">
-        <label>পাসওয়ার্ড</label>
-        <div class="field-wrap">
-          <input type="password" id="loginPass" placeholder="আপনার পাসওয়ার্ড">
-          <span class="field-icon" onclick="togglePass('loginPass',this)" style="cursor:pointer">👁️</span>
-        </div>
-        <div class="field-error" id="loginPassErr">পাসওয়ার্ড দিন</div>
-      </div>
-
-      <div class="form-row">
-        <label class="remember">
-          <input type="checkbox">
-          <span>মনে রাখুন</span>
-        </label>
-        <a href="#" class="forgot">পাসওয়ার্ড ভুলে গেছেন?</a>
-      </div>
-
-      <button class="btn-submit" id="loginBtn" onclick="doLogin()">
-        <span class="btn-text">লগইন করুন →</span>
-        <div class="spinner"></div>
-      </button>
-
-      <div class="bottom-link">
-        নতুন প্রতিষ্ঠান? <a href="#" onclick="switchTab('signup');return false">বিনামূল্যে রেজিস্ট্রেশন করুন</a>
-      </div>
-
-      <!-- SUCCESS -->
-      <div class="success-panel" id="loginSuccess">
-        <div class="success-circle">✓</div>
-        <h3>লগইন সফল!</h3>
-        <p>Dashboard এ নিয়ে যাওয়া হচ্ছে...</p>
-        <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-      </div>
-    </div>
-
-    <!-- SIGNUP PANEL -->
-    <div class="form-panel" id="signupPanel">
-      <h2 class="form-title">শুরু করুন বিনামূল্যে 🎉</h2>
-      <p class="form-sub">আপনার প্রতিষ্ঠানের জন্য Protishthan সেটআপ করুন</p>
-
-      <div class="field">
-        <label>প্রতিষ্ঠানের নাম</label>
-        <div class="field-wrap">
-          <input type="text" id="instName" placeholder="যেমন: দারুল উলুম মাদ্রাসা" oninput="updateSlug()">
-          <span class="field-icon">🏫</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>প্রতিষ্ঠানের ধরন</label>
-        <div class="type-chip-grid" id="instTypeGrid">
-          <button type="button" class="type-chip" data-type="মাদ্রাসা" onclick="selectInstType(this)">মাদ্রাসা</button>
-          <button type="button" class="type-chip" data-type="স্কুল" onclick="selectInstType(this)">স্কুল</button>
-          <button type="button" class="type-chip" data-type="কলেজ" onclick="selectInstType(this)">কলেজ</button>
-          <button type="button" class="type-chip" data-type="কোচিং সেন্টার" onclick="selectInstType(this)">কোচিং সেন্টার</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>প্রধান শিক্ষক / Principal এর নাম</label>
-        <div class="field-wrap">
-          <input type="text" id="principalName" placeholder="যেমন: মোঃ রফিকুল ইসলাম">
-          <span class="field-icon">👤</span>
-        </div>
-      </div>
-
-      <div class="field-row">
-        <div class="field">
-          <label>জেলা</label>
-          <div class="field-wrap">
-            <select id="instDistrict" onchange="onDistrictChange()" style="width:100%;padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:white;appearance:none">
-              <option value="">নির্বাচন করুন</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>উপজেলা / থানা</label>
-          <div class="field-wrap">
-            <select id="instUpazila" style="width:100%;padding:14px 12px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;background:white;appearance:none" disabled>
-              <option value="">আগে জেলা দিন</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>প্রতিষ্ঠানের ওয়েবসাইট <span class="slug-preview" id="slugPreview"></span></label>
-        <div class="field-wrap">
-          <input type="text" id="instSlug" placeholder="darul-ulum" oninput="validateSlug(this)" style="padding-right:100px">
-          <span class="slug-suffix">.protishthan.com</span>
-        </div>
-        <div class="field-error" id="slugErr">শুধু ইংরেজি অক্ষর ও হাইফেন ব্যবহার করুন</div>
-      </div>
-
-      <div class="field">
-        <label>ইমেইল</label>
-        <div class="field-wrap">
-          <input type="email" id="signupEmail" placeholder="ইমেইল বা ফোন নম্বর">
-          <span class="field-icon">📱</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>ফোন নম্বর</label>
-        <div class="field-wrap">
-          <input type="tel" id="signupPhone" placeholder="01XXXXXXXXX">
-          <span class="field-icon">📱</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>পাসওয়ার্ড তৈরি করুন</label>
-        <div class="field-wrap">
-          <input type="password" id="signupPass" placeholder="কমপক্ষে ৮ অক্ষর" oninput="checkPass(this.value)">
-          <span class="field-icon" onclick="togglePass('signupPass',this)" style="cursor:pointer">👁️</span>
-        </div>
-        <div class="pass-bars">
-          <div class="pass-bar" id="pb1"></div>
-          <div class="pass-bar" id="pb2"></div>
-          <div class="pass-bar" id="pb3"></div>
-          <div class="pass-bar" id="pb4"></div>
-        </div>
-        <div class="pass-label" id="passLabel"></div>
-      </div>
-
-      <button class="btn-submit" id="signupBtn" onclick="doSignup()">
-        <span class="btn-text">বিনামূল্যে শুরু করুন →</span>
-        <div class="spinner"></div>
-      </button>
-
-      <div class="bottom-link">
-        ইতিমধ্যে account আছে? <a href="#" onclick="switchTab('login');return false">লগইন করুন</a>
-      </div>
-    </div>
-
-    <div class="trust-row">
-      <div class="trust-badge"><span>🔒</span> SSL সুরক্ষিত</div>
-      <div class="trust-badge"><span>🇧🇩</span> বাংলাদেশে তৈরি</div>
-      <div class="trust-badge"><span>⚡</span> ২৪/৭ সক্রিয়</div>
-    </div>
+<!-- toast -->
+<div class="ov" id="toastOverlay" role="alertdialog" aria-live="assertive">
+  <div class="tc">
+    <div class="ti ok" id="toastIconWrap"></div>
+    <div class="tt" id="toastTitle"></div>
+    <div class="tm" id="toastMsg"></div>
+    <div class="tpw" id="toastProgressWrap"><div id="toastProgressBar"></div></div>
+    <button class="tb" id="toastBtn" type="button" onclick="closeToast()">ঠিক আছে</button>
   </div>
 </div>
 
@@ -403,101 +333,151 @@ sb.auth.getSession().then(({data:{session}})=>{
   if(session) window.location.href='dashboard.html';
 });
 
+const $ = id => document.getElementById(id);
+const BN = v => String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+$('yr').textContent = BN(new Date().getFullYear());
+const IC_OK = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', IC_NO = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const EYE = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>', EYE_OFF = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.6 7.6A17 17 0 0 0 2 12s3.6 6 10 6c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+
 function showErr(msg){
-  let box=document.getElementById('errBox');
-  if(!box){box=document.createElement('div');box.id='errBox';box.style.cssText='background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:13px;color:#DC2626;margin-bottom:14px;';document.getElementById('loginPanel').insertBefore(box,document.getElementById('loginPanel').querySelector('.field'));}
+  let box=$('errBox');
+  if(!box){box=document.createElement('div');box.id='errBox';box.className='err-box';$('loginPanel').insertBefore(box,$('loginPanel').children[2]);}
   box.textContent=msg;box.style.display=msg?'block':'none';
 }
 
+/* ---------- tabs + the left stage follows ---------- */
+const COPY = {
+  login: ['আবার স্বাগতম,<br><span>আপনার প্রতিষ্ঠানের ড্যাশবোর্ডে</span>', 'উপস্থিতি, ফি, ফলাফল আর অভিভাবকের সঙ্গে যোগাযোগ, সব এক জায়গায়।'],
+  signup: ['প্রতিষ্ঠান অনলাইনে আনুন,<br><span>মাত্র ৩ ধাপে</span>', 'লিখতে থাকুন, বাঁ দিকে আপনার নিজের ওয়েবসাইট সাজতে দেখুন।']
+};
 function switchTab(tab){
-  document.getElementById('loginPanel').classList.toggle('active', tab==='login');
-  document.getElementById('signupPanel').classList.toggle('active', tab==='signup');
-  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
-  document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
-  document.getElementById('loginSuccess').classList.remove('show');
-  document.getElementById('loginBtn').style.display='';
+  $('loginPanel').classList.toggle('active', tab==='login');
+  $('signupPanel').classList.toggle('active', tab==='signup');
+  $('tabLogin').classList.toggle('active', tab==='login');
+  $('tabSignup').classList.toggle('active', tab==='signup');
+  $('loginSuccess').classList.remove('show');
+  $('loginBtn').style.display='';
+  $('modeLogin').classList.toggle('on', tab==='login'); $('modeSignup').classList.toggle('on', tab==='signup');
+  const lh=$('lh'); lh.classList.add('swap');
+  setTimeout(()=>{ $('lhT').innerHTML=COPY[tab][0]; $('lhP').textContent=COPY[tab][1]; lh.classList.remove('swap'); },180);
+  if(tab==='signup') pv();
 }
-
 function selectRole(btn){
-  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.role').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 }
-function togglePass(id,icon){
-  const inp=document.getElementById(id);
-  inp.type=inp.type==='password'?'text':'password';
-  icon.textContent=inp.type==='password'?'👁️':'🙈';
+function togglePass(id,btn){
+  const inp=$(id); inp.type=inp.type==='password'?'text':'password';
+  btn.innerHTML = inp.type==='password' ? EYE : EYE_OFF;
 }
+function forgotPass(){
+  showToast('error','পাসওয়ার্ড ভুলে গেছেন?','আপাতত teamprotishthan@gmail.com-এ আপনার রেজিস্টার করা ইমেইল থেকে লিখুন, আমরা সাহায্য করব।');
+}
+
+/* ---------- places ---------- */
 function populateDistricts(){
-  const sel = document.getElementById('instDistrict');
-  BD_LOCATIONS.forEach((dist, i)=>{
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = dist.n;
-    sel.appendChild(opt);
-  });
+  const sel = $('instDistrict');
+  BD_LOCATIONS.forEach((dist, i)=>{ const opt=document.createElement('option'); opt.value=i; opt.textContent=dist.n; sel.appendChild(opt); });
 }
-
 function onDistrictChange(){
-  const distIdx = document.getElementById('instDistrict').value;
-  const upaSel = document.getElementById('instUpazila');
-
+  const distIdx = $('instDistrict').value, upaSel = $('instUpazila');
   upaSel.innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>';
-
-  if(distIdx === ''){
-    upaSel.disabled = true;
-    return;
-  }
-
+  if(distIdx === ''){ upaSel.disabled = true; upaSel.innerHTML='<option value="">আগে জেলা দিন</option>'; return; }
   upaSel.disabled = false;
-  BD_LOCATIONS[distIdx].u.forEach(upa=>{
-    const opt = document.createElement('option');
-    opt.value = upa;
-    opt.textContent = upa;
-    upaSel.appendChild(opt);
-  });
+  BD_LOCATIONS[distIdx].u.forEach(upa=>{ const opt=document.createElement('option'); opt.value=upa; opt.textContent=upa; upaSel.appendChild(opt); });
 }
-
 populateDistricts();
 
 function selectInstType(btn){
-  document.querySelectorAll('#instTypeGrid .type-chip').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
+  document.querySelectorAll('#instTypeGrid .chip').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); $('fType').classList.remove('err'); pv();
 }
-
 function updateSlug(){
-  const v=document.getElementById('instName').value;
+  const v=$('instName').value;
   const slug=v.toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,30);
-  document.getElementById('instSlug').value=slug;
-  document.getElementById('slugPreview').textContent=slug?'→ '+slug+'.protishthan.com':'';
+  $('instSlug').value=slug;
+  $('slugPreview').textContent=slug?slug+'.protishthan.com':'';
 }
 function validateSlug(inp){
   const ok=/^[a-z0-9-]*$/.test(inp.value);
-  document.getElementById('slugErr').classList.toggle('show',!ok&&inp.value.length>0);
-  document.getElementById('slugPreview').textContent=inp.value?'→ '+inp.value+'.protishthan.com':'';
+  $('slugErr').classList.toggle('show',!ok&&inp.value.length>0);
+  $('slugPreview').textContent=inp.value?inp.value+'.protishthan.com':'';
 }
 function checkPass(v){
-  const bars=[document.getElementById('pb1'),document.getElementById('pb2'),document.getElementById('pb3'),document.getElementById('pb4')];
-  bars.forEach(b=>b.style.background='var(--border)');
-  if(!v){document.getElementById('passLabel').textContent='';return}
+  const bars=[$('pb1'),$('pb2'),$('pb3'),$('pb4')];
+  bars.forEach(b=>b.style.background='#E2E8F0');
+  if(!v){$('passLabel').textContent='';return}
   let s=0;
   if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
   const c=['#EF4444','#F59E0B','#3B82F6','#10B981'],l=['দুর্বল','মোটামুটি','ভালো','শক্তিশালী'];
   for(let i=0;i<s;i++)bars[i].style.background=c[s-1];
-  document.getElementById('passLabel').textContent=l[s-1]||'';
-  document.getElementById('passLabel').style.color=c[s-1]||'var(--text-3)';
+  $('passLabel').textContent=l[s-1]||'';
+  $('passLabel').style.color=c[s-1]||'#94A3B8';
 }
+
+/* ---------- live preview of the school's own site ---------- */
+let lastInitial='';
+function pv(){
+  const name=$('instName').value.trim(), slug=$('instSlug').value.trim(), t=document.querySelector('#instTypeGrid .chip.selected');
+  const di=$('instDistrict').value, upa=$('instUpazila').value, dist=di!==''?BD_LOCATIONS[di].n:'';
+  const n=$('pvName'); n.textContent=name||'আপনার প্রতিষ্ঠানের নাম'; n.classList.toggle('ph',!name);
+  const ini=name?Array.from(name)[0]:'আ'; const lg=$('pvLogo'); if(ini!==lastInitial){ lg.textContent=ini; lg.classList.remove('pop'); void lg.offsetWidth; lg.classList.add('pop'); lastInitial=ini; }
+  const ty=$('pvType'); ty.textContent=t?t.dataset.type:'ধরন'; ty.classList.toggle('ph',!t);
+  const pl=$('pvPlace'); pl.textContent=dist?(upa?upa+', ':'')+dist:'জেলা, উপজেলা'; pl.classList.toggle('ph',!dist);
+  const u=$('pvUrl'); u.textContent=(slug||'আপনার-প্রতিষ্ঠান')+'.protishthan.com'; u.classList.toggle('set',!!slug);
+  const ok1=!!(name&&t&&$('principalName').value.trim()&&dist&&upa), ok2=!!(slug&&/^[a-z0-9-]+$/.test(slug)), ok3=!!(/^\S+@\S+\.\S+$/.test($('signupEmail').value.trim())&&$('signupPass').value.length>=8);
+  $('td1').classList.toggle('ok',ok1); $('td2').classList.toggle('ok',ok2); $('td3').classList.toggle('ok',ok3);
+}
+$('principalName').addEventListener('input',pv);
+
+/* ---------- signup steps ---------- */
+const SU = { step:1, names:['প্রতিষ্ঠানের পরিচয়','ওয়েবসাইটের ঠিকানা','আপনার অ্যাকাউন্ট'] };
+function flag(id,bad){ $(id).classList.toggle('err',!!bad); return !bad; }
+function checkStep(n){
+  if(n===1){
+    let ok=true;
+    ok=flag('fName',!$('instName').value.trim())&&ok;
+    ok=flag('fType',!document.querySelector('#instTypeGrid .chip.selected'))&&ok;
+    ok=flag('fPrin',!$('principalName').value.trim())&&ok;
+    ok=flag('fDist',$('instDistrict').value==='')&&ok;
+    ok=flag('fUpa',!$('instUpazila').value)&&ok;
+    return ok;
+  }
+  if(n===2){
+    const s=$('instSlug').value.trim(), ok=!!s&&/^[a-z0-9-]+$/.test(s);
+    if(!ok){ $('slugErr').classList.add('show'); } return flag('fSlug',!ok);
+  }
+  if(n===3){
+    let ok=true; const ph=$('signupPhone').value.trim();
+    ok=flag('fMail',!/^\S+@\S+\.\S+$/.test($('signupEmail').value.trim()))&&ok;
+    ok=flag('fPhone',!!ph&&!/^01[0-9]{9}$/.test(ph))&&ok;
+    ok=flag('fPass',$('signupPass').value.length<8)&&ok;
+    return ok;
+  }
+  return true;
+}
+function suGo(n){
+  if(n>SU.step){ for(let i=SU.step;i<n;i++){ if(!checkStep(i)) return; } }
+  SU.step=n;
+  document.querySelectorAll('#signupPanel .step').forEach(s=>s.classList.toggle('on',Number(s.dataset.s)===n));
+  document.querySelectorAll('#signupPanel .sd').forEach((d,i)=>{ d.className='sd'+(i+1<n?' done':i+1===n?' on':''); });
+  $('spName').textContent=SU.names[n-1]; $('spNo').textContent='ধাপ '+BN(n)+' / ৩';
+  const top=$('signupPanel').getBoundingClientRect().top+window.scrollY-24; if(window.scrollY>top) window.scrollTo({top:Math.max(0,top)});
+}
+
+/* ---------- login / signup (same logic as before) ---------- */
 async function doLogin(){
-  let input=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
+  let input=$('loginEmail').value.trim();
+  const pass=$('loginPass').value;
+  flag('fLoginEmail',!input); flag('fLoginPass',!pass);
   if(!input||!pass){showToast('error','অসম্পূর্ণ তথ্য','ইমেইল/ফোন এবং পাসওয়ার্ড দিন');return;}
-  const btn=document.getElementById('loginBtn');
+  const btn=$('loginBtn');
   btn.classList.add('loading');
-  // If phone number, try to find email from institutions table
   let loginEmail = input;
   if(/^01[0-9]{9}$/.test(input)){
     const {data:instData} = await sb.from('institutions').select('email').eq('phone',input).single();
     if(instData && instData.email) loginEmail = instData.email;
-    else { btn.classList.remove('loading'); showToast('error','লগইন ব্যর্থ','এই ফোন নম্বর দিয়ে কোনো account পাওয়া যায়নি'); return; }
+    else { btn.classList.remove('loading'); showToast('error','লগইন ব্যর্থ','এই ফোন নম্বর দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি'); return; }
   }
   const {data,error}=await sb.auth.signInWithPassword({email:loginEmail,password:pass});
   if(error){
@@ -506,26 +486,26 @@ async function doLogin(){
     return;
   }
   btn.classList.remove('loading');
-  showToast('success','লগইন সফল! 🎉','আপনার dashboard এ নিয়ে যাওয়া হচ্ছে...',true);
+  showToast('success','লগইন সফল','আপনার ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে…',true);
 }
 async function doSignup(){
-  const name=document.getElementById('instName').value.trim();
-  const principal=document.getElementById('principalName').value.trim();
-  const distIdx=document.getElementById('instDistrict').value;
-  const upazila=document.getElementById('instUpazila').value;
-  const slug=document.getElementById('instSlug').value.trim();
-  const email=document.getElementById('signupEmail').value.trim();
-  const phone=document.getElementById('signupPhone').value.trim();
-  const pass=document.getElementById('signupPass').value;
-  const instTypeBtn=document.querySelector('#instTypeGrid .type-chip.selected');
+  for(let i=1;i<=3;i++){ if(!checkStep(i)){ suGo(i); return; } }
+  const name=$('instName').value.trim();
+  const principal=$('principalName').value.trim();
+  const distIdx=$('instDistrict').value;
+  const upazila=$('instUpazila').value;
+  const slug=$('instSlug').value.trim();
+  const email=$('signupEmail').value.trim();
+  const phone=$('signupPhone').value.trim();
+  const pass=$('signupPass').value;
+  const instTypeBtn=document.querySelector('#instTypeGrid .chip.selected');
   const institutionType=instTypeBtn?instTypeBtn.dataset.type:null;
   if(!name||!principal||!slug||!email||!pass){showToast('error','অসম্পূর্ণ তথ্য','সব তথ্য সঠিকভাবে পূরণ করুন');return;}
   if(distIdx===''||!upazila){showToast('error','অসম্পূর্ণ তথ্য','জেলা এবং উপজেলা নির্বাচন করুন');return;}
   if(pass.length<8){showToast('error','দুর্বল পাসওয়ার্ড','পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে');return;}
 
   const district = BD_LOCATIONS[distIdx].n;
-
-  const btn=document.getElementById('signupBtn');
+  const btn=$('signupBtn');
   btn.classList.add('loading');
   try{
     const {data,error}=await sb.auth.signUp({
@@ -534,7 +514,7 @@ async function doSignup(){
     });
     if(error){
       btn.classList.remove('loading');
-      if(error.message.includes('already registered')){showToast('error','ইমেইল আগেই ব্যবহৃত','এই ইমেইল দিয়ে account আছে। লগইন করুন।');}
+      if(error.message.includes('already registered')){showToast('error','ইমেইল আগেই ব্যবহৃত','এই ইমেইল দিয়ে অ্যাকাউন্ট আছে। লগইন করুন।');}
       else if(error.message.includes('rate limit')){showToast('error','একটু অপেক্ষা করুন','৫ মিনিট পর আবার চেষ্টা করুন।');}
       else{showToast('error','সমস্যা হয়েছে',error.message);}
       return;
@@ -543,97 +523,31 @@ async function doSignup(){
       await sb.from('institutions').insert({name,short_name:slug,email,phone,plan:'free',is_active:true,principal_name:principal,district,upazila,institution_type:institutionType});
     }
     btn.classList.remove('loading');
-    switchTab('login');
-    showToast('success','রেজিস্ট্রেশন সফল! 🎉','আপনার প্রতিষ্ঠানের account তৈরি হয়েছে। এখন লগইন করুন।');
+    switchTab('login'); SU.step=1; suGo(1);
+    showToast('success','রেজিস্ট্রেশন সফল','আপনার প্রতিষ্ঠানের অ্যাকাউন্ট তৈরি হয়েছে। এখন লগইন করুন।');
   } catch(e){
     btn.classList.remove('loading');
     showToast('error','সমস্যা হয়েছে', e.message||'আবার চেষ্টা করুন');
   }
 }
 
-// Live activity feed rotation
-const acts=[
-  {cls:'act-green',icon:'🔒',t:'সানজিদা — উপস্থিত',s:'আল-আমিন একাডেমি · ৮:১৫'},
-  {cls:'act-blue',icon:'💬',t:'WhatsApp পাঠানো',s:'৮ জন অভিভাবককে notification'},
-  {cls:'act-purple',icon:'💳',t:'ফি পরিশোধ',s:'৳৮০০ — Bkash · নূর উদ্দিন বিদ্যালয়'},
-  {cls:'act-green',icon:'🔒',t:'রাফিউল — উপস্থিত',s:'দারুল উলুম · সকাল ৮:০২'},
-];
-let ai=0;
-setInterval(()=>{
-  const f=document.getElementById('actFeed');
-  const a=acts[ai%acts.length];
-  const d=document.createElement('div');
-  d.className='activity-item';
-  d.innerHTML=`<div class="act-icon ${a.cls}">${a.icon}</div><div class="act-text"><div class="t">${a.t}</div><div class="s">${a.s}</div></div><div class="act-dot"></div>`;
-  f.insertBefore(d,f.firstChild);
-  if(f.children.length>4)f.removeChild(f.lastChild);
-  ai++;
-},3000);
+/* ---------- toast ---------- */
+function showToast(type, title, msg, autoRedirect){
+  const overlay=$('toastOverlay'), iconWrap=$('toastIconWrap'), btn=$('toastBtn'), pw=$('toastProgressWrap'), pb=$('toastProgressBar');
+  $('toastTitle').textContent=title; $('toastMsg').textContent=msg;
+  if(type==='success'){ iconWrap.className='ti ok'; iconWrap.innerHTML=IC_OK; btn.className='tb'; }
+  else { iconWrap.className='ti no'; iconWrap.innerHTML=IC_NO; btn.className='tb red'; }
+  if(autoRedirect){
+    pw.style.display='block'; btn.textContent='ড্যাশবোর্ডে যাচ্ছি…'; btn.disabled=true; overlay.classList.add('show');
+    setTimeout(()=>{ pb.style.width='100%'; },50);
+    setTimeout(()=>{ window.location.href='dashboard.html'; },2200);
+  } else { pw.style.display='none'; btn.textContent='ঠিক আছে'; btn.disabled=false; overlay.classList.add('show'); }
+}
+function closeToast(){ $('toastOverlay').classList.remove('show'); }
+
+// ?tab=signup opens the registration directly
+(function(){ const p=new URLSearchParams(window.location.search); if(p.get('tab')==='signup') switchTab('signup'); })();
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const a=document.activeElement; if(a&&a.tagName==='INPUT'&&a.type!=='checkbox'){ if($('loginPanel').classList.contains('active')) doLogin(); else if(SU.step<3) suGo(SU.step+1); else doSignup(); } } });
 </script>
-
-<!-- PROFESSIONAL TOAST -->
-<div class="toast-overlay" id="toastOverlay">
-  <div class="toast-card">
-    <div class="toast-icon-wrap" id="toastIconWrap">
-      <span id="toastIconEmoji">✅</span>
-    </div>
-    <div class="toast-title" id="toastTitle">সফল!</div>
-    <div class="toast-msg" id="toastMsg"></div>
-    <div class="toast-progress" id="toastProgressWrap" style="display:none">
-      <div class="toast-progress-bar" id="toastProgressBar"></div>
-    </div>
-    <button class="toast-btn" id="toastBtn" onclick="closeToast()">ঠিক আছে</button>
-  </div>
-</div>
-
 </body>
 </html>
-<script>
-// Auto switch tab from URL param
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('tab')==='signup')switchTab('signup');
-})();
-
-function showToast(type, title, msg, autoRedirect){
-  const overlay=document.getElementById('toastOverlay');
-  const iconWrap=document.getElementById('toastIconWrap');
-  const emoji=document.getElementById('toastIconEmoji');
-  const titleEl=document.getElementById('toastTitle');
-  const msgEl=document.getElementById('toastMsg');
-  const btn=document.getElementById('toastBtn');
-  const progressWrap=document.getElementById('toastProgressWrap');
-  const progressBar=document.getElementById('toastProgressBar');
-  
-  titleEl.textContent=title;
-  msgEl.textContent=msg;
-  
-  if(type==='success'){
-    iconWrap.className='toast-icon-wrap toast-icon-success';
-    emoji.textContent='✅';
-    btn.className='toast-btn';
-  } else {
-    iconWrap.className='toast-icon-wrap toast-icon-error';
-    emoji.textContent='❌';
-    btn.className='toast-btn red';
-  }
-  
-  if(autoRedirect){
-    progressWrap.style.display='block';
-    btn.textContent='Dashboard এ যাচ্ছি...';
-    btn.disabled=true;
-    overlay.classList.add('show');
-    setTimeout(()=>{ progressBar.style.width='100%'; },50);
-    setTimeout(()=>{ window.location.href='dashboard.html'; },2200);
-  } else {
-    progressWrap.style.display='none';
-    btn.textContent='ঠিক আছে';
-    btn.disabled=false;
-    overlay.classList.add('show');
-  }
-}
-
-function closeToast(){
-  document.getElementById('toastOverlay').classList.remove('show');
-}
-</script>
