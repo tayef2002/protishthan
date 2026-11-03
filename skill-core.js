@@ -10,11 +10,11 @@
     'student': 'Student', 'fresher': 'Fresh Graduate', 'entrepreneur': 'Entrepreneur', 'remote-worker': 'Remote Worker', 'team-player': 'Team Player', 'fast-learner': 'Fast Learner', 'community-helper': 'Community Helper', 'detail-oriented': 'Detail-oriented', 'deadline-keeper': 'Always On Time', 'multi-skilled': 'Multi-skilled'
   };
   const THEMES = {
+    paper:    { name: 'পেপার',   bg: '#F6F3EC', bg2: '#EDE8DC', ink: '#17171C', mut: '#6B6A74', a1: '#2F5BEA', a2: '#7C3AED', a3: '#0EA5A4', dark: false },
     midnight: { name: 'মিডনাইট', bg: '#070B16', bg2: '#0D1530', ink: '#F4F6FF', mut: '#9AA6C4', a1: '#6EA8FF', a2: '#8B7CFF', a3: '#38E1C6', dark: true },
     aurora:   { name: 'অরোরা',   bg: '#04100F', bg2: '#08201D', ink: '#F1FBF8', mut: '#93B5AD', a1: '#34D399', a2: '#22D3EE', a3: '#A3E635', dark: true },
     ocean:    { name: 'ওশান',    bg: '#040F1D', bg2: '#08203A', ink: '#F0F7FF', mut: '#8FA9C7', a1: '#38BDF8', a2: '#3B82F6', a3: '#818CF8', dark: true },
     ember:    { name: 'এম্বার',   bg: '#150A0B', bg2: '#2A1214', ink: '#FFF4F0', mut: '#C2A09A', a1: '#FB923C', a2: '#F43F5E', a3: '#FACC15', dark: true },
-    paper:    { name: 'পেপার',   bg: '#F6F3EC', bg2: '#EDE8DC', ink: '#17171C', mut: '#6B6A74', a1: '#2F5BEA', a2: '#7C3AED', a3: '#0EA5A4', dark: false }
   };
   const SITE = 'https://protishthan.com';
 
@@ -141,7 +141,7 @@
   function mount(el, p, opt){
     opt = opt || {};
     el.className = 'sk' + (opt.embed ? ' sk-embed in' : '');   // the live preview starts in its final state, so typing never replays the entrance
-    el.setAttribute('data-theme', THEMES[p && p.theme] ? p.theme : 'midnight');
+    el.setAttribute('data-theme', THEMES[p && p.theme] ? p.theme : 'paper');
     el.innerHTML = '<div class="sk-bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="gr"></span></div>' + html(p, opt);
     // entrance: let the first paint happen with everything hidden, then reveal (bars fill after the cards)
     if(!opt.embed) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));

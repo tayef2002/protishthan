@@ -15,7 +15,7 @@
 <script src="/member.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/avatars.js"></script>
-<script src="/skill-core.js?v=32"></script>
+<script src="/skill-core.js?v=33"></script>
 <style>
 html,body{margin:0;background:#070B16}
 #sk{min-height:100vh;display:flex;flex-direction:column}
@@ -179,7 +179,7 @@ html,body{margin:0;background:#070B16}
       requestAnimationFrame(() => requestAnimationFrame(() => sk.classList.add('in')));
       return;
     }
-    sk.setAttribute('data-theme', V.THEMES[p.theme] ? p.theme : 'midnight');
+    sk.setAttribute('data-theme', V.THEMES[p.theme] ? p.theme : 'paper');
     // the pop-up sheets sit outside the themed card, so they get the same colours from the page root
     const cs = getComputedStyle(sk); ['--bg', '--bg2', '--ink', '--mut', '--glass', '--glass2', '--line', '--chip', '--a1', '--a2', '--a3'].forEach(v => document.documentElement.style.setProperty(v, cs.getPropertyValue(v)));
     document.querySelector('meta[name=theme-color]').setAttribute('content', (V.THEMES[p.theme] || V.THEMES.midnight).bg);
