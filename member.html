@@ -452,6 +452,7 @@ main.container{margin-top:22px}
 .ar-add b{font-size:15px}.ar-add span{display:block;font-size:12.5px;color:var(--text-2)}
 .co-credit{display:flex;gap:10px;align-items:flex-start;background:#ECFDF5;border:1px solid #BBF7D0;border-radius:13px;padding:11px 13px;margin:6px 0 12px;font-size:13px;line-height:1.55;color:#065F46;cursor:pointer}
 .co-credit input{margin-top:4px;width:17px;height:17px;accent-color:#059669;flex:none}
+.im-save{flex:none;align-self:flex-start;padding:9px 15px;border:1.5px solid #D9E4FB;border-radius:100px;background:#F5F8FF;color:#1A56DB;font:700 13px 'Hind Siliguri',sans-serif;cursor:pointer;white-space:nowrap}.im-save:hover{background:#EAF1FF;border-color:#93B4F0}
 .co-prog{padding:2px 24px 8px}.co-prog .row{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:#64748B;margin-bottom:8px}.co-prog .row b{color:#0B1B4D;font-size:14px}
 .co-bar{display:flex;gap:6px}.co-bar i{flex:1;height:5px;border-radius:5px;background:#E2E8F0;transition:background .25s}.co-bar i.done{background:#93B4F0}.co-bar i.on{background:#2563EB}
 .co-pane{display:none}.co-pane.on{display:block;animation:coIn .22s ease both}@keyframes coIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
@@ -955,7 +956,7 @@ async function coOpen(id){
   const one = (n, opts, sel) => imChips(n, opts, sel, false), many = (n, opts, sel) => imChips(n, opts, sel, true);
   const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
   CO.step = 1;
-  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-x" onclick="coClose()" aria-label="বন্ধ করুন">×</button></header>' +
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-save" onclick="coSaveClose()">সেভ করে বন্ধ করুন</button></header>' +
     '<div class="co-prog"><div class="row"><span id="coStepNo"></span><b id="coStepName"></b></div><div class="co-bar" id="coBar"><i></i><i></i><i></i><i></i></div></div>' +
     '<div class="im-b" data-id="' + esc(id) + '">' +
     pane(1, 'কীভাবে জেনেছেন?', 'শুধু যে তথ্য আপনি নিশ্চিত, সেটুকুই দিন। ভুল তথ্য দিলে অনুমোদন পাবে না।',
@@ -973,6 +974,9 @@ async function coOpen(id){
       f('Admin-এর জন্য নোট (ঐচ্ছিক)', '<textarea class="im-i" data-f="__note" rows="2" maxlength="500" placeholder="যেমন: প্রধান শিক্ষকের সঙ্গে কথা হয়েছে"></textarea>')) +
     '<div class="im-err" id="coErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" id="coBack" onclick="coGo(-1)">বাতিল</button><button type="button" class="btn btn-fill" id="coNext" onclick="coGo(1)">পরবর্তী →</button></footer></div>';
   coPaint(); coFeeSync();
+  if(coDraftLoad(id)) M.toast('আগের অসমাপ্ত তথ্য ফিরিয়ে আনা হয়েছে');
+  let tm; const auto = () => { clearTimeout(tm); tm = setTimeout(coDraftSave, 500); };
+  ov.querySelector('.im-sheet').addEventListener('input', auto); ov.querySelector('.im-sheet').addEventListener('click', auto);
   ov.classList.add('show'); document.body.style.overflow = 'hidden';
   ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } }));
 }
@@ -1029,7 +1033,27 @@ function coGo(d){
   if(CO.step === last){ coSubmit(root.querySelector('.im-b').dataset.id); return; }
   CO.step++; coPaint();
 }
-function coClose(){ const ov = $('coDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
+const coDKey = id => 'coDraft:' + ((M.current() || {}).user_id || 'x') + ':' + id;
+function coDraftSave(){
+  const root = $('coDlg'); if(!root || !root.classList.contains('show')) return;
+  const id = root.querySelector('.im-b').dataset.id, d = { step: CO.step, f: {}, c: {}, lo: $('coFeeLo').value, hi: $('coFeeHi').value, show: $('coShow').checked };
+  root.querySelectorAll('[data-f]').forEach(el => { d.f[el.dataset.f] = el.value; });
+  root.querySelectorAll('.im-chips').forEach(g => { d.c[g.dataset.chips] = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); });
+  const any = Object.values(d.f).some(v => String(v).trim()) || Object.values(d.c).some(v => v.length);
+  try{ if(any) localStorage.setItem(coDKey(id), JSON.stringify(d)); else localStorage.removeItem(coDKey(id)); }catch(e){}
+}
+function coDraftLoad(id){
+  let d; try{ d = JSON.parse(localStorage.getItem(coDKey(id)) || 'null'); }catch(e){ d = null; } if(!d) return false;
+  const root = $('coDlg');
+  root.querySelectorAll('[data-f]').forEach(el => { if(d.f && el.dataset.f in d.f) el.value = d.f[el.dataset.f]; });
+  root.querySelectorAll('.im-chips').forEach(g => { const v = (d.c || {})[g.dataset.chips]; if(!v) return; g.querySelectorAll('.im-chip').forEach(b => b.classList.toggle('on', v.indexOf(b.dataset.v) >= 0)); });
+  $('coFeeLo').value = d.lo || ''; $('coFeeHi').value = d.hi || ''; $('coShow').checked = d.show !== false; coFeeSync();
+  CO.step = Math.min(Math.max(Number(d.step) || 1, 1), CO_STEPS.length); coPaint();
+  return true;
+}
+function coDraftClear(id){ try{ localStorage.removeItem(coDKey(id)); }catch(e){} }
+function coSaveClose(){ coDraftSave(); coClose(); M.toast('সেভ হয়েছে। পরে এখান থেকেই আবার শুরু করতে পারবেন ✓'); }
+function coClose(){ if(!CO.skip) coDraftSave(); CO.skip = false; const ov = $('coDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
 async function coSubmit(id){
   const root = $('coDlg'), err = $('coErr'); err.textContent = '';
   const o = {}, chips = {}; let note = '';
@@ -1044,7 +1068,7 @@ async function coSubmit(id){
   const r = await M.sb.rpc('submit_contribution', { p_listing: id, p_payload: payload, p_method: method, p_note: note || null, p_show_name: !!($('coShow') && $('coShow').checked) });
   btn.disabled = false; btn.textContent = 'জমা দিন';
   if(r.error){ const m = r.error.message || ''; err.textContent = /ALREADY_PENDING/.test(m) ? 'এই প্রতিষ্ঠানে আপনার একটি জমা আগে থেকেই পর্যালোচনায় আছে।' : /TOO_MANY/.test(m) ? 'আপনার অনেকগুলো জমা পর্যালোচনায় আছে। কিছু অনুমোদন হলে আবার দিন।' : /BAD_PHONE/.test(m) ? 'সঠিক নম্বর দিন (01XXXXXXXXX)।' : /BAD_DATA/.test(m) ? 'কিছু তথ্যের ধরন ঠিক নেই (যেমন সাল বা সংখ্যা)। দেখে আবার দিন।' : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।'; return; }
-  coClose(); M.toast('জমা হয়েছে, পর্যালোচনার অপেক্ষায় ✓'); loadArea(); loadContrib();
+  coDraftClear(id); CO.skip = true; coClose(); M.toast('জমা হয়েছে, পর্যালোচনার অপেক্ষায় ✓'); loadArea(); loadContrib();
 }
 /* a new institution: same full form as "my institutions", pre-filled with the member's area */
 async function arAdd(){
