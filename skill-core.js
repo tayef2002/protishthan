@@ -6,7 +6,8 @@
   const LEVELS = ['Learning', 'Intermediate', 'Advanced', 'Expert'];
   const BADGES = {
     'self-taught': 'Self-taught', 'freelancer': 'Freelancer', 'problem-solver': 'Problem Solver', 'zero-degree': 'Skills over Degrees',
-    'creator': 'Creator', 'builder': 'Builder', 'night-owl': 'Night Owl', 'mentor': 'Mentor', 'learner': 'Lifelong Learner', 'open-source': 'Open Source'
+    'creator': 'Creator', 'builder': 'Builder', 'night-owl': 'Night Owl', 'mentor': 'Mentor', 'learner': 'Lifelong Learner', 'open-source': 'Open Source',
+    'student': 'Student', 'fresher': 'Fresh Graduate', 'entrepreneur': 'Entrepreneur', 'remote-worker': 'Remote Worker', 'team-player': 'Team Player', 'fast-learner': 'Fast Learner', 'community-helper': 'Community Helper', 'detail-oriented': 'Detail-oriented', 'deadline-keeper': 'Always On Time', 'multi-skilled': 'Multi-skilled'
   };
   const THEMES = {
     midnight: { name: 'মিডনাইট', bg: '#070B16', bg2: '#0D1530', ink: '#F4F6FF', mut: '#9AA6C4', a1: '#6EA8FF', a2: '#8B7CFF', a3: '#38E1C6', dark: true },

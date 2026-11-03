@@ -1,4 +1,4 @@
--- Skill identity: a profile may hold up to 30 skills (was 8). The certificate still prints the first 6; the profile page lists all.
+-- Skill identity: a profile may hold up to 30 skills (was 8; the certificate still prints the first 6, the profile page lists all) and there are 10 more badges to pick from.
 -- Only the limit changed; the rest of the guard is exactly the one from 2026-11-04_skill_photo.sql. Safe to run more than once.
 
 create or replace function public.skill_profiles_guard()
@@ -6,7 +6,7 @@ returns trigger language plpgsql as $$
 declare
   s jsonb; l jsonb; sk jsonb := '[]'::jsonb; lk jsonb := '[]'::jsonb; nm text; lv int; u text; t text; b text; becoming_public boolean;
   reserved text[] := array['admin','api','s','skill','skills','card','member','login','logout','signup','partner','army','agent','software','results','privacy','terms','about','help','support','protishthan','official','root','www','mail','static','assets','null','undefined','me','new','edit','settings'];
-  ok_badges text[] := array['self-taught','freelancer','problem-solver','zero-degree','creator','builder','night-owl','mentor','learner','open-source'];
+  ok_badges text[] := array['self-taught','freelancer','problem-solver','zero-degree','creator','builder','night-owl','mentor','learner','open-source','student','fresher','entrepreneur','remote-worker','team-player','fast-learner','community-helper','detail-oriented','deadline-keeper','multi-skilled'];
 begin
   new.username := lower(trim(new.username));
   if new.username = any (reserved) then raise exception 'USERNAME_RESERVED'; end if;
