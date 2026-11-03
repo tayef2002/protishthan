@@ -955,7 +955,7 @@ async function coOpen(id){
   const inp = (n, v, ph, extra) => '<input class="im-i" data-f="' + n + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
   const one = (n, opts, sel) => imChips(n, opts, sel, false), many = (n, opts, sel) => imChips(n, opts, sel, true);
   const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
-  CO.step = 1;
+  CO.step = 1; const CL = coClassInfo(l.institution_type); CO.cl = CL[2];
   ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + esc(l.institution_name) + '</h3><p>' + esc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + esc(l.source_id) : '') + '</p></div><button type="button" class="im-save" onclick="coSaveClose()">Save &amp; Close</button></header>' +
     '<div class="co-prog"><div class="row"><span id="coStepNo"></span><b id="coStepName"></b></div><div class="co-bar" id="coBar"><i></i><i></i><i></i><i></i></div></div>' +
     '<div class="im-b" data-id="' + esc(id) + '">' +
@@ -964,7 +964,7 @@ async function coOpen(id){
       '<div class="im-sec">প্রতিষ্ঠানের যোগাযোগ</div><p class="co-sub" style="margin-top:-2px">এখানে প্রতিষ্ঠানের তথ্য দিন, আপনার নিজের নয়। যেটা জানেন না সেটা ফাঁকা রাখুন।</p><div class="im-2">' + f('প্রতিষ্ঠান প্রধানের নাম', inp('contact_name', l.contact_name, 'প্রধান শিক্ষক / অধ্যক্ষ / সুপারের নাম')) + f('প্রতিষ্ঠানের ফোন নম্বর', inp('contact_phone', l.contact_phone, '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div><p class="co-sub" style="margin:-4px 0 8px;font-size:12.5px">ফোন: প্রধানের বা অফিসের নম্বর, যে নম্বরে অভিভাবকরা কথা বলতে পারবেন।</p>' + f('প্রতিষ্ঠানের পূর্ণ ঠিকানা', '<textarea class="im-i" data-f="address_note" rows="2" maxlength="300" placeholder="গ্রাম/মহল্লা, ডাকঘর, উপজেলা, জেলা। যেমন: নন্দাপাড়া, বানিয়াচং, হবিগঞ্জ">' + esc(l.address_note || '') + '</textarea>')) +
     pane(2, 'প্রতিষ্ঠানের তথ্য', 'যেটুকু জানেন সেটুকুই লিখুন, বাকিটা ফাঁকা রাখুন।',
       '<div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('founding_year', l.founding_year, 'যেমন ২০০৫')) + f('শিক্ষার্থী সংখ্যা', inp('student_count', l.student_count, 'আনুমানিক')) + f('শিক্ষক সংখ্যা', inp('teacher_count', l.teacher_count, 'আনুমানিক')) + '</div>' +
-      f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', l.class_range, 'যেমন: প্লে থেকে দশম')) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status))) +
+      f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f(CL[0], inp('class_range', l.class_range, CL[1])) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status))) +
     pane(3, 'সুযোগ-সুবিধা ও বিবরণ', 'অভিভাবকরা সবচেয়ে বেশি যা জানতে চান।',
       coFeeBox(l.fee_range) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
       f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(l.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', l.facebook_link, 'https://facebook.com/...'))) +
@@ -994,6 +994,16 @@ function coFeeSync(){
   let txt = ''; if(lo != null && hi != null && lo !== hi) txt = bn(lo) + ' থেকে ' + bn(hi) + ' টাকা'; else if(lo != null || hi != null) txt = bn(lo != null ? lo : hi) + ' টাকা';
   $('coFee').value = txt; $('coFeePrev').innerHTML = txt ? 'প্রতিষ্ঠানের পাতায় দেখাবে: <b>মাসিক ফি ' + esc(txt) + '</b>' : '';
 }
+/* "class range" means different things per institution type: [label, example, short label for the summary] */
+function coClassInfo(t){
+  t = String(t || '');
+  if(/বিশ্ববিদ্যালয়/.test(t)) return ['কোন কোন প্রোগ্রাম চালু আছে', 'যেমন: স্নাতক (BSc/BA), স্নাতকোত্তর (MSc/MA), MBA', 'চালু প্রোগ্রাম'];
+  if(/কলেজ/.test(t)) return ['কোন কোন স্তরে পড়ানো হয়', 'যেমন: একাদশ-দ্বাদশ (HSC), ডিগ্রি পাস, অনার্স, মাস্টার্স', 'পড়ানোর স্তর'];
+  if(/কারিগরি/.test(t)) return ['কোন কোন কোর্স / ট্রেড আছে', 'যেমন: ডিপ্লোমা ইন ইঞ্জিনিয়ারিং, SSC (ভোকেশনাল), কম্পিউটার', 'কোর্স / ট্রেড'];
+  if(/মাদ্রাসা/.test(t)) return ['কোন স্তর থেকে কোন স্তর', 'যেমন: ইবতেদায়ি থেকে দাখিল, অথবা হিফজ বিভাগ', 'স্তর'];
+  if(/কোচিং/.test(t)) return ['কোন শ্রেণি ও বিষয় পড়ানো হয়', 'যেমন: ষষ্ঠ-দশম (গণিত, ইংরেজি), HSC (সব বিষয়)', 'শ্রেণি ও বিষয়'];
+  return ['কোন শ্রেণি থেকে কোন শ্রেণি', 'যেমন: প্লে থেকে দশম', 'শ্রেণি'];
+}
 function coCollect(){
   const root = $('coDlg'), o = {}, chips = {}; let note = '';
   root.querySelectorAll('[data-f]').forEach(el => { if(el.dataset.f === '__note') note = el.value.trim(); else o[el.dataset.f] = el.value.trim(); });
@@ -1012,7 +1022,7 @@ function coPaint(){
   if(n === last) coSummary();
 }
 function coSummary(){
-  const { o, chips } = coCollect(), L = { contact_name: 'প্রধানের নাম', contact_phone: 'প্রতিষ্ঠানের ফোন', address_note: 'ঠিকানা', founding_year: 'প্রতিষ্ঠার সাল', student_count: 'শিক্ষার্থী', teacher_count: 'শিক্ষক', class_range: 'শ্রেণি', fee_range: 'মাসিক ফি', description: 'বর্ণনা', facebook_link: 'ফেসবুক', medium: 'মাধ্যম', gender_type: 'ছাত্র/ছাত্রী', ownership: 'মালিকানা', admission_status: 'ভর্তি', facilities: 'সুযোগ-সুবিধা', achievements: 'বিশেষত্ব' };
+  const { o, chips } = coCollect(), L = { contact_name: 'প্রধানের নাম', contact_phone: 'প্রতিষ্ঠানের ফোন', address_note: 'ঠিকানা', founding_year: 'প্রতিষ্ঠার সাল', student_count: 'শিক্ষার্থী', teacher_count: 'শিক্ষক', class_range: CO.cl || 'শ্রেণি', fee_range: 'মাসিক ফি', description: 'বর্ণনা', facebook_link: 'ফেসবুক', medium: 'মাধ্যম', gender_type: 'ছাত্র/ছাত্রী', ownership: 'মালিকানা', admission_status: 'ভর্তি', facilities: 'সুযোগ-সুবিধা', achievements: 'বিশেষত্ব' };
   const mt = (CO_METHOD.find(m => m[0] === chips.method) || [])[1] || '';
   const rows = []; if(mt) rows.push(['কীভাবে জেনেছেন', mt]);
   Object.keys(L).forEach(k => { const v = k in o ? o[k] : chips[k]; if(Array.isArray(v) ? v.length : v) rows.push([L[k], Array.isArray(v) ? v.join(', ') : v]); });

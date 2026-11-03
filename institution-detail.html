@@ -716,7 +716,7 @@ function render(){
   const session = r.session_start_month === 'অন্য' ? (r.other_session_month || '') : (r.session_start_month || '');
   const fact = (icn, k, v) => '<div class="fact"><span class="fact-ic">'+ico(icn,18)+'</span><div><div class="fact-k">'+k+'</div><div class="fact-v'+(v?'':' na')+'">'+(v ? escapeHtml(v) : 'তথ্য দেওয়া হয়নি')+'</div></div></div>';
   document.getElementById('factsGrid').innerHTML =
-    fact('layers','শ্রেণি', r.class_range ? bn(r.class_range) : '') + fact('users','শিক্ষার্থী', r.gender_type) + fact('shield','মালিকানা', r.ownership) +
+    fact('layers', /বিশ্ববিদ্যালয়/.test(r.institution_type||'') ? 'চালু প্রোগ্রাম' : /কলেজ/.test(r.institution_type||'') ? 'পড়ানোর স্তর' : /কারিগরি/.test(r.institution_type||'') ? 'কোর্স / ট্রেড' : /কোচিং/.test(r.institution_type||'') ? 'শ্রেণি ও বিষয়' : /মাদ্রাসা/.test(r.institution_type||'') ? 'স্তর' : 'শ্রেণি', r.class_range ? bn(r.class_range) : '') + fact('users','শিক্ষার্থী', r.gender_type) + fact('shield','মালিকানা', r.ownership) +
     fact('form','ভর্তির অবস্থা', r.admission_status === 'খোলা' ? 'ভর্তি চলছে' : r.admission_status) + fact('money','মাসিক ফি', r.fee_range ? (/[০-৯0-9]/.test(r.fee_range) ? '৳ ' + bn(r.fee_range) : r.fee_range) : '') +
     fact('clock','সেশন শুরু', session) + fact('idcard','প্রধান / প্রতিষ্ঠান প্রধান', inst && inst.principal_name);
   const mediums = listOf(r.medium, r.other_medium);
