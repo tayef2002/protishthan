@@ -367,7 +367,14 @@ textarea.fi{resize:vertical;min-height:84px;line-height:1.6}
 .pv-bar .acts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 .pv-bar .sm{height:34px;padding:0 13px;font-size:13px;border-radius:10px}
 .btn-pri.sm{height:34px;padding:0 15px;font-size:13.5px;border-radius:10px;box-shadow:none}
-.pv-pane{display:none}.pv-pane.on{display:block}
+.pv-pane{display:none}.pv-pane.on{display:block;animation:paneIn .38s cubic-bezier(.2,.7,.3,1) both}
+@keyframes paneIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.fl-note{margin:0 0 12px;padding:11px 16px;border-radius:14px;background:linear-gradient(135deg,#ECFDF5,#EFF6FF);border:1.5px solid #A7E3C9;color:#065F46;font:700 14px/1.5 'Hind Siliguri','Inter',sans-serif;display:flex;align-items:center;gap:10px;animation:flIn .4s ease both}
+.fl-note[hidden]{display:none}.fl-note b{color:#0B1B4D}.fl-note i{flex:none;width:26px;height:26px;border-radius:50%;background:#10B981;color:#fff;display:grid;place-items:center;font-style:normal;font-size:14px}
+@keyframes flIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.btn-pri.pulse{animation:dlPulse 1.4s ease-in-out infinite}
+@keyframes dlPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.55)}50%{box-shadow:0 0 0 12px rgba(37,99,235,0)}}
+@media(prefers-reduced-motion:reduce){.pv-pane.on,.fl-note,.btn-pri.pulse{animation:none}}
 .pv-canvas{display:block;width:100%;height:auto;border-radius:20px;background:#0B1020}
 .pv-cap{margin-top:6px;text-align:center;font-size:12px;color:var(--text-3);line-height:1.5}
 .ok-box .fbcard{margin:10px 0 14px}
@@ -703,6 +710,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   <aside class="col-prev" id="colPrev" aria-label="লাইভ প্রিভিউ">
     <div class="sheet-x"><span>প্রিভিউ</span><button type="button" id="prevClose" aria-label="বন্ধ করুন">×</button></div>
     <div class="pv-tabs" role="tablist"><button type="button" class="on" data-p="ct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/></svg><span>সনদ</span></button><button type="button" data-p="po"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="M21 16l-5-5L5 21"/></svg><span>পোস্ট ছবি</span></button><button type="button" data-p="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 15l5-4 4 3 4-5 7 6"/></svg><span>FB কভার</span></button></div>
+    <div class="fl-note" id="flNote" hidden role="status" aria-live="polite"></div>
     <div class="pv-bar" style="display:none"><div class="dots" id="pvDotsWrap" style="display:none"><small>Color</small><span id="pvDots" class="dots"></span></div><div class="acts"><button class="btn-line sm" type="button" id="barCap" style="display:none">ক্যাপশন কপি</button><button class="btn-line sm" type="button" id="barZoom">🔍 বড় করে দেখুন</button><button class="btn-pri sm" type="button" id="barDl">⬇ ডাউনলোড</button></div></div>
     <div class="pv-body">
       <div class="pv-pane" id="pvPf"><div id="pvMount"></div></div>
@@ -1265,10 +1273,19 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   refreshDownloads(); setInterval(refreshDownloads, 20000);
   document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
+  /* certificate -> post image -> cover: after each download the next one opens by itself and asks to be downloaded too */
+  let flTimer = 0;
+  function flowNote(txt, ok){ const n = $('flNote'); if(!n) return; n.innerHTML = '<i>' + (ok ? '✓' : '→') + '</i><span>' + txt + '</span>'; n.hidden = false; clearTimeout(flTimer); flTimer = setTimeout(() => { n.hidden = true; }, 12000); }
+  function afterDownload(kind){
+    document.querySelectorAll('.btn-pri.pulse').forEach(b => b.classList.remove('pulse'));
+    if(kind === 'cert' && PV === 'ct') setTimeout(() => { closeLb(); setTab('po'); flowNote('<b>সনদ নেমে গেছে ✓</b> এবার <b>পোস্ট ছবিটাও</b> ডাউনলোড করুন (২/৩)'); const b = $('poDl'); if(b) b.classList.add('pulse'); }, 900);
+    else if(kind === 'post' && PV === 'po') setTimeout(() => { closeLb(); setTab('cv'); flowNote('<b>পোস্ট ছবি নেমে গেছে ✓</b> এবার <b>ফেসবুক কভারও</b> ডাউনলোড করুন (৩/৩)'); const b = $('covDl'); if(b) b.classList.add('pulse'); }, 900);
+    else if(kind === 'cover' && PV === 'cv') setTimeout(() => { flowNote('<b>তিনটাই নেমে গেছে!</b> এবার ছবি পোস্ট করে আপনার লিংক শেয়ার করুন', true); }, 700);
+  }
   async function downloadCard(kind){
     kind = kind === 'cert' ? 'cert' : kind === 'cover' ? 'cover' : 'post';
     if(!clean().display_name || !clean().skills.length){ toast('আগে আপনার নাম আর অন্তত একটা স্কিল দিন'); closeLb(); return; }
-    try{ toast(kind === 'cover' ? 'কভার তৈরি হচ্ছে (১৬৪০×৭২০)…' : 'HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, kind === 'cover' ? 1 : 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', kind === 'cover' ? .97 : .95); document.body.appendChild(a); a.click(); a.remove(); countMyDownload(); }
+    try{ toast(kind === 'cover' ? 'কভার তৈরি হচ্ছে (১৬৪০×৭২০)…' : 'HD ছবি তৈরি হচ্ছে…'); const cv = await C.draw(Object.assign(previewReal(), { username: (ROW && ROW.username) || S.username || 'your-name', published_at: ROW && ROW.published_at }), kind, kind === 'cover' ? 1 : 2); const a = document.createElement('a'); a.download = (kind === 'cert' ? 'skill-certificate-' : kind === 'cover' ? 'skill-fb-cover-' : 'skill-post-') + (S.username || 'card') + '.jpg'; a.href = cv.toDataURL('image/jpeg', kind === 'cover' ? .97 : .95); document.body.appendChild(a); a.click(); a.remove(); countMyDownload(); afterDownload(kind); }
     catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন'); }
   }
 
