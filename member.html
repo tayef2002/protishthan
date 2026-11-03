@@ -457,6 +457,7 @@ main.container{margin-top:22px}
 .co-pane{display:none}.co-pane.on{display:block;animation:coIn .22s ease both}@keyframes coIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
 .co-ttl{margin:6px 0 2px;font-size:17px;font-weight:800;color:#0B1B4D}.co-sub{margin:0 0 10px;color:#64748B;font-size:13.5px;line-height:1.55}
 .co-sum{border:1.5px solid #E2E8F0;border-radius:14px;overflow:hidden;margin:8px 0 12px}.co-sum div{display:flex;gap:12px;padding:9px 13px;border-bottom:1px solid #EEF2F7;font-size:13.5px}.co-sum div:last-child{border:0}.co-sum span{flex:none;width:34%;color:#64748B}.co-sum b{font-weight:600;color:#0B1B4D;word-break:break-word}
+.co-feeprev{margin:-4px 0 10px;color:#64748B;font-size:13px;min-height:4px}.co-feeprev b{color:#047857}
 .co-empty{padding:12px 13px;color:#94A3B8;font-size:13.5px}
 @media(max-width:640px){.co-prog{padding-left:18px;padding-right:18px}}
 .co-note{background:#FFF7E6;border:1px solid #FDE68A;color:#92400E;border-radius:13px;padding:10px 13px;font-size:13px;line-height:1.55;margin-bottom:12px}
@@ -964,18 +965,31 @@ async function coOpen(id){
       '<div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('founding_year', l.founding_year, 'যেমন ২০০৫')) + f('শিক্ষার্থী সংখ্যা', inp('student_count', l.student_count, 'আনুমানিক')) + f('শিক্ষক সংখ্যা', inp('teacher_count', l.teacher_count, 'আনুমানিক')) + '</div>' +
       f('মাধ্যম / ধারা', many('medium', IM_MEDIUM, l.medium)) + f('কোন শ্রেণি থেকে কোন শ্রেণি', inp('class_range', l.class_range, 'যেমন: প্লে থেকে দশম')) + f('ছাত্র/ছাত্রী', one('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], l.gender_type)) + f('মালিকানা', one('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], l.ownership)) + f('ভর্তি', one('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], l.admission_status))) +
     pane(3, 'সুযোগ-সুবিধা ও বিবরণ', 'অভিভাবকরা সবচেয়ে বেশি যা জানতে চান।',
-      f('মাসিক ফি (আনুমানিক)', inp('fee_range', l.fee_range, 'যেমন: ৫০০-১০০০ টাকা')) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
+      coFeeBox(l.fee_range) + f('সুযোগ-সুবিধা', many('facilities', IM_FACIL, l.facilities)) + f('বিশেষত্ব', many('achievements', IM_ACH, l.achievements)) +
       f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" data-f="description" rows="3" maxlength="600">' + esc(l.description || '') + '</textarea>') + f('ফেসবুক পেজের লিঙ্ক', inp('facebook_link', l.facebook_link, 'https://facebook.com/...'))) +
     pane(4, 'দেখে নিন, তারপর জমা দিন', 'জমা দিলে Admin পর্যালোচনা করবেন; অনুমোদনের পর প্রতিষ্ঠানটি "যাচাইকৃত" হবে এবং আপনার নামে যুক্ত থাকবে।',
       '<div class="co-sum" id="coSum"></div>' +
       '<label class="co-credit"><input type="checkbox" id="coShow" checked><span><b>আমার নাম প্রতিষ্ঠানের পাতায় দেখান</b><br>অনুমোদনের পর পাতায় লেখা থাকবে "তথ্য সংগ্রহ ও যাচাই — by ' + esc((M.current() || {}).display_name || 'আপনার নাম') + '"। সবাই দেখবে, তাই ভালো কাজের স্বীকৃতি আপনার নামেই থাকবে।</span></label>' +
       f('Admin-এর জন্য নোট (ঐচ্ছিক)', '<textarea class="im-i" data-f="__note" rows="2" maxlength="500" placeholder="যেমন: প্রধান শিক্ষকের সঙ্গে কথা হয়েছে"></textarea>')) +
     '<div class="im-err" id="coErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" id="coBack" onclick="coGo(-1)">বাতিল</button><button type="button" class="btn btn-fill" id="coNext" onclick="coGo(1)">পরবর্তী →</button></footer></div>';
-  coPaint();
+  coPaint(); coFeeSync();
   ov.classList.add('show'); document.body.style.overflow = 'hidden';
   ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } }));
 }
 const CO = { step: 1 }, CO_STEPS = ['কীভাবে জেনেছেন', 'প্রতিষ্ঠানের তথ্য', 'সুযোগ-সুবিধা', 'জমা দিন'];
+function coFeeNums(v){ const n = String(v == null ? '' : v).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).match(/\d+/g) || []; return n.map(Number); }
+function coFeeBox(cur){
+  const n = coFeeNums(cur), lo = n.length ? Math.min(...n) : '', hi = n.length > 1 ? Math.max(...n) : '';
+  const box = (id, lbl, v) => '<div class="im-f"><label>' + lbl + '</label><input class="im-i" id="' + id + '" inputmode="numeric" maxlength="6" placeholder="যেমন: ' + (id === 'coFeeLo' ? '২০০' : '৫০০') + '" value="' + (v === '' ? '' : v) + '" oninput="coFeeSync()"></div>';
+  return '<div class="im-sec">মাসিক ফি (টাকা)</div><p class="co-sub" style="margin-top:-2px">কিছু শ্রেণির ফি কম, কিছু শ্রেণির বেশি হলে সবচেয়ে কম আর সবচেয়ে বেশি ফি আলাদা ঘরে লিখুন। সব শ্রেণির ফি এক হলে শুধু প্রথম ঘরে লিখুন।</p>' +
+    '<div class="im-2">' + box('coFeeLo', 'সর্বনিম্ন মাসিক ফি', lo) + box('coFeeHi', 'সর্বোচ্চ মাসিক ফি', hi) + '</div><div class="co-feeprev" id="coFeePrev"></div><input type="hidden" data-f="fee_range" id="coFee" value="' + esc(cur == null ? '' : cur) + '">';
+}
+function coFeeSync(){
+  const num = id => { const v = coFeeNums($(id).value)[0]; return v == null ? null : v; };
+  let lo = num('coFeeLo'), hi = num('coFeeHi'); if(lo != null && hi != null && lo > hi){ const t = lo; lo = hi; hi = t; }
+  let txt = ''; if(lo != null && hi != null && lo !== hi) txt = bn(lo) + ' থেকে ' + bn(hi) + ' টাকা'; else if(lo != null || hi != null) txt = bn(lo != null ? lo : hi) + ' টাকা';
+  $('coFee').value = txt; $('coFeePrev').innerHTML = txt ? 'প্রতিষ্ঠানের পাতায় দেখাবে: <b>মাসিক ফি ' + esc(txt) + '</b>' : '';
+}
 function coCollect(){
   const root = $('coDlg'), o = {}, chips = {}; let note = '';
   root.querySelectorAll('[data-f]').forEach(el => { if(el.dataset.f === '__note') note = el.value.trim(); else o[el.dataset.f] = el.value.trim(); });
