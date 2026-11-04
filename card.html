@@ -1243,16 +1243,7 @@ cropCv.addEventListener('wheel', e=>{
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.getElementById('cropModal').classList.contains('show')) closeCrop(false); });
 
 function filledLevels(){ return visLevels().filter(l=>S.edu[l.key].name.trim()); }
-function autoTitle(){
-  const has = k => S.edu[k].name.trim();
-  const studying = S.badges.has('এখনো পড়ছি') || visLevels().some(l=>S.edu[l.key].current);
-  if(has('masters') && !S.edu.masters.current) return 'ডাবল ডিগ্রিধারী নাগরিক';
-  if(has('bachelor') && !S.edu.bachelor.current) return 'সার্টিফায়েড শিক্ষিত নাগরিক';
-  if(studying) return 'চিরছাত্র';
-  if(has('college')) return 'উচ্চ মাধ্যমিক পাস বীর';
-  if(has('school')) return 'মাধ্যমিক পাস যোদ্ধা';
-  return 'সার্টিফায়েড শিক্ষিত নাগরিক';
-}
+function autoTitle(){ return 'সার্টিফায়েড শিক্ষিত নাগরিক'; }   // the default title for everyone; they can still pick another
 
 /* ---------------- canvas drawing ---------------- */
 const cv = document.getElementById('card'); let ctx = cv.getContext('2d');
