@@ -374,6 +374,9 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .dl-copy.done{background:#059669}
 .dl-fb{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1.5px solid #D5E0F5;background:#fff;color:#1877F2;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer}
 .dl-fb:hover{background:#F5F9FF}
+.dl-other{color:#1A56DB;border-color:#D5E0F5}
+.dl-other svg{stroke:currentColor}
+.dl-other.done{color:#059669;border-color:#A7E3CB;background:#F0FDF7}
 @media(max-width:720px){
   .dl-ov{place-items:end center;padding:0}
   .dl-sheet{max-width:none;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);opacity:1;transition:transform .4s cubic-bezier(.2,.9,.25,1)}
@@ -842,9 +845,10 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-x" onclick="closeDl()" aria-label="বন্ধ করুন">×</button>
     <div class="dl-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h3 id="dlT">কার্ড ডাউনলোড হয়েছে</h3>
-    <p>পোস্ট আর স্টোরি, দুই সাইজই নেমেছে। Facebook-এ পোস্ট করে বন্ধুদের Tag করুন।</p>
+    <p>Facebook-এ পোস্ট করুন আর বন্ধুদের Tag করুন।</p>
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
+    <button type="button" class="dl-fb dl-other" id="dlOther" onclick="dlOtherSize()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>স্টোরি সাইজ ডাউনলোড</span></button>
     <button type="button" class="dl-fb" onclick="dlOpenFacebook()"><svg width="17" height="17" viewBox="0 0 24 24" fill="#1877F2" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ যান</button>
   </div>
 </div>
@@ -1725,6 +1729,7 @@ function openDl(){
   const ov = document.getElementById('dlOv'); if(!ov) return;
   document.getElementById('dlTa').value = caption();
   const b = document.getElementById('dlCopy'); b.classList.remove('done'); b.querySelector('span').textContent = 'ক্যাপশন কপি করুন';
+  const o = document.getElementById('dlOther'); if(o){ o.classList.remove('done'); o.querySelector('span').textContent = (DL_LAST === 'story' ? 'পোস্ট' : 'স্টোরি') + ' সাইজ ডাউনলোড'; }
   ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup');
 }
 function closeDl(){ const ov = document.getElementById('dlOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
@@ -1736,18 +1741,29 @@ async function copyDlCaption(){
 }
 function dlOpenFacebook(){ T('card_dl_facebook'); window.open('https://www.facebook.com/', '_blank', 'noopener'); }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
-async function downloadCard(){
-  if(!String(S.name || '').trim()){ needNameToast(); return; }
-  // one tap saves both sizes: the post (4:5) first, then the story (9:16). The preview goes back to the size the visitor had chosen.
-  const keep = S.format, pause = ms => new Promise(r => setTimeout(r, ms));
-  const save = async (fmt, suffix) => {
+let DL_LAST = 'post';
+const FMT_LABEL = { post: 'পোস্ট', story: 'স্টোরি' };
+async function saveFormat(fmt){   // draws that size, saves it, then puts the preview back to the size the visitor had chosen
+  const keep = S.format;
+  try{
     S.format = fmt; draw();
     const blob = await cardBlob(); const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = fileName().replace(/\.png$/, '-' + suffix + '.png'); document.body.appendChild(a); a.click(); a.remove();
+    a.href = URL.createObjectURL(blob); a.download = fileName().replace(/\.png$/, '-' + fmt + '.png'); document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 6000);
-  };
-  try{ await save('post', 'post'); await pause(450); await save('story', 'story'); }
-  finally{ S.format = keep; draw(); }
+  } finally { S.format = keep; draw(); }
+}
+async function dlOtherSize(){
+  const other = DL_LAST === 'story' ? 'post' : 'story';
+  await saveFormat(other); T('card_download_other', { format: other });
+  const b = document.getElementById('dlOther'); if(b){ b.classList.add('done'); b.querySelector('span').textContent = FMT_LABEL[other] + ' সাইজ নেমেছে ✓'; }
+}
+async function downloadCard(){
+  if(!String(S.name || '').trim()){ needNameToast(); return; }
+  // one file per tap (browsers ask permission when a page saves two files at once); the other size is offered in the popup
+  draw();
+  const fmt = S.format;
+  await saveFormat(fmt);
+  DL_LAST = fmt;
   setTimeout(openDl, 650);
   countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
