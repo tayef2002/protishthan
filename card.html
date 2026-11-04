@@ -1445,12 +1445,14 @@ function draw(){
   const W = 1080, H = story ? 1920 : 1350;
   if(cv.width !== W*QS || cv.height !== H*QS){ cv.width = W*QS; cv.height = H*QS; }
   ctx.setTransform(QS, 0, 0, QS, 0, 0);
-  const top = story ? 300 : 0;
+  const top = story ? 220 : 0;
   // five or more levels: one column with every name on one line. The card grows (up to the footer), the photo is a little smaller, the rows a little tighter; text sizes are unchanged
   const rowsAll = filledLevels(), nLv = Math.min(rowsAll.length, 7), many = nLv >= 5;
-  const kPh = many ? (nLv >= 7 ? 0.8 : 0.88) : 1, rowH = many ? (nLv >= 7 ? 62 : 68) : 70;
-  const cyOff = many ? 196 : 214, eyOff = 50 + FRAME_H * kPh + (many ? 40 : 52);
-  const chv = many ? Math.round(eyOff + 26 + (nLv - 1) * rowH + 60 + 16 + 116 + 24) : 900;
+  const STORY_CH = 1104;   // story: the card runs from under the header down to the QR block, no empty bands
+  const kPh = story ? (nLv >= 5 ? 1 : (nLv === 4 ? 1.1 : 1.2)) : (many ? (nLv >= 7 ? 0.8 : 0.88) : 1);
+  const cyOff = story ? 214 : (many ? 196 : 214), eyOff = 50 + FRAME_H * kPh + (many && !story ? 40 : 52);
+  const rowH = story ? Math.max(70, Math.min(112, Math.floor((STORY_CH - 140 - 16 - (eyOff + 26)) / Math.max(nLv, 1)))) : (many ? (nLv >= 7 ? 62 : 68) : 70);
+  const chv = story ? STORY_CH : (many ? Math.round(eyOff + 26 + (nLv - 1) * rowH + 60 + 16 + 116 + 24) : 900);
 
   // background + guilloche waves
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]);
@@ -1562,6 +1564,7 @@ function draw(){
 
   // the stamp goes on last so whatever sits under it still reads through the ink
   if(many) seal(cx + cw - 44 - 62, py + ph - 26, 62, T.accent);   // smaller, in the photo area, so it never sits on a name
+  else if(story) seal(cx + cw - 230 - sealR, Math.min(ry0 + nLv * rowH + 110, cy + ch - 140 - 40), sealR, T.accent);   // story: the stamp sits in the room under the last row
   else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
@@ -1575,7 +1578,7 @@ function draw(){
   });
 
   // footer with a proper safe zone at the bottom
-  const fy = cy + ch + (many ? 26 : 40), qs = many ? 96 : 112;
+  const tight = many && !story, fy = cy + ch + (tight ? 26 : 40), qs = tight ? 96 : 112;
   const hasQR = drawQR(76, fy + 10, qs, SHARE_URL + '?ref=card');
   const tx = hasQR ? 76 + qs + 36 : 76;
   ctx.fillStyle = '#fff'; ctx.font = F(700, 30); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 58);
