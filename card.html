@@ -343,6 +343,41 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .faq p{font-size:13.5px;color:var(--text-2);margin-top:8px}
 .sec-title{font-size:22px;font-weight:700;margin:6px 0 12px}
 
+/* after the download: a popup (centre on a computer, a sheet that slides up on a phone) to post on Facebook and tag friends */
+.dl-ov{position:fixed;inset:0;z-index:9000;display:grid;place-items:center;padding:20px;background:rgba(8,15,35,.55);backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.dl-ov.show{opacity:1;visibility:visible}
+.dl-sheet{position:relative;width:100%;max-width:460px;max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:26px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(8,15,35,.4);transform:translateY(24px) scale(.94);opacity:0;transition:transform .38s cubic-bezier(.2,.9,.25,1.15),opacity .25s}
+.dl-ov.show .dl-sheet{transform:none;opacity:1}
+.dl-x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:none;background:#F1F5F9;color:#475569;font-size:18px;line-height:1;cursor:pointer}
+.dl-x:hover{background:#E2E8F0}
+.dl-ok{width:62px;height:62px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:linear-gradient(135deg,#10B981,#047857);box-shadow:0 10px 26px rgba(4,120,87,.35);transform:scale(0)}
+.dl-ov.show .dl-ok{animation:dlPop .55s .15s cubic-bezier(.2,1.4,.4,1) forwards}
+.dl-ok svg{stroke-dasharray:30;stroke-dashoffset:30}
+.dl-ov.show .dl-ok svg{animation:dlDraw .45s .5s ease forwards}
+@keyframes dlPop{to{transform:scale(1)}}
+@keyframes dlDraw{to{stroke-dashoffset:0}}
+.dl-sheet h3{text-align:center;font-size:21px;line-height:1.35;color:#0B1B4D;margin:0 0 6px}
+.dl-sheet>p{text-align:center;color:#475569;font-size:15px;line-height:1.7;margin:0 0 16px}
+.dl-sheet>p b{color:#1458D8}
+.dl-steps{display:grid;gap:8px;margin:0 0 14px;padding:0;list-style:none;counter-reset:s}
+.dl-steps li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#334155;line-height:1.55}
+.dl-steps li::before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:#EAF1FF;color:#1A56DB;font:700 12px/22px 'Inter',sans-serif;text-align:center}
+.dl-cap{display:block;font-size:12.5px;font-weight:700;color:#64748B;margin:0 0 6px}
+.dl-ta{width:100%;min-height:118px;resize:vertical;border:1.5px solid #D5E0F5;border-radius:14px;padding:12px 14px;font:500 14.5px/1.65 'Hind Siliguri','Inter',sans-serif;color:#0F172A;background:#F8FAFF}
+.dl-ta:focus{outline:none;border-color:#1A56DB;background:#fff}
+.dl-row{display:grid;gap:10px;margin-top:12px}
+.dl-copy,.dl-fb{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:14px;font:700 16px 'Hind Siliguri',sans-serif;cursor:pointer;border:none;text-decoration:none}
+.dl-copy{background:linear-gradient(135deg,#1A56DB,#7C3AED);color:#fff;box-shadow:0 10px 24px rgba(26,86,219,.28)}
+.dl-copy.done{background:linear-gradient(135deg,#10B981,#047857);box-shadow:0 10px 24px rgba(4,120,87,.28)}
+.dl-fb{background:#1877F2;color:#fff;box-shadow:0 10px 24px rgba(24,119,242,.28)}
+.dl-later{display:block;margin:12px auto 0;background:none;border:none;color:#64748B;font:600 13.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
+@media(max-width:720px){
+  .dl-ov{place-items:end center;padding:0}
+  .dl-sheet{max-width:none;border-radius:26px 26px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));max-height:92vh;transform:translateY(100%);opacity:1;transition:transform .45s cubic-bezier(.2,.9,.25,1)}
+  .dl-ov.show .dl-sheet{transform:none}
+  .dl-sheet::before{content:'';display:block;width:42px;height:4px;border-radius:4px;background:#CBD5E1;margin:-8px auto 14px}
+}
+@media(prefers-reduced-motion:reduce){.dl-ov,.dl-sheet{transition:none}.dl-ov.show .dl-ok{animation:none;transform:scale(1)}.dl-ok svg{animation:none!important;stroke-dashoffset:0}}
 .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#0F172A;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:300}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .mbar{display:none}
@@ -789,6 +824,26 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       <div class="avm-skin" id="avSkins"></div>
     </div>
     <div class="avm-body"><div class="avm-grid" id="avGrid"></div></div>
+  </div>
+</div>
+<div class="dl-ov" id="dlOv" role="dialog" aria-modal="true" aria-labelledby="dlT" onclick="if(event.target===this) closeDl()">
+  <div class="dl-sheet">
+    <button type="button" class="dl-x" onclick="closeDl()" aria-label="বন্ধ করুন">×</button>
+    <div class="dl-ok"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h3 id="dlT">কার্ড ডাউনলোড হয়েছে 🎉</h3>
+    <p>এবার আপনার <b>Facebook-এ শেয়ার করে বন্ধুদের Tag করুন</b>, ওরাও নিজের কার্ড বানিয়ে নিক।</p>
+    <ol class="dl-steps">
+      <li>নিচের ক্যাপশন কপি করুন</li>
+      <li>Facebook-এ নতুন পোস্টে ডাউনলোড করা কার্ডের ছবি দিন</li>
+      <li>ক্যাপশন পেস্ট করে বন্ধুদের Tag করুন</li>
+    </ol>
+    <label class="dl-cap" for="dlTa">ক্যাপশন (চাইলে বদলাতে পারেন)</label>
+    <textarea class="dl-ta" id="dlTa"></textarea>
+    <div class="dl-row">
+      <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
+      <button type="button" class="dl-fb" onclick="dlOpenFacebook()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ যান</button>
+    </div>
+    <button type="button" class="dl-later" onclick="closeDl()">পরে করব</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1662,6 +1717,22 @@ function closePreview(){ document.getElementById('pvOv').classList.remove('show'
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closePreview(); });
 function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
 function needNameToast(){ toast('আগে আপনার নাম লিখুন'); const f = document.getElementById('fName'); if(f){ f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => f.focus(), 350); } }
+/* the popup after a download */
+function openDl(){
+  const ov = document.getElementById('dlOv'); if(!ov) return;
+  document.getElementById('dlTa').value = caption();
+  const b = document.getElementById('dlCopy'); b.classList.remove('done'); b.querySelector('span').textContent = 'ক্যাপশন কপি করুন';
+  ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup');
+}
+function closeDl(){ const ov = document.getElementById('dlOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
+async function copyDlCaption(){
+  const ta = document.getElementById('dlTa'), b = document.getElementById('dlCopy'); let ok = false;
+  try{ await navigator.clipboard.writeText(ta.value); ok = true; }catch(e){ try{ ta.focus(); ta.select(); ok = document.execCommand('copy'); }catch(_){} }
+  if(ok){ b.classList.add('done'); b.querySelector('span').textContent = 'কপি হয়েছে ✓ এবার Facebook-এ পেস্ট করুন'; T('card_caption_copy'); }
+  else toast('কপি করা যায়নি, ক্যাপশনটা চেপে ধরে কপি করুন');
+}
+function dlOpenFacebook(){ T('card_dl_facebook'); window.open('https://www.facebook.com/', '_blank', 'noopener'); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   if(Object.values(S.edu).some(ed => ed && !ed.slug && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
@@ -1669,7 +1740,7 @@ async function downloadCard(){
   const blob = await cardBlob(); const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
-  toast('কার্ড ডাউনলোড হয়েছে — এবার শেয়ার করুন!');
+  setTimeout(openDl, 650);
   countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
 async function shareImage(){
