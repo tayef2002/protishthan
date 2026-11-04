@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>আমাদের কথা | Protishthan</title>
+<meta name="description" content="আমরা কেন এসেছি, কোথা থেকে শুরু, আর কোথায় যেতে চাই। বাংলাদেশের শিক্ষাব্যবস্থাকে ডিজিটাল করার পথে Protishthan-এর গল্প।">
+<link rel="canonical" href="https://protishthan.com/about">
+<meta property="og:title" content="আমাদের কথা — Protishthan">
+<meta property="og:description" content="বাংলাদেশের শিক্ষাব্যবস্থার উন্নতিতে একসঙ্গে কাজ করার একটা কমিউনিটি। আমরা কেন এসেছি আর কোথায় যেতে চাই।">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=9">
+<link rel="stylesheet" href="/footer.css?v=5">
+<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/lipi.css?v=2">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--ink:#0B1B4D;--text:#0F172A;--text-2:#475569;--border:#E2E8F0;--bg:#F4F6FB}
+html{scroll-behavior:smooth}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+.ab{max-width:1080px;width:calc(100% - 40px);margin:0 auto}
+
+/* hero */
+.ab-hero{position:relative;overflow:hidden;margin:98px auto 0;padding:54px 48px 50px;border-radius:34px;border:1px solid #D9E4FB;background:radial-gradient(560px 320px at 96% 0,rgba(124,58,237,.17),transparent 62%),radial-gradient(500px 300px at 0 100%,rgba(37,99,235,.14),transparent 62%),linear-gradient(180deg,#fff,#F3F7FF)}
+.ab-hero::after{content:'';position:absolute;right:-70px;top:-70px;width:290px;height:290px;border-radius:50%;border:1.5px solid rgba(37,99,235,.14);box-shadow:0 0 0 38px rgba(37,99,235,.05),0 0 0 76px rgba(37,99,235,.035)}
+.ab-hero>*{position:relative;z-index:1}
+.ab-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 15px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;color:var(--blue);font-size:13px;font-weight:600}
+.ab-hero h1{margin:18px 0 14px;font-size:clamp(30px,4.8vw,56px);line-height:1.2;font-weight:700;letter-spacing:-.5px;color:var(--ink);max-width:760px}
+.ab-hero h1 span{background:linear-gradient(120deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ab-hero p{max-width:640px;color:var(--text-2);font-size:17.5px;line-height:1.8}
+.ab-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.ab-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:100px;font:600 15px 'Hind Siliguri',sans-serif;text-decoration:none;border:1px solid #CBD9F5;background:#fff;color:var(--blue);transition:transform .15s,box-shadow .15s}
+.ab-btn.pri{background:linear-gradient(135deg,#1A56DB,#3B6FF0);border-color:transparent;color:#fff;box-shadow:0 10px 26px rgba(26,86,219,.28)}
+.ab-btn:hover{transform:translateY(-2px)}
+
+/* sections */
+.ab-sec{margin-top:64px}
+.ab-kick{display:block;font:700 12.5px 'Inter',sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#6D5BE0;margin-bottom:8px}
+.ab-sec h2{font-size:clamp(25px,3.2vw,36px);line-height:1.3;color:var(--ink);font-weight:700;letter-spacing:-.3px;max-width:720px}
+.ab-lead{margin-top:14px;max-width:700px;font-size:17px;color:var(--text-2)}
+
+/* why */
+.ab-why{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:26px}
+.ab-card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:28px 30px;box-shadow:0 10px 34px rgba(15,32,72,.05)}
+.ab-card p{color:#334155;font-size:16.5px}
+.ab-card p+p{margin-top:14px}
+.ab-quote{border-radius:24px;padding:30px;color:#fff;background:linear-gradient(135deg,#1A56DB,#5B3FD6);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.ab-quote::before{content:'“';position:absolute;right:20px;top:-18px;font:700 150px/1 'Inter',serif;opacity:.15}
+.ab-quote b{display:block;font-size:22px;line-height:1.55;font-weight:700}
+.ab-quote span{display:block;margin-top:14px;font-size:14.5px;opacity:.85;line-height:1.7}
+
+/* journey */
+.ab-line{position:relative;margin-top:30px;display:grid;gap:18px}
+.ab-line::before{content:'';position:absolute;left:19px;top:10px;bottom:10px;width:2px;background:linear-gradient(#1A56DB,#7C3AED 70%,#CBD5E1)}
+.ab-step{position:relative;padding-left:60px}
+.ab-dot{position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--blue);display:grid;place-items:center;color:var(--blue);font:700 15px 'Inter',sans-serif;box-shadow:0 0 0 6px var(--bg)}
+.ab-step.done .ab-dot{background:var(--blue);color:#fff}
+.ab-step.next .ab-dot{border-style:dashed;border-color:#94A3B8;color:#64748B}
+.ab-step .when{font:700 12.5px 'Inter','Hind Siliguri',sans-serif;color:#6D5BE0;letter-spacing:.4px}
+.ab-step h3{font-size:19px;color:var(--ink);margin:2px 0 4px}
+.ab-step p{color:var(--text-2);font-size:16px;max-width:640px}
+
+/* today */
+.ab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+.ab-tool{display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:24px;padding:24px;text-decoration:none;color:inherit;box-shadow:0 10px 34px rgba(15,32,72,.05);transition:transform .18s,box-shadow .18s,border-color .18s}
+.ab-tool:hover{transform:translateY(-4px);border-color:#9DB8F2;box-shadow:0 18px 44px rgba(26,86,219,.14)}
+.ab-ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;margin-bottom:14px}
+.ab-tool h3{font-size:18px;color:var(--ink);margin-bottom:6px}
+.ab-tool p{font-size:15.5px;color:var(--text-2);flex:1}
+.ab-tool em{margin-top:14px;font:600 14.5px 'Hind Siliguri',sans-serif;font-style:normal;color:var(--blue)}
+
+/* values */
+.ab-vals{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:26px}
+.ab-val{display:flex;gap:16px;background:#fff;border:1px solid var(--border);border-radius:22px;padding:22px 24px}
+.ab-val i{flex:none;width:42px;height:42px;border-radius:13px;background:#EEF2FF;color:#4F46E5;display:grid;place-items:center}
+.ab-val h3{font-size:17.5px;color:var(--ink);margin-bottom:3px}
+.ab-val p{font-size:15.5px;color:var(--text-2);line-height:1.75}
+
+/* community */
+.ab-comm{margin-top:26px;border-radius:28px;padding:34px;background:linear-gradient(135deg,#0B1B4D,#1A3FA8);color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+.ab-comm h2{color:#fff;font-size:clamp(23px,3vw,32px)}
+.ab-comm p{color:#CFDBFF;font-size:16.5px;margin-top:12px}
+.ab-ways{display:grid;gap:10px}
+.ab-way{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);text-decoration:none;color:#fff;transition:background .15s}
+.ab-way:hover{background:rgba(255,255,255,.16)}
+.ab-way b{display:block;font-size:16px}
+.ab-way span{font-size:14px;color:#CFDBFF;line-height:1.6}
+
+/* vision + end */
+.ab-vision{margin-top:26px;background:#fff;border:1px solid var(--border);border-radius:28px;padding:36px 38px;box-shadow:0 10px 34px rgba(15,32,72,.05)}
+.ab-vision p{font-size:18px;color:#1E293B;line-height:1.95;max-width:760px}
+.ab-vision p+p{margin-top:14px}
+.ab-vision strong{color:var(--ink)}
+.ab-dua{margin-top:20px;padding-top:18px;border-top:1px dashed #CBD5E1;color:#6D5BE0;font-weight:600;font-size:17px}
+.ab-end{margin:64px auto 60px;text-align:center;padding:40px 24px;border-radius:30px;background:linear-gradient(180deg,#fff,#EEF4FF);border:1px solid #D9E4FB}
+.ab-end h2{font-size:clamp(23px,3vw,32px);color:var(--ink);margin:0 auto}
+.ab-end p{color:var(--text-2);margin:10px auto 0;max-width:520px;font-size:16.5px}
+.ab-end .ab-btns{justify-content:center}
+
+@media(max-width:860px){
+  .ab-hero{padding:38px 24px 34px;border-radius:26px;margin-top:84px}
+  .ab-why,.ab-comm{grid-template-columns:1fr}
+  .ab-grid,.ab-vals{grid-template-columns:1fr}
+  .ab-sec{margin-top:48px}
+  .ab-card,.ab-vision{padding:22px}
+  .ab-comm{padding:26px 22px}
+}
+@media(prefers-reduced-motion:reduce){.ab-btn,.ab-tool{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=5"></script>
+
+<div class="ab">
+
+<header class="ab-hero">
+  <span class="ab-eyebrow">আমাদের কথা</span>
+  <h1>বাংলাদেশের শিক্ষাকে <span>ডিজিটাল পথে</span> একটু একটু করে এগিয়ে নেওয়ার চেষ্টা</h1>
+  <p>এটা একটা শুরুর গল্প। আমরা জানি, এখন পর্যন্ত যা ছেড়েছি তা অনেক বড় কিছুর ছোট্ট একটা অংশ। তবু আমরা এসেছি, কারণ কাউকে না কাউকে শুরুটা করতেই হয়।</p>
+  <div class="ab-btns">
+    <a class="ab-btn pri" href="index.html">প্রতিষ্ঠান খুঁজুন</a>
+    <a class="ab-btn" href="#community">আমাদের সঙ্গে যোগ দিন</a>
+  </div>
+</header>
+
+<section class="ab-sec" id="why">
+  <span class="ab-kick">কেন এসেছি</span>
+  <h2>কারণ শিক্ষার তথ্য আজও ছড়ানো, পুরোনো আর খুঁজে পাওয়া কঠিন</h2>
+  <div class="ab-why">
+    <div class="ab-card">
+      <p>বাংলাদেশে লক্ষ লক্ষ শিক্ষার্থী পড়ছে হাজার হাজার মাদ্রাসা, স্কুল, কলেজ আর কোচিং সেন্টারে। অথচ একজন অভিভাবক যখন সন্তানের জন্য ভালো একটা প্রতিষ্ঠান খুঁজতে বসেন, তখন নির্ভরযোগ্য, হালনাগাদ তথ্য এক জায়গায় পান না। অনেক প্রতিষ্ঠানের নিজের কোনো অনলাইন পরিচয়ই নেই।</p>
+      <p>আবার শিক্ষক, শিক্ষার্থী আর প্রতিষ্ঠানের কর্তৃপক্ষ প্রতিদিন কাগজ আর খাতার ওপর নির্ভর করে অনেক সময় নষ্ট করেন, যেসব কাজ ডিজিটালভাবে সহজে হতে পারত।</p>
+      <p>আমরা চাই এই ফাঁকটা একটু একটু করে ভরতে। আমাদের লক্ষ্য একটাই: <b>দেশের শিক্ষাব্যবস্থাকে ডিজিটাল করার পথে যতটুকু সম্ভব ভূমিকা রাখা।</b></p>
+    </div>
+    <div class="ab-quote">
+      <b>আমরা সব সমাধান নিয়ে আসিনি। আমরা এসেছি সমাধানের পথে হাঁটতে।</b>
+      <span>প্রতিটা প্রতিষ্ঠানের জন্য একটা সঠিক পরিচয়, আর প্রতিটা শিক্ষার্থীর জন্য একটু সহজ পথ, এটাই আমাদের স্বপ্ন।</span>
+    </div>
+  </div>
+</section>
+
+<section class="ab-sec" id="journey">
+  <span class="ab-kick">আমাদের পথচলা</span>
+  <h2>আমরা কোথা থেকে শুরু করেছি, আর এখন কোথায়</h2>
+  <div class="ab-line">
+    <div class="ab-step done">
+      <span class="ab-dot">১</span>
+      <span class="when">২০২৬-এর মাঝামাঝি</span>
+      <h3>কাজ শুরু</h3>
+      <p>বছরের মাঝামাঝি সময়ে আমরা কাজ শুরু করি। প্রথম লক্ষ্য ছিল ভিত্তিটা শক্ত করা: তথ্য রাখার ব্যবস্থা, নিরাপত্তা আর এমন একটা কাঠামো, যার ওপর ভবিষ্যতে সবকিছু দাঁড়াতে পারবে।</p>
+    </div>
+    <div class="ab-step done">
+      <span class="ab-dot">২</span>
+      <span class="when">এই কয়েক মাসে</span>
+      <h3>আমাদের সিস্টেম প্রস্তুত করা</h3>
+      <p>এর মধ্যে আমরা নিজেদের সিস্টেম দাঁড় করিয়ে ফেলেছি। সরকারি তালিকা থেকে এক লাখেরও বেশি প্রতিষ্ঠানের নাম আর ঠিকানা তথ্যভান্ডারে সাজিয়েছি। সেগুলো <b>“যাচাই হয়নি”</b> চিহ্নসহ থাকে, যতক্ষণ না কেউ মিলিয়ে নিশ্চিত করেন।</p>
+    </div>
+    <div class="ab-step done">
+      <span class="ab-dot">৩</span>
+      <span class="when">আজ</span>
+      <h3>প্রথম ধাপ মানুষের হাতে</h3>
+      <p>এখন পর্যন্ত আমরা তিনটি জিনিস ছেড়েছি: তথ্যভান্ডার, শিক্ষিত কার্ড আর স্কিল আইডেন্টিটি। সত্যি বলতে, এটা আমাদের পরিকল্পনার খুব ছোট একটা অংশ।</p>
+    </div>
+    <div class="ab-step next">
+      <span class="ab-dot">৪</span>
+      <span class="when">সামনে</span>
+      <h3>একে একে আরও</h3>
+      <p>প্রতিষ্ঠানের দৈনন্দিন কাজ সহজ করার সফটওয়্যারসহ আরও অনেক কিছু তৈরির কাজ চলছে। যেটা ঠিকঠাক প্রস্তুত হবে, সেটাই আমরা মানুষের সামনে আনব। তাড়াহুড়ো করে অসম্পূর্ণ কিছু দেব না।</p>
+    </div>
+  </div>
+</section>
+
+<section class="ab-sec" id="today">
+  <span class="ab-kick">আজ যা আছে</span>
+  <h2>এখনই ব্যবহার করতে পারেন</h2>
+  <p class="ab-lead">সবগুলোই বিনামূল্যে। ব্যবহার করে দেখুন, আর কী ঠিক করা দরকার আমাদের জানান।</p>
+  <div class="ab-grid">
+    <a class="ab-tool" href="index.html">
+      <span class="ab-ico" style="background:linear-gradient(135deg,#1A56DB,#3B82F6)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <h3>তথ্যভান্ডার</h3>
+      <p>মাদ্রাসা, স্কুল, কলেজ, কারিগরি, বিশ্ববিদ্যালয় ও কোচিং সেন্টার খুঁজুন নাম, এলাকা বা ধরন দিয়ে। বাংলা আর ইংরেজি, দুভাবেই লিখে খোঁজা যায়।</p>
+      <em>প্রতিষ্ঠান খুঁজুন →</em>
+    </a>
+    <a class="ab-tool" href="card.html">
+      <span class="ab-ico" style="background:linear-gradient(135deg,#7C3AED,#A855F7)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M7 10h4M7 14h7"/></svg></span>
+      <h3>শিক্ষিত কার্ড</h3>
+      <p>নিজের শিক্ষাজীবনের পথ একটা সুন্দর কার্ডে সাজিয়ে ডাউনলোড করুন আর বন্ধুদের সঙ্গে শেয়ার করুন। এটা মজার, স্ব-ঘোষিত কার্ড, কোনো সরকারি নথি নয়।</p>
+      <em>কার্ড বানান →</em>
+    </a>
+    <a class="ab-tool" href="skill.html">
+      <span class="ab-ico" style="background:linear-gradient(135deg,#0E9F6E,#34D399)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.5L7 22l5-3 5 3-1.5-7.5"/></svg></span>
+      <h3>স্কিল আইডেন্টিটি</h3>
+      <p>আপনার দক্ষতা, কাজ আর ব্যাজ নিয়ে একটা নিজস্ব লিংক। চাকরি বা টিউশনের জন্য যে কারও কাছে পাঠিয়ে দিতে পারবেন।</p>
+      <em>আমার স্কিল পেজ →</em>
+    </a>
+  </div>
+</section>
+
+<section class="ab-sec" id="values">
+  <span class="ab-kick">আমাদের প্রতিশ্রুতি</span>
+  <h2>যে নিয়মগুলো আমরা মেনে চলি</h2>
+  <div class="ab-vals">
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></i><div><h3>সত্য আগে</h3><p>যে তথ্য যাচাই হয়নি, সেটা পরিষ্কার লিখে দিই। নিজে থেকে কোনো তথ্য বানাই না।</p></div></div>
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i><div><h3>গোপনীয়তা আপনার</h3><p>ইমেইল আর ফোন নম্বর সবার সামনে খোলা রাখি না। আপনার তথ্য আপনার অনুমতি ছাড়া বিক্রি বা শেয়ার করি না।</p></div></div>
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></i><div><h3>প্রতিষ্ঠানের তালিকাভুক্তি বিনামূল্যে</h3><p>যে কোনো প্রতিষ্ঠান বিনামূল্যে নিজেকে তথ্যভান্ডারে যুক্ত করতে পারে। ছোট বা বড়, সবার জন্য একই সুযোগ।</p></div></div>
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h16"/></svg></i><div><h3>বাংলা আগে</h3><p>আমাদের সবকিছু বাংলায় ভাবা। যাতে গ্রামের একজন অভিভাবকও সহজে ব্যবহার করতে পারেন।</p></div></div>
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></i><div><h3>তাড়াহুড়ো নয়</h3><p>যেটা প্রস্তুত নয়, সেটা “প্রস্তুত” বলি না। ধীরে হলেও ঠিকভাবে।</p></div></div>
+    <div class="ab-val"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></i><div><h3>ভুল হলে শুধরে নিই</h3><p>তথ্যে ভুল পেলে জানান। যাচাই করে দ্রুত ঠিক করে দিই।</p></div></div>
+  </div>
+</section>
+
+<section class="ab-sec" id="community">
+  <div class="ab-comm">
+    <div>
+      <span class="ab-kick" style="color:#9FB6FF">কমিউনিটি</span>
+      <h2>আমরা একা পারব না, আর পারতেও চাই না</h2>
+      <p>দেশের প্রতিটা উপজেলার প্রতিটা প্রতিষ্ঠানের সঠিক তথ্য একটা দল কখনো একা জোগাড় করতে পারে না। তাই আমরা গড়ে তুলছি এমন একটা কমিউনিটি, যারা সবসময় উন্নতির জন্য কাজ করবে: শিক্ষক, শিক্ষার্থী, অভিভাবক আর যারা নিজের এলাকাকে ভালোবাসেন।</p>
+    </div>
+    <div class="ab-ways">
+      <a class="ab-way" href="list-institution.html"><div><b>আপনার প্রতিষ্ঠান যুক্ত করুন</b><span>বিনামূল্যে, কয়েক ধাপে।</span></div></a>
+      <a class="ab-way" href="member.html"><div><b>নিজের এলাকার তথ্য যাচাই করুন</b><span>সদস্য হয়ে আপনার উপজেলার প্রতিষ্ঠানের তথ্য ঠিক করে দিন।</span></div></a>
+      <a class="ab-way" href="partner.html"><div><b>Protishthan Partner হোন</b><span>এলাকার তথ্য যাচাই করার একটা কর্মসূচি।</span></div></a>
+      <a class="ab-way" href="mailto:teamprotishthan@gmail.com"><div><b>পরামর্শ বা ভুল জানান</b><span>teamprotishthan@gmail.com</span></div></a>
+    </div>
+  </div>
+</section>
+
+<section class="ab-sec" id="vision">
+  <span class="ab-kick">স্বপ্ন</span>
+  <h2>আমরা যেখানে পৌঁছাতে চাই</h2>
+  <div class="ab-vision">
+    <p>আমরা চাই এমন একটা দিন, যেদিন বাংলাদেশের <strong>যে কোনো প্রতিষ্ঠানের নির্ভরযোগ্য তথ্য</strong> এক মিনিটে পাওয়া যাবে। যেদিন একজন শিক্ষক তাঁর দৈনন্দিন কাজ ফোন থেকেই সারতে পারবেন, একজন অভিভাবক ঘরে বসে সন্তানের পড়াশোনার খোঁজ রাখতে পারবেন, আর একজন শিক্ষার্থী তার দক্ষতা দিয়ে নিজের পরিচয় গড়তে পারবে।</p>
+    <p>আমরা জানি, এই পথ লম্বা। একদিনে বা একটা দলের হাতে এটা হবে না। তাই আমরা চাই এমন মানুষ, যারা আমাদের সঙ্গে একই লক্ষ্যে এগোবে, ভুল ধরিয়ে দেবে, আর প্রতিদিন একটু একটু করে জিনিসটাকে ভালো করবে।</p>
+    <p class="ab-dua">ইনশাআল্লাহ, আমরা বাংলাদেশের শিক্ষাব্যবস্থার উন্নতিতে নিজেদের সবটুকু দিয়ে কাজ করে যাব।</p>
+  </div>
+</section>
+
+<div class="ab-end">
+  <h2>আপনিও এই পথের সঙ্গী হোন</h2>
+  <p>একটা প্রতিষ্ঠান যুক্ত করে, একটা তথ্য ঠিক করে, বা শুধু এই কথাটা কাউকে জানিয়েও আপনি অংশ নিতে পারেন।</p>
+  <div class="ab-btns">
+    <a class="ab-btn pri" href="list-institution.html">প্রতিষ্ঠান যুক্ত করুন</a>
+    <a class="ab-btn" href="card.html">শিক্ষিত কার্ড বানান</a>
+  </div>
+</div>
+
+</div>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=11"></script>
+</body>
+</html>
