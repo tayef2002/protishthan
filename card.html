@@ -143,6 +143,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .btn-fb{background:#1877F2;color:#fff}
 .hint{font-size:12px;color:var(--text-3);margin-top:6px;display:flex;gap:6px;align-items:flex-start}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.ac-ms{background:#E0ECFF;color:#1A56DB}
 .ac-nv{font-style:normal;margin-left:6px;padding:1px 8px;border-radius:10px;background:#FEF3C7;color:#92400E;font:600 11px 'Hind Siliguri',sans-serif;vertical-align:1px}
 .ac-en{display:block;color:#64748B;font-size:12.5px}
 .ac-snd{background:#E0F2FE;color:#075985}
@@ -898,13 +899,18 @@ function offerBanglaName(ac, listingId){
   };
 }
 let acSeq = 0;
+const MEMH = {}, LASTH = {};   // names other members saved (not in the directory yet), per level
 function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
   q = (q||'').trim();
   if(q.length < 2){ ac.classList.remove('open'); return; }
   const paint = hits => {
-    if(BnName.hasLatin(q) && !hits.length){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">তালিকায় এই নামে কিছু পাওয়া যায়নি। নিজে লিখলে প্রতিষ্ঠানের নাম বাংলায় লিখুন।</div>'; ac.classList.add('open'); return; }
+    LASTH[k] = hits;
+    const seen = new Set(hits.map(s => BnName.key(s.institution_name)));
+    const mem = (MEMH[k] || []).filter(m => BnName.match(m.name, q) && !seen.has(BnName.key(m.name))).slice(0, 4);
+    if(BnName.hasLatin(q) && !hits.length && !mem.length){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">তালিকায় এই নামে কিছু পাওয়া যায়নি। নিজে লিখলে প্রতিষ্ঠানের নাম বাংলায় লিখুন।</div>'; ac.classList.add('open'); return; }
     list.innerHTML = hits.map(s=>`<div class="ac-item" data-id="${esc(s.id || '')}" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}${s.match_kind === 'sound' ? ' <em class="ac-nv ac-snd">সম্ভাব্য মিল</em>' : ''}</b>${s.name_en && s.name_en !== s.institution_name ? '<span class="ac-en">' + esc(s.name_en) + '</span>' : ''}<span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
+      mem.map(m => `<div class="ac-item ac-mem" data-id="" data-slug="" data-name="${esc(m.name)}" data-d="${esc(m.district||'')}"><b>${esc(m.name)} <em class="ac-nv ac-ms">অন্য সদস্য যোগ করেছেন</em></b><span>${esc([m.itype, m.upazila, m.district].filter(Boolean).join(' · ') || 'তথ্যভান্ডারে এখনো নেই')}</span></div>`).join('') +
       (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
       const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
@@ -915,6 +921,7 @@ function showAc(k, q){
   // at once from what the page already has, then from the server (the directory is searched there, so it can hold tens of thousands)
   paint(INST.filter(s=>BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7));
   const seq = ++acSeq;
+  try{ sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; MEMH[k] = r.data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || []); }, () => {}); }catch(e){}
   try{ sb.rpc('directory_search', { p_q: BnName.norm(q), p_limit: 7 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(r.data); }, () => {}); }catch(e){}
 }
 /* ---- year dropdown + automatic years ---- */
