@@ -718,8 +718,8 @@ function render(){
   const ratio = (students && teachers) ? Math.round(students / teachers) : null;
   const stat = (icn, cls, num, lbl, note) => '<div class="stat"><div class="stat-ic '+cls+'">'+ico(icn,20)+'</div><div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div>'+(note?'<div class="stat-note">'+note+'</div>':'')+'</div>';
   document.getElementById('statsGrid').innerHTML =
-    stat('users','si-blue', students ? bn(students.toLocaleString('en-IN')) : '—', 'শিক্ষার্থী', r.gender_type ? escapeHtml(r.gender_type) : '') +
-    stat('teacher','si-green', teachers ? bn(teachers) : '—', 'শিক্ষক', '') +
+    stat('users','si-blue', students ? bn(students.toLocaleString('en-IN')) : '—', 'শিক্ষার্থী', (IMP && students) ? 'সরকারি তালিকা অনুযায়ী' : (r.gender_type ? escapeHtml(r.gender_type) : '')) +
+    stat('teacher','si-green', teachers ? bn(teachers) : '—', 'শিক্ষক', (IMP && teachers) ? 'সরকারি তালিকা অনুযায়ী' : '') +
     stat('calendar','si-amber', founded ? bn(founded) : '—', 'প্রতিষ্ঠার সাল', age > 0 ? bn(age) + ' বছর ধরে শিক্ষাদান' : '') +
     stat('scale','si-purple', ratio ? '১:' + bn(ratio) : '—', 'শিক্ষক : শিক্ষার্থী', ratio ? 'প্রতি শিক্ষকে গড়ে ' + bn(ratio) + ' জন' : '');
 
