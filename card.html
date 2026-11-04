@@ -1015,7 +1015,6 @@ async function autoSaveUnl(k){
     if(UNL_ID[k]){ try{ await M.sb.from('member_custom_institutions').delete().eq('id', UNL_ID[k]); }catch(e){} delete UNL_ID[k]; delete UNL_NAME[k]; }
     updateUnl(k); return;
   }
-  if(BnName.hasLatin(nm)) return;
   if(UNL_NAME[k] === key){ updateUnl(k); return; }
   if(UNL_ID[k]){ try{ await M.sb.from('member_custom_institutions').delete().eq('id', UNL_ID[k]); }catch(e){} delete UNL_ID[k]; }
   const { data, error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name: nm }).select('id').single();
@@ -1686,6 +1685,11 @@ function saveState(){
 
 /* ---------------- keep the card in the member account (when signed in) ---------------- */
 const MB = () => (window.Protishthan && Protishthan.member) || null;
+(async function(){
+  const M = MB(); if(!M) return; await M.ready();
+  const pass = () => LEVELS.forEach(l => { const ed = S.edu[l.key]; if(ed && (ed.name || '').trim().length >= 3 && !ed.slug) autoSaveUnl(l.key); else updateUnl(l.key); });
+  pass(); M.onChange(pass);
+})();
 let cloudT = 0;
 function cloudPush(data){
   const M = MB(); if(!M || !M.current()) return;
