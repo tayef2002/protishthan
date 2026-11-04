@@ -28,7 +28,8 @@
   /* link sets: "main" is the site menu; others are for special pages */
   var SETS = {
     main: [
-      { k: 'info',    t: 'তথ্যভান্ডার', href: 'index.html' }
+      { k: 'info',    t: 'তথ্যভান্ডার', href: 'index.html' },
+      { k: 'about',   t: 'আমাদের কথা', href: 'about.html' }
     ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })),
     partner: [
       { t: 'কীভাবে কাজ করে', href: '#how' }, { t: 'আয়ের হিসাব', href: '#earn' }, { t: 'সুবিধা', href: '#why' }, { t: 'প্রশ্নোত্তর', href: '#faq' }
