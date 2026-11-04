@@ -160,6 +160,15 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .edu-ic{width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .stream{margin-bottom:14px}
 .stream-q{font-size:13.5px;font-weight:700;color:#334155;margin-bottom:9px}
+.yrs{margin-top:14px;padding:14px 16px;border:1.5px dashed #C7D6F5;border-radius:16px;background:#F8FAFF}
+.yrs label{display:block;font-size:14px;font-weight:700;color:#0F172A;margin-bottom:8px}
+.yrs-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.yrs input{width:96px;padding:11px 12px;border:1.5px solid #D5E0F5;border-radius:12px;font:700 18px 'Inter','Hind Siliguri',sans-serif;color:#0F172A;background:#fff;text-align:center}
+.yrs input:focus{outline:none;border-color:#1A56DB;box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.yrs-u{font-size:15px;font-weight:600;color:#475569}
+.yrs-reset{border:none;background:#EAF1FF;color:#1A56DB;border-radius:100px;padding:7px 13px;font:700 12.5px 'Hind Siliguri',sans-serif;cursor:pointer}
+.yrs-reset:hover{background:#DCE8FF}
+.yrs small{display:block;margin-top:8px;font-size:12.5px;line-height:1.6;color:#64748B}
 .stream-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .stream-seg button{border:1.5px solid var(--border);background:#fff;border-radius:14px;padding:11px 8px;font:700 15px 'Hind Siliguri','Inter',sans-serif;color:#334155;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s;display:flex;flex-direction:column;align-items:center;gap:1px}
 .stream-seg button small{font-size:11.5px;font-weight:600;color:#94A3B8}
@@ -696,6 +705,15 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
           </div>
         </div>
         <div id="eduRows"></div>
+        <div class="yrs" id="yrsBox">
+          <label for="yrsIn">আপনার শিক্ষাজীবন কত বছর?</label>
+          <div class="yrs-row">
+            <input type="number" id="yrsIn" min="1" max="45" step="1" inputmode="numeric" placeholder="—" aria-describedby="yrsNote">
+            <span class="yrs-u">বছর</span>
+            <button type="button" class="yrs-reset" id="yrsReset" hidden>স্বয়ংক্রিয় হিসাব</button>
+          </div>
+          <small id="yrsNote"></small>
+        </div>
       </div>
 
       <div class="panel">
@@ -866,7 +884,7 @@ const THEMES = {
   flag:  { name:'লাল-সবুজ', bg:['#00432F','#006A4E'], accent:'#006A4E', accent2:'#F42A41', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
-const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'green', format:'post' };
+const S = { yearsManual:0, name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'green', format:'post' };
 LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false, track:'g', tManual:false });
 
 let cardNo = '';
@@ -1438,7 +1456,7 @@ function syncNeedName(){
   const mb = document.getElementById('mbDl'); if(mb) mb.textContent = ok ? 'ডাউনলোড' : 'আগে নাম দিন';
 }
 function draw(){
-  syncNeedName();
+  syncNeedName(); syncYears();
   saveState();
   const T = THEMES[S.theme];
   const story = S.format === 'story';
@@ -1539,7 +1557,7 @@ function draw(){
   const ex = cx + 44, eyTop = py + ph + (many ? 40 : 52);
   ctx.fillStyle = T.accent; ctx.font = F(700, 31); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
   const lvDone = filledLevels().filter(l => !S.edu[l.key].current), lvAll = filledLevels().length;
-  const yrsTop = lvDone.length ? Math.max(...lvDone.map(l => LEVEL_YEARS[l.key] || 0)) : 0;
+  const yrsTop = eduYears();
   const summary = yrsTop ? bn(yrsTop) + ' বছরের শিক্ষাজীবন · ' + bn(lvAll) + ' স্তর' : (lvAll ? bn(lvAll) + ' স্তর' : '');
   let lineStart = ex + 176;
   if(summary){ ctx.font = F(700, 22); const sw = ctx.measureText(summary).width; ctx.fillStyle = '#64748B'; ctx.fillText(summary, ex + 190, eyTop - 1); lineStart = ex + 190 + sw + 18; }
@@ -1672,10 +1690,26 @@ document.addEventListener('visibilitychange', () => { if(!document.hidden) refre
 
 const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };
 function toast(m){ const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2600); }
-function eduYears(){   // the same number the card shows: years of schooling up to the highest finished level
+function autoYears(){   // worked out from the levels: years of schooling up to the highest finished level
   const done = filledLevels().filter(l => !S.edu[l.key].current);
   return done.length ? Math.max(...done.map(l => LEVEL_YEARS[l.key] || 0)) : 0;
 }
+function eduYears(){ return S.yearsManual ? S.yearsManual : autoYears(); }   // what the visitor typed wins over the automatic number
+function syncYears(){
+  const inp = document.getElementById('yrsIn'); if(!inp) return;
+  const auto = autoYears(), man = S.yearsManual;
+  if(document.activeElement !== inp) inp.value = man ? man : (auto || '');
+  document.getElementById('yrsReset').hidden = !man;
+  document.getElementById('yrsNote').textContent = man
+    ? (auto ? 'আপনি নিজে ঠিক করেছেন। স্বয়ংক্রিয় হিসাব ছিল ' + bn(auto) + ' বছর।' : 'আপনি নিজে ঠিক করেছেন।')
+    : (auto ? 'স্বয়ংক্রিয় হিসাব: স্তরগুলো থেকে ধরা হয়েছে, আসল সময় আলাদা হলে নিজে ঠিক করে দিন।' : 'স্তর বেছে নিলে এখানে আপনা-আপনি বছর বসবে, চাইলে নিজেও লিখতে পারবেন।');
+}
+(function(){
+  const inp = document.getElementById('yrsIn'), rs = document.getElementById('yrsReset');
+  inp.addEventListener('input', () => { const v = Math.round(Number(inp.value)); S.yearsManual = (v >= 1 && v <= 45) ? v : 0; syncYears(); draw(); });
+  inp.addEventListener('blur', syncYears);
+  rs.addEventListener('click', () => { S.yearsManual = 0; inp.blur(); syncYears(); draw(); });
+})();
 function caption(){
   const y = eduYears();
   return (y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড' : 'আমার শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড') + '\n#শিক্ষিতকার্ড #sikkhitocard #protishthan';
@@ -1738,7 +1772,7 @@ const SAVE_KEY = 'shikkhito_card_v1';
 let saveTimer = 0, restoring = false, touched = false, lastSnap = '';
 // only real edits count: the first automatic redraws on page load must never overwrite a newer copy from the member account
 ['input', 'change', 'click', 'pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, e => { if(e.isTrusted) touched = true; }, true));
-function snapshot(){ return { name:S.name, badges:[...S.badges], edu:S.edu, title:S.title, theme:S.theme, format:S.format, crop:{...PH}, photo:PHOTO_DATA || '' }; }
+function snapshot(){ return { yearsManual:S.yearsManual || 0, name:S.name, badges:[...S.badges], edu:S.edu, title:S.title, theme:S.theme, format:S.format, crop:{...PH}, photo:PHOTO_DATA || '' }; }
 function isBlank(d){ return !d.name && !d.photo && !(d.badges || []).length && !Object.values(d.edu || {}).some(e => e && e.name); }
 function saveState(){
   if(restoring) return;
@@ -1812,6 +1846,7 @@ function restoreState(){
   });
   setTrack(LEVELS.map(l => S.edu[l.key].track).find(t => t === 'a' || t === 'q') || 'g');
   S.title = d.title || null;
+  S.yearsManual = (Number(d.yearsManual) >= 1 && Number(d.yearsManual) <= 45) ? Math.round(Number(d.yearsManual)) : 0;
   if(THEMES[d.theme]){ S.theme = d.theme; document.querySelectorAll('.theme').forEach(x=>x.classList.toggle('on', x.dataset.th === S.theme)); }
   if(d.format === 'story' || d.format === 'post'){ S.format = d.format; document.querySelectorAll('#fmtBtns button').forEach(x=>x.classList.toggle('on', x.dataset.f === S.format)); }
   if(d.crop) Object.assign(PH, d.crop);
