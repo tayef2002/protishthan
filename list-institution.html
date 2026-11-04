@@ -237,20 +237,6 @@ textarea{resize:vertical;min-height:80px}
           <textarea id="addressNote" placeholder="যেমন: বানিয়াচং বাজার রোড, হবিগঞ্জ (ঐচ্ছিক)"></textarea>
         </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label>ইমেইল <span class="req">*</span></label>
-            <input type="email" id="instEmail" placeholder="you@email.com">
-            <div class="field-error" id="emailErr">সঠিক ইমেইল দিন</div>
-          </div>
-          <div class="field">
-            <label>পাসওয়ার্ড <span class="req">*</span></label>
-            <input type="password" id="instPassword" placeholder="কমপক্ষে ৮ অক্ষর">
-            <div class="field-error" id="pwdErr">কমপক্ষে ৮ অক্ষর দিন</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:-6px;margin-bottom:6px">এই ইমেইল-পাসওয়ার্ড দিয়ে পরে আপনার ড্যাশবোর্ডে লগইন করতে পারবেন — তথ্য আবার দিতে হবে না।</div>
-
         <div class="btn-row">
           <button class="btn-back" onclick="goToStep(1)">← পেছনে</button>
           <button class="btn-next" onclick="goToStep(3)">
@@ -426,7 +412,7 @@ textarea{resize:vertical;min-height:80px}
 
       <div class="success-btns">
         <a href="index.html" class="btn-success-secondary">হোমপেজে ফিরে যান</a>
-        <a href="dashboard.html" class="btn-success-primary">আপনার ড্যাশবোর্ডে যান →</a>
+        <a href="list-institution.html" class="btn-success-primary">আরেকটি প্রতিষ্ঠান যুক্ত করুন</a>
       </div>
     </div>
 
@@ -552,25 +538,13 @@ async function goToStep(step){
   if(step === 3){
     const contactName = document.getElementById('contactName').value.trim();
     const contactPhone = document.getElementById('contactPhone').value.trim();
-    const instEmail = document.getElementById('instEmail').value.trim();
-    const instPassword = document.getElementById('instPassword').value;
     document.getElementById('phoneErr').classList.remove('show');
-    document.getElementById('emailErr').classList.remove('show');
-    document.getElementById('pwdErr').classList.remove('show');
     if(!contactName || !contactPhone){
       alert('যোগাযোগের নাম ও WhatsApp নম্বর দিন');
       return;
     }
     if(!/^01[0-9]{9}$/.test(contactPhone)){
       document.getElementById('phoneErr').classList.add('show');
-      return;
-    }
-    if(!instEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(instEmail)){
-      document.getElementById('emailErr').classList.add('show');
-      return;
-    }
-    if(!instPassword || instPassword.length < 8){
-      document.getElementById('pwdErr').classList.add('show');
       return;
     }
   }
@@ -586,8 +560,6 @@ async function submitListing(){
   const contactName = document.getElementById('contactName').value.trim();
   const contactPhone = document.getElementById('contactPhone').value.trim();
   const addressNote = document.getElementById('addressNote').value.trim();
-  const instEmail = document.getElementById('instEmail').value.trim();
-  const instPassword = document.getElementById('instPassword').value;
 
   if(!contactName || !contactPhone){
     alert('* চিহ্নিত সব তথ্য পূরণ করুন');
@@ -597,15 +569,6 @@ async function submitListing(){
     alert('সঠিক WhatsApp নম্বর দিন (01XXXXXXXXX)');
     return;
   }
-  if(!instEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(instEmail)){
-    alert('সঠিক ইমেইল দিন');
-    return;
-  }
-  if(!instPassword || instPassword.length < 8){
-    alert('পাসওয়ার্ড কমপক্ষে ৮ অক্ষর দিন');
-    return;
-  }
-
   const btn = document.getElementById('submitBtn');
   btn.classList.add('loading');
 
@@ -636,49 +599,16 @@ async function submitListing(){
   const description = document.getElementById('instDescription').value.trim();
   const facebookLink = document.getElementById('facebookLink').value.trim();
 
-  // last line of defence before an account is created: the same name in the same upazila may not be registered twice
+  // last line of defence: the same name in the same upazila may not be registered twice
   await refreshDup();
   if(DUP_STOP){ btn.classList.remove('loading'); goToStep(1); document.getElementById('dupBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
 
   // Slug is decided later by admin during approval; store a temporary placeholder for now
   const tempSlug = 'pending-' + Date.now();
 
-  // Auto-generate a short_name slug for the institutions (SaaS) account from the institution name
-  function autoSlug(name){
-    return (name||'institute').toLowerCase()
-      .replace(/[^\u0980-\u09FFa-z0-9\s]/g,'')
-      .trim().replace(/\s+/g,'-').slice(0,40) || ('institute-' + Date.now());
-  }
-
   try{
-    // Step 1: Create the login account (email + password)
-    const { data: authData, error: authError } = await sb.auth.signUp({
-      email: instEmail, password: instPassword,
-      options:{ data:{ institution_name: instName, principal_name: contactName, phone: contactPhone } }
-    });
-    if(authError){
-      btn.classList.remove('loading');
-      if(authError.message.includes('already registered')) alert('এই ইমেইল দিয়ে account আগেই আছে। লগইন পেজ থেকে লগইন করুন।');
-      else alert(authError.message);
-      return;
-    }
-
-    // Step 2: Auto-create the institutions (SaaS) account using the same submitted data
-    const shortName = autoSlug(instName);
-    const { data: newInst, error: instError } = await sb.from('institutions').insert({
-      name: instName, short_name: shortName, email: instEmail, phone: contactPhone,
-      plan: 'free', is_active: true, principal_name: contactName, district, upazila,
-      institution_type: selectedType
-    }).select('id').single();
-    if(instError){
-      btn.classList.remove('loading');
-      alert('Account তৈরি হয়েছে কিন্তু institution profile-এ সমস্যা হয়েছে: ' + instError.message);
-      return;
-    }
-
-    // Step 3: Submit the directory listing (existing behavior, unchanged)
+    // Only the directory listing is created here: no login account and no software account. Admin reviews it first.
     const listingRow = {
-      institution_id: newInst ? newInst.id : null,
       institution_name: instName,
       institution_type: selectedType,
       district: district,
@@ -708,11 +638,6 @@ async function submitListing(){
       facebook_link: facebookLink || null
     };
     let { error } = await sb.from('listing_submissions').insert(listingRow);
-    // institution_id column not migrated yet -> insert without it
-    if(error && /institution_id/.test(error.message || '')){
-      delete listingRow.institution_id;
-      ({ error } = await sb.from('listing_submissions').insert(listingRow));
-    }
     if(error && /ownership/.test(error.message || '')){
       delete listingRow.ownership;
       ({ error } = await sb.from('listing_submissions').insert(listingRow));
