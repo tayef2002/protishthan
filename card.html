@@ -817,14 +817,14 @@ const lvLabel = (l, ed, short) => (short && ed.track === 'q') ? lvName(l, ed) : 
 const BADGES = ['প্রথম প্রজন্মের গ্র্যাজুয়েট', 'শিক্ষক', 'হাফেজ', 'আলেম', 'ডাক্তার', 'ইঞ্জিনিয়ার', 'আইনজীবী', 'বিসিএস ক্যাডার', 'গবেষক', 'স্বর্ণপদকপ্রাপ্ত', 'বৃত্তিপ্রাপ্ত', 'উদ্যোক্তা', 'প্রবাসী', 'এখনো পড়ছি'];
 const TITLES = ['সার্টিফায়েড শিক্ষিত নাগরিক', 'ডাবল ডিগ্রিধারী নাগরিক', 'চিরছাত্র', 'জ্ঞানের ফেরিওয়ালা', 'বইপোকা', 'ভবিষ্যতের প্রফেসর'];
 const THEMES = {
-  night: { name:'রাতের আকাশ', bg:['#0A1628','#1A3570'], accent:'#2563EB', accent2:'#7C3AED', gold:'#FBBF24', ink:'#0F172A', chipText:'#fff' },
   green: { name:'সবুজ', bg:['#03382B','#047857'], accent:'#047857', accent2:'#10B981', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
+  night: { name:'রাতের আকাশ', bg:['#0A1628','#1A3570'], accent:'#2563EB', accent2:'#7C3AED', gold:'#FBBF24', ink:'#0F172A', chipText:'#fff' },
   black: { name:'কালো-সোনালি', bg:['#0B0B10','#2B2211'], accent:'#B8860B', accent2:'#F5C542', gold:'#F5C542', ink:'#111827', chipText:'#fff' },
   plat:  { name:'প্ল্যাটিনাম', bg:['#1F2937','#64748B'], accent:'#475569', accent2:'#94A3B8', gold:'#E5E7EB', ink:'#0F172A', chipText:'#fff' },
   flag:  { name:'লাল-সবুজ', bg:['#00432F','#006A4E'], accent:'#006A4E', accent2:'#F42A41', gold:'#FBBF24', ink:'#052E22', chipText:'#fff' },
   gold:  { name:'সোনালি', bg:['#451A03','#B45309'], accent:'#B45309', accent2:'#F59E0B', gold:'#FDE68A', ink:'#2A1305', chipText:'#fff' }
 };
-const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'night', format:'post' };
+const S = { name:'', photo:null, badges:new Set(), edu:{}, title:null, theme:'green', format:'post' };
 LEVELS.forEach(l=>S.edu[l.key] = { name:'', district:'', year:'', current:false, slug:'', yAuto:false, track:'g', tManual:false });
 
 let cardNo = '';
