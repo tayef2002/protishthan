@@ -772,7 +772,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <ol class="lb-list" id="lbList"><li class="lb-empty">লোড হচ্ছে…</li></ol>
     <div class="lb-find">
       <label for="lbQ">আপনার প্রতিষ্ঠান কত নম্বরে?</label>
-      <input class="inp" id="lbQ" placeholder="প্রতিষ্ঠানের নাম বাংলায় লিখুন" autocomplete="off" lang="bn">
+      <input class="inp" id="lbQ" placeholder="প্রতিষ্ঠানের নাম লিখুন (বাংলা বা English)" autocomplete="off">
       <div class="lb-found" id="lbFound"></div>
     </div>
     <p class="lb-note">শুধু তথ্যভান্ডারে থাকা প্রতিষ্ঠান গোনা হয়। আপনারটা তালিকায় না থাকলে <a href="list-institution.html">ফ্রিতে যোগ করে দিন</a>।</p>
@@ -974,7 +974,6 @@ function showAc(k, q){
     LASTH[k] = hits;
     const seen = new Set(hits.map(s => BnName.key(s.institution_name)));
     const mem = (MEMH[k] || []).filter(m => BnName.match(m.name, q) && !seen.has(BnName.key(m.name))).slice(0, 4);
-    if(BnName.hasLatin(q) && !hits.length && !mem.length){ list.innerHTML = '<div class="ac-free" style="color:#DC2626">তালিকায় এই নামে কিছু পাওয়া যায়নি। নিজে লিখলে প্রতিষ্ঠানের নাম বাংলায় লিখুন।</div>'; ac.classList.add('open'); return; }
     list.innerHTML = hits.map(s=>`<div class="ac-item" data-id="${esc(s.id || '')}" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}${s.match_kind === 'sound' ? ' <em class="ac-nv ac-snd">সম্ভাব্য মিল</em>' : ''}</b>${s.name_en && s.name_en !== s.institution_name ? '<span class="ac-en">' + esc(s.name_en) + '</span>' : ''}<span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
       mem.map(m => `<div class="ac-item ac-mem" data-id="" data-slug="" data-name="${esc(m.name)}" data-d="${esc(m.district||'')}"><b>${esc(m.name)} <em class="ac-nv ac-ms">অন্য সদস্য যোগ করেছেন</em></b><span>${esc([m.itype, m.upazila, m.district].filter(Boolean).join(' · ') || 'তথ্যভান্ডারে এখনো নেই')}</span></div>`).join('') +
       (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
@@ -1079,7 +1078,7 @@ function scheduleUnlSave(k){ clearTimeout(UNL_T[k]); UNL_T[k] = setTimeout(() =>
 const UNL_REPORTED = new Set();
 function reportUnl(k){
   const ed = S.edu[k], nm = (ed.name || '').trim(), key = unlKey(nm);
-  if(ed.slug || nm.length < 4 || BnName.hasLatin(nm) || UNL_REPORTED.has(key)) return;
+  if(ed.slug || nm.length < 4 || UNL_REPORTED.has(key)) return;
   UNL_REPORTED.add(key);
   try{ sb.rpc('suggest_unlisted_institution', { p_device: deviceId(), p_name: nm }).then(() => {}, () => {}); }catch(e){}
 }
@@ -1703,7 +1702,6 @@ function dlOpenFacebook(){ T('card_dl_facebook'); window.open('https://www.faceb
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
-  if(Object.values(S.edu).some(ed => ed && !ed.slug && BnName.hasLatin(ed.name))){ toast('প্রতিষ্ঠানের নাম বাংলায় লিখুন, তারপর ডাউনলোড করুন'); return; }
   draw();
   const blob = await cardBlob(); const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
