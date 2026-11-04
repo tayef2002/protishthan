@@ -941,7 +941,7 @@ function showAc(k, q){
       (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
       const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
-      ac.querySelector('input').value = ed.name; ac.classList.remove('open'); if(/[A-Za-z]/.test(ed.name) && it.dataset.id) offerBanglaName(ac, it.dataset.id); else clearBanglaAsk(ac); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
+      ac.querySelector('input').value = ed.name; ac.classList.remove('open'); clearBanglaAsk(ac); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
     }));
     ac.classList.add('open');
   };
