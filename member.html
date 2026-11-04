@@ -837,7 +837,8 @@ async function delCustom(id){
 function imChips(name, opts, sel, multi){
   return '<div class="im-chips" data-chips="' + name + '" data-multi="' + (multi ? 1 : 0) + '">' + opts.map(o => '<button type="button" class="im-chip' + ((multi ? (sel || []).includes(o) : sel === o) ? ' on' : '') + '" data-v="' + esc(o) + '">' + esc(o) + '</button>').join('') + '</div>';
 }
-function imOpen(id){
+function imOpen(id){ aiOpen(id); }
+function imOpenOld(id){
   const c = (STATE.custom || []).find(x => x.id === id); if(!c) return;
   let ov = $('imDlg'); if(!ov){ ov = document.createElement('div'); ov.id = 'imDlg'; ov.className = 'im-ov'; ov.addEventListener('click', e => { if(e.target === ov) imClose(); }); document.body.appendChild(ov); }
   const L = window.BD_LOCATIONS || [], dI = L.findIndex(d => d.n === c.district);
@@ -1117,6 +1118,7 @@ async function coSubmit(id){
 /* ---------- add a new institution, step by step (the same flow as the public listing form, for a signed-in member) ---------- */
 const AI = { step: 1, names: ['প্রতিষ্ঠানের পরিচয়', 'যোগাযোগ ও ঠিকানা', 'বিস্তারিত তথ্য', 'দেখে নিন ও জমা দিন'], seq: 0, timer: 0, dismissed: '' };
 const aiKey = () => 'aiDraft:' + ((M.current() || {}).user_id || 'x');
+const aiRow = () => AI.editId ? (STATE.custom || []).find(x => x.id === AI.editId) : null;
 const aiNum = v => { const t = String(v == null ? '' : v).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/[^0-9]/g, ''); return t ? Number(t) : null; };
 function aiFeeText(){
   let lo = aiNum($('aiFeeLo').value), hi = aiNum($('aiFeeHi').value); if(lo != null && hi != null && lo > hi){ const t = lo; lo = hi; hi = t; }
@@ -1124,17 +1126,19 @@ function aiFeeText(){
   const p = $('aiFeePrev'); if(p) p.innerHTML = txt ? 'প্রতিষ্ঠানের পাতায় দেখাবে: <b>মাসিক ফি ' + esc(txt) + '</b>' : '';
   return txt;
 }
-function aiOpen(){
+function aiOpen(editId){
   const me = M.current(); if(!me){ M.signIn(); return; }
+  AI.editId = (typeof editId === 'string' && (STATE.custom || []).some(x => x.id === editId)) ? editId : '';
+  const EC = aiRow();
   let ov = $('aiDlg'); if(ov) ov.remove();
   ov = document.createElement('div'); ov.id = 'aiDlg'; ov.className = 'im-ov'; document.body.appendChild(ov);
   ov.addEventListener('click', e => { if(e.target === ov) aiSaveClose(true); });
-  const L = window.BD_LOCATIONS || [], dI = L.findIndex(d => d.n === AREA.d);
+  const L = window.BD_LOCATIONS || [], dI = L.findIndex(d => d.n === (EC ? EC.district : AREA.d));
   const f = (lbl, el, id) => '<div class="im-f"' + (id ? ' id="' + id + '"' : '') + '><label>' + lbl + '</label>' + el + '</div>';
   const inp = (id, ph, extra) => '<input class="im-i" id="' + id + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
   const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
   AI.step = 1; AI.dismissed = '';
-  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>নতুন প্রতিষ্ঠান যোগ করুন</h3><p>' + esc([AREA.u, AREA.d].filter(Boolean).join(', ') || 'আপনার এলাকা') + '</p></div><button type="button" class="im-save" onclick="aiSaveClose()">Save &amp; Close</button></header>' +
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>' + (EC ? (EC.listing_id ? 'প্রতিষ্ঠানের তথ্য সম্পাদনা' : 'প্রতিষ্ঠানের তথ্য যোগ করুন') : 'নতুন প্রতিষ্ঠান যোগ করুন') + '</h3><p>' + esc(EC ? (EC.name || '') : ([AREA.u, AREA.d].filter(Boolean).join(', ') || 'আপনার এলাকা')) + '</p></div><button type="button" class="im-save" onclick="aiSaveClose()">Save &amp; Close</button></header>' +
     '<div class="co-prog"><div class="row"><span id="aiStepNo"></span><b id="aiStepName"></b></div><div class="co-bar" id="aiBar"><i></i><i></i><i></i><i></i></div></div><div class="im-b">' +
     pane(1, 'প্রতিষ্ঠানের পরিচয়', 'নাম বাংলায় লিখুন। তালিকায় আগে থেকে থাকলে নিচে দেখাবে, যাতে একই প্রতিষ্ঠান দুবার যোগ না হয়।',
       f('প্রতিষ্ঠানের নাম *', inp('aiName', 'যেমন: দারুল উলুম মাদ্রাসা', 'maxlength="120" lang="bn" autocomplete="off"') + '<div class="ai-hint" id="aiLatin" hidden>নাম বাংলায় লিখুন, ইংরেজি অক্ষর চলবে না।</div><div class="ai-sug" id="aiSug" hidden></div>') +
@@ -1150,18 +1154,26 @@ function aiOpen(){
       f('ছাত্র/ছাত্রী', imChips('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], '', false)) + f('মালিকানা', imChips('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], '', false)) + f('ভর্তি', imChips('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], '', false)) +
       '<div class="im-sec">মাসিক ফি (টাকা)</div><p class="co-sub" style="margin-top:-2px">কিছু শ্রেণির ফি কম, কিছুর বেশি হলে সবচেয়ে কম আর সবচেয়ে বেশি আলাদা ঘরে লিখুন। সব শ্রেণির ফি এক হলে শুধু প্রথম ঘরে।</p><div class="im-2">' + f('সর্বনিম্ন', inp('aiFeeLo', 'যেমন: ২০০', 'inputmode="numeric" maxlength="6" oninput="aiFeeText()"')) + f('সর্বোচ্চ', inp('aiFeeHi', 'যেমন: ৫০০', 'inputmode="numeric" maxlength="6" oninput="aiFeeText()"')) + '</div><div class="co-feeprev" id="aiFeePrev"></div>' +
       f('সুযোগ-সুবিধা', imChips('facilities', IM_FACIL, [], true)) + f('বিশেষত্ব', imChips('achievements', IM_ACH, [], true)) + f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" id="aiDesc" rows="3" maxlength="600"></textarea>')) +
-    pane(4, 'দেখে নিন, তারপর জমা দিন', 'জমা দিলে Admin পর্যালোচনা করবেন। অনুমোদন পেলে প্রতিষ্ঠান তালিকায় আসবে এবং আপনার নামে যুক্ত থাকবে।', '<div class="co-sum" id="aiSum"></div>') +
+    pane(4, 'দেখে নিন, তারপর ' + (EC && EC.listing_id ? 'সেভ করুন' : 'জমা দিন'), EC && EC.listing_id ? 'সেভ করলে তথ্যভান্ডারের পাতায়ও এই তথ্য হালনাগাদ হবে।' : 'জমা দিলে Admin পর্যালোচনা করবেন। অনুমোদন পেলে প্রতিষ্ঠান তালিকায় আসবে এবং আপনার নামে যুক্ত থাকবে।', '<div class="co-sum" id="aiSum"></div>') +
     '<div class="im-err" id="aiErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" id="aiBack" onclick="aiGo(-1)">বাতিল</button><button type="button" class="btn btn-fill" id="aiNext" onclick="aiGo(1)">পরবর্তী →</button></footer></div>';
-  if(dI >= 0){ aiDist($('aiDist')); const u = $('aiUp'); if(AREA.u) u.value = AREA.u; }
+  if(dI >= 0){ aiDist($('aiDist')); const u = $('aiUp'); const uu = EC ? EC.upazila : AREA.u; if(uu) u.value = uu; }
   ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } if(g.dataset.chips === 'itype') aiClassLbl(); }));
   const nm = $('aiName'); nm.addEventListener('input', aiSearch);
   ['aiDist', 'aiUp'].forEach(id => $(id).addEventListener('change', () => { if(nm.value.trim().length >= 2){ AI.dismissed = ''; aiSearch(); } }));
   let tm; const auto = () => { clearTimeout(tm); tm = setTimeout(aiDraftSave, 500); };
   ov.querySelector('.im-sheet').addEventListener('input', auto); ov.querySelector('.im-sheet').addEventListener('click', auto);
   ov.classList.add('show'); document.body.style.overflow = 'hidden';
-  const restored = aiDraftLoad(); aiClassLbl(); aiPaint(); aiFeeText();
+  if(EC) aiFill(EC);
+  const restored = EC ? false : aiDraftLoad(); aiClassLbl(); aiPaint(); aiFeeText();
   if(restored) M.toast('আগের অসমাপ্ত তথ্য ফিরিয়ে আনা হয়েছে');
   setTimeout(() => nm.focus(), 60);
+}
+function aiFill(c){
+  const set = (id, v) => { const e = $(id); if(e && v != null) e.value = v; };
+  const chips = (n, vals) => { const g = document.querySelector('#aiDlg [data-chips="' + n + '"]'); if(!g) return; const a = Array.isArray(vals) ? vals : [vals]; g.querySelectorAll('.im-chip').forEach(b => b.classList.toggle('on', a.indexOf(b.dataset.v) >= 0)); };
+  set('aiName', c.name); set('aiPrin', c.contact_name); set('aiPhone', c.contact_phone); set('aiAddr', c.address_note); set('aiFb', c.facebook_link); set('aiYear', c.founding_year); set('aiStu', c.student_count); set('aiTea', c.teacher_count); set('aiClass', c.class_range); set('aiDesc', c.description);
+  chips('itype', c.itype || ''); chips('medium', c.medium || []); chips('gender_type', c.gender_type || ''); chips('ownership', c.ownership || ''); chips('admission_status', c.admission_status || ''); chips('facilities', c.facilities || []); chips('achievements', c.achievements || []);
+  const n = coFeeNums(c.fee_range); if(n.length){ set('aiFeeLo', Math.min.apply(null, n)); if(n.length > 1) set('aiFeeHi', Math.max.apply(null, n)); }
 }
 function aiDist(sel){ const L = window.BD_LOCATIONS || [], d = L[sel.value]; $('aiUp').innerHTML = '<option value="">' + (d ? 'বাছুন' : 'আগে জেলা বাছুন') + '</option>' + (d ? d.u.map(u => '<option>' + esc(u) + '</option>').join('') : ''); }
 function aiClassLbl(){ const t = (document.querySelector('#aiDlg [data-chips="itype"] .im-chip.on') || {}).dataset; const info = coClassInfo(t ? t.v : ''); const l = $('aiClassLbl'); if(l) l.textContent = info[0]; const i = $('aiClass'); if(i) i.placeholder = info[1]; }
@@ -1194,7 +1206,7 @@ function aiPaint(){
   root.querySelectorAll('.co-pane').forEach(p => p.classList.toggle('on', Number(p.dataset.p) === n));
   root.querySelectorAll('#aiBar i').forEach((i, k) => { i.className = k + 1 < n ? 'done' : k + 1 === n ? 'on' : ''; });
   $('aiStepNo').textContent = 'ধাপ ' + bn(n) + ' / ' + bn(last); $('aiStepName').textContent = AI.names[n - 1];
-  $('aiBack').textContent = n === 1 ? 'বাতিল' : '← আগের ধাপ'; $('aiNext').textContent = n === last ? 'জমা দিন' : 'পরবর্তী →'; $('aiErr').textContent = '';
+  $('aiBack').textContent = n === 1 ? 'বাতিল' : '← আগের ধাপ'; $('aiNext').textContent = n === last ? (aiRow() && aiRow().listing_id ? 'সেভ করুন' : 'জমা দিন') : 'পরবর্তী →'; $('aiErr').textContent = '';
   const b = root.querySelector('.im-b'); if(b) b.scrollTop = 0;
   if(n === last) aiSummary();
 }
@@ -1211,7 +1223,7 @@ async function aiGo(d){
   AI.step++; aiPaint();
 }
 function aiDraftSave(){
-  const root = $('aiDlg'); if(!root || !root.classList.contains('show')) return;
+  const root = $('aiDlg'); if(!root || !root.classList.contains('show') || AI.editId) return;
   const d = { step: AI.step, v: {}, c: {}, dist: $('aiDist').value, up: $('aiUp').value };
   root.querySelectorAll('input[id],textarea[id],select[id]').forEach(el => { if(el.type !== 'checkbox') d.v[el.id] = el.value; });
   root.querySelectorAll('.im-chips').forEach(g => { d.c[g.dataset.chips] = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); });
@@ -1227,7 +1239,17 @@ function aiDraftLoad(){
   root.querySelectorAll('.im-chips').forEach(g => { const v = (d.c || {})[g.dataset.chips]; if(v) g.querySelectorAll('.im-chip').forEach(b => b.classList.toggle('on', v.indexOf(b.dataset.v) >= 0)); });
   AI.step = Math.min(Math.max(Number(d.step) || 1, 1), AI.names.length); return true;
 }
-function aiSaveClose(quiet){
+async function aiSaveClose(quiet){
+  if(AI.editId){
+    const o = aiRead(), row = { updated_at: new Date().toISOString() };
+    if(!o.name || o.name.length < 2){ $('aiErr').textContent = 'প্রতিষ্ঠানের নাম লিখুন।'; return; }
+    if(o.contact_phone && !/^01[0-9]{9}$/.test(o.contact_phone)){ $('aiErr').textContent = 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)।'; return; }
+    Object.keys(o).forEach(k => { const v = o[k]; row[k] = (v === '' || v == null || (Array.isArray(v) && !v.length)) ? null : v; });
+    const c = aiRow(), r = await M.sb.from('member_custom_institutions').update(row).eq('id', AI.editId);
+    if(!r.error && c && c.listing_id) await M.sb.rpc('sync_member_institution', { p_id: AI.editId });
+    const ov0 = $('aiDlg'); if(ov0) ov0.classList.remove('show'); document.body.style.overflow = '';
+    M.toast(r.error ? 'সেভ করা যায়নি, একটু পরে আবার চেষ্টা করুন' : 'সেভ হয়েছে ✓'); await loadCustom(); return;
+  }
   aiDraftSave(); const ov = $('aiDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = '';
   if(!quiet) M.toast('সেভ হয়েছে। পরে "নতুন প্রতিষ্ঠান যোগ করুন" চাপলে এখান থেকেই শুরু হবে ✓');
 }
@@ -1235,20 +1257,28 @@ async function aiSubmit(){
   const o = aiRead(), btn = $('aiNext'), err = $('aiErr'); err.textContent = '';
   for(const n of [1, 2]){ if(!aiCheck(n)){ AI.step = n; aiPaint(); aiCheck(n); return; } }
   btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
-  const row = { user_id: M.current().user_id, updated_at: new Date().toISOString() };
+  const row = { updated_at: new Date().toISOString() };
+  if(!AI.editId) row.user_id = M.current().user_id;
   Object.keys(o).forEach(k => { const v = o[k]; row[k] = (v === '' || v == null || (Array.isArray(v) && !v.length)) ? null : v; });
   try{
-    const ins = await M.sb.from('member_custom_institutions').insert(row).select('id').single(); if(ins.error) throw ins.error;
-    const pub = await M.sb.rpc('publish_member_institution', { p_id: ins.data.id });
-    if(pub.error){ await M.sb.from('member_custom_institutions').delete().eq('id', ins.data.id); throw pub.error; }
+    const EC = aiRow();
+    if(EC){
+      const up = await M.sb.from('member_custom_institutions').update(row).eq('id', EC.id); if(up.error) throw up.error;
+      if(EC.listing_id){ const sy = await M.sb.rpc('sync_member_institution', { p_id: EC.id }); if(sy.error) throw sy.error; }
+      else { const pb = await M.sb.rpc('publish_member_institution', { p_id: EC.id }); if(pb.error) throw pb.error; }
+    } else {
+      const ins = await M.sb.from('member_custom_institutions').insert(row).select('id').single(); if(ins.error) throw ins.error;
+      const pub = await M.sb.rpc('publish_member_institution', { p_id: ins.data.id });
+      if(pub.error){ await M.sb.from('member_custom_institutions').delete().eq('id', ins.data.id); throw pub.error; }
+    }
     try{ localStorage.removeItem(aiKey()); }catch(e){}
     const ov = $('aiDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = '';
-    M.toast('জমা হয়েছে, অনুমোদনের অপেক্ষায় ✓'); loadCustom(); if(typeof loadArea === 'function') loadArea();
+    M.toast(aiRow() && aiRow().listing_id ? 'তথ্যভান্ডারেও হালনাগাদ হয়েছে ✓' : 'জমা হয়েছে, অনুমোদনের অপেক্ষায় ✓'); await loadCustom(); if(typeof loadArea === 'function') loadArea();
   }catch(e){
     const m = String(e.message || e);
     err.textContent = /DUPLICATE_INSTITUTION|listing_unique_name_place|duplicate key/.test(m) ? 'এই নামে প্রতিষ্ঠান এই উপজেলায় আগেই তালিকায় আছে। ওটাই আপনার হলে নতুন করে বানানোর দরকার নেই।' : /BAD_PHONE/.test(m) ? 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)।' : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।';
   }
-  btn.disabled = false; btn.textContent = 'জমা দিন';
+  btn.disabled = false; btn.textContent = (aiRow() && aiRow().listing_id) ? 'সেভ করুন' : 'জমা দিন';
 }
 /* similar names that are already listed (Bangla or English listing, sound-alike spellings) */
 function aiSearch(){
