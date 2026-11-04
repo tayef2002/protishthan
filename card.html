@@ -374,8 +374,8 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .dl-copy.done{background:#059669}
 .dl-fb{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1.5px solid #D5E0F5;background:#fff;color:#1877F2;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer}
 .dl-fb:hover{background:#F5F9FF}
-.dl-hint{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#F0F7FF;color:#1E3A8A;font-size:13px;line-height:1.65;text-align:left}
-.dl-hint.show{display:block}
+.sh-hint{display:none;margin-top:10px;padding:11px 13px;border-radius:12px;background:#F0F7FF;color:#1E3A8A;font-size:13px;line-height:1.7}
+.sh-hint.show{display:block}
 .dl-other{color:#1A56DB;border-color:#D5E0F5}
 .dl-other svg{stroke:currentColor}
 .dl-other.done{color:#059669;border-color:#A7E3CB;background:#F0FDF7}
@@ -758,6 +758,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
           <button type="button" class="btn btn-wa" data-needname onclick="shareWhatsApp()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp</button>
           <button type="button" class="btn btn-ghost wide hide-sm" data-needname onclick="shareImage()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>ছবিসহ শেয়ার / ক্যাপশন কপি</button>
         </div>
+        <div class="sh-hint" id="shHint" aria-live="polite"></div>
         <p class="note">এটা নিজে বানানো একটা মজার কার্ড, কোনো সরকারি কাগজ বা সনদ নয়।</p>
       </div>
     </aside>
@@ -851,8 +852,6 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
     <button type="button" class="dl-fb dl-other" id="dlOther" onclick="dlOtherSize()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>স্টোরি সাইজ ডাউনলোড</span></button>
-    <button type="button" class="dl-fb" id="dlFb" onclick="dlShareFacebook()"><svg width="17" height="17" viewBox="0 0 24 24" fill="#1877F2" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg><span>Facebook-এ যান</span></button>
-    <small class="dl-hint" id="dlHint" aria-live="polite"></small>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1732,8 +1731,6 @@ function openDl(){
   const ov = document.getElementById('dlOv'); if(!ov) return;
   document.getElementById('dlTa').value = caption();
   const b = document.getElementById('dlCopy'); b.classList.remove('done'); b.querySelector('span').textContent = 'ক্যাপশন কপি করুন';
-  const fb = document.getElementById('dlFb'); if(fb) fb.querySelector('span').textContent = canShareFiles() ? 'Facebook-এ শেয়ার করুন' : 'ছবি কপি করে Facebook-এ যান';
-  const hint = document.getElementById('dlHint'); if(hint){ hint.classList.remove('show'); hint.textContent = ''; }
   const o = document.getElementById('dlOther'); if(o){ o.classList.remove('done'); o.querySelector('span').textContent = (DL_LAST === 'story' ? 'পোস্ট' : 'স্টোরি') + ' সাইজ ডাউনলোড'; }
   ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup');
 }
@@ -1743,38 +1740,6 @@ async function copyDlCaption(){
   try{ await navigator.clipboard.writeText(ta.value); ok = true; }catch(e){ try{ ta.focus(); ta.select(); ok = document.execCommand('copy'); }catch(_){} }
   if(ok){ b.classList.add('done'); b.querySelector('span').textContent = 'কপি হয়েছে ✓'; T('card_caption_copy'); }
   else toast('কপি করা যায়নি, ক্যাপশনটা চেপে ধরে কপি করুন');
-}
-function openFbTab(){   // if the browser blocks the new tab, the hint gets a plain link instead
-  const w = window.open('https://www.facebook.com/', '_blank');
-  if(w){ try{ w.opener = null; }catch(e){} }
-  else{ const h = document.getElementById('dlHint'); if(h && !h.querySelector('a')){ const a = document.createElement('a'); a.href = 'https://www.facebook.com/'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' Facebook খুলুন →'; a.style.fontWeight = '700'; h.appendChild(a); } }
-}
-function setDlHint(t){ const h = document.getElementById('dlHint'); if(h){ h.textContent = t; h.classList.add('show'); } }
-async function dlShareFacebook(){
-  T('card_dl_facebook');
-  const fmt = DL_LAST;
-  const blobFor = async () => { const keep = S.format; try{ S.format = fmt; draw(); return await cardBlob(); } finally { S.format = keep; draw(); } };
-  // phone: the system share sheet carries the picture (and the caption, which the Facebook app may drop)
-  if(canShareFiles()){
-    try{
-      const blob = await blobFor(), file = new File([blob], fileName().replace(/\.png$/, '-' + fmt + '.png'), { type:'image/png' });
-      if(navigator.canShare && navigator.canShare({ files:[file] })){
-        await navigator.share({ files:[file], text: document.getElementById('dlTa').value });
-        setDlHint('Facebook-এ ক্যাপশন না এলে ওপরের "ক্যাপশন কপি করুন" চেপে পোস্টে পেস্ট করুন।'); return;
-      }
-    }catch(e){ if(e && e.name === 'AbortError') return; }
-  }
-  // computer: the picture goes to the clipboard, Facebook opens, Ctrl+V puts it in the post box
-  try{
-    if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
-    await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blobFor() }) ]);
-    setDlHint('ছবি কপি হয়েছে ✓ Facebook-এ "মনে কী চলছে" বক্সে ক্লিক করে Ctrl+V চাপুন। তারপর "ক্যাপশন কপি করুন" চেপে আবার Ctrl+V দিয়ে ক্যাপশন বসান।');
-    openFbTab();
-  }catch(e){
-    try{ await saveFormat(fmt); }catch(_){}
-    setDlHint('ছবি ডাউনলোড হয়েছে। Facebook-এ নতুন পোস্টে সেই ছবিটা বেছে নিন, ক্যাপশন পেস্ট করুন।');
-    openFbTab();
-  }
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
 let DL_LAST = 'post';
@@ -1815,7 +1780,29 @@ async function shareImage(){
 }
 /* on phones the picture itself is shared (the system share sheet, where Facebook / WhatsApp are one tap); on a computer only a link can be sent */
 function canShareFiles(){ try{ return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.png', { type: 'image/png' })] })); }catch(e){ return false; } }
-function shareFacebook(){ if(canShareFiles()){ shareImage(); return; } window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=fb'), '_blank', 'noopener,width=640,height=560'); }
+function setShHint(t){ const h = document.getElementById('shHint'); if(h){ h.textContent = t; h.classList.add('show'); } }
+function openFbTab(){   // if the browser blocks the new tab, the hint gets a plain link instead
+  const w = window.open('https://www.facebook.com/', '_blank');
+  if(w){ try{ w.opener = null; }catch(e){} }
+  else{ const h = document.getElementById('shHint'); if(h && !h.querySelector('a')){ const a = document.createElement('a'); a.href = 'https://www.facebook.com/'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' Facebook খুলুন →'; a.style.fontWeight = '700'; h.appendChild(a); } }
+}
+/* phone: the system share sheet carries the picture; computer: the picture goes to the clipboard, Facebook opens and Ctrl+V puts it in the post box */
+async function shareFacebook(){
+  if(!String(S.name || '').trim()){ needNameToast(); return; }
+  T('card_share_facebook');
+  if(canShareFiles()){ shareImage(); return; }
+  draw();
+  try{
+    if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
+    await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
+    setShHint('ছবি কপি হয়েছে ✓ Facebook-এ "মনে কী চলছে" বক্সে ক্লিক করে Ctrl+V চাপুন। ক্যাপশনও চাইলে নিচের "ছবিসহ শেয়ার / ক্যাপশন কপি" চেপে ক্যাপশন কপি করে আবার Ctrl+V দিন।');
+    openFbTab();
+  }catch(e){
+    try{ await downloadCard(); }catch(_){}
+    setShHint('ছবি ডাউনলোড হয়েছে। Facebook-এ নতুন পোস্টে সেই ছবিটা বেছে নিন।');
+    openFbTab();
+  }
+}
 function shareWhatsApp(){ if(canShareFiles()){ shareImage(); return; } window.open('https://wa.me/?text=' + encodeURIComponent(caption() + '\n👉 ' + SHARE_URL + '?ref=wa'), '_blank', 'noopener'); }
 
 /* ---------------- save in this browser (no login) ---------------- */
