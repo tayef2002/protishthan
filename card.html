@@ -824,7 +824,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-x" onclick="closeDl()" aria-label="বন্ধ করুন">×</button>
     <div class="dl-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h3 id="dlT">কার্ড ডাউনলোড হয়েছে</h3>
-    <p>Facebook-এ পোস্ট করুন আর বন্ধুদের Tag করুন।</p>
+    <p>পোস্ট আর স্টোরি, দুই সাইজই নেমেছে। Facebook-এ পোস্ট করে বন্ধুদের Tag করুন।</p>
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
     <button type="button" class="dl-fb" onclick="dlOpenFacebook()"><svg width="17" height="17" viewBox="0 0 24 24" fill="#1877F2" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ যান</button>
@@ -1702,10 +1702,16 @@ function dlOpenFacebook(){ T('card_dl_facebook'); window.open('https://www.faceb
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
-  draw();
-  const blob = await cardBlob(); const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = fileName(); document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  // one tap saves both sizes: the post (4:5) first, then the story (9:16). The preview goes back to the size the visitor had chosen.
+  const keep = S.format, pause = ms => new Promise(r => setTimeout(r, ms));
+  const save = async (fmt, suffix) => {
+    S.format = fmt; draw();
+    const blob = await cardBlob(); const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = fileName().replace(/\.png$/, '-' + suffix + '.png'); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 6000);
+  };
+  try{ await save('post', 'post'); await pause(450); await save('story', 'story'); }
+  finally{ S.format = keep; draw(); }
   setTimeout(openDl, 650);
   countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
