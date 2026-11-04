@@ -126,12 +126,13 @@ textarea{resize:vertical;min-height:80px}
 .nm-r span.m{display:block;font:500 12.5px 'Hind Siliguri',sans-serif;color:#64748B;margin-top:1px}
 .nm-r .bg{flex:none;padding:3px 10px;border-radius:100px;font:700 11.5px 'Hind Siliguri',sans-serif;background:#F1F5F9;color:#475569}
 .nm-r .bg.v{background:#DCFCE7;color:#047857}
+.nm-r a.own{border-color:#2563EB;background:#2563EB;color:#fff}.nm-r a.own:hover{background:#1A56DB}
 .nm-r a{flex:none;padding:7px 13px;border-radius:10px;border:1.5px solid #BFD3FF;background:#F5F8FF;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;text-decoration:none;white-space:nowrap}
 .nm-r a:hover{background:#E6EEFF}
 .nm-r.here{background:#FFFDF3}
 .nm-f{padding:10px 14px;border-top:1px solid #FDE9A8;display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 12.5px 'Hind Siliguri',sans-serif;color:#A16207}
 .nm-f button{border:0;background:none;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
-@media(max-width:520px){.nm-r{flex-wrap:wrap}.nm-r a{margin-left:auto}}
+@media(max-width:520px){.nm-r{flex-wrap:wrap}.nm-r a:first-of-type{margin-left:auto}}
 </style>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -743,10 +744,10 @@ document.getElementById('contactPhone').addEventListener('input', e=>{
     if(!rows.length || dismissed === q){ box.hidden = true; box.innerHTML = ''; return; }
     var d = curDistrict(), u = (document.getElementById('instUpazila') || {}).value || '';
     rows = rows.slice().sort(function(a, b){ var sc = function(r){ return (u && r.upazila === u ? 2 : 0) + (d && r.district === d ? 1 : 0); }; return sc(b) - sc(a); });
-    box.innerHTML = '<div class="nm-h">তালিকায় এই নামের মতো প্রতিষ্ঠান আগেই আছে<small>আপনারটা এখানে থাকলে আবার যোগ করবেন না। "দেখুন" চেপে পাতাটা খুলুন।</small></div>' +
+    box.innerHTML = '<div class="nm-h">তালিকায় এই নামের মতো প্রতিষ্ঠান আগেই আছে<small>আপনারটা এখানে থাকলে আবার যোগ করবেন না। "এটাই আমার" চেপে দাবি করুন।</small></div>' +
       rows.map(function(r){
         var here = (u && r.upazila === u) || (!u && d && r.district === d), same = r.name_en && r.name_en !== r.institution_name;
-        return '<div class="nm-r' + (here ? ' here' : '') + '"><div class="nm-t"><b>' + esc(r.institution_name) + (same ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><span class="bg' + (r.verification === 'verified' ? ' v' : '') + '">' + (r.verification === 'verified' ? 'যাচাইকৃত' : 'তালিকায় আছে') + '</span><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>';
+        return '<div class="nm-r' + (here ? ' here' : '') + '"><div class="nm-t"><b>' + esc(r.institution_name) + (same ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><span class="bg' + (r.verification === 'verified' ? ' v' : '') + '">' + (r.verification === 'verified' ? 'যাচাইকৃত' : 'তালিকায় আছে') + '</span><a class="own" href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '&claim=1" target="_blank" rel="noopener">এটাই আমার</a><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>';
       }).join('') +
       '<div class="nm-f"><span>নিচের কোনোটাই আপনার নয়?</span><button type="button" id="nmNone">না, আমার প্রতিষ্ঠান নতুন</button></div>';
     box.hidden = false;

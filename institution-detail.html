@@ -272,6 +272,27 @@ a{color:inherit}
   .toast{bottom:92px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* claim ("এটাই আমার প্রতিষ্ঠান") */
+.claim .btn:disabled{opacity:.7;cursor:default}
+.cl-ov{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,16,40,.55);backdrop-filter:blur(6px)}
+.cl-ov.show{display:flex}
+.cl-sheet{width:min(520px,100%);max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:24px;box-shadow:0 40px 100px -20px rgba(2,8,23,.55);overflow:hidden;animation:clUp .28s cubic-bezier(.2,.7,.3,1) both}
+@keyframes clUp{from{opacity:0;transform:translateY(18px) scale(.98)}}
+.cl-h{display:flex;justify-content:space-between;gap:12px;padding:20px 22px 6px}.cl-h h3{margin:0;font-size:20px;color:#0B1B4D;line-height:1.3}.cl-h p{margin:3px 0 0;font-size:13.5px;color:#64748B}
+.cl-x{flex:none;width:34px;height:34px;border-radius:50%;border:0;background:#F1F5F9;color:#475569;font-size:20px;cursor:pointer;line-height:1}
+.cl-b{overflow-y:auto;padding:10px 22px 6px}
+.cl-f{margin-bottom:13px}.cl-f label{display:block;font-size:13.5px;font-weight:700;color:#334155;margin-bottom:6px}.cl-f label small{font-weight:500;color:#94A3B8;margin-left:4px}
+.cl-f input,.cl-f textarea{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:13px;font:500 15px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;background:#fff}
+.cl-f input:focus,.cl-f textarea:focus{outline:none;border-color:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,.12)}.cl-f textarea{min-height:76px;resize:vertical}
+.cl-roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cl-role{padding:11px 10px;border:1.5px solid #E2E8F0;border-radius:13px;background:#fff;font:600 14px 'Hind Siliguri',sans-serif;color:#475569;cursor:pointer;transition:.15s}.cl-role:hover{border-color:#93B4F0}.cl-role.on{border-color:#2563EB;background:#EEF4FF;color:#1A56DB;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.cl-note{display:flex;gap:9px;padding:10px 12px;border-radius:12px;background:#F5F8FF;border:1px solid #DCE6FB;font-size:12.8px;color:#475569;line-height:1.55;margin-bottom:6px}
+.cl-err{min-height:18px;color:#DC2626;font-size:13px;margin:4px 0 2px}
+.cl-foot{display:flex;gap:10px;justify-content:flex-end;padding:12px 22px 18px;border-top:1px solid #EEF2F7}
+.cl-foot .btn{padding:12px 20px}
+.cl-foot #clSend{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;border:0;box-shadow:0 12px 24px -12px rgba(37,99,235,.8)}.cl-foot #clSend:disabled{opacity:.7;cursor:default}.cl-foot .btn.line{background:#fff;color:#334155;border:1.5px solid #E2E8F0}
+@media(max-width:560px){.cl-ov{align-items:flex-end;padding:0}.cl-sheet{width:100%;border-radius:24px 24px 0 0;max-height:94vh}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -426,10 +447,10 @@ a{color:inherit}
         <div id="quickFacts" style="margin-top:6px"></div>
       </div>
 
-      <div class="card claim">
-        <h3>এই প্রতিষ্ঠান কি আপনার?</h3>
-        <p>প্রোফাইলের দায়িত্ব নিন — ছবি, নোটিস ও তথ্য নিজেই হালনাগাদ করুন, ভর্তির জিজ্ঞাসা সরাসরি পান। সম্পূর্ণ বিনামূল্যে।</p>
-        <a href="login.html" class="btn"><span data-ic="shield" data-s="16"></span>প্রোফাইল পরিচালনা করুন</a>
+      <div class="card claim" id="claimCard">
+        <h3 id="clT">এই প্রতিষ্ঠান কি আপনার?</h3>
+        <p id="clP">প্রতিষ্ঠানের দায়িত্বে থাকলে দাবি করুন। যাচাই হলে পাতায় "প্রতিষ্ঠান নিজে নিশ্চিত" ব্যাজ বসবে, আর আপনি ছবি, নোটিস ও তথ্য নিজেই হালনাগাদ করতে পারবেন। সম্পূর্ণ বিনামূল্যে।</p>
+        <button type="button" class="btn" id="clBtn" onclick="openClaim()"><span data-ic="shield" data-s="16"></span>এটাই আমার প্রতিষ্ঠান</button>
       </div>
     </aside>
   </div>
@@ -592,6 +613,7 @@ async function loadDetail(){
   if(!record) return showNotFound();
   REC = record;
   syncSaveBtn();
+  if(typeof syncClaim === 'function') syncClaim();
 
   sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{ if(error) console.error('View count tracking failed', error); });
 
@@ -668,6 +690,7 @@ function render(){
     if(/^\d+$/.test(r.source_id || '') && !(inst && inst.eiin)) badges.push('<span class="badge">EIIN '+escapeHtml(r.source_id)+'</span>');
     badges.push('<span class="badge">'+ico('shield',14)+'Protishthan-এ তালিকাভুক্ত</span>');
   }
+  if(r.claimed_at) badges.unshift('<span class="badge green">'+ico('check',14)+'প্রতিষ্ঠান নিজে নিশ্চিত</span>');
   if(r.contributor_name && r.verification === 'verified') badges.unshift('<span class="badge green">'+ico('check',14)+'যাচাইকৃত</span>');
   document.getElementById('heroBadges').innerHTML = badges.join('');
   // credit for the member who did the field work: "যাচাই করেছেন … by <name>"
@@ -946,6 +969,78 @@ document.getElementById('tabBar').addEventListener('click', e=>{
 });
 document.getElementById('fy').textContent = bn(new Date().getFullYear());
 loadDetail();
+</script>
+<script>
+/* "এটাই আমার প্রতিষ্ঠান": sign in -> short form -> admin reviews -> the page gets the "প্রতিষ্ঠান নিজে নিশ্চিত" badge */
+(function(){
+  var ROLES = [['head', 'প্রধান শিক্ষক / অধ্যক্ষ / সুপার'], ['owner', 'মালিক / পরিচালনা কমিটি'], ['teacher', 'শিক্ষক'], ['staff', 'কর্মকর্তা / অফিস']];
+  var ROLE_LABEL = { head: 'প্রধান', owner: 'কর্তৃপক্ষ', teacher: 'শিক্ষক', staff: 'কর্মকর্তা' };
+  var role = 'head', busy = false;
+  var rec = function(){ return (typeof REC !== 'undefined' && REC) ? REC : null; };
+  var $c = function(id){ return document.getElementById(id); };
+  var M = function(){ return window.Protishthan && Protishthan.member; };
+  var ERR = { NOT_SIGNED_IN: 'আগে সাইন-ইন করুন।', ALREADY_CLAIMED: 'এই প্রতিষ্ঠান আগেই দাবি করা হয়েছে।', ALREADY_PENDING: 'আপনার একটি দাবি আগে থেকেই পর্যালোচনায় আছে।', TOO_MANY: 'আপনার অনেকগুলো দাবি পর্যালোচনায় আছে। কিছু শেষ হলে আবার চেষ্টা করুন।', BAD_NAME: 'আপনার নাম দিন (কমপক্ষে ২ অক্ষর)।', BAD_PHONE: 'সঠিক নম্বর দিন (01XXXXXXXXX)।', BAD_EMAIL: 'সঠিক ইমেইল ঠিকানা দিন।', BAD_ROLE: 'আপনার ভূমিকা বাছুন।', NOT_FOUND: 'প্রতিষ্ঠানটি পাওয়া যায়নি।' };
+  window.syncClaim = async function(){
+    if(!rec() || !M()) return;
+    var m = M(); await m.ready();
+    var st = null; try{ var r = await m.sb.rpc('claim_state', { p_listing: rec().id }); if(!r.error && r.data && r.data[0]) st = r.data[0]; }catch(e){}
+    var claimed = !!(st ? st.claimed : rec().claimed_at), mine = st && st.mine, T = $c('clT'), P = $c('clP'), B = $c('clBtn'), icon = '<span data-ic="shield" data-s="16"></span>';
+    if(claimed){
+      T.textContent = 'প্রতিষ্ঠান নিজে নিশ্চিত করেছে ✓'; P.textContent = 'এই পাতার তথ্য প্রতিষ্ঠানের দায়িত্বপ্রাপ্ত ব্যক্তি নিশ্চিত করেছেন' + (rec().claimed_role && ROLE_LABEL[rec().claimed_role] ? ' (' + ROLE_LABEL[rec().claimed_role] + ')' : '') + '। আপনি এই প্রতিষ্ঠানের দায়িত্বে থাকলে সফটওয়্যারে লগইন করুন।';
+      B.outerHTML = '<a class="btn" id="clBtn" href="login.html">' + icon + 'লগইন করুন</a>';
+    } else if(mine === 'pending'){
+      T.textContent = 'আপনার দাবি পর্যালোচনায় আছে'; P.textContent = 'আমরা আপনার দেওয়া নম্বরে যোগাযোগ করে নিশ্চিত করব। অনুমোদন হলে পাতায় ব্যাজ বসবে।';
+      B.disabled = true; B.innerHTML = icon + 'পর্যালোচনার অপেক্ষায়';
+    } else if(mine === 'rejected'){
+      T.textContent = 'আগের দাবি ফেরত এসেছে'; P.textContent = (st.mine_note ? 'কারণ: ' + st.mine_note + '। ' : '') + 'চাইলে সঠিক তথ্য দিয়ে আবার দাবি করতে পারেন।';
+      B.disabled = false; B.innerHTML = icon + 'আবার দাবি করুন';
+    }
+    try{ paintIcons($c('claimCard')); }catch(e){}
+    if(!claimed && mine !== 'pending' && /[?&]claim=1/.test(location.search) && !window.__claimAsked){ window.__claimAsked = true; openClaim(); }
+  };
+  function build(){
+    var ov = $c('clOv'); if(ov) return ov;
+    ov = document.createElement('div'); ov.id = 'clOv'; ov.className = 'cl-ov';
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeClaim(); });
+    ov.innerHTML = '<div class="cl-sheet" role="dialog" aria-modal="true" aria-labelledby="clHT"><div class="cl-h"><div><h3 id="clHT">এটাই আমার প্রতিষ্ঠান</h3><p id="clHN"></p></div><button type="button" class="cl-x" onclick="closeClaim()" aria-label="বন্ধ করুন">×</button></div><div class="cl-b">' +
+      '<div class="cl-f"><label for="clName">আপনার নাম</label><input id="clName" autocomplete="name"></div>' +
+      '<div class="cl-f"><label>প্রতিষ্ঠানে আপনার ভূমিকা</label><div class="cl-roles" id="clRoles">' + ROLES.map(function(r){ return '<button type="button" class="cl-role' + (r[0] === role ? ' on' : '') + '" data-r="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</div></div>' +
+      '<div class="cl-f"><label for="clPhone">আপনার ফোন / WhatsApp নম্বর</label><input id="clPhone" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" autocomplete="tel"></div>' +
+      '<div class="cl-f"><label for="clMail">ইমেইল <small>ঐচ্ছিক</small></label><input id="clMail" type="email" placeholder="name@example.com" autocomplete="email"></div>' +
+      '<div class="cl-f"><label for="clNote">আর কিছু জানাতে চান? <small>ঐচ্ছিক</small></label><textarea id="clNote" maxlength="500" placeholder="যেমন: আমি এই প্রতিষ্ঠানের প্রধান শিক্ষক। প্রতিষ্ঠানের অফিসের নম্বর, ফেসবুক পেজ বা অন্য কোনো প্রমাণ।"></textarea></div>' +
+      '<div class="cl-note"><span>🔒</span><span>আপনার ফোন ও ইমেইল সবার সামনে দেখানো হবে না। শুধু আমরা নিশ্চিত হতে যোগাযোগ করব। মিথ্যা দাবি করলে অ্যাকাউন্ট বন্ধ হতে পারে।</span></div>' +
+      '<div class="cl-err" id="clErr"></div></div><div class="cl-foot"><button type="button" class="btn line" onclick="closeClaim()">বাতিল</button><button type="button" class="btn" id="clSend" onclick="sendClaim()">দাবি জমা দিন</button></div></div>';
+    document.body.appendChild(ov);
+    ov.querySelector('#clRoles').addEventListener('click', function(e){ var b = e.target.closest('.cl-role'); if(!b) return; role = b.dataset.r; ov.querySelectorAll('.cl-role').forEach(function(x){ x.classList.toggle('on', x === b); }); });
+    ov.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeClaim(); });
+    return ov;
+  }
+  window.openClaim = async function(){
+    if(!rec() || !M()) return;
+    var m = M(); await m.ready();
+    if(!m.current()){ m.toast && m.toast('দাবি করতে আগে সাইন-ইন করুন'); m.signIn(); return; }
+    var ov = build(), me = m.current() || {};
+    $c('clHN').textContent = rec().institution_name + (rec().upazila ? ' · ' + rec().upazila : '') + (rec().district ? ', ' + rec().district : '');
+    if(!$c('clName').value) $c('clName').value = me.display_name || '';
+    if(!$c('clMail').value) $c('clMail').value = me.email || '';
+    $c('clErr').textContent = ''; ov.classList.add('show'); document.body.style.overflow = 'hidden';
+    setTimeout(function(){ ($c('clPhone').value ? $c('clNote') : $c('clPhone')).focus(); }, 60);
+  };
+  window.closeClaim = function(){ var ov = $c('clOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; };
+  window.sendClaim = async function(){
+    if(busy) return; var err = $c('clErr'); err.textContent = '';
+    var name = $c('clName').value.trim(), phone = $c('clPhone').value.trim(), mail = $c('clMail').value.trim(), note = $c('clNote').value.trim();
+    if(name.length < 2){ err.textContent = ERR.BAD_NAME; return; }
+    if(!/^01[0-9]{9}$/.test(phone)){ err.textContent = ERR.BAD_PHONE; return; }
+    if(mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ err.textContent = ERR.BAD_EMAIL; return; }
+    busy = true; var btn = $c('clSend'); btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
+    var r = await M().sb.rpc('submit_claim', { p_listing: rec().id, p_name: name, p_role: role, p_phone: phone, p_email: mail || null, p_note: note || null });
+    busy = false; btn.disabled = false; btn.textContent = 'দাবি জমা দিন';
+    if(r.error){ var m = String(r.error.message || ''), k = Object.keys(ERR).find(function(x){ return m.indexOf(x) >= 0; }); err.textContent = k ? ERR[k] : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।'; if(k === 'ALREADY_CLAIMED' || k === 'ALREADY_PENDING') syncClaim(); return; }
+    closeClaim(); M().toast && M().toast('দাবি জমা হয়েছে ✓ আমরা শীঘ্রই যোগাযোগ করব'); syncClaim();
+  };
+  if(window.Protishthan) Protishthan.member.onChange(function(){ if(rec()) syncClaim(); });
+})();
 </script>
 </body>
 </html>

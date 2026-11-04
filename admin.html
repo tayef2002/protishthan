@@ -351,6 +351,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-icon">🏫</span><span>Institution Accounts</span>
       <span class="nav-soon">আসছে</span>
     </button>
+    <button class="nav-item" id="nav-claims" onclick="showView('claims')">
+      <span class="nav-icon">🏫</span><span>প্রতিষ্ঠানের দাবি</span>
+      <span class="nav-badge" id="claimsBadge" style="display:none">0</span>
+    </button>
     <button class="nav-item" id="nav-contribs" onclick="showView('contribs')">
       <span class="nav-icon">✅</span><span>যাচাই-অবদান</span>
       <span class="nav-badge" id="contribsBadge" style="display:none">0</span>
@@ -546,6 +550,15 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
           <div class="sec-h">ডাটাবেসে যা আছে <a href="results.html" target="_blank" style="font-size:12.5px;color:var(--blue)">ফলাফল পাতা ↗</a></div>
           <div id="brAvail"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-claims">
+      <div class="section-card" style="overflow-x:auto">
+        <div class="sec-h">"এটাই আমার প্রতিষ্ঠান" দাবি <span style="font-size:12.5px;font-weight:500;color:var(--text-3)">প্রতিষ্ঠানের পাতা থেকে সদস্যরা যা জমা দিয়েছেন</span></div>
+        <div class="bill-note" style="margin-top:0">আগে দাবিকারীর ফোন নম্বরে (বা প্রতিষ্ঠানের নম্বরে) কথা বলে নিশ্চিত হন, তারপর অনুমোদন দিন। অনুমোদনে পাতায় "প্রতিষ্ঠান নিজে নিশ্চিত" ব্যাজ বসবে ও প্রতিষ্ঠান "যাচাইকৃত" হবে।</div>
+        <div style="display:flex;gap:8px;margin:10px 0"><button class="pay-btn" type="button" id="clF-pending" onclick="clFilter('pending')" style="width:auto;padding:8px 14px">পর্যালোচনায়</button><button class="pay-btn" type="button" id="clF-all" onclick="clFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
+        <div id="clList"></div>
       </div>
     </div>
 
@@ -1265,6 +1278,52 @@ async function coReview(id, ok){
   loadContribs();
 }
 ADMIN_READY.then(() => loadContribs());
+
+navTitles.claims = ['প্রতিষ্ঠানের দাবি', '"এটাই আমার প্রতিষ্ঠান" দাবি পর্যালোচনা'];
+let CL_ROWS = [], CL_FILTER = 'pending';
+const CL_ROLE = { head: 'প্রধান / অধ্যক্ষ / সুপার', owner: 'মালিক / পরিচালনা কমিটি', teacher: 'শিক্ষক', staff: 'কর্মকর্তা / অফিস' };
+function clFilter(f){
+  CL_FILTER = f;
+  const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('clF-pending').style.cssText = 'width:auto;padding:8px 14px' + (f === 'pending' ? '' : off);
+  document.getElementById('clF-all').style.cssText = 'width:auto;padding:8px 14px' + (f === 'all' ? '' : off);
+  renderClaims();
+}
+async function loadClaims(){
+  const box = document.getElementById('clList');
+  const { data, error } = await sb.from('institution_claims').select('*, listing_submissions(institution_name,institution_type,upazila,district,desired_slug,source_id,prn_number)').order('created_at', { ascending: false }).limit(300);
+  if(error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + nmEsc(error.message) + ' — migrations/2026-12-06_institution_claims.sql চালানো হয়েছে কি?</div>'; return; }
+  CL_ROWS = data || [];
+  const ids = [...new Set(CL_ROWS.map(r => r.user_id))]; let who = {};
+  if(ids.length){ const m = await sb.from('members').select('user_id,display_name,email').in('user_id', ids); (m.data || []).forEach(x => who[x.user_id] = x); }
+  CL_ROWS.forEach(r => { r.__who = who[r.user_id] || {}; });
+  const open = CL_ROWS.filter(r => r.status === 'pending').length, b = document.getElementById('claimsBadge');
+  b.textContent = open; b.style.display = open ? '' : 'none';
+  renderClaims();
+}
+function renderClaims(){
+  const rows = CL_ROWS.filter(r => CL_FILTER === 'all' || r.status === 'pending'), box = document.getElementById('clList');
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (CL_FILTER === 'all' ? 'এখনো কোনো দাবি আসেনি।' : 'পর্যালোচনার অপেক্ষায় কিছু নেই।') + '</div>'; return; }
+  const lab = { pending: 'পর্যালোচনায়', approved: 'অনুমোদিত', rejected: 'ফেরত' }, col = { pending: '#B45309', approved: '#047857', rejected: '#B91C1C' };
+  box.innerHTML = rows.map(r => {
+    const l = r.listing_submissions || {}, w = r.__who || {};
+    const row = (k, v) => v ? '<div style="display:flex;gap:8px;padding:3px 0"><span style="min-width:110px;color:var(--text-3)">' + k + '</span><b style="font-weight:600;word-break:break-word">' + v + '</b></div>' : '';
+    return '<div style="border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b style="font-size:15.5px">' + nmEsc(l.institution_name || '—') + '</b>' + (l.desired_slug ? ' <a href="institution-detail.html?slug=' + encodeURIComponent(l.desired_slug) + '" target="_blank" style="font-size:12.5px">পাতা ↗</a>' : '') +
+      '<div style="font-size:12.5px;color:var(--text-3)">' + nmEsc([l.institution_type, l.upazila, l.district].filter(Boolean).join(' · ')) + (l.prn_number ? ' · PRN-' + String(l.prn_number).padStart(6, '0') : '') + (/^\d+$/.test(l.source_id || '') ? ' · EIIN ' + nmEsc(l.source_id) : '') + '</div></div><span style="font-weight:700;color:' + col[r.status] + '">' + lab[r.status] + '</span></div>' +
+      '<div style="font-size:13.5px;background:#F8FAFF;border-radius:10px;padding:8px 12px;margin-top:10px">' + row('দাবিকারী', nmEsc(r.claimant_name)) + row('ভূমিকা', nmEsc(CL_ROLE[r.role] || r.role)) + row('ফোন', '<a href="tel:' + nmEsc(r.phone) + '">' + nmEsc(r.phone) + '</a> · <a href="https://wa.me/88' + nmEsc(r.phone) + '" target="_blank" rel="noopener">WhatsApp ↗</a>') + row('ইমেইল', nmEsc(r.email || '')) + row('সদস্য অ্যাকাউন্ট', nmEsc((w.display_name || '—') + (w.email ? ' (' + w.email + ')' : ''))) + row('জমা', new Date(r.created_at).toLocaleDateString('bn-BD')) + '</div>' +
+      (r.note ? '<div style="font-size:13px;margin-top:8px"><b>নোট:</b> ' + nmEsc(r.note) + '</div>' : '') + (r.review_note ? '<div style="font-size:13px;margin-top:6px;color:var(--text-3)">পর্যালোচনার নোট: ' + nmEsc(r.review_note) + '</div>' : '') +
+      (r.status === 'pending' ? '<div style="margin-top:10px;display:flex;gap:8px"><button type="button" class="pay-btn" style="width:auto;padding:8px 16px" data-id="' + nmEsc(r.id) + '" onclick="clReview(this.dataset.id,true)">অনুমোদন করুন</button><button type="button" class="pay-btn" style="width:auto;padding:8px 16px;background:#FEE2E2;color:#B91C1C;box-shadow:none" data-id="' + nmEsc(r.id) + '" onclick="clReview(this.dataset.id,false)">ফেরত দিন</button></div>' : '') + '</div>';
+  }).join('');
+}
+async function clReview(id, ok){
+  let note = null;
+  if(ok){ if(!confirm('ফোনে নিশ্চিত হয়েছেন? অনুমোদনে পাতায় "প্রতিষ্ঠান নিজে নিশ্চিত" ব্যাজ বসবে।')) return; }
+  else { note = prompt('ফেরত দেওয়ার কারণ (দাবিকারী দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
+  const { error } = await sb.rpc('review_claim', { p_id: id, p_approve: ok, p_note: note || null });
+  if(error){ alert('হয়নি: ' + (/ALREADY_CLAIMED/.test(error.message) ? 'এই প্রতিষ্ঠান আগেই দাবি করা হয়েছে।' : error.message)); return; }
+  loadClaims();
+}
+ADMIN_READY.then(() => loadClaims());
 navTitles.names = ['নাম-অনুরোধ', 'কার্ডে লেখা, তালিকায় না থাকা প্রতিষ্ঠানের নাম'];
 let NM_ROWS = [], NM_FILTER = 'new';
 function nmEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
