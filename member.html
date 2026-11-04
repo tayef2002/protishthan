@@ -469,6 +469,15 @@ main.container{margin-top:22px}
 .co-credit{display:flex;gap:10px;align-items:flex-start;background:#ECFDF5;border:1px solid #BBF7D0;border-radius:13px;padding:11px 13px;margin:6px 0 12px;font-size:13px;line-height:1.55;color:#065F46;cursor:pointer}
 .co-credit input{margin-top:4px;width:17px;height:17px;accent-color:#059669;flex:none}
 .im-save{flex:none;align-self:flex-start;padding:9px 15px;border:1.5px solid #D9E4FB;border-radius:100px;background:#F5F8FF;color:#1A56DB;font:700 13px 'Hind Siliguri',sans-serif;cursor:pointer;white-space:nowrap}.im-save:hover{background:#EAF1FF;border-color:#93B4F0}
+.ai-sug{margin-top:10px;border:1.5px solid #FDE68A;background:#FFFBEB;border-radius:16px;overflow:hidden}.ai-sug[hidden]{display:none}
+.ai-h{padding:11px 14px 9px;font:700 13.5px/1.5 'Hind Siliguri',sans-serif;color:#92400E}.ai-h small{display:block;font-weight:500;color:#A16207;margin-top:1px}
+.ai-r{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid #FDE9A8;background:#fff}.ai-r .t{flex:1;min-width:0}
+.ai-r b{display:block;font:700 14.5px/1.35 'Hind Siliguri','Inter',sans-serif;color:#0F172A;word-break:break-word}.ai-r b i{font-style:normal;font-weight:500;color:#64748B;font-size:12.5px;margin-left:6px}
+.ai-r span.m{display:block;font:500 12.5px 'Hind Siliguri',sans-serif;color:#64748B;margin-top:1px}
+.ai-r a{flex:none;padding:7px 12px;border-radius:10px;border:1.5px solid #BFD3FF;background:#F5F8FF;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;text-decoration:none;white-space:nowrap}.ai-r a.own{background:#2563EB;border-color:#2563EB;color:#fff}
+.ai-f{padding:10px 14px;border-top:1px solid #FDE9A8;display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 12.5px 'Hind Siliguri',sans-serif;color:#A16207}.ai-f button{border:0;background:none;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
+.ai-hint{margin-top:6px;font-size:12.8px;color:#B45309}.ai-hint[hidden]{display:none}
+@media(max-width:520px){.ai-r{flex-wrap:wrap}.ai-r a:first-of-type{margin-left:auto}}
 .co-prog{padding:2px 24px 8px}.co-prog .row{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:#64748B;margin-bottom:8px}.co-prog .row b{color:#0B1B4D;font-size:14px}
 .co-bar{display:flex;gap:6px}.co-bar i{flex:1;height:5px;border-radius:5px;background:#E2E8F0;transition:background .25s}.co-bar i.done{background:#93B4F0}.co-bar i.on{background:#2563EB}
 .co-pane{display:none}.co-pane.on{display:block;animation:coIn .22s ease both}@keyframes coIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
@@ -1105,12 +1114,160 @@ async function coSubmit(id){
   coDraftClear(id); CO.skip = true; coClose(); M.toast('জমা হয়েছে, পর্যালোচনার অপেক্ষায় ✓'); loadArea(); loadContrib();
 }
 /* a new institution: same full form as "my institutions", pre-filled with the member's area */
-async function arAdd(){
-  const name = (prompt('প্রতিষ্ঠানের নাম লিখুন') || '').trim(); if(name.length < 2) return;
-  const { data, error } = await M.sb.from('member_custom_institutions').insert({ user_id: M.current().user_id, name, district: AREA.d, upazila: AREA.u }).select('id').single();
-  if(error){ M.toast(/duplicate|unique/i.test(error.message) ? 'এই নামে আপনার প্রোফাইলে আগেই আছে' : 'যোগ করা যায়নি'); return; }
-  await loadCustom(); imOpen(data.id);
+/* ---------- add a new institution, step by step (the same flow as the public listing form, for a signed-in member) ---------- */
+const AI = { step: 1, names: ['প্রতিষ্ঠানের পরিচয়', 'যোগাযোগ ও ঠিকানা', 'বিস্তারিত তথ্য', 'দেখে নিন ও জমা দিন'], seq: 0, timer: 0, dismissed: '' };
+const aiKey = () => 'aiDraft:' + ((M.current() || {}).user_id || 'x');
+const aiNum = v => { const t = String(v == null ? '' : v).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/[^0-9]/g, ''); return t ? Number(t) : null; };
+function aiFeeText(){
+  let lo = aiNum($('aiFeeLo').value), hi = aiNum($('aiFeeHi').value); if(lo != null && hi != null && lo > hi){ const t = lo; lo = hi; hi = t; }
+  const txt = (lo != null && hi != null && lo !== hi) ? bn(lo) + ' থেকে ' + bn(hi) + ' টাকা' : (lo != null || hi != null) ? bn(lo != null ? lo : hi) + ' টাকা' : '';
+  const p = $('aiFeePrev'); if(p) p.innerHTML = txt ? 'প্রতিষ্ঠানের পাতায় দেখাবে: <b>মাসিক ফি ' + esc(txt) + '</b>' : '';
+  return txt;
 }
+function aiOpen(){
+  const me = M.current(); if(!me){ M.signIn(); return; }
+  let ov = $('aiDlg'); if(ov) ov.remove();
+  ov = document.createElement('div'); ov.id = 'aiDlg'; ov.className = 'im-ov'; document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if(e.target === ov) aiSaveClose(true); });
+  const L = window.BD_LOCATIONS || [], dI = L.findIndex(d => d.n === AREA.d);
+  const f = (lbl, el, id) => '<div class="im-f"' + (id ? ' id="' + id + '"' : '') + '><label>' + lbl + '</label>' + el + '</div>';
+  const inp = (id, ph, extra) => '<input class="im-i" id="' + id + '" placeholder="' + esc(ph || '') + '" ' + (extra || '') + '>';
+  const pane = (n, t, sub, body) => '<section class="co-pane' + (n === 1 ? ' on' : '') + '" data-p="' + n + '"><h4 class="co-ttl">' + t + '</h4><p class="co-sub">' + sub + '</p>' + body + '</section>';
+  AI.step = 1; AI.dismissed = '';
+  ov.innerHTML = '<div class="im-sheet" role="dialog" aria-modal="true"><header class="im-h"><div><h3>নতুন প্রতিষ্ঠান যোগ করুন</h3><p>' + esc([AREA.u, AREA.d].filter(Boolean).join(', ') || 'আপনার এলাকা') + '</p></div><button type="button" class="im-save" onclick="aiSaveClose()">Save &amp; Close</button></header>' +
+    '<div class="co-prog"><div class="row"><span id="aiStepNo"></span><b id="aiStepName"></b></div><div class="co-bar" id="aiBar"><i></i><i></i><i></i><i></i></div></div><div class="im-b">' +
+    pane(1, 'প্রতিষ্ঠানের পরিচয়', 'নাম বাংলায় লিখুন। তালিকায় আগে থেকে থাকলে নিচে দেখাবে, যাতে একই প্রতিষ্ঠান দুবার যোগ না হয়।',
+      f('প্রতিষ্ঠানের নাম *', inp('aiName', 'যেমন: দারুল উলুম মাদ্রাসা', 'maxlength="120" lang="bn" autocomplete="off"') + '<div class="ai-hint" id="aiLatin" hidden>নাম বাংলায় লিখুন, ইংরেজি অক্ষর চলবে না।</div><div class="ai-sug" id="aiSug" hidden></div>') +
+      f('ধরন *', imChips('itype', ['স্কুল', 'মাদ্রাসা', 'কলেজ', 'কারিগরি', 'বিশ্ববিদ্যালয়', 'কোচিং সেন্টার'], '', false), 'aiTypeF') +
+      '<div class="im-2">' + f('জেলা *', '<select class="im-i" id="aiDist" onchange="aiDist(this)"><option value="">বাছুন</option>' + L.map((d, i) => '<option value="' + i + '"' + (i === dI ? ' selected' : '') + '>' + esc(d.n) + '</option>').join('') + '</select>') + f('উপজেলা *', '<select class="im-i" id="aiUp"><option value="">আগে জেলা বাছুন</option></select>') + '</div>') +
+    pane(2, 'যোগাযোগ ও ঠিকানা', 'এখানে প্রতিষ্ঠানের তথ্য দিন, আপনার নিজের নয়। ফোন নম্বর সবার সামনে দেখানো হয় না।',
+      '<div class="im-2">' + f('প্রতিষ্ঠান প্রধানের নাম *', inp('aiPrin', 'প্রধান শিক্ষক / অধ্যক্ষ / সুপারের নাম')) + f('প্রতিষ্ঠানের ফোন / WhatsApp *', inp('aiPhone', '01XXXXXXXXX', 'inputmode="numeric" maxlength="11"')) + '</div>' +
+      f('প্রতিষ্ঠানের পূর্ণ ঠিকানা', '<textarea class="im-i" id="aiAddr" rows="2" maxlength="300" placeholder="গ্রাম/মহল্লা, ডাকঘর, উপজেলা, জেলা"></textarea>') +
+      f('ফেসবুক পেজের লিঙ্ক <small style="font-weight:500;color:#94A3B8">ঐচ্ছিক</small>', inp('aiFb', 'https://facebook.com/...'))) +
+    pane(3, 'প্রতিষ্ঠানের বিস্তারিত', 'যেটুকু জানেন সেটুকুই লিখুন। সব ঘর ঐচ্ছিক।',
+      '<div class="im-3">' + f('প্রতিষ্ঠার সাল', inp('aiYear', 'যেমন ২০০৫', 'inputmode="numeric"')) + f('শিক্ষার্থী সংখ্যা', inp('aiStu', 'আনুমানিক', 'inputmode="numeric"')) + f('শিক্ষক সংখ্যা', inp('aiTea', 'আনুমানিক', 'inputmode="numeric"')) + '</div>' +
+      f('মাধ্যম / ধারা', imChips('medium', IM_MEDIUM, [], true)) + f('<span id="aiClassLbl">কোন শ্রেণি থেকে কোন শ্রেণি</span>', inp('aiClass', 'যেমন: প্লে থেকে দশম')) +
+      f('ছাত্র/ছাত্রী', imChips('gender_type', ['ছাত্র', 'ছাত্রী', 'ছাত্র-ছাত্রী উভয়'], '', false)) + f('মালিকানা', imChips('ownership', ['সরকারি', 'বেসরকারি', 'এমপিওভুক্ত'], '', false)) + f('ভর্তি', imChips('admission_status', ['খোলা', 'বন্ধ', 'সীমিত সিট'], '', false)) +
+      '<div class="im-sec">মাসিক ফি (টাকা)</div><p class="co-sub" style="margin-top:-2px">কিছু শ্রেণির ফি কম, কিছুর বেশি হলে সবচেয়ে কম আর সবচেয়ে বেশি আলাদা ঘরে লিখুন। সব শ্রেণির ফি এক হলে শুধু প্রথম ঘরে।</p><div class="im-2">' + f('সর্বনিম্ন', inp('aiFeeLo', 'যেমন: ২০০', 'inputmode="numeric" maxlength="6" oninput="aiFeeText()"')) + f('সর্বোচ্চ', inp('aiFeeHi', 'যেমন: ৫০০', 'inputmode="numeric" maxlength="6" oninput="aiFeeText()"')) + '</div><div class="co-feeprev" id="aiFeePrev"></div>' +
+      f('সুযোগ-সুবিধা', imChips('facilities', IM_FACIL, [], true)) + f('বিশেষত্ব', imChips('achievements', IM_ACH, [], true)) + f('সংক্ষিপ্ত বর্ণনা', '<textarea class="im-i" id="aiDesc" rows="3" maxlength="600"></textarea>')) +
+    pane(4, 'দেখে নিন, তারপর জমা দিন', 'জমা দিলে Admin পর্যালোচনা করবেন। অনুমোদন পেলে প্রতিষ্ঠান তালিকায় আসবে এবং আপনার নামে যুক্ত থাকবে।', '<div class="co-sum" id="aiSum"></div>') +
+    '<div class="im-err" id="aiErr"></div></div><footer class="im-foot"><button type="button" class="btn btn-line" id="aiBack" onclick="aiGo(-1)">বাতিল</button><button type="button" class="btn btn-fill" id="aiNext" onclick="aiGo(1)">পরবর্তী →</button></footer></div>';
+  if(dI >= 0){ aiDist($('aiDist')); const u = $('aiUp'); if(AREA.u) u.value = AREA.u; }
+  ov.querySelectorAll('.im-chips').forEach(g => g.addEventListener('click', e => { const b = e.target.closest('.im-chip'); if(!b) return; if(g.dataset.multi === '1') b.classList.toggle('on'); else { const was = b.classList.contains('on'); g.querySelectorAll('.im-chip').forEach(x => x.classList.remove('on')); if(!was) b.classList.add('on'); } if(g.dataset.chips === 'itype') aiClassLbl(); }));
+  const nm = $('aiName'); nm.addEventListener('input', aiSearch);
+  ['aiDist', 'aiUp'].forEach(id => $(id).addEventListener('change', () => { if(nm.value.trim().length >= 2){ AI.dismissed = ''; aiSearch(); } }));
+  let tm; const auto = () => { clearTimeout(tm); tm = setTimeout(aiDraftSave, 500); };
+  ov.querySelector('.im-sheet').addEventListener('input', auto); ov.querySelector('.im-sheet').addEventListener('click', auto);
+  ov.classList.add('show'); document.body.style.overflow = 'hidden';
+  const restored = aiDraftLoad(); aiClassLbl(); aiPaint(); aiFeeText();
+  if(restored) M.toast('আগের অসমাপ্ত তথ্য ফিরিয়ে আনা হয়েছে');
+  setTimeout(() => nm.focus(), 60);
+}
+function aiDist(sel){ const L = window.BD_LOCATIONS || [], d = L[sel.value]; $('aiUp').innerHTML = '<option value="">' + (d ? 'বাছুন' : 'আগে জেলা বাছুন') + '</option>' + (d ? d.u.map(u => '<option>' + esc(u) + '</option>').join('') : ''); }
+function aiClassLbl(){ const t = (document.querySelector('#aiDlg [data-chips="itype"] .im-chip.on') || {}).dataset; const info = coClassInfo(t ? t.v : ''); const l = $('aiClassLbl'); if(l) l.textContent = info[0]; const i = $('aiClass'); if(i) i.placeholder = info[1]; }
+function aiRead(){
+  const root = $('aiDlg'), L = window.BD_LOCATIONS || [], chips = {};
+  root.querySelectorAll('.im-chips').forEach(g => { const v = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); chips[g.dataset.chips] = g.dataset.multi === '1' ? v : (v[0] || ''); });
+  const di = $('aiDist').value, val = id => $(id).value.trim();
+  return { name: BnName.norm(val('aiName')), itype: chips.itype, district: di !== '' && L[di] ? L[di].n : '', upazila: $('aiUp').value, contact_name: val('aiPrin'), contact_phone: val('aiPhone'), address_note: val('aiAddr'), facebook_link: val('aiFb'),
+    founding_year: aiNum(val('aiYear')), student_count: aiNum(val('aiStu')), teacher_count: aiNum(val('aiTea')), medium: chips.medium, class_range: val('aiClass'), gender_type: chips.gender_type, ownership: chips.ownership, admission_status: chips.admission_status,
+    fee_range: aiFeeText(), facilities: chips.facilities, achievements: chips.achievements, description: val('aiDesc') };
+}
+function aiFlag(el, msg){ const e = $('aiErr'); e.textContent = msg || ''; return !msg; }
+function aiCheck(n){
+  const o = aiRead();
+  if(n === 1){
+    if(!o.name || o.name.length < 2) return aiFlag(0, 'প্রতিষ্ঠানের নাম লিখুন।');
+    if(BnName.hasLatin(o.name)) return aiFlag(0, 'প্রতিষ্ঠানের নাম বাংলায় লিখুন। ইংরেজি অক্ষর চলবে না।');
+    if(!o.itype) return aiFlag(0, 'প্রতিষ্ঠানের ধরন বাছুন।');
+    if(!o.district || !o.upazila) return aiFlag(0, 'জেলা ও উপজেলা বাছুন।');
+  }
+  if(n === 2){
+    if(!o.contact_name || o.contact_name.length < 2) return aiFlag(0, 'প্রতিষ্ঠান প্রধানের নাম দিন।');
+    if(!/^01[0-9]{9}$/.test(o.contact_phone)) return aiFlag(0, 'সঠিক ফোন / WhatsApp নম্বর দিন (01XXXXXXXXX)।');
+    if(o.facebook_link && !/^https?:\/\//i.test(o.facebook_link)) return aiFlag(0, 'ফেসবুক লিঙ্ক https:// দিয়ে শুরু হতে হবে।');
+  }
+  return aiFlag(0, '');
+}
+function aiPaint(){
+  const n = AI.step, last = AI.names.length, root = $('aiDlg');
+  root.querySelectorAll('.co-pane').forEach(p => p.classList.toggle('on', Number(p.dataset.p) === n));
+  root.querySelectorAll('#aiBar i').forEach((i, k) => { i.className = k + 1 < n ? 'done' : k + 1 === n ? 'on' : ''; });
+  $('aiStepNo').textContent = 'ধাপ ' + bn(n) + ' / ' + bn(last); $('aiStepName').textContent = AI.names[n - 1];
+  $('aiBack').textContent = n === 1 ? 'বাতিল' : '← আগের ধাপ'; $('aiNext').textContent = n === last ? 'জমা দিন' : 'পরবর্তী →'; $('aiErr').textContent = '';
+  const b = root.querySelector('.im-b'); if(b) b.scrollTop = 0;
+  if(n === last) aiSummary();
+}
+function aiSummary(){
+  const o = aiRead(), L = { name: 'নাম', itype: 'ধরন', upazila: 'উপজেলা', district: 'জেলা', contact_name: 'প্রধানের নাম', contact_phone: 'ফোন', address_note: 'ঠিকানা', founding_year: 'প্রতিষ্ঠার সাল', student_count: 'শিক্ষার্থী', teacher_count: 'শিক্ষক', medium: 'মাধ্যম', class_range: 'শ্রেণি / স্তর', gender_type: 'ছাত্র/ছাত্রী', ownership: 'মালিকানা', admission_status: 'ভর্তি', fee_range: 'মাসিক ফি', facilities: 'সুযোগ-সুবিধা', achievements: 'বিশেষত্ব', facebook_link: 'ফেসবুক', description: 'বর্ণনা' };
+  const rows = Object.keys(L).map(k => { let v = o[k]; if(Array.isArray(v)) v = v.join(', '); if(typeof v === 'number') v = bn(v); return v ? '<div><span>' + L[k] + '</span><b>' + esc(v) + '</b></div>' : ''; }).join('');
+  $('aiSum').innerHTML = rows || '<div class="co-empty">এখনো কিছু দেওয়া হয়নি।</div>';
+}
+async function aiGo(d){
+  const last = AI.names.length;
+  if(d < 0){ if(AI.step === 1) aiSaveClose(true); else { AI.step--; aiPaint(); } return; }
+  if(!aiCheck(AI.step)) return;
+  if(AI.step === last){ aiSubmit(); return; }
+  AI.step++; aiPaint();
+}
+function aiDraftSave(){
+  const root = $('aiDlg'); if(!root || !root.classList.contains('show')) return;
+  const d = { step: AI.step, v: {}, c: {}, dist: $('aiDist').value, up: $('aiUp').value };
+  root.querySelectorAll('input[id],textarea[id],select[id]').forEach(el => { if(el.type !== 'checkbox') d.v[el.id] = el.value; });
+  root.querySelectorAll('.im-chips').forEach(g => { d.c[g.dataset.chips] = [...g.querySelectorAll('.im-chip.on')].map(b => b.dataset.v); });
+  const any = String($('aiName').value).trim() || Object.values(d.c).some(v => v.length);
+  try{ if(any) localStorage.setItem(aiKey(), JSON.stringify(d)); else localStorage.removeItem(aiKey()); }catch(e){}
+}
+function aiDraftLoad(){
+  let d; try{ d = JSON.parse(localStorage.getItem(aiKey()) || 'null'); }catch(e){ d = null; } if(!d) return false;
+  const root = $('aiDlg');
+  if(d.dist !== undefined && d.dist !== ''){ $('aiDist').value = d.dist; aiDist($('aiDist')); }
+  Object.keys(d.v || {}).forEach(id => { const el = $(id); if(el && id !== 'aiDist' && id !== 'aiUp') el.value = d.v[id]; });
+  if(d.up) $('aiUp').value = d.up;
+  root.querySelectorAll('.im-chips').forEach(g => { const v = (d.c || {})[g.dataset.chips]; if(v) g.querySelectorAll('.im-chip').forEach(b => b.classList.toggle('on', v.indexOf(b.dataset.v) >= 0)); });
+  AI.step = Math.min(Math.max(Number(d.step) || 1, 1), AI.names.length); return true;
+}
+function aiSaveClose(quiet){
+  aiDraftSave(); const ov = $('aiDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = '';
+  if(!quiet) M.toast('সেভ হয়েছে। পরে "নতুন প্রতিষ্ঠান যোগ করুন" চাপলে এখান থেকেই শুরু হবে ✓');
+}
+async function aiSubmit(){
+  const o = aiRead(), btn = $('aiNext'), err = $('aiErr'); err.textContent = '';
+  for(const n of [1, 2]){ if(!aiCheck(n)){ AI.step = n; aiPaint(); aiCheck(n); return; } }
+  btn.disabled = true; btn.textContent = 'জমা হচ্ছে…';
+  const row = { user_id: M.current().user_id, updated_at: new Date().toISOString() };
+  Object.keys(o).forEach(k => { const v = o[k]; row[k] = (v === '' || v == null || (Array.isArray(v) && !v.length)) ? null : v; });
+  try{
+    const ins = await M.sb.from('member_custom_institutions').insert(row).select('id').single(); if(ins.error) throw ins.error;
+    const pub = await M.sb.rpc('publish_member_institution', { p_id: ins.data.id });
+    if(pub.error){ await M.sb.from('member_custom_institutions').delete().eq('id', ins.data.id); throw pub.error; }
+    try{ localStorage.removeItem(aiKey()); }catch(e){}
+    const ov = $('aiDlg'); if(ov) ov.classList.remove('show'); document.body.style.overflow = '';
+    M.toast('জমা হয়েছে, অনুমোদনের অপেক্ষায় ✓'); loadCustom(); if(typeof loadArea === 'function') loadArea();
+  }catch(e){
+    const m = String(e.message || e);
+    err.textContent = /DUPLICATE_INSTITUTION|listing_unique_name_place|duplicate key/.test(m) ? 'এই নামে প্রতিষ্ঠান এই উপজেলায় আগেই তালিকায় আছে। ওটাই আপনার হলে নতুন করে বানানোর দরকার নেই।' : /BAD_PHONE/.test(m) ? 'সঠিক ফোন নম্বর দিন (01XXXXXXXXX)।' : 'জমা দেওয়া যায়নি, একটু পরে আবার চেষ্টা করুন।';
+  }
+  btn.disabled = false; btn.textContent = 'জমা দিন';
+}
+/* similar names that are already listed (Bangla or English listing, sound-alike spellings) */
+function aiSearch(){
+  const nm = $('aiName'), box = $('aiSug'), raw = BnName.norm(nm.value).trim(), my = ++AI.seq;
+  $('aiLatin').hidden = !BnName.hasLatin(nm.value);
+  if(raw.length < 2){ box.hidden = true; box.innerHTML = ''; AI.dismissed = ''; return; }
+  clearTimeout(AI.timer);
+  AI.timer = setTimeout(async () => {
+    let rows = []; try{ const r = await M.sb.rpc('directory_search', { p_q: raw, p_limit: 6 }); if(!r.error) rows = r.data || []; }catch(e){}
+    if(my !== AI.seq) return;
+    if(!rows.length || AI.dismissed === raw){ box.hidden = true; box.innerHTML = ''; return; }
+    const di = $('aiDist').value, d = di !== '' && (window.BD_LOCATIONS || [])[di] ? BD_LOCATIONS[di].n : '', u = $('aiUp').value;
+    rows.sort((a, b) => ((u && b.upazila === u ? 2 : 0) + (d && b.district === d ? 1 : 0)) - ((u && a.upazila === u ? 2 : 0) + (d && a.district === d ? 1 : 0)));
+    box.innerHTML = '<div class="ai-h">তালিকায় এই নামের মতো প্রতিষ্ঠান আগেই আছে<small>আপনারটা এখানে থাকলে আবার যোগ করবেন না। "এটাই আমার" চেপে দাবি করুন।</small></div>' + rows.map(r => '<div class="ai-r"><div class="t"><b>' + esc(r.institution_name) + (r.name_en && r.name_en !== r.institution_name ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><a class="own" href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '&claim=1" target="_blank" rel="noopener">এটাই আমার</a><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>').join('') +
+      '<div class="ai-f"><span>নিচের কোনোটাই আপনার নয়?</span><button type="button" id="aiNone">না, আমারটা নতুন</button></div>';
+    box.hidden = false; $('aiNone').onclick = () => { AI.dismissed = raw; box.hidden = true; };
+  }, 220);
+}
+function arAdd(){ aiOpen(); }
 async function loadContrib(){
   const box = $('contribBox'); if(!box) return;
   const { data, error } = await M.sb.from('listing_contributions').select('id,status,method,created_at,review_note,listing_submissions(institution_name,desired_slug,institution_type,upazila,district)').order('created_at', { ascending: false }).limit(50);
@@ -1376,6 +1533,7 @@ if(window.matchMedia('(max-width:700px)').matches){ const st = document.createEl
 M.onChange(render);
 render();
 </script>
+<script src="bnname.js?v=3"></script>
 <script src="bd-locations.js?v=2"></script>
 </body>
 </html>
