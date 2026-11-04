@@ -843,7 +843,7 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'
 
 /* ---------------- state ---------------- */
 const LEVELS = [
-  { key:'hifz',    title:'হিফজ (যদি হাফেজ হন)',          sub:'হিফজুল কুরআন',             only:'q', names:{ g:'হিফজুল কুরআন', a:'হিফজুল কুরআন', q:'হিফজুল কুরআন' }, ph:'মাদ্রাসার নাম' },
+  { key:'hifz',    title:'হিফজ (যদি হাফেজ হন)', cardTitle:'হিফজ',          sub:'হিফজুল কুরআন',             only:'q', names:{ g:'হিফজুল কুরআন', a:'হিফজুল কুরআন', q:'হিফজুল কুরআন' }, ph:'মাদ্রাসার নাম' },
   { key:'psc',     title:'প্রাথমিক',      sub:'PSC',                 names:{ g:'PSC', a:'ইবতেদায়ি', q:'ইবতেদাইয়্যাহ' },           ph:'প্রাথমিক বিদ্যালয় বা মাদ্রাসার নাম' },
   { key:'jsc',     title:'জুনিয়র',       sub:'JSC',                 names:{ g:'JSC', a:'JDC', q:'মুতাওয়াসসিতাহ' },              ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'school',  title:'মাধ্যমিক',      sub:'SSC',                 names:{ g:'SSC', a:'দাখিল', q:'সানাবিয়্যাহ আম্মাহ' },        ph:'স্কুল বা মাদ্রাসার নাম' },
@@ -855,7 +855,7 @@ const TRACKS = [['g', 'সাধারণ'], ['a', 'আলিয়া'], ['q', 
 const isVis = l => (!l.only || S.track === l.only) && (!l.except || S.track !== l.except);   // Hifz only on Qawmi; Sanabiyyah Khassah never on Qawmi
 const visLevels = () => LEVELS.filter(isVis);
 const lvName = (l, ed) => (l.names[(ed && ed.track) || 'g'] || l.names.g);
-const lvLabel = (l, ed, short) => (short && ed.track === 'q') ? lvName(l, ed) : l.title + ' · ' + lvName(l, ed);
+const lvLabel = (l, ed, short) => (short && ed.track === 'q') ? lvName(l, ed) : (l.cardTitle || l.title) + ' · ' + lvName(l, ed);
 const BADGES = ['প্রথম প্রজন্মের গ্র্যাজুয়েট', 'শিক্ষক', 'হাফেজ', 'আলেম', 'ডাক্তার', 'ইঞ্জিনিয়ার', 'আইনজীবী', 'বিসিএস ক্যাডার', 'গবেষক', 'স্বর্ণপদকপ্রাপ্ত', 'বৃত্তিপ্রাপ্ত', 'উদ্যোক্তা', 'প্রবাসী', 'এখনো পড়ছি'];
 const TITLES = ['সার্টিফায়েড শিক্ষিত নাগরিক', 'ডাবল ডিগ্রিধারী নাগরিক', 'চিরছাত্র', 'জ্ঞানের ফেরিওয়ালা', 'বইপোকা', 'ভবিষ্যতের প্রফেসর'];
 const THEMES = {
@@ -1447,6 +1447,11 @@ function draw(){
   if(cv.width !== W*QS || cv.height !== H*QS){ cv.width = W*QS; cv.height = H*QS; }
   ctx.setTransform(QS, 0, 0, QS, 0, 0);
   const top = story ? 300 : 0;
+  // five or more levels: one column with every name on one line. The card grows (up to the footer), the photo is a little smaller, the rows a little tighter; text sizes are unchanged
+  const rowsAll = filledLevels(), nLv = Math.min(rowsAll.length, 7), many = nLv >= 5;
+  const kPh = many ? (nLv >= 7 ? 0.8 : 0.88) : 1, rowH = many ? (nLv >= 7 ? 62 : 68) : 70;
+  const cyOff = many ? 196 : 214, eyOff = 50 + FRAME_H * kPh + (many ? 40 : 52);
+  const chv = many ? Math.round(eyOff + 26 + (nLv - 1) * rowH + 60 + 16 + 116 + 24) : 900;
 
   // background + guilloche waves
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]);
@@ -1478,7 +1483,7 @@ function draw(){
   ctx.textAlign = 'left';
 
   // main card
-  const cx = 56, cy = top + 214, cw = 968, ch = 900;
+  const cx = 56, cy = top + cyOff, cw = 968, ch = chv;
   ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.38)'; ctx.shadowBlur = 54; ctx.shadowOffsetY = 20;
   rr(cx, cy, cw, ch, 42); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
   ctx.save(); rr(cx, cy, cw, ch, 42); ctx.clip();
@@ -1495,7 +1500,7 @@ function draw(){
   goldChip(cx + cw - 124, cy + 44);
 
   // photo
-  const px = cx + 40, py = cy + 50, pw = FRAME_W, ph = FRAME_H;
+  const px = cx + 40, py = cy + 50, pw = FRAME_W * kPh, ph = FRAME_H * kPh;
   ctx.save(); rr(px, py, pw, ph, 30); ctx.clip();
   if(PHOTO_IMG){ drawPhotoInto(ctx, PHOTO_IMG, px, py, pw, ph, PH); }
   else {
@@ -1521,16 +1526,16 @@ function draw(){
   ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 23); ctx.fillText('পদবি', nx, ty + 26);
   const tg = ctx.createLinearGradient(nx, 0, nx + nw, 0); tg.addColorStop(0, T.accent); tg.addColorStop(1, T.accent2);
   ctx.font = F(700, 29); pill(nx, ty + 40, fitText(S.title || autoTitle(), nw - 44), tg, '#fff', F(700, 29), 22, 56);
-  let by = ty + 118, bx = nx;
+  let by = ty + (many ? 110 : 118), bx = nx;
   [...S.badges].forEach(b=>{
     ctx.font = F(700, 22); const w = ctx.measureText(b).width + 30;
     if(bx + w > nx + nw){ bx = nx; by += 46; }
-    if(by > py + ph - 30) return;
+    if(by > py + ph - (many ? 6 : 30)) return;
     pill(bx, by, b, '#FEF3C7', '#92400E', F(700, 22), 15, 38); bx += w + 10;
   });
 
   // education timeline
-  const ex = cx + 44, eyTop = py + ph + 52;
+  const ex = cx + 44, eyTop = py + ph + (many ? 40 : 52);
   ctx.fillStyle = T.accent; ctx.font = F(700, 31); ctx.fillText('শিক্ষাজীবন', ex, eyTop);
   const lvDone = filledLevels().filter(l => !S.edu[l.key].current), lvAll = filledLevels().length;
   const yrsTop = lvDone.length ? Math.max(...lvDone.map(l => LEVEL_YEARS[l.key] || 0)) : 0;
@@ -1538,34 +1543,11 @@ function draw(){
   let lineStart = ex + 176;
   if(summary){ ctx.font = F(700, 22); const sw = ctx.measureText(summary).width; ctx.fillStyle = '#64748B'; ctx.fillText(summary, ex + 190, eyTop - 1); lineStart = ex + 190 + sw + 18; }
   ctx.fillStyle = '#E2E8F0'; ctx.fillRect(lineStart, eyTop - 10, Math.max(0, cx + cw - 44 - lineStart), 2);
-  const rows = filledLevels(), rowH = 70, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
+  const rows = rowsAll, ry0 = eyTop + 26, sealR = 108, sealW = 2*sealR + 28;
   if(!rows.length){ ctx.fillStyle = '#94A3B8'; ctx.font = F(600, 27); ctx.fillText(fitText('বাম পাশে আপনার স্কুল, কলেজ, বিশ্ববিদ্যালয় যোগ করুন', cw - 88 - sealW), ex, ry0 + 46); }
-  // up to six levels (PSC ... masters): the rows shrink together so they always fit above the benefits box
-  const shown = rows.slice(0, 7), twoCol = shown.length > 4, perCol = shown.length > 6 ? 4 : 3;
+  const shown = rows.slice(0, 7);
   const sc = 1, rh = rowH, fLbl = 21, fName = 31, fYr = 23;
-  if(twoCol){
-    // five or six levels: two columns of three so the text stays large (names wrap to two lines instead of shrinking)
-    const gap = 36, colW = (cw - 88 - gap) / 2, rh2 = perCol === 4 ? 72 : 96, nameLines = perCol === 4 ? 1 : 2;
-    shown.forEach((l, i)=>{
-      const ed = S.edu[l.key], col = i < perCol ? 0 : 1, r = i % perCol, x0 = ex + col * (colW + gap), y = ry0 + r * rh2;
-      const lastInCol = r === perCol - 1 || i === shown.length - 1;
-      if(!lastInCol){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(x0 + 17, y + 28, 3, rh2 - 6); }
-      ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 15, 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
-      ctx.beginPath(); ctx.arc(x0 + 18, y + 24, 6.5, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
-      const yr = ed.current ? 'চলমান' : (ed.year ? bn(ed.year) : '');
-      // the year keeps its own badge, same size as in the single-column layout, at the right end of the label line
-      ctx.font = F(700, 23); const yw = yr ? ctx.measureText(yr).width + 34 : 0;
-      ctx.fillStyle = '#64748B'; ctx.font = F(600, 20);
-      const lab = fitText(lvLabel(l, ed, true), colW - 50 - yw - 40);
-      ctx.fillText(lab, x0 + 50, y + 12);
-      if(ed.slug) verifiedTick(x0 + 50 + ctx.measureText(lab).width + 16, y + 5, 10);
-      if(yr) pill(x0 + colW - yw, y - 13, yr, ed.current ? '#DCFCE7' : '#F1F5F9', ed.current ? '#166534' : '#334155', F(700, 23), 17, 34);
-      ctx.fillStyle = T.ink; ctx.font = F(700, 28);
-      const nameW = colW - 50;
-      wrap(ed.name.trim(), nameW, nameLines).forEach((ln, k)=>ctx.fillText(ln, x0 + 50, y + 46 + k * 32));
-    });
-  }
-  if(!twoCol) shown.forEach((l, i)=>{
+  shown.forEach((l, i)=>{
     const ed = S.edu[l.key], y = ry0 + i*rh;
     if(i < shown.length - 1){ ctx.fillStyle = '#CBD5E1'; ctx.fillRect(ex + 17, y + 28*sc, 3, rh - 6*sc); }
     ctx.beginPath(); ctx.arc(ex + 18, y + 24*sc, 15*Math.max(sc, .75), 0, Math.PI*2); ctx.fillStyle = T.accent; ctx.fill();
@@ -1580,7 +1562,8 @@ function draw(){
   });
 
   // the stamp goes on last so whatever sits under it still reads through the ink
-  if(!twoCol) seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
+  if(many) seal(cx + cw - 44 - 62, py + ph - 26, 62, T.accent);   // smaller, in the photo area, so it never sits on a name
+  else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
   const bTop = cy + ch - 140;
@@ -1592,11 +1575,8 @@ function draw(){
     tick(x, y, ok); ctx.fillStyle = '#334155'; ctx.font = F(600, 23); ctx.fillText(fitText(t, 380), x + 26, y + 8);
   });
 
-  // two-column mode: the full-size stamp is pressed last, lightly over the text and the edge of the benefits box, like a real stamp
-  if(twoCol) seal(cx + 728, cy + 374, sealR, T.accent);
-
   // footer with a proper safe zone at the bottom
-  const fy = cy + ch + 40, qs = 112;
+  const fy = cy + ch + (many ? 26 : 40), qs = many ? 96 : 112;
   const hasQR = drawQR(76, fy + 10, qs, SHARE_URL + '?ref=card');
   const tx = hasQR ? 76 + qs + 36 : 76;
   ctx.fillStyle = '#fff'; ctx.font = F(700, 30); ctx.fillText('নিজের কার্ড বানাতে স্ক্যান করুন', tx, fy + 58);
