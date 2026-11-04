@@ -113,6 +113,25 @@ textarea{resize:vertical;min-height:80px}
   .type-grid{grid-template-columns:1fr 1fr}
   .success-btns{flex-direction:column}
 }
+
+/* names that already exist in the directory, shown while typing (stops double listing) */
+.nm-sug{margin-top:10px;border:1.5px solid #FDE68A;background:#FFFBEB;border-radius:16px;overflow:hidden}
+.nm-sug[hidden]{display:none}
+.nm-h{padding:11px 14px 9px;font:700 13.5px/1.5 'Hind Siliguri',sans-serif;color:#92400E}
+.nm-h small{display:block;font-weight:500;color:#A16207;margin-top:1px}
+.nm-r{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid #FDE9A8;background:#fff}
+.nm-r .nm-t{flex:1;min-width:0}
+.nm-r b{display:block;font:700 14.5px/1.35 'Hind Siliguri','Inter',sans-serif;color:#0F172A;word-break:break-word}
+.nm-r b i{font-style:normal;font-weight:500;color:#64748B;font-size:12.5px;margin-left:6px}
+.nm-r span.m{display:block;font:500 12.5px 'Hind Siliguri',sans-serif;color:#64748B;margin-top:1px}
+.nm-r .bg{flex:none;padding:3px 10px;border-radius:100px;font:700 11.5px 'Hind Siliguri',sans-serif;background:#F1F5F9;color:#475569}
+.nm-r .bg.v{background:#DCFCE7;color:#047857}
+.nm-r a{flex:none;padding:7px 13px;border-radius:10px;border:1.5px solid #BFD3FF;background:#F5F8FF;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;text-decoration:none;white-space:nowrap}
+.nm-r a:hover{background:#E6EEFF}
+.nm-r.here{background:#FFFDF3}
+.nm-f{padding:10px 14px;border-top:1px solid #FDE9A8;display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 12.5px 'Hind Siliguri',sans-serif;color:#A16207}
+.nm-f button{border:0;background:none;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
+@media(max-width:520px){.nm-r{flex-wrap:wrap}.nm-r a{margin-left:auto}}
 </style>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -150,6 +169,7 @@ textarea{resize:vertical;min-height:80px}
         <div class="field">
           <label>প্রতিষ্ঠানের নাম <span class="req">*</span></label>
           <input type="text" id="instName" placeholder="বাংলায় লিখুন, যেমন: দারুল উলুম মাদ্রাসা" autocomplete="off" lang="bn">
+          <div id="nmSug" class="nm-sug" hidden aria-live="polite"></div>
         </div>
 
         <div class="field">
@@ -712,6 +732,39 @@ async function submitListing(){
 document.getElementById('contactPhone').addEventListener('input', e=>{
   e.target.value = e.target.value.replace(/[^0-9]/g,'');
 });
+</script>
+<script>
+/* typing a name: show matching directory names (Bangla or English listing) so nobody lists an institution twice */
+(function(){
+  var inp = document.getElementById('instName'), box = document.getElementById('nmSug'), seq = 0, timer = 0, dismissed = '';
+  var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(m){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); };
+  function curDistrict(){ try{ var di = document.getElementById('instDistrict').value; return di === '' ? '' : BD_LOCATIONS[di].n; }catch(e){ return ''; } }
+  function draw(rows, q){
+    if(!rows.length || dismissed === q){ box.hidden = true; box.innerHTML = ''; return; }
+    var d = curDistrict(), u = (document.getElementById('instUpazila') || {}).value || '';
+    rows = rows.slice().sort(function(a, b){ var sc = function(r){ return (u && r.upazila === u ? 2 : 0) + (d && r.district === d ? 1 : 0); }; return sc(b) - sc(a); });
+    box.innerHTML = '<div class="nm-h">তালিকায় এই নামের মতো প্রতিষ্ঠান আগেই আছে<small>আপনারটা এখানে থাকলে আবার যোগ করবেন না। "দেখুন" চেপে পাতাটা খুলুন।</small></div>' +
+      rows.map(function(r){
+        var here = (u && r.upazila === u) || (!u && d && r.district === d), same = r.name_en && r.name_en !== r.institution_name;
+        return '<div class="nm-r' + (here ? ' here' : '') + '"><div class="nm-t"><b>' + esc(r.institution_name) + (same ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><span class="bg' + (r.verification === 'verified' ? ' v' : '') + '">' + (r.verification === 'verified' ? 'যাচাইকৃত' : 'তালিকায় আছে') + '</span><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>';
+      }).join('') +
+      '<div class="nm-f"><span>নিচের কোনোটাই আপনার নয়?</span><button type="button" id="nmNone">না, আমার প্রতিষ্ঠান নতুন</button></div>';
+    box.hidden = false;
+    var none = document.getElementById('nmNone'); if(none) none.onclick = function(){ dismissed = q; box.hidden = true; };
+  }
+  function run(){
+    var q = (window.BnName ? BnName.norm(inp.value) : inp.value).trim(), my = ++seq;
+    if(q.length < 2){ box.hidden = true; box.innerHTML = ''; dismissed = ''; return; }
+    clearTimeout(timer);
+    timer = setTimeout(async function(){
+      var rows = [];
+      try{ var r = await sb.rpc('directory_search', { p_q: q, p_limit: 6 }); if(!r.error) rows = r.data || []; }catch(e){}
+      if(my !== seq) return; draw(rows, q);
+    }, 220);
+  }
+  inp.addEventListener('input', run);
+  ['instDistrict', 'instUpazila'].forEach(function(id){ var el = document.getElementById(id); if(el) el.addEventListener('change', function(){ if(inp.value.trim().length >= 2){ dismissed = ''; run(); } }); });
+})();
 </script>
 <script>BnName.guard(document.getElementById("instName"));
 (function(){ let t = 0; const again = () => { clearTimeout(t); t = setTimeout(refreshDup, 450); };
