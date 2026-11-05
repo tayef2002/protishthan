@@ -213,6 +213,7 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .ac-item b{font-size:14px}
 .ac-item span{font-size:12px;color:var(--text-3)}
 .ac-free{font-size:12.5px;color:var(--text-2);padding:9px 11px}
+.ac-load{color:var(--text-3)}
 .ac-free b{color:var(--blue)}
 .linked{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--green);margin-top:6px}
 .cur{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);margin-top:8px;cursor:pointer;user-select:none}
@@ -991,29 +992,46 @@ function offerBanglaName(ac, listingId){
   };
 }
 let acSeq = 0;
+const ACC = new Map(), ACT = {};   // ACC: a search text -> the directory's answer (typing it again, or backspacing to it, is instant). ACT: per level, the waiting timer and the request in flight
 const MEMH = {}, LASTH = {};   // names other members saved (not in the directory yet), per level
 function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
   q = (q||'').trim();
   if(q.length < 2){ ac.classList.remove('open'); return; }
-  const paint = hits => {
+  const paint = (hits, st) => {
     LASTH[k] = hits;
     const seen = new Set(hits.map(s => BnName.key(s.institution_name)));
     const mem = (MEMH[k] || []).filter(m => BnName.match(m.name, q) && !seen.has(BnName.key(m.name))).slice(0, 4);
     list.innerHTML = hits.map(s=>`<div class="ac-item" data-id="${esc(s.id || '')}" data-slug="${esc(s.desired_slug)}" data-name="${esc(s.institution_name)}" data-d="${esc(s.district||'')}"><b>${esc(s.institution_name)}${s.verification === 'unverified' ? ' <em class="ac-nv">যাচাই হয়নি</em>' : ''}${s.match_kind === 'sound' ? ' <em class="ac-nv ac-snd">সম্ভাব্য মিল</em>' : ''}</b>${s.name_en && s.name_en !== s.institution_name ? '<span class="ac-en">' + esc(s.name_en) + '</span>' : ''}<span>${esc([s.institution_type, s.upazila, s.district].filter(Boolean).join(' · '))}</span></div>`).join('') +
       mem.map(m => `<div class="ac-item ac-mem" data-id="" data-slug="" data-name="${esc(m.name)}" data-d="${esc(m.district||'')}"><b>${esc(m.name)} <em class="ac-nv ac-ms">অন্য সদস্য যোগ করেছেন</em></b><span>${esc([m.itype, m.upazila, m.district].filter(Boolean).join(' · ') || 'তথ্যভান্ডারে এখনো নেই')}</span></div>`).join('') +
-      (hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
+      (st === 'loading' ? `<div class="ac-free ac-load">খুঁজছি…</div>` : st === 'error' && !hits.length ? `<div class="ac-free">এখন তথ্যভান্ডারে খুঁজতে পারিনি — “<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>` : hits.some(s => BnName.key(s.institution_name) === BnName.key(q)) ? `<div class="ac-free"><b>এই নামে প্রতিষ্ঠান তালিকায় আছে</b>, ওপর থেকে বেছে নিন। আপনারটা অন্য জেলার হলে “<b>${esc(q)}</b>” নামেই চালিয়ে যান<span class="u-saved"></span></div>` : `<div class="ac-free">${hits.length ? 'তালিকায় নেই? ' : 'তথ্যভান্ডারে পাওয়া যায়নি — '}“<b>${esc(q)}</b>” নামেই কার্ডে বসবে<span class="u-saved"></span></div>`);
     list.querySelectorAll('.ac-item').forEach(it=>it.addEventListener('click', ()=>{
       const ed = S.edu[k]; ed.name = it.dataset.name; ed.slug = it.dataset.slug; ed.district = it.dataset.d;
       ac.querySelector('input').value = ed.name; ac.classList.remove('open'); clearBanglaAsk(ac); scheduleUnlSave(k); syncEduRow(k); refreshTitles(); draw();
     }));
     ac.classList.add('open');
   };
-  // at once from what the page already has, then from the server (the directory is searched there, so it can hold tens of thousands)
-  paint(INST.filter(s=>BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7));
-  const seq = ++acSeq;
-  try{ sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; MEMH[k] = r.data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || []); }, () => {}); }catch(e){}
-  try{ sb.rpc('directory_search', { p_q: BnName.norm(q), p_limit: 7 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(r.data); }, () => {}); }catch(e){}
+  const kq = BnName.key(q), seq = ++acSeq;
+  // 1) at once: the same search seen before; else the last answer cut down to what is typed now; else what the page already has
+  const cached = ACC.get(kq);
+  const narrowed = (LASTH[k] || []).filter(s => BnName.match(s.institution_name, q) || BnName.match(s.name_en || '', q)).slice(0, 7);
+  const local = narrowed.length ? narrowed : INST.filter(s => BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7);
+  let state = cached ? 'done' : 'loading';
+  paint(cached || local, state);
+  try{ sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; MEMH[k] = r.data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); }, () => {}); }catch(e){}
+  if(cached) return;
+  // 2) the directory (searched on the server, it holds 100,000+ names), after a very short pause so a fast typist does not send a request for every letter; the older request is dropped
+  const old = ACT[k]; if(old){ clearTimeout(old.t); try{ if(old.c) old.c.abort(); }catch(e){} }
+  const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+  ACT[k] = { c: ctl, t: setTimeout(() => {
+    let call; try{ call = sb.rpc('directory_search', { p_q: BnName.norm(q), p_limit: 7 }); if(ctl && call && typeof call.abortSignal === 'function') call = call.abortSignal(ctl.signal); }catch(e){ return; }
+    Promise.resolve(call).then(r => {
+      if(seq !== acSeq) return;
+      if(!r || r.error || !Array.isArray(r.data)){ state = 'error'; paint(LASTH[k] || [], 'error'); return; }
+      ACC.set(kq, r.data); if(ACC.size > 200) ACC.delete(ACC.keys().next().value);
+      state = 'done'; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(r.data, 'done');
+    }, () => { if(seq === acSeq){ state = 'error'; paint(LASTH[k] || [], 'error'); } });
+  }, 70) };
 }
 /* ---- year dropdown + automatic years ---- */
 const CUR_YEAR = new Date().getFullYear();
