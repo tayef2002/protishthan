@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কনটেন্ট পাইপলাইন — Protishthan</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon-48.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1A56DB;--blue-l:#EEF3FF;--text:#0F172A;--text-2:#475569;--text-3:#94A3B8;--border:#E2E8F0;--bg:#F1F5F9;--white:#fff;
+  --green:#059669;--green-l:#ECFDF5;--amber:#D97706;--amber-l:#FFFBEB;--red:#DC2626;--red-l:#FEF2F2;--purple:#7C3AED;--purple-l:#F5F3FF;--navy:#0B1F4D}
+html,body{min-height:100%}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--text);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.hide{display:none!important}
+
+/* access gate */
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(170deg,#0A1628,#0F2048 60%,#1A3570)}
+.gbox{width:100%;max-width:380px;background:#fff;border-radius:20px;padding:28px 24px;text-align:center}
+.gbox .tile{width:56px;height:56px;border-radius:16px;margin:0 auto 14px;overflow:hidden;background:linear-gradient(135deg,#1A56DB,#4F46E5)}.gbox .tile img{width:100%;height:100%;display:block}
+.gbox h1{font-size:21px;font-weight:700}.gbox p{color:var(--text-2);font-size:14px;margin:6px 0 16px}
+.gbox input{width:100%;height:48px;border:1.5px solid var(--border);border-radius:12px;padding:0 14px;font:600 16px 'Inter',sans-serif;letter-spacing:.5px;text-align:center}
+.gbox input:focus{outline:none;border-color:var(--blue)}
+.gbox button{width:100%;height:48px;margin-top:12px;border:0;border-radius:12px;background:var(--blue);color:#fff;font-weight:700;font-size:16px}
+.gbox em{display:block;min-height:20px;margin-top:10px;font-style:normal;color:var(--red);font-size:13.5px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;display:flex;align-items:center;gap:12px;padding:10px 18px}
+.top .tile{width:34px;height:34px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#1A56DB,#4F46E5);flex:none}.top .tile img{width:100%;height:100%;display:block}
+.top h1{font-size:17px;font-weight:700;flex:1;line-height:1.2}.top small{display:block;font-size:11.5px;font-weight:400;opacity:.65}
+.live{display:flex;align-items:center;gap:6px;font-size:12px;opacity:.85}.live i{width:8px;height:8px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.top button{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:9px;padding:7px 12px;font-size:13px}
+.top button:hover{background:rgba(255,255,255,.2)}
+
+.wrap{max-width:1080px;margin:0 auto;padding:18px 14px 60px}
+.alert{display:flex;gap:10px;align-items:flex-start;background:var(--amber-l);border:1px solid #FDE68A;color:#92400E;border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:14px}
+.alert.red{background:var(--red-l);border-color:#FECACA;color:#991B1B}
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:800px){.sum{grid-template-columns:repeat(2,1fr)}}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+.card h3{font-size:12.5px;font-weight:600;color:var(--text-2);margin-bottom:4px}
+.big{font:800 28px 'Inter','Hind Siliguri',sans-serif;letter-spacing:-.5px;line-height:1.15}.big small{font-size:14px;font-weight:600;color:var(--text-3);letter-spacing:0}
+.sub{font-size:12.5px;color:var(--text-3);margin-top:2px}
+.bar{height:7px;border-radius:4px;background:#E8EEF9;margin-top:10px;overflow:hidden}.bar b{display:block;height:100%;background:linear-gradient(90deg,#1A56DB,#4F46E5);border-radius:4px}
+.stk{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.stk div{border-radius:10px;padding:6px 8px;text-align:center}.stk b{display:block;font:800 20px 'Inter',sans-serif;line-height:1.1}.stk span{font-size:11.5px}
+.k-text{background:var(--blue-l);color:var(--blue)}.k-card{background:var(--amber-l);color:var(--amber)}.k-reel{background:var(--purple-l);color:var(--purple)}
+.low{outline:2px solid var(--red);outline-offset:-2px}
+.card.span2{grid-column:span 2}
+
+/* calendar */
+.sec{display:flex;align-items:center;gap:10px;margin:6px 0 10px;flex-wrap:wrap}.sec h2{font-size:18px;font-weight:700;flex:1;min-width:140px}
+.nav button,.nav input{height:36px;border:1px solid var(--border);background:#fff;border-radius:10px;padding:0 12px;font-weight:600;color:var(--text)}
+.nav{display:flex;gap:6px}.nav input{font-family:'Inter',sans-serif}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.wd{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:7px 4px;text-align:center;cursor:pointer;min-width:0}
+.wd.sel{border-color:var(--blue);background:var(--blue-l)}.wd.today b{color:var(--blue)}
+.wd small{display:block;font-size:11px;color:var(--text-3)}.wd b{display:block;font-size:16px}
+.wd .dots{font-size:10.5px;color:var(--text-2);white-space:nowrap;overflow:hidden}
+.wd .dots i{font-style:normal;margin:0 1px}.g{color:var(--green)}.q{color:var(--blue)}.r{color:var(--red)}.e{color:var(--text-3)}
+
+.slot{display:grid;grid-template-columns:78px 1fr;gap:10px;margin-bottom:8px}
+.slot .t{font-size:13px;font-weight:600;color:var(--text-2);padding-top:12px;text-align:right}
+.slot.now .t{color:var(--blue)}.slot.now .tilebox{border-color:var(--blue)}
+.empty{border:1.5px dashed #CBD5E1;border-radius:14px;color:var(--text-3);font-size:13px;padding:14px;background:rgba(255,255,255,.5)}
+.tilebox{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px;cursor:pointer;margin-bottom:6px;width:100%;text-align:left}
+.tilebox:hover{border-color:#B6C8F0}
+.th{width:56px;height:70px;border-radius:9px;object-fit:cover;background:#E8EEF9;flex:none;display:flex;align-items:center;justify-content:center;font-size:20px}
+.tilebox .m{min-width:0;flex:1}.tilebox .tt{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tilebox .cp{font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;border-radius:8px;padding:1px 8px;margin-right:6px}
+.s-posted{color:var(--green);background:var(--green-l)}.s-queued{color:var(--blue);background:var(--blue-l)}.s-failed{color:var(--red);background:var(--red-l)}.s-publishing{color:var(--amber);background:var(--amber-l)}.s-stock{color:var(--text-2);background:#EEF2F7}
+
+/* stock */
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{border:1px solid var(--border);background:#fff;border-radius:20px;padding:5px 14px;font-weight:600;font-size:13.5px}.chips button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.sc{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;padding:0}
+.sc img,.sc .ph{width:100%;aspect-ratio:4/5;object-fit:cover;display:flex;align-items:center;justify-content:center;background:#E8EEF9;font-size:28px}
+.sc div{padding:7px 9px 9px;font-size:12.5px;line-height:1.35}.sc b{display:block;font-size:13px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sc .no{color:var(--text-3);font-size:11.5px;margin-top:2px}
+
+/* modal */
+#md{position:fixed;inset:0;background:rgba(10,22,40,.7);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.mb{background:#fff;border-radius:18px;max-width:760px;width:100%;max-height:92vh;overflow:auto;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:18px}
+@media(max-width:640px){.mb{grid-template-columns:1fr}}
+.mb img,.mb .ph{width:100%;border-radius:12px;background:#E8EEF9;aspect-ratio:4/5;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:40px}
+.mb h2{font-size:18px;margin-bottom:6px}.mb .row{font-size:13.5px;color:var(--text-2);margin:4px 0}
+.mb pre{white-space:pre-wrap;font:500 14.5px/1.6 'Hind Siliguri',sans-serif;background:#F8FAFF;border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:10px}
+.mb a{color:var(--blue);font-weight:600}.mb .x{float:right;border:0;background:#EEF2F7;border-radius:9px;padding:5px 11px;font-weight:700}
+.err{color:var(--red);font-size:13px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form class="gbox" id="gf">
+    <div class="tile"><img src="logo-sm.webp" alt=""></div>
+    <h1>কনটেন্ট পাইপলাইন</h1>
+    <p>ঢুকতে অ্যাক্সেস কোড দিন</p>
+    <input id="gc" type="password" autocomplete="off" placeholder="কোড" spellcheck="false">
+    <button type="submit">ঢুকুন</button>
+    <em id="ge"></em>
+  </form>
+</div>
+
+<div id="app" class="hide">
+  <div class="top">
+    <div class="tile"><img src="logo-sm.webp" alt=""></div>
+    <h1>কনটেন্ট পাইপলাইন<small>প্রতিষ্ঠান পেজের পোস্ট, সময়সূচি আর স্টক</small></h1>
+    <span class="live"><i></i><span id="upd">…</span></span>
+    <button id="rf" type="button">রিফ্রেশ</button>
+    <button id="lo" type="button">বের হোন</button>
+  </div>
+  <div class="wrap">
+    <div id="alerts"></div>
+    <div class="sum" id="sum"></div>
+
+    <div class="sec"><h2>ক্যালেন্ডার</h2>
+      <div class="nav"><button id="pv" type="button">◀</button><button id="td" type="button">আজ</button><button id="nx" type="button">▶</button><input id="dp" type="date"></div>
+    </div>
+    <div class="week" id="week"></div>
+    <div id="day"></div>
+
+    <div class="sec" style="margin-top:26px"><h2>স্টক (এখনও সময় ঠিক হয়নি)</h2>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="grid" id="stock"></div>
+  </div>
+</div>
+
+<div id="md" class="hide"></div>
+
+<script>
+const FN = 'https://leiemhcmzhruadtiybum.supabase.co/functions/v1/content-api';
+const TZ = 'Asia/Dhaka', HOURS = Array.from({ length: 17 }, (_, i) => i + 6), PER_DAY = { text: 10, card: 4, reel: 3 }, PER_TOTAL = 17;
+// the daily pattern (same as social-server/plan.json); add 'reel' to ENABLED when reel posting is switched on
+const SLOT = { 6: 'text', 7: 'text', 8: 'card', 9: 'text', 10: 'text', 11: 'text', 12: 'reel', 13: 'card', 14: 'text', 15: 'text', 16: 'text', 17: 'card', 18: 'reel', 19: 'text', 20: 'card', 21: 'reel', 22: 'text' }, ENABLED = ['text', 'card'];
+const KIND = { text: ['টেক্সট কার্ড', '✍️', 'k-text'], card: ['পোস্ট কার্ড', '🪪', 'k-card'], reel: ['রিল', '🎬', 'k-reel'] };
+const STAT = { posted: 'পোস্ট হয়েছে', queued: 'লাইনে', publishing: 'চলছে', failed: 'ব্যর্থ', stock: 'স্টকে' };
+const $ = (id) => document.getElementById(id);
+const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtP = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+function parts(d) { const o = {}; fmtP.formatToParts(d).forEach((p) => { o[p.type] = p.value; }); if (o.hour === '24') o.hour = '00'; return { ymd: o.year + '-' + o.month + '-' + o.day, h: +o.hour, m: +o.minute }; }
+const ymdAdd = (ymd, n) => { const d = new Date(ymd + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const dayName = (ymd) => new Date(ymd + 'T12:00:00Z').toLocaleDateString('bn-BD', { weekday: 'short', timeZone: 'UTC' });
+const dayLong = (ymd) => new Date(ymd + 'T12:00:00Z').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+const periodBn = (h) => (h < 4 ? 'রাত' : h < 6 ? 'ভোর' : h < 12 ? 'সকাল' : h < 16 ? 'দুপুর' : h < 18 ? 'বিকাল' : h < 20 ? 'সন্ধ্যা' : 'রাত');
+const clockBn = (h, m) => periodBn(h) + ' ' + bn(h % 12 || 12) + ':' + bn(String(m).padStart(2, '0'));
+const timeBn = (d) => { const p = parts(new Date(d)); return clockBn(p.h, p.m); };
+const hourBn = (h) => clockBn(h, 0);
+
+let CODE = '', DATA = { items: [], now: null }, SEL = '', KF = 'all', timer = null;
+
+async function load() {
+  const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-dash-code': CODE }, body: '{}' });
+  if (r.status === 403) throw Object.assign(new Error('wrong'), { wrong: true });
+  if (!r.ok) throw new Error('সার্ভার সাড়া দেয়নি (' + r.status + ')');
+  DATA = await r.json(); DATA.items.forEach((x) => { x.p = x.scheduled_at ? parts(new Date(x.scheduled_at)) : null; });
+}
+
+async function boot(code) {
+  CODE = code; $('ge').textContent = '';
+  try { await load(); } catch (e) {
+    if (e.wrong) { try { localStorage.removeItem('pcc'); } catch (_) {} $('app').classList.add('hide'); $('gate').classList.remove('hide'); $('ge').textContent = 'কোডটা মেলেনি।'; return false; }
+    $('ge').textContent = e.message; return false;
+  }
+  try { localStorage.setItem('pcc', code); } catch (_) {}
+  $('gate').classList.add('hide'); $('app').classList.remove('hide');
+  if (!SEL) SEL = parts(new Date()).ymd;
+  render(); clearInterval(timer); timer = setInterval(() => { if (!document.hidden) refresh(); }, 30000); return true;
+}
+async function refresh() { try { await load(); render(); } catch (e) { $('upd').textContent = 'সংযোগ নেই'; } }
+
+function render() {
+  const nowP = parts(new Date()), today = nowP.ymd, items = DATA.items;
+  $('upd').textContent = 'লাইভ · ' + timeBn(new Date());
+  const byDay = {}; items.filter((x) => x.p).forEach((x) => (byDay[x.p.ymd] = byDay[x.p.ymd] || []).push(x));
+  const stock = items.filter((x) => x.status === 'stock'), cnt = (k) => stock.filter((x) => x.kind === k).length;
+  const tdy = byDay[today] || [], done = tdy.filter((x) => x.status === 'posted').length, failed = items.filter((x) => x.status === 'failed');
+  const queued = items.filter((x) => x.status === 'queued' || x.status === 'publishing');
+  const last = queued.length ? queued[queued.length - 1].p.ymd : null;
+
+  // alerts: empty slots in the next 3 days, failed posts
+  const al = []; if (failed.length) al.push('<div class="alert red">⚠️ <div><b>' + bn(failed.length) + 'টা পোস্ট ব্যর্থ হয়েছে।</b> নিচে ক্যালেন্ডারে লাল চিহ্নে দেখুন, কারণ ভেতরে লেখা আছে।</div></div>');
+  const emptyOf = (d) => HOURS.filter((hr) => ENABLED.includes(SLOT[hr]) && !(d === today && hr <= nowP.h) && !(byDay[d] || []).some((x) => x.p.h === hr));
+  let empty3 = 0; for (let i = 0; i < 3; i++) empty3 += emptyOf(ymdAdd(today, i)).length;
+  if (empty3 > 0) al.push('<div class="alert">📭 <div><b>আগামী ৩ দিনে ' + bn(empty3) + 'টা সময় খালি।</b> স্টকে কার্ড তুলে সময় ঠিক করতে হবে।</div></div>');
+  $('alerts').innerHTML = al.join('');
+
+  const pct = tdy.length ? Math.round(done * 100 / Math.max(tdy.length, PER_TOTAL)) : 0;
+  const stk = ['text', 'card', 'reel'].map((k) => { const n = cnt(k), days = n / PER_DAY[k]; return '<div class="' + KIND[k][2] + (days < 2 ? ' low' : '') + '"><b>' + bn(n) + '</b><span>' + KIND[k][0].split(' ')[0] + '<br>' + bn(days.toFixed(1)) + ' দিন</span></div>'; }).join('');
+  $('sum').innerHTML =
+    '<div class="card"><h3>আজকের পোস্ট</h3><div class="big">' + bn(done) + '<small> / ' + bn(Math.max(tdy.length, PER_TOTAL)) + '</small></div><div class="bar"><b style="width:' + pct + '%"></b></div></div>' +
+    '<div class="card"><h3>লাইনে আছে</h3><div class="big">' + bn(queued.length) + '<small> টা</small></div><div class="sub">' + (last ? 'শেষ: ' + dayLong(last) : 'কিছু নেই') + '</div></div>' +
+    '<div class="card span2"><h3>স্টকে (এখনও সময় ঠিক হয়নি)</h3><div class="stk">' + stk + '</div></div>';
+
+  // week strip around the selected day
+  const base = ymdAdd(SEL, -3); let w = '';
+  for (let i = 0; i < 7; i++) {
+    const d = ymdAdd(base, i), a = byDay[d] || [], g = a.filter((x) => x.status === 'posted').length, q = a.filter((x) => x.status === 'queued' || x.status === 'publishing').length, r = a.filter((x) => x.status === 'failed').length;
+    const e = d >= today ? emptyOf(d).length : 0;
+    w += '<div class="wd' + (d === SEL ? ' sel' : '') + (d === today ? ' today' : '') + '" data-d="' + d + '"><small>' + dayName(d) + '</small><b>' + bn(+d.slice(8)) + '</b><div class="dots">' +
+      (g ? '<i class="g">✓' + bn(g) + '</i>' : '') + (q ? '<i class="q">⏱' + bn(q) + '</i>' : '') + (r ? '<i class="r">!' + bn(r) + '</i>' : '') + (e && d >= today ? '<i class="e">○' + bn(e) + '</i>' : '') + '</div></div>';
+  }
+  $('week').innerHTML = w; $('dp').value = SEL;
+
+  // the selected day, hour by hour
+  const list = (byDay[SEL] || []).slice().sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)), used = new Set();
+  let h = '<div style="margin-bottom:10px;font-weight:600;color:var(--text-2)">' + dayLong(SEL) + (SEL === today ? ' (আজ)' : '') + '</div>';
+  for (const hr of HOURS) {
+    const at = list.filter((x) => x.p.h === hr); at.forEach((x) => used.add(x.id));
+    h += '<div class="slot' + (SEL === today && nowP.h === hr ? ' now' : '') + '"><div class="t">' + hourBn(hr) + '</div><div>' + (at.length ? at.map(tile).join('') : '<div class="empty">' + (ENABLED.includes(SLOT[hr]) ? 'খালি · ' + KIND[SLOT[hr]][0] + 'র জায়গা' : KIND[SLOT[hr]][0] + 'র জায়গা · রিল পোস্ট এখনও চালু হয়নি') + '</div>') + '</div></div>';
+  }
+  const other = list.filter((x) => !used.has(x.id));
+  if (other.length) h += '<div class="slot"><div class="t">অন্য সময়</div><div>' + other.map(tile).join('') + '</div></div>';
+  $('day').innerHTML = h;
+
+  // stock
+  $('chips').innerHTML = [['all', 'সব (' + bn(stock.length) + ')'], ['text', 'টেক্সট (' + bn(cnt('text')) + ')'], ['card', 'কার্ড (' + bn(cnt('card')) + ')'], ['reel', 'রিল (' + bn(cnt('reel')) + ')']].map(([k, l]) => '<button type="button" data-k="' + k + '" class="' + (KF === k ? 'on' : '') + '">' + l + '</button>').join('');
+  const order = {}; $('stock').innerHTML = stock.filter((x) => KF === 'all' || x.kind === KF).map((x) => {
+    order[x.kind] = (order[x.kind] || 0) + 1;
+    return '<button type="button" class="sc" data-id="' + esc(x.id) + '">' + thumb(x, 'ph') + '<div><b>' + esc(x.title || 'শিরোনাম নেই') + '</b><span class="chip ' + KIND[x.kind][2] + '">' + KIND[x.kind][0] + '</span><div class="no">' + bn(order[x.kind]) + ' নম্বরে পোস্ট হবে</div></div></button>';
+  }).join('') || '<div class="empty" style="grid-column:1/-1">এই ধরনের কোনো কার্ড স্টকে নেই।</div>';
+}
+const thumb = (x, cls) => x.thumb ? '<img src="' + esc(x.thumb) + '" alt="" loading="lazy">' : '<div class="' + cls + '">' + KIND[x.kind][1] + '</div>';
+function tile(x) {
+  const first = (x.caption || '').split('\n')[0];
+  return '<button type="button" class="tilebox" data-id="' + esc(x.id) + '">' + (x.thumb ? '<img class="th" src="' + esc(x.thumb) + '" alt="" loading="lazy">' : '<div class="th">' + KIND[x.kind][1] + '</div>') +
+    '<div class="m"><div class="tt">' + esc(x.title || 'শিরোনাম নেই') + '</div><div class="cp">' + esc(first) + '</div><div style="margin-top:3px"><span class="chip s-' + x.status + '">' + STAT[x.status] + '</span><span class="chip ' + KIND[x.kind][2] + '">' + KIND[x.kind][0] + '</span>' +
+    (x.scheduled_at ? '<span style="font-size:12px;color:var(--text-3)">' + timeBn(x.scheduled_at) + '</span>' : '') + '</div>' + (x.status === 'failed' && x.error ? '<div class="err">' + esc(String(x.error).slice(0, 90)) + '</div>' : '') + '</div></button>';
+}
+function openItem(id) {
+  const x = DATA.items.find((i) => i.id === id); if (!x) return;
+  $('md').innerHTML = '<div class="mb">' + (x.thumb ? '<img src="' + esc(x.thumb) + '" alt="">' : '<div class="ph">' + KIND[x.kind][1] + '</div>') +
+    '<div><button class="x" type="button" id="cl">বন্ধ</button><h2>' + esc(x.title || 'শিরোনাম নেই') + '</h2>' +
+    '<div class="row"><span class="chip s-' + x.status + '">' + STAT[x.status] + '</span><span class="chip ' + KIND[x.kind][2] + '">' + KIND[x.kind][0] + '</span></div>' +
+    (x.scheduled_at ? '<div class="row">সময়: ' + dayLong(parts(new Date(x.scheduled_at)).ymd) + ', ' + timeBn(x.scheduled_at) + '</div>' : '<div class="row">এখনও সময় ঠিক হয়নি</div>') +
+    (x.posted_at ? '<div class="row">পোস্ট হয়েছে: ' + timeBn(x.posted_at) + '</div>' : '') +
+    (x.fb_post_id ? '<div class="row"><a href="https://www.facebook.com/' + esc(x.fb_post_id) + '" target="_blank" rel="noopener">ফেসবুকে পোস্টটা খুলুন ↗</a></div>' : '') +
+    (x.error ? '<div class="err">' + esc(x.error) + '</div>' : '') + '<pre>' + (x.caption ? esc(x.caption) : '(ক্যাপশন নেই)') + '</pre></div></div>';
+  $('md').classList.remove('hide');
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-id],[data-d],[data-k]');
+  if (e.target.id === 'md' || e.target.id === 'cl') return $('md').classList.add('hide');
+  if (!t) return;
+  if (t.dataset.d) { SEL = t.dataset.d; render(); } else if (t.dataset.k) { KF = t.dataset.k; render(); } else if (t.dataset.id) openItem(t.dataset.id);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('md').classList.add('hide'); });
+$('pv').onclick = () => { SEL = ymdAdd(SEL, -1); render(); };
+$('nx').onclick = () => { SEL = ymdAdd(SEL, 1); render(); };
+$('td').onclick = () => { SEL = parts(new Date()).ymd; render(); };
+$('dp').onchange = (e) => { if (e.target.value) { SEL = e.target.value; render(); } };
+$('rf').onclick = refresh;
+$('lo').onclick = () => { try { localStorage.removeItem('pcc'); } catch (_) {} clearInterval(timer); $('app').classList.add('hide'); $('gate').classList.remove('hide'); $('gc').value = ''; };
+$('gf').onsubmit = (e) => { e.preventDefault(); const c = $('gc').value.trim(); if (c) boot(c); };
+window.contentBoot = boot;
+try { const c = localStorage.getItem('pcc'); if (c) boot(c); } catch (_) {}
+</script>
+</body>
+</html>

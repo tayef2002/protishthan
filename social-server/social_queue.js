@@ -4,9 +4,9 @@
 // Without --start the cards continue right after the last post already in the queue (or from the next free slot).
 // Per card (same name, other extension):  "<name>.txt" = caption, "<name>.comment.txt" = first comment (both optional).
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const { loadEnv, client } = require('./lib');
+const { loadEnv, client, addItem } = require('./lib');
 const arg = (n, d = '') => { const a = process.argv.find((x) => x.startsWith('--' + n + '=')); return a ? a.slice(n.length + 3) : d; };
-const dir = arg('dir'), page = arg('page', 'main'), start = arg('start'), slots = arg('slots', '08:00,13:00,18:00,22:00').split(','), tz = arg('tz', '+06:00'), go = process.argv.includes('--go');
+const kind = arg('kind', 'card'), dir = arg('dir'), page = arg('page', 'main'), start = arg('start'), slots = arg('slots', '08:00,13:00,18:00,22:00').split(','), tz = arg('tz', '+06:00'), go = process.argv.includes('--go');
 
 // the next `count` slot instants strictly after `afterMs`, in the local time zone `tz`
 function slotTimes(count, afterMs) {
@@ -39,9 +39,8 @@ if (!files.length) { console.log('নতুন কোনো ছবি নেই 
   if (!go) { console.log('\nএটা শুধু নমুনা। সত্যিই লাইনে দিতে শেষে --go যোগ করুন।'); return; }
 
   for (const p of plan) {
-    const ext = path.extname(p.file).toLowerCase(), name = crypto.randomUUID() + (ext === '.png' ? '.png' : '.jpg');
-    await sb.upload(name, fs.readFileSync(path.join(dir, p.file)), ext === '.png' ? 'image/png' : 'image/jpeg');
-    await sb.rest('fb_posts', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ page_key: page, image_path: name, caption: p.caption, first_comment: p.comment || null, scheduled_at: p.at.toISOString() }) });
+    const stem = p.file.replace(/.[^.]+$/, '');
+    await addItem(sb, { file: path.join(dir, p.file), kind, page, title: stem.replace(/^d+s*-s*([[^]]*]s*)?/, ''), sortKey: stem, caption: p.caption, comment: p.comment, scheduledAt: p.at.toISOString() });
     done[p.file] = p.at.toISOString(); fs.writeFileSync(doneFile, JSON.stringify(done, null, 1));
     console.log('লাইনে দিলাম: ' + p.file);
   }
