@@ -11,7 +11,8 @@ function loadEnv() {
 }
 
 function client(env) {
-  const h = { apikey: env.SUPABASE_SERVICE_KEY, Authorization: 'Bearer ' + env.SUPABASE_SERVICE_KEY };
+  // new-style secret keys (sb_secret_...) go in the apikey header only; the older service_role key is a JWT and also goes in Authorization
+  const k = env.SUPABASE_SERVICE_KEY, h = k.startsWith('sb_') ? { apikey: k } : { apikey: k, Authorization: 'Bearer ' + k };
   return {
     async rest(p, init = {}) { const r = await fetch(env.SUPABASE_URL + '/rest/v1/' + p, { ...init, headers: { ...h, 'Content-Type': 'application/json', ...(init.headers || {}) } }); const t = await r.text(); if (!r.ok) throw new Error('REST ' + r.status + ': ' + t.slice(0, 300)); return t ? JSON.parse(t) : null; },
     async upload(name, buf, type) { const r = await fetch(env.SUPABASE_URL + '/storage/v1/object/cards/' + name, { method: 'POST', headers: { ...h, 'Content-Type': type, 'x-upsert': 'false' }, body: buf }); if (!r.ok) throw new Error('upload ' + r.status + ': ' + (await r.text()).slice(0, 300)); },

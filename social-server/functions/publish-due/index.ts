@@ -15,7 +15,8 @@ Deno.serve(async (req) => {
   const SB = env('SUPABASE_URL'), KEY = env('SUPABASE_SERVICE_ROLE_KEY');
   const GRAPH = 'https://graph.facebook.com/' + (env('FB_API_VERSION') || 'v27.0');
   let pages = {}; try { pages = JSON.parse(env('FB_PAGES') || '{}'); } catch (_) { return json({ error: 'FB_PAGES is not valid JSON' }, 500); }
-  const rest = (path, init = {}) => fetch(SB + '/rest/v1/' + path, { ...init, headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', ...(init.headers || {}) } });
+  const auth = KEY.startsWith('sb_') ? { apikey: KEY } : { apikey: KEY, Authorization: 'Bearer ' + KEY };   // new-style secret keys go in apikey only
+  const rest = (path, init = {}) => fetch(SB + '/rest/v1/' + path, { ...init, headers: { ...auth, 'Content-Type': 'application/json', ...(init.headers || {}) } });
   const patch = (id, body) => rest('fb_posts?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) });
   const graph = async (path, params) => {
     const r = await fetch(GRAPH + '/' + path, { method: 'POST', body: new URLSearchParams(params) });
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
     const cutoff = encodeURIComponent(new Date(Date.now() - 86400000).toISOString());
     const old = await (await rest('fb_posts?select=id,image_path&status=eq.posted&image_deleted=eq.false&posted_at=lt.' + cutoff + '&limit=20')).json();
     for (const o of old) {
-      const r = await fetch(SB + '/storage/v1/object/cards/' + encodeURI(o.image_path), { method: 'DELETE', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+      const r = await fetch(SB + '/storage/v1/object/cards/' + encodeURI(o.image_path), { method: 'DELETE', headers: auth });
       if (r.ok || r.status === 404) await patch(o.id, { image_deleted: true });
     }
   } catch (_) { /* cleanup is best effort, never blocks posting */ }
