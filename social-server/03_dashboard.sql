@@ -15,6 +15,7 @@ alter table public.fb_posts add constraint fb_posts_kind_check check (kind in ('
 alter table public.fb_posts add column if not exists title text;
 alter table public.fb_posts add column if not exists thumb_path text;   -- small preview in the 'thumbs' bucket
 alter table public.fb_posts add column if not exists sort_key text;     -- order inside the stock (file name order)
+alter table public.fb_posts add column if not exists rank bigint;       -- 'move to front' sets a small number here; empty = normal order
 
 -- the first test post was a text card
 update public.fb_posts set kind = 'text', title = coalesce(title, 'পরীক্ষার আগের রাতে (টেস্ট পোস্ট)')

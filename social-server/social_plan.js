@@ -29,7 +29,7 @@ const go = process.argv.includes('--go'), days = +arg('days', '3'), from = arg('
 const label = { text: 'টেক্সট', card: 'কার্ড', reel: 'রিল' };
 (async () => {
   const plan = JSON.parse(fs.readFileSync(path.join(__dirname, 'plan.json'), 'utf8')), sb = client(loadEnv());
-  const stockRows = await sb.rest('fb_posts?select=id,kind,title,sort_key&status=eq.stock&page_key=eq.' + encodeURIComponent(plan.page) + '&order=sort_key.asc.nullslast,created_at.asc&limit=1000');
+  const stockRows = await sb.rest('fb_posts?select=id,kind,title,sort_key&status=eq.stock&page_key=eq.' + encodeURIComponent(plan.page) + '&order=rank.asc.nullslast,sort_key.asc.nullslast,created_at.asc&limit=1000');
   const stock = { text: [], card: [], reel: [] }; for (const r of stockRows) (stock[r.kind] || (stock[r.kind] = [])).push(r);
   const occ = await sb.rest('fb_posts?select=scheduled_at&status=in.(queued,publishing,posted)&scheduled_at=gte.' + encodeURIComponent(new Date(Date.now() - 86400000).toISOString()) + '&limit=1000');
   const { rows, shortage } = planSlots({ slots: plan.slots, tz: plan.tz, enabled: plan.enabled_kinds, now: Date.now(), days, from, stock, occupied: occ.map((o) => Date.parse(o.scheduled_at)) });
