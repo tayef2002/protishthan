@@ -37,7 +37,7 @@ const label = { text: 'টেক্সট', card: 'কার্ড', reel: 'র�
   let lastDay = '';
   for (const r of rows) {
     const s = r.at.toLocaleString('sv-SE', { timeZone: 'Asia/Dhaka' }), day = s.slice(0, 10); if (day !== lastDay) { console.log('\n' + day); lastDay = day; }
-    console.log('  ' + s.slice(11, 16) + '  ' + (label[r.kind] || r.kind).padEnd(6) + (r.item ? r.item.title : '—— খালি (এই ধরনের স্টক শেষ)'));
+    console.log('  ' + s.slice(11, 16) + '  ' + '[' + (label[r.kind] || r.kind) + ']  ' + (r.item ? r.item.title : '—— খালি (এই ধরনের স্টক শেষ)'));
   }
   const planned = rows.filter((r) => r.item).length;
   console.log('\nমোট ' + planned + 'টা পোস্টের সময় ঠিক হবে।' + Object.entries(shortage).map(([k, n]) => '  ' + (label[k] || k) + ' স্টক কম: ' + n + 'টা জায়গা খালি').join(''));
