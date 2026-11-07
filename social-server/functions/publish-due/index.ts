@@ -3,7 +3,8 @@
 //   CRON_SECRET      shared secret, same value as social_config.cron_secret
 //   FB_PAGES         JSON: {"main":{"page_id":"123...","token":"EAAB..."}, "second":{...}}
 //   FB_API_VERSION   optional, default v27.0 (the version the Graph API Explorer showed in 2026-11)
-// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase automatically.
+//   SB_SERVICE_KEY   optional: the project's service/secret key; if missing the automatic SUPABASE_SERVICE_ROLE_KEY is used
+// SUPABASE_URL is provided by Supabase automatically.
 // Plain JavaScript on purpose (no type syntax) so the same file also runs in our local Node test.
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -12,7 +13,8 @@ Deno.serve(async (req) => {
   const env = (k) => Deno.env.get(k);
   if (!env('CRON_SECRET') || req.headers.get('x-cron-secret') !== env('CRON_SECRET')) return new Response('forbidden', { status: 403 });
 
-  const SB = env('SUPABASE_URL'), KEY = env('SUPABASE_SERVICE_ROLE_KEY');
+  // SB_SERVICE_KEY (our own secret, e.g. a new-style sb_secret_ key) wins over the key Supabase injects automatically
+  const SB = env('SUPABASE_URL'), KEY = env('SB_SERVICE_KEY') || env('SUPABASE_SERVICE_ROLE_KEY');
   const GRAPH = 'https://graph.facebook.com/' + (env('FB_API_VERSION') || 'v27.0');
   let pages = {}; try { pages = JSON.parse(env('FB_PAGES') || '{}'); } catch (_) { return json({ error: 'FB_PAGES is not valid JSON' }, 500); }
   const auth = KEY.startsWith('sb_') ? { apikey: KEY } : { apikey: KEY, Authorization: 'Bearer ' + KEY };   // new-style secret keys go in apikey only
