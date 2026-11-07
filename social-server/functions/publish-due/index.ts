@@ -44,14 +44,34 @@ Deno.serve(async (req: Request) => {
   const rows: any[] = await claimed.json();
   const results: any[] = [];
 
+  const started = Date.now();
   for (const row of rows) {
+    // a reel can take half a minute; if this run is running out of time, hand the rest back for the next minute
+    if (Date.now() - started > 35000) { await patch(row.id, { status: 'queued', attempts: Math.max(0, row.attempts - 1) }); continue; }
     const page = pages[row.page_key];
     if (!page) { await patch(row.id, { status: 'failed', error: 'page_key "' + row.page_key + '" is not in FB_PAGES' }); results.push({ id: row.id, ok: false }); continue; }
     let postId: string;
     try {
-      const img = SB + '/storage/v1/object/public/cards/' + encodeURI(row.image_path);
-      const d = await graph(page.page_id + '/photos', { url: img, caption: row.caption || '', published: 'true', access_token: page.token });
-      postId = d.post_id || d.id;
+      const img = SB + '/storage/v1/object/public/cards/' + encodeURI(row.image_path);   // a card image, or the reel video
+      if (row.kind === 'reel') {
+        // Reels: 1) open an upload session  2) tell Facebook where the hosted video is  3) publish it
+        const s = await graph(page.page_id + '/video_reels', { upload_phase: 'start', access_token: page.token });
+        const up = await fetch(s.upload_url || ('https://rupload.facebook.com/video-upload/' + (env('FB_API_VERSION') || 'v27.0') + '/' + s.video_id), { method: 'POST', headers: { Authorization: 'OAuth ' + page.token, file_url: img } });
+        let ud: any = {}; try { ud = await up.json(); } catch (_) { /* not json */ }
+        if (!up.ok || ud.success === false || ud.error) { const e: any = new Error((ud.error && (ud.error.message || String(ud.error))) || (ud.debug_info && ud.debug_info.message) || ('upload HTTP ' + up.status)); e.code = ud.error && ud.error.code; throw e; }
+        const f = await graph(page.page_id + '/video_reels', { upload_phase: 'finish', video_id: s.video_id, video_state: 'PUBLISHED', description: row.caption || '', access_token: page.token });
+        postId = (f && f.post_id) || s.video_id;
+        for (let i = 0; i < 5; i++) {   // a short look at the processing state; "error" means nothing was published
+          await sleep(3000);
+          const st: any = await (await fetch(GRAPH + '/' + s.video_id + '?fields=status&access_token=' + encodeURIComponent(page.token))).json().catch(() => ({}));
+          const vs = st && st.status && st.status.video_status;
+          if (vs === 'error') throw new Error('Facebook could not process the video: ' + JSON.stringify(st.status).slice(0, 200));
+          if (vs === 'ready' || vs === 'published') break;
+        }
+      } else {
+        const d = await graph(page.page_id + '/photos', { url: img, caption: row.caption || '', published: 'true', access_token: page.token });
+        postId = d.post_id || d.id;
+      }
     } catch (e: any) {
       const dead = e.code === 190 || row.attempts >= 3;   // 190 = token invalid or expired: do not keep trying
       await patch(row.id, dead ? { status: 'failed', error: String(e.message).slice(0, 500) } : { status: 'queued', error: String(e.message).slice(0, 500), scheduled_at: new Date(Date.now() + 5 * 60000).toISOString() });

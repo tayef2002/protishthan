@@ -23,7 +23,8 @@ function client(env) {
 // small JPEG preview (360 px wide) of an image file, as a Buffer
 function makeThumb(file) {
   const tmp = path.join(os.tmpdir(), 'thumb_' + crypto.randomUUID() + '.jpg');
-  const r = cp.spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', file, '-vf', 'scale=360:-2', '-q:v', '5', tmp]);
+  const video = /\.mp4$/i.test(file);   // a reel: take a frame one second in
+  const r = cp.spawnSync('ffmpeg', ['-y', '-loglevel', 'error'].concat(video ? ['-ss', '1'] : [], ['-i', file], video ? ['-frames:v', '1'] : [], ['-vf', 'scale=360:-2', '-q:v', '5', tmp]));
   if (r.status !== 0) throw new Error('thumbnail failed: ' + String(r.stderr).slice(0, 200));
   const buf = fs.readFileSync(tmp); fs.unlinkSync(tmp); return buf;
 }
@@ -32,8 +33,8 @@ const readText = (f) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').replace(/
 
 // upload one card (full image + preview) and add it to the table; status 'stock' (no time yet) or 'queued' (with a time)
 async function addItem(sb, o) {
-  const ext = path.extname(o.file).toLowerCase(), id = crypto.randomUUID(), name = id + (ext === '.png' ? '.png' : '.jpg');
-  await sb.upload(name, fs.readFileSync(o.file), ext === '.png' ? 'image/png' : 'image/jpeg');
+  const ext = path.extname(o.file).toLowerCase(), id = crypto.randomUUID(), name = id + (ext === '.png' ? '.png' : ext === '.mp4' ? '.mp4' : '.jpg');
+  await sb.upload(name, fs.readFileSync(o.file), ext === '.png' ? 'image/png' : ext === '.mp4' ? 'video/mp4' : 'image/jpeg');
   const thumb = id + '.jpg'; await sb.upload(thumb, makeThumb(o.file), 'image/jpeg', 'thumbs');
   await sb.rest('fb_posts', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({
     id, page_key: o.page || 'main', kind: o.kind || 'card', title: o.title || null, sort_key: o.sortKey || null, image_path: name, thumb_path: thumb,
