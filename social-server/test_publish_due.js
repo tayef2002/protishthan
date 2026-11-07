@@ -10,10 +10,11 @@ const rows = [
   { id: 'd', page_key: 'main', image_path: 'four.png', caption: 'fails', first_comment: null, attempts: 1 },
   { id: 'e', page_key: 'main', image_path: 'five.png', caption: 'photo ok comment fails', first_comment: 'x', attempts: 1 },
 ];
-const patches = {}, graphCalls = [], deleted = [], ruploads = []; let reelNo = 0;
+const patches = {}, graphCalls = [], deleted = [], ruploads = []; let reelNo = 0; const waiting = [];
 globalThis.fetch = async (url, init = {}) => {
   url = String(url); const J = (o, status = 200) => ({ ok: status < 400, status, json: async () => o, text: async () => JSON.stringify(o) });
   if (url.endsWith('/rpc/claim_due_posts')) return J(rows);
+  if (url.includes('/rest/v1/fb_posts?select=id,page_key,fb_post_id,first_comment')) { assert.match(url, /comment_status=is.null/); return J(waiting); }
   if (url.includes('/rest/v1/fb_posts?select=id,image_path')) { assert.match(url, /image_deleted=eq\.false/); return J([{ id: 'old1', image_path: 'old.png' }]); }
   if (init.method === 'DELETE' && url.endsWith('/storage/v1/object/cards/old.png')) { deleted.push(url); return J({}); }
   if (url.includes('/rest/v1/fb_posts?id=eq.')) { patches[url.split('eq.')[1]] = JSON.parse(init.body); return J({}); }
@@ -63,5 +64,13 @@ globalThis.fetch = async (url, init = {}) => {
   assert.strictEqual(patches.r2.status, 'queued'); assert.match(patches.r2.error, /file not reachable/); assert.ok(!graphCalls.some((g) => g.p.upload_phase === 'finish' && g.p.video_id === 'vid2'), 'a refused upload is never published');
   assert.strictEqual(patches.r3.status, 'queued'); assert.match(patches.r3.error, /could not process/);
   assert.ok(!JSON.stringify(patches).includes('TOK'), 'the token must never be stored');
+  assert.ok(!graphCalls.some((g) => g.url.endsWith('/comments') && g.p.message === 'রিলের কমেন্ট'), 'a reel is not commented inline');
+
+  // --- a posted reel whose comment is waiting gets it in the next run
+  rows.length = 0; waiting.push({ id: 'w1', page_key: 'main', fb_post_id: '111_vid1', first_comment: 'রিলের কমেন্ট' }, { id: 'w2', page_key: 'gone', fb_post_id: '9_9', first_comment: 'x' }, { id: 'w3', page_key: 'main', fb_post_id: '111_bad', first_comment: 'x' });
+  for (const k of Object.keys(patches)) delete patches[k]; graphCalls.length = 0;
+  await call({ 'x-cron-secret': 's3cret' });
+  const cm = graphCalls.find((g) => g.url.endsWith('/111_vid1/comments')); assert.strictEqual(cm.p.message, 'রিলের কমেন্ট'); assert.strictEqual(patches.w1.comment_status, 'posted');
+  assert.strictEqual(patches.w2.comment_status, 'failed'); assert.strictEqual(patches.w3.comment_status, 'failed'); assert.match(patches.w3.error, /comment failed/);
   console.log('ok: all checks passed');
 })().catch((e) => { console.error('FAILED:', e.message); process.exit(1); });

@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
 
   // token / page health check:  POST {"check":true}
   if (body.check) {
-    const out: Record<string, string> = { _version: 'reels-1' };   // lets us check which code is deployed
+    const out: Record<string, string> = { _version: 'reels-2' };   // lets us check which code is deployed
     for (const [k, p] of Object.entries(pages)) {
       try { const r = await fetch(GRAPH + '/' + p.page_id + '?fields=name&access_token=' + encodeURIComponent(p.token)); const d: any = await r.json(); out[k] = d.error ? 'ERROR: ' + d.error.message : 'ok: ' + d.name; }
       catch (e: any) { out[k] = 'ERROR: ' + e.message; }
@@ -79,13 +79,24 @@ Deno.serve(async (req: Request) => {
     }
     // the photo is live from here on, so never publish it again, whatever happens next
     const done: Record<string, unknown> = { status: 'posted', fb_post_id: postId, posted_at: new Date().toISOString(), error: null };
-    if (row.first_comment) {
+    if (row.first_comment && row.kind !== 'reel') {   // a reel needs a minute to process, so its comment is posted by the pass below
       try { await sleep(2000); await graph(postId + '/comments', { message: row.first_comment, access_token: page.token }); done.comment_status = 'posted'; }
       catch (e: any) { done.comment_status = 'failed'; done.error = 'photo posted, comment failed: ' + String(e.message).slice(0, 400); }
     }
     await patch(row.id, done);
     results.push({ id: row.id, ok: true, post: postId });
   }
+  // comments for reels (and any post whose comment is still waiting): posted a minute or more after the reel went out
+  try {
+    const agoMin = encodeURIComponent(new Date(Date.now() - 60000).toISOString()), ago6h = encodeURIComponent(new Date(Date.now() - 6 * 3600000).toISOString());
+    const wait: any[] = await (await rest('fb_posts?select=id,page_key,fb_post_id,first_comment&status=eq.posted&comment_status=is.null&first_comment=not.is.null&posted_at=lt.' + agoMin + '&posted_at=gt.' + ago6h + '&limit=3')).json();
+    for (const c of wait) {
+      const pg = pages[c.page_key];
+      if (!pg || !c.fb_post_id) { await patch(c.id, { comment_status: 'failed' }); continue; }
+      try { await graph(c.fb_post_id + '/comments', { message: c.first_comment, access_token: pg.token }); await patch(c.id, { comment_status: 'posted' }); }
+      catch (e: any) { await patch(c.id, { comment_status: 'failed', error: 'comment failed: ' + String(e.message).slice(0, 300) }); }
+    }
+  } catch (_) { /* never blocks posting */ }
   // housekeeping: Facebook keeps its own copy, so remove our copy of images posted more than a day ago
   try {
     const cutoff = encodeURIComponent(new Date(Date.now() - 86400000).toISOString());

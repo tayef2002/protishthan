@@ -5,7 +5,7 @@
 //
 // POST body {"action": ...}:
 //   list (default)                         everything the dashboard shows
-//   update    {id, title?, caption?}       edit text of a post that has not gone out
+//   update    {id, title?, caption?, first_comment?}  edit the text of a post that has not gone out
 //   schedule  {id, scheduled_at}           give a time (stock / failed / queued -> queued)
 //   swap      {a, b}                       exchange the times of two queued posts
 //   unschedule{ids}                        queued / failed -> back to stock
@@ -20,7 +20,7 @@ const bad = (error: string, status = 400) => json({ error }, status);
 function same(a: string, b: string) { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const OPEN = 'status=in.(stock,queued,failed)';   // the only states that may be changed from the dashboard
-const FIELDS = 'id,kind,title,caption,status,scheduled_at,posted_at,thumb_path,image_path,error,fb_post_id,comment_status,attempts';
+const FIELDS = 'id,kind,title,caption,first_comment,status,scheduled_at,posted_at,thumb_path,image_path,error,fb_post_id,comment_status,attempts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
@@ -43,7 +43,7 @@ Deno.serve(async (req: Request) => {
     const r = await db('fb_posts?select=' + FIELDS + '&or=(status.eq.stock,scheduled_at.gte.' + since + ')&order=scheduled_at.asc.nullslast,rank.asc.nullslast,sort_key.asc.nullslast&limit=1000');
     if (!r.ok) return bad('database: ' + (await r.text()).slice(0, 200), 500);
     const rows: any[] = await r.json();
-    const items = rows.map((x) => ({ id: x.id, kind: x.kind, title: x.title, caption: x.caption, status: x.status, scheduled_at: x.scheduled_at, posted_at: x.posted_at,
+    const items = rows.map((x) => ({ id: x.id, kind: x.kind, title: x.title, caption: x.caption, first_comment: x.first_comment, status: x.status, scheduled_at: x.scheduled_at, posted_at: x.posted_at,
       error: x.error, fb_post_id: x.fb_post_id, comment_status: x.comment_status, attempts: x.attempts,
       thumb: x.thumb_path ? SB + '/storage/v1/object/public/thumbs/' + encodeURI(x.thumb_path) : null,
       // the full image is only kept until a day after posting
@@ -56,6 +56,7 @@ Deno.serve(async (req: Request) => {
     const f: Record<string, string> = {};
     if (typeof body.title === 'string') f.title = body.title.trim().slice(0, 160);
     if (typeof body.caption === 'string') f.caption = body.caption.slice(0, 4000);
+    if (typeof body.first_comment === 'string') f.first_comment = body.first_comment.trim().slice(0, 2000) || null as any;
     if (!Object.keys(f).length) return bad('nothing to change');
     const done = await patch('id=eq.' + id + '&' + OPEN, f);
     return done.length ? json({ ok: true }) : bad('locked: already posting or posted', 409);

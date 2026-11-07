@@ -447,15 +447,16 @@ function openDrawer(id) {
     '<div class="pv">' + (img ? '<img src="' + esc(img) + '" alt="">' : '<div class="ph">' + ic('img', 40) + '</div>') + '</div><div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">' + sChip(x.status) + kChip(x.kind) + '</div>' + st +
     (x.error ? '<div class="notice bad">' + esc(x.error) + '</div>' : '') + (x.comment_status === 'failed' ? '<div class="notice bad">কমেন্ট দেওয়া যায়নি।</div>' : '') + sched +
     '<div class="fld"><label for="dTitle">শিরোনাম (শুধু আপনার জন্য, ফেসবুকে যায় না)</label><input class="inp" id="dTitle" value="' + esc(x.title || '') + '"' + (locked ? ' disabled' : '') + '></div>' +
-    '<div class="fld"><label for="dCap">ক্যাপশন <span class="num" id="dCnt"></span></label><textarea class="inp" id="dCap"' + (locked ? ' disabled' : '') + '>' + esc(x.caption || '') + '</textarea></div></div>' +
+    '<div class="fld"><label for="dCap">ক্যাপশন <span class="num" id="dCnt"></span></label><textarea class="inp" id="dCap"' + (locked ? ' disabled' : '') + '>' + esc(x.caption || '') + '</textarea></div>' +
+    '<div class="fld"><label for="dCom">প্রথম কমেন্ট <span>পোস্টের একটু পরে নিজে নিজে যাবে</span></label><textarea class="inp" id="dCom" style="min-height:96px"' + (locked ? ' disabled' : '') + '>' + esc(x.first_comment || '') + '</textarea></div></div>' +
     '<div class="df">' + (locked ? '' : '<button class="btn primary" id="dSave" type="button" disabled>' + ic('save', 16) + 'সেভ করুন</button>') +
     (x.fb_post_id ? '<a class="btn" href="https://www.facebook.com/' + esc(x.fb_post_id) + '" target="_blank" rel="noopener">' + ic('ext', 16) + 'ফেসবুকে দেখুন</a>' : '') +
     (!locked && x.status !== 'stock' ? '<button class="btn" id="dNow" type="button">' + ic('send', 16) + 'এখনই পোস্ট</button><button class="btn" id="dStock" type="button">' + ic('archive', 16) + 'স্টকে ফেরান</button>' : '') +
     (!locked ? '<button class="btn danger" id="dDel" type="button">' + ic('trash', 16) + 'মুছুন</button>' : '') + '</div>';
   $('drawer').classList.add('on'); $('back').classList.add('on');
-  const cap = $('dCap'), ttl = $('dTitle'), save = $('dSave'), cnt = () => { $('dCnt').textContent = bn(cap.value.length) + ' / ৪০০০'; if (save) save.disabled = cap.value === (x.caption || '') && ttl.value === (x.title || ''); }; cnt(); cap.oninput = cnt; ttl.oninput = cnt;
+  const cap = $('dCap'), ttl = $('dTitle'), com = $('dCom'), save = $('dSave'), cnt = () => { $('dCnt').textContent = bn(cap.value.length) + ' / ৪০০০'; if (save) save.disabled = cap.value === (x.caption || '') && ttl.value === (x.title || '') && com.value === (x.first_comment || ''); }; cnt(); cap.oninput = cnt; ttl.oninput = cnt; com.oninput = cnt;
   $('dClose').onclick = closeDrawer;
-  if (save) save.onclick = async () => { if (await act(() => api('update', { id, title: ttl.value, caption: cap.value }), 'সেভ হয়েছে')) { if (byId(id)) openDrawer(id); } };
+  if (save) save.onclick = async () => { if (await act(() => api('update', { id, title: ttl.value, caption: cap.value, first_comment: com.value }), 'সেভ হয়েছে')) { if (byId(id)) openDrawer(id); } };
   if ($('dtSave')) $('dtSave').onclick = async () => { const v = $('dt').value; if (!v) return toast('সময় বেছে নিন', 'bad'); if (await act(() => api('schedule', { id, scheduled_at: fromLocalInput(v) }), 'সময় ঠিক হয়েছে')) openDrawer(id); };
   if ($('dNow')) $('dNow').onclick = async () => { if (await ask('এখনই পোস্ট করবেন?', 'আনুমানিক ২–৩ মিনিটের মধ্যে পেজে চলে যাবে।', 'হ্যাঁ, পোস্ট করুন')) { if (await act(() => api('schedule', { id, scheduled_at: new Date(Date.now() + 3 * 60000).toISOString() }), 'কয়েক মিনিটের মধ্যে পোস্ট হবে')) openDrawer(id); } };
   if ($('dStock')) $('dStock').onclick = async () => { if (await act(() => api('unschedule', { ids: [id] }), 'স্টকে ফেরানো হয়েছে')) openDrawer(id); };

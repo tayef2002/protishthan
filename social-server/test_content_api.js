@@ -49,7 +49,7 @@ const row = (n) => db.find((r) => r.id === U(n));
   let res = await call({}); assert.strictEqual(res.status, 200); assert.strictEqual(res.headers.get('Access-Control-Allow-Origin'), '*');
   let d = await res.json(); assert.strictEqual(d.items.length, 7);
   assert.strictEqual(d.items[0].thumb, 'https://x.supabase.co/storage/v1/object/public/thumbs/th1.jpg');
-  assert.ok(!('image_path' in d.items[0]) && !('first_comment' in d.items[0]) && !('page_key' in d.items[0]), 'internal columns are not handed out');
+  assert.ok(!('image_path' in d.items[0]) && !('page_key' in d.items[0]), 'internal columns are not handed out');
   assert.strictEqual(d.items[0].image, 'https://x.supabase.co/storage/v1/object/public/cards/im1.png'); assert.strictEqual(d.items.find((i) => i.status === 'posted').image, null, 'no full image link for posted posts');
 
   // --- update text
@@ -59,6 +59,9 @@ const row = (n) => db.find((r) => r.id === U(n));
   assert.strictEqual((await call({ action: 'update', id: U(7), caption: 'x' })).status, 409, 'publishing is locked');
   assert.strictEqual((await call({ action: 'update', id: 'not-an-id', caption: 'x' })).status, 400);
   assert.strictEqual((await call({ action: 'update', id: U(1) })).status, 400, 'nothing to change');
+  assert.strictEqual(d.items[0].first_comment, 'hidden', 'the first comment is visible to the dashboard');
+  assert.strictEqual((await call({ action: 'update', id: U(1), first_comment: '  নতুন কমেন্ট  ' })).status, 200); assert.strictEqual(row(1).first_comment, 'নতুন কমেন্ট');
+  assert.strictEqual((await call({ action: 'update', id: U(1), first_comment: '   ' })).status, 200); assert.strictEqual(row(1).first_comment, null, 'an empty comment removes it');
 
   // --- schedule
   const t1 = min(600);
