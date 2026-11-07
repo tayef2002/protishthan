@@ -233,10 +233,10 @@ textarea.inp{height:auto;min-height:150px;padding:10px 12px;line-height:1.6;resi
 
 <script>
 const FN = 'https://leiemhcmzhruadtiybum.supabase.co/functions/v1/smooth-handler';
-const TZ = 'Asia/Dhaka', HOURS = Array.from({ length: 17 }, (_, i) => i + 6);
+const TZ = 'Asia/Dhaka', HOURS = Array.from({ length: 16 }, (_, i) => i + 8);
 // the daily pattern (same as social-server/plan.json); add 'reel' to ENABLED when reel posting is switched on
-const SLOT = { 6: 'text', 7: 'text', 8: 'card', 9: 'text', 10: 'text', 11: 'text', 12: 'reel', 13: 'card', 14: 'text', 15: 'text', 16: 'text', 17: 'card', 18: 'reel', 19: 'text', 20: 'card', 21: 'reel', 22: 'text' }, ENABLED = ['text', 'card'];
-const CAP = HOURS.filter((h) => ENABLED.includes(SLOT[h])).length, PER_DAY = { text: 10, card: 4, reel: 3 };
+const SLOT = { 8: 'text', 9: 'text', 10: 'card', 11: 'text', 12: 'reel', 13: 'text', 14: 'card', 15: 'text', 16: 'text', 17: 'card', 18: 'text', 19: 'text', 20: 'card', 21: 'reel', 22: 'text', 23: 'card' }, ENABLED = ['text', 'card'];
+const CAP = HOURS.filter((h) => ENABLED.includes(SLOT[h])).length, PER_DAY = { text: 9, card: 5, reel: 2 };
 const K = { text: { n: 'টেক্সট কার্ড', s: 'টেক্সট', i: 'type' }, card: { n: 'পোস্ট কার্ড', s: 'কার্ড', i: 'card' }, reel: { n: 'রিল', s: 'রিল', i: 'film' } };
 const S = { posted: { n: 'পোস্ট হয়েছে', i: 'check', c: 'ok' }, queued: { n: 'লাইনে', i: 'clock', c: 'q' }, publishing: { n: 'যাচ্ছে', i: 'send', c: 'w' }, failed: { n: 'ব্যর্থ', i: 'alert', c: 'bad' }, stock: { n: 'স্টকে', i: 'layers', c: 'n' } };
 const IC = {
