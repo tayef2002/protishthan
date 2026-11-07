@@ -63,6 +63,15 @@ Deno.serve(async (req) => {
     await patch(row.id, done);
     results.push({ id: row.id, ok: true, post: postId });
   }
+  // housekeeping: Facebook keeps its own copy, so remove our copy of images posted more than a day ago
+  try {
+    const cutoff = encodeURIComponent(new Date(Date.now() - 86400000).toISOString());
+    const old = await (await rest('fb_posts?select=id,image_path&status=eq.posted&image_deleted=eq.false&posted_at=lt.' + cutoff + '&limit=20')).json();
+    for (const o of old) {
+      const r = await fetch(SB + '/storage/v1/object/cards/' + encodeURI(o.image_path), { method: 'DELETE', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+      if (r.ok || r.status === 404) await patch(o.id, { image_deleted: true });
+    }
+  } catch (_) { /* cleanup is best effort, never blocks posting */ }
   return json({ claimed: rows.length, results });
 });
 

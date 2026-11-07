@@ -10,10 +10,12 @@ const rows = [
   { id: 'd', page_key: 'main', image_path: 'four.png', caption: 'fails', first_comment: null, attempts: 1 },
   { id: 'e', page_key: 'main', image_path: 'five.png', caption: 'photo ok comment fails', first_comment: 'x', attempts: 1 },
 ];
-const patches = {}, graphCalls = [];
+const patches = {}, graphCalls = [], deleted = [];
 globalThis.fetch = async (url, init = {}) => {
   url = String(url); const J = (o, status = 200) => ({ ok: status < 400, status, json: async () => o, text: async () => JSON.stringify(o) });
   if (url.endsWith('/rpc/claim_due_posts')) return J(rows);
+  if (url.includes('/rest/v1/fb_posts?select=id,image_path')) { assert.match(url, /image_deleted=eq\.false/); return J([{ id: 'old1', image_path: 'old.png' }]); }
+  if (init.method === 'DELETE' && url.endsWith('/storage/v1/object/cards/old.png')) { deleted.push(url); return J({}); }
   if (url.includes('/rest/v1/fb_posts?id=eq.')) { patches[url.split('eq.')[1]] = JSON.parse(init.body); return J({}); }
   if (url.startsWith('https://graph.facebook.com/')) {
     const p = Object.fromEntries(new URLSearchParams(init.body)); graphCalls.push({ url, p });
@@ -39,6 +41,7 @@ globalThis.fetch = async (url, init = {}) => {
   const photo = graphCalls.find((g) => g.url.endsWith('/111/photos')).p;
   assert.strictEqual(photo.url, 'https://x.supabase.co/storage/v1/object/public/cards/one.png'); assert.strictEqual(photo.published, 'true'); assert.strictEqual(photo.access_token, 'TOK');
   assert.ok(!JSON.stringify(patches).includes('TOK'), 'the token must never be stored');
+  assert.strictEqual(deleted.length, 1, 'old image copy is removed'); assert.deepStrictEqual(patches.old1, { image_deleted: true });
 
   rows[3].attempts = 3; patches.d = null; rows.length = 4; rows.splice(0, 3);   // only 'd' left, already on its 3rd try
   await call({ 'x-cron-secret': 's3cret' });

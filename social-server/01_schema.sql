@@ -22,6 +22,8 @@ create table if not exists public.fb_posts (
   posted_at      timestamptz,
   created_at     timestamptz not null default now()
 );
+-- the image copy in our bucket is deleted a day after posting (Facebook keeps its own copy)
+alter table public.fb_posts add column if not exists image_deleted boolean not null default false;
 create index if not exists fb_posts_due_idx on public.fb_posts (scheduled_at) where status = 'queued';
 
 -- private settings (function URL + shared secret); nobody but the service role can read them
