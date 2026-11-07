@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
 
   // token / page health check:  POST {"check":true}
   if (body.check) {
-    const out: Record<string, string> = {};
+    const out: Record<string, string> = { _version: 'reels-1' };   // lets us check which code is deployed
     for (const [k, p] of Object.entries(pages)) {
       try { const r = await fetch(GRAPH + '/' + p.page_id + '?fields=name&access_token=' + encodeURIComponent(p.token)); const d: any = await r.json(); out[k] = d.error ? 'ERROR: ' + d.error.message : 'ok: ' + d.name; }
       catch (e: any) { out[k] = 'ERROR: ' + e.message; }
