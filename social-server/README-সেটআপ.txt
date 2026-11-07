@@ -82,7 +82,7 @@
 ===========================================================
 এক-কালীন সেটআপ (Supabase protishthan-social প্রজেক্টে):
 1. SQL Editor-এ `03_dashboard.sql` পেস্ট করে Run করুন (স্টক, ধরন, থাম্বনেইল যোগ হয়)।
-2. Edge Functions > Deploy a new function > Via Editor: নাম `content-api`,
+2. Edge Functions > Deploy a new function > Via Editor: নাম `content-api` (আমাদের ডিপ্লয় করা ফাংশনের নাম Supabase বদলে `smooth-handler` রেখেছে, পাতাটা সেটাই ডাকে),
    `functions/content-api/index.ts` এর লেখা পেস্ট, Deploy। তারপর সেটিংসে "Verify JWT" বন্ধ।
 3. Edge Functions > Secrets: `DASH_CODE` = `dashboard-code.txt` ফাইলের লেখা (ড্যাশবোর্ডে ঢোকার কোড)।
 4. protishthan.com/content খুলে ওই কোড দিন। কোড ব্রাউজারে মনে থাকে, "বের হোন" চাপলে মুছে যায়।
