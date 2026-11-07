@@ -2,7 +2,7 @@
 // Called by pg_cron (see 01_schema.sql). Secrets it needs (Dashboard > Edge Functions > Secrets):
 //   CRON_SECRET      shared secret, same value as social_config.cron_secret
 //   FB_PAGES         JSON: {"main":{"page_id":"123...","token":"EAAB..."}, "second":{...}}
-//   FB_API_VERSION   optional, default v23.0
+//   FB_API_VERSION   optional, default v27.0 (the version the Graph API Explorer showed in 2026-11)
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase automatically.
 // Plain JavaScript on purpose (no type syntax) so the same file also runs in our local Node test.
 
@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
   if (!env('CRON_SECRET') || req.headers.get('x-cron-secret') !== env('CRON_SECRET')) return new Response('forbidden', { status: 403 });
 
   const SB = env('SUPABASE_URL'), KEY = env('SUPABASE_SERVICE_ROLE_KEY');
-  const GRAPH = 'https://graph.facebook.com/' + (env('FB_API_VERSION') || 'v23.0');
+  const GRAPH = 'https://graph.facebook.com/' + (env('FB_API_VERSION') || 'v27.0');
   let pages = {}; try { pages = JSON.parse(env('FB_PAGES') || '{}'); } catch (_) { return json({ error: 'FB_PAGES is not valid JSON' }, 500); }
   const rest = (path, init = {}) => fetch(SB + '/rest/v1/' + path, { ...init, headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', ...(init.headers || {}) } });
   const patch = (id, body) => rest('fb_posts?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(body) });
