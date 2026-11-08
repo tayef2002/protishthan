@@ -13,6 +13,8 @@ export const clip = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim();
 const BN = '০১২৩৪৫৬৭৮৯';
 export const bn = n => String(n).replace(/\d/g, d => BN[d]);
 export const bnNum = n => bn(Number(n).toLocaleString('en-IN'));          // 101938 -> ১,০১,৯৩৮
+// Bangla possessive: a name that ends in a vowel takes র (মাদ্রাসা -> মাদ্রাসার), one that ends in a consonant takes ের (স্কুল -> স্কুলের)
+export const poss = s => String(s) + (/[অ-ঔা-ৌ]$/.test(String(s)) ? 'র' : 'ের');
 export const toInt = v => { const n = parseInt(String(v == null ? '' : v).replace(/[^\d]/g, ''), 10); return Number.isFinite(n) ? n : 0; };
 
 // the six kinds of institution the directory knows, with the schema.org type used for each

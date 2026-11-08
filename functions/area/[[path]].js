@@ -5,7 +5,7 @@
 // These pages exist so search engines (and people) can reach every one of the ~100,000 institutions through ordinary links, and so that searches like
 // "নকলা উপজেলার স্কুল" have a page that answers them. The numbers come from the database; nothing here is typed in by hand.
 
-import { SITE, rest, cached, esc, clip, bn, bnNum, TYPES, TYPE_PLURAL, htmlResponse, shell, areaUrl, areaRows, summarize, byBn } from '../_lib/seo.js';
+import { SITE, rest, cached, poss, esc, clip, bn, bnNum, TYPES, TYPE_PLURAL, htmlResponse, shell, areaUrl, areaRows, summarize, byBn } from '../_lib/seo.js';
 
 const PER_PAGE = 100, PREVIEW = 15;
 const norm = s => String(s || '').normalize('NFC').replace(/\s+/g, ' ').trim();
@@ -73,7 +73,7 @@ async function renderUpazila(d, u) {
   const lists = await Promise.all(kinds.map(t => rest('listing_submissions?status=eq.approved&is_hidden=not.is.true&district=eq.' + encodeURIComponent(d.name) + '&upazila=eq.' + encodeURIComponent(u.name) +
     '&institution_type=eq.' + encodeURIComponent(t) + '&select=institution_name,desired_slug,ownership&order=institution_name,desired_slug&limit=' + PREVIEW)));
   if (lists.some(x => !x)) return null;
-  const sections = kinds.map((t, i) => '<section><h2>' + esc(u.name) + '-এর ' + esc(TYPE_PLURAL[t]) + ' <small>' + bnNum(u.types[t]) + 'টি</small></h2>' + itemList(lists[i].data) +
+  const sections = kinds.map((t, i) => '<section><h2>' + esc(u.name) + ' উপজেলার ' + esc(TYPE_PLURAL[t]) + ' <small>' + bnNum(u.types[t]) + 'টি</small></h2>' + itemList(lists[i].data) +
     (u.types[t] > PREVIEW ? '<a class="more" href="' + areaUrl(d.name, u.name, t) + '">সব ' + bnNum(u.types[t]) + 'টি ' + esc(TYPE_PLURAL[t]) + ' দেখুন →</a>' : '') + '</section>').join('');
   return htmlResponse(page({
     path: areaUrl(d.name, u.name), crumbs,
@@ -93,7 +93,7 @@ async function renderList(d, u, type, pageNo) {
     '&institution_type=eq.' + encodeURIComponent(type) + '&select=institution_name,desired_slug,ownership,upazila&order=institution_name,desired_slug',
     { range: [(pageNo - 1) * PER_PAGE, pageNo * PER_PAGE - 1], timeout: 8000 });
   if (!q) return null;
-  const place = u ? u.name + ', ' + d.name : d.name, plural = TYPE_PLURAL[type];
+  const inPlace = u ? d.name + ' জেলার ' + u.name + ' উপজেলায়' : d.name + ' জেলায়', plural = TYPE_PLURAL[type];
   const base = u ? areaUrl(d.name, u.name, type) : areaUrl(d.name, type);
   const path = pageNo > 1 ? base + '?page=' + pageNo : base;
   const crumbs = [{ name: 'তথ্যভান্ডার', url: '/' }, { name: 'এলাকা অনুযায়ী', url: '/area' }, { name: d.name, url: areaUrl(d.name) }];
@@ -108,10 +108,10 @@ async function renderList(d, u, type, pageNo) {
   const from = (pageNo - 1) * PER_PAGE + 1, to = from + q.data.length - 1;
   return htmlResponse(page({
     path, crumbs, ld: [itemLd], canon: u && total <= PREVIEW ? areaUrl(d.name, u.name) : null,
-    title: place + '-এর ' + plural + ' — তালিকা' + (pageNo > 1 ? ' (পাতা ' + bn(pageNo) + ')' : '') + ' | Protishthan',
-    desc: clip(place + '-এ ' + bnNum(total) + 'টি ' + plural + '-এর নাম ও তথ্য' + (pageNo > 1 ? ' (পাতা ' + bn(pageNo) + '/' + bn(pages) + ')' : '') + '। প্রতিষ্ঠানের নামে চাপ দিয়ে বিস্তারিত দেখুন।', 200),
-    h1: place + '-এর ' + plural,
-    lead: esc(place) + '-এ Protishthan-এ ' + bnNum(total) + 'টি ' + esc(plural) + '-এর তথ্য আছে' + (pages > 1 ? ' (এখন ' + bn(from) + ' থেকে ' + bn(to) + ' নম্বর দেখছেন)' : '') + '।',
+    title: (u ? u.name + ' উপজেলার ' + plural + ', ' + d.name : d.name + ' জেলার ' + plural) + ' — তালিকা' + (pageNo > 1 ? ' (পাতা ' + bn(pageNo) + ')' : '') + ' | Protishthan',
+    desc: clip(inPlace + ' ' + bnNum(total) + 'টি ' + poss(plural) + ' নাম ও তথ্য' + (pageNo > 1 ? ' (পাতা ' + bn(pageNo) + '/' + bn(pages) + ')' : '') + '। প্রতিষ্ঠানের নামে চাপ দিয়ে বিস্তারিত দেখুন।', 200),
+    h1: u ? u.name + ' উপজেলার ' + plural + ' (' + d.name + ')' : d.name + ' জেলার ' + plural,
+    lead: esc(inPlace) + ' Protishthan-এ ' + bnNum(total) + 'টি ' + esc(poss(plural)) + ' তথ্য আছে' + (pages > 1 ? ' (এখন ' + bn(from) + ' থেকে ' + bn(to) + ' নম্বর দেখছেন)' : '') + '।',
     body: '<section>' + itemList(q.data, !u) + pager + '</section>',
   }));
 }

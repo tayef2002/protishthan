@@ -74,12 +74,12 @@ function buildHead(r, slug, near) {
   const unverified = r.source && r.verification === 'unverified';
   const crumbHtml = '<a href="/">তথ্যভান্ডার</a>' + (r.district ? ' › <a href="' + areaUrl(r.district) + '">' + esc(r.district) + '</a>' : '') +
     (r.district && r.upazila ? ' › <a href="' + areaUrl(r.district, r.upazila) + '">' + esc(r.upazila) + '</a>' : '');
-  const nearHtml = near.length ? '<h2>' + esc(r.upazila || r.district || 'এলাকার') + '-এর আরও ' + esc(type) + '</h2><div class="nb">' +
+  const nearHtml = near.length ? '<h2>' + (r.upazila ? esc(r.upazila) + ' উপজেলার' : r.district ? esc(r.district) + ' জেলার' : 'এলাকার') + ' আরও ' + esc(type) + '</h2><div class="nb">' +
     near.map(x => '<a href="/institution-detail?slug=' + encodeURIComponent(x.desired_slug) + '">' + esc(x.institution_name) + '</a>').join('') + '</div>' : '';
-  const more = r.district ? '<p>' + (r.upazila ? '<a href="' + areaUrl(r.district, r.upazila) + '">' + esc(r.upazila) + '-এর সব প্রতিষ্ঠান</a> · ' : '') +
+  const more = r.district ? '<p>' + (r.upazila ? '<a href="' + areaUrl(r.district, r.upazila) + '">' + esc(r.upazila) + ' উপজেলার সব প্রতিষ্ঠান</a> · ' : '') +
     '<a href="' + areaUrl(r.district, r.institution_type) + '">' + esc(r.district) + ' জেলার সব ' + esc(type) + '</a></p>' : '';
   const body = '<div class="ssr"><div class="cr">' + crumbHtml + '</div><h1>' + esc(name) + '</h1>' + (en ? '<div class="en">' + esc(en) + '</div>' : '') +
-    '<p>' + esc(name) + (loc ? ' — ' + esc(loc) + '-এর একটি ' : ' — একটি ') + esc([r.ownership, type].filter(Boolean).join(' ')) + '।' +
+    '<p>' + esc(name) + (loc ? ' — ' + esc((r.district ? r.district + ' জেলার ' : '') + (r.upazila ? r.upazila + ' উপজেলার ' : '')) + 'একটি ' : ' — একটি ') + esc([r.ownership, type].filter(Boolean).join(' ')) + '।' +
     (unverified ? ' এই তথ্য ' + esc(src) + ' থেকে নেওয়া, প্রতিষ্ঠান এখনো নিজে যাচাই করেনি।' : '') + '</p>' +
     (facts.length ? '<ul>' + facts.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') + nearHtml + more + '</div>';
   return { head, body };

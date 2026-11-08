@@ -49,6 +49,7 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   ok(h.includes('rel="canonical" href="https://protishthan.com/institution-detail?slug=pri-160618"'), 'canonical');
   ok(/name="robots" content="index,follow/.test(h), 'indexable');
   ok(h.includes('data-ssr="1"') && h.includes('<h1>নকলা চাঁনপুর সরকারি প্রাথমিক বিদ্যালয়</h1>'), 'readable summary');
+  ok(h.includes('শেরপুর জেলার নকলা উপজেলার একটি সরকারি স্কুল'), 'natural Bangla sentence');
   ok(h.includes('শিক্ষার্থী ৮২ জন') && h.includes('EIIN ১৬০৬১৮'), 'facts shown in Bangla digits');
   ok(h.includes('পাশের &lt;স্কুল&gt; ২') && !h.includes('পাশের <স্কুল>'), 'names are escaped');
   ok(h.includes('href="/area/%E0%A6%B6%E0%A7%87%E0%A6%B0%E0%A6%AA%E0%A7%81%E0%A6%B0"'), 'link to the district page');
@@ -88,7 +89,7 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   [res, h] = await get(['ঢাকা']);
   ok(res.status === 200 && h.includes('৪৩টি') && h.includes('বিশ্ববিদ্যালয়'), 'university without an upazila still counts for the district');
   [res, h] = await get(['শেরপুর', 'নকলা']);
-  ok(res.status === 200 && h.includes('নকলা-এর স্কুল') && h.includes('সব ২৩০টি স্কুল দেখুন') && !h.includes('সব ৯টি মাদ্রাসা দেখুন'), 'upazila page: "see all" only when there is more than the preview');
+  ok(res.status === 200 && h.includes('নকলা উপজেলার স্কুল') && h.includes('সব ২৩০টি স্কুল দেখুন') && !h.includes('সব ৯টি মাদ্রাসা দেখুন'), 'upazila page: "see all" only when there is more than the preview');
   [res, h] = await get(['শেরপুর', 'নকলা', 'স্কুল']);
   ok(res.status === 200 && h.includes('rel="next"') && h.includes('?page=2') && h.includes('<span aria-current="page">১</span>'), 'list page 1 with a next link');
   ok((h.match(/<li><a href="\/institution-detail/g) || []).length === 100, '100 per page');
@@ -100,7 +101,7 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   [res, h] = await get(['শেরপুর', 'নকলা', 'মাদ্রাসা']);
   ok(res.status === 200 && h.includes('rel="canonical" href="https://protishthan.com/area/%E0%A6%B6%E0%A7%87%E0%A6%B0%E0%A6%AA%E0%A7%81%E0%A6%B0/%E0%A6%A8%E0%A6%95%E0%A6%B2%E0%A6%BE"'), 'a short list (9) points to the upazila page as its main address');
   [res, h] = await get(['শেরপুর', 'স্কুল']);
-  ok(res.status === 200 && h.includes('শেরপুর-এর স্কুল') && h.includes('<span>নকলা · সরকারি</span>'), 'district-wide list shows the upazila of each school');
+  ok(res.status === 200 && h.includes('শেরপুর জেলার স্কুল') && h.includes('<span>নকলা · সরকারি</span>'), 'district-wide list shows the upazila of each school');
   [res, h] = await get(['ঢাকা', 'বিশ্ববিদ্যালয়']); ok(res.status === 200, 'universities have a district list');
   for (const bad of [['নেই'], ['শেরপুর', 'নেই'], ['শেরপুর', 'নকলা', 'নেই'], ['শেরপুর', 'নকলা', 'স্কুল', 'আরও'], ['শেরপুর', 'কলেজ']]) {
     [res, h] = await get(bad); ok(res.status === 404 && /noindex/.test(h), 'unknown area -> 404 + noindex: ' + bad.join('/'));
@@ -112,6 +113,9 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   [res, h] = await get([]);
   ok(res.status === 503 && res.headers.get('Retry-After') && /noindex/.test(h) && h.includes('পাতাটি এখন খোলা যাচ্ছে না'), 'database down -> 503 with a short note, kept out of search');
   dbDown = false;
+
+  const { poss } = await imp('functions/_lib/seo.js');
+  ok(poss('স্কুল') === 'স্কুলের' && poss('মাদ্রাসা') === 'মাদ্রাসার' && poss('কারিগরি প্রতিষ্ঠান') === 'কারিগরি প্রতিষ্ঠানের' && poss('বিশ্ববিদ্যালয়') === 'বিশ্ববিদ্যালয়ের' && poss('কলেজ') === 'কলেজের', 'Bangla possessive');
 
   // ---- sitemaps
   const idx = await imp('functions/sitemap.xml.js');
