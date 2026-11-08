@@ -1684,7 +1684,11 @@ function lbRow(r, max){
 }
 const LB_MIN_ROWS = 5, LB_MIN_TOTAL = 50;   // the board appears once at least 5 institutions and 50 cards are on it
 let LB_READY = false;
+// The board is kept hidden for now. Cards keep being counted for every institution in the background (count_card_institutes on each download),
+// so the day this is set to true the board shows everything collected so far. Switch: set LB_SHOW = true.
+const LB_SHOW = false;
 async function loadLeaderboard(){
+  if(!LB_SHOW) return;
   const list = document.getElementById('lbList'); if(!list) return;
   try{
     const { data, error } = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null });
