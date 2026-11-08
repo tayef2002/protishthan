@@ -9,7 +9,7 @@ What makes protishthan.com readable for Google, Bing and link previews. Everythi
 | Files that are not the website (plans, SQL, server code) answer 404 | `functions/_middleware.js` + `_routes.json` |
 | One institution page, with title, description, canonical, structured data and a readable summary in the first HTML | `functions/institution-detail.js` |
 | District / upazila / kind pages (`/area/...`), so every institution is reachable by plain links | `functions/area/[[path]].js` |
-| Sitemaps | `/sitemap.xml` (index) → `sitemap-pages.xml` (file, rebuilt by `node tools/seo/build_sitemap.js`), `/sitemap-areas.xml`, `/sitemap-institutions/<n>` (5,000 per file) |
+| Sitemaps | `/sitemap.xml` (index) → `sitemap-pages.xml` (file, rebuilt by `node tools/seo/build_sitemap.js`), `/sitemap-areas.xml`, `/sitemap-institutions/<n>` (about 4,500 per file) |
 | Database side | `migrations/2026-12-13_seo_sitemaps.sql` (run once). After every big import run `select public.refresh_seo_area_counts();` so the area numbers follow. |
 | Check | `node tools/seo/test_functions.js` (no internet needed) |
 

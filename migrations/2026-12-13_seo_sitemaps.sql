@@ -1,7 +1,7 @@
 -- SEO: the lists that the sitemaps and the area pages (/area/...) are built from.
 -- Run once in the Supabase SQL editor of the MAIN project (eoqeeuujvpydhmfteqqj). Safe to run more than once.
 --
---   seo_sitemap_pages(size)   how many sitemap files the institution list needs (5,000 pages per file)
+--   seo_sitemap_pages(size)   how many sitemap files the institution list needs (size = width of the PRN number range per file; the website uses 40,000, about 4,500 pages)
 --   seo_sitemap_slugs(page)   the address names (desired_slug) of one file, taken by PRN number range so it is fast and stable
 --   seo_area_counts           a small table: how many institutions of each kind in each district + upazila (about 2,000 rows)
 --   refresh_seo_area_counts() rebuilds that table from listing_submissions. Run it after every big import (it takes a few seconds).

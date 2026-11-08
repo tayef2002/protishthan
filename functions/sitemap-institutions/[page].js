@@ -1,9 +1,9 @@
-// protishthan.com/sitemap-institutions/<n> — the n-th group of 5,000 institution pages (only approved, not hidden).
+// protishthan.com/sitemap-institutions/<n> — the n-th group of about 4,500 institution pages (only approved, not hidden).
 // The list of address names comes from the database function seo_sitemap_slugs (migrations/2026-12-13_seo_sitemaps.sql).
 
 import { SITE, rest } from '../_lib/seo.js';
 
-const SIZE = 5000;
+const SIZE = 40000;   // width of the PRN number range one file covers. PRN numbers are spread out (about 1 in 9 is used), so this is roughly 4,500 pages per file
 
 export async function onRequestGet({ params }) {
   const n = parseInt(Array.isArray(params.page) ? params.page[0] : params.page, 10);
