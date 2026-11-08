@@ -1752,6 +1752,17 @@ function caption(){
   const y = eduYears();
   return (y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড' : 'আমার শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড') + '\n#শিক্ষিতকার্ড #sikkhitocard #protishthan';
 }
+/* the message that travels with the picture when WhatsApp is chosen: a few friendly versions (so a group does not see the same words twice), each ends with the link that makes a card */
+function waText(pick){
+  const y = eduYears(), link = SHARE_URL + '?ref=wa';
+  const mine = y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন' : 'আমার শিক্ষাজীবন';
+  const V = [
+    '🎓 ' + mine + ', এক কার্ডে!\nনিজের পড়াশোনা দিয়ে বানালাম আমার শিক্ষিত কার্ড।\n\nআপনিও ৩০ সেকেন্ডে নিজেরটা বানিয়ে ফেলুন, একদম ফ্রি 👇\n' + link,
+    '😄 কোনো ভাতা নেই, লাইনেও দাঁড়াতে হয়নি, তবু আমার নিজের একটা কার্ড হলো!\nএটা আমার পড়াশোনার জোরে অর্জিত শিক্ষিত কার্ড।\n\nআপনারটা বানাতে লাগবে মাত্র ৩০ সেকেন্ড, ফ্রি 👇\n' + link,
+    '📖✨ ' + mine + 'ের গল্প এখন একটা কার্ডে।\nস্কুল, কলেজ, ভার্সিটি, সব এক জায়গায়।\n\nআপনার শিক্ষাজীবনের কার্ডটাও বানিয়ে দেখুন 👇\n' + link,
+  ];
+  return V[Number.isInteger(pick) ? pick % V.length : Math.floor(Math.random() * V.length)];
+}
 function cardBlob(){ return new Promise(res=>cv.toBlob(res, 'image/png')); }
 /* phones: the card is not pinned above the keyboard while typing; this opens it full-size on demand and closes back to the same spot */
 function openPreview(){ T('card_preview'); draw(); document.getElementById('pvImg').src = cv.toDataURL('image/png'); document.getElementById('pvOv').classList.add('show'); document.body.style.overflow = 'hidden'; if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
@@ -1801,14 +1812,15 @@ async function downloadCard(){
   setTimeout(openDl, 650);
   countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
-async function shareImage(){
+async function shareImage(text){   // text: the message sent with the picture (WhatsApp passes its own); by default the short caption
   if(!String(S.name || '').trim()){ needNameToast(); return; }
+  if(typeof text !== 'string') text = caption();     // a button's click event must not end up as the text
   draw();
   const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
   try{
-    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: caption() }); countMyDownload(); T('card_share'); return; }
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: text }); countMyDownload(); T('card_share'); return; }
   }catch(e){ if(e && e.name === 'AbortError') return; }
-  try{ await navigator.clipboard.writeText(caption()); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
+  try{ await navigator.clipboard.writeText(text); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
   downloadCard();
 }
 /* on phones the picture itself is shared (the system share sheet, where Facebook / WhatsApp are one tap); on a computer only a link can be sent */
@@ -1836,7 +1848,13 @@ async function shareFacebook(){
     openFbTab();
   }
 }
-function shareWhatsApp(){ if(canShareFiles()){ shareImage(); return; } window.open('https://wa.me/?text=' + encodeURIComponent(caption() + '\n👉 ' + SHARE_URL + '?ref=wa'), '_blank', 'noopener'); }
+function shareWhatsApp(){
+  if(!String(S.name || '').trim()){ needNameToast(); return; }
+  T('card_share_whatsapp');
+  const text = waText();
+  if(canShareFiles()){ shareImage(text); return; }     // phone: picture + message together through the share sheet
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');     // computer: a link cannot carry a picture, so the message with the link is sent
+}
 
 /* ---------------- save in this browser (no login) ---------------- */
 const SAVE_KEY = 'shikkhito_card_v1';
