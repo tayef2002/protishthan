@@ -1653,7 +1653,11 @@ async function loadLeaderboard(){
   try{
     const { data, error } = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null });
     if(error) throw error;
-    if(!LB_READY && !lbDistrict && !lbType){ const tot = (data || []).reduce((a, r) => a + Number(r.n || 0), 0); if((data || []).length >= LB_MIN_ROWS && tot >= LB_MIN_TOTAL){ LB_READY = true; document.getElementById('lb').hidden = false; } }
+    if(!LB_READY && !lbDistrict && !lbType){   // the rule is about everything on the board, not only the 10 rows shown
+      const all = await sb.rpc('card_leaderboard', { p_limit: 500, p_district: null, p_type: null }), rows = (all && all.data) || [];
+      const tot = rows.reduce((a, r) => a + Number(r.n || 0), 0);
+      if(rows.length >= LB_MIN_ROWS && tot >= LB_MIN_TOTAL){ LB_READY = true; document.getElementById('lb').hidden = false; }
+    }
     if(!LB_READY) return;
     if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!</li>'; return; }
     const max = Math.max(...data.map(r => Number(r.n)));
