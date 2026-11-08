@@ -70,6 +70,13 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   ok(res.status === 200 && !/noindex/.test(await res.text()), 'database down + person -> normal page');
   dbDown = false;
 
+  // a crash inside must never take the page away from people
+  const badEnv = { ...env }, okFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new TypeError('boom'); };
+  const brokenDb = await inst.onRequestGet(ctx('https://protishthan.com/institution-detail?slug=pri-160618', { headers: { 'user-agent': 'Chrome' } }));
+  globalThis.fetch = okFetch;
+  ok(brokenDb.status === 200 && (await brokenDb.text()).includes('id="loadingState"'), 'a failing database still gives people the normal page');
+
   // ---- area pages
   const area = await imp('functions/area/[[path]].js');
   const get = async (parts, q = '') => { const r = await area.onRequestGet(ctx('https://protishthan.com/area/' + parts.map(encodeURIComponent).join('/') + q, { params: { path: parts.map(encodeURIComponent) } })); return [r, await r.text()]; };

@@ -95,7 +95,11 @@ function build(html, parts, status) {
   return htmlResponse(out, status, status === 200 ? 'public, max-age=300, s-maxage=3600' : 'no-store');
 }
 
-export async function onRequestGet(context) { return cached(context, () => handle(context)); }
+// whatever goes wrong here, people still get the normal page (the browser fills it in by itself, as it always did)
+export async function onRequestGet(context) {
+  try { return await cached(context, () => handle(context)); }
+  catch (e) { return context.env.ASSETS.fetch(new Request(new URL('/institution-detail', context.request.url))); }
+}
 
 async function handle(context) {
   const { request, env } = context;
