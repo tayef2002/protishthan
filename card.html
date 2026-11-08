@@ -717,7 +717,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
           <div class="stream-seg" id="streamSeg" role="group" aria-label="শিক্ষার ধারা">
             <button type="button" data-t="g" class="on" onclick="setTrack('g')">স্কুল-কলেজ<small>SSC / HSC</small></button>
             <button type="button" data-t="a" onclick="setTrack('a')">আলিয়া<small>সরকারি মাদ্রাসা · দাখিল, আলিম</small></button>
-            <button type="button" data-t="q" onclick="setTrack('q')">কওমি<small>কওমি মাদ্রাসা · দাওরা</small></button>
+            <button type="button" data-t="q" onclick="setTrack('q')">কওমি<small>কওমি মাদ্রাসা · দাওরা, ইফতা</small></button>
           </div>
         </div>
         <div id="eduRows"></div>
@@ -884,10 +884,11 @@ const LEVELS = [
   { key:'school',  title:'মাধ্যমিক',      sub:'SSC',                 names:{ g:'SSC', a:'দাখিল', q:'সানাবিয়্যাহ আম্মাহ' },        ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC',                 except:'q', names:{ g:'HSC', a:'আলিম', q:'সানাবিয়্যাহ খাস্সাহ' },        ph:'কলেজ বা মাদ্রাসার নাম' },
   { key:'bachelor',title:'স্নাতক',        sub:'অনার্স, ডিগ্রি',      names:{ g:'অনার্স / ডিগ্রি', a:'ফাজিল', q:'ফযীলত' },       ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
-  { key:'masters', title:'স্নাতকোত্তর',   sub:'মাস্টার্স',           names:{ g:'মাস্টার্স', a:'কামিল', q:'তাকমীল (দাওরা)' },       ph:'বিশ্ববিদ্যালয় বা মাদ্রাসার নাম' }
+  { key:'masters', title:'স্নাতকোত্তর',   sub:'মাস্টার্স',           names:{ g:'মাস্টার্স', a:'কামিল', q:'তাকমীল (দাওরা)' },       ph:'বিশ্ববিদ্যালয় বা মাদ্রাসার নাম' },
+  { key:'ifta',    title:'ইফতা (মুফতি)',  cardTitle:'ইফতা', sub:'দাওরার পর',     only:'q', names:{ g:'ইফতা', a:'ইফতা', q:'মুফতি' },                  ph:'মাদ্রাসার নাম' }
 ];
 const TRACKS = [['g', 'সাধারণ'], ['a', 'আলিয়া'], ['q', 'কওমি']];
-const isVis = l => (!l.only || S.track === l.only) && (!l.except || S.track !== l.except);   // Hifz only on Qawmi; Sanabiyyah Khassah never on Qawmi
+const isVis = l => (!l.only || S.track === l.only) && (!l.except || S.track !== l.except);   // Hifz and Ifta only on Qawmi; Sanabiyyah Khassah never on Qawmi
 const visLevels = () => LEVELS.filter(isVis);
 const lvName = (l, ed) => (l.names[(ed && ed.track) || 'g'] || l.names.g);
 const lvLabel = (l, ed, short) => (short && ed.track === 'q') ? lvName(l, ed) : (l.cardTitle || l.title) + ' · ' + lvName(l, ed);
@@ -1043,7 +1044,7 @@ function showAc(k, q){
 }
 /* ---- year dropdown + automatic years ---- */
 const CUR_YEAR = new Date().getFullYear();
-const YEAR_GAP = { jsc: 3, school: 2, college: 2, bachelor: 4, masters: 1 };   // years from the previous level (PSC→JSC 3, JSC→SSC 2, SSC→HSC 2, HSC→degree 4, degree→masters 1)
+const YEAR_GAP = { jsc: 3, school: 2, college: 2, bachelor: 4, masters: 1, ifta: 2 };   // years from the previous level (PSC→JSC 3, JSC→SSC 2, SSC→HSC 2, HSC→degree 4, degree→masters 1, Dawra→Ifta 2: usual length of the Ifta course, the visitor can change the year)
 const ALLK = LEVELS.filter(l => l.key !== 'hifz').map(l => l.key);
 const LV = () => LEVELS.filter(l => l.key !== 'hifz' && isVis(l)).map(l => l.key);
 const yg = (a, b) => { let t = 0; for(let x = ALLK.indexOf(a) + 1; x <= ALLK.indexOf(b); x++) t += YEAR_GAP[ALLK[x]]; return t; };   // years between two levels, counting any hidden level in between
@@ -1481,7 +1482,7 @@ function verifiedTick(x, y, r){          // blue tick: this institution is liste
   ctx.strokeStyle = '#fff'; ctx.lineWidth = r * .28; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x - r * .42, y + r * .02); ctx.lineTo(x - r * .1, y + r * .34); ctx.lineTo(x + r * .46, y - r * .32); ctx.stroke(); ctx.restore();
 }
-const LEVEL_YEARS = { hifz: 0, psc: 5, jsc: 8, school: 10, college: 12, bachelor: 16, masters: 17 };   // years of schooling up to the end of each level
+const LEVEL_YEARS = { hifz: 0, psc: 5, jsc: 8, school: 10, college: 12, bachelor: 16, masters: 17, ifta: 19 };   // years of schooling up to the end of each level (Ifta = Dawra + 2; the visitor can type their own total)
 
 function syncNeedName(){
   const ok = !!String((typeof S !== 'undefined' && S.name) || '').trim();
