@@ -5,7 +5,9 @@
    Visitors who switch on "Do Not Track" in their browser are not measured. Private data (names, photos, institutes) is never sent. */
 (function(){
   'use strict';
-  var CFG = { ga: '', clarity: '' };
+  var CFG = { ga: 'G-76LJTR14XC', clarity: '' };
+  // only the real site is measured: local tests and preview hosts must not add hits to the real numbers
+  if(!/(^|\.)protishthan\.com$/.test(location.hostname)){ CFG.ga = ''; CFG.clarity = ''; }
 
   var dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.msDoNotTrack === '1';
   window.track = function(name, params){
