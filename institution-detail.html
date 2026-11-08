@@ -325,7 +325,7 @@ a{color:inherit}
 </header>
 
 <!-- loading skeleton -->
-<div id="loadingState">
+<div id="loadingState"><!--ssr-->
   <div class="skel skel-cover" style="border-radius:0"></div>
   <div class="skel-wrap">
     <div class="skel" style="height:120px;margin-top:-50px;position:relative"></div>
@@ -616,7 +616,7 @@ async function loadDetail(){
   syncSaveBtn();
   if(typeof syncClaim === 'function') syncClaim();
 
-  sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{ if(error) console.error('View count tracking failed', error); });
+  if(!/bot|crawl|spider|facebookexternalhit|preview|lighthouse/i.test(navigator.userAgent)) sb.rpc('increment_view_count', { institution_slug: slug }).then(({error})=>{ if(error) console.error('View count tracking failed', error); });
 
   // live institutions row (admin-edited logo, cover, description, achievements …)
   let inst = null;
@@ -651,8 +651,11 @@ function render(){
   const loc = [r.upazila, r.district].filter(Boolean).join(', ');
   const name = r.institution_name || 'প্রতিষ্ঠান';
   document.body.classList.add(t.cls);
-  document.title = name + ' — ' + (r.institution_type || 'শিক্ষা প্রতিষ্ঠান') + (loc ? ', ' + loc : '') + ' | Protishthan';
-  setMeta(name + (loc ? ' — ' + loc : '') + '। শিক্ষার্থী, শিক্ষক, ভর্তি, সুযোগ-সুবিধা ও যোগাযোগের তথ্য।');
+  // the server already wrote the title / description / structured data into the page (functions/institution-detail.js): keep them
+  if(!document.documentElement.dataset.ssr){
+    document.title = name + ' — ' + (r.institution_type || 'শিক্ষা প্রতিষ্ঠান') + (loc ? ', ' + loc : '') + ' | Protishthan';
+    setMeta(name + (loc ? ' — ' + loc : '') + '। শিক্ষার্থী, শিক্ষক, ভর্তি, সুযোগ-সুবিধা ও যোগাযোগের তথ্য।');
+  }
 
   // breadcrumb
   const cd = document.getElementById('crumbDistrict');
@@ -811,6 +814,14 @@ function injectJsonLd(r, inst, loc, phone){
   if(phone) data.telephone = '+88' + String(phone).replace(/\D/g,'').replace(/^88/,'');
   if(inst && inst.logo_url) data.logo = inst.logo_url;
   if(r.description || (inst && inst.description)) data.description = (inst && inst.description) || r.description;
+  // the server wrote the main structured data already: add what only the browser knows (phone, logo, fuller description) to it instead of making a second copy
+  const ssr = document.getElementById('ld-ssr');
+  if(ssr){
+    try{
+      const j = JSON.parse(ssr.textContent), org = (j['@graph'] || [])[0];
+      if(org){ ['telephone', 'logo', 'description'].forEach(k => { if(data[k]) org[k] = data[k]; }); ssr.textContent = JSON.stringify(j); return; }
+    }catch(e){}
+  }
   const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(data);
   document.head.appendChild(s);
 }
@@ -923,7 +934,7 @@ async function loadNearby(){
     document.getElementById('nearbySub').textContent = 'Protishthan তথ্যভান্ডার থেকে';
     document.getElementById('nearbyGrid').innerHTML = list.map(x=>{
       const tt = TYPE[x.institution_type] || DEFAULT_TYPE;
-      return '<a class="nb '+tt.cls+'" href="institution-detail.html?slug='+encodeURIComponent(x.desired_slug)+'">' +
+      return '<a class="nb '+tt.cls+'" href="institution-detail?slug='+encodeURIComponent(x.desired_slug)+'">' +
         '<span class="nb-ic" style="background:var(--accent-l);color:var(--accent)">'+ico(tt.ic,22)+'</span>' +
         '<span style="min-width:0"><span class="nb-name" style="display:block">'+escapeHtml(x.institution_name)+'</span>' +
         '<span class="nb-meta">'+escapeHtml(x.institution_type||'')+(x.upazila?' · '+escapeHtml(x.upazila):'')+(x.admission_status==='খোলা'?' · <b style="color:var(--green)">ভর্তি চলছে</b>':'')+'</span></span></a>';

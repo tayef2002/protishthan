@@ -1,0 +1,10 @@
+# Cloudflare Pages: extra response headers (static files only).
+# Pictures and fonts rarely change: let the browser keep them for a day (faster repeat visits, better page-speed scores).
+/*.webp
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/*.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/*.jpg
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/*.woff2
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000

@@ -1,0 +1,9 @@
+# Protishthan — which pages search engines may read.
+# Cloudflare adds its own block (AI-training crawlers) above this one; this block is for the normal search engines.
+# Private pages (admin, dashboards, logins) are kept out of search with a "noindex" tag on each page, not here:
+# a page blocked in this file cannot be read, so its "noindex" would never be seen and the bare address could still show up.
+
+User-agent: *
+Disallow: /api/
+
+Sitemap: https://protishthan.com/sitemap.xml

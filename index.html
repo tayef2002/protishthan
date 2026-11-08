@@ -828,6 +828,10 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
 <link rel="stylesheet" href="/lipi.css?v=2">
 <script src="/bnname.js?v=3"></script>
 <script src="/analytics.js?v=3" defer></script>
+<link rel="canonical" href="https://protishthan.com/">
+<meta property="og:url" content="https://protishthan.com/">
+<meta property="og:locale" content="bn_BD">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://protishthan.com/#org","name":"Protishthan","alternateName":"প্রতিষ্ঠান","url":"https://protishthan.com/","logo":"https://protishthan.com/icon-192.png","sameAs":["https://www.facebook.com/Protishthan"]},{"@type":"WebSite","@id":"https://protishthan.com/#site","url":"https://protishthan.com/","name":"Protishthan","inLanguage":"bn","publisher":{"@id":"https://protishthan.com/#org"}}]}</script>
 </head>
 <body>
 
@@ -1221,6 +1225,7 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
         <a href="#instList" onclick="return footerFilter('কলেজ')">কলেজ</a>
         <a href="#instList" onclick="return footerFilter('কোচিং সেন্টার')">কোচিং সেন্টার</a>
         <a href="#instList" onclick="return footerFilter('admission')">ভর্তি চলছে</a>
+        <a href="area">জেলা অনুযায়ী দেখুন</a>
       </div>
       <div class="ft-col">
         <h4>প্রতিষ্ঠানের জন্য</h4>
@@ -1554,7 +1559,7 @@ async function srvFetch(more){
 }
 function srvCard(s, i){
     const loc = [s.upazila, s.district].filter(Boolean).map(escapeHtml).join(', ');
-    return '<a class="inst-card' + (i >= SRV.fresh ? ' srv-new' : '') + '" style="--i:' + Math.max(0, i - SRV.fresh) + '" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+    return '<a class="inst-card' + (i >= SRV.fresh ? ' srv-new' : '') + '" style="--i:' + Math.max(0, i - SRV.fresh) + '" href="institution-detail?slug=' + encodeURIComponent(s.desired_slug) + '">' +
       '<div class="ic-top"><div class="inst-logo ' + (typeColor[s.institution_type] || 'ti-school') + '">' + ico(typeIcons[s.institution_type] || 'school', 24) + '</div>' +
       '<div class="ic-head"><div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
       '<div class="ic-loc">' + escapeHtml(s.institution_type || 'প্রতিষ্ঠান') + (loc ? ' · ' + ico('pin', 12) + ' ' + loc : '') + '</div></div>' +
@@ -1637,7 +1642,7 @@ function renderCards(list){
     const loc = [s.upazila, s.district].filter(Boolean).map(escapeHtml).join(', ');
     const stat = (v, label) => '<div class="ic-stat"><b>' + (v ? bnNum(escapeHtml(v)) : '—') + '</b><span>' + label + '</span></div>';
     const cardTags = tags.filter(t => t.indexOf('ভর্তি চলছে') < 0 && t.indexOf('সালে প্রতিষ্ঠিত') < 0);
-    return '<a class="inst-card" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+    return '<a class="inst-card" href="institution-detail?slug=' + encodeURIComponent(s.desired_slug) + '">' +
       '<div class="ic-top">' +
         '<div class="inst-logo ' + (typeColor[s.institution_type] || 'ti-school') + '">' + icon + '</div>' +
         '<div class="ic-head"><div class="inst-name">' + escapeHtml(s.institution_name) + '</div>' +
@@ -2120,7 +2125,7 @@ function hideSuggestions(){
 function suggestItemHtml(s){
   const icon = ico(typeIcons[s.institution_type] || 'school', 20);
   const admissionTag = s.admission_status === 'খোলা' ? ' • ভর্তি চলছে' : '';
-  return '<a class="suggest-item" href="institution-detail.html?slug=' + encodeURIComponent(s.desired_slug) + '">' +
+  return '<a class="suggest-item" href="institution-detail?slug=' + encodeURIComponent(s.desired_slug) + '">' +
     '<span class="suggest-icon ' + (typeColor[s.institution_type] || 'ti-school') + '">' + icon + '</span>' +
     '<div><div class="suggest-name">' + escapeHtml(s.institution_name) + '</div>' +
     '<div class="suggest-meta">' + escapeHtml(s.upazila||'') + ', ' + escapeHtml(s.district||'') + admissionTag + '</div></div>' +

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
 <title>Public Page — Protishthan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -426,7 +427,7 @@ async function resolveListing(inst){
     return;
   }
   document.getElementById('viewCountVal').textContent = (data.view_count||0).toLocaleString('bn-BD');
-  const link = location.origin + '/institution-detail.html?slug=' + encodeURIComponent(data.desired_slug);
+  const link = location.origin + '/institution-detail?slug=' + encodeURIComponent(data.desired_slug);
   document.getElementById('qrWrap').style.display = 'flex';
   const linkEl = document.getElementById('publicLinkText');
   linkEl.href = link;

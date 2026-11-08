@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
 <title>Settings — Protishthan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1010,7 +1011,7 @@ async function loadPublicPage(inst){
     wrap.innerHTML = `<div class="s-card-sub">📋 লিস্টিং জমা হয়েছে, এখনো অনুমোদনের অপেক্ষায় (স্ট্যাটাস: ${escapeHtml(data.status)})।</div>`;
     return;
   }
-  const link = location.origin + '/institution-detail.html?slug=' + encodeURIComponent(data.desired_slug);
+  const link = location.origin + '/institution-detail?slug=' + encodeURIComponent(data.desired_slug);
   wrap.innerHTML = `
     <div class="detail-row"><div class="lbl">পাবলিক লিংক</div><div class="val"><a href="${link}" target="_blank" style="color:var(--blue)">${escapeHtml(link)}</a></div></div>
     <div class="detail-row">

@@ -145,6 +145,11 @@ textarea{resize:vertical;min-height:80px}
 <meta name="twitter:card" content="summary_large_image">
 <script src="/bnname.js?v=3"></script>
 <script src="/analytics.js?v=3" defer></script>
+<link rel="canonical" href="https://protishthan.com/list-institution">
+<meta name="description" content="আপনার স্কুল, মাদ্রাসা, কলেজ বা কোচিং সেন্টার বিনামূল্যে Protishthan তথ্যভান্ডারে যুক্ত করুন। ফর্ম পূরণ করলেই প্রতিষ্ঠানের নিজের পাতা তৈরি হয়।">
+<meta property="og:url" content="https://protishthan.com/list-institution">
+<meta property="og:locale" content="bn_BD">
+<meta property="og:description" content="আপনার স্কুল, মাদ্রাসা, কলেজ বা কোচিং সেন্টার বিনামূল্যে Protishthan তথ্যভান্ডারে যুক্ত করুন। ফর্ম পূরণ করলেই প্রতিষ্ঠানের নিজের পাতা তৈরি হয়।">
 </head>
 <body data-clarity-mask="True">
 
@@ -673,7 +678,7 @@ document.getElementById('contactPhone').addEventListener('input', e=>{
     box.innerHTML = '<div class="nm-h">তালিকায় এই নামের মতো প্রতিষ্ঠান আগেই আছে<small>আপনারটা এখানে থাকলে আবার যোগ করবেন না। "এটাই আমার" চেপে দাবি করুন।</small></div>' +
       rows.map(function(r){
         var here = (u && r.upazila === u) || (!u && d && r.district === d), same = r.name_en && r.name_en !== r.institution_name;
-        return '<div class="nm-r' + (here ? ' here' : '') + '"><div class="nm-t"><b>' + esc(r.institution_name) + (same ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><span class="bg' + (r.verification === 'verified' ? ' v' : '') + '">' + (r.verification === 'verified' ? 'যাচাইকৃত' : 'তালিকায় আছে') + '</span><a class="own" href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '&claim=1" target="_blank" rel="noopener">এটাই আমার</a><a href="institution-detail.html?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>';
+        return '<div class="nm-r' + (here ? ' here' : '') + '"><div class="nm-t"><b>' + esc(r.institution_name) + (same ? '<i>' + esc(r.name_en) + '</i>' : '') + '</b><span class="m">' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + (r.prn_number ? ' · PRN-' + String(r.prn_number).padStart(6, '0') : '') + '</span></div><span class="bg' + (r.verification === 'verified' ? ' v' : '') + '">' + (r.verification === 'verified' ? 'যাচাইকৃত' : 'তালিকায় আছে') + '</span><a class="own" href="institution-detail?slug=' + encodeURIComponent(r.desired_slug) + '&claim=1" target="_blank" rel="noopener">এটাই আমার</a><a href="institution-detail?slug=' + encodeURIComponent(r.desired_slug) + '" target="_blank" rel="noopener">দেখুন ↗</a></div>';
       }).join('') +
       '<div class="nm-f"><span>নিচের কোনোটাই আপনার নয়?</span><button type="button" id="nmNone">না, আমার প্রতিষ্ঠান নতুন</button></div>';
     box.hidden = false;
