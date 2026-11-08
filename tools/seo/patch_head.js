@@ -65,3 +65,21 @@ for (const [n, c] of Object.entries(PUBLIC)) {
   if (h !== before) write(n, h);
 }
 console.log('patched:', touched.join(', ') || '(nothing to do)');
+
+// 3) page speed: open the connections to the font host, the script host and the database early (pages that use them; safe to run again)
+const HINTS = {
+  fonts: '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+  cdn: '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>',
+  db: '<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>',
+};
+const hinted = [];
+for (const n of ['index', 'about', 'info', 'card', 'partner', 'list-institution', 'institution-detail', 'privacy', 'terms']) {
+  let h = read(n), add = [];
+  if (/fonts\.googleapis\.com\/css2/.test(h) && !/rel="preconnect" href="https:\/\/fonts\.googleapis\.com"/.test(h)) add.push(HINTS.fonts);
+  if (/cdn\.jsdelivr\.net/.test(h) && !/rel="preconnect" href="https:\/\/cdn\.jsdelivr\.net"/.test(h)) add.push(HINTS.cdn);
+  if (/eoqeeuujvpydhmfteqqj\.supabase\.co/.test(h) && !/rel="preconnect" href="https:\/\/eoqeeuujvpydhmfteqqj/.test(h)) add.push(HINTS.db);
+  if (!add.length) continue;
+  h = h.replace(/(<meta[^>]+name="viewport"[^>]*>)/i, '$1\n' + add.join('\n'));
+  write(n, h); hinted.push(n);
+}
+console.log('preconnect added to:', hinted.join(', ') || '(already there)');
