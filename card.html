@@ -1782,6 +1782,9 @@ async function refreshDownloads(){
   if(document.hidden) return;
   try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
+// A card counts the moment it reaches the person: saved as a file, handed to another app through the phone's share sheet, or copied to paste into Facebook.
+// The server still counts each person once per name, so doing two of these for the same card adds one.
+function countCardMade(){ countMyDownload(); countMyInstitutes(); }
 async function countMyDownload(){   // once per person per name: the server compares this device and this account with the name on the card
   const nm = String(S.name || '').trim(); if(!nm) return;
   try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
@@ -1873,7 +1876,7 @@ async function downloadCard(){
   await saveFormat(fmt);
   DL_LAST = fmt;
   setTimeout(openDl, 650);
-  countMyDownload(); countMyInstitutes(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
+  countCardMade(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : '') });
 }
 async function shareImage(text){   // text: the message sent with the picture (WhatsApp passes its own); by default the short caption
   if(!String(S.name || '').trim()){ needNameToast(); return; }
@@ -1881,7 +1884,7 @@ async function shareImage(text){   // text: the message sent with the picture (W
   draw();
   const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
   try{
-    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: text }); countMyDownload(); T('card_share'); return; }
+    if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: text }); countCardMade(); T('card_share'); return; }
   }catch(e){ if(e && e.name === 'AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast('ক্যাপশন কপি হয়েছে — ছবি ডাউনলোড করে পোস্ট করুন'); }catch(e){}
   downloadCard();
@@ -1903,6 +1906,7 @@ async function shareFacebook(){
   try{
     if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
     await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
+    countCardMade(); T('card_copy_for_facebook');     // the card is on the clipboard: it counts even if the visitor never saves a file
     setShHint('ছবি কপি হয়েছে ✓ Facebook-এ "মনে কী চলছে" বক্সে ক্লিক করে Ctrl+V চাপুন। ক্যাপশনও চাইলে নিচের "ছবিসহ শেয়ার / ক্যাপশন কপি" চেপে ক্যাপশন কপি করে আবার Ctrl+V দিন।');
     openFbTab();
   }catch(e){
