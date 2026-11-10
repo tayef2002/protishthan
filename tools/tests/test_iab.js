@@ -48,7 +48,7 @@ s = direct('?ref=a', 'https://protishthan.com/card?ref=a', WV_ANDROID); ok(s.rep
 // OK / the open button on Android hands the page to the default browser (this worked on a real phone inside the Facebook app)
 const tap = (agent, href) => {
   let assigned = null, base = href;
-  const win = { navigator: { userAgent: agent }, location: { search: '', get href(){ return base; }, set href(v){ assigned = v; } }, document: { readyState: 'loading', hidden: false, addEventListener() {} } };
+  const win = { navigator: { userAgent: agent }, location: { search: '', get href(){ return base; }, set href(v){ assigned = v; } }, document: { readyState: 'loading', hidden: false, addEventListener() {}, getElementById: () => null } };
   vm.runInNewContext(src, { window: win, URL, encodeURIComponent, Promise, setTimeout: () => 0, console }); win.Iab.openExternal(); return assigned;
 };
 let go = tap(FB_ANDROID, 'https://protishthan.com/card?fbclid=ABC&ref=x');

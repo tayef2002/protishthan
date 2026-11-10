@@ -49,6 +49,10 @@
     + '.iab-arrow{position:fixed;z-index:9900;top:8px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:#fff;font:700 14px "Hind Siliguri",sans-serif;pointer-events:none;animation:iabBob 1s ease-in-out infinite}'
     + '.iab-arrow b{font-size:38px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.45)}.iab-arrow span{background:#1A56DB;padding:6px 12px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}'
     + '@keyframes iabBob{0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-8px)}}@media(prefers-reduced-motion:reduce){.iab-arrow{animation:none}}'
+    // Facebook's own "You're leaving our app ... GO BACK / CONTINUE" question appears (a native window, nothing can be drawn over it) in the middle of the screen: the hint sits just under it, on the right, pointing up at CONTINUE
+    + '.iab-cont{position:fixed;z-index:9900;left:82%;top:calc(50% + 70px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;color:#fff;font:700 14px "Hind Siliguri",sans-serif;pointer-events:none;animation:iabUp 1s ease-in-out infinite}'
+    + '.iab-cont b{font-size:42px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.5)}.iab-cont span{background:#1A56DB;padding:7px 13px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.4)}'
+    + '@keyframes iabUp{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}@media(prefers-reduced-motion:reduce){.iab-cont{animation:none}}'
     + '.iab-sheet .x{display:block;margin:10px auto 0;border:none;background:none;color:#64748B;font:600 13.5px "Hind Siliguri",sans-serif;cursor:pointer}';
   var styled = false;
   function style(){ if (styled || !root.document) return; styled = true; var s = root.document.createElement('style'); s.textContent = CSS; root.document.head.appendChild(s); }
@@ -87,7 +91,7 @@
       var m = ensureModal(), sheet = m.querySelector('.iab-sheet');
       sheet.style.textAlign = 'left'; sheet.innerHTML = stepsHtml(false); wireSteps(sheet, m);
       // a bouncing arrow at the top right, where the app's own menu is
-      if (!m.querySelector('.iab-arrow')) m.insertAdjacentHTML('beforeend', '<div class="iab-arrow" aria-hidden="true"><b>↗</b><span>এখানে ⋮ চাপুন</span></div>');
+      if (!m.querySelector('.iab-arrow')) m.insertAdjacentHTML('beforeend', '<div class="iab-arrow" aria-hidden="true"' + (m.querySelector('.iab-cont') ? ' style="display:none"' : '') + '><b>↗</b><span>এখানে ⋮ চাপুন</span></div>');
       // the link is copied in this same tap (the phone allows it only inside a tap), so "paste it in Chrome" is ready without another step
       var cb = d.getElementById('iabCopy');
       copy(cleanHref()).then(function(ok){ if (ok && cb) cb.textContent = 'লিংক কপি হয়েছে ✓ (Chrome-এ সার্চ বারে পেস্ট করুন)'; track('iab_auto_copy', { ok: ok ? 1 : 0 }); });
@@ -104,15 +108,26 @@
     }
     ov.classList.add('show'); track('iab_steps_open', { os: ios ? 'ios' : 'android', gate: 0 });
   }
+  // for 12 seconds after the tap: an arrow under the app's own question pointing at CONTINUE (the ⋮ arrow waits, two arrows at once would confuse)
+  var contTimer = 0;
+  function continueHint(){
+    var m = root.document && root.document.getElementById('iabModal'); if (!m) return;
+    var old = m.querySelector('.iab-cont'); if (old) old.parentNode.removeChild(old);
+    var ar = m.querySelector('.iab-arrow'); if (ar) ar.style.display = 'none';
+    m.insertAdjacentHTML('beforeend', '<div class="iab-cont" aria-hidden="true"><b>↑</b><span>CONTINUE চাপুন</span></div>');
+    clearTimeout(contTimer);
+    contTimer = setTimeout(function(){ var c = m.querySelector('.iab-cont'); if (c && c.parentNode) c.parentNode.removeChild(c); var a = m.querySelector('.iab-arrow'); if (a) a.style.display = ''; }, 12000);
+    track('iab_continue_hint', { os: 'android' });
+  }
   function openExternal(url){
     url = url || root.location.href;
     track('iab_open_click', { os: ios ? 'ios' : (android ? 'android' : 'other') });
     // Android: hand the page to the phone's default browser (it worked on the owner's own phone from inside the Facebook app). The page cannot tell whether it worked
     // (the app does not report that it went to the background, so the page may look "still visible" even after Chrome opened), so after 1.6 s the steps (with a try-again
     // button) are shown as a safety net: whoever is in Chrome never sees them, whoever stays or comes back has the way out in front of them.
-    if (android && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }
+    if (android && !test) { root.location.href = externalHref(url); continueHint(); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }
     showSteps();     // iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
-    if (test && android) root.__iabIntent = externalHref(url);     // the preview records the address it would have opened (for tests)
+    if (test && android) { root.__iabIntent = externalHref(url); continueHint(); }     // the preview records the address it would have opened (for tests) and shows the hint
   }
 
   // It appears after 4 seconds (a visitor who is shown a popup the moment the page opens is annoyed): time to look at the page and scroll a little, then it fades in softly.
@@ -129,7 +144,7 @@
       var ov = ensureModal(), sheet = ov.querySelector('.iab-sheet');
       sheet.innerHTML = '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
         + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
-        + (ios ? ' ঠিক আছে চাপলে দেখাব কীভাবে খুলবেন।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
+        + (ios ? ' ঠিক আছে চাপলে দেখাব কীভাবে খুলবেন।' : ' ঠিক আছে চাপলে Facebook একটা প্রশ্ন করবে (<i>You’re leaving our app</i>), তখন <b>CONTINUE</b> চাপুন, নিরাপদ, ব্রাউজারে খুলে যাবে।') + '</p>'
         + '<button type="button" class="go" id="iabOk">ঠিক আছে</button>';
       sheet.setAttribute('aria-labelledby', 'iabMT');
       d.getElementById('iabOk').onclick = function(){
