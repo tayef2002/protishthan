@@ -939,8 +939,10 @@ if(!cardNo){ cardNo = String(Math.floor(100000 + Math.random()*900000)); try{ lo
 
 /* ---------------- institutions ---------------- */
 let INST = [];
-sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').eq('verification','verified').or('is_hidden.is.null,is_hidden.eq.false').limit(2000)
-  .then(({data})=>{ INST = data || []; fillLbDistricts(); }).catch(()=>{});
+/* the same list for every visitor: read through /api/dir (kept on the edge for a few minutes), not from the small database on each page view; a plain static preview without /api/dir asks the database directly */
+fetch('/api/dir?f=verifiedlite')
+  .then(r => r.ok ? r.json() : (r.status === 404 ? sb.from('listing_submissions').select('institution_name,institution_type,district,upazila,desired_slug').eq('status','approved').eq('verification','verified').or('is_hidden.is.null,is_hidden.eq.false').limit(2000).then(x => x.data) : null))
+  .then(data => { INST = Array.isArray(data) ? data : []; fillLbDistricts(); }).catch(() => { INST = []; fillLbDistricts(); });
 
 /* ---------------- form UI ---------------- */
 const LEVEL_IC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>';
@@ -1055,7 +1057,7 @@ function showAc(k, q){
   const local = narrowed.length ? narrowed : INST.filter(s => BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7);
   let state = cached ? 'done' : 'loading';
   paint(cached || local, state);
-  try{ sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(r => { if(seq !== acSeq || !r || r.error || !Array.isArray(r.data)) return; MEMH[k] = r.data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); }, () => {}); }catch(e){}
+  try{ fetch('/api/dir?f=members&a=' + encodeURIComponent(JSON.stringify({ p_q: q.slice(0, 100), p_limit: 5 }))).then(res => res.ok ? res.json() : (res.status === 404 ? sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(x => x.error ? null : x.data) : null)).then(data => { if(seq !== acSeq || !Array.isArray(data)) return; MEMH[k] = data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); }, () => {}); }catch(e){}
   if(cached) return;
   // 2) the directory (searched on the server, it holds 100,000+ names), after a very short pause so a fast typist does not send a request for every letter; the older request is dropped
   const old = ACT[k]; if(old){ clearTimeout(old.t); try{ if(old.c) old.c.abort(); }catch(e){} }

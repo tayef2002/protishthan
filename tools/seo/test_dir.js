@@ -33,6 +33,10 @@ const A = o => 'a=' + encodeURIComponent(JSON.stringify(o));
   // verified list and promo: the same filters as the page used before
   dbCalls = 0; await call('f=verified'); ok(dbCalls === 1 && /listing_submissions/.test(lastUrl) && /status=eq\.approved/.test(lastUrl) && /verification=eq\.verified/.test(lastUrl) && /is_hidden/.test(lastUrl) && /order=created_at\.desc/.test(lastUrl), 'verified: same filters as the page');
   await call('f=promo'); ok(/site_promos/.test(lastUrl) && /slot=eq\.home_popup/.test(lastUrl), 'promo: home popup row');
+  dbCalls = 0; await call('f=verifiedlite'); ok(dbCalls === 1 && /select=institution_name,institution_type,district,upazila,desired_slug/.test(lastUrl) && /limit=2000/.test(lastUrl) && /verification=eq\.verified/.test(lastUrl) && /is_hidden/.test(lastUrl), 'verifiedlite: the card page list, five columns, limit 2000');
+  r = await call('f=members&' + A({ p_q: 'a', p_limit: 5 })); ok(r.status === 400, 'members: one letter is refused');
+  r = await call('f=members&' + A({ p_q: 'স্কুল', p_limit: 99 })); ok(r.status === 400, 'members: limit above 8 is refused');
+  dbCalls = 0; await call('f=members&' + A({ p_q: 'স্কুল ', p_limit: 5 })); await call('f=members&' + A({ p_q: 'স্কুল', p_limit: 5 })); ok(dbCalls === 1 && /rpc\/member_name_suggestions/.test(lastUrl) && JSON.parse(lastBody).p_q === 'স্কুল', 'members: same word = one database question, right function');
 
   // search + browse: arguments are checked and cleaned, the same question shares one answer
   r = await call('f=search&' + A({ p_q: '   ', p_limit: 8 })); ok(r.status === 400, 'search: an empty word is refused');
