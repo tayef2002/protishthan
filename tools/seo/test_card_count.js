@@ -49,7 +49,7 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
     globalThis.fetch = keepFetch; store.clear();
   }
 
-  store.clear(); dbMode = 'down'; now += 100; j = await get(); ok(j.n === 228 && j.floor === true, 'never saw a number and database down: the known minimum (228), marked as a floor');
+  store.clear(); dbMode = 'down'; now += 100; j = await get(); ok(j.n === 366 && j.floor === true, 'never saw a number and database down: the known minimum (366), marked as a floor');
   delete globalThis.caches; dbMode = 'ok'; j = await get(); ok(j.n === 130, 'works without any cache too');
 
   console.log('all ' + n + ' checks passed');

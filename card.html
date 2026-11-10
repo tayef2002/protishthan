@@ -1815,17 +1815,20 @@ function paintDownloads(counted){
   if(DL_REDUCED){ dlCur = n; dlRender(n); return; }
   dlT0 = performance.now(); dlRaf = requestAnimationFrame(dlStep);
 }
-// The number comes from /api/card-count (the server asks the database only a few times a minute for everybody together, and keeps the last good answer). Refreshed every 20 s, and when the tab is opened again.
-// If that cannot be reached, the page asks the database itself; if that fails too, it shows the last number this browser saw. So the badge never just disappears.
+// The number comes from /api/card-count (the server asks the database only a few times a minute for everybody together, and keeps the last good answer). Refreshed once a minute, and when the tab is opened again.
+// If that cannot be reached, the page asks the database itself; if that fails too, it shows the biggest number it knows (what this browser saw last, or the known minimum below).
+// The badge is shown at once with that number and the real one glides in when it arrives, so it never disappears while the database or the server is slow.
+const DL_COUNTED_FLOOR = 366;    // downloads the database had counted on 2026-11-10 (read from it, 2,366 on the badge with the 2,000 base). The count only goes up, so this is a true minimum; raise it now and then
+function bestKnownCount(){ let s = 0; try{ const v = Number(localStorage.getItem('sk_dl_last')); if(Number.isFinite(v) && v > 0) s = v; }catch(e){} return Math.max(DL_COUNTED_FLOOR, s); }
 async function refreshDownloads(){
   if(document.hidden) return;
+  if(dlTarget === 0) paintDownloads(bestKnownCount());
   let n = null, viaServer = false, floor = false;
   try{ const r = await fetch('/api/card-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); viaServer = true; floor = !!(j && j.floor); if(j && j.n != null && Number.isFinite(Number(j.n))) n = Number(j.n); } }catch(e){}
   if(n == null && !viaServer){ try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) n = Number(data); }catch(e){} }
-  let saved = null; try{ const v = Number(localStorage.getItem('sk_dl_last')); if(Number.isFinite(v) && v >= 0) saved = v; }catch(e){}
   if(n != null && !floor){ try{ localStorage.setItem('sk_dl_last', String(n)); }catch(e){} }      // a real answer from the database: remember it
-  if(saved != null && (n == null || (floor && saved > n))) n = saved;                          // no real answer: the biggest number this browser has seen (the count only goes up)
-  if(n != null) paintDownloads(n);
+  if(n == null || floor) n = Math.max(n == null ? 0 : n, bestKnownCount());                      // no real answer: the biggest number known (the count only goes up)
+  paintDownloads(n);
 }
 // A card counts the moment it reaches the person: saved as a file, handed to another app through the phone's share sheet, or copied to paste into Facebook.
 // The server still counts each person once per name, so doing two of these for the same card adds one.
