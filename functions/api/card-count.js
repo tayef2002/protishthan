@@ -9,7 +9,7 @@ import { rest } from '../_lib/seo.js';
 
 const FRESH = 30;                    // seconds a good answer is reused
 const LAST_GOOD = 14 * 24 * 3600;    // how long the last good answer is kept as a fallback
-const FLOOR = 125;                   // counted downloads already seen on 2026-11-09. The number only goes up, so this is a true minimum for the very first answer after a cold start while the database is down
+const FLOOR = 228;                   // counted downloads read from the database (card_stats) on 2026-11-10. The number only goes up, so this is a true minimum for the very first answer after a cold start while the database is down
 const DOWN = 20;                     // after a failure, do not ask the database again for this many seconds
 const key = n => new Request('https://protishthan.com/__cache/card-count-' + n);
 const json = (obj, maxAge, extra = {}) => new Response(JSON.stringify(obj), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': maxAge ? 'public, max-age=' + maxAge : 'no-store', ...extra } });

@@ -36,7 +36,7 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   now += 21; await get(); ok(dbCalls === callsWhenDown + 1, 'after 20 s: it tries the database once more');
   dbMode = 'ok'; dbNumber = 130; now += 21; j = await get(); ok(j.n === 130 && !j.stale, 'database back: fresh number again');
 
-  store.clear(); dbMode = 'down'; now += 100; j = await get(); ok(j.n === 125 && j.floor === true, 'never saw a number and database down: the known minimum (125), marked as a floor');
+  store.clear(); dbMode = 'down'; now += 100; j = await get(); ok(j.n === 228 && j.floor === true, 'never saw a number and database down: the known minimum (228), marked as a floor');
   delete globalThis.caches; dbMode = 'ok'; j = await get(); ok(j.n === 130, 'works without any cache too');
 
   console.log('all ' + n + ' checks passed');
