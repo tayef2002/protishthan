@@ -77,10 +77,19 @@
     return b;
   }
   // best effort on Android: try to hand the page to the real browser once, without a tap, through a hidden frame (a wrong scheme then fails silently instead of replacing the page)
+  // With ?iabauto=1 in the address (for testing inside the real Facebook app) the whole page is sent to the real browser on load instead: closer to "opens directly",
+  // but if the app does not allow the intent address it may show an error page, so it stays a test switch until it has been tried on real phones.
   function autoTry(){
     if (!inApp || !android || test) return;
     try { if (root.sessionStorage.getItem('iab_auto')) return; root.sessionStorage.setItem('iab_auto', '1'); } catch (e) {}
-    setTimeout(function(){ try { var f = root.document.createElement('iframe'); f.style.display = 'none'; f.src = externalHref(root.location.href); root.document.body.appendChild(f); } catch (e) {} }, 700);
+    var direct = /[?&]iabauto=1\b/.test(search);
+    track('iab_auto', { mode: direct ? 'direct' : 'frame' });
+    setTimeout(function(){
+      try {
+        if (direct) { root.location.replace(externalHref(root.location.href.replace(/([?&])iabauto=1&?/, '$1').replace(/[?&]$/, ''))); return; }
+        var f = root.document.createElement('iframe'); f.style.display = 'none'; f.src = externalHref(root.location.href); root.document.body.appendChild(f);
+      } catch (e) {}
+    }, direct ? 400 : 700);
   }
 
   var api = { inApp: inApp, android: android, ios: ios, externalHref: externalHref, openExternal: openExternal, showSteps: showSteps, bar: bar, autoTry: autoTry, copy: copy };
