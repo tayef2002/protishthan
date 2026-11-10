@@ -1778,7 +1778,7 @@ function paintDownloads(counted){
   if(DL_REDUCED){ dlCur = n; dlRender(n); return; }
   dlT0 = performance.now(); dlRaf = requestAnimationFrame(dlStep);
 }
-// The number comes from /api/card-count (the server asks the database only about twice a minute for everybody together, and keeps the last good answer).
+// The number comes from /api/card-count (the server asks the database only a few times a minute for everybody together, and keeps the last good answer). Refreshed every 20 s, and when the tab is opened again.
 // If that cannot be reached, the page asks the database itself; if that fails too, it shows the last number this browser saw. So the badge never just disappears.
 async function refreshDownloads(){
   if(document.hidden) return;
@@ -1797,7 +1797,7 @@ async function countMyDownload(){   // once per person per name: the server comp
   const nm = String(S.name || '').trim(); if(!nm) return;
   try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
-refreshDownloads(); setInterval(refreshDownloads, 45000);
+refreshDownloads(); setInterval(refreshDownloads, 20000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
 const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };

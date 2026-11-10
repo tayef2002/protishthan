@@ -23,10 +23,10 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   const get = async () => (await onRequestGet(ctx())).json();
 
   let j = await get(); ok(j.n === 119 && !j.stale && dbCalls === 1, 'first call asks the database');
-  dbNumber = 125; j = await get(); ok(j.n === 119 && dbCalls === 1, 'within 30 s: the same answer, the database is not asked again');
+  dbNumber = 125; j = await get(); ok(j.n === 119 && dbCalls === 1, 'within 10 s: the same answer, the database is not asked again');
   for (let i = 0; i < 50; i++) await get(); ok(dbCalls === 1, '51 visitors in a row = still one database question');
 
-  now += 31; j = await get(); ok(j.n === 125 && dbCalls === 2, 'after 30 s: one new question, the new number');
+  now += 11; j = await get(); ok(j.n === 125 && dbCalls === 2, 'after 10 s: one new question, the new number');
 
   dbMode = 'down'; now += 31; j = await get();
   ok(j.n === 125 && j.stale === true, 'database down: the last good number, marked stale');
