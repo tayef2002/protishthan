@@ -23,8 +23,17 @@ export const TYPE_LD = { 'স্কুল': 'School', 'মাদ্রাসা'
 export const TYPE_PLURAL = { 'স্কুল': 'স্কুল', 'মাদ্রাসা': 'মাদ্রাসা', 'কলেজ': 'কলেজ', 'কারিগরি': 'কারিগরি প্রতিষ্ঠান', 'বিশ্ববিদ্যালয়': 'বিশ্ববিদ্যালয়', 'কোচিং সেন্টার': 'কোচিং সেন্টার' };
 export const SOURCE_NAME = { 'dpe-primary': 'প্রাথমিক ও গণশিক্ষা অধিদপ্তর (DPE)', 'banbeis-2024': 'BANBEIS ২০২৪', 'ugc': 'বিশ্ববিদ্যালয় মঞ্জুরি কমিশন (UGC)' };
 
+// Circuit breaker: when the database times out or answers with a server error, every database call from these server pages stops for 15 seconds
+// (the answer is simply "could not read", which the pages already handle). Without it, a crawler walking thousands of pages keeps piling requests
+// onto a database that is already struggling, and the database cannot recover.
+const BREAKER_KEY = () => new Request('https://protishthan.com/__cache/db-breaker');
+const BREAKER_SECONDS = 15;
+async function breakerOpen() { try { return typeof caches !== 'undefined' && !!(await caches.default.match(BREAKER_KEY())); } catch (e) { return false; } }
+async function tripBreaker() { try { if (typeof caches !== 'undefined') await caches.default.put(BREAKER_KEY(), new Response('1', { headers: { 'Cache-Control': 'public, max-age=' + BREAKER_SECONDS } })); } catch (e) {} }      // awaited: a dropped promise would mean the breaker never closes the door
+
 // read from the database with a short time limit. Returns { data } or null when it could not be read.
-export async function rest(path, { range = null, rpc = null, timeout = 3500 } = {}) {
+export async function rest(path, { range = null, rpc = null, timeout = 3500, force = false } = {}) {
+  if (!force && await breakerOpen()) return null;
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), timeout);
   try {
@@ -33,9 +42,11 @@ export async function rest(path, { range = null, rpc = null, timeout = 3500 } = 
     if (rpc !== null) { init.method = 'POST'; headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(rpc); }
     else if (range) { headers['Range-Unit'] = 'items'; headers.Range = range[0] + '-' + range[1]; }      // no exact count: counting rows is slow on the free database
     const r = await fetch(url, init);
+    if (r.status >= 500) { await tripBreaker(); return null; }
     if (!r.ok && r.status !== 206) return null;
     return { data: await r.json() };
   } catch (e) {
+    await tripBreaker();                              // timeout or network failure
     return null;
   } finally {
     clearTimeout(timer);

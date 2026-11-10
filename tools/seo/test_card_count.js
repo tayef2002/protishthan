@@ -33,8 +33,21 @@ let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
   const callsWhenDown = dbCalls;
   for (let i = 0; i < 30; i++) await get(); ok(dbCalls === callsWhenDown, 'database down: the next 30 visitors do not hit it again (negative cache)');
 
-  now += 21; await get(); ok(dbCalls === callsWhenDown + 1, 'after 20 s: it tries the database once more');
-  dbMode = 'ok'; dbNumber = 130; now += 21; j = await get(); ok(j.n === 130 && !j.stale, 'database back: fresh number again');
+  now += 16; await get(); ok(dbCalls === callsWhenDown + 1, 'after 16 s: it tries the database once more');
+  dbMode = 'ok'; dbNumber = 130; now += 16; j = await get(); ok(j.n === 130 && !j.stale, 'database back: fresh number again');
+
+
+  // the shared circuit breaker used by every server page
+  { const keepFetch = globalThis.fetch; const { rest } = await imp('functions/_lib/seo.js'); store.clear(); dbMode = 'down'; now += 1000; dbCalls = 0;
+    ok((await rest('listing_submissions?x=1')) === null && dbCalls === 1, 'breaker: a failing database call returns null (one attempt)');
+    for (let i = 0; i < 40; i++) await rest('listing_submissions?x=' + i); ok(dbCalls === 1, 'breaker: the next 40 calls do not touch the database');
+    now += 16; await rest('listing_submissions?x=again'); ok(dbCalls === 2, 'breaker: after 15 s one new attempt');
+    dbMode = 'ok'; now += 16; const r = await rest('listing_submissions?x=ok'); ok(r && r.data === 130 && dbCalls === 3, 'breaker: database back -> normal answers again');
+    globalThis.fetch = async () => new Response('missing', { status: 404 }); now += 100; dbCalls = 0;
+    ok((await rest('nope')) === null, 'a 404 is not a failure of the database: it answers null without opening the breaker');
+    let touched = 0; globalThis.fetch = async () => { touched++; return new Response('[]', { status: 200 }); }; await rest('x'); await rest('y'); ok(touched === 2, 'a 404 does not open the breaker');
+    globalThis.fetch = keepFetch; store.clear();
+  }
 
   store.clear(); dbMode = 'down'; now += 100; j = await get(); ok(j.n === 228 && j.floor === true, 'never saw a number and database down: the known minimum (228), marked as a floor');
   delete globalThis.caches; dbMode = 'ok'; j = await get(); ok(j.n === 130, 'works without any cache too');
