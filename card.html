@@ -387,9 +387,22 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 .dl-sheet>p{color:#64748B;font-size:14px;line-height:1.6;margin:0 0 14px}
 .dl-ta{display:block;width:100%;height:100px;resize:none;border:none;border-radius:12px;padding:12px 14px;font:500 14.5px/1.65 'Hind Siliguri','Inter',sans-serif;color:#0F172A;background:#F1F5F9;text-align:left}
 .dl-ta:focus{outline:2px solid #BFD3FB;background:#F8FAFF}
-.dl-copy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;padding:13px;border-radius:12px;border:none;background:#1A56DB;color:#fff;font:700 15.5px 'Hind Siliguri',sans-serif;cursor:pointer;transition:background .2s}
-.dl-copy:hover{background:#1749B8}
-.dl-copy.done{background:#059669}
+.dl-copy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:12px;border-radius:12px;border:none;background:#EAF1FF;color:#1A56DB;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer;transition:background .2s}
+.dl-copy:hover{background:#DCE8FF}
+.dl-copy.done{background:#059669;color:#fff}
+.dl-sheet{max-height:92vh;overflow-y:auto}
+.dl-share-fb{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border:none;border-radius:13px;background:#1877F2;color:#fff;font:700 17px 'Hind Siliguri',sans-serif;cursor:pointer;box-shadow:0 6px 16px rgba(24,119,242,.3);transition:background .2s}
+.dl-share-fb:hover{background:#1468D8}
+.dl-share-wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1.5px solid #BFE8D2;background:#fff;color:#128C4B;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer}
+.dl-share-wa:hover{background:#F0FDF7}
+.dl-hint{display:none;margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#ECFDF5;color:#047857;font:600 13px/1.55 'Hind Siliguri',sans-serif;text-align:left}
+.dl-hint.show{display:block}
+.dl-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 8px}
+.dl-chip{border:1.5px solid #D5E0F5;background:#fff;color:#475569;border-radius:999px;padding:5px 12px;font:600 13px 'Hind Siliguri',sans-serif;cursor:pointer}
+.dl-chip.on{background:#EAF1FF;border-color:#1A56DB;color:#1A56DB}
+.dl-iab{margin:12px 0 0;text-align:center}
+.dl-iab img{display:block;width:100%;border-radius:12px}
+.dl-iab small{display:block;margin-top:6px;color:#475569;font:600 12.5px/1.55 'Hind Siliguri',sans-serif}
 .dl-fb{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1.5px solid #D5E0F5;background:#fff;color:#1877F2;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer}
 .dl-fb:hover{background:#F5F9FF}
 .sh-hint{display:none;margin-top:10px;padding:11px 13px;border-radius:12px;background:#F0F7FF;color:#1E3A8A;font-size:13px;line-height:1.7}
@@ -889,7 +902,12 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-x" onclick="closeDl()" aria-label="বন্ধ করুন">×</button>
     <div class="dl-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h3 id="dlT">কার্ড ডাউনলোড হয়েছে</h3>
-    <p>Facebook-এ পোস্ট করুন আর বন্ধুদের Tag করুন।</p>
+    <p>এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।</p>
+    <button type="button" class="dl-share-fb" id="dlShareFb" onclick="dlShare('facebook')"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ শেয়ার করুন</button>
+    <button type="button" class="dl-share-wa" id="dlShareWa" onclick="dlShare('whatsapp')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp-এ পাঠান</button>
+    <div class="dl-iab" id="dlIab" hidden><img id="dlImg" alt="আপনার শিক্ষিত কার্ড"><small>ছবি সেভ না হয়ে থাকলে ছবিটা চেপে ধরে ‘ছবি সেভ করুন’ চাপুন। অথবা ওপরের ⋮ মেনু থেকে ‘Chrome-এ খুলুন’ বেছে নিন।</small></div>
+    <div class="dl-hint" id="dlHint" aria-live="polite"></div>
+    <div class="dl-chips" id="dlChips" role="group" aria-label="ক্যাপশনের ধরন"></div>
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
     <button type="button" class="dl-fb dl-other" id="dlOther" onclick="dlOtherSize()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>স্টোরি সাইজ ডাউনলোড</span></button>
@@ -1862,10 +1880,28 @@ function syncYears(){
   inp.addEventListener('blur', syncYears);
   rs.addEventListener('click', () => { S.yearsManual = 0; inp.blur(); syncYears(); draw(); });
 })();
-function caption(){
-  const y = eduYears();
-  return (y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড' : 'আমার শিক্ষাজীবন দিয়ে বানালাম শিক্ষিত কার্ড') + '\n#শিক্ষিতকার্ড #sikkhitocard #protishthan';
+/* the Facebook caption: four kinds (pride, fun, a challenge to friends, the person's own institution) so posts do not all read the same and we can see which kind is shared most.
+   Facebook does not let a web page fill in the post text, so the caption is copied for the visitor and pasted by them. One hashtag spelling only: the one printed on the card (SHIKKHITO CARD). */
+const TAGS = '#ShikkhitoCard #শিক্ষিতকার্ড #Protishthan';
+const CAP_LABEL = { pride: 'গর্ব', fun: 'মজা', challenge: 'চ্যালেঞ্জ', school: 'আমার প্রতিষ্ঠান' };
+let DL_VARIANT = ['pride', 'fun', 'challenge'][Math.floor(Math.random() * 3)];
+function topInstitution(){ const f = filledLevels(); return f.length ? String(S.edu[f[f.length - 1].key].name || '').trim() : ''; }
+function captionFor(v){
+  const y = eduYears(), link = SHARE_URL + '?ref=fb', inst = topInstitution();
+  const mine = y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন' : 'আমার শিক্ষাজীবন';
+  if(v === 'school' && inst) return '🎓 আমার শিক্ষিত কার্ডে আছে ' + inst + '।\nএই প্রতিষ্ঠানে যারা পড়েছেন বা পড়ছেন, আপনাদের কার্ড কই? 👇\n' + link + '\n\n' + TAGS;
+  if(v === 'fun') return '😄 কোনো ভাতা নেই, লাইনেও দাঁড়াতে হয়নি, তবু আমার নিজের একটা কার্ড হলো!\nপড়াশোনার জোরে অর্জিত শিক্ষিত কার্ড।\n\nআপনারটা কই? 👇\n' + link + '\n\n' + TAGS;
+  if(v === 'challenge') return '🎓 ' + (y ? mine + '। আপনার কত বছর?' : 'আপনার শিক্ষাজীবন কত বছরের?') + '\nকার্ড বানিয়ে কমেন্টে জানান, দেখি কে এগিয়ে! 👇\n' + link + '\n\n' + TAGS;
+  return '🎓 ' + mine + ', এক কার্ডে!\nনিজের পড়াশোনার জোরে বানালাম আমার শিক্ষিত কার্ড।\n\nআপনারটা বানান, ৩০ সেকেন্ড, ফ্রি 👇\n' + link + '\n\n' + TAGS;
 }
+function caption(){ return captionFor(DL_VARIANT === 'school' && !topInstitution() ? 'pride' : DL_VARIANT); }
+function currentCaption(){ const ta = document.getElementById('dlTa'), ov = document.getElementById('dlOv'); return (ta && ov && ov.classList.contains('show') && ta.value.trim()) ? ta.value : caption(); }
+let DL_COPIED = false;
+function silentCopy(text){   // copies without a visible step; resolves true when the browser allowed it (only inside a tap)
+  try{ if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => false); }catch(e){}
+  return Promise.resolve(false);
+}
+const IN_APP = /FBAN|FBAV|FB_IAB|FBIOS|Instagram/i.test(navigator.userAgent || '');   // Facebook's / Instagram's own browser: saving files and the share sheet often do not work there
 /* the message that travels with the picture when WhatsApp is chosen: a few friendly versions (so a group does not see the same words twice), each ends with the link that makes a card */
 function waText(pick){
   const y = eduYears(), link = SHARE_URL + '?ref=wa';
@@ -1885,18 +1921,46 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closePreview(
 function fileName(){ return 'shikkhito-card' + (S.name.trim() ? '-' + S.name.trim().replace(/\s+/g,'-').slice(0, 24) : '') + '.png'; }
 function needNameToast(){ toast('আগে আপনার নাম লিখুন'); const f = document.getElementById('fName'); if(f){ f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => f.focus(), 350); } }
 /* the popup after a download */
+function showDlHint(t){ const h = document.getElementById('dlHint'); if(h){ h.textContent = t; h.classList.add('show'); } }
+function renderDlChips(){
+  const box = document.getElementById('dlChips'); if(!box) return;
+  const keys = ['pride', 'fun', 'challenge'].concat(topInstitution() ? ['school'] : []);
+  if(!keys.includes(DL_VARIANT)) DL_VARIANT = 'pride';
+  box.innerHTML = keys.map(k => '<button type="button" class="dl-chip' + (k === DL_VARIANT ? ' on' : '') + '" data-v="' + k + '">' + CAP_LABEL[k] + '</button>').join('');
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest && e.target.closest('.dl-chip'); if(!c) return;
+  DL_VARIANT = c.dataset.v; renderDlChips();
+  const text = captionFor(DL_VARIANT); document.getElementById('dlTa').value = text;
+  T('card_caption_variant', { v: DL_VARIANT });
+  silentCopy(text).then(ok => { DL_COPIED = ok; if(ok) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook-এ পোস্টের বক্সে চেপে ধরে পেস্ট করুন।'); });
+});
 function openDl(){
   const ov = document.getElementById('dlOv'); if(!ov) return;
+  renderDlChips();
   document.getElementById('dlTa').value = caption();
   const b = document.getElementById('dlCopy'); b.classList.remove('done'); b.querySelector('span').textContent = 'ক্যাপশন কপি করুন';
   const o = document.getElementById('dlOther'); if(o){ o.classList.remove('done'); o.querySelector('span').textContent = (DL_LAST === 'story' ? 'পোস্ট' : 'স্টোরি') + ' সাইজ ডাউনলোড'; }
-  ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup');
+  const h = document.getElementById('dlHint'); if(h){ h.classList.remove('show'); h.textContent = ''; }
+  if(DL_COPIED) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook-এ পোস্টের বক্সে চেপে ধরে পেস্ট করুন।');
+  // inside Facebook's own browser the file often does not save and the share sheet is missing: show the card itself to save by pressing on it
+  const iab = document.getElementById('dlIab'), fbBtn = document.getElementById('dlShareFb');
+  if(iab){ iab.hidden = !IN_APP; if(IN_APP){ document.getElementById('dlImg').src = cv.toDataURL('image/png'); } }
+  if(fbBtn) fbBtn.style.display = IN_APP ? 'none' : '';
+  ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup', { v: DL_VARIANT, iab: IN_APP ? 1 : 0 });
+}
+async function dlShare(ch){
+  const text = currentCaption();
+  T('card_share_tap', { ch: ch, v: DL_VARIANT });
+  if(ch === 'whatsapp'){ shareWhatsApp(); return; }
+  if(canShareFiles()) silentCopy(text).then(ok => { DL_COPIED = ok; if(ok) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook খুললে পোস্টের বক্সে চেপে ধরে পেস্ট করুন।'); });   // on a computer the picture goes to the clipboard instead, so the caption is not copied here
+  shareFacebook(text);
 }
 function closeDl(){ const ov = document.getElementById('dlOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; }
 async function copyDlCaption(){
   const ta = document.getElementById('dlTa'), b = document.getElementById('dlCopy'); let ok = false;
   try{ await navigator.clipboard.writeText(ta.value); ok = true; }catch(e){ try{ ta.focus(); ta.select(); ok = document.execCommand('copy'); }catch(_){} }
-  if(ok){ b.classList.add('done'); b.querySelector('span').textContent = 'কপি হয়েছে ✓'; T('card_caption_copy'); }
+  if(ok){ b.classList.add('done'); b.querySelector('span').textContent = 'কপি হয়েছে ✓'; T('card_caption_copy', { v: DL_VARIANT }); }
   else toast('কপি করা যায়নি, ক্যাপশনটা চেপে ধরে কপি করুন');
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDl(); });
@@ -1918,6 +1982,8 @@ async function dlOtherSize(){
 }
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
+  // the caption is copied in this same tap (browsers allow it only inside a tap), so it is ready to paste into the Facebook post
+  silentCopy(caption()).then(ok => { DL_COPIED = ok; });
   // one file per tap (browsers ask permission when a page saves two files at once); the other size is offered in the popup
   draw();
   const fmt = S.format;
@@ -1939,23 +2005,27 @@ async function shareImage(text){   // text: the message sent with the picture (W
 }
 /* on phones the picture itself is shared (the system share sheet, where Facebook / WhatsApp are one tap); on a computer only a link can be sent */
 function canShareFiles(){ try{ return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.png', { type: 'image/png' })] })); }catch(e){ return false; } }
-function setShHint(t){ const h = document.getElementById('shHint'); if(h){ h.textContent = t; h.classList.add('show'); } }
+function setShHint(t){
+  const h = document.getElementById('shHint'); if(h){ h.textContent = t; h.classList.add('show'); }
+  const ov = document.getElementById('dlOv'); if(ov && ov.classList.contains('show')) showDlHint(t);     // the popup is open: say it there, where the visitor is looking
+}
 function openFbTab(){   // if the browser blocks the new tab, the hint gets a plain link instead
   const w = window.open('https://www.facebook.com/', '_blank');
   if(w){ try{ w.opener = null; }catch(e){} }
   else{ const h = document.getElementById('shHint'); if(h && !h.querySelector('a')){ const a = document.createElement('a'); a.href = 'https://www.facebook.com/'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' Facebook খুলুন →'; a.style.fontWeight = '700'; h.appendChild(a); } }
 }
 /* phone: the system share sheet carries the picture; computer: the picture goes to the clipboard, Facebook opens and Ctrl+V puts it in the post box */
-async function shareFacebook(){
+async function shareFacebook(text){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
-  T('card_share_facebook');
-  if(canShareFiles()){ shareImage(); return; }
+  const msg = typeof text === 'string' ? text : caption();     // a button's click event must not end up as the text
+  T('card_share_facebook', { v: DL_VARIANT });
+  if(canShareFiles()){ shareImage(msg); return; }
   draw();
   try{
     if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
     await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
     countCardMade(); T('card_copy_for_facebook');     // the card is on the clipboard: it counts even if the visitor never saves a file
-    setShHint('ছবি কপি হয়েছে ✓ Facebook-এ "মনে কী চলছে" বক্সে ক্লিক করে Ctrl+V চাপুন। ক্যাপশনও চাইলে নিচের "ছবিসহ শেয়ার / ক্যাপশন কপি" চেপে ক্যাপশন কপি করে আবার Ctrl+V দিন।');
+    setShHint('ছবি কপি হয়েছে ✓ Facebook-এ "মনে কী চলছে" বক্সে ক্লিক করে Ctrl+V চাপুন। তারপর ক্যাপশনও চাইলে "ক্যাপশন কপি করুন" চেপে আবার Ctrl+V দিন।');
     openFbTab();
   }catch(e){
     try{ await downloadCard(); }catch(_){}
