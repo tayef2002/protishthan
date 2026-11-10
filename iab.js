@@ -9,7 +9,6 @@
    Iab.externalHref(url)                  Android: an intent:// address that opens url in the default browser; otherwise url itself
    Iab.openExternal(url)                  Android: tries it now (the visitor tapped); iPhone: shows the steps
    Iab.showSteps()                        the steps and a "copy link" button
-   Iab.bar()                              a notice bar at the top of the page (only inside such a browser)
    Iab.modal(now)                         the notice shown after 4 seconds (now = true: at once); OK opens the real browser
    Preview on any device: ?iabtest=android or ?iabtest=ios.  ?iabdelay=<ms> changes the 4 second wait.  ?iabauto=1 sends the page out on load (test switch). */
 (function(root){
@@ -39,10 +38,7 @@
     try { var ta = root.document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;opacity:0'; root.document.body.appendChild(ta); ta.select(); var ok = root.document.execCommand('copy'); ta.remove(); return Promise.resolve(!!ok); } catch (e) { return Promise.resolve(false); }
   }
 
-  var CSS = '.iab-bar{position:fixed;top:0;left:0;right:0;z-index:8000;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:9px 14px;background:#FFF4D6;border-bottom:1px solid #F5D78A;color:#7A4B00;font:600 13.5px/1.5 "Hind Siliguri",sans-serif;text-align:center}'
-    + 'body.iab-on{padding-top:var(--iab-h,0px)}body.iab-on #nav{top:calc(12px + var(--iab-h,0px))!important}'   // the page's own fixed menu sits under the bar
-    + '.iab-bar a,.iab-bar button{border:none;border-radius:999px;padding:7px 14px;background:#1A56DB;color:#fff;font:700 13.5px "Hind Siliguri",sans-serif;text-decoration:none;cursor:pointer}'
-    + '.iab-ov{position:fixed;inset:0;z-index:9800;display:none;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.55)}.iab-ov.show{display:flex}'
+  var CSS = '.iab-ov{position:fixed;inset:0;z-index:9800;display:none;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.55)}.iab-ov.show{display:flex}'
     + '.iab-sheet{width:100%;max-width:420px;background:#fff;border-radius:22px 22px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));font-family:"Hind Siliguri",sans-serif;color:#0F172A}'
     + '.iab-sheet h3{margin:0 0 8px;font-size:18px}.iab-sheet ol{margin:0 0 14px;padding-left:20px;font-size:14.5px;line-height:1.8;color:#334155;text-align:left}'
     + '.iab-sheet .go{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:13px;border:none;border-radius:12px;background:#1A56DB;color:#fff;font:700 16px "Hind Siliguri",sans-serif;text-align:center;text-decoration:none;cursor:pointer}'
@@ -131,19 +127,6 @@
     if (now) show(); else setTimeout(show, MODAL_DELAY);
   }
 
-  function bar(){
-    if (!inApp || !root.document) return null;
-    style();
-    var d = root.document, b = d.createElement('div'); b.className = 'iab-bar'; b.id = 'iabBar';
-    b.innerHTML = '<span>Facebook-এর ভেতরের ব্রাউজারে ছবি ডাউনলোড ও শেয়ার কাজ করে না।</span>' + (android ? '<a href="' + externalHref(root.location.href).replace(/"/g, '&quot;') + '" id="iabGo">ব্রাউজারে খুলুন</a>' : '<button type="button" id="iabGo">ব্রাউজারে খুলুন</button>');
-    d.body.insertBefore(b, d.body.firstChild);
-    var fit = function(){ d.documentElement.style.setProperty('--iab-h', b.offsetHeight + 'px'); };
-    d.body.classList.add('iab-on'); fit(); root.addEventListener('resize', fit); setTimeout(fit, 400);     // 400 ms: after the web font has changed the text height
-    var go = d.getElementById('iabGo');
-    go.addEventListener('click', function(e){ track('iab_open_click', { os: ios ? 'ios' : 'android', from: 'bar' }); if (!android) { e.preventDefault(); showSteps(); } else { setTimeout(function(){ if (!d.hidden) showSteps(); }, 1600); } });
-    track('iab_seen', { os: ios ? 'ios' : (android ? 'android' : 'other'), gate: gate ? 1 : 0 });
-    return b;
-  }
   // With ?iabauto=1 in the address (for testing inside the real Facebook app) the whole page is sent to the real browser on load instead: closer to "opens directly",
   // but if the app does not allow the intent address it may show an error page, so it stays a test switch until it has been tried on real phones.
   // Without the switch only a quiet hidden-frame attempt is made on Android.
@@ -160,11 +143,11 @@
     }, direct ? 400 : 700);
   }
 
-  var api = { inApp: inApp, gate: gate, android: android, ios: ios, externalHref: externalHref, openExternal: openExternal, showSteps: showSteps, bar: bar, modal: modal, autoTry: autoTry, copy: copy };
+  var api = { inApp: inApp, gate: gate, android: android, ios: ios, externalHref: externalHref, openExternal: openExternal, showSteps: showSteps, modal: modal, autoTry: autoTry, copy: copy };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.Iab = api;
   if (inApp && root.document) {
-    var start = function(){ bar(); modal(); autoTry(); };
+    var start = function(){ track('iab_seen', { os: ios ? 'ios' : (android ? 'android' : 'other'), gate: gate ? 1 : 0 }); modal(); autoTry(); };
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start); else start();
   }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
