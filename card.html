@@ -1778,9 +1778,17 @@ function paintDownloads(counted){
   if(DL_REDUCED){ dlCur = n; dlRender(n); return; }
   dlT0 = performance.now(); dlRaf = requestAnimationFrame(dlStep);
 }
+// The number comes from /api/card-count (the server asks the database only about twice a minute for everybody together, and keeps the last good answer).
+// If that cannot be reached, the page asks the database itself; if that fails too, it shows the last number this browser saw. So the badge never just disappears.
 async function refreshDownloads(){
   if(document.hidden) return;
-  try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
+  let n = null, viaServer = false, floor = false;
+  try{ const r = await fetch('/api/card-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); viaServer = true; floor = !!(j && j.floor); if(j && j.n != null && Number.isFinite(Number(j.n))) n = Number(j.n); } }catch(e){}
+  if(n == null && !viaServer){ try{ const { data, error } = await sb.rpc('card_downloads'); if(!error && data != null) n = Number(data); }catch(e){} }
+  let saved = null; try{ const v = Number(localStorage.getItem('sk_dl_last')); if(Number.isFinite(v) && v >= 0) saved = v; }catch(e){}
+  if(n != null && !floor){ try{ localStorage.setItem('sk_dl_last', String(n)); }catch(e){} }      // a real answer from the database: remember it
+  if(saved != null && (n == null || (floor && saved > n))) n = saved;                          // no real answer: the biggest number this browser has seen (the count only goes up)
+  if(n != null) paintDownloads(n);
 }
 // A card counts the moment it reaches the person: saved as a file, handed to another app through the phone's share sheet, or copied to paste into Facebook.
 // The server still counts each person once per name, so doing two of these for the same card adds one.
@@ -1789,7 +1797,7 @@ async function countMyDownload(){   // once per person per name: the server comp
   const nm = String(S.name || '').trim(); if(!nm) return;
   try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
-refreshDownloads(); setInterval(refreshDownloads, 20000);
+refreshDownloads(); setInterval(refreshDownloads, 45000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
 const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };
