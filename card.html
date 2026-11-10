@@ -628,6 +628,8 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
 <script src="/bnname.js?v=3"></script>
+<script src="/phon.js?v=1"></script>
+<script src="/card-index.js?v=1"></script>
 <link rel="canonical" href="https://protishthan.com/card">
 <meta property="og:url" content="https://protishthan.com/card">
 <meta property="og:site_name" content="Protishthan">
@@ -938,6 +940,13 @@ try{ cardNo = localStorage.getItem('sk_no') || ''; }catch(e){}
 if(!cardNo){ cardNo = String(Math.floor(100000 + Math.random()*900000)); try{ localStorage.setItem('sk_no', cardNo); }catch(e){} }
 
 /* ---------------- institutions ---------------- */
+/* the saved name index: the 100,000+ institutions as small files (card-index/, built by tools/card-index/build.mjs), searched in the browser so a typed name is answered at once and the database is not asked.
+   After rebuilding the files, change INDEX_VERSION so browsers fetch the new ones. */
+const INDEX_VERSION = '1';
+const CARD_IDX = (window.CardIndex && window.PhonKey) ? CardIndex.create({
+  BnName, PhonKey, version: INDEX_VERSION,
+  load: p => fetch('/card-index/' + p).then(r => r.ok ? r.text() : (r.status === 404 ? null : Promise.reject(new Error('index ' + r.status))))
+}) : null;
 let INST = [];
 /* the same list for every visitor: read through /api/dir (kept on the edge for a few minutes), not from the small database on each page view; a plain static preview without /api/dir asks the database directly */
 fetch('/api/dir?f=verifiedlite')
@@ -1059,10 +1068,11 @@ function showAc(k, q){
   paint(cached || local, state);
   try{ fetch('/api/dir?f=members&a=' + encodeURIComponent(JSON.stringify({ p_q: q.slice(0, 100), p_limit: 5 }))).then(res => res.ok ? res.json() : (res.status === 404 ? sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(x => x.error ? null : x.data) : null)).then(data => { if(seq !== acSeq || !Array.isArray(data)) return; MEMH[k] = data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); }, () => {}); }catch(e){}
   if(cached) return;
-  // 2) the directory (searched on the server, it holds 100,000+ names), after a very short pause so a fast typist does not send a request for every letter; the older request is dropped
   const old = ACT[k]; if(old){ clearTimeout(old.t); try{ if(old.c) old.c.abort(); }catch(e){} }
   const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
-  ACT[k] = { c: ctl, t: setTimeout(() => {
+  // 2) the directory on the server (it holds 100,000+ names): only for what the saved name index below could not answer
+  let started = false;
+  const askServer = () => {
     // asked through /api/dir: the same name typed by many people is answered from the edge, not by the small database each time (a plain static preview without /api/dir asks the database directly)
     const sargs = { p_q: BnName.norm(q).slice(0, 100), p_limit: 7 };
     const direct = () => { let c = sb.rpc('directory_search', sargs); if(ctl && c && typeof c.abortSignal === 'function') c = c.abortSignal(ctl.signal); return c; };
@@ -1073,7 +1083,21 @@ function showAc(k, q){
       ACC.set(kq, r.data); if(ACC.size > 200) ACC.delete(ACC.keys().next().value);
       state = 'done'; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(r.data, 'done');
     }, () => { if(seq === acSeq){ state = 'error'; paint(LASTH[k] || [], 'error'); } });
-  }, 70) };
+  };
+  const go = () => { if(started || seq !== acSeq) return; started = true; askServer(); };
+  const slot = ACT[k] = { c: ctl, t: setTimeout(go, CARD_IDX ? 350 : 70) };     // without the saved index a very short pause (a fast typist does not send a request for every letter); with it, the server is asked only if the files are slow to arrive
+  // 1b) the saved name index (small files, searched here in the browser): the list appears at once, and when it is full no question goes to the server at all
+  if(CARD_IDX){
+    CARD_IDX.search(q, { limit: 7, extra: INST }).then(res => {
+      if(seq !== acSeq) return;
+      if(res && !res.failed){
+        const mine = !(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k);
+        if(res.rows.length && state !== 'done' && mine) paint(res.rows, res.complete ? 'done' : 'loading');
+        if(res.complete){ state = 'done'; started = true; clearTimeout(slot.t); ACC.set(kq, res.rows); if(ACC.size > 200) ACC.delete(ACC.keys().next().value); return; }
+      }
+      go();     // the saved files did not fill the list (or could not be loaded): ask the server for the rest
+    }, go);
+  }
 }
 /* ---- year dropdown + automatic years ---- */
 const CUR_YEAR = new Date().getFullYear();
