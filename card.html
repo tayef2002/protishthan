@@ -2013,7 +2013,15 @@ async function shareImage(text){   // text: the message sent with the picture (W
   downloadCard();
 }
 /* on phones the picture itself is shared (the system share sheet, where Facebook / WhatsApp are one tap); on a computer only a link can be sent */
-function canShareFiles(){ try{ return !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.png', { type: 'image/png' })] })); }catch(e){ return false; } }
+// asks the browser with a real (tiny) picture, not an empty file: some browsers answer "no" to an empty one and the share sheet was then never tried
+const TINY_PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+function canShareFiles(){
+  try{
+    if(!(navigator.canShare && navigator.share)) return false;
+    const bytes = Uint8Array.from(atob(TINY_PNG), c => c.charCodeAt(0));
+    return !!navigator.canShare({ files: [new File([bytes], 'a.png', { type: 'image/png' })] });
+  }catch(e){ return false; }
+}
 function setShHint(t){
   const h = document.getElementById('shHint'); if(h){ h.textContent = t; h.classList.add('show'); }
   const ov = document.getElementById('dlOv'); if(ov && ov.classList.contains('show')) showDlHint(t);     // the popup is open: say it there, where the visitor is looking
@@ -2048,11 +2056,18 @@ async function shareWhatsApp(){
   T('card_share_whatsapp');
   const text = waText();
   if(IN_APP){   // Facebook's own browser blocks new tabs: go to WhatsApp in this same page (the app on Android, the wa.me page elsewhere); the message carries the link, not the picture
+    T('card_wa_path', { p: 'in_app' });
     const wa = 'https://wa.me/?text=' + encodeURIComponent(text);
     location.href = Iab.android ? 'intent://send?text=' + encodeURIComponent(text) + '#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=' + encodeURIComponent(wa) + ';end' : wa;
     return;
   }
-  if(canShareFiles()){ shareImage(text); return; }     // phone: picture + message together through the share sheet
+  if(canShareFiles()){     // phone: picture + message together through the share sheet; if the sheet fails for another reason than the visitor closing it, the clipboard way below is tried
+    T('card_wa_path', { p: 'share_sheet' });
+    try{
+      draw(); const blob = await cardBlob(); const file = new File([blob], fileName(), { type: 'image/png' });
+      if(navigator.canShare({ files: [file] })){ await navigator.share({ files: [file], text: text }); countCardMade(); T('card_share'); return; }
+    }catch(e){ if(e && e.name === 'AbortError') return; T('card_wa_path', { p: 'share_failed', e: String(e && e.name || e).slice(0, 40) }); }
+  }
   // A WhatsApp link (wa.me) can carry only text, never a picture. Where the browser has no share sheet for files (a computer, Firefox) the picture goes to the clipboard,
   // WhatsApp opens with the message, and the visitor pastes the picture (or, when the browser cannot copy a picture, saves it and attaches it with the paperclip).
   const wa = 'https://wa.me/?text=' + encodeURIComponent(text);
@@ -2060,9 +2075,10 @@ async function shareWhatsApp(){
   try{
     if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
     await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
-    countCardMade(); T('card_copy_for_whatsapp');
+    countCardMade(); T('card_copy_for_whatsapp'); T('card_wa_path', { p: 'clipboard' });
     setShHint('ছবি কপি হয়েছে ✓ WhatsApp খুললে যার সাথে শেয়ার করবেন তার চ্যাট বেছে নিন, তারপর মেসেজ বক্সে Ctrl+V চাপুন (ফোনে: বক্সে চেপে ধরে “Paste”)। ছবি যুক্ত হয়ে যাবে।');
   }catch(e){
+    T('card_wa_path', { p: 'save' });
     try{ await saveFormat(S.format); countCardMade(); }catch(_){}
     setShHint('ছবি ডাউনলোড হয়েছে ✓ WhatsApp-এ চ্যাট বেছে নিয়ে 📎 চেপে ছবিটা যুক্ত করুন।');
   }
