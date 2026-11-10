@@ -71,7 +71,7 @@
     return '<h3>ব্রাউজারে খুলুন</h3>'
       + (android ? '<button type="button" class="go" id="iabRetry">ব্রাউজারে খুলুন (আবার চেষ্টা)</button><p style="margin:0 0 8px;font-size:13.5px;color:#64748B">খুলে না গেলে নিচের যেকোনো একটা করুন:</p>' : '')
       + '<ol><li>ওপরে ডানদিকের <b>⋮</b> / <b>⋯</b> (তিন ফোঁটা) চাপুন।</li><li><b>' + (ios ? 'Safari-তে খুলুন' : 'ব্রাউজারে খুলুন / Open in browser') + '</b> বেছে নিন।</li><li>সেখানে ডাউনলোড আর শেয়ার ঠিকমতো কাজ করবে।</li></ol>'
-      + '<button type="button" class="alt" id="iabCopy">লিংক কপি করুন (Chrome-এর ঠিকানা বারে পেস্ট করুন)</button>'
+      + '<button type="button" class="alt" id="iabCopy">লিংক কপি করুন (Chrome-এ সার্চ বারে পেস্ট করুন)</button>'
       + (closable ? '<button type="button" class="x" id="iabClose">বন্ধ করুন</button>' : '');
   }
   function wireSteps(root2, ov){
@@ -90,7 +90,7 @@
       if (!m.querySelector('.iab-arrow')) m.insertAdjacentHTML('beforeend', '<div class="iab-arrow" aria-hidden="true"><b>↗</b><span>এখানে ⋮ চাপুন</span></div>');
       // the link is copied in this same tap (the phone allows it only inside a tap), so "paste it in Chrome" is ready without another step
       var cb = d.getElementById('iabCopy');
-      copy(cleanHref()).then(function(ok){ if (ok && cb) cb.textContent = 'লিংক কপি হয়েছে ✓ (Chrome-এর ঠিকানা বারে পেস্ট করুন)'; track('iab_auto_copy', { ok: ok ? 1 : 0 }); });
+      copy(cleanHref()).then(function(ok){ if (ok && cb) cb.textContent = 'লিংক কপি হয়েছে ✓ (Chrome-এ সার্চ বারে পেস্ট করুন)'; track('iab_auto_copy', { ok: ok ? 1 : 0 }); });
       track('iab_steps_open', { os: ios ? 'ios' : 'android', gate: 1 });
       return;
     }
