@@ -50,7 +50,7 @@
     + '.iab-arrow b{font-size:38px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.45)}.iab-arrow span{background:#1A56DB;padding:6px 12px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}'
     + '@keyframes iabBob{0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-8px)}}@media(prefers-reduced-motion:reduce){.iab-arrow{animation:none}}'
     // Facebook's own "You're leaving our app ... GO BACK / CONTINUE" question appears (a native window, nothing can be drawn over it) in the middle of the screen: the hint sits just under it, on the right, pointing up at CONTINUE
-    + '.iab-cont{position:fixed;z-index:9900;left:82%;top:calc(50% + 70px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;color:#fff;font:700 14px "Hind Siliguri",sans-serif;pointer-events:none;animation:iabUp 1s ease-in-out infinite}'
+    + '.iab-cont{position:fixed;z-index:9900;left:82%;top:calc(50% + 38px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;color:#fff;font:700 14px "Hind Siliguri",sans-serif;pointer-events:none;animation:iabUp 1s ease-in-out infinite}'
     + '.iab-cont b{font-size:42px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.5)}.iab-cont span{background:#1A56DB;padding:7px 13px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.4)}'
     + '@keyframes iabUp{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-10px)}}@media(prefers-reduced-motion:reduce){.iab-cont{animation:none}}'
     + '.iab-sheet .x{display:block;margin:10px auto 0;border:none;background:none;color:#64748B;font:600 13.5px "Hind Siliguri",sans-serif;cursor:pointer}';
