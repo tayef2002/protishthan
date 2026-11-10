@@ -7,6 +7,7 @@
    Iab.openExternal(url)                  Android: tries it now (the visitor tapped); iPhone: shows the steps
    Iab.showSteps()                        the sheet with the steps and a "copy link" button
    Iab.bar()                              puts a notice bar at the top of the page (only inside such a browser)
+   Iab.modal()                            the notice shown first, closable only with its OK button (OK opens the real browser)
    Preview on any device: add ?iabtest=android or ?iabtest=ios to the address. */
 (function(root){
   'use strict';
@@ -60,8 +61,24 @@
   function openExternal(url){
     url = url || root.location.href;
     track('iab_open_click', { os: ios ? 'ios' : (android ? 'android' : 'other') });
-    if (android) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }   // if nothing opened, show the manual steps
-    showSteps();
+    if (android && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }   // if nothing opened, show the manual steps
+    showSteps();     // iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
+  }
+  // The first thing seen inside such a browser: a notice that cannot be closed except by its OK button. OK (a real tap, which is what the phone requires) opens the page in the
+  // real browser on Android; on iPhone it shows how to do it by hand. After OK the notice is gone for good, so nobody is ever stuck behind it.
+  function modal(){
+    if (!inApp || !root.document || /[?&]iabauto=1\b/.test(search)) return null;
+    style();
+    var d = root.document, ov = d.createElement('div'); ov.className = 'iab-ov show'; ov.id = 'iabModal'; ov.style.alignItems = 'center'; ov.style.padding = '20px';
+    ov.innerHTML = '<div class="iab-sheet" role="alertdialog" aria-modal="true" aria-labelledby="iabMT" style="border-radius:20px;text-align:center">'
+      + '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
+      + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
+      + (ios ? ' ঠিক আছে চাপলে কীভাবে খুলবেন দেখাব।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
+      + '<button type="button" class="go" id="iabOk">ঠিক আছে</button></div>';
+    d.body.appendChild(ov); d.body.style.overflow = 'hidden';
+    d.getElementById('iabOk').onclick = function(){ ov.parentNode && ov.parentNode.removeChild(ov); d.body.style.overflow = ''; track('iab_modal_ok', { os: ios ? 'ios' : 'android' }); openExternal(); };
+    track('iab_modal_seen', { os: ios ? 'ios' : (android ? 'android' : 'other') });
+    return ov;
   }
   function bar(){
     if (!inApp || !root.document) return null;
@@ -92,11 +109,11 @@
     }, direct ? 400 : 700);
   }
 
-  var api = { inApp: inApp, android: android, ios: ios, externalHref: externalHref, openExternal: openExternal, showSteps: showSteps, bar: bar, autoTry: autoTry, copy: copy };
+  var api = { inApp: inApp, android: android, ios: ios, externalHref: externalHref, openExternal: openExternal, showSteps: showSteps, bar: bar, modal: modal, autoTry: autoTry, copy: copy };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.Iab = api;
   if (inApp && root.document) {
-    var start = function(){ bar(); autoTry(); };
+    var start = function(){ bar(); modal(); autoTry(); };
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start); else start();
   }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
