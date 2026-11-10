@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ব্রাউজার পরীক্ষা — Protishthan</title>
+<style>
+  body{margin:0;padding:20px;font:500 15px/1.7 'Hind Siliguri',system-ui,sans-serif;color:#0F172A;background:#F8FAFF}
+  h1{font-size:19px;margin:0 0 10px}
+  .box{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:12px 14px;margin:10px 0;word-break:break-all}
+  .ok{color:#047857;font-weight:700}.no{color:#B91C1C;font-weight:700}
+  button{border:none;border-radius:10px;padding:11px 16px;background:#1A56DB;color:#fff;font:700 15px 'Hind Siliguri',sans-serif;cursor:pointer;margin:4px 6px 4px 0}
+</style>
+</head>
+<body>
+<h1>এই ব্রাউজার কী ধরনের?</h1>
+<p>ফেসবুক অ্যাপের ভেতর থেকে এই পেজ খুলে নিচের ফলাফলের স্ক্রিনশট পাঠান।</p>
+<div class="box">ধরা পড়েছে ফেসবুক/অ্যাপের ভেতরের ব্রাউজার হিসেবে? <span id="r"></span></div>
+<div class="box">সিস্টেম: <span id="os"></span></div>
+<div class="box">কোথা থেকে এসেছে (referrer): <span id="ref"></span></div>
+<div class="box">ব্রাউজারের পরিচয়-লেখা (User-Agent):<br><span id="ua"></span></div>
+<button type="button" id="show">পপআপটা এখন দেখান</button><button type="button" id="copy">পরিচয়-লেখা কপি করুন</button>
+<script src="/iab.js?v=2"></script>
+<script>
+  (function(){
+    var I = window.Iab || {}, el = function(i){ return document.getElementById(i); };
+    el('r').innerHTML = I.inApp ? '<span class="ok">হ্যাঁ, ধরা পড়েছে</span>' : '<span class="no">না, সাধারণ ব্রাউজার মনে হচ্ছে</span>';
+    el('os').textContent = I.android ? 'Android' : (I.ios ? 'iPhone / iPad' : 'অন্য (কম্পিউটার বা অজানা)');
+    el('ref').textContent = document.referrer || '(কিছু নেই)';
+    el('ua').textContent = navigator.userAgent;
+    el('show').onclick = function(){ if (window.Iab) { var m = document.getElementById('iabModal'); if (!m) Iab.modal(); } };
+    el('copy').onclick = function(){ var b = this; (window.Iab ? Iab.copy(navigator.userAgent) : Promise.resolve(false)).then(function(ok){ b.textContent = ok ? 'কপি হয়েছে ✓' : 'কপি করা যায়নি'; }); };
+  })();
+</script>
+</body>
+</html>

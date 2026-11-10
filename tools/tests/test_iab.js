@@ -17,6 +17,13 @@ a = load(MESSENGER); ok(a.inApp && a.android, 'Messenger on Android is recognise
 ok(!load(CHROME).inApp, 'Chrome on Android is not an in-app browser');
 ok(!load(SAFARI).inApp, 'Safari on iPhone is not an in-app browser');
 ok(!load(DESKTOP).inApp, 'a computer is not an in-app browser');
+const WV_ANDROID = 'Mozilla/5.0 (Linux; Android 12; SM-A525F Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36';
+const WK_IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
+const CHROME_IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.0.0 Mobile/15E148 Safari/604.1';
+const SAMSUNG = 'Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36';
+ok(load(WV_ANDROID).inApp, 'an Android app web view that does not name itself ("wv") is recognised');
+ok(load(WK_IOS).inApp, 'an iPhone app web view without "Safari" is recognised');
+ok(!load(CHROME_IOS).inApp && !load(SAMSUNG).inApp, 'Chrome on iPhone and Samsung Internet are real browsers, not in-app');
 a = load(DESKTOP, '?iabtest=android'); ok(a.inApp && a.android, '?iabtest=android previews the Android case anywhere');
 a = load(DESKTOP, '?iabtest=ios'); ok(a.inApp && a.ios, '?iabtest=ios previews the iPhone case anywhere');
 

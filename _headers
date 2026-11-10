@@ -8,6 +8,13 @@
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 /*.woff2
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+# Scripts that change often and that the share flow depends on: a phone keeps them 5 minutes (the default is 4 hours, which hid a fix from a phone that had loaded the older file)
+/iab.js
+  Cache-Control: public, max-age=300, must-revalidate
+/card-index.js
+  Cache-Control: public, max-age=300, must-revalidate
+/phon.js
+  Cache-Control: public, max-age=300, must-revalidate
 # The saved name index of the card page (card-index/): small text files for the browser, not pages for search engines. A day in the browser; the page asks for them with ?v=<INDEX_VERSION>.
 /card-index/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800

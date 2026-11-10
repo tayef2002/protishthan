@@ -14,7 +14,11 @@
   var ua = (root.navigator && root.navigator.userAgent) || '';
   var search = (root.location && root.location.search) || '';
   var test = /[?&]iabtest=(android|ios)\b/.exec(search);
-  var inApp = /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Instagram|Messenger/i.test(ua) || !!test;
+  // the apps name themselves (Facebook, Messenger, Instagram); and some versions do not, but every app's plain web view shows itself: Android adds "wv" to the browser
+  // string, and on iPhone a real browser (Safari, Chrome, Firefox, Edge, Opera) always says "Safari" while an app's web view does not
+  var named = /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Instagram|Messenger/i.test(ua);
+  var plainWebView = (/Android/i.test(ua) && /;\s*wv\)/.test(ua)) || (/iPhone|iPad|iPod/i.test(ua) && !/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua));
+  var inApp = named || plainWebView || !!test;
   var android = test ? test[1] === 'android' : /Android/i.test(ua);
   var ios = test ? test[1] === 'ios' : /iPhone|iPad|iPod/i.test(ua);
 
