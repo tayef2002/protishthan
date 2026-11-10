@@ -349,6 +349,9 @@ label.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text-2);mar
 @media(prefers-reduced-motion:reduce){.ff-btn,.ff-btn i{transition:none}}
 /* the story of the card, told by the founder, under the Facebook card */
 .story{margin:16px 0 0;padding:26px 26px 22px;border-radius:22px;background:#fff;border:1px solid var(--border);position:relative;box-shadow:0 8px 26px rgba(15,23,42,.05)}
+.story-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.story-reads{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-2)}
+.story-reads b{font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
 .story-k{display:inline-block;font-size:12.5px;font-weight:700;color:var(--blue);background:rgba(26,86,219,.09);padding:3px 12px;border-radius:999px}
 .story-q{display:block;width:34px;height:25px;fill:#FBBF24;margin:16px 0 10px}
 .story blockquote{margin:0;font-size:16.5px;line-height:1.85;color:var(--text)}
@@ -825,7 +828,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     </div>
 
     <figure class="story">
-      <span class="story-k">এই কার্ডের পুরো গল্প</span>
+      <div class="story-top"><span class="story-k">এই কার্ডের পুরো গল্প</span><span class="story-reads" id="storyReads" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span><b id="storyReadsN">০</b> জন পড়েছেন</span></span></div>
       <svg class="story-q" viewBox="4.6 6.6 14.8 10.8" aria-hidden="true"><path d="M6 17h3l2-4V7H5v6h3l-2 4zm8 0h3l2-4V7h-6v6h3l-2 4z"/></svg>
       <blockquote>
         <p>একটা পাবলিক বিশ্ববিদ্যালয়ের ফেসবুক গ্রুপে একটা পোস্টের নিচে এক আপু কমেন্ট করেছিলেন।</p>
@@ -1792,6 +1795,35 @@ async function countMyInstitutes(){
   const d = deviceId(); if(!d) return;
   try{ await sb.rpc('count_card_institutes', { p_device: d, p_slugs: slugs }); loadLeaderboard(); }catch(e){}
 }
+
+/* ---------------- how many people have read the story ---------------- */
+// One count per person (per device): the story must be on screen for 4 seconds, so a quick scroll past does not count. The number comes from the database
+// (card_story_read adds this device once, card_story_reads_total only reads), asked once per visit, no polling. Shown from STORY_MIN_SHOW (a tiny number reads as 'nobody reads this').
+// Needs migrations/2026-11-11_card_story_reads.sql; until it is run the chip simply stays hidden and nothing is lost.
+const STORY_MIN_SHOW = 20;
+(function(){
+  const fig = document.querySelector('figure.story'), box = document.getElementById('storyReads'), num = document.getElementById('storyReadsN');
+  if(!fig || !box || !num || !('IntersectionObserver' in window)) return;
+  let counted = false; try{ counted = localStorage.getItem('sk_story_read') === '1'; }catch(e){}
+  const paint = v => {
+    v = Number(v); if(!Number.isFinite(v)) return;
+    try{ localStorage.setItem('sk_story_n', String(v)); }catch(e){}
+    if(v >= STORY_MIN_SHOW){ num.textContent = v.toLocaleString('bn-BD'); box.hidden = false; }
+  };
+  try{ const s = Number(localStorage.getItem('sk_story_n')); if(s) paint(s); }catch(e){}      // the last number this browser saw, shown at once
+  let timer = 0, done = false;
+  const act = async () => {
+    if(done) return; done = true;
+    try{
+      const r = counted ? await sb.rpc('card_story_reads_total') : await sb.rpc('card_story_read', { p_device: deviceId() });
+      if(!r.error && r.data != null){ paint(r.data); if(!counted){ try{ localStorage.setItem('sk_story_read', '1'); }catch(e){} } }
+    }catch(e){}
+  };
+  new IntersectionObserver(es => es.forEach(e => {
+    if(e.isIntersecting && e.intersectionRatio >= 0.35){ if(!timer && !done) timer = setTimeout(act, 4000); }
+    else if(timer){ clearTimeout(timer); timer = 0; }
+  }), { threshold: [0, 0.35, 0.6] }).observe(fig);
+})();
 
 /* ---------------- live download counter ---------------- */
 const DL_MIN_SHOW = 50;          // a tiny number reads as 'nobody uses this': show the badge only from 50 downloads
