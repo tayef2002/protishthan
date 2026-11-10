@@ -2043,7 +2043,7 @@ async function shareFacebook(text){
     openFbTab();
   }
 }
-function shareWhatsApp(){
+async function shareWhatsApp(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   T('card_share_whatsapp');
   const text = waText();
@@ -2053,7 +2053,20 @@ function shareWhatsApp(){
     return;
   }
   if(canShareFiles()){ shareImage(text); return; }     // phone: picture + message together through the share sheet
-  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');     // computer: a link cannot carry a picture, so the message with the link is sent
+  // A WhatsApp link (wa.me) can carry only text, never a picture. Where the browser has no share sheet for files (a computer, Firefox) the picture goes to the clipboard,
+  // WhatsApp opens with the message, and the visitor pastes the picture (or, when the browser cannot copy a picture, saves it and attaches it with the paperclip).
+  const wa = 'https://wa.me/?text=' + encodeURIComponent(text);
+  draw();
+  try{
+    if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
+    await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
+    countCardMade(); T('card_copy_for_whatsapp');
+    setShHint('ছবি কপি হয়েছে ✓ WhatsApp খুললে যার সাথে শেয়ার করবেন তার চ্যাট বেছে নিন, তারপর মেসেজ বক্সে Ctrl+V চাপুন (ফোনে: বক্সে চেপে ধরে “Paste”)। ছবি যুক্ত হয়ে যাবে।');
+  }catch(e){
+    try{ await saveFormat(S.format); countCardMade(); }catch(_){}
+    setShHint('ছবি ডাউনলোড হয়েছে ✓ WhatsApp-এ চ্যাট বেছে নিয়ে 📎 চেপে ছবিটা যুক্ত করুন।');
+  }
+  window.open(wa, '_blank', 'noopener');
 }
 
 /* ---------------- save in this browser (no login) ---------------- */
