@@ -43,6 +43,9 @@
     + '.iab-sheet h3{margin:0 0 8px;font-size:18px}.iab-sheet ol{margin:0 0 14px;padding-left:20px;font-size:14.5px;line-height:1.8;color:#334155}'
     + '.iab-sheet .go{display:block;width:100%;box-sizing:border-box;margin:0 0 8px;padding:13px;border:none;border-radius:12px;background:#1A56DB;color:#fff;font:700 16px "Hind Siliguri",sans-serif;text-align:center;text-decoration:none;cursor:pointer}'
     + '.iab-sheet .alt{display:block;width:100%;padding:11px;border:1.5px solid #D5E0F5;border-radius:12px;background:#fff;color:#1A56DB;font:700 14.5px "Hind Siliguri",sans-serif;cursor:pointer}'
+    + '.iab-fade{display:flex;opacity:0;transition:opacity .45s ease}.iab-fade.in{opacity:1}'
+    + '.iab-fade .iab-sheet{transform:translateY(22px) scale(.97);transition:transform .5s cubic-bezier(.2,.9,.25,1.05)}.iab-fade.in .iab-sheet{transform:none}'
+    + '@media(prefers-reduced-motion:reduce){.iab-fade,.iab-fade .iab-sheet{transition:none}}'
     + '.iab-sheet .x{display:block;margin:10px auto 0;border:none;background:none;color:#64748B;font:600 13.5px "Hind Siliguri",sans-serif;cursor:pointer}';
   var styled = false;
   function style(){ if (styled || !root.document) return; styled = true; var s = root.document.createElement('style'); s.textContent = CSS; root.document.head.appendChild(s); }
@@ -70,19 +73,30 @@
   }
   // The first thing seen inside such a browser: a notice that cannot be closed except by its OK button. OK (a real tap, which is what the phone requires) opens the page in the
   // real browser on Android; on iPhone it shows how to do it by hand. After OK the notice is gone for good, so nobody is ever stuck behind it.
-  function modal(){
-    if (!inApp || !root.document || /[?&]iabauto=1\b/.test(search)) return null;
+  // It appears after 4 seconds (a visitor who is shown a popup the moment the page opens is annoyed): time to look at the page and scroll a little, then it fades in softly.
+  // It never interrupts typing (it waits a moment), and it stays away when the save popup of the card page is already open. ?iabdelay=<milliseconds> changes the wait (tests).
+  var MODAL_DELAY = (function(){ var m = /[?&]iabdelay=(\d+)/.exec(search); return m ? Math.min(Number(m[1]), 20000) : 4000; })();
+  function modal(now){
+    if (!inApp || !root.document || /[?&]iabauto=1\b/.test(search)) return;
     style();
-    var d = root.document, ov = d.createElement('div'); ov.className = 'iab-ov show'; ov.id = 'iabModal'; ov.style.alignItems = 'center'; ov.style.padding = '20px';
-    ov.innerHTML = '<div class="iab-sheet" role="alertdialog" aria-modal="true" aria-labelledby="iabMT" style="border-radius:20px;text-align:center">'
-      + '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
-      + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
-      + (ios ? ' ঠিক আছে চাপলে কীভাবে খুলবেন দেখাব।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
-      + '<button type="button" class="go" id="iabOk">ঠিক আছে</button></div>';
-    d.body.appendChild(ov); d.body.style.overflow = 'hidden';
-    d.getElementById('iabOk').onclick = function(){ ov.parentNode && ov.parentNode.removeChild(ov); d.body.style.overflow = ''; track('iab_modal_ok', { os: ios ? 'ios' : 'android' }); openExternal(); };
-    track('iab_modal_seen', { os: ios ? 'ios' : (android ? 'android' : 'other') });
-    return ov;
+    var d = root.document, tries = 0;
+    var show = function(){
+      if (d.getElementById('iabModal') || d.querySelector('.dl-ov.show')) return;
+      var a = d.activeElement;
+      if (!now && a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && tries++ < 4) { setTimeout(show, 1500); return; }
+      var ov = d.createElement('div'); ov.className = 'iab-ov iab-fade'; ov.id = 'iabModal'; ov.style.alignItems = 'center'; ov.style.padding = '20px';
+      ov.innerHTML = '<div class="iab-sheet" role="alertdialog" aria-modal="true" aria-labelledby="iabMT" style="border-radius:20px;text-align:center">'
+        + '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
+        + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
+        + (ios ? ' ঠিক আছে চাপলে কীভাবে খুলবেন দেখাব।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
+        + '<button type="button" class="go" id="iabOk">ঠিক আছে</button></div>';
+      d.body.appendChild(ov); d.body.style.overflow = 'hidden';
+      var fade = function(){ ov.classList.add('in'); };
+      if (root.requestAnimationFrame) root.requestAnimationFrame(function(){ root.requestAnimationFrame(fade); }); else fade();
+      d.getElementById('iabOk').onclick = function(){ ov.parentNode && ov.parentNode.removeChild(ov); d.body.style.overflow = ''; track('iab_modal_ok', { os: ios ? 'ios' : 'android' }); openExternal(); };
+      track('iab_modal_seen', { os: ios ? 'ios' : (android ? 'android' : 'other') });
+    };
+    if (now) show(); else setTimeout(show, MODAL_DELAY);
   }
   function bar(){
     if (!inApp || !root.document) return null;

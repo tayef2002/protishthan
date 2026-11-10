@@ -21,7 +21,7 @@
 <div class="box">কোথা থেকে এসেছে (referrer): <span id="ref"></span></div>
 <div class="box">ব্রাউজারের পরিচয়-লেখা (User-Agent):<br><span id="ua"></span></div>
 <button type="button" id="show">পপআপটা এখন দেখান</button><button type="button" id="copy">পরিচয়-লেখা কপি করুন</button>
-<script src="/iab.js?v=2"></script>
+<script src="/iab.js?v=3"></script>
 <script>
   (function(){
     var I = window.Iab || {}, el = function(i){ return document.getElementById(i); };
@@ -29,7 +29,7 @@
     el('os').textContent = I.android ? 'Android' : (I.ios ? 'iPhone / iPad' : 'অন্য (কম্পিউটার বা অজানা)');
     el('ref').textContent = document.referrer || '(কিছু নেই)';
     el('ua').textContent = navigator.userAgent;
-    el('show').onclick = function(){ if (window.Iab) { var m = document.getElementById('iabModal'); if (!m) Iab.modal(); } };
+    el('show').onclick = function(){ if (window.Iab) { var m = document.getElementById('iabModal'); if (!m) Iab.modal(true); } };
     el('copy').onclick = function(){ var b = this; (window.Iab ? Iab.copy(navigator.userAgent) : Promise.resolve(false)).then(function(ok){ b.textContent = ok ? 'কপি হয়েছে ✓' : 'কপি করা যায়নি'; }); };
   })();
 </script>
