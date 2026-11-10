@@ -641,6 +641,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
 <script src="/bnname.js?v=3"></script>
+<script src="/iab.js?v=1"></script>
 <script src="/phon.js?v=1"></script>
 <script src="/card-index.js?v=1"></script>
 <link rel="canonical" href="https://protishthan.com/card">
@@ -902,10 +903,11 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-x" onclick="closeDl()" aria-label="বন্ধ করুন">×</button>
     <div class="dl-ok"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h3 id="dlT">কার্ড ডাউনলোড হয়েছে</h3>
-    <p>এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।</p>
+    <p id="dlP">এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।</p>
+    <button type="button" class="dl-share-fb" id="dlExt" style="display:none" onclick="Iab.openExternal()">ব্রাউজারে খুলুন (ডাউনলোড ও শেয়ারের জন্য)</button>
+    <div class="dl-iab" id="dlIab" hidden><img id="dlImg" alt="আপনার শিক্ষিত কার্ড"><small>ছবিটা চেপে ধরে ‘ছবি সেভ করুন’ চাপুন।</small></div>
     <button type="button" class="dl-share-fb" id="dlShareFb" onclick="dlShare('facebook')"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ শেয়ার করুন</button>
     <button type="button" class="dl-share-wa" id="dlShareWa" onclick="dlShare('whatsapp')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp-এ পাঠান</button>
-    <div class="dl-iab" id="dlIab" hidden><img id="dlImg" alt="আপনার শিক্ষিত কার্ড"><small>ছবি সেভ না হয়ে থাকলে ছবিটা চেপে ধরে ‘ছবি সেভ করুন’ চাপুন। অথবা ওপরের ⋮ মেনু থেকে ‘Chrome-এ খুলুন’ বেছে নিন।</small></div>
     <div class="dl-hint" id="dlHint" aria-live="polite"></div>
     <div class="dl-chips" id="dlChips" role="group" aria-label="ক্যাপশনের ধরন"></div>
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
@@ -1901,7 +1903,7 @@ function silentCopy(text){   // copies without a visible step; resolves true whe
   try{ if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(() => true, () => false); }catch(e){}
   return Promise.resolve(false);
 }
-const IN_APP = /FBAN|FBAV|FB_IAB|FBIOS|Instagram/i.test(navigator.userAgent || '');   // Facebook's / Instagram's own browser: saving files and the share sheet often do not work there
+const IN_APP = !!(window.Iab && Iab.inApp);   // Facebook's / Messenger's / Instagram's own browser (see iab.js): saving files and the share sheet do not work there
 /* the message that travels with the picture when WhatsApp is chosen: a few friendly versions (so a group does not see the same words twice), each ends with the link that makes a card */
 function waText(pick){
   const y = eduYears(), link = SHARE_URL + '?ref=wa';
@@ -1943,10 +1945,14 @@ function openDl(){
   const o = document.getElementById('dlOther'); if(o){ o.classList.remove('done'); o.querySelector('span').textContent = (DL_LAST === 'story' ? 'পোস্ট' : 'স্টোরি') + ' সাইজ ডাউনলোড'; }
   const h = document.getElementById('dlHint'); if(h){ h.classList.remove('show'); h.textContent = ''; }
   if(DL_COPIED) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook-এ পোস্টের বক্সে চেপে ধরে পেস্ট করুন।');
-  // inside Facebook's own browser the file often does not save and the share sheet is missing: show the card itself to save by pressing on it
-  const iab = document.getElementById('dlIab'), fbBtn = document.getElementById('dlShareFb');
+  // inside Facebook's own browser the file does not save and the share sheet is missing: say so, show the card itself to save by pressing on it, and offer the real browser
+  const iab = document.getElementById('dlIab'), fbBtn = document.getElementById('dlShareFb'), ext = document.getElementById('dlExt');
+  const t = document.getElementById('dlT'), p = document.getElementById('dlP');
   if(iab){ iab.hidden = !IN_APP; if(IN_APP){ document.getElementById('dlImg').src = cv.toDataURL('image/png'); } }
   if(fbBtn) fbBtn.style.display = IN_APP ? 'none' : '';
+  if(ext) ext.style.display = IN_APP ? '' : 'none';
+  if(t) t.textContent = IN_APP ? 'ছবি সেভ করুন' : 'কার্ড ডাউনলোড হয়েছে';
+  if(p) p.textContent = IN_APP ? 'Facebook-এর ভেতরে ডাউনলোড ও শেয়ার কাজ করে না। ছবিটা চেপে ধরে সেভ করুন, অথবা ব্রাউজারে খুলুন।' : 'এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।';
   ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup', { v: DL_VARIANT, iab: IN_APP ? 1 : 0 });
 }
 async function dlShare(ch){
@@ -1982,6 +1988,9 @@ async function dlOtherSize(){
 }
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
+  if(IN_APP){   // Facebook's own browser cannot save the file: no silent failure, show the card to save by pressing on it
+    draw(); DL_LAST = S.format; countCardMade(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : ''), iab: 1 }); openDl(); return;
+  }
   // the caption is copied in this same tap (browsers allow it only inside a tap), so it is ready to paste into the Facebook post
   silentCopy(caption()).then(ok => { DL_COPIED = ok; });
   // one file per tap (browsers ask permission when a page saves two files at once); the other size is offered in the popup
@@ -2018,7 +2027,8 @@ function openFbTab(){   // if the browser blocks the new tab, the hint gets a pl
 async function shareFacebook(text){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   const msg = typeof text === 'string' ? text : caption();     // a button's click event must not end up as the text
-  T('card_share_facebook', { v: DL_VARIANT });
+  T('card_share_facebook', { v: DL_VARIANT, iab: IN_APP ? 1 : 0 });
+  if(IN_APP){ downloadCard(); return; }     // Facebook's own browser: no share sheet, no clipboard picture; the popup shows the card to save and the way out to the real browser
   if(canShareFiles()){ shareImage(msg); return; }
   draw();
   try{
@@ -2037,6 +2047,11 @@ function shareWhatsApp(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   T('card_share_whatsapp');
   const text = waText();
+  if(IN_APP){   // Facebook's own browser blocks new tabs: go to WhatsApp in this same page (the app on Android, the wa.me page elsewhere); the message carries the link, not the picture
+    const wa = 'https://wa.me/?text=' + encodeURIComponent(text);
+    location.href = Iab.android ? 'intent://send?text=' + encodeURIComponent(text) + '#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=' + encodeURIComponent(wa) + ';end' : wa;
+    return;
+  }
   if(canShareFiles()){ shareImage(text); return; }     // phone: picture + message together through the share sheet
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');     // computer: a link cannot carry a picture, so the message with the link is sent
 }
