@@ -46,6 +46,9 @@
     + '.iab-fade{display:flex;opacity:0;transition:opacity .45s ease}.iab-fade.in{opacity:1}'
     + '.iab-fade .iab-sheet{transform:translateY(22px) scale(.97);transition:transform .5s cubic-bezier(.2,.9,.25,1.05)}.iab-fade.in .iab-sheet{transform:none}'
     + '@media(prefers-reduced-motion:reduce){.iab-fade,.iab-fade .iab-sheet{transition:none}}'
+    + '.iab-arrow{position:fixed;z-index:9900;top:8px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:#fff;font:700 14px "Hind Siliguri",sans-serif;pointer-events:none;animation:iabBob 1s ease-in-out infinite}'
+    + '.iab-arrow b{font-size:38px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.45)}.iab-arrow span{background:#1A56DB;padding:6px 12px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}'
+    + '@keyframes iabBob{0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-8px)}}@media(prefers-reduced-motion:reduce){.iab-arrow{animation:none}}'
     + '.iab-sheet .x{display:block;margin:10px auto 0;border:none;background:none;color:#64748B;font:600 13.5px "Hind Siliguri",sans-serif;cursor:pointer}';
   var styled = false;
   function style(){ if (styled || !root.document) return; styled = true; var s = root.document.createElement('style'); s.textContent = CSS; root.document.head.appendChild(s); }
@@ -61,16 +64,20 @@
     if (root.requestAnimationFrame) root.requestAnimationFrame(function(){ root.requestAnimationFrame(fade); }); else fade();
     return ov;
   }
+  // the address without Facebook's own tracking tag, for copying
+  function cleanHref(){ try { var u = new URL(root.location.href); u.searchParams.delete('fbclid'); return u.href; } catch (e) { return root.location.href; } }
   function stepsHtml(closable){
+    // Inside the Facebook app the page cannot hand itself over (the app blocks it: tried on real phones, nobody got through), so there is no "try again" button there:
+    // only what works, the app's own menu or the copied link
     return '<h3>ব্রাউজারে খুলুন</h3>'
-      + '<ol><li>ওপরে বা নিচে <b>⋯</b> / <b>⋮</b> (তিন ফোঁটা) চাপুন।</li><li><b>' + (ios ? 'Safari-তে খুলুন' : 'ব্রাউজারে খুলুন / Open in browser') + '</b> বেছে নিন।</li><li>সেখানে ডাউনলোড আর শেয়ার ঠিকমতো কাজ করবে।</li></ol>'
-      + (android ? '<button type="button" class="go" id="iabRetry">আবার চেষ্টা করুন</button>' : '')
-      + '<button type="button" class="alt" id="iabCopy">লিংক কপি করুন (ব্রাউজারে পেস্ট করবেন)</button>'
+      + '<ol><li>ওপরে ডানদিকের <b>⋮</b> / <b>⋯</b> (তিন ফোঁটা) চাপুন।</li><li><b>' + (ios ? 'Safari-তে খুলুন' : 'ব্রাউজারে খুলুন / Open in browser') + '</b> বেছে নিন।</li><li>সেখানে ডাউনলোড আর শেয়ার ঠিকমতো কাজ করবে।</li></ol>'
+      + (android && !gate ? '<button type="button" class="go" id="iabRetry">আবার চেষ্টা করুন</button>' : '')
+      + '<button type="button" class="alt" id="iabCopy">লিংক কপি করুন (Chrome-এর ঠিকানা বারে পেস্ট করুন)</button>'
       + (closable ? '<button type="button" class="x" id="iabClose">বন্ধ করুন</button>' : '');
   }
   function wireSteps(root2, ov){
     var d = root.document, q = function(id){ return d.getElementById(id); };
-    if (q('iabCopy')) q('iabCopy').onclick = function(){ var b = this; copy(root.location.href).then(function(ok){ b.textContent = ok ? 'লিংক কপি হয়েছে ✓' : 'কপি করা যায়নি, ঠিকানা চেপে ধরে কপি করুন'; track('iab_copy_link', { ok: ok ? 1 : 0 }); }); };
+    if (q('iabCopy')) q('iabCopy').onclick = function(){ var b = this; copy(cleanHref()).then(function(ok){ b.textContent = ok ? 'লিংক কপি হয়েছে ✓' : 'কপি করা যায়নি, ঠিকানা চেপে ধরে কপি করুন'; track('iab_copy_link', { ok: ok ? 1 : 0 }); }); };
     if (q('iabRetry')) q('iabRetry').onclick = function(){ track('iab_retry', { os: 'android' }); openExternal(); };
     if (q('iabClose')) q('iabClose').onclick = function(){ ov.classList.remove('show'); };
   }
@@ -80,6 +87,11 @@
     if (gate) {     // named app browser: the steps replace the notice and cannot be closed
       var m = ensureModal(), sheet = m.querySelector('.iab-sheet');
       sheet.style.textAlign = 'left'; sheet.innerHTML = stepsHtml(false); wireSteps(sheet, m);
+      // a bouncing arrow at the top right, where the app's own menu is
+      if (!m.querySelector('.iab-arrow')) m.insertAdjacentHTML('beforeend', '<div class="iab-arrow" aria-hidden="true"><b>↗</b><span>এখানে ⋮ চাপুন</span></div>');
+      // the link is copied in this same tap (the phone allows it only inside a tap), so "paste it in Chrome" is ready without another step
+      var cb = d.getElementById('iabCopy');
+      copy(cleanHref()).then(function(ok){ if (ok && cb) cb.textContent = 'লিংক কপি হয়েছে ✓ (Chrome-এর ঠিকানা বারে পেস্ট করুন)'; track('iab_auto_copy', { ok: ok ? 1 : 0 }); });
       track('iab_steps_open', { os: ios ? 'ios' : 'android', gate: 1 });
       return;
     }
@@ -96,8 +108,10 @@
   function openExternal(url){
     url = url || root.location.href;
     track('iab_open_click', { os: ios ? 'ios' : (android ? 'android' : 'other') });
-    if (android && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }   // if nothing opened, show the manual steps
-    showSteps();     // iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
+    // Android, a browser that only looks like an app web view: try the hand-over, and if nothing opened show the manual steps.
+    // Not inside the Facebook app itself: it blocks the hand-over (17 of 17 visitors who pressed OK on real phones stayed on the page), so trying only made them wait.
+    if (android && !gate && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }
+    showSteps();     // the Facebook app, iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
   }
 
   // It appears after 4 seconds (a visitor who is shown a popup the moment the page opens is annoyed): time to look at the page and scroll a little, then it fades in softly.
@@ -114,7 +128,7 @@
       var ov = ensureModal(), sheet = ov.querySelector('.iab-sheet');
       sheet.innerHTML = '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
         + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
-        + (ios ? ' ঠিক আছে চাপলে কীভাবে খুলবেন দেখাব।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
+        + (gate || ios ? ' ঠিক আছে চাপলে দেখাব কীভাবে খুলবেন।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
         + '<button type="button" class="go" id="iabOk">ঠিক আছে</button>';
       sheet.setAttribute('aria-labelledby', 'iabMT');
       d.getElementById('iabOk').onclick = function(){
@@ -132,8 +146,9 @@
   // Without the switch only a quiet hidden-frame attempt is made on Android.
   function autoTry(){
     if (!inApp || !android || test) return;
-    try { if (root.sessionStorage.getItem('iab_auto')) return; root.sessionStorage.setItem('iab_auto', '1'); } catch (e) {}
     var direct = /[?&]iabauto=1\b/.test(search);
+    if (gate && !direct) return;     // the Facebook app blocks the quiet attempt too (no visitor got through), so it is not tried there any more
+    try { if (root.sessionStorage.getItem('iab_auto')) return; root.sessionStorage.setItem('iab_auto', '1'); } catch (e) {}
     track('iab_auto', { mode: direct ? 'direct' : 'frame' });
     setTimeout(function(){
       try {

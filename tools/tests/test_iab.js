@@ -35,12 +35,14 @@ ok(href.includes('action=android.intent.action.VIEW') && href.endsWith(';end'), 
 ok(href.includes('S.browser_fallback_url=' + encodeURIComponent('https://protishthan.com/card?ref=x')), 'Android: falls back to the normal address');
 ok(load(FB_IOS).externalHref('https://protishthan.com/card') === 'https://protishthan.com/card', 'iPhone: the plain address (steps are shown instead)');
 // the ?iabauto=1 test switch: the page itself is sent to the real browser, without the switch in the address
-const direct = (search, href) => {
+const direct = (search, href, agent) => {
   const seen = { replaced: null, frames: 0 }, store = {};
-  const win = { navigator: { userAgent: FB_ANDROID }, location: { search, href, replace: u => { seen.replaced = u; } }, sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } }, document: { createElement: () => ({ style: {} }), body: { appendChild: () => { seen.frames++; } }, readyState: 'loading', addEventListener() {} } };   // 'loading': the notice bar waits for the page, only autoTry() runs here
+  const win = { navigator: { userAgent: agent || FB_ANDROID }, location: { search, href, replace: u => { seen.replaced = u; } }, sessionStorage: { getItem: k => store[k] || null, setItem: (k, v) => { store[k] = v; } }, document: { createElement: () => ({ style: {} }), body: { appendChild: () => { seen.frames++; } }, readyState: 'loading', addEventListener() {} } };   // 'loading': the notice bar waits for the page, only autoTry() runs here
   vm.runInNewContext(src, { window: win, URL, encodeURIComponent, Promise, setTimeout: f => f(), console }); win.Iab.autoTry(); return seen;
 };
+// (the helper builds the page with the given browser string; default: the Facebook app on Android)
 let s = direct('?iabauto=1', 'https://protishthan.com/card?iabauto=1'); ok(s.replaced && s.replaced.startsWith('intent://protishthan.com/card#Intent;') && !/iabauto/.test(decodeURIComponent(s.replaced.split('#Intent;')[0])), 'iabauto=1: the page is sent to the real browser, the switch removed from the address');
 s = direct('?ref=a&iabauto=1', 'https://protishthan.com/card?ref=a&iabauto=1'); ok(s.replaced && s.replaced.startsWith('intent://protishthan.com/card?ref=a#Intent;'), 'iabauto=1 keeps the other parts of the address');
-s = direct('?ref=a', 'https://protishthan.com/card?ref=a'); ok(s.replaced === null && s.frames === 1, 'without the switch only the quiet hidden-frame attempt is made, the page is never replaced');
+s = direct('?ref=a', 'https://protishthan.com/card?ref=a'); ok(s.replaced === null && s.frames === 0, 'inside the Facebook app nothing is tried without the switch (the app blocks it, nobody got through)');
+s = direct('?ref=a', 'https://protishthan.com/card?ref=a', WV_ANDROID); ok(s.replaced === null && s.frames === 1, 'in a browser that only looks like an app web view the quiet hidden-frame attempt is still made, and the page is never replaced');
 console.log('all ' + n + ' checks passed');
