@@ -67,11 +67,10 @@
   // the address without Facebook's own tracking tag, for copying
   function cleanHref(){ try { var u = new URL(root.location.href); u.searchParams.delete('fbclid'); return u.href; } catch (e) { return root.location.href; } }
   function stepsHtml(closable){
-    // Inside the Facebook app the page cannot hand itself over (the app blocks it: tried on real phones, nobody got through), so there is no "try again" button there:
-    // only what works, the app's own menu or the copied link
+    // First the button that opens the real browser by itself (Android); if the phone did not allow it, the app's own menu or the copied link
     return '<h3>ব্রাউজারে খুলুন</h3>'
+      + (android ? '<button type="button" class="go" id="iabRetry">ব্রাউজারে খুলুন (আবার চেষ্টা)</button><p style="margin:0 0 8px;font-size:13.5px;color:#64748B">খুলে না গেলে নিচের যেকোনো একটা করুন:</p>' : '')
       + '<ol><li>ওপরে ডানদিকের <b>⋮</b> / <b>⋯</b> (তিন ফোঁটা) চাপুন।</li><li><b>' + (ios ? 'Safari-তে খুলুন' : 'ব্রাউজারে খুলুন / Open in browser') + '</b> বেছে নিন।</li><li>সেখানে ডাউনলোড আর শেয়ার ঠিকমতো কাজ করবে।</li></ol>'
-      + (android && !gate ? '<button type="button" class="go" id="iabRetry">আবার চেষ্টা করুন</button>' : '')
       + '<button type="button" class="alt" id="iabCopy">লিংক কপি করুন (Chrome-এর ঠিকানা বারে পেস্ট করুন)</button>'
       + (closable ? '<button type="button" class="x" id="iabClose">বন্ধ করুন</button>' : '');
   }
@@ -108,10 +107,12 @@
   function openExternal(url){
     url = url || root.location.href;
     track('iab_open_click', { os: ios ? 'ios' : (android ? 'android' : 'other') });
-    // Android, a browser that only looks like an app web view: try the hand-over, and if nothing opened show the manual steps.
-    // Not inside the Facebook app itself: it blocks the hand-over (17 of 17 visitors who pressed OK on real phones stayed on the page), so trying only made them wait.
-    if (android && !gate && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }
-    showSteps();     // the Facebook app, iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
+    // Android: hand the page to the phone's default browser (it worked on the owner's own phone from inside the Facebook app). The page cannot tell whether it worked
+    // (the app does not report that it went to the background, so the page may look "still visible" even after Chrome opened), so after 1.6 s the steps (with a try-again
+    // button) are shown as a safety net: whoever is in Chrome never sees them, whoever stays or comes back has the way out in front of them.
+    if (android && !test) { root.location.href = externalHref(url); setTimeout(function(){ if (!root.document.hidden) showSteps(); }, 1600); return; }
+    showSteps();     // iPhone (no way to open another browser from a page), and the ?iabtest preview, which must not leave the page
+    if (test && android) root.__iabIntent = externalHref(url);     // the preview records the address it would have opened (for tests)
   }
 
   // It appears after 4 seconds (a visitor who is shown a popup the moment the page opens is annoyed): time to look at the page and scroll a little, then it fades in softly.
@@ -128,7 +129,7 @@
       var ov = ensureModal(), sheet = ov.querySelector('.iab-sheet');
       sheet.innerHTML = '<h3 id="iabMT">আপনি Facebook-এর ব্রাউজারে আছেন</h3>'
         + '<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#334155">এখানে কার্ড বানালে <b>ডাউনলোড ও শেয়ার কাজ করে না</b>। তাই কার্ড বানাতে হবে ফোনের ব্রাউজার (Chrome) থেকে।'
-        + (gate || ios ? ' ঠিক আছে চাপলে দেখাব কীভাবে খুলবেন।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
+        + (ios ? ' ঠিক আছে চাপলে দেখাব কীভাবে খুলবেন।' : ' ঠিক আছে চাপলেই ব্রাউজারে খুলে যাবে।') + '</p>'
         + '<button type="button" class="go" id="iabOk">ঠিক আছে</button>';
       sheet.setAttribute('aria-labelledby', 'iabMT');
       d.getElementById('iabOk').onclick = function(){
@@ -147,7 +148,7 @@
   function autoTry(){
     if (!inApp || !android || test) return;
     var direct = /[?&]iabauto=1\b/.test(search);
-    if (gate && !direct) return;     // the Facebook app blocks the quiet attempt too (no visitor got through), so it is not tried there any more
+    if (gate && !direct) return;     // inside the Facebook app the hand-over is only tried when the visitor taps OK (a tap is what the phone wants); no quiet attempt on page load
     try { if (root.sessionStorage.getItem('iab_auto')) return; root.sessionStorage.setItem('iab_auto', '1'); } catch (e) {}
     track('iab_auto', { mode: direct ? 'direct' : 'frame' });
     setTimeout(function(){

@@ -45,4 +45,13 @@ let s = direct('?iabauto=1', 'https://protishthan.com/card?iabauto=1'); ok(s.rep
 s = direct('?ref=a&iabauto=1', 'https://protishthan.com/card?ref=a&iabauto=1'); ok(s.replaced && s.replaced.startsWith('intent://protishthan.com/card?ref=a#Intent;'), 'iabauto=1 keeps the other parts of the address');
 s = direct('?ref=a', 'https://protishthan.com/card?ref=a'); ok(s.replaced === null && s.frames === 0, 'inside the Facebook app nothing is tried without the switch (the app blocks it, nobody got through)');
 s = direct('?ref=a', 'https://protishthan.com/card?ref=a', WV_ANDROID); ok(s.replaced === null && s.frames === 1, 'in a browser that only looks like an app web view the quiet hidden-frame attempt is still made, and the page is never replaced');
+// OK / the open button on Android hands the page to the default browser (this worked on a real phone inside the Facebook app)
+const tap = (agent, href) => {
+  let assigned = null, base = href;
+  const win = { navigator: { userAgent: agent }, location: { search: '', get href(){ return base; }, set href(v){ assigned = v; } }, document: { readyState: 'loading', hidden: false, addEventListener() {} } };
+  vm.runInNewContext(src, { window: win, URL, encodeURIComponent, Promise, setTimeout: () => 0, console }); win.Iab.openExternal(); return assigned;
+};
+let go = tap(FB_ANDROID, 'https://protishthan.com/card?fbclid=ABC&ref=x');
+ok(go && go.startsWith('intent://protishthan.com/card?fbclid=ABC&ref=x#Intent;scheme=https;action=android.intent.action.VIEW;') && go.endsWith(';end'), 'Android Facebook app: OK / the open button navigates to the intent address for the same page');
+ok(tap(WV_ANDROID, 'https://protishthan.com/card') !== null, 'Android app web view: the hand-over is tried too');
 console.log('all ' + n + ' checks passed');
