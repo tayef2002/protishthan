@@ -7,7 +7,7 @@
 
 import { rest } from '../_lib/seo.js';
 
-const FRESH = 10;                    // seconds a good answer is reused (the page asks every 20 s, so the number is at most about 30 s behind: the same feel as when every page asked the database itself)
+const FRESH = 10;                    // seconds a good answer is reused (the page asks once a minute, so the number is at most about 70 s behind; a visitor's own download updates it at once)
 const LAST_GOOD = 14 * 24 * 3600;    // how long the last good answer is kept as a fallback
 const FLOOR = 228;                   // counted downloads read from the database (card_stats) on 2026-11-10. The number only goes up, so this is a true minimum for the very first answer after a cold start while the database is down
 const DOWN = 10;                     // after a failure, do not ask the database again for this many seconds (short, so a recovered database is noticed within seconds)

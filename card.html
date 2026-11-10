@@ -1834,7 +1834,7 @@ async function countMyDownload(){   // once per person per name: the server comp
   const nm = String(S.name || '').trim(); if(!nm) return;
   try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
-refreshDownloads(); setInterval(refreshDownloads, 45000);   // every question to /api/card-count counts against the free daily limit of server calls (100,000): 20 s per open tab used too many on a busy day
+refreshDownloads(); setInterval(refreshDownloads, 60000);   // once a minute per open tab: every question to /api/card-count counts against the free daily limit of server calls (100,000), and 20 s per open tab used too many on a busy day
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
 const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };

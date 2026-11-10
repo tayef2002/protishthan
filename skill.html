@@ -1272,7 +1272,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     if(done) return;
     try{ const r = await M.sb.rpc('bump_skill_downloads'); if(!r.error){ try{ localStorage.setItem('sk_skdl_counted', '1'); }catch(e){} if(r.data != null) paintDownloads(Number(r.data)); } }catch(e){}
   }
-  refreshDownloads(); setInterval(refreshDownloads, 20000);
+  refreshDownloads(); setInterval(refreshDownloads, 60000);
   document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
   /* certificate -> post image -> cover: after each download the next one opens by itself and asks to be downloaded too */
