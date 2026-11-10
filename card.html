@@ -1742,9 +1742,10 @@ function lbRow(r, max){
 }
 const LB_MIN_ROWS = 5, LB_MIN_TOTAL = 50;   // the board appears once at least 5 institutions and 50 cards are on it
 let LB_READY = false;
-// The board is kept hidden for now. Cards keep being counted for every institution in the background (count_card_institutes on each download),
-// so the day this is set to true the board shows everything collected so far. Switch: set LB_SHOW = true.
-const LB_SHOW = false;
+// The board is switched on (2026-11-11, at the owner's word). Cards are counted for every institution (count_card_institutes on each download) and the board shows
+// everything collected so far, but only once at least 5 institutions and 50 cards are on it (LB_MIN_ROWS, LB_MIN_TOTAL), and it stays hidden if the database does not answer.
+// Switch it off again: set LB_SHOW = false.
+const LB_SHOW = true;
 async function loadLeaderboard(){
   if(!LB_SHOW) return;
   const list = document.getElementById('lbList'); if(!list) return;
