@@ -1818,7 +1818,7 @@ function paintDownloads(counted){
 // The number comes from /api/card-count (the server asks the database only a few times a minute for everybody together, and keeps the last good answer). Refreshed once a minute, and when the tab is opened again.
 // If that cannot be reached, the page asks the database itself; if that fails too, it shows the biggest number it knows (what this browser saw last, or the known minimum below).
 // The badge is shown at once with that number and the real one glides in when it arrives, so it never disappears while the database or the server is slow.
-const DL_COUNTED_FLOOR = 366;    // downloads the database had counted on 2026-11-10 (read from it, 2,366 on the badge with the 2,000 base). The count only goes up, so this is a true minimum; raise it now and then
+const DL_COUNTED_FLOOR = 373;    // downloads the database had counted on 2026-11-10 (the owner saw 2,373 on the badge, which is 373 counted plus the 2,000 base). The count only goes up, so this is a true minimum; raise it now and then from the database (select downloads from card_stats where id = 1)
 function bestKnownCount(){ let s = 0; try{ const v = Number(localStorage.getItem('sk_dl_last')); if(Number.isFinite(v) && v > 0) s = v; }catch(e){} return Math.max(DL_COUNTED_FLOOR, s); }
 async function refreshDownloads(){
   if(document.hidden) return;
