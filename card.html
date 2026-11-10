@@ -1061,7 +1061,10 @@ function showAc(k, q){
   const old = ACT[k]; if(old){ clearTimeout(old.t); try{ if(old.c) old.c.abort(); }catch(e){} }
   const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
   ACT[k] = { c: ctl, t: setTimeout(() => {
-    let call; try{ call = sb.rpc('directory_search', { p_q: BnName.norm(q), p_limit: 7 }); if(ctl && call && typeof call.abortSignal === 'function') call = call.abortSignal(ctl.signal); }catch(e){ return; }
+    // asked through /api/dir: the same name typed by many people is answered from the edge, not by the small database each time (a plain static preview without /api/dir asks the database directly)
+    const sargs = { p_q: BnName.norm(q).slice(0, 100), p_limit: 7 };
+    const direct = () => { let c = sb.rpc('directory_search', sargs); if(ctl && c && typeof c.abortSignal === 'function') c = c.abortSignal(ctl.signal); return c; };
+    let call; try{ call = fetch('/api/dir?f=search&a=' + encodeURIComponent(JSON.stringify(sargs)), ctl ? { signal: ctl.signal } : {}).then(async res => res.ok ? { data: await res.json(), error: null } : (res.status === 404 ? direct() : { data: null, error: new Error('busy') })); }catch(e){ return; }
     Promise.resolve(call).then(r => {
       if(seq !== acSeq) return;
       if(!r || r.error || !Array.isArray(r.data)){ state = 'error'; paint(LASTH[k] || [], 'error'); return; }

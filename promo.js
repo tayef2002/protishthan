@@ -89,7 +89,11 @@
   /* home page: fetch the live promo (RLS only returns it while it is on and in schedule) and show it politely */
   async function initHome(sb){
     let p = null;
-    try{ const { data } = await sb.from('site_promos').select('*').eq('slot', 'home_popup').maybeSingle(); p = data; }catch(e){}
+    try{
+      const r = await fetch('/api/dir?f=promo');                           // the same for every visitor: answered from the edge (saved for a minute)
+      if(r.ok){ const rows = await r.json(); p = Array.isArray(rows) && rows.length ? rows[0] : null; }
+      else if(r.status === 404){ const { data } = await sb.from('site_promos').select('*').eq('slot', 'home_popup').maybeSingle(); p = data; }   // a plain static preview without /api/dir
+    }catch(e){}
     if(!p || !p.active) return;
     const key = 'prot_promo_' + p.slot;
     if(ss.get(key + '_s')) return;                                         // once per session

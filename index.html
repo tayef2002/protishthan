@@ -1552,7 +1552,8 @@ function srvSync(args){
 async function srvFetch(more){
   const my = SRV.seq; SRV.loading = true; if(more) renderCards(LAST_LIST);
   try{
-    const { data, error } = await sb.rpc('directory_browse', { ...SRV.args, p_limit: 30, p_offset: more ? SRV.rows.length : 0 });
+    const browseArgs = { ...SRV.args, p_limit: 30, p_offset: more ? SRV.rows.length : 0 };
+    const { data, error } = (await dirGet('browse', browseArgs)) || await sb.rpc('directory_browse', browseArgs);
     if(my !== SRV.seq) return;
     if(error) throw error;
     SRV.fresh = more ? SRV.rows.length : 0;
@@ -1596,7 +1597,8 @@ async function relaxLookup(){
   RELAX.key = key; RELAX.loading = true; RELAX.rows = []; RELAX.total = 0;
   const box = document.getElementById('relaxBox'); if(box) box.innerHTML = relaxHtml();
   try{
-    const { data, error } = await sb.rpc('directory_browse', { p_q: a.p_q, p_districts: null, p_upazila: null, p_type: null, p_limit: 6, p_offset: 0 });
+    const relaxArgs = { p_q: a.p_q, p_districts: null, p_upazila: null, p_type: null, p_limit: 6, p_offset: 0 };
+    const { data, error } = (await dirGet('browse', relaxArgs)) || await sb.rpc('directory_browse', relaxArgs);
     if(RELAX.key !== key) return;
     if(!error && data){ RELAX.rows = data; RELAX.total = data.length ? Number(data[0].total) : 0; }
   }catch(e){ console.error('relaxed search failed', e); }
@@ -1697,9 +1699,20 @@ async function loadNoticeIndicators(list){
 
 function bnNum(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬৭৮৯'[d]); }
 
+/* the answers that are the same for every visitor (verified list, district counts, the default mix, a search) come from our own /api/dir, which keeps them on the edge for a few minutes:
+   the small free database is asked once for thousands of visitors instead of once per visitor. Returns null only when /api/dir does not exist (a plain static preview): then the caller asks the database directly. */
+async function dirGet(f, args){
+  try{
+    const r = await fetch('/api/dir?f=' + f + (args ? '&a=' + encodeURIComponent(JSON.stringify(args)) : ''));
+    if(r.ok) return { data: await r.json(), error: null };
+    if(r.status !== 404) return { data: null, error: new Error('directory answered ' + r.status) };   // "busy": do not pile the same question onto the database
+  }catch(e){}
+  return null;
+}
+
 let DIR_COUNTS = [];
 async function loadDirCounts(){
-  try{ const { data, error } = await sb.rpc('directory_counts'); if(error) throw error; DIR_COUNTS = (data || []).map(r => ({ t: r.institution_type, d: r.district, n: Number(r.n) })); }catch(e){ console.error('directory_counts failed', e); }
+  try{ const { data, error } = (await dirGet('counts')) || await sb.rpc('directory_counts'); if(error) throw error; DIR_COUNTS = (data || []).map(r => ({ t: r.institution_type, d: r.district, n: Number(r.n) })); }catch(e){ console.error('directory_counts failed', e); }
   updateDivisionCounts();
 }
 function updateDivisionCounts(){
@@ -2157,7 +2170,7 @@ function showSuggestions(query){
   if(!serverOk) return;
   SUG_TIMER = setTimeout(async () => {
     let more = [];
-    try{ const { data, error } = await sb.rpc('directory_search', { p_q: query.trim(), p_limit: 8 }); if(!error) more = data || []; }catch(e){ console.error('suggest search failed', e); }
+    try{ const searchArgs = { p_q: query.trim(), p_limit: 8 }; const { data, error } = (await dirGet('search', searchArgs)) || await sb.rpc('directory_search', searchArgs); if(!error) more = data || []; }catch(e){ console.error('suggest search failed', e); }
     if(my !== SUG_SEQ) return;
     const seen = new Set(local.map(s => s.desired_slug));
     draw(local.concat(more.filter(s => !seen.has(s.desired_slug))).slice(0, 8), false);
@@ -2218,7 +2231,7 @@ function useMyLocation(){
 async function loadApprovedInstitutions(){
   try{
     // the imported, not-yet-verified directory (tens of thousands of rows) is searched on the server (card page, directory_search); this page still downloads its whole list, so it only lists verified institutions until its search moves to the server too
-    const { data, error } = await sb.from('listing_submissions').select('*').eq('status','approved').eq('verification','verified').or('is_hidden.is.null,is_hidden.eq.false').order('created_at', { ascending:false }).limit(1000);
+    const { data, error } = (await dirGet('verified')) || await sb.from('listing_submissions').select('*').eq('status','approved').eq('verification','verified').or('is_hidden.is.null,is_hidden.eq.false').order('created_at', { ascending:false }).limit(1000);
     if(error) throw error;
     allApproved = data || [];
   }catch(e){
