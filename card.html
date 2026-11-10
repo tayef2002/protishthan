@@ -1042,6 +1042,7 @@ function offerBanglaName(ac, listingId){
 let acSeq = 0;
 const ACC = new Map(), ACT = {};   // ACC: a search text -> the directory's answer (typing it again, or backspacing to it, is instant). ACT: per level, the waiting timer and the request in flight
 const MEMH = {}, LASTH = {};   // names other members saved (not in the directory yet), per level
+const MEMC = new Map(), MEMT = {};   // MEMC: a typed text -> the member names found for it (asked once per visit). MEMT: per level, the waiting timer
 function showAc(k, q){
   const ac = document.getElementById('ac-' + k), list = ac.querySelector('.ac-list');
   q = (q||'').trim();
@@ -1066,7 +1067,14 @@ function showAc(k, q){
   const local = narrowed.length ? narrowed : INST.filter(s => BnName.match(s.institution_name, q) || BnName.match(s.district, q)).slice(0, 7);
   let state = cached ? 'done' : 'loading';
   paint(cached || local, state);
-  try{ fetch('/api/dir?f=members&a=' + encodeURIComponent(JSON.stringify({ p_q: q.slice(0, 100), p_limit: 5 }))).then(res => res.ok ? res.json() : (res.status === 404 ? sb.rpc('member_name_suggestions', { p_q: q, p_limit: 5 }).then(x => x.error ? null : x.data) : null)).then(data => { if(seq !== acSeq || !Array.isArray(data)) return; MEMH[k] = data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); }, () => {}); }catch(e){}
+  // names other members saved: asked when the typist pauses (not on every key) and each text only once per visit (every question to /api counts against the free daily limit of server calls)
+  const showMem = data => { if(seq !== acSeq || !Array.isArray(data)) return; MEMH[k] = data; if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.k !== k) return; paint(LASTH[k] || [], state); };
+  clearTimeout(MEMT[k]);
+  if(q.length >= 3){
+    const mq = q.slice(0, 100);
+    if(MEMC.has(mq)) showMem(MEMC.get(mq));
+    else MEMT[k] = setTimeout(() => { try{ fetch('/api/dir?f=members&a=' + encodeURIComponent(JSON.stringify({ p_q: mq, p_limit: 5 }))).then(res => res.ok ? res.json() : (res.status === 404 ? sb.rpc('member_name_suggestions', { p_q: mq, p_limit: 5 }).then(x => x.error ? null : x.data) : null)).then(data => { if(Array.isArray(data)) MEMC.set(mq, data); showMem(data); }, () => {}); }catch(e){} }, 450);
+  }
   if(cached) return;
   const old = ACT[k]; if(old){ clearTimeout(old.t); try{ if(old.c) old.c.abort(); }catch(e){} }
   const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
@@ -1826,7 +1834,7 @@ async function countMyDownload(){   // once per person per name: the server comp
   const nm = String(S.name || '').trim(); if(!nm) return;
   try{ const { data, error } = await sb.rpc('bump_card_downloads', { p_device: deviceId(), p_name: nm }); if(!error && data != null) paintDownloads(Number(data)); }catch(e){}
 }
-refreshDownloads(); setInterval(refreshDownloads, 20000);
+refreshDownloads(); setInterval(refreshDownloads, 45000);   // every question to /api/card-count counts against the free daily limit of server calls (100,000): 20 s per open tab used too many on a busy day
 document.addEventListener('visibilitychange', () => { if(!document.hidden) refreshDownloads(); });
 
 const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };

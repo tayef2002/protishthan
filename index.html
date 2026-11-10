@@ -1701,11 +1701,23 @@ function bnNum(x){ return String(x).replace(/[0-9]/g, d=>'০১২৩৪৫৬�
 
 /* the answers that are the same for every visitor (verified list, district counts, the default mix, a search) come from our own /api/dir, which keeps them on the edge for a few minutes:
    the small free database is asked once for thousands of visitors instead of once per visitor. Returns null only when /api/dir does not exist (a plain static preview): then the caller asks the database directly. */
+/* Every question to /api counts against the free daily limit of server calls (100,000 a day for the whole site), so a visitor's own answers are also kept for a few minutes in this tab (going back to the
+   home page or repeating a search costs nothing), and when /api answers "not found" (limit reached, or a static preview) it is not asked again for ten minutes: the database is asked directly meanwhile. */
+const DIR_TTL = { counts: 600, verified: 180, browse: 300, search: 600 };
+let DIR_OFF = 0;
 async function dirGet(f, args){
+  if(Date.now() < DIR_OFF) return null;
+  const ck = 'dir:' + f + ':' + (args ? JSON.stringify(args) : '');
+  try{ const c = JSON.parse(sessionStorage.getItem(ck) || 'null'); if(c && Date.now() - c.t < (DIR_TTL[f] || 60) * 1000) return { data: c.d, error: null }; }catch(e){}
   try{
     const r = await fetch('/api/dir?f=' + f + (args ? '&a=' + encodeURIComponent(JSON.stringify(args)) : ''));
-    if(r.ok) return { data: await r.json(), error: null };
-    if(r.status !== 404) return { data: null, error: new Error('directory answered ' + r.status) };   // "busy": do not pile the same question onto the database
+    if(r.ok){
+      const data = await r.json();
+      try{ const s = JSON.stringify({ t: Date.now(), d: data }); if(s.length < 300000) sessionStorage.setItem(ck, s); }catch(e){}
+      return { data, error: null };
+    }
+    if(r.status === 404) DIR_OFF = Date.now() + 600000;
+    else return { data: null, error: new Error('directory answered ' + r.status) };   // "busy": do not pile the same question onto the database
   }catch(e){}
   return null;
 }
@@ -2174,7 +2186,7 @@ function showSuggestions(query){
     if(my !== SUG_SEQ) return;
     const seen = new Set(local.map(s => s.desired_slug));
     draw(local.concat(more.filter(s => !seen.has(s.desired_slug))).slice(0, 8), false);
-  }, 180);
+  }, 300);
 }
 
 function showPopularSuggestions(){
