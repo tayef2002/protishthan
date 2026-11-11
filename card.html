@@ -1712,7 +1712,13 @@ function draw(){
 
   // the stamp goes on last so whatever sits under it still reads through the ink
   if(many) seal(cx + cw - 266, ry0 + 8, 86, T.accent);   // right of the first rows, under the badges, clear of the year pills
-  else if(story) seal(cx + cw - 230 - sealR, Math.min(ry0 + nLv * rowH + 110, cy + ch - 140 - 40), sealR, T.accent);   // story: the stamp sits in the room under the last row
+  else if(story){
+    // story: under the last row when the room there is tall enough for the WHOLE stamp (about 218 px); with 2 to 4 levels it is not, and the stamp used to slide under the benefits box,
+    // so then it sits beside the rows, centred on them, like on the post size
+    const rowsEnd = ry0 + nLv * rowH, room = (cy + ch - 140 - 12) - rowsEnd;
+    if(room >= 2 * sealR + 2) seal(cx + cw - 230 - sealR, rowsEnd + 110, sealR, T.accent);
+    else seal(cx + cw - 230 - sealR, ry0 + Math.max(132, Math.round(nLv * rowH / 2)), sealR, T.accent);
+  }
   else seal(cx + cw - 230 - sealR, ry0 + 132, sealR, T.accent);
 
   // benefits
