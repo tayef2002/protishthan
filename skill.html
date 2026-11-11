@@ -173,9 +173,9 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 @media(max-width:1100px){.fx-chip.x2,.fx-chip.x4,.fx-chip.x6,.fx-cert.c2{display:none}.fx-ros{opacity:.5}}
 @media(max-width:760px){.fx-chip,.fx-cert{display:none}.hero{padding:120px 16px 100px}}
 @media(prefers-reduced-motion:reduce){.fx-ros,.fx-chip,.fx-cert,.fx-sp,.hero h1 span{animation:none}}
-.dl-live{display:inline-flex;align-items:center;gap:9px;margin-top:18px;padding:9px 18px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;font-size:14.5px;font-weight:600;color:#334155}
-.dl-live b{color:#1A56DB;font-weight:800;font-size:16px;letter-spacing:-.2px}
-.dl-live i{width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
+.dl-live{display:inline-flex;align-items:center;gap:clamp(6px,2.2vw,9px);margin-top:18px;padding:9px clamp(11px,3.4vw,18px);border-radius:100px;background:#fff;border:1px solid #D9E4FB;font-size:clamp(11.5px,3.7vw,14.5px);font-weight:600;color:#334155;white-space:nowrap;max-width:100%}   /* always ONE line: the type and the gaps shrink on a narrow phone */
+.dl-live b{color:#1A56DB;font-weight:800;font-size:1.1em;letter-spacing:-.2px}
+.dl-live i{flex:none;width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:dlPulse 1.8s infinite}
 @keyframes dlPulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 @media(prefers-reduced-motion:reduce){.dl-live i{animation:none}}
 .free{margin-top:24px;max-width:36em}
@@ -1273,13 +1273,21 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     return 'কাগজের সনদ ড্রয়ারে পড়ে থাকে, কাজে লাগে স্কিল। আমার স্কিলই আমার সনদ।\n\nআমার স্কিল পেজ: ' + u + '\n\nআপনারটাও বানান (ফ্রি, ৩ মিনিটে): https://protishthan.com/skill';
   }
   /* ---------- live download counter (one count per person, however many times they download) ---------- */
-  let dlShown = 0, dlRaf = 0;
+  let dlShown = 0, dlRaf = 0, dlFitLen = -1;
+  // the badge stays on ONE line: the CSS shrinks the type with the phone's width, and if a long number still does not fit, it shrinks here (never below 9px) until it does
+  function fitLive(){
+    const box = $('dlLive'); if(!box || box.style.display === 'none') return;
+    box.style.fontSize = '';
+    let px = parseFloat(getComputedStyle(box).fontSize);
+    while(box.scrollWidth > box.clientWidth + 0.5 && px > 9){ px -= 0.5; box.style.fontSize = px + 'px'; }
+  }
+  window.addEventListener('resize', fitLive);
   function paintDownloads(n){
     const box = $('dlLive'), el = $('dlCount'); if(!box || !el || !(n >= 1)) return;
     box.style.display = 'inline-flex';
     cancelAnimationFrame(dlRaf);
     const from = dlShown || Math.max(0, n - Math.min(n, 40)), t0 = performance.now();
-    const step = t => { const p = Math.min(1, (t - t0) / 900), v = Math.round(from + (n - from) * (1 - Math.pow(1 - p, 3))); el.textContent = V.bn(v); if(p < 1) dlRaf = requestAnimationFrame(step); };
+    const step = t => { const p = Math.min(1, (t - t0) / 900), v = Math.round(from + (n - from) * (1 - Math.pow(1 - p, 3))), txt = V.bn(v); el.textContent = txt; if(txt.length !== dlFitLen){ dlFitLen = txt.length; fitLive(); } if(p < 1) dlRaf = requestAnimationFrame(step); else fitLive(); };
     dlRaf = requestAnimationFrame(step); dlShown = n;
   }
   async function refreshDownloads(){ if(document.hidden) return; try{ const r = await M.sb.rpc('skill_downloads'); if(!r.error && r.data != null) paintDownloads(Number(r.data)); }catch(e){} }
