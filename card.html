@@ -1616,11 +1616,19 @@ function draw(){
   const hy = top + 64;
   ctx.fillStyle = '#fff'; ctx.font = F(700, 74); ctx.fillText('শিক্ষিত কার্ড', 72, hy + 62);
   ctx.globalAlpha = .72; ctx.font = '700 21px Inter, sans-serif'; ctx.fillText('SHIKKHITO CARD   ·   PROTISHTHAN.COM', 76, hy + 100); ctx.globalAlpha = 1;
-  // card number (English digits)
+  // the box at the top right: this person's number at their own listed institution ("১ম কার্ডধারী") once the server has given one; until then the decorative serial (random, English digits)
+  const rk = currentRank();
   rr(770, hy - 4, 240, 98, 20); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 2; ctx.stroke();
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 17px Inter, sans-serif'; ctx.fillText('CARD NO.', 890, hy + 28);
-  ctx.fillStyle = '#fff'; ctx.font = '800 36px Inter, sans-serif'; ctx.fillText('SK-' + cardNo, 890, hy + 72);
+  if(rk){
+    ctx.fillStyle = 'rgba(255,255,255,.78)'; ctx.font = F(700, 19); ctx.fillText('আমার প্রতিষ্ঠানে', 890, hy + 28);
+    const rt = ordBn(rk.seq) + ' কার্ডধারী'; let rf = 36; ctx.font = F(800, rf);
+    while(ctx.measureText(rt).width > 208 && rf > 22){ rf -= 2; ctx.font = F(800, rf); }   // a long number (১২৭তম) shrinks to fit the box
+    ctx.fillStyle = T.gold; ctx.fillText(rt, 890, hy + 74);
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '700 17px Inter, sans-serif'; ctx.fillText('CARD NO.', 890, hy + 28);
+    ctx.fillStyle = '#fff'; ctx.font = '800 36px Inter, sans-serif'; ctx.fillText('SK-' + cardNo, 890, hy + 72);
+  }
   ctx.textAlign = 'left';
 
   // main card
@@ -1790,11 +1798,63 @@ function fillLbDistricts(){
   sel.innerHTML = '<option value="">সারা দেশ</option>' + ds.map(d => '<option>' + esc(d) + '</option>').join('');
 }
 /* each person counts once per listed institution (the server checks the listing and removes repeats) */
-async function countMyInstitutes(){
-  const slugs = [...new Set(filledLevels().map(l => S.edu[l.key].slug).filter(Boolean))]; if(!slugs.length) return;
-  const d = deviceId(); if(!d) return;
-  try{ await sb.rpc('count_card_institutes', { p_device: d, p_slugs: slugs }); loadLeaderboard(); }catch(e){}
+/* RANK-START (tools/tests/test_card_rank.js runs this block as it is) */
+// "Nth card holder of my institution". The server (migrations/2026-12-14_card_institute_rank.sql) gives every person (device) a fixed number at each listed institution: 1 for the first, 2 for the next...
+// It is asked for when a card is made, kept in this browser, and drawn in the header box of the card (see draw). Written so that a missing migration or a slow database only means "no number on the card".
+var RANK_CACHE, rankTried, rankReq, rankKey, RANK_RPC_MISSING, RANK_DONE;   // var, not let: the card can be drawn before this part of the page has run
+function rankCache(){ if(!RANK_CACHE){ try{ RANK_CACHE = JSON.parse(localStorage.getItem('sk_ranks_v1') || '{}') || {}; }catch(e){ RANK_CACHE = {}; } } return RANK_CACHE; }
+function rankSave(){ try{ localStorage.setItem('sk_ranks_v1', JSON.stringify(rankCache())); }catch(e){} }
+function ordBn(n){ const w = ['', '১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম', '৯ম', '১০ম']; return n >= 1 && n <= 10 ? w[n] : bn(n) + 'তম'; }
+function cardSlugs(){ return [...new Set(filledLevels().map(l => S.edu[l.key].slug).filter(Boolean))]; }
+function rankTodo(){ rankTried = rankTried || new Set(); return cardSlugs().filter(s => !rankCache()[s] && !rankTried.has(s)); }
+// the number shown on the card: the smallest one among the institutions on it; on a tie the highest level wins (levels are walked from the top down and only a strictly smaller number replaces the pick)
+function currentRank(){
+  const c = rankCache(); let best = null;
+  filledLevels().slice().reverse().forEach(l => { const ed = S.edu[l.key], r = ed.slug && c[ed.slug]; if(r && r.s > 0 && (!best || r.s < best.seq)) best = { slug: ed.slug, seq: r.s, name: r.n || ed.name }; });
+  return best;
 }
+// one call: counts this person once per listed institution AND returns this person's numbers. The answer goes into the cache even if the caller stopped waiting.
+function claimRanks(slugs){
+  const d = deviceId();
+  if(RANK_RPC_MISSING || !d || !slugs.length) return Promise.resolve(false);
+  const key = slugs.slice().sort().join('|'); if(rankReq && rankKey === key) return rankReq;
+  rankKey = key; rankTried = rankTried || new Set();
+  let req = null;
+  req = (async () => {
+    try{
+      const { data, error } = await sb.rpc('card_claim_ranks', { p_device: d, p_slugs: slugs }); if(error) throw error;
+      const c = rankCache(); (data || []).forEach(r => { if(r && r.slug && Number(r.seq) > 0) c[r.slug] = { s: Number(r.seq), n: String(r.name || '') }; });
+      rankSave(); slugs.forEach(s => rankTried.add(s)); return true;
+    }catch(e){
+      if(/PGRST202|Could not find the function|does not exist/i.test(String((e && (e.code + ' ' + e.message)) || e))) RANK_RPC_MISSING = true;   // migration not run yet: stop asking, the old counting call below keeps the leaderboard going
+      return false;
+    }finally{ if(rankReq === req) rankReq = null; }
+  })();
+  rankReq = req; return req;
+}
+// before a card is drawn for saving or sharing: wait (at most maxMs) for the numbers of institutions not asked about yet. Never longer: the card then simply goes without the number.
+async function ensureRank(maxMs){
+  const need = rankTodo(); if(!need.length) return;
+  await Promise.race([claimRanks(need), new Promise(r => setTimeout(r, maxMs))]);
+}
+// numbers first; a number worth showing off (20 or lower) makes the "my institution" caption the default and refreshes the copied text
+async function rankForCard(maxMs){
+  await ensureRank(maxMs);
+  const rk = currentRank();
+  if(rk && !RANK_DONE){
+    RANK_DONE = true; T('card_rank_shown', { r: rk.seq <= 3 ? rk.seq : (rk.seq <= 20 ? '4-20' : '21+') });
+    if(rk.seq <= 20 && DL_VARIANT !== 'school'){ DL_VARIANT = 'school'; silentCopy(caption()).then(ok => { if(ok) DL_COPIED = true; }); }
+  }
+  return rk;
+}
+async function countMyInstitutes(){
+  const slugs = cardSlugs(); if(!slugs.length) return;
+  const d = deviceId(); if(!d) return;
+  const todo = rankTodo(); if(!todo.length) return;     // every institution on this card is already counted for this person
+  if(await claimRanks(todo)){ loadLeaderboard(); return; }
+  try{ await sb.rpc('count_card_institutes', { p_device: d, p_slugs: slugs }); loadLeaderboard(); }catch(e){}   // the old call: used until the migration is run, or while the database is busy
+}
+/* RANK-END */
 
 /* ---------------- how many people have read the story ---------------- */
 // One count per person (per device): the story must be on screen for 4 seconds, so a quick scroll past does not count. The number comes from the database
@@ -1922,8 +1982,9 @@ const CAP_LABEL = { pride: 'গর্ব', fun: 'মজা', challenge: 'চ্�
 let DL_VARIANT = ['pride', 'fun', 'challenge'][Math.floor(Math.random() * 3)];
 function topInstitution(){ const f = filledLevels(); return f.length ? String(S.edu[f[f.length - 1].key].name || '').trim() : ''; }
 function captionFor(v){
-  const y = eduYears(), link = SHARE_URL + '?ref=fb', inst = topInstitution();
+  const y = eduYears(), link = SHARE_URL + '?ref=fb', inst = topInstitution(), rk = currentRank();
   const mine = y ? 'আমার ' + bn(y) + ' বছরের শিক্ষাজীবন' : 'আমার শিক্ষাজীবন';
+  if(v === 'school' && rk) return '🎓 আমি ' + rk.name + '-এর ' + ordBn(rk.seq) + ' শিক্ষিত কার্ডধারী!\nএই প্রতিষ্ঠানে যারা পড়েছেন বা পড়ছেন, আপনাদের কার্ড কই? 👇\n' + link + '\n\n' + TAGS;
   if(v === 'school' && inst) return '🎓 আমার শিক্ষিত কার্ডে আছে ' + inst + '।\nএই প্রতিষ্ঠানে যারা পড়েছেন বা পড়ছেন, আপনাদের কার্ড কই? 👇\n' + link + '\n\n' + TAGS;
   if(v === 'fun') return '😄 কোনো ভাতা নেই, লাইনেও দাঁড়াতে হয়নি, তবু আমার নিজের একটা কার্ড হলো!\nপড়াশোনার জোরে অর্জিত শিক্ষিত কার্ড।\n\nআপনারটা কই? 👇\n' + link + '\n\n' + TAGS;
   if(v === 'challenge') return '🎓 ' + (y ? mine + '। আপনার কত বছর?' : 'আপনার শিক্ষাজীবন কত বছরের?') + '\nকার্ড বানিয়ে কমেন্টে জানান, দেখি কে এগিয়ে! 👇\n' + link + '\n\n' + TAGS;
@@ -1980,12 +2041,12 @@ function openDl(){
   if(DL_COPIED) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook-এ পোস্টের বক্সে চেপে ধরে পেস্ট করুন।');
   // inside Facebook's own browser the file does not save and the share sheet is missing: say so, show the card itself to save by pressing on it, and offer the real browser
   const iab = document.getElementById('dlIab'), fbBtn = document.getElementById('dlShareFb'), ext = document.getElementById('dlExt');
-  const t = document.getElementById('dlT'), p = document.getElementById('dlP');
+  const t = document.getElementById('dlT'), p = document.getElementById('dlP'), rk = currentRank();
   if(iab){ iab.hidden = !IN_APP; if(IN_APP){ document.getElementById('dlImg').src = cv.toDataURL('image/png'); } }
   if(fbBtn) fbBtn.style.display = IN_APP ? 'none' : '';
   if(ext) ext.style.display = IN_APP ? '' : 'none';
   if(t) t.textContent = IN_APP ? 'ছবি সেভ করুন' : 'কার্ড ডাউনলোড হয়েছে';
-  if(p) p.textContent = IN_APP ? 'Facebook-এর ভেতরে ডাউনলোড ও শেয়ার কাজ করে না। ছবিটা চেপে ধরে সেভ করুন, অথবা ব্রাউজারে খুলুন।' : 'এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।';
+  if(p) p.textContent = IN_APP ? 'Facebook-এর ভেতরে ডাউনলোড ও শেয়ার কাজ করে না। ছবিটা চেপে ধরে সেভ করুন, অথবা ব্রাউজারে খুলুন।' : (rk ? '🎉 আপনি ' + rk.name + '-এর ' + ordBn(rk.seq) + ' কার্ডধারী! এবার বন্ধুদের দেখান।' : 'এবার বন্ধুদের দেখান। ক্যাপশন তৈরি, আর কপিও হয়ে গেছে।');
   ov.classList.add('show'); document.body.style.overflow = 'hidden'; T('card_dl_popup', { v: DL_VARIANT, iab: IN_APP ? 1 : 0 });
 }
 async function dlShare(ch){
@@ -2022,10 +2083,11 @@ async function dlOtherSize(){
 async function downloadCard(){
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   if(IN_APP){   // Facebook's own browser cannot save the file: no silent failure, show the card to save by pressing on it
-    draw(); DL_LAST = S.format; countCardMade(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : ''), iab: 1 }); openDl(); return;
+    await rankForCard(2500); draw(); DL_LAST = S.format; countCardMade(); T('card_download', { format: (typeof FMT !== 'undefined' ? FMT : ''), iab: 1 }); openDl(); return;
   }
   // the caption is copied in this same tap (browsers allow it only inside a tap), so it is ready to paste into the Facebook post
   silentCopy(caption()).then(ok => { DL_COPIED = ok; });
+  await rankForCard(2500);     // the person's number at their institution goes on the card (waits at most 2.5 s, then the card is saved without it)
   // one file per tap (browsers ask permission when a page saves two files at once); the other size is offered in the popup
   draw();
   const fmt = S.format;
@@ -2037,7 +2099,7 @@ async function downloadCard(){
 async function shareImage(text){   // text: the message sent with the picture (WhatsApp passes its own); by default the short caption
   if(!String(S.name || '').trim()){ needNameToast(); return; }
   if(typeof text !== 'string') text = caption();     // a button's click event must not end up as the text
-  draw();
+  await rankForCard(1500); draw();
   const blob = await cardBlob(); const file = new File([blob], fileName(), { type:'image/png' });
   try{
     if(navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file], text: text }); countCardMade(); T('card_share'); return; }
@@ -2071,7 +2133,7 @@ async function shareFacebook(text){
   T('card_share_facebook', { v: DL_VARIANT, iab: IN_APP ? 1 : 0 });
   if(IN_APP){ downloadCard(); return; }     // Facebook's own browser: no share sheet, no clipboard picture; the popup shows the card to save and the way out to the real browser
   if(canShareFiles()){ shareImage(msg); return; }
-  draw();
+  await rankForCard(1500); draw();
   try{
     if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('no clipboard');
     await navigator.clipboard.write([ new ClipboardItem({ 'image/png': cardBlob() }) ]);
@@ -2094,6 +2156,7 @@ async function shareWhatsApp(){
     location.href = Iab.android ? 'intent://send?text=' + encodeURIComponent(text) + '#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=' + encodeURIComponent(wa) + ';end' : wa;
     return;
   }
+  await rankForCard(1500);     // the number at the person's institution goes on the picture (cached after the first time, so no wait)
   if(canShareFiles()){     // phone: picture + message together through the share sheet; if the sheet fails for another reason than the visitor closing it, the clipboard way below is tried
     T('card_wa_path', { p: 'share_sheet' });
     try{
