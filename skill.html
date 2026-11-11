@@ -1056,8 +1056,14 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   }
 
   /* ---------- saving ---------- */
+  // the database is sometimes too busy to answer (PostgREST: "Could not query the database for the schema cache", 5xx, timeouts): worth retrying, never worth an English error
+  const isBusy = e => {
+    const m = String((e && (e.message || e.details)) || e || ''), c = String((e && e.code) || ''), s = Number(e && e.status) || 0;
+    return /PGRST00[0-3]/.test(c) || s >= 500 || /schema cache|Retrying|failed to fetch|networkerror|network request|load failed|timed? ?out|gateway|upstream|unavailable|connection|<html/i.test(m);
+  };
   const errMsg = e => {
     const m = String((e && (e.message || e.details)) || e || '');
+    if(isBusy(e)) return 'সার্ভার এখন একটু ব্যস্ত। আপনার লেখা এই ডিভাইসে সেভ আছে, কিছুক্ষণ পরে আবার চেষ্টা করুন।';
     if(/socials/i.test(m) && /column|schema/i.test(m)) return 'সোশ্যাল লিংক সেভ করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
     if(/contact/i.test(m) && /column|schema/i.test(m)) return 'যোগাযোগের তথ্য সেভ করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
     if(/chat_enabled/i.test(m) && /column|schema/i.test(m)) return 'চ্যাট চালু করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন';
@@ -1086,10 +1092,19 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     if(!(ROW && 'contact' in ROW) && !Object.keys(d.contact).length) delete patch.contact;
     if(!(ROW && 'chat_enabled' in ROW) && !d.chat_enabled) delete patch.chat_enabled;
     if(ROW && ROW.avatar === patch.avatar) delete patch.avatar;       // (the column comes with the 2026-11-03 migration)
+    const upd = () => M.sb.from('skill_profiles').update(patch).eq('user_id', USER.user_id).select().single();
+    const ins = () => M.sb.from('skill_profiles').insert(Object.assign({ user_id: USER.user_id }, patch)).select().single();
     try{
-      const res = ROW
-        ? await M.sb.from('skill_profiles').update(patch).eq('user_id', USER.user_id).select().single()
-        : await M.sb.from('skill_profiles').insert(Object.assign({ user_id: USER.user_id }, patch)).select().single();
+      let res;
+      for(let n = 0; n < 3; n++){                                       // a busy database gets two more tries, a few seconds apart
+        if(n){ setSt('সার্ভার ব্যস্ত, আবার চেষ্টা করছি…', ''); await new Promise(r => setTimeout(r, n * 2500)); }
+        try{
+          // an insert that timed out may still have gone through: the retry then finds the row and updates it instead
+          res = ROW ? await upd() : await ins();
+          if(res.error && !ROW && n && /23505|duplicate|unique/i.test(String(res.error.code) + String(res.error.message))) res = await upd();
+        }catch(e){ res = { error: e }; }
+        if(!res.error || !isBusy(res.error)) break;
+      }
       if(res.error) throw res.error;
       ROW = res.data; setSt('সেভ হয়েছে ✓', 'ok');
       if(ROW.published) debounce('og', pushOg, 2500);
