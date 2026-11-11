@@ -38,6 +38,16 @@ const A = o => 'a=' + encodeURIComponent(JSON.stringify(o));
   r = await call('f=members&' + A({ p_q: 'স্কুল', p_limit: 99 })); ok(r.status === 400, 'members: limit above 8 is refused');
   dbCalls = 0; await call('f=members&' + A({ p_q: 'স্কুল ', p_limit: 5 })); await call('f=members&' + A({ p_q: 'স্কুল', p_limit: 5 })); ok(dbCalls === 1 && /rpc\/member_name_suggestions/.test(lastUrl) && JSON.parse(lastBody).p_q === 'স্কুল', 'members: same word = one database question, right function');
 
+  // comments: the public opinion board, one answer per page for everybody for a minute
+  r = await call('f=comments&' + A({ p_limit: 99 })); ok(r.status === 400, 'comments: limit above 30 is refused');
+  r = await call('f=comments&' + A({ p_limit: 10, p_offset: 5000 })); ok(r.status === 400, 'comments: an offset above 1000 is refused');
+  r = await call('f=comments&' + A({ p_limit: '10' })); ok(r.status === 400, 'comments: a text instead of a number is refused');
+  dbCalls = 0; r = await call('f=comments'); ok(r.status === 200 && dbCalls === 1 && /rpc\/card_comment_list/.test(lastUrl), 'comments: no arguments = the first page of 10');
+  ok(JSON.stringify(JSON.parse(lastBody)) === JSON.stringify({ p_limit: 10, p_offset: 0 }), 'comments: the defaults are sent in a fixed order');
+  for (let i = 0; i < 30; i++) await call('f=comments&' + A({ p_limit: 10, p_offset: 0 })); ok(dbCalls === 1, 'comments: 30 more visitors = still one database question');
+  await call('f=comments&' + A({ p_limit: 10, p_offset: 10 })); ok(dbCalls === 2, 'comments: the next page is its own question');
+  now += 61; await call('f=comments'); ok(dbCalls === 3, 'comments: after a minute one new question');
+
   // search + browse: arguments are checked and cleaned, the same question shares one answer
   r = await call('f=search&' + A({ p_q: '   ', p_limit: 8 })); ok(r.status === 400, 'search: an empty word is refused');
   r = await call('f=search&' + A({ p_q: 'x'.repeat(101), p_limit: 8 })); ok(r.status === 400, 'search: a 101-letter word is refused');

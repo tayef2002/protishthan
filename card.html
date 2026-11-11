@@ -78,6 +78,48 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .lb-find label{display:block;font-size:13.5px;font-weight:800;margin-bottom:8px}
 .lb-found{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .lb-note{font-size:12.5px;color:var(--text-3);margin-top:16px}.lb-note a{color:var(--blue);font-weight:700;text-decoration:none}
+/* the opinion board: shown only once the list has loaded (see CM-START in the script) */
+.cm{margin-top:34px;margin-bottom:8px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:28px 28px 24px}
+.cm[hidden]{display:none}
+.cm h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.6px;line-height:1.25;margin-bottom:6px}
+.cm-head p{font-size:14.5px;color:var(--text-2);max-width:640px}
+.cm-form{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.cm-kinds{display:flex;gap:8px;flex-wrap:wrap}
+.cm-kind{border:1.5px solid var(--border);background:#fff;border-radius:100px;padding:8px 16px;font:700 14px 'Hind Siliguri','Inter',sans-serif;color:#475569;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.cm-kind:hover{border-color:#B8C4DA}
+.cm-kind.on[data-k=opinion]{background:#EEF3FF;border-color:#1A56DB;color:#1A56DB}
+.cm-kind.on[data-k=idea]{background:#FEF3C7;border-color:#D97706;color:#92400E}
+.cm-kind.on[data-k=problem]{background:#FEE2E2;border-color:#DC2626;color:#B91C1C}
+.cm-ta{resize:vertical;min-height:104px;line-height:1.55}
+.cm-row{display:flex;gap:10px;align-items:center}
+.cm-row .inp{flex:1;min-width:0}
+.cm-count{font-size:12.5px;color:var(--text-3);white-space:nowrap}
+.cm-warn{font-size:12.5px;color:var(--text-3)}
+.cm-act{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cm-msg{font-size:13.5px;font-weight:600;color:var(--text-2)}.cm-msg.err{color:#B91C1C}.cm-msg.ok{color:#047857}
+.cm-listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:26px 0 12px;padding-top:18px;border-top:1px solid #EEF2F7;font-size:15px}
+.cm-listhead span{font-size:13px;color:var(--text-3)}
+.cm-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.cm-item{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px 16px;border:1px solid #E8EDF5;border-radius:16px;background:#fff}
+.cm-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
+.cm-top{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.cm-top b{font-size:15px;overflow-wrap:anywhere}
+.cm-k{font-size:11.5px;font-weight:800;border-radius:100px;padding:2px 9px}
+.cm-k.opinion{background:#EEF3FF;color:#1A56DB}.cm-k.idea{background:#FEF3C7;color:#92400E}.cm-k.problem{background:#FEE2E2;color:#B91C1C}
+.cm-top time{font-size:12.5px;color:var(--text-3)}
+.cm-body{margin-top:6px;font-size:14.5px;line-height:1.6;color:#1E293B;white-space:pre-wrap;overflow-wrap:anywhere}
+.cm-reply{margin-top:10px;padding:10px 12px;border-left:3px solid var(--blue);background:#F5F8FF;border-radius:0 12px 12px 0}
+.cm-reply b{font-size:12.5px;color:var(--blue)}
+.cm-reply p{margin-top:2px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:#334155}
+.cm-rep{margin-top:8px;border:none;background:none;padding:0;font:600 12px 'Hind Siliguri','Inter',sans-serif;color:var(--text-3);cursor:pointer;text-decoration:underline}
+.cm-rep:disabled{text-decoration:none;cursor:default}
+.cm-more{margin:14px auto 0;display:flex}
+.cm-more[hidden]{display:none}
+.cm-faq{margin-top:12px;font-size:14px;color:var(--text-2)}.cm-faq a{color:var(--blue);font-weight:700}
+.cm-faq[hidden],.dl-fbk[hidden]{display:none}
+.cm-inl{color:inherit;text-decoration:none;cursor:default}.cm-inl.on{color:var(--blue);font-weight:700;text-decoration:underline;cursor:pointer}
+.dl-fbk{display:block;margin-top:10px;font-size:12.5px;color:var(--text-3);text-align:center;text-decoration:underline}
+@media(max-width:560px){.cm{padding:22px 16px 18px;border-radius:20px}.cm-item{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:12px}.cm-av{width:34px;height:34px;font-size:14px}.cm-row{flex-wrap:wrap}.cm-row .inp{flex:1 1 100%}}
 @media(max-width:560px){.lb{padding:22px 16px 18px;border-radius:20px}.lb-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:10px 12px}.lb-rank{width:32px;height:32px;font-size:14px}.lb-sel{width:100%}.lb-name{font-size:14.5px}}
 .dl-live{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:9px 18px;border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:14.5px;font-weight:600;color:rgba(255,255,255,.92)}
 .dl-live b{color:#FDE68A;font-weight:800;font-size:16px;letter-spacing:-.2px}
@@ -784,6 +826,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
         <details><summary>আমার ছবি কি কোথাও জমা থাকে?</summary><p>না। ছবি আপনার ফোনের ব্রাউজারেই কার্ডে বসে, কোনো সার্ভারে পাঠানো হয় না।</p></details>
         <details><summary>আমার স্কুল বা কলেজ তালিকায় নেই, কী করব?</summary><p>নামটা নিজেই লিখে দিন, কার্ডে বসে যাবে। চাইলে <a href="list-institution.html" style="color:var(--blue);font-weight:700">ফ্রিতে প্রতিষ্ঠানটি তথ্যভান্ডারে যোগ করে দিন</a>।</p></details>
       </div>
+      <p class="cm-faq" id="cmFaq" hidden>উত্তর পাননি, বা কোনো সমস্যা হয়েছে? <a href="#feedback" onclick="return openFeedback()">নিচে লিখে জানান</a>।</p>
     </div>
 
     <aside class="preview">
@@ -819,7 +862,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       <ul>
         <li>নতুন টুল আর ফিচার চালুর খবর সবার আগে</li>
         <li>ভর্তি, পরীক্ষা আর শিক্ষাসংক্রান্ত দরকারি তথ্য</li>
-        <li>আপনার মতামত দিন, আমরা সেই অনুযায়ী বানাব</li>
+        <li><a href="#feedback" class="cm-inl" id="cmFollowLink" onclick="return openFeedback()">আপনার মতামত দিন</a>, আমরা সেই অনুযায়ী বানাব</li>
       </ul>
       <a class="ff-btn" href="https://www.facebook.com/Protishthan" target="_blank" rel="noopener" onclick="try{ if(window.gtag) gtag('event','follow_facebook',{from:'card'}); }catch(e){}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ ফলো করুন<i>→</i>
@@ -858,6 +901,31 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
       <div class="lb-found" id="lbFound"></div>
     </div>
     <p class="lb-note">শুধু তথ্যভান্ডারে থাকা প্রতিষ্ঠান গোনা হয়। আপনারটা তালিকায় না থাকলে <a href="list-institution.html">ফ্রিতে যোগ করে দিন</a>।</p>
+  </section>
+
+  <section class="cm" id="feedback" aria-labelledby="cmT" hidden>
+    <div class="cm-head">
+      <span class="lb-kick">আপনার মতামত</span>
+      <h2 id="cmT">কার্ড নিয়ে কিছু বলার আছে?</h2>
+      <p>মতামত, নতুন আইডিয়া বা কোনো সমস্যা হলে লিখুন। লেখাটা সবাই দেখতে পাবেন, আমরা সব পড়ি আর দরকারে উত্তর দিই।</p>
+    </div>
+    <form class="cm-form" id="cmForm" novalidate>
+      <div class="cm-kinds" id="cmKinds" role="radiogroup" aria-label="কী নিয়ে লিখছেন">
+        <button type="button" class="cm-kind on" data-k="opinion" role="radio" aria-checked="true">মতামত</button>
+        <button type="button" class="cm-kind" data-k="idea" role="radio" aria-checked="false">আইডিয়া</button>
+        <button type="button" class="cm-kind" data-k="problem" role="radio" aria-checked="false">সমস্যা</button>
+      </div>
+      <textarea class="inp cm-ta" id="cmBody" maxlength="600" rows="4" aria-label="আপনার লেখা" placeholder="আপনার মতামত, আইডিয়া বা সমস্যাটা এখানে লিখুন"></textarea>
+      <div class="cm-row">
+        <input class="inp" id="cmName" maxlength="40" autocomplete="name" aria-label="আপনার নাম (লিখতে না চাইলে ফাঁকা রাখুন)" placeholder="আপনার নাম (না দিলে ‘একজন ব্যবহারকারী’)">
+        <span class="cm-count" id="cmCount">০/৬০০</span>
+      </div>
+      <p class="cm-warn">ফোন নম্বর, ইমেইল বা লিংক লিখবেন না। এখানে যা লিখবেন, সবার সামনে দেখা যাবে।</p>
+      <div class="cm-act"><button type="submit" class="btn btn-primary" id="cmSend">পাঠান</button><span class="cm-msg" id="cmMsg" aria-live="polite"></span></div>
+    </form>
+    <div class="cm-listhead"><b>সবার মতামত</b><span id="cmTotal"></span></div>
+    <ul class="cm-list" id="cmList"><li class="lb-empty">লোড হচ্ছে…</li></ul>
+    <button type="button" class="btn btn-ghost cm-more" id="cmMore" hidden>আরও দেখুন</button>
   </section>
 </main>
 
@@ -916,6 +984,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
     <button type="button" class="dl-fb dl-other" id="dlOther" onclick="dlOtherSize()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>স্টোরি সাইজ ডাউনলোড</span></button>
+    <a class="dl-fbk" id="cmPopLink" href="#feedback" hidden onclick="return openFeedback()">কোনো সমস্যা বা আইডিয়া থাকলে আমাদের জানান</a>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -2321,6 +2390,138 @@ refreshTitles();
 restoreState();
 lastSnap = JSON.stringify(snapshot());
 syncCloud();
+/* ---------------- the opinion board (মতামত) ---------------- */
+// Opinions, ideas and problems written by visitors, public, read by the admin in admin.html (কার্ড মতামত). Needs migrations/2026-12-15_card_comments.sql: until it is run the list cannot load,
+// and the whole section (and the links to it) simply stays hidden, nothing looks broken. The list comes through /api/dir (kept for a minute for everybody), writing goes straight to the database.
+/* CM-START (tools/tests/test_card_comments.js runs this block as it is) */
+var CM_KINDS = { opinion: 'মতামত', idea: 'আইডিয়া', problem: 'সমস্যা' };
+// the same rules the database enforces, so a mistake is explained at once; returns '' when the text is fine
+function cmCheck(body, name){
+  const b = String(body || '').replace(/[ \t]+/g, ' ').trim(), nm = String(name || '').trim();
+  if(b.length < 8) return 'আরেকটু বিস্তারিত লিখুন (অন্তত ৮ অক্ষর)।';
+  if(b.length > 600) return 'লেখাটা ৬০০ অক্ষরের মধ্যে রাখুন।';
+  const plain = (b + ' ' + nm).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  if(/(https?:|www\.|\.(com|net|org|info|xyz|link|bd)($|[^a-z]))/i.test(plain) || /[^\s@]+@[^\s@]+/.test(plain)) return 'লিংক বা ইমেইল লেখা যাবে না।';
+  if(/01[3-9][0-9]{8}/.test(plain.replace(/[\s\-.()+]/g, '')) || /[0-9]{10,}/.test(plain)) return 'ফোন নম্বর লেখা যাবে না।';
+  return '';
+}
+function cmErr(e){
+  const m = String((e && (e.message || e.details)) || e || '');
+  const map = [['TOO_SHORT', 'আরেকটু বিস্তারিত লিখুন (অন্তত ৮ অক্ষর)।'], ['TOO_LONG', 'লেখাটা ৬০০ অক্ষরের মধ্যে রাখুন।'], ['BAD_TEXT', 'কিছু শব্দ এখানে লেখা যাবে না, ভদ্রভাবে লিখুন।'],
+    ['BAD_LINK', 'লিংক বা ইমেইল লেখা যাবে না।'], ['BAD_PRIVATE', 'ফোন নম্বর লেখা যাবে না।'], ['TOO_FAST', 'একটু পরে আবার লিখুন।'],
+    ['DAILY_LIMIT', 'আজকের জন্য ৪টা মতামত হয়ে গেছে, কাল আবার লিখুন।'], ['DUPLICATE', 'এই লেখাটা আপনি আগেই পাঠিয়েছেন।'],
+    ['BUSY', 'এখন অনেকে লিখছেন, একটু পরে চেষ্টা করুন।'], ['BAD_KIND', 'কী নিয়ে লিখছেন, সেটা বেছে নিন।']];
+  for(const [k, t] of map) if(m.indexOf(k) >= 0) return t;
+  if(/schema cache|PGRST00[0-3]|failed to fetch|network|timed? ?out|gateway|upstream|unavailable|\b5\d\d\b/i.test(m + ' ' + ((e && e.code) || ''))) return 'সার্ভার এখন একটু ব্যস্ত। আপনার লেখাটা এই ডিভাইসে সেভ আছে, কিছুক্ষণ পরে আবার পাঠান।';
+  return 'পাঠানো যায়নি, একটু পরে আবার চেষ্টা করুন।';
+}
+function cmWhen(iso, nowMs){
+  const t = Date.parse(iso); if(!Number.isFinite(t)) return '';
+  const s = Math.max(0, Math.floor(((nowMs == null ? Date.now() : nowMs) - t) / 1000));
+  if(s < 60) return 'এইমাত্র';
+  if(s < 3600) return bn(Math.floor(s / 60)) + ' মিনিট আগে';
+  if(s < 86400) return bn(Math.floor(s / 3600)) + ' ঘণ্টা আগে';
+  if(s < 30 * 86400) return bn(Math.floor(s / 86400)) + ' দিন আগে';
+  return new Date(t).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function cmHue(s){ let h = 0; for(const ch of String(s || '')) h = (h * 31 + ch.codePointAt(0)) % 360; return h; }
+function cmInitial(s){ const a = Array.from(String(s || '').trim()); return a.length ? a[0] : '?'; }
+// one comment as HTML (everything typed by a visitor goes through esc). r.mine = written just now in this browser: no report button for the writer's own text
+function cmItemHtml(r, reported){
+  const kind = CM_KINDS[r.kind] ? r.kind : 'opinion';
+  return '<li class="cm-item" data-id="' + esc(r.id) + '"><span class="cm-av" style="background:hsl(' + cmHue(r.name) + ',55%,46%)" aria-hidden="true">' + esc(cmInitial(r.name)) + '</span><div>' +
+    '<div class="cm-top"><b>' + esc(r.name) + '</b><span class="cm-k ' + kind + '">' + CM_KINDS[kind] + '</span><time datetime="' + esc(r.created_at) + '">' + cmWhen(r.created_at) + '</time></div>' +
+    '<p class="cm-body">' + esc(r.body) + '</p>' +
+    (r.reply ? '<div class="cm-reply"><b>Protishthan টিমের উত্তর</b><p>' + esc(r.reply) + '</p></div>' : '') +
+    (r.mine ? '' : '<button type="button" class="cm-rep" data-id="' + esc(r.id) + '"' + (reported ? ' disabled>রিপোর্ট হয়েছে' : '>রিপোর্ট করুন') + '</button>') +
+    '</div></li>';
+}
+/* CM-END */
+let CM_ACTIVE = false, CM_OFF = 0, CM_BUSY = false, CM_KIND = 'opinion';
+const CM_PAGE = 10;
+const cmEl = id => document.getElementById(id);
+function cmReportedIds(){ try{ return JSON.parse(localStorage.getItem('sk_cm_rep') || '[]'); }catch(e){ return []; } }
+async function cmFetch(off){
+  const args = { p_limit: CM_PAGE, p_offset: off };
+  try{ const r = await fetch('/api/dir?f=comments&a=' + encodeURIComponent(JSON.stringify(args))); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) return j; } }catch(e){}
+  const { data, error } = await sb.rpc('card_comment_list', args); if(error) throw error; return data || [];
+}
+function cmMsg(kind, text){ const m = cmEl('cmMsg'); m.textContent = text || ''; m.className = 'cm-msg' + (kind ? ' ' + kind : ''); }
+function cmTotalText(n){ cmEl('cmTotal').textContent = n ? bn(n) + 'টি মতামত' : ''; }
+async function cmLoad(more){
+  if(CM_BUSY) return; CM_BUSY = true;
+  const list = cmEl('cmList'), btn = cmEl('cmMore');
+  try{
+    const rows = await cmFetch(more ? CM_OFF : 0);
+    if(!more){ list.innerHTML = ''; CM_OFF = 0; }
+    const rep = cmReportedIds();
+    list.insertAdjacentHTML('beforeend', rows.filter(r => !list.querySelector('[data-id="' + String(r.id).replace(/"/g, '') + '"]')).map(r => cmItemHtml(r, rep.indexOf(r.id) >= 0)).join(''));
+    CM_OFF += rows.length;
+    const total = rows.length ? (Number(rows[0].total) || CM_OFF) : 0;     // every row carries the total of published comments
+    if(rows.length) cmTotalText(total);
+    btn.hidden = !(rows.length && CM_OFF < total);
+    if(!list.children.length) list.innerHTML = '<li class="lb-empty" id="cmEmpty">এখনো কেউ লেখেননি। প্রথম মতামতটা আপনার হোক।</li>';
+    if(!CM_ACTIVE) cmActivate();
+  }catch(e){ if(more) toast('আরও লোড করা যায়নি, একটু পরে চেষ্টা করুন'); }
+  finally{ CM_BUSY = false; }
+}
+function cmActivate(){
+  CM_ACTIVE = true;
+  cmEl('feedback').hidden = false; cmEl('cmFaq').hidden = false; cmEl('cmPopLink').hidden = false; cmEl('cmFollowLink').classList.add('on');
+  const ta = cmEl('cmBody'), nm = cmEl('cmName'), cnt = cmEl('cmCount');
+  try{ nm.value = localStorage.getItem('sk_cm_name') || ''; ta.value = localStorage.getItem('sk_cm_draft') || ''; }catch(e){}
+  const upd = () => { cnt.textContent = bn(ta.value.length) + '/৬০০'; };
+  upd();
+  ta.addEventListener('input', () => { upd(); try{ localStorage.setItem('sk_cm_draft', ta.value); }catch(e){} });
+  cmEl('cmKinds').addEventListener('click', e => {
+    const b = e.target.closest('.cm-kind'); if(!b) return; CM_KIND = b.dataset.k;
+    cmEl('cmKinds').querySelectorAll('.cm-kind').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+  });
+  cmEl('cmForm').addEventListener('submit', cmSend);
+  cmEl('cmMore').addEventListener('click', () => cmLoad(true));
+  cmEl('cmList').addEventListener('click', cmReport);
+  if(location.hash === '#feedback') setTimeout(openFeedback, 250);
+}
+async function cmSend(e){
+  e.preventDefault();
+  const ta = cmEl('cmBody'), nm = cmEl('cmName'), btn = cmEl('cmSend');
+  const bad = cmCheck(ta.value, nm.value); if(bad){ cmMsg('err', bad); return; }
+  btn.disabled = true; cmMsg('', 'পাঠানো হচ্ছে…');
+  try{
+    const name = nm.value.trim(), body = ta.value.trim();
+    const { data, error } = await sb.rpc('card_comment_add', { p_device: deviceId(), p_name: name, p_kind: CM_KIND, p_body: body }); if(error) throw error;
+    try{ localStorage.setItem('sk_cm_name', name); localStorage.removeItem('sk_cm_draft'); }catch(_){}
+    ta.value = ''; cmEl('cmCount').textContent = '০/৬০০';
+    T('card_comment_post', { k: CM_KIND });
+    if(data && data.status === 'pending'){ cmMsg('ok', 'ধন্যবাদ! আপনার লেখা জমা হয়েছে, দেখে নিয়ে প্রকাশ করা হবে।'); return; }
+    cmMsg('ok', 'ধন্যবাদ! আপনার লেখা সবার সামনে দেখা যাচ্ছে।');
+    const empty = cmEl('cmEmpty'); if(empty) empty.remove();
+    cmEl('cmList').insertAdjacentHTML('afterbegin', cmItemHtml({ id: (data && data.id) || ('n' + Date.now()), name: name || 'একজন ব্যবহারকারী', kind: CM_KIND, body, created_at: (data && data.created_at) || new Date().toISOString(), mine: true }));
+  }catch(err){ cmMsg('err', cmErr(err)); }
+  finally{ btn.disabled = false; }
+}
+async function cmReport(e){
+  const b = e.target.closest('.cm-rep'); if(!b || b.disabled) return;
+  if(!confirm('এই লেখাটা আপত্তিকর বা ভুয়া মনে হলে অ্যাডমিনকে জানাবেন?')) return;
+  b.disabled = true; b.textContent = 'পাঠানো হচ্ছে…';
+  try{
+    const { error } = await sb.rpc('card_comment_report', { p_id: b.dataset.id, p_device: deviceId() }); if(error) throw error;
+    const ids = cmReportedIds(); ids.push(b.dataset.id); try{ localStorage.setItem('sk_cm_rep', JSON.stringify(ids.slice(-200))); }catch(_){}
+    b.textContent = 'রিপোর্ট হয়েছে';
+  }catch(err){ b.disabled = false; b.textContent = 'রিপোর্ট করুন'; toast('রিপোর্ট পাঠানো যায়নি, একটু পরে চেষ্টা করুন'); }
+}
+// the links to the board (under the FAQ, in the download popup, in the Facebook box) call this; it does nothing while the board is not on the page
+function openFeedback(){
+  if(!CM_ACTIVE) return false;
+  try{ closeDl(); }catch(e){}
+  cmEl('feedback').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { const ta = cmEl('cmBody'); if(ta) try{ ta.focus({ preventScroll: true }); }catch(e){} }, 600);
+  T('card_comment_open');
+  return false;
+}
+// load once, a moment after the page is ready (one cheap question that the edge answers for everybody); a failure leaves the board hidden
+(function(){ const go = () => setTimeout(() => cmLoad(false), 2500); if(document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true }); })();
+
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
 </script>

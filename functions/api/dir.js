@@ -3,13 +3,14 @@
 // the default "daily mix" of the directory, the promo popup, and one question per search. The answers are the same for everybody, so thousands of visitors meant
 // thousands of identical questions.
 // Now: the first visitor in a data centre asks, everybody after gets the saved answer for a few minutes. When the database does not answer, the last good answer is
-// handed out (up to a week old) instead of an empty page. Nothing here writes to the database; only the five read-only questions below are allowed.
+// handed out (up to a week old) instead of an empty page. Nothing here writes to the database; only the read-only questions below are allowed.
 //   GET /api/dir?f=counts
 //   GET /api/dir?f=verified           (home page list)        GET /api/dir?f=verifiedlite   (card page list, five columns)
 //   GET /api/dir?f=promo
 //   GET /api/dir?f=members&a={"p_q":"..","p_limit":5}       (card page: names members typed for institutions not yet listed)
 //   GET /api/dir?f=browse&a={"p_q":..,"p_districts":[..],"p_upazila":..,"p_type":..,"p_limit":30,"p_offset":0}
 //   GET /api/dir?f=search&a={"p_q":"bani","p_limit":8}
+//   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0}      (card page: the public opinion board, kept for a minute)
 
 import { rest } from '../_lib/seo.js';
 
@@ -43,6 +44,11 @@ const QUESTIONS = {
     const q = str(a.p_q, 100), districts = strList(a.p_districts, 70, 40), upazila = str(a.p_upazila, 60), type = str(a.p_type, 40), limit = int(a.p_limit, 1, 50, 30), offset = int(a.p_offset, 0, 3000, 0);
     if ([q, districts, upazila, type, limit, offset].includes(undefined)) return null;
     return { path: 'rpc/directory_browse', rpc: { p_q: q || null, p_districts: districts, p_upazila: upazila || null, p_type: type || null, p_limit: limit, p_offset: offset } };
+  } },
+  comments: { ttl: 60, build: a => {                       // the public opinion board of the card page (published comments only; the function never returns the device or the account)
+    const limit = int(a.p_limit, 1, 30, 10), offset = int(a.p_offset, 0, 1000, 0);
+    if (limit === undefined || offset === undefined) return null;
+    return { path: 'rpc/card_comment_list', rpc: { p_limit: limit, p_offset: offset } };
   } },
   search:   { ttl: 600, build: a => {
     const q = str(a.p_q, 100), limit = int(a.p_limit, 1, 20, 8);
