@@ -105,7 +105,7 @@ const page = read('tutor.html'), join = read('tutor-join.html'), admin = read('a
 for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
   yes(f + ': Bangla page with a title and a description', /<html lang="bn">/.test(h) && (h.match(/<title>([^<]+)<\/title>/) || [])[1].length > 20 && /<meta name="description" content="[^"]{60,}/.test(h));
   eq(f + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
-  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=4/.test(h) && /tutor-data\.js\?v=2/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
+  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=5/.test(h) && /tutor-data\.js\?v=2/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
   yes(f + ': no ad place and no ad script on a service page', !/ad-slot|ads\.js|googlesyndication/.test(h));
   yes(f + ': never reads a tutor table directly (only the functions, and /api/dir)', !/\.from\(\s*['"]tutor_/.test(h));
   yes(f + ': every outside link carries rel="noopener"', [...h.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"[^>]*>/g)].filter(m => !/protishthan\.com/.test(m[1])).every(m => /rel="noopener"/.test(m[0])));
@@ -133,6 +133,13 @@ yes('the hero picture is decoration only (hidden from screen readers, no text a 
 yes('the sample tutor card is labelled as a sample and holds no real person', /class="tt-sample">নমুনা/.test(page) && /নমুনা নাম/.test(page));
 yes('the public landing keeps the honest lines: free for guardians, the number is shown only to a tutor who agrees, not a background check, the fee is theirs to agree', /অভিভাবকের জন্য ফ্রি/.test(page) && /ব্যাকগ্রাউন্ড চেক নয়/.test(page) && /ফি আপনি আর টিউটর নিজেরা ঠিক করেন/.test(page));
 yes('the join page has the meter and the three-step road, and shows the guardian-side switch', /id="jMeter"/.test(join) && /class="tt-road"/.test(join) && /<a href="\/tutor">আমি টিউটর খুঁজছি<\/a>/.test(join));
+
+// ----- the card-style dropdown -----
+const tts = read('tt-select.js');
+yes('the dropdown file is loaded before the page code on both pages, and every area picker is wrapped by it', [page, join].every(h => h.indexOf('/tt-select.js?v=1') > -1 && h.indexOf('tt-select.js') < h.indexOf("const D = window.TutorData")) && ['sDist', 'sUp', 'sCls', 'sSub', 'rDist', 'rUp'].every(id => new RegExp("TTSelect\\.enhance\\(\\$\\('" + id + "'\\)").test(page)) && ['jDist', 'jUp'].every(id => new RegExp("TTSelect\\.enhance\\(\\$\\('" + id + "'\\)").test(join)));
+yes('the dropdown keeps the real select as the source of truth (hidden, value setter followed, focus passed on, options and disabled watched) and sends nothing anywhere', /tts-native/.test(tts) && /defineProperty\(sel, 'value'/.test(tts) && /sel\.focus = /.test(tts) && /MutationObserver/.test(tts) && !/fetch\(|XMLHttpRequest|sendBeacon|localStorage|document\.cookie/.test(tts));
+yes('the dropdown escapes the option text it prints and can be used with the keyboard', /esc\(text\)/.test(tts) && /esc\(x\.value\)|esc\(v\)/.test(tts) && /ArrowDown/.test(tts) && /Escape/.test(tts) && /aria-haspopup="listbox"/.test(tts));
+yes('the dropdown look: hidden native select, search box, two-column option cards, a bottom sheet on a phone, no motion when reduced', /\.tts-native\{display:none!important\}/.test(css) && /\.tts-search/.test(css) && /\.tts-list\{[^}]*grid-template-columns:1fr 1fr/.test(css) && /\.tts-float \.tts-panel\{position:fixed/.test(css) && /prefers-reduced-motion:reduce\)\{[^}]*\.tts\.open \.tts-panel\{animation:none/.test(css));
 
 // ----- the admin tab -----
 yes('the admin has the menu item, the view, the two switches and the lists', /id="nav-tutors"/.test(admin) && /id="view-tutors"/.test(admin) && /id="ttListing"/.test(admin) && /id="ttOpen"/.test(admin) && /id="ttListReq"/.test(admin) && /id="ttListPro"/.test(admin));

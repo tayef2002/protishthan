@@ -292,6 +292,48 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 .tt-dlg [data-rs]{animation:ttin .22s ease-out}
 @keyframes ttin{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 
+/* the card-style dropdown (tt-select.js): the home page's picker look */
+.tts-native{display:none!important}
+.tts{position:relative;min-width:0}
+.tts-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0;border:0;background:none;padding:0;font:inherit;font-size:16px;font-weight:600;color:var(--ink);text-align:left;cursor:pointer}
+.tts-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tts.empty .tts-val{color:var(--tx3);font-weight:500}
+.tts-chev{flex:none;color:#94A3B8;transition:transform .18s}
+.tts.open .tts-chev{transform:rotate(180deg);color:var(--tb)}
+.tts-btn:disabled{cursor:not-allowed;color:var(--tx3)}
+.tts-btn:focus-visible{outline:3px solid rgba(26,86,219,.42);outline-offset:2px;border-radius:10px}
+.tts-btn[aria-invalid=true],.tts-btn[aria-invalid=true] .tts-val,.tts.empty .tts-btn[aria-invalid=true] .tts-val{color:var(--err)}
+.tts-field .tts-btn{height:48px;padding:0 14px;border:1px solid var(--ln2);border-radius:13px;background:#fff;font-weight:500;color:var(--tx)}
+.tts-field .tts-btn:hover{border-color:#9DB7F5}
+.tts-field.open .tts-btn{border-color:var(--tb);box-shadow:0 0 0 4px rgba(26,86,219,.14)}
+.tts-field .tts-btn:disabled{background:#F1F5F9}
+.tts-field .tts-btn[aria-invalid=true]{border-color:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}
+.tts-panel{display:none;background:#fff;border:1px solid #D9E4FB;border-radius:16px;box-shadow:0 18px 40px -14px rgba(15,32,72,.28);overflow:hidden;text-align:left;font-size:14px;font-weight:400}
+.tts.open .tts-panel{display:block;animation:ttsin .16s ease-out}
+@keyframes ttsin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.tts-field .tts-panel{margin-top:6px}
+.tts-search{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ln);color:#94A3B8}
+.tts-search input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:15px;color:var(--tx)}
+.tts-list{max-height:264px;overflow-y:auto;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;scrollbar-width:thin}
+.tts-opt{display:flex;align-items:center;gap:6px;min-width:0;padding:10px 12px;border-radius:11px;border:1px solid #EEF2F7;background:#FAFBFD;font:inherit;text-align:left;cursor:pointer;transition:background .12s,border-color .12s}
+.tts-opt:hover,.tts-opt.kb{background:var(--soft2);border-color:#C7D7FE}
+.tts-opt:focus-visible{outline:2px solid var(--tb);outline-offset:1px}
+.tts-opt.sel{background:var(--tb);border-color:var(--tb)}
+.tts-opt-name{flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--tx);line-height:1.35;overflow-wrap:anywhere}
+.tts-opt.sel .tts-opt-name,.tts-opt.sel .tts-tick{color:#fff}
+.tts-tick{flex:none;font-size:13px;font-weight:800}
+.tts-opt.all{grid-column:1/-1}
+.tts-empty{grid-column:1/-1;padding:16px 8px;text-align:center;font-size:13.5px;color:var(--tx3)}
+.tts-bd{display:none}
+/* in the hero pill the whole segment is the button, and the card floats under it */
+.tt-seg .tts-btn::after{content:'';position:absolute;inset:0;border-radius:inherit}
+.tt-seg .tts-btn:focus-visible{outline:0}
+.tts-float .tts-panel{position:absolute;left:0;top:calc(100% + 18px);width:370px;max-width:calc(100vw - 32px);z-index:30}
+.tt-hero2>.tt-pill{z-index:6}
+.tt-pill:has(.tts.open){z-index:2100}
+.tt-col{display:grid;grid-template-columns:1fr;gap:12px}
+.tts-float{position:static}
+
 /* /tutor-join: the compact header, the three-step road and the profile meter */
 .tt-hero3{padding-bottom:30px}
 .tt-hero3 h1{font-size:clamp(26px,4vw,38px)}
@@ -313,6 +355,7 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .tt-pill{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:28px;gap:2px}
   .tt-pill .tt-btn{grid-column:1/-1;margin-top:6px}
   .tt-seg{border-radius:20px}.tt-seg+.tt-seg::before{display:none}
+  .tt-seg:nth-child(even) .tts-float .tts-panel,.tt-seg:nth-child(even) .tts-panel{left:auto;right:0}
   .tt-bento{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tt-join2{grid-template-columns:1fr;padding:30px 24px}
   .tt-j-card{max-width:340px}
@@ -322,6 +365,11 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .tt-art{margin:14px -16px 0}
   .tt-seg2 a,.tt-seg2 span{padding:0 13px;font-size:13.5px}
   .tt-pill{grid-template-columns:1fr;padding:8px;margin-top:20px}
+  .tts-float .tts-panel{position:fixed;left:0;right:0;top:auto;bottom:0;width:auto;max-width:none;border:0;border-radius:22px 22px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.35);z-index:2100;padding-bottom:env(safe-area-inset-bottom)}
+  .tts-float .tts-list{max-height:min(54vh,440px)}
+  .tts-float.open .tts-bd{display:block;position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:2090}
+  .tts-opt{padding:12px}
+  .tt-seg:nth-child(even) .tts-panel{left:0;right:0}
   .tt-seg{padding:9px 18px;border-bottom:1px solid #F1F5F9;border-radius:16px}
   .tt-seg:nth-child(4){border-bottom:0}
   .tt-seg .tt-err.on{position:static;margin-top:2px;padding:0;background:none;color:var(--err);white-space:normal}
@@ -335,4 +383,4 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .tt-join2{margin-top:44px;border-radius:24px}
   .tt-wact{position:sticky;bottom:-22px;margin:6px -22px -22px;padding:12px 22px calc(14px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);backdrop-filter:blur(8px)}
 }
-@media(prefers-reduced-motion:reduce){.tt-fl,.tt-dlg [data-rs]{animation:none}.tt-t,.tt-bc{transition:none}.tt-t:hover,.tt-bc:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.tt-fl,.tt-dlg [data-rs],.tts.open .tts-panel{animation:none}.tts-chev{transition:none}.tt-t,.tt-bc{transition:none}.tt-t:hover,.tt-bc:hover{transform:none}}

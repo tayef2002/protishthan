@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=4">
+<link rel="stylesheet" href="/tutor.css?v=5">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -197,7 +197,7 @@
         </div>
         <div data-rs="2" class="tt-form" hidden>
           <div class="tt-f"><span class="tt-lab" id="rModeL">কোথায় পড়াবেন</span><div class="tt-pick" id="rMode" role="group" aria-labelledby="rModeL"></div></div>
-          <div class="tt-row2" id="rAreaBox">
+          <div class="tt-row2 tt-col" id="rAreaBox">
             <div class="tt-f"><label for="rDist">জেলা</label><select class="tt-in" id="rDist"></select></div>
             <div class="tt-f"><label for="rUp">উপজেলা</label><select class="tt-in" id="rUp"></select></div>
             <div class="tt-err" id="rAreaErr" role="alert" style="grid-column:1/-1"></div>
@@ -229,6 +229,7 @@
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
 <script src="/tutor-data.js?v=2"></script>
+<script src="/tt-select.js?v=1"></script>
 <script>
 (function(){
   'use strict';
@@ -262,6 +263,15 @@
   function initForm(){
     fill($('sDist'), LOC.map(x => x.n), 'বেছে নিন'); fill($('sUp'), [], 'আগে জেলা'); $('sUp').disabled = true;
     fill($('sCls'), D.CLASSES, 'যেকোনো'); fill($('sSub'), D.SUBJECTS, 'যেকোনো');
+    // the card-style pickers (same look as the home page filters); the selects underneath stay the single source of truth
+    if(window.TTSelect){
+      TTSelect.enhance($('sDist'), { float: true, search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
+      TTSelect.enhance($('sUp'), { float: true, search: 'উপজেলা খুঁজুন…', allLabel: 'সব উপজেলা' });
+      TTSelect.enhance($('sCls'), { float: true, allLabel: 'যেকোনো শ্রেণি' });
+      TTSelect.enhance($('sSub'), { float: true, search: 'বিষয় খুঁজুন… (যেমন: গণিত)', allLabel: 'যেকোনো বিষয়' });
+      TTSelect.enhance($('rDist'), { search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
+      TTSelect.enhance($('rUp'), { search: 'উপজেলা খুঁজুন…' });
+    }
     $('sDist').addEventListener('change', () => { const ups = upazilasOf($('sDist').value); fill($('sUp'), ups, 'সব উপজেলা'); $('sUp').disabled = !ups.length; $('sDist').removeAttribute('aria-invalid'); $('sDistErr').classList.remove('on'); });
     makePick($('sMode'), [['any', 'যেকোনোভাবে'], ['home', 'বাসায়'], ['online', 'অনলাইনে']], false, null); setPressed($('sMode'), 'any');
     $('ttSearch').addEventListener('submit', e => { e.preventDefault(); runSearch(); });

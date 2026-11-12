@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=4">
+<link rel="stylesheet" href="/tutor.css?v=5">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -140,6 +140,7 @@
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
 <script src="/tutor-data.js?v=2"></script>
+<script src="/tt-select.js?v=1"></script>
 <script>
 (function(){
   'use strict';
@@ -279,6 +280,7 @@
     const { data, error } = await sb.rpc('tutor_my_profile');
     if(error){ view('jDown'); return; }
     profile = data || null;
+    if(window.TTSelect){ TTSelect.enhance($('jDist'), { search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' }); TTSelect.enhance($('jUp'), { search: 'উপজেলা খুঁজুন…' }); }
     makePick($('jGen'), D.GENDERS, false); makePick($('jLv'), D.LEVELS.map(x => [x[0], x[1]]), false); makePick($('jSub'), D.SUBJECTS, true, 10); makePick($('jCls'), D.CLASSES, true); makePick($('jMode'), D.MODES, true); makePick($('jTime'), D.TIMES, true);
     if(profile && profile.status !== 'draft'){ renderStatus(false); view('jStatus'); return; }
     P = Object.assign(blank(), profile || {}); let s = 1;
