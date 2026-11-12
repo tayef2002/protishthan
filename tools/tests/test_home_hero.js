@@ -12,7 +12,12 @@ const h1 = (/<h1>([^]*?)<\/h1>/.exec(hero) || [])[1] || '';
 const sub = (/<p>([^]*?)<\/p>/.exec(hero) || [])[1] || '';
 const [l1, l2] = h1.split('<br>');
 
-yes('the home headline is a hook: the guardian\'s worry as a question (the child\'s admission), then, in the gradient line, the answer: the institutions of their area are here', l1 === 'সন্তানের ভর্তি নিয়ে দুশ্চিন্তা?' && l2 === '<span>আপনার এলাকার প্রতিষ্ঠান এখানেই</span>');
+yes('the home headline is a hook that fits a student looking for themselves and a guardian looking for a child: the worry as a question (admission), then, in the gradient line, the answer: find the right institution right here', l1 === 'ভর্তি নিয়ে দুশ্চিন্তা?' && l2 === '<span>সঠিক প্রতিষ্ঠান খুঁজে নিন এখানেই</span>');
+// the finder card right under the hero and the first step of its dialog speak to both, so they agree with the headline (no "child" only)
+const card = (/<button type="button" class="gw-cta"[^]*?<\/button>/.exec(page) || [''])[0];
+const step1 = (/<h3 id="gwT">কোন ধরনের প্রতিষ্ঠান খুঁজছেন\?<\/h3><p class="gw-sub">([^<]*)<\/p>/.exec(page) || [])[1] || '';
+yes('the headline, the finder card and the first step of the finder dialog all speak to both ("নিজের বা সন্তানের"): no place says "child" only', !/সন্তান/.test(h1) && /<b>নিজের বা সন্তানের জন্য প্রতিষ্ঠান খুঁজে দিন<\/b>/.test(card) && step1 === 'নিজের বা সন্তানের পড়ার স্তর অনুযায়ী বাছুন।');
+yes('the long card title does not leave one word alone on a phone (balanced lines, a slightly smaller title below 640px)', /\.gw-tx b\{[^}]*text-wrap:balance\}/.test(page) && /@media\(max-width:640px\)\{[^]*?\.gw-tx b\{font-size:14\.5px\}/.test(page) && /\.gw-tx small\{[^}]*text-wrap:balance\}/.test(page));
 yes('there is one headline and one line under it', (page.match(/<h1>/g) || []).length === 1 && sub.length > 20);
 yes('the line under it says what is inside and that it is free: the four kinds of institution, their address, admission and contact information, found by area, at no cost', /স্কুল, মাদ্রাসা, কলেজ ও কোচিং সেন্টার/.test(sub) && /ঠিকানা, ভর্তি ও যোগাযোগের তথ্য/.test(sub) && /এলাকা ধরে/.test(sub) && /বিনা খরচে/.test(sub));
 yes('the hero promises only what the site has: no "best", no ranks, no guarantees, no invented numbers', !/সেরা|এক নম্বর|১ নম্বর|নম্বর ১|গ্যারান্টি|নিশ্চিত|নিশ্চয়তা|র‍্যাংক|[০-৯0-9]+\s*(জন|হাজার|লাখ|টি)/.test(h1 + ' ' + sub));
