@@ -6,7 +6,7 @@ let pass = 0, fail = 0;
 const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.stringify(want); ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : '  got ' + JSON.stringify(got) + '  want ' + JSON.stringify(want))); };
 const yes = (name, v) => eq(name, !!v, true);
 
-const PAGES = { guide: 'guide.html', gpa: 'gpa.html', cgpa: 'cgpa.html', eiin: 'eiin.html', 'choose-institution': 'choose-institution.html' };
+const PAGES = { guide: 'guide.html', gpa: 'gpa.html', cgpa: 'cgpa.html', eiin: 'eiin.html', 'choose-institution': 'choose-institution.html', 'result-check': 'result-check.html', 'xi-admission': 'xi-admission.html', 'education-streams': 'education-streams.html', 'verify-university': 'verify-university.html', 'certificate-guide': 'certificate-guide.html' };
 const ROUTES = new Set(['/', '/area', '/results', '/card', '/skill', '/list-institution', '/about', '/privacy', '/terms', '/partner', '/info', ...Object.keys(PAGES).map(k => '/' + k)]);   // clean addresses the site answers
 
 for (const [slug, file] of Object.entries(PAGES)) {
@@ -34,6 +34,20 @@ for (const [slug, file] of Object.entries(PAGES)) {
   yes(file + ': headings do not skip a level', !skip);
   // collapsible FAQ is real HTML details with a summary
   eq(file + ': every details has a summary', (h.match(/<details/g) || []).length, (h.match(/<summary>/g) || []).length);
+}
+
+// ----- the guide hub links every page, and every written guide names its sources -----
+const hub = read('guide.html');
+for (const slug of Object.keys(PAGES).filter(s => s !== 'guide')) yes('the guide hub links /' + slug, new RegExp('href="/' + slug + '"').test(hub));
+for (const slug of ['result-check', 'xi-admission', 'education-streams', 'verify-university', 'certificate-guide', 'eiin']) {
+  const h = read(PAGES[slug]);
+  const srcBlock = (h.match(/<section class="gd-sec" id="src">[\s\S]*?<\/section>/) || [''])[0];
+  const links = [...srcBlock.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"/g)].map(m => m[1]);
+  yes(slug + ': a sources section with at least 2 outside links (' + links.length + ')', links.length >= 2);
+  eq(slug + ': each of the two ad places once, nothing else', [(h.match(/data-slot="guide-mid"/g) || []).length, (h.match(/data-slot="guide-end"/g) || []).length, (h.match(/class="ad-slot"/g) || []).length], [1, 1, 2]);
+  const text = h.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
+  yes(slug + ': a real length of text (' + text.replace(/\s+/g, ' ').length + ' characters)', text.replace(/\s+/g, ' ').length >= 3500);
+  yes(slug + ': no empty placeholders left (TODO, lorem, undefined)', !/TODO|lorem|undefined|\$\{/i.test(h));
 }
 
 // ----- the calculators' screens: every id the script looks for is on the page -----
