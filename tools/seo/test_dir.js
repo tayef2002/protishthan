@@ -58,6 +58,21 @@ const A = o => 'a=' + encodeURIComponent(JSON.stringify(o));
   now += 61; await call('f=comments&' + A({ p_limit: 10, p_offset: 0 })); ok(/rpc\/card_comment_list/.test(lastUrl) && JSON.stringify(JSON.parse(lastBody)) === JSON.stringify({ p_limit: 10, p_offset: 0 }), 'comments: no kind and no sort = the first function with its two arguments only');
   dbCalls = 0; await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' })); await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' })); ok(dbCalls === 1, 'comments: the same filtered page twice = one database question');
   await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'problem', p_sort: 'top' })); ok(dbCalls === 2, 'comments: another kind is its own question');
+  // tutors (/tutor): the search arguments are checked, the same search shares one answer for a minute, and nothing private is asked for
+  r = await call('f=tutors&' + A({ p_class: 'c99' })); ok(r.status === 400, 'tutors: an unknown class is refused');
+  r = await call('f=tutors&' + A({ p_subject: 'hacking' })); ok(r.status === 400, 'tutors: an unknown subject is refused');
+  r = await call('f=tutors&' + A({ p_mode: 'zoom' })); ok(r.status === 400, 'tutors: an unknown mode is refused');
+  r = await call('f=tutors&' + A({ p_limit: 31 })); ok(r.status === 400, 'tutors: a limit above 30 is refused');
+  r = await call('f=tutors&' + A({ p_offset: 501 })); ok(r.status === 400, 'tutors: an offset above 500 is refused');
+  r = await call('f=tutors&' + A({ p_district: 'ঢ'.repeat(41) })); ok(r.status === 400, 'tutors: a district over 40 characters is refused');
+  r = await call('f=tutors&' + A({ p_district: 7 })); ok(r.status === 400, 'tutors: a district that is not text is refused');
+  dbCalls = 0; r = await call('f=tutors'); ok(r.status === 200 && dbCalls === 1 && /rpc\/tutor_search/.test(lastUrl), 'tutors: no arguments = the first 12, right function');
+  ok(JSON.stringify(JSON.parse(lastBody)) === JSON.stringify({ p_district: null, p_upazila: null, p_class: null, p_subject: null, p_mode: null, p_limit: 12, p_offset: 0 }), 'tutors: the defaults are sent in a fixed order');
+  dbCalls = 0; const TQ = { p_district: 'বরিশাল', p_upazila: 'বরিশাল সদর', p_class: 'c6-8', p_subject: 'math', p_mode: 'home', p_limit: 12, p_offset: 0 };
+  await call('f=tutors&' + A(TQ)); await call('f=tutors&' + A(Object.assign({}, TQ, { p_district: ' বরিশাল ' }))); ok(dbCalls === 1 && JSON.stringify(JSON.parse(lastBody)) === JSON.stringify(TQ), 'tutors: the same search twice (extra spaces) = one database question, arguments in a fixed order');
+  r = await call('f=tutors&' + A(Object.assign({}, TQ, { p_extra: 'x', p_phone: '01711223344' }))); ok(r.status === 200 && !('p_extra' in JSON.parse(lastBody)) && !('p_phone' in JSON.parse(lastBody)), 'tutors: unknown arguments are dropped, never forwarded');
+  dbCalls = 0; r = await call('f=tutorstate'); ok(r.status === 200 && dbCalls === 1 && /rpc\/tutor_state/.test(lastUrl), 'tutorstate: its own function');
+  await new Promise(res => setTimeout(res, 5)); now += 61; await call('f=tutorstate'); ok(dbCalls === 2, 'tutorstate: after a minute one new question');
 
   // search + browse: arguments are checked and cleaned, the same question shares one answer
   r = await call('f=search&' + A({ p_q: '   ', p_limit: 8 })); ok(r.status === 400, 'search: an empty word is refused');

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<title>টিউটর হিসেবে যোগ দিন: ভাইয়া-আপু | Protishthan</title>
+<meta name="description" content="Google দিয়ে সাইন-ইন করে ৪টা ধাপে নিজের টিউটর প্রোফাইল বানান। যোগ দেওয়া ফ্রি, ফোন নম্বর গোপন থাকে।">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://protishthan.com/tutor-join">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=9">
+<link rel="stylesheet" href="/footer.css?v=5">
+<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/lipi.css?v=2">
+<link rel="stylesheet" href="/tutor.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=6"></script>
+
+<main class="tt">
+  <p class="tt-crumb"><a href="/">হোম</a> › <a href="/tutor">ভাইয়া-আপু</a> › টিউটর হিসেবে যোগ দিন</p>
+
+  <header class="tt-hero" style="padding-bottom:28px">
+    <span class="tt-eyebrow">টিউটরের জন্য</span>
+    <h1>টিউটর হিসেবে যোগ দিন</h1>
+    <p>৪টা ছোট ধাপে নিজের প্রোফাইল বানান। যোগ দেওয়া ফ্রি, ফোন নম্বর অভিভাবক সরাসরি দেখবেন না।</p>
+  </header>
+
+  <div id="jLoad" class="tt-sk" style="height:180px;margin-top:24px" aria-label="লোড হচ্ছে"></div>
+
+  <section class="tt-gate" id="jGate" hidden>
+    <h2>আগে সাইন-ইন করুন</h2>
+    <p>পাসওয়ার্ড ছাড়াই, Google দিয়ে ৫ সেকেন্ডে।</p>
+    <ul>
+      <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>যোগ দেওয়া ফ্রি, ৪টা ধাপ, প্রতিটা ধাপ নিজে নিজে সেভ হয়।</li>
+      <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>আপনার নম্বর আর আসল নাম শুধু আমরা দেখি।</li>
+      <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>এখন কোনো কাগজ পাঠাতে হবে না। যাচাই লাগলে আমরা আলাদাভাবে জানাব।</li>
+      <li><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>আয়ের কোনো নিশ্চয়তা নেই। অভিভাবকের অনুরোধ এলে আপনাকে জানানো হবে।</li>
+    </ul>
+    <button type="button" class="tt-btn pri blk" id="jSign">Google দিয়ে চালিয়ে যান</button>
+    <p class="tt-hint" style="margin:14px 0 0">চালিয়ে গেলে <a href="/privacy">গোপনীয়তা নীতি</a> আর <a href="/terms">শর্ত</a> মানা হয়।</p>
+  </section>
+
+  <section id="jDown" hidden class="tt-note bad" style="margin-top:24px">এই সেবাটা এখনো চালু হয়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।</section>
+
+  <section id="jStatus" hidden style="margin-top:24px">
+    <div class="tt-status" id="jStatusBox"><div class="ic" id="jStatusIc"></div><div><h3 id="jStatusT"></h3><p id="jStatusP"></p></div></div>
+    <h2 style="font-size:19px;color:var(--ink);margin:22px 0 10px">আপনার প্রোফাইল</h2>
+    <dl class="tt-sum" id="jSum"></dl>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+      <button type="button" class="tt-btn pri" id="jEdit">প্রোফাইল বদলান</button>
+      <button type="button" class="tt-btn sec" id="jPause" hidden>বিরতি নিন</button>
+      <a class="tt-btn gh" href="/tutor">টিউটর পেজে ফিরুন</a>
+    </div>
+    <p class="tt-hint" id="jPauseHint" style="margin-top:10px" hidden>বিরতিতে থাকলে আপনার প্রোফাইল আমরা কাউকে পাঠাব না। যেকোনো সময় আবার চালু করতে পারবেন।</p>
+  </section>
+
+  <form class="tt-wiz" id="jWiz" hidden novalidate>
+    <aside class="tt-side" aria-label="ধাপ"><h3>ধাপ</h3><ol id="jSide">
+      <li data-s="1"><i>১</i>পরিচয়</li><li data-s="2"><i>২</i>পড়াশোনা</li><li data-s="3"><i>৩</i>কী পড়াবেন</li><li data-s="4"><i>৪</i>নিজের কথা</li>
+    </ol></aside>
+    <div class="tt-panel">
+      <div class="tt-prog" aria-hidden="true"><div class="top"><span id="jProgN"></span><span id="jProgT"></span></div><div class="bar"><i id="jProgB" style="width:25%"></i></div></div>
+
+      <div data-step="1">
+        <h2 tabindex="-1">আপনার পরিচয়</h2><p class="sub">আসল নাম আর নম্বর শুধু আমরা দেখি। অভিভাবকের সামনে যাবে শুধু আপনার "প্রদর্শন নাম"।</p>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="tt-f"><label for="jFull">আপনার পুরো নাম</label><input class="tt-in" id="jFull" maxlength="60" autocomplete="name"><div class="tt-err" id="jFullErr" role="alert"></div></div>
+          <div class="tt-f"><label for="jDisp">প্রদর্শন নাম (অভিভাবক যা দেখবেন)</label><input class="tt-in" id="jDisp" maxlength="30" placeholder="যেমন, করিম ভাইয়া"><div class="tt-hint">ফাঁকা রাখলে নামের প্রথম শব্দ দেখাবে।</div><div class="tt-err" id="jDispErr" role="alert"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jGenL">অভিভাবক আপনাকে কী বলে ডাকবেন (ঐচ্ছিক)</span><div class="tt-pick" id="jGen" role="group" aria-labelledby="jGenL"></div></div>
+          <div class="tt-f"><label for="jPhone">হোয়াটসঅ্যাপ নম্বর</label><input class="tt-in" id="jPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="01XXXXXXXXX"><div class="tt-hint">অভিভাবকের অনুরোধ এলে এই নম্বরে আমরা আপনাকে জানাব।</div><div class="tt-err" id="jPhoneErr" role="alert"></div></div>
+          <div><label class="tt-check" id="jAgeBox"><input type="checkbox" id="jAge"><span>আমার বয়স ১৮ বা তার বেশি।</span></label><div class="tt-err" id="jAgeErr" role="alert"></div></div>
+        </div>
+      </div>
+
+      <div data-step="2" hidden>
+        <h2 tabindex="-1">আপনার পড়াশোনা</h2><p class="sub">অভিভাবক আপনার প্রতিষ্ঠান আর বিভাগ দেখতে পাবেন।</p>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="tt-f"><label for="jIns">বিশ্ববিদ্যালয় বা কলেজের নাম</label><input class="tt-in" id="jIns" maxlength="80" autocomplete="organization" placeholder="যেমন, বরিশাল বিশ্ববিদ্যালয়"></div>
+          <div class="tt-f"><label for="jDep">বিভাগ বা বিষয়</label><input class="tt-in" id="jDep" maxlength="60" placeholder="যেমন, গণিত"></div>
+          <div class="tt-f"><span class="tt-lab" id="jLvL">এখন কোন ধাপে</span><div class="tt-pick" id="jLv" role="group" aria-labelledby="jLvL"></div></div>
+          <div class="tt-err" id="jStudyErr" role="alert"></div>
+        </div>
+      </div>
+
+      <div data-step="3" hidden>
+        <h2 tabindex="-1">কী পড়াবেন, কোথায়</h2><p class="sub">যতটা পারেন বেছে নিন। অভিভাবকের অনুরোধের সাথে মেলাতে এগুলো কাজে লাগে।</p>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="tt-f"><span class="tt-lab" id="jSubL">বিষয় (সর্বোচ্চ ১০টা)</span><div class="tt-pick" id="jSub" role="group" aria-labelledby="jSubL"></div><div class="tt-err" id="jSubErr" role="alert"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jClsL">কোন শ্রেণি</span><div class="tt-pick" id="jCls" role="group" aria-labelledby="jClsL"></div><div class="tt-err" id="jClsErr" role="alert"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jModeL">কীভাবে পড়াবেন</span><div class="tt-pick" id="jMode" role="group" aria-labelledby="jModeL"></div><div class="tt-err" id="jModeErr" role="alert"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jTimeL">কখন সময় হবে (ঐচ্ছিক)</span><div class="tt-pick" id="jTime" role="group" aria-labelledby="jTimeL"></div></div>
+          <div><span class="tt-lab">আপনার এলাকা</span><div class="tt-row2" style="margin-top:6px"><div class="tt-f"><label for="jDist" class="tt-hint">জেলা</label><select class="tt-in" id="jDist"></select></div><div class="tt-f"><label for="jUp" class="tt-hint">উপজেলা</label><select class="tt-in" id="jUp"></select></div></div><div class="tt-err" id="jAreaErr" role="alert"></div><div class="tt-hint" style="margin-top:6px">অভিভাবক শুধু উপজেলা পর্যন্ত দেখবেন, বাড়ির ঠিকানা না।</div></div>
+          <div class="tt-row2">
+            <div class="tt-f"><label for="jArea">এলাকার নাম (ঐচ্ছিক, শুধু আমরা দেখি)</label><input class="tt-in" id="jArea" maxlength="80" placeholder="যেমন, রূপাতলী"></div>
+            <div class="tt-f"><label for="jFee">আনুমানিক মাসিক ফি (ঐচ্ছিক, শুধু আমরা দেখি)</label><input class="tt-in" id="jFee" maxlength="60" placeholder="যেমন, ২০০০ থেকে ৩০০০ টাকা"></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-step="4" hidden>
+        <h2 tabindex="-1">নিজের কথা</h2><p class="sub">অভিভাবক এটা পড়ে ঠিক করবেন আপনাকে বেছে নেবেন কিনা। সৎ আর সাধারণ ভাষায় লিখুন।</p>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="tt-f"><label for="jBio">আপনার সম্পর্কে কয়েক লাইন</label><textarea class="tt-in" id="jBio" maxlength="400" rows="5" placeholder="কোন বিষয় ভালো পারেন, আগে পড়িয়েছেন কিনা, কীভাবে পড়ান। ফোন নম্বর বা লিংক লিখবেন না।"></textarea><div style="display:flex;justify-content:space-between"><div class="tt-err" id="jBioErr" role="alert"></div><span class="tt-hint" id="jBioN">০/৪০০</span></div></div>
+          <div><div class="tt-lab" style="margin-bottom:8px">অভিভাবক আপনাকে এভাবে দেখবেন</div><div id="jPrev"></div></div>
+          <div class="tt-note info">শিক্ষক হলে: ২০১২ সালের নীতিমালা অনুযায়ী সংবাদে এসেছে, নিজের প্রতিষ্ঠানের শিক্ষার্থীকে প্রাইভেট পড়ানো যায় না। আমাদের শর্তেও এটা আছে।</div>
+          <div><label class="tt-check" id="jTermsBox"><input type="checkbox" id="jTerms"><span>আমি <a href="/terms" target="_blank" rel="noopener">ব্যবহারের শর্ত</a> আর <a href="/privacy" target="_blank" rel="noopener">গোপনীয়তা নীতি</a> পড়েছি ও মানছি। আমি জানি এই সেবা আয়ের নিশ্চয়তা দেয় না, আর কাগজ যাচাই কোনো ব্যাকগ্রাউন্ড চেক নয়।</span></label><div class="tt-err" id="jTermsErr" role="alert"></div></div>
+        </div>
+      </div>
+
+      <div class="tt-err" id="jStepErr" role="alert" style="margin-top:14px"></div>
+      <div class="tt-actions">
+        <button type="button" class="tt-btn gh" id="jBack">‹ আগের ধাপ</button>
+        <span class="tt-saved" id="jSaved" aria-live="polite"></span>
+        <button type="submit" class="tt-btn pri" id="jNext">পরের ধাপ</button>
+      </div>
+    </div>
+  </form>
+</main>
+<div class="tt-toast" id="ttToast" role="status" aria-live="polite"></div>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=13"></script>
+<script src="/bd-locations.js?v=1"></script>
+<script src="/tutor-data.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const D = window.TutorData, $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };
+  const LOC = window.BD_LOCATIONS || [];
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
+  const upazilasOf = d => (LOC.find(x => x.n === d) || { u: [] }).u;
+  const blank = () => ({ full_name: '', display_name: '', gender: '', phone: '', institution: '', department: '', edu_level: '', subjects: [], classes: [], modes: [], times: [], district: '', upazila: '', area_note: '', fee_note: '', bio: '', age_ok: false, terms_ok: false });
+  let P = blank(), step = 1, profile = null, ME = null, sb = null, booted = false;
+  const SHOW = ['jGate', 'jStatus', 'jWiz', 'jDown', 'jLoad'];
+  function view(id){ SHOW.forEach(x => { $(x).hidden = x !== id; }); }
+  let toastT; function toast(m){ const t = $('ttToast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3000); }
+  function fill(sel, items, ph, val){ sel.innerHTML = '<option value="">' + esc(ph) + '</option>' + items.map(x => '<option value="' + esc(x) + '">' + esc(x) + '</option>').join(''); sel.value = val || ''; if(sel.value !== (val || '')) sel.value = ''; }
+  function pressed(box){ return [].slice.call(box.querySelectorAll('button[aria-pressed=true]')).map(b => b.dataset.v); }
+  function setPick(box, vals){ box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', vals.indexOf(b.dataset.v) > -1 ? 'true' : 'false')); }
+  function makePick(box, list, multi, max){
+    box.innerHTML = list.map(x => '<button type="button" data-v="' + esc(x[0]) + '" aria-pressed="false">' + esc(x[1]) + '</button>').join('');
+    box.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; const on = b.getAttribute('aria-pressed') === 'true';
+      if(multi){ if(!on && max && pressed(box).length >= max){ toast('সর্বোচ্চ ' + D.bn(max) + 'টা বেছে নেওয়া যায়।'); return; } b.setAttribute('aria-pressed', on ? 'false' : 'true'); }
+      else setPick(box, on ? [] : [b.dataset.v]);
+      clearNear(box); if(box.id === 'jMode') setErr('jAreaErr', ''); stash(); });
+  }
+  /* an error goes away as soon as the person works on the thing it was about */
+  function clearNear(el){ const f = el.closest('.tt-f') || el.parentElement; const e = f && f.querySelector('.tt-err'); if(e){ e.classList.remove('on'); e.textContent = ''; } if(el.removeAttribute) el.removeAttribute('aria-invalid'); }
+  function setErr(id, code){ const el = $(id); if(!el) return; el.textContent = code ? (D.MSG[code] || code) : ''; el.classList.toggle('on', !!code); const inp = el.parentElement && el.parentElement.querySelector('input.tt-in,select.tt-in,textarea.tt-in'); if(inp) code ? inp.setAttribute('aria-invalid', 'true') : inp.removeAttribute('aria-invalid'); }
+
+  /* ---------- the form <-> the draft ---------- */
+  function readAll(){
+    P.full_name = D.cleanText($('jFull').value, 60); P.display_name = D.cleanText($('jDisp').value, 30); P.gender = pressed($('jGen'))[0] || ''; P.phone = $('jPhone').value.trim(); P.age_ok = $('jAge').checked;
+    P.institution = D.cleanText($('jIns').value, 80); P.department = D.cleanText($('jDep').value, 60); P.edu_level = pressed($('jLv'))[0] || '';
+    P.subjects = pressed($('jSub')); P.classes = pressed($('jCls')); P.modes = pressed($('jMode')); P.times = pressed($('jTime')); P.district = $('jDist').value; P.upazila = $('jUp').value; P.area_note = D.cleanText($('jArea').value, 80); P.fee_note = D.cleanText($('jFee').value, 60);
+    P.bio = D.cleanBio($('jBio').value, 400); P.terms_ok = $('jTerms').checked;
+  }
+  function writeAll(){
+    $('jFull').value = P.full_name; $('jDisp').value = P.display_name; setPick($('jGen'), P.gender ? [P.gender] : []); $('jPhone').value = P.phone; $('jAge').checked = !!P.age_ok;
+    $('jIns').value = P.institution; $('jDep').value = P.department; setPick($('jLv'), P.edu_level ? [P.edu_level] : []);
+    setPick($('jSub'), P.subjects); setPick($('jCls'), P.classes); setPick($('jMode'), P.modes); setPick($('jTime'), P.times);
+    fill($('jDist'), LOC.map(x => x.n), 'জেলা', P.district); const ups = upazilasOf(P.district); fill($('jUp'), ups, 'উপজেলা', P.upazila); $('jUp').disabled = !ups.length;
+    $('jArea').value = P.area_note; $('jFee').value = P.fee_note; $('jBio').value = P.bio; $('jTerms').checked = !!P.terms_ok; bioCount();
+  }
+  const draftKey = () => 'tt_draft_' + (ME ? ME.user_id : 'x');
+  function stash(){ readAll(); ls.set(draftKey(), JSON.stringify({ P: P, step: step })); }
+  function bioCount(){ $('jBioN').textContent = D.bn($('jBio').value.length) + '/৪০০'; }
+
+  /* ---------- steps ---------- */
+  const FIELD_ERR = { full_name: 'jFullErr', display_name: 'jDispErr', phone: 'jPhoneErr', age_ok: 'jAgeErr', study: 'jStudyErr', institution: 'jStudyErr', department: 'jStudyErr', subjects: 'jSubErr', classes: 'jClsErr', modes: 'jModeErr', area: 'jAreaErr', area_note: 'jAreaErr', fee_note: 'jAreaErr', bio: 'jBioErr', terms_ok: 'jTermsErr' };
+  const STEP_FIELDS = { 1: ['full_name', 'display_name', 'phone', 'age_ok'], 2: ['study', 'institution', 'department'], 3: ['subjects', 'classes', 'modes', 'area', 'area_note', 'fee_note'], 4: ['bio', 'terms_ok'] };
+  function showStep(n, quiet){
+    step = Math.max(1, Math.min(4, n));
+    document.querySelectorAll('[data-step]').forEach(s => { s.hidden = Number(s.dataset.step) !== step; });
+    document.querySelectorAll('#jSide li').forEach(li => { const k = Number(li.dataset.s); li.className = k === step ? 'on' : k < step ? 'done' : ''; li.querySelector('i').textContent = k < step ? '✓' : D.bn(k); });
+    $('jProgN').textContent = 'ধাপ ' + D.bn(step) + ' / ৪'; $('jProgT').textContent = ['পরিচয়', 'পড়াশোনা', 'কী পড়াবেন', 'নিজের কথা'][step - 1]; $('jProgB').style.width = (step * 25) + '%';
+    $('jBack').style.visibility = step === 1 ? 'hidden' : 'visible'; $('jNext').textContent = step === 4 ? 'জমা দিন' : 'পরের ধাপ';
+    ['jStepErr'].forEach(id => setErr(id, '')); $('jSaved').textContent = ''; $('jSaved').className = 'tt-saved';
+    if(step === 4) preview();
+    const h = document.querySelector('[data-step="' + step + '"] h2'); if(h && !quiet){ h.focus({ preventScroll: true }); h.scrollIntoView({ block: 'start', behavior: 'auto' }); window.scrollBy(0, -90); }
+    stash();
+  }
+  function stepErrors(n){
+    readAll(); const all = D.validateProfile(P, true), mine = {}; STEP_FIELDS[n].forEach(f => { if(all[f]) mine[f] = all[f]; }); return mine;
+  }
+  function showErrors(errs, n){
+    const ids = new Set(); Object.keys(FIELD_ERR).forEach(f => { const id = FIELD_ERR[f]; if(!ids.has(id)){ ids.add(id); const own = Object.keys(errs).filter(k => FIELD_ERR[k] === id)[0]; setErr(id, own ? errs[own] : ''); } });
+    const check = (id, bad) => { const b = $(id); if(b) b.dataset.bad = bad ? 'true' : 'false'; }; check('jAgeBox', errs.age_ok); check('jTermsBox', errs.terms_ok);
+    const first = Object.keys(errs)[0]; if(first){ const el = $(FIELD_ERR[first]); const t = el && el.parentElement && el.parentElement.querySelector('input,select,textarea,button'); if(t) t.focus(); }
+  }
+  async function save(submit){
+    readAll(); const clean = {}; Object.keys(blank()).forEach(k => { clean[k] = P[k]; });
+    const { data, error } = await sb.rpc('tutor_profile_save', { p_data: clean, p_submit: !!submit });
+    if(error) return { error: error };
+    profile = data; return { data: data };
+  }
+  $('jWiz').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errs = stepErrors(step); showErrors(errs, step); if(Object.keys(errs).length) return;
+    const btn = $('jNext'); btn.disabled = true; $('jSaved').textContent = 'সেভ হচ্ছে…'; $('jSaved').className = 'tt-saved';
+    const r = await save(step === 4);
+    btn.disabled = false;
+    if(r.error){ $('jSaved').textContent = ''; setErr('jStepErr', null); const el = $('jStepErr'); el.textContent = D.errText(r.error); el.classList.add('on'); return; }
+    if(step === 4){ T('tutor_profile_submit'); ls.del(draftKey()); renderStatus(true); view('jStatus'); window.scrollTo({ top: 0 }); return; }
+    $('jSaved').textContent = 'সেভ হয়েছে ✓'; $('jSaved').className = 'tt-saved ok'; T('tutor_profile_step', { step: step });
+    showStep(step + 1);
+  });
+  $('jBack').addEventListener('click', () => { readAll(); showStep(step - 1); });
+  ['jFull', 'jDisp', 'jPhone', 'jIns', 'jDep', 'jArea', 'jFee', 'jBio', 'jAge', 'jTerms'].forEach(id => $(id).addEventListener('input', () => {
+    if(id === 'jBio') bioCount();
+    if(id === 'jAge'){ setErr('jAgeErr', ''); $('jAgeBox').dataset.bad = 'false'; } else if(id === 'jTerms'){ setErr('jTermsErr', ''); $('jTermsBox').dataset.bad = 'false'; }
+    else if(id === 'jIns' || id === 'jDep'){ setErr('jStudyErr', ''); } else if(id === 'jArea' || id === 'jFee'){ setErr('jAreaErr', ''); } else clearNear($(id));
+    setErr('jStepErr', ''); stash(); }));
+  $('jDist').addEventListener('change', () => { const ups = upazilasOf($('jDist').value); fill($('jUp'), ups, 'উপজেলা'); $('jUp').disabled = !ups.length; setErr('jAreaErr', ''); stash(); });
+  $('jUp').addEventListener('change', () => { setErr('jAreaErr', ''); stash(); });
+  function preview(){
+    readAll(); const subs = D.labels(D.SUBJECTS, P.subjects).slice(0, 4), name = P.display_name || (P.full_name || '').split(' ')[0] || 'আপনার নাম', g = D.labelOf(D.GENDERS, P.gender), lv = D.labelOf(D.LEVELS, P.edu_level);
+    $('jPrev').innerHTML = '<article class="tt-t" style="box-shadow:none"><div class="tt-t-h"><span class="tt-av" style="background:#1A56DB" aria-hidden="true">' + esc((name.charAt(0) || '?').toUpperCase()) + '</span><div><b>' + esc(name) + (g ? ' <span class="tt-b gray" style="vertical-align:2px">' + esc(g) + '</span>' : '') + '</b><small>' + esc(P.institution) + (P.department ? ', ' + esc(P.department) : '') + '</small></div></div>' +
+      '<div class="tt-badges">' + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + '</div>' +
+      '<div class="tt-chips">' + subs.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + '</div>' +
+      '<div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, P.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, P.modes).join(' ও ')) + (P.modes.indexOf('home') > -1 ? '<br><b>এলাকা:</b> ' + esc([P.district, P.upazila].filter(Boolean).join(', ')) : '') + '</div>' +
+      (P.bio ? '<div class="tt-bio open">' + esc(P.bio) + '</div>' : '') + '</article>';
+  }
+  $('jBio').addEventListener('input', () => { if(step === 4) preview(); });
+
+  /* ---------- the status view ---------- */
+  function sumRow(k, v){ return v ? '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>' : ''; }
+  function renderStatus(justSubmitted){
+    const p = profile || {}, st = p.status || 'draft';
+    const T_ = { submitted: ['জমা হয়েছে, রিভিউয়ের অপেক্ষায়', 'ধন্যবাদ। আমরা আপনার প্রোফাইল দেখব, তারপর হোয়াটসঅ্যাপে জানাব। এখনো এটা সবার সামনে নেই। কোনো কাগজ এখন পাঠাতে হবে না, যাচাই লাগলে আমরা আলাদাভাবে বলব।'],
+      approved: ['আপনার প্রোফাইল অনুমোদিত', 'অভিভাবকের মানানসই অনুরোধ এলে আমরা আপনাকে হোয়াটসঅ্যাপে জানাব। তথ্য বদলালে আমরা আবার একবার দেখে নিই।'],
+      rejected: ['প্রোফাইল এখনো অনুমোদন হয়নি', 'আমরা আপনার সাথে হোয়াটসঅ্যাপে যোগাযোগ করতে পারি। তথ্য ঠিক করে আবার জমা দিতে পারেন।'],
+      paused: ['আপনি বিরতিতে আছেন', 'বিরতিতে থাকলে আমরা আপনার প্রোফাইল কাউকে পাঠাই না। চাইলে এখনই আবার চালু করুন।'], draft: ['খসড়া সেভ করা আছে', 'শেষ করে জমা দিলে আমরা দেখব।'] }[st];
+    $('jStatusBox').className = 'tt-status ' + st; $('jStatusT').textContent = (justSubmitted ? '✓ ' : '') + T_[0]; $('jStatusP').textContent = T_[1];
+    $('jStatusIc').innerHTML = st === 'approved' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    $('jSum').innerHTML = sumRow('প্রদর্শন নাম', p.display_name) + sumRow('পড়াশোনা', [p.institution, p.department].filter(Boolean).join(', ')) + sumRow('বিষয়', D.labels(D.SUBJECTS, p.subjects).join(', ')) + sumRow('শ্রেণি', D.labels(D.CLASSES, p.classes).join(', ')) + sumRow('কীভাবে', D.labels(D.MODES, p.modes).join(' ও ')) + sumRow('এলাকা', [p.district, p.upazila].filter(Boolean).join(', ')) + sumRow('যাচাই', p.verify === 'verified' ? 'আমরা NID ও সনদের কপি দেখেছি' : '');
+    $('jPause').hidden = !(st === 'approved' || st === 'paused'); $('jPause').textContent = st === 'paused' ? 'আবার চালু করুন' : 'বিরতি নিন'; $('jPauseHint').hidden = $('jPause').hidden;
+  }
+  $('jEdit').addEventListener('click', () => { P = Object.assign(blank(), profile || {}); P.terms_ok = !!(profile && profile.terms_ok); writeAll(); view('jWiz'); showStep(1); });
+  $('jPause').addEventListener('click', async () => {
+    const pause = profile && profile.status === 'approved'; $('jPause').disabled = true;
+    const { data, error } = await sb.rpc('tutor_profile_pause', { p_pause: pause }); $('jPause').disabled = false;
+    if(error){ toast(D.errText(error)); return; } profile = data; renderStatus(false); toast(pause ? 'বিরতিতে গেছেন' : 'আবার চালু হয়েছে');
+  });
+
+  /* ---------- boot ---------- */
+  async function boot(){
+    if(booted) return; const M = window.Protishthan && Protishthan.member; if(!M){ view('jDown'); return; }
+    sb = M.sb; await M.ready(); ME = M.current();
+    if(!ME){ view('jGate'); return; }
+    booted = true;
+    const { data, error } = await sb.rpc('tutor_my_profile');
+    if(error){ view('jDown'); return; }
+    profile = data || null;
+    makePick($('jGen'), D.GENDERS, false); makePick($('jLv'), D.LEVELS.map(x => [x[0], x[1]]), false); makePick($('jSub'), D.SUBJECTS, true, 10); makePick($('jCls'), D.CLASSES, true); makePick($('jMode'), D.MODES, true); makePick($('jTime'), D.TIMES, true);
+    if(profile && profile.status !== 'draft'){ renderStatus(false); view('jStatus'); return; }
+    P = Object.assign(blank(), profile || {}); let s = 1;
+    const dr = ls.get(draftKey()); if(dr){ try{ const o = JSON.parse(dr); if(o && o.P){ P = Object.assign(P, o.P); s = o.step || 1; } }catch(e){} }
+    if(!P.full_name && ME) P.full_name = D.cleanText(ME.display_name || '', 60);
+    writeAll(); view('jWiz'); showStep(s, true);
+  }
+  $('jSign').addEventListener('click', () => { T('tutor_signin_click'); Protishthan.member.signIn('টিউটর প্রোফাইল বানাতে যোগ দিন'); });
+  const M0 = window.Protishthan && Protishthan.member; if(M0) M0.onChange(u => { if(u && !booted) boot(); });
+  boot();
+})();
+</script>
+</body>
+</html>

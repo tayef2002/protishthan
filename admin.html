@@ -231,6 +231,7 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
     </form>
   </div>
 </div>
+<script src="/tutor-data.js?v=1"></script>
 <script>
 /* Admin gate: a separate auth session ('prot-admin') that must belong to admin_users.
    Data loaders wait on ADMIN_READY, so nothing is fetched before the check passes. */
@@ -370,6 +371,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     <button class="nav-item" id="nav-cardcm" onclick="showView('cardcm')">
       <span class="nav-icon">💬</span><span>কার্ড মতামত</span>
       <span class="nav-badge" id="cardcmBadge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" id="nav-tutors" onclick="showView('tutors')">
+      <span class="nav-icon">🎓</span><span>ভাইয়া-আপু (টিউটর)</span>
+      <span class="nav-badge" id="tutorsBadge" style="display:none">0</span>
     </button>
     <button class="nav-item" id="nav-promo" onclick="showView('promo')">
       <span class="nav-icon">📣</span><span>হোম পপআপ</span>
@@ -603,6 +608,26 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         </label>
         <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap"><button class="pay-btn" type="button" id="ccF-new" onclick="ccFilter('new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="ccF-all" onclick="ccFilter('all')" style="width:auto;padding:8px 14px">সব</button><button class="pay-btn" type="button" id="ccF-hidden" onclick="ccFilter('hidden')" style="width:auto;padding:8px 14px">লুকানো</button></div>
         <div id="ccList"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-tutors">
+      <div class="section-card">
+        <div class="sec-h">ভাইয়া-আপু: সেটিং <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="ttCount"></span></div>
+        <div class="bill-note" style="margin-top:0">অভিভাবকের অনুরোধ আর টিউটরের প্রোফাইল এখানে আসে (migrations/2026-12-17_tutors.sql চালানোর পর)। ফোন নম্বর আর আসল নাম শুধু আপনি দেখেন, পাবলিক সার্চে কখনো যায় না। শুরুতে পাবলিক তালিকা বন্ধ থাকে: অনুরোধ এলে আপনি হাতে মিলিয়ে দেন।</div>
+        <label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0;padding:12px 14px;border:1px solid #E2E8F0;border-radius:12px;background:#F8FAFF;cursor:pointer">
+          <input type="checkbox" id="ttListing" onchange="ttSetting('public_listing', this.checked)" style="margin-top:3px">
+          <span><b>পাবলিক তালিকা চালু (টিউটর পেজের সার্চে অনুমোদিত টিউটর দেখাবে)</b><br><span style="font-size:13px;color:var(--text-3)">বন্ধ থাকলে সার্চে কেউ আসে না, ফাঁকা ফলে অভিভাবক অনুরোধ-ফর্ম পান। চালু করলে অনুমোদিত (আর বিরতিতে নেই) সবার প্রদর্শন নাম, প্রতিষ্ঠান, বিভাগ, বিষয়, শ্রেণি, উপজেলা আর নিজের কথা সবার সামনে দেখাবে। ফোন নম্বর, আসল নাম, ফি আর আপনার নোট কখনো না। আমার সুপারিশ: অন্তত ২০-৩০ জন যাচাই করা টিউটর হওয়ার আগে চালু করবেন না।</span></span>
+        </label>
+        <label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0;padding:12px 14px;border:1px solid #E2E8F0;border-radius:12px;background:#F8FAFF;cursor:pointer">
+          <input type="checkbox" id="ttOpen" onchange="ttSetting('requests_open', this.checked)" style="margin-top:3px">
+          <span><b>নতুন অনুরোধ নেওয়া চলছে</b><br><span style="font-size:13px;color:var(--text-3)">বন্ধ করলে অভিভাবক ফর্ম পাঠাতে পারেন না ("এখন নেওয়া হচ্ছে না" দেখায়)। যদি অনুরোধ সামলাতে না পারেন বা স্প্যাম আসে, সাময়িক বন্ধ করুন।</span></span>
+        </label>
+      </div>
+      <div class="section-card" style="overflow-x:auto;margin-top:16px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="pay-btn" type="button" id="ttT-req" onclick="ttTab('req')" style="width:auto;padding:8px 16px">অভিভাবকের অনুরোধ</button><button class="pay-btn" type="button" id="ttT-pro" onclick="ttTab('pro')" style="width:auto;padding:8px 16px;background:#E2E8F0;color:#334155;box-shadow:none">টিউটর প্রোফাইল</button></div>
+        <div id="ttBoxReq"><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttRF-new" onclick="ttFilter('req','new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="ttRF-matching" onclick="ttFilter('req','matching')" style="width:auto;padding:8px 14px">মিলানো চলছে</button><button class="pay-btn" type="button" id="ttRF-all" onclick="ttFilter('req','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListReq"></div></div>
+        <div id="ttBoxPro" hidden><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttPF-sub" onclick="ttFilter('pro','sub')" style="width:auto;padding:8px 14px">রিভিউয়ের অপেক্ষায়</button><button class="pay-btn" type="button" id="ttPF-approved" onclick="ttFilter('pro','approved')" style="width:auto;padding:8px 14px">অনুমোদিত</button><button class="pay-btn" type="button" id="ttPF-draft" onclick="ttFilter('pro','draft')" style="width:auto;padding:8px 14px">খসড়া</button><button class="pay-btn" type="button" id="ttPF-all" onclick="ttFilter('pro','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListPro"></div></div>
       </div>
     </div>
 
@@ -1468,6 +1493,174 @@ async function ccToggleApprove(on){
 }
 ccFilter('new');
 ADMIN_READY.then(() => loadCardComments());
+/* ---- ভাইয়া-আপু (টিউটর): guardians' requests, tutor profiles, and the manual matching (migrations/2026-12-17_tutors.sql). Read and changed with the admin session (sbAdmin): the tables are closed to everybody else. ---- */
+navTitles.tutors = ['ভাইয়া-আপু (টিউটর)', 'অভিভাবকের অনুরোধ, টিউটর প্রোফাইল আর হাতে মিলিয়ে দেওয়া'];
+const TD = window.TutorData;
+let TT_REQ = [], TT_PRO = [], TT_MAT = [], TT_TAB = 'req', TT_RF = 'new', TT_PF = 'sub', TT_OPEN = {}, TT_RELAX = {}, TT_DRAFT = {}, TT_PIN = {}, TT_PPIN = {};
+const ttEsc = t => String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const ttChip = (c, t) => '<span style="display:inline-block;font-size:11.5px;font-weight:800;border-radius:100px;padding:2px 9px;background:' + c[0] + ';color:' + c[1] + '">' + ttEsc(t) + '</span>';
+const TT_B = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
+const TT_B_OK = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #86EFAC;border-radius:8px;background:#F0FDF4;color:#166534;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
+const TT_B_RED = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #FCA5A5;border-radius:8px;background:#fff;color:#B91C1C;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
+const TT_RS = { 'new': ['#EEF3FF', '#1A56DB'], matching: ['#FEF3C7', '#92400E'], matched: ['#DCFCE7', '#166534'], closed: ['#F1F5F9', '#475569'], spam: ['#FEE2E2', '#B91C1C'] };
+const TT_PS = { draft: ['#F1F5F9', '#475569'], submitted: ['#FEF3C7', '#92400E'], approved: ['#DCFCE7', '#166534'], rejected: ['#FEE2E2', '#B91C1C'], paused: ['#EEF3FF', '#1A56DB'] };
+const TT_MS = { sent: 'পাঠানো হয়েছে', accepted: 'রাজি', declined: 'রাজি নন', started: 'টিউশন শুরু' };
+const ttName = p => p ? (p.display_name || p.full_name || 'নামহীন') : '';
+const ttAct = (p) => p.status === 'submitted' || (p.status === 'approved' && p.edited);
+function ttTab(t){
+  TT_TAB = t; const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('ttT-req').style.cssText = 'width:auto;padding:8px 16px' + (t === 'req' ? '' : off); document.getElementById('ttT-pro').style.cssText = 'width:auto;padding:8px 16px' + (t === 'pro' ? '' : off);
+  document.getElementById('ttBoxReq').hidden = t !== 'req'; document.getElementById('ttBoxPro').hidden = t !== 'pro';
+}
+function ttFilter(kind, f){
+  const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  if(kind === 'req'){ TT_RF = f; TT_PIN = {}; ['new', 'matching', 'all'].forEach(k => { document.getElementById('ttRF-' + k).style.cssText = 'width:auto;padding:8px 14px' + (f === k ? '' : off); }); renderTtReq(); }
+  else { TT_PF = f; TT_PPIN = {}; ['sub', 'approved', 'draft', 'all'].forEach(k => { document.getElementById('ttPF-' + k).style.cssText = 'width:auto;padding:8px 14px' + (f === k ? '' : off); }); renderTtPro(); }
+}
+async function loadTutors(){
+  const box = document.getElementById('ttListReq');
+  const [a, b, c, s] = await Promise.all([
+    sbAdmin.from('tutor_requests').select('*').order('created_at', { ascending: false }).limit(500),
+    sbAdmin.from('tutor_profiles').select('*').order('updated_at', { ascending: false }).limit(500),
+    sbAdmin.from('tutor_matches').select('*').limit(3000),
+    sbAdmin.from('tutor_settings').select('*').eq('id', 1).maybeSingle()]);
+  if(a.error || b.error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + ttEsc((a.error || b.error).message) + ' — migrations/2026-12-17_tutors.sql চালানো হয়েছে কি?</div>'; return; }
+  TT_REQ = a.data || []; TT_PRO = b.data || []; TT_MAT = (c && c.data) || [];
+  document.getElementById('ttListing').checked = !!(s && s.data && s.data.public_listing); document.getElementById('ttOpen').checked = !(s && s.data && s.data.requests_open === false);
+  ttCount(); renderTtReq(); renderTtPro();
+}
+function ttCount(){
+  const n = TT_REQ.filter(r => r.status === 'new').length + TT_PRO.filter(ttAct).length, b = document.getElementById('tutorsBadge');
+  b.textContent = n; b.style.display = n ? '' : 'none';
+  document.getElementById('ttCount').textContent = 'অনুরোধ ' + TT_REQ.length + 'টি (নতুন ' + TT_REQ.filter(r => r.status === 'new').length + '), টিউটর ' + TT_PRO.length + ' জন (অনুমোদিত ' + TT_PRO.filter(p => p.status === 'approved').length + ', রিভিউয়ের অপেক্ষায় ' + TT_PRO.filter(ttAct).length + ')';
+}
+function ttCands(r){
+  const relax = !!TT_RELAX[r.id], ok = TT_PRO.filter(p => p.status === 'approved');
+  const loc = p => p.district === r.district && (!r.upazila || p.upazila === r.upazila), subj = p => (p.subjects || []).some(x => (r.subjects || []).includes(x)), cls = p => (p.classes || []).includes(r.class_band), onl = p => (p.modes || []).includes('online');
+  let rows = ok.filter(p => relax ? true : (subj(p) && cls(p) && (r.mode === 'online' ? onl(p) : (r.mode === 'home' ? loc(p) && (p.modes || []).includes('home') : (loc(p) || onl(p))))));
+  const score = p => (loc(p) ? 4 : 0) + (p.verify === 'verified' ? 2 : 0) + (subj(p) ? 1 : 0);
+  return rows.sort((x, y) => score(y) - score(x));
+}
+function ttReqCard(r){
+  const st = TT_RS[r.status] || TT_RS['new'], asked = r.tutor_pid ? TT_PRO.find(p => p.pid === r.tutor_pid) : null, mats = TT_MAT.filter(m => m.request_id === r.id), id = ttEsc(r.id);
+  const draft = Object.prototype.hasOwnProperty.call(TT_DRAFT, r.id) ? TT_DRAFT[r.id] : (r.admin_note || ''), wa = TD.waLink(r.phone, 'আসসালামু আলাইকুম ' + r.name + '। ভাইয়া-আপু (Protishthan) থেকে বলছি। আপনার টিউটরের অনুরোধ (' + TD.wantLine(r) + ') আমরা পেয়েছি।');
+  let h = '<div style="border:1px solid ' + (r.status === 'new' ? '#93C5FD' : '#E2E8F0') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#fff">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b style="font-size:15px">' + ttEsc(r.name) + '</b>' + ttChip(st, TD.REQ_STATUS[r.status] || r.status) +
+    '<a href="' + ttEsc(wa) + '" target="_blank" rel="noopener" style="font-weight:700;color:#047857;text-decoration:none">📱 ' + ttEsc(r.phone) + ' (WhatsApp)</a>' +
+    '<span style="font-size:12.5px;color:var(--text-3)">' + new Date(r.created_at).toLocaleString('bn-BD') + (r.user_id ? ' · সদস্য' : '') + '</span></div>' +
+    '<div style="margin:8px 0;font-size:14.5px;line-height:1.6"><b>' + ttEsc(TD.wantLine(r)) + '</b>' + (r.note ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere">' + ttEsc(r.note) + '</div>' : '') +
+    (r.tutor_pid ? '<div style="font-size:13px;color:#1E40AF">ওঁর নির্দিষ্ট টিউটর চেয়েছেন: ' + (asked ? ttEsc(ttName(asked)) + ' (' + ttEsc(asked.institution) + ')' : 'প্রোফাইল পাওয়া যায়নি (' + ttEsc(r.tutor_pid) + ')') + '</div>' : '') + '</div>';
+  if(mats.length) h += '<div style="margin:6px 0 8px;padding:8px 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px"><b>পাঠানো হয়েছে</b>' + mats.map(m => { const p = TT_PRO.find(x => x.user_id === m.tutor_id); return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px"><span>' + ttEsc(ttName(p)) + (p ? ' · ' + ttEsc(p.institution) : '') + '</span><select data-id="' + ttEsc(m.id) + '" onchange="ttMatchStatus(this.dataset.id, this.value)" style="padding:4px 8px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13px">' + Object.keys(TT_MS).map(k => '<option value="' + k + '"' + (m.status === k ? ' selected' : '') + '>' + TT_MS[k] + '</option>').join('') + '</select>' + (p ? '<button type="button" ' + TT_B + ' data-r="' + id + '" data-t="' + ttEsc(p.user_id) + '" onclick="ttSendGuardian(this.dataset.r, this.dataset.t)">অভিভাবককে পরিচয় পাঠান</button>' : '') + '<button type="button" data-id="' + ttEsc(m.id) + '" onclick="ttMatchDel(this.dataset.id)" style="border:0;background:none;color:#B91C1C;font:inherit;font-size:13px;cursor:pointer">সরান</button></div>'; }).join('') + '</div>';
+  if(TT_OPEN[r.id]){
+    const cs = ttCands(r);
+    h += '<div style="margin:8px 0;padding:10px 12px;border:1px dashed #93C5FD;border-radius:12px;background:#F8FBFF"><b style="font-size:14px">মানানসই অনুমোদিত টিউটর (' + cs.length + ' জন)</b> <label style="font-size:12.5px;color:#475569;margin-left:8px"><input type="checkbox" data-id="' + id + '" ' + (TT_RELAX[r.id] ? 'checked ' : '') + 'onchange="ttRelax(this.dataset.id, this.checked)"> অন্য এলাকা বা বিষয়ের অনুমোদিত টিউটরও দেখান</label>' +
+      (cs.length ? cs.map(p => { const sent = mats.some(m => m.tutor_id === p.user_id); return '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px;line-height:1.55"><b>' + ttEsc(ttName(p)) + '</b> ' + (p.verify === 'verified' ? ttChip(['#DCFCE7', '#166534'], '✓ যাচাইকৃত') : '') + ' <span style="color:#475569">' + ttEsc(p.institution) + ', ' + ttEsc(p.department) + '</span><br>' + ttEsc(TD.labels(TD.SUBJECTS, p.subjects).join(', ')) + ' · ' + ttEsc(TD.labels(TD.CLASSES, p.classes).join(', ')) + ' · ' + ttEsc(TD.labels(TD.MODES, p.modes).join(' ও ')) + ' · ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) +
+        '<br><button type="button" ' + TT_B_OK + ' data-r="' + id + '" data-t="' + ttEsc(p.user_id) + '" onclick="ttSendTutor(this.dataset.r, this.dataset.t)">' + (sent ? 'আবার টিউটরকে পাঠান (WhatsApp)' : 'টিউটরকে পাঠান (WhatsApp)') + '</button></div>'; }).join('') : '<div style="margin-top:8px;font-size:13.5px;color:#92400E">এই অনুরোধের সাথে মেলে এমন অনুমোদিত টিউটর নেই। "টিউটর প্রোফাইল" ট্যাবে প্রোফাইল অনুমোদন করুন, বা ওপরের টিকচিহ্ন দিয়ে অন্য এলাকা বা বিষয়ের টিউটর দেখুন।</div>') + '</div>';
+  }
+  h += '<textarea id="ttN-' + id + '" rows="2" maxlength="600" placeholder="আপনার নোট (শুধু আপনি দেখেন)" style="width:100%;margin-top:6px;padding:8px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ttEsc(draft) + '</textarea>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttReqNote(this.dataset.id)">নোট সেভ</button>' +
+    '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttOpenCands(this.dataset.id)">' + (TT_OPEN[r.id] ? 'টিউটরের তালিকা বন্ধ করুন' : 'মানানসই টিউটর খুঁজুন') + '</button>' +
+    '<select data-id="' + id + '" onchange="ttReqStatus(this.dataset.id, this.value)" style="margin-top:6px;padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px">' + Object.keys(TD.REQ_STATUS).map(k => '<option value="' + k + '"' + (r.status === k ? ' selected' : '') + '>' + TD.REQ_STATUS[k] + '</option>').join('') + '</select>' +
+    '<button type="button" ' + TT_B_RED + ' data-id="' + id + '" onclick="ttReqDel(this.dataset.id)">মুছুন</button></div></div>';
+  return h;
+}
+function renderTtReq(){
+  const box = document.getElementById('ttListReq');
+  box.querySelectorAll('textarea').forEach(t => { TT_DRAFT[t.id.slice(4)] = t.value; });
+  const rows = TT_REQ.filter(r => TT_PIN[r.id] || TT_RF === 'all' || (TT_RF === 'new' ? r.status === 'new' : r.status === 'matching'));   // one you just worked on stays in view until you leave the tab
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (TT_RF === 'new' ? 'নতুন কোনো অনুরোধ নেই।' : TT_RF === 'matching' ? 'মিলানো চলছে এমন কিছু নেই।' : 'এখনো কোনো অনুরোধ আসেনি।') + '</div>'; return; }
+  box.innerHTML = rows.map(ttReqCard).join('');
+}
+function ttProCard(p){
+  const id = ttEsc(p.user_id), st = TT_PS[p.status] || TT_PS.draft, draft = Object.prototype.hasOwnProperty.call(TT_DRAFT, 'p' + p.user_id) ? TT_DRAFT['p' + p.user_id] : (p.admin_note || ''), wa = TD.waLink(p.phone, 'আসসালামু আলাইকুম ' + (p.full_name || '') + '। ভাইয়া-আপু (Protishthan) থেকে বলছি।');
+  return '<div style="border:1px solid ' + (ttAct(p) ? '#FCD34D' : '#E2E8F0') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#fff">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b style="font-size:15px">' + ttEsc(p.full_name || 'নামহীন') + '</b>' + (p.display_name ? '<span style="color:#475569">(পাবলিক: ' + ttEsc(p.display_name) + ')</span>' : '') + ttChip(st, TD.STATUS[p.status] || p.status) +
+    (p.verify === 'verified' ? ttChip(['#DCFCE7', '#166534'], '✓ যাচাইকৃত') : '') + (p.edited ? ttChip(['#FEF3C7', '#92400E'], 'অনুমোদনের পর বদলেছে') : '') +
+    (p.phone ? '<a href="' + ttEsc(wa) + '" target="_blank" rel="noopener" style="font-weight:700;color:#047857;text-decoration:none">📱 ' + ttEsc(p.phone) + '</a>' : '<span style="color:#B91C1C;font-size:13px">নম্বর নেই</span>') +
+    '<span style="font-size:12.5px;color:var(--text-3)">' + new Date(p.updated_at).toLocaleString('bn-BD') + '</span></div>' +
+    '<div style="margin:8px 0;font-size:14px;line-height:1.7"><b>' + ttEsc(p.institution) + '</b>, ' + ttEsc(p.department) + ' · ' + ttEsc(TD.labelOf(TD.LEVELS, p.edu_level)) + (p.gender ? ' · ' + ttEsc(TD.labelOf(TD.GENDERS, p.gender)) : '') + '<br>' +
+    '<b>পড়ান:</b> ' + ttEsc(TD.labels(TD.SUBJECTS, p.subjects).join(', ')) + ' · <b>শ্রেণি:</b> ' + ttEsc(TD.labels(TD.CLASSES, p.classes).join(', ')) + '<br><b>কীভাবে:</b> ' + ttEsc(TD.labels(TD.MODES, p.modes).join(' ও ')) + ' · <b>সময়:</b> ' + ttEsc(TD.labels(TD.TIMES, p.times).join(', ') || '—') +
+    '<br><b>এলাকা:</b> ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) + (p.area_note ? ' (' + ttEsc(p.area_note) + ')' : '') + (p.fee_note ? ' · <b>ফি:</b> ' + ttEsc(p.fee_note) : '') + (p.bio ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px">' + ttEsc(p.bio) + '</div>' : '') + '</div>' +
+    '<textarea id="ttN-p' + id + '" rows="2" maxlength="600" placeholder="আপনার নোট (শুধু আপনি দেখেন), যেমন, কীভাবে যাচাই করেছেন" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ttEsc(draft) + '</textarea>' +
+    '<div><button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttProNote(this.dataset.id)">নোট সেভ</button>' +
+    (p.status === 'approved' && !p.edited ? '' : '<button type="button" ' + TT_B_OK + ' data-id="' + id + '" onclick="ttApprove(this.dataset.id)">' + (p.edited ? 'আবার দেখেছি, ঠিক আছে' : 'অনুমোদন দিন') + '</button>') +
+    (p.status === 'rejected' ? '' : '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttReject(this.dataset.id)">অনুমোদন দেব না</button>') +
+    '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttVerify(this.dataset.id)">' + (p.verify === 'verified' ? 'যাচাই চিহ্ন সরান' : 'যাচাইকৃত চিহ্ন দিন') + '</button>' +
+    (p.status === 'paused' ? '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttPausePro(this.dataset.id, false)">বিরতি শেষ করুন</button>' : p.status === 'approved' ? '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttPausePro(this.dataset.id, true)">বিরতিতে রাখুন</button>' : '') +
+    '<button type="button" ' + TT_B_RED + ' data-id="' + id + '" onclick="ttProDel(this.dataset.id)">মুছুন</button></div></div>';
+}
+function renderTtPro(){
+  const box = document.getElementById('ttListPro');
+  box.querySelectorAll('textarea').forEach(t => { TT_DRAFT[t.id.slice(4)] = t.value; });
+  const rows = TT_PRO.filter(p => TT_PPIN[p.user_id] || TT_PF === 'all' || (TT_PF === 'sub' ? ttAct(p) : TT_PF === 'approved' ? (p.status === 'approved' || p.status === 'paused') : (p.status === 'draft' || p.status === 'rejected')));
+  if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (TT_PF === 'sub' ? 'রিভিউয়ের অপেক্ষায় কেউ নেই।' : TT_PF === 'approved' ? 'এখনো কেউ অনুমোদিত নয়।' : TT_PF === 'draft' ? 'খসড়া বা অনুমোদন-না-পাওয়া কেউ নেই।' : 'এখনো কেউ প্রোফাইল বানাননি।') + '</div>'; return; }
+  box.innerHTML = rows.map(ttProCard).join('');
+}
+async function ttReqUpdate(id, patch){
+  const { error } = await sbAdmin.from('tutor_requests').update(patch).eq('id', id);
+  if(error){ alert('হয়নি: ' + error.message); return false; }
+  const r = TT_REQ.find(x => x.id === id); if(r) Object.assign(r, patch); TT_PIN[id] = true; ttCount(); renderTtReq(); return true;
+}
+function ttReqStatus(id, v){ return ttReqUpdate(id, { status: v, seen: true }); }
+async function ttReqNote(id){ const v = document.getElementById('ttN-' + id).value.trim().slice(0, 600); const ok = await ttReqUpdate(id, { admin_note: v, seen: true }); if(ok) delete TT_DRAFT[id]; }
+function ttOpenCands(id){ TT_OPEN[id] = !TT_OPEN[id]; renderTtReq(); }
+function ttRelax(id, on){ TT_RELAX[id] = on; renderTtReq(); }
+async function ttReqDel(id){
+  if(!confirm('এই অনুরোধটা চিরতরে মুছবেন? (ফেরানো যাবে না। স্প্যাম হলে বরং অবস্থা "স্প্যাম" করুন।)')) return;
+  const { error } = await sbAdmin.from('tutor_requests').delete().eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; }
+  TT_REQ = TT_REQ.filter(x => x.id !== id); TT_MAT = TT_MAT.filter(m => m.request_id !== id); ttCount(); renderTtReq();
+}
+async function ttSendTutor(rid, tid){
+  const r = TT_REQ.find(x => x.id === rid), p = TT_PRO.find(x => x.user_id === tid); if(!r || !p) return;
+  const w = window.open('about:blank', '_blank');                                   // opened first, filled after the save, so the browser does not block it
+  if(!TT_MAT.some(m => m.request_id === rid && m.tutor_id === tid)){
+    const { data, error } = await sbAdmin.from('tutor_matches').insert({ request_id: rid, tutor_id: tid }).select().single();
+    if(error){ if(w) w.close(); alert('হয়নি: ' + error.message); return; }
+    TT_MAT.push(data);
+  }
+  if(r.status === 'new') await ttReqUpdate(rid, { status: 'matching', seen: true }); else renderTtReq();
+  const url = TD.waLink(p.phone, TD.msgToTutor(r, p));
+  if(!url){ if(w) w.close(); alert('এই টিউটরের নম্বর ঠিক নেই।'); return; }
+  if(w) w.location.href = url; else window.open(url, '_blank', 'noopener');
+}
+function ttSendGuardian(rid, tid){
+  const r = TT_REQ.find(x => x.id === rid), p = TT_PRO.find(x => x.user_id === tid); if(!r || !p) return;
+  const url = TD.waLink(r.phone, TD.msgToGuardian(r, p)); if(url) window.open(url, '_blank', 'noopener');
+}
+async function ttMatchStatus(id, v){
+  const { error } = await sbAdmin.from('tutor_matches').update({ status: v }).eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; }
+  const m = TT_MAT.find(x => x.id === id); if(m){ m.status = v; if(v === 'started'){ const r = TT_REQ.find(x => x.id === m.request_id); if(r && r.status !== 'matched') await ttReqUpdate(r.id, { status: 'matched', seen: true }); } } renderTtReq();
+}
+async function ttMatchDel(id){ if(!confirm('এই "পাঠানো" লেখাটা সরাবেন?')) return; const { error } = await sbAdmin.from('tutor_matches').delete().eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; } TT_MAT = TT_MAT.filter(x => x.id !== id); renderTtReq(); }
+async function ttProUpdate(uid, patch){
+  const { error } = await sbAdmin.from('tutor_profiles').update(patch).eq('user_id', uid);
+  if(error){ alert('হয়নি: ' + error.message); return false; }
+  const p = TT_PRO.find(x => x.user_id === uid); if(p) Object.assign(p, patch); TT_PPIN[uid] = true; ttCount(); renderTtPro(); renderTtReq(); return true;
+}
+function ttApprove(uid){ const p = TT_PRO.find(x => x.user_id === uid); const patch = { status: 'approved', seen: true, edited: false }; if(!p.approved_at) patch.approved_at = new Date().toISOString(); return ttProUpdate(uid, patch); }
+function ttReject(uid){ const p = TT_PRO.find(x => x.user_id === uid); const note = prompt('কেন অনুমোদন দিচ্ছেন না? (শুধু আপনি দেখবেন, ঐচ্ছিক)', p.admin_note || ''); if(note === null) return; return ttProUpdate(uid, { status: 'rejected', seen: true, admin_note: note.slice(0, 600) }); }
+function ttVerify(uid){
+  const p = TT_PRO.find(x => x.user_id === uid);
+  if(p.verify === 'verified') return ttProUpdate(uid, { verify: 'none', verified_at: null });
+  if(!confirm('আপনি কি ওঁর NID ও সনদের কপি নিজে দেখেছেন? এই চিহ্ন অভিভাবকের সামনে "যাচাইকৃত" দেখায়, তাই সত্যিই দেখে থাকলেই দিন।')) return;
+  return ttProUpdate(uid, { verify: 'verified', verified_at: new Date().toISOString(), seen: true });
+}
+function ttPausePro(uid, pause){ return ttProUpdate(uid, { status: pause ? 'paused' : 'approved' }); }
+async function ttProNote(uid){ const v = document.getElementById('ttN-p' + uid).value.trim().slice(0, 600); const ok = await ttProUpdate(uid, { admin_note: v }); if(ok) delete TT_DRAFT['p' + uid]; }
+async function ttProDel(uid){
+  if(!confirm('এই টিউটরের প্রোফাইল চিরতরে মুছবেন? (ফেরানো যাবে না। শুধু সরাতে চাইলে "বিরতিতে রাখুন" বা "অনুমোদন দেব না" চাপুন।)')) return;
+  const { error } = await sbAdmin.from('tutor_profiles').delete().eq('user_id', uid); if(error){ alert('হয়নি: ' + error.message); return; }
+  TT_PRO = TT_PRO.filter(x => x.user_id !== uid); TT_MAT = TT_MAT.filter(m => m.tutor_id !== uid); delete TT_DRAFT['p' + uid]; ttCount(); renderTtPro(); renderTtReq();
+}
+async function ttSetting(key, on){
+  const el = document.getElementById(key === 'public_listing' ? 'ttListing' : 'ttOpen');
+  if(key === 'public_listing' && on && !confirm('পাবলিক তালিকা চালু করবেন? অনুমোদিত সব টিউটরের প্রদর্শন নাম, প্রতিষ্ঠান, বিভাগ, বিষয়, শ্রেণি, উপজেলা আর নিজের কথা সবার সামনে সার্চে দেখাবে। ফোন নম্বর, আসল নাম, ফি আর আপনার নোট কখনো না।')){ el.checked = false; return; }
+  const patch = {}; patch[key] = on;
+  const { error } = await sbAdmin.from('tutor_settings').update(patch).eq('id', 1);
+  if(error){ alert('হয়নি: ' + error.message); el.checked = !on; }
+}
+ttFilter('req', 'new'); ttFilter('pro', 'sub'); ttTab('req');
+ADMIN_READY.then(() => loadTutors());
 navTitles.skills = ['স্কিল প্রোফাইল', 'ব্যবহারকারীদের স্কিল আইডেন্টিটি পেজ ও রিপোর্ট'];
 let SK_ROWS = [], SK_REP = {}, SK_FILTER = 'rep';
 function skEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }

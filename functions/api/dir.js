@@ -11,6 +11,8 @@
 //   GET /api/dir?f=browse&a={"p_q":..,"p_districts":[..],"p_upazila":..,"p_type":..,"p_limit":30,"p_offset":0}
 //   GET /api/dir?f=search&a={"p_q":"bani","p_limit":8}
 //   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0,"p_kind":"idea","p_sort":"top"}   (card page: the public opinion board, kept for a minute; kind and sort are optional)
+//   GET /api/dir?f=tutors&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_class":"c6-8","p_subject":"math","p_mode":"home","p_limit":12,"p_offset":0}   (/tutor: approved tutors, only when the admin switched the list on; every part is optional)
+//   GET /api/dir?f=tutorstate                                  (/tutor: is the list on, are new requests open)
 
 import { rest } from '../_lib/seo.js';
 
@@ -22,6 +24,9 @@ const PROMO = 'site_promos?select=*&slot=eq.home_popup&limit=1';
 
 const str = (v, max) => (v === null || v === undefined) ? null : (typeof v === 'string' && v.length <= max ? v.replace(/\s+/g, ' ').trim() : undefined);   // undefined = not acceptable
 const int = (v, lo, hi, dflt) => v === undefined ? dflt : (Number.isInteger(v) && v >= lo && v <= hi ? v : undefined);
+const oneOf = (v, list) => (v === null || v === undefined || v === '') ? null : (typeof v === 'string' && list.includes(v) ? v : undefined);   // undefined = not acceptable
+const TUTOR_CLASSES = ['c1-5', 'c6-8', 'c9-10', 'c11-12', 'admission'];
+const TUTOR_SUBJECTS = ['bangla', 'english', 'math', 'science', 'physics', 'chemistry', 'biology', 'hmath', 'ict', 'accounting', 'business', 'economics', 'social', 'religion', 'arabic', 'handwriting', 'admission', 'primary_all'];
 const strList = (v, maxItems, maxLen) => {
   if (v === null || v === undefined) return null;
   if (!Array.isArray(v) || v.length > maxItems) return undefined;
@@ -54,6 +59,12 @@ const QUESTIONS = {
     if (a.p_kind === undefined && a.p_sort === undefined) return { path: 'rpc/card_comment_list', rpc: { p_limit: limit, p_offset: offset } };
     return { path: 'rpc/card_comment_feed', rpc: { p_limit: limit, p_offset: offset, p_kind: kind, p_sort: sort } };
   } },
+  tutors:   { ttl: 60, build: a => {                       // /tutor: approved tutors (the function returns nothing until the admin switches the public list on; it never returns a mobile number or the real name)
+    const district = str(a.p_district, 40), upazila = str(a.p_upazila, 60), cls = oneOf(a.p_class, TUTOR_CLASSES), subject = oneOf(a.p_subject, TUTOR_SUBJECTS), mode = oneOf(a.p_mode, ['home', 'online']), limit = int(a.p_limit, 1, 30, 12), offset = int(a.p_offset, 0, 500, 0);
+    if ([district, upazila, cls, subject, mode, limit, offset].includes(undefined)) return null;
+    return { path: 'rpc/tutor_search', rpc: { p_district: district || null, p_upazila: upazila || null, p_class: cls, p_subject: subject, p_mode: mode, p_limit: limit, p_offset: offset } };
+  } },
+  tutorstate: { ttl: 60, build: () => ({ path: 'rpc/tutor_state', rpc: {} }) },
   search:   { ttl: 600, build: a => {
     const q = str(a.p_q, 100), limit = int(a.p_limit, 1, 20, 8);
     if (q === undefined || q === null || q.length < 1 || limit === undefined) return null;
