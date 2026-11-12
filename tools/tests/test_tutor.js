@@ -107,7 +107,7 @@ const page = read('tutor.html'), join = read('tutor-join.html'), admin = read('a
 for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
   yes(f + ': Bangla page with a title and a description', /<html lang="bn">/.test(h) && (h.match(/<title>([^<]+)<\/title>/) || [])[1].length > 20 && /<meta name="description" content="[^"]{60,}/.test(h));
   eq(f + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
-  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=8/.test(h) && /tutor-data\.js\?v=3/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
+  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=9/.test(h) && /tutor-data\.js\?v=3/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
   yes(f + ': no ad place and no ad script on a service page', !/ad-slot|ads\.js|googlesyndication/.test(h));
   yes(f + ': never reads a tutor table directly (only the functions, and /api/dir)', !/\.from\(\s*['"]tutor_/.test(h));
   yes(f + ': every outside link carries rel="noopener"', [...h.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"[^>]*>/g)].filter(m => !/protishthan\.com/.test(m[1])).every(m => /rel="noopener"/.test(m[0])));
@@ -174,6 +174,8 @@ yes('the admin shows the extras (as the tutor\'s own words, not a check) and the
 
 // ----- a signed-in tutor's first tap must stick (the join page used to start its flow twice and wire every chip box twice) -----
 yes('the join page starts its flow once even when the member script also announces the sign-in, and wires each chip box once', /function boot\(\)\{[^}]*bootP/.test(join) && /async function bootRun\(\)/.test(join) && /if\(box\.dataset\.wired\) return; box\.dataset\.wired = '1'/.test(join));
+
+yes('/tutor has no breadcrumb (its hero is the top of the page and keeps its distance from the menu by itself); the join page keeps its own', !/tt-crumb/.test(page) && /<header class="tt-hero2 tt-top">/.test(page) && /\.tt-hero2\.tt-top\{margin-top:98px\}/.test(css) && /@media\(max-width:640px\)\{\.tt-hero2\.tt-top\{margin-top:84px\}\}/.test(css) && /class="tt-crumb"/.test(join));
 
 // ----- the card-style dropdown -----
 const tts = read('tt-select.js');

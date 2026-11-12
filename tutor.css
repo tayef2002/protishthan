@@ -10,7 +10,6 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .tt :focus-visible{outline:3px solid rgba(26,86,219,.42);outline-offset:2px;border-radius:10px}
 .tt-crumb{margin:98px 0 14px;font-size:13.5px;color:var(--tx3)}
 .tt-crumb a{color:var(--tx2);text-decoration:none}.tt-crumb a:hover{color:var(--tb)}
-
 /* hero + search */
 .tt-hero{position:relative;overflow:hidden;padding:38px 36px 34px;border-radius:30px;border:1px solid #D9E4FB;background:radial-gradient(520px 300px at 100% 0,rgba(124,58,237,.14),transparent 62%),radial-gradient(460px 280px at 0 100%,rgba(37,99,235,.13),transparent 62%),linear-gradient(180deg,#fff,#F3F7FF)}
 .tt-eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;color:var(--tb);font-size:13px;font-weight:600}
@@ -180,6 +179,8 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 
 /* ===== /tutor redesign (v3): illustrated hero, pill search, problem->answer cards, verification ladder, first-class checklist ===== */
 .tt-hero2{position:relative;overflow:hidden;margin-top:0;padding:30px 36px 0;border-radius:32px;border:1px solid #D6E3FB;text-align:center;background:radial-gradient(640px 320px at 12% 0,rgba(124,58,237,.12),transparent 64%),radial-gradient(640px 320px at 92% 8%,rgba(37,99,235,.14),transparent 64%),linear-gradient(180deg,#F8FAFF 0,#EDF3FF 100%)}
+.tt-hero2.tt-top{margin-top:98px}   /* the /tutor hero has no breadcrumb above it: it keeps the same distance from the floating menu */
+@media(max-width:640px){.tt-hero2.tt-top{margin-top:84px}}
 .tt-hero2>*{position:relative;z-index:1}
 .tt-seg2{display:inline-flex;padding:4px;gap:2px;border-radius:100px;background:#fff;border:1px solid var(--ln);box-shadow:0 8px 22px -16px rgba(15,32,72,.5)}
 .tt-seg2 a,.tt-seg2 span{display:inline-flex;align-items:center;min-height:40px;padding:0 20px;border-radius:100px;font-size:14.5px;font-weight:700;text-decoration:none;color:var(--tx2);transition:background .15s,color .15s}
