@@ -155,14 +155,16 @@ yes('the privacy and terms contents lists agree with their sections', [pv, tm].e
 
 // ----- the links that make it visible (added after the SQL was run) -----
 const nav = read('nav.js'), foot = read('footer.js'), card = read('card.html'), sm = read('sitemap-pages.xml'), hub = read('guide.html');
-yes('the top menu has the tutor page, with its icon', /k: 'tutor', t: 'ভাইয়া-আপু'[^}]*href: 'tutor\.html'/.test(nav) && /tutor: '<svg/.test(nav));
-yes('the join page highlights the same menu item', /data-active="tutor"/.test(join));
+// the service is not finished, so the top menu does not show it (the icon and a one-line way to bring it back stay in nav.js)
+const navLive = nav.replace(/\/\*[^]*?\*\//g, '');
+yes('the top menu does not show the tutor page yet, but keeps its icon ready', !/k: 'tutor'/.test(navLive) && !/tutor\.html/.test(navLive) && /tutor: '<svg/.test(nav) && /k: 'tutor', t: 'ভাইয়া-আপু'[^}]*href: 'tutor\.html'/.test(nav));
+yes('no page marks a tutor item active in a menu that has none', !/data-active="tutor"/.test(page + join));
 yes('the footer links the tutor page', /\['ভাইয়া-আপু \(টিউটর\)', 'tutor\.html'\]/.test(foot));
 yes('the card page: a small line in the download popup and a slim band at the very end, both to the join page', /href="\/tutor-join" onclick="window\.track&amp;&amp;window\.track\('card_tutor_link'\)"/.test(card) && /class="tband"[^]*href="\/tutor-join"/.test(card));
 yes('the band says what is true: free, number private, requests will be told, and sits before the ad place (which is still the last thing in main)', /যোগ দেওয়া ফ্রি, ফোন নম্বর গোপন থাকে/.test(card) && card.indexOf('class="tband"') < card.indexOf('data-slot="card-end"') && card.indexOf('</main>') - card.indexOf('data-slot="card-end"') < 80);
 yes('the sitemap lists /tutor and not the personal flow', /<loc>https:\/\/protishthan\.com\/tutor<\/loc>/.test(sm) && !/tutor-join/.test(sm));
 yes('the guide hub links the tutor page', /href="\/tutor"/.test(hub));
-yes('every page asks for the current menu and footer scripts (the new links would not show for hours otherwise)', fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).every(f => { const h = read(f); return !/nav\.js\?v=[0-6]\b/.test(h) && !/footer\.js\?v=1[0-3]\b/.test(h); }));
+yes('every page asks for the current menu and footer scripts (the new links would not show for hours otherwise)', fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).every(f => { const h = read(f); return !/nav\.js\?v=[0-7]\b/.test(h) && !/footer\.js\?v=1[0-3]\b/.test(h); }));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

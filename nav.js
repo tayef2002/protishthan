@@ -18,8 +18,9 @@
   /* free tools: each becomes a card in the dropdown (and a row on phones) */
   var TOOLS = [
     { k: 'card',  t: 'শিক্ষিত কার্ড',    d: '৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান',     href: 'card.html',  ic: 'card',  g: 'linear-gradient(135deg,#047857,#0F766E)' },
-    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
-    { k: 'tutor', t: 'ভাইয়া-আপু',        d: 'যাচাই করা টিউটর খুঁজুন, বা টিউটর হিসেবে যোগ দিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' }
+    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' }
+    /* ভাইয়া-আপু is kept out of the menu until the service is finished. To show it again, add after the skill entry:
+       ,{ k: 'tutor', t: 'ভাইয়া-আপু', d: 'যাচাই করা টিউটর খুঁজুন, বা টিউটর হিসেবে যোগ দিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' }  (the icon is already in IC) */
   ];
   var TOOLS_PAGES = TOOLS.map(function(x){ return x.k; });
 
