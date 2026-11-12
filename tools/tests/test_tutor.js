@@ -88,7 +88,7 @@ const page = read('tutor.html'), join = read('tutor-join.html'), admin = read('a
 for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
   yes(f + ': Bangla page with a title and a description', /<html lang="bn">/.test(h) && (h.match(/<title>([^<]+)<\/title>/) || [])[1].length > 20 && /<meta name="description" content="[^"]{60,}/.test(h));
   eq(f + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
-  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=1/.test(h) && /tutor-data\.js\?v=1/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
+  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=2/.test(h) && /tutor-data\.js\?v=1/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
   yes(f + ': no ad place and no ad script on a service page', !/ad-slot|ads\.js|googlesyndication/.test(h));
   yes(f + ': never reads a tutor table directly (only the functions, and /api/dir)', !/\.from\(\s*['"]tutor_/.test(h));
   yes(f + ': every outside link carries rel="noopener"', [...h.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"[^>]*>/g)].filter(m => !/protishthan\.com/.test(m[1])).every(m => /rel="noopener"/.test(m[0])));
