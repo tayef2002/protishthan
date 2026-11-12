@@ -160,6 +160,7 @@
   function setPick(box, vals){ box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', vals.indexOf(b.dataset.v) > -1 ? 'true' : 'false')); }
   function makePick(box, list, multi, max){
     box.innerHTML = list.map(x => '<button type="button" data-v="' + esc(x[0]) + '" aria-pressed="false">' + esc(x[1]) + '</button>').join('');
+    if(box.dataset.wired) return; box.dataset.wired = '1';   // one click listener per box, however often this is called
     box.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; const on = b.getAttribute('aria-pressed') === 'true';
       if(multi){ if(!on && max && pressed(box).length >= max){ toast('সর্বোচ্চ ' + D.bn(max) + 'টা বেছে নেওয়া যায়।'); return; } b.setAttribute('aria-pressed', on ? 'false' : 'true'); }
       else setPick(box, on ? [] : [b.dataset.v]);
@@ -272,7 +273,11 @@
   });
 
   /* ---------- boot ---------- */
-  async function boot(){
+  /* boot() is called twice on a page load with a saved Google session (once by the page, once by the member script's "signed in" notice).
+     Both calls used to finish and wire every chip twice, so one tap switched a chip on and straight off again. Now a second call joins the first. */
+  let bootP = null;
+  function boot(){ if(booted) return Promise.resolve(); if(!bootP) bootP = bootRun().finally(() => { bootP = null; }); return bootP; }
+  async function bootRun(){
     if(booted) return; const M = window.Protishthan && Protishthan.member; if(!M){ view('jDown'); return; }
     sb = M.sb; await M.ready(); ME = M.current();
     if(!ME){ view('jGate'); return; }

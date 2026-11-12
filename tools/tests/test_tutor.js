@@ -134,6 +134,9 @@ yes('the sample tutor card is labelled as a sample and holds no real person', /c
 yes('the public landing keeps the honest lines: free for guardians, the number is shown only to a tutor who agrees, not a background check, the fee is theirs to agree', /অভিভাবকের জন্য ফ্রি/.test(page) && /ব্যাকগ্রাউন্ড চেক নয়/.test(page) && /ফি আপনি আর টিউটর নিজেরা ঠিক করেন/.test(page));
 yes('the join page has the meter and the three-step road, and shows the guardian-side switch', /id="jMeter"/.test(join) && /class="tt-road"/.test(join) && /<a href="\/tutor">আমি টিউটর খুঁজছি<\/a>/.test(join));
 
+// ----- a signed-in tutor's first tap must stick (the join page used to start its flow twice and wire every chip box twice) -----
+yes('the join page starts its flow once even when the member script also announces the sign-in, and wires each chip box once', /function boot\(\)\{[^}]*bootP/.test(join) && /async function bootRun\(\)/.test(join) && /if\(box\.dataset\.wired\) return; box\.dataset\.wired = '1'/.test(join));
+
 // ----- the card-style dropdown -----
 const tts = read('tt-select.js');
 yes('the dropdown file is loaded before the page code on both pages, and every area picker is wrapped by it', [page, join].every(h => h.indexOf('/tt-select.js?v=1') > -1 && h.indexOf('tt-select.js') < h.indexOf("const D = window.TutorData")) && ['sDist', 'sUp', 'sCls', 'sSub', 'rDist', 'rUp'].every(id => new RegExp("TTSelect\\.enhance\\(\\$\\('" + id + "'\\)").test(page)) && ['jDist', 'jUp'].every(id => new RegExp("TTSelect\\.enhance\\(\\$\\('" + id + "'\\)").test(join)));
