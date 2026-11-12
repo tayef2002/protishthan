@@ -9,6 +9,7 @@ const SITE = 'https://protishthan.com';
 const PAGES = [
   ['/', 'index.html'], ['/info', 'info.html'], ['/card', 'card.html'], ['/skill', 'skill.html'], ['/list-institution', 'list-institution.html'],
   ['/partner', 'partner.html'], ['/about', 'about.html'], ['/privacy', 'privacy.html'], ['/terms', 'terms.html'],
+  ['/guide', 'guide.html'], ['/gpa', 'gpa.html'], ['/cgpa', 'cgpa.html'], ['/eiin', 'eiin.html'], ['/choose-institution', 'choose-institution.html'],
 ];
 
 function lastChange(file) {

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<title>EIIN কী? স্কুল, কলেজ ও মাদ্রাসার EIIN নম্বর কীভাবে খুঁজবেন | Protishthan</title>
+<meta name="description" content="EIIN মানে কী, কার EIIN থাকে, কেন লাগে আর কোথায় পাবেন: স্কুল, কলেজ, বিশ্ববিদ্যালয় ও মাদ্রাসার পরিচয়-নম্বর নিয়ে সহজ গাইড।">
+<link rel="canonical" href="https://protishthan.com/eiin">
+<meta property="og:title" content="EIIN কী? কীভাবে খুঁজবেন | Protishthan">
+<meta property="og:description" content="শিক্ষা প্রতিষ্ঠানের পরিচয়-নম্বর EIIN নিয়ে সহজ গাইড।">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protishthan">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=9">
+<link rel="stylesheet" href="/footer.css?v=5">
+<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/lipi.css?v=2">
+<link rel="stylesheet" href="/guide.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=6"></script>
+
+<main class="gd">
+  <p class="gd-crumb"><a href="/">হোম</a> › <a href="/guide">শিক্ষা গাইড</a> › EIIN কী</p>
+
+  <header class="gd-hero">
+    <span class="gd-eyebrow">গাইড</span>
+    <h1>EIIN কী? স্কুল, কলেজ ও মাদ্রাসার EIIN কীভাবে খুঁজবেন</h1>
+    <p>EIIN হলো শিক্ষা প্রতিষ্ঠানের নিজস্ব পরিচয়-নম্বর। একই নামের অনেক প্রতিষ্ঠানের মধ্যে ঠিক প্রতিষ্ঠানটাকে চেনার সবচেয়ে নির্ভরযোগ্য উপায় এটা।</p>
+    <div class="gd-meta"><span>হালনাগাদ: <b>১২ নভেম্বর ২০২৬</b></span><span>পড়তে <b>৩ মিনিট</b></span></div>
+  </header>
+
+  <section class="gd-sec" id="what">
+    <h2>EIIN মানে কী</h2>
+    <p>EIIN-এর পুরো রূপ <b>Educational Institute Identification Number</b>, বাংলায় শিক্ষা প্রতিষ্ঠান শনাক্তকরণ নম্বর। এটা দেয় শিক্ষা মন্ত্রণালয়ের অধীন সংস্থা <b>ব্যানবেইস (BANBEIS, Bangladesh Bureau of Educational Information and Statistics)</b>। প্রতিটা প্রতিষ্ঠানের নম্বর আলাদা, যাতে নাম এক হলেও দুটো প্রতিষ্ঠান গুলিয়ে না যায়।</p>
+  </section>
+
+  <section class="gd-sec" id="who">
+    <h2>কোন প্রতিষ্ঠানের EIIN থাকে</h2>
+    <p>সূত্র অনুযায়ী EIIN দেওয়া হয় মাধ্যমিক ও উচ্চ মাধ্যমিক বিদ্যালয়, বিশ্ববিদ্যালয়ের অধিভুক্ত কলেজ, বিশ্ববিদ্যালয়, কারিগরি প্রতিষ্ঠান আর আলিয়া মাদ্রাসাকে। নিবন্ধিত কিন্ডারগার্টেন আর প্রাথমিক বিদ্যালয়ে সাধারণত EIIN থাকে না, তাদের জন্য আলাদা পরিচয় ব্যবস্থা আছে।</p>
+  </section>
+
+  <section class="gd-sec" id="why">
+    <h2>EIIN কেন কাজে লাগে</h2>
+    <ul>
+      <li><b>একই নামের প্রতিষ্ঠান আলাদা করতে।</b> আমরা তথ্যভান্ডার সাজাতে গিয়ে দেখেছি, একই নামের একাধিক স্কুল এমনকি একই উপজেলাতেও থাকতে পারে। নাম মিলিয়ে ভুল প্রতিষ্ঠান ধরা সহজ, EIIN মিলিয়ে সহজ নয়।</li>
+      <li><b>এসএসসির পর কলেজে ভর্তির আবেদনে।</b> প্রতিষ্ঠান চিহ্নিত করতে সাধারণত EIIN ব্যবহার হয় বলে জানা যায় (সূত্র নিচে)। আবেদনের সময় ঠিক নম্বরটা হাতে রাখা ভালো।</li>
+      <li><b>তথ্য মেলাতে।</b> সরকারি তালিকা, বোর্ডের তথ্য আর অন্য কোনো তালিকার সাথে একটা প্রতিষ্ঠান মেলাতে নাম নয়, EIIN-ই ভরসা।</li>
+    </ul>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-mid"></div>
+
+  <section class="gd-sec" id="where">
+    <h2>EIIN কোথায় পাবেন</h2>
+    <ol>
+      <li><b>ব্যানবেইসের ওয়েবসাইটে</b> (<a href="https://banbeis.gov.bd" rel="noopener">banbeis.gov.bd</a>)। সেখানে প্রতিষ্ঠানের তালিকা আছে, জেলার নাম দিয়ে খোঁজা যায়।</li>
+      <li><b>Protishthan তথ্যভান্ডারে।</b> <a href="/">প্রতিষ্ঠানের নাম লিখে খুঁজুন</a>। যেসব প্রতিষ্ঠানের তথ্য ব্যানবেইসের প্রকাশিত তালিকা থেকে এসেছে, তাদের পেজে EIIN লেখা থাকে।</li>
+      <li><b>প্রতিষ্ঠানের অফিসে।</b> প্রধান শিক্ষক বা অধ্যক্ষের কার্যালয়ে জিজ্ঞেস করলেই জানাবে।</li>
+    </ol>
+  </section>
+
+  <section class="gd-sec" id="care">
+    <h2>একটা সতর্কতা</h2>
+    <p>EIIN থাকা মানে প্রতিষ্ঠানটা ব্যানবেইসের তালিকায় আছে। এটা <b>একা স্বীকৃতি বা মানের প্রমাণ নয়</b>। বোর্ড বা বিশ্ববিদ্যালয়ের স্বীকৃতি আর অধিভুক্তি আলাদাভাবে যাচাই করতে হয়। ভর্তির আগে কী কী দেখবেন, তার চেকলিস্ট: <a href="/choose-institution">প্রতিষ্ঠান বেছে নেওয়ার আগে ১০টা বিষয়</a>। আর তালিকার তথ্যে বানান বা ঠিকানা কখনো পুরোনো বা ভুল থাকতে পারে।</p>
+  </section>
+
+  <section class="gd-sec" id="faq">
+    <h2>প্রশ্নোত্তর</h2>
+    <div class="gd-faq">
+      <details><summary>আমার প্রতিষ্ঠানের EIIN নেই কেন?</summary><p>কিন্ডারগার্টেন আর প্রাথমিক বিদ্যালয়ে সাধারণত EIIN থাকে না। মাধ্যমিক, কলেজ বা মাদ্রাসায় থাকার কথা। না পেলে প্রতিষ্ঠানের অফিসে বা ব্যানবেইসে খোঁজ নিন।</p></details>
+      <details><summary>EIIN আর অন্য কোডগুলো কি এক?</summary><p>না। বোর্ড বা অন্য কোনো সংস্থার নিজস্ব কোড (যেমন পরীক্ষা সংক্রান্ত) থাকতে পারে, যা EIIN থেকে আলাদা। দুটো গুলিয়ে ফেলবেন না।</p></details>
+      <details><summary>তথ্যভান্ডারে EIIN ভুল বা নেই দেখলে কী করব?</summary><p>আমাদের জানান: <a href="mailto:teamprotishthan@gmail.com">teamprotishthan@gmail.com</a>। প্রতিষ্ঠানের নাম আর পেজের লিংকসহ লিখলে যাচাই করে ঠিক করব।</p></details>
+    </div>
+  </section>
+
+  <section class="gd-sec" id="src">
+    <h2>সূত্র</h2>
+    <ul class="gd-src">
+      <li>EIIN-এর সংজ্ঞা, কোন প্রতিষ্ঠানে থাকে আর কোথায় পাওয়া যায়: <a href="https://en.wikipedia.org/wiki/Educational_Institute_Identification_Number" rel="noopener">Wikipedia, Educational Institute Identification Number</a>, ব্যানবেইসের তথ্যের ওপর ভিত্তি করে।</li>
+      <li>ব্যানবেইসের ওয়েবসাইট: <a href="https://banbeis.gov.bd" rel="noopener">banbeis.gov.bd</a>। চূড়ান্ত তথ্যের জন্য সবসময় ওটাই দেখুন।</li>
+      <li>একই নামের একাধিক স্কুলের কথাটা আমাদের নিজেদের তথ্যভান্ডার তৈরির অভিজ্ঞতা, কোনো বাইরের সূত্র নয়।</li>
+    </ul>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-end"></div>
+
+  <section class="gd-cta">
+    <h2>আপনার প্রতিষ্ঠান খুঁজে দেখুন</h2>
+    <p>তথ্যভান্ডারে নাম লিখে খুঁজুন। না পেলে ফ্রিতে যোগ করে দিতে পারেন।</p>
+    <div class="gd-btns"><a class="gd-btn pri" href="/">প্রতিষ্ঠান খুঁজুন</a><a class="gd-btn" href="/list-institution">প্রতিষ্ঠান যোগ করুন</a><a class="gd-btn" href="/guide">আরও গাইড</a></div>
+  </section>
+</main>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=13"></script>
+<script src="/ads.js?v=1" defer></script>
+</body>
+</html>

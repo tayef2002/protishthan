@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<title>সিজিপিএ ক্যালকুলেটর (বিশ্ববিদ্যালয়): ক্রেডিট ও গ্রেড পয়েন্ট দিয়ে হিসাব | Protishthan</title>
+<meta name="description" content="কোর্সের ক্রেডিট আর গ্রেড পয়েন্ট বসিয়ে সিজিপিএ হিসাব করুন। আগের সিজিপিএ-র সাথে নতুন সেমিস্টার যোগ করে নতুন সিজিপিএ বের করার নিয়মসহ।">
+<link rel="canonical" href="https://protishthan.com/cgpa">
+<meta property="og:title" content="সিজিপিএ ক্যালকুলেটর (বিশ্ববিদ্যালয়) | Protishthan">
+<meta property="og:description" content="ক্রেডিট আর গ্রেড পয়েন্ট বসান, সিজিপিএ হিসাব হয়ে যাবে। নতুন সেমিস্টার যোগ করার হিসাবও আছে।">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protishthan">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=9">
+<link rel="stylesheet" href="/footer.css?v=5">
+<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/lipi.css?v=2">
+<link rel="stylesheet" href="/guide.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=6"></script>
+
+<main class="gd">
+  <p class="gd-crumb"><a href="/">হোম</a> › <a href="/guide">শিক্ষা গাইড</a> › সিজিপিএ ক্যালকুলেটর</p>
+
+  <header class="gd-hero">
+    <span class="gd-eyebrow">ক্যালকুলেটর</span>
+    <h1>সিজিপিএ ক্যালকুলেটর (বিশ্ববিদ্যালয়)</h1>
+    <p>কোর্সের ক্রেডিট আর গ্রেড পয়েন্ট বসান, সিজিপিএ হিসাব হয়ে যাবে। আগের সিজিপিএ-র সাথে নতুন সেমিস্টার যোগ করেও নতুন সিজিপিএ দেখা যায়।</p>
+    <div class="gd-meta"><span>হালনাগাদ: <b>১২ নভেম্বর ২০২৬</b></span><span>পড়তে <b>৪ মিনিট</b></span></div>
+    <div class="gd-note"><b>মনে রাখবেন:</b> প্রতিটা বিশ্ববিদ্যালয়ের গ্রেড-সারণি আলাদা। তাই এখানে গ্রেডের অক্ষর না বসিয়ে আপনার বিশ্ববিদ্যালয়ের সারণি থেকে নিজের <b>গ্রেড পয়েন্ট</b> বসাতে হয়। এটা আনুমানিক হিসাব, আপনার ট্রান্সক্রিপ্টের সিজিপিএ-ই চূড়ান্ত। আপনার বসানো তথ্য ব্রাউজারেই থাকে, কোথাও যায় না।</div>
+  </header>
+
+  <section class="cc" id="ccCgpa" data-calc="cgpa" aria-label="সিজিপিএ ক্যালকুলেটর">
+    <div class="cc-seg" role="group" aria-label="কীভাবে হিসাব করবেন">
+      <button type="button" data-panel="courses" aria-pressed="true">কোর্স থেকে</button>
+      <button type="button" data-panel="cumul" aria-pressed="false">আগের সিজিপিএ-র সাথে</button>
+    </div>
+
+    <div id="ccCourses">
+      <div class="cc-h">কোর্সগুলো</div>
+      <div class="cc-rows" id="ccRows"></div>
+      <button type="button" class="cc-add" id="ccAdd">+ কোর্স যোগ করুন</button>
+    </div>
+
+    <div id="ccCumul" hidden>
+      <div class="cc-h">আগের হিসাব আর নতুন সেমিস্টার</div>
+      <div class="cc-grid2">
+        <label class="cc-field">আগের সিজিপিএ<input id="pc" type="number" min="0" max="10" step="any" inputmode="decimal" placeholder="যেমন ৩.৪০"></label>
+        <label class="cc-field">আগের মোট ক্রেডিট<input id="pcr" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন ৬০"></label>
+        <label class="cc-field">এই সেমিস্টারের জিপিএ<input id="sg" type="number" min="0" max="10" step="any" inputmode="decimal" placeholder="যেমন ৩.৬০"></label>
+        <label class="cc-field">এই সেমিস্টারের ক্রেডিট<input id="scr" type="number" min="0" step="any" inputmode="decimal" placeholder="যেমন ১৫"></label>
+      </div>
+    </div>
+
+    <div class="cc-out" id="ccOut" aria-live="polite"><p>ক্রেডিট আর গ্রেড পয়েন্ট বসালেই সিজিপিএ এখানে হিসাব হয়ে দেখা যাবে।</p></div>
+    <div class="cc-tools"><button type="button" id="ccReset">সব মুছে নতুন করে শুরু</button></div>
+  </section>
+
+  <section class="gd-sec" id="formula">
+    <h2>সিজিপিএ-র সূত্র</h2>
+    <p>সিজিপিএ (Cumulative Grade Point Average) মানে এখন পর্যন্ত সব কোর্স মিলিয়ে গড় গ্রেড পয়েন্ট। এই গড়টা <b>ক্রেডিট ধরে ভারযুক্ত</b>, সাধারণ গড় না:</p>
+    <div class="gd-ex"><b>সিজিপিএ = (প্রতিটা কোর্সের ক্রেডিট × গ্রেড পয়েন্ট-এর যোগফল) ÷ (সব কোর্সের ক্রেডিটের যোগফল)</b></div>
+    <div class="gd-ex">
+      <b>উদাহরণ:</b> তিনটা কোর্স<br>
+      ৩ ক্রেডিট, গ্রেড পয়েন্ট ৪.০০ → ৩ × ৪.০০ = ১২.০০<br>
+      ৩ ক্রেডিট, গ্রেড পয়েন্ট ৩.৫০ → ৩ × ৩.৫০ = ১০.৫০<br>
+      ৪ ক্রেডিট, গ্রেড পয়েন্ট ৩.০০ → ৪ × ৩.০০ = ১২.০০<br>
+      যোগফল ৩৪.৫০, মোট ক্রেডিট ১০, সিজিপিএ = ৩৪.৫০ ÷ ১০ = <b>৩.৪৫</b>
+    </div>
+  </section>
+
+  <section class="gd-sec" id="avg">
+    <h2>কেন সাধারণ গড় নিলে ভুল হয়</h2>
+    <p>বেশি ক্রেডিটের কোর্স সিজিপিএ-তে বেশি প্রভাব ফেলে। দুটো কোর্স ধরুন: ৩ ক্রেডিটে ৪.০০ আর ১ ক্রেডিটে ২.০০।</p>
+    <div class="gd-ex">
+      সাধারণ গড় = (৪.০০ + ২.০০) ÷ ২ = ৩.০০ <b>(ভুল)</b><br>
+      ক্রেডিট ধরে = (৩ × ৪.০০ + ১ × ২.০০) ÷ ৪ = ১৪ ÷ ৪ = <b>৩.৫০</b> (ঠিক)
+    </div>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-mid"></div>
+
+  <section class="gd-sec" id="sgpa">
+    <h2>এসজিপিএ আর সিজিপিএ-র পার্থক্য</h2>
+    <p><b>এসজিপিএ</b> (Semester GPA) হলো শুধু এক সেমিস্টারের গড় গ্রেড পয়েন্ট, সেই সেমিস্টারের কোর্সের ক্রেডিট ধরে। <b>সিজিপিএ</b> হলো এখন পর্যন্ত সব সেমিস্টারের মিলিত হিসাব। প্রতি সেমিস্টার শেষে নতুন সিজিপিএ বের হয়।</p>
+  </section>
+
+  <section class="gd-sec" id="cumul">
+    <h2>আগের সিজিপিএ-র সাথে নতুন সেমিস্টার যোগ করা</h2>
+    <p>প্রতিটা পুরোনো কোর্স আবার না বসিয়েও নতুন সিজিপিএ বের করা যায়, যদি আগের সিজিপিএ আর আগের মোট ক্রেডিট জানা থাকে:</p>
+    <div class="gd-ex"><b>নতুন সিজিপিএ = (আগের সিজিপিএ × আগের ক্রেডিট + এই সেমিস্টারের জিপিএ × এই সেমিস্টারের ক্রেডিট) ÷ (আগের ক্রেডিট + এই সেমিস্টারের ক্রেডিট)</b></div>
+    <div class="gd-ex">
+      <b>উদাহরণ:</b> আগের সিজিপিএ ৩.৪০, আগের মোট ক্রেডিট ৬০। এই সেমিস্টারে জিপিএ ৩.৬০, ক্রেডিট ১৫।<br>
+      (৩.৪০ × ৬০ + ৩.৬০ × ১৫) ÷ (৬০ + ১৫) = (২০৪ + ৫৪) ÷ ৭৫ = ২৫৮ ÷ ৭৫ = <b>৩.৪৪</b>
+    </div>
+  </section>
+
+  <section class="gd-sec" id="differ">
+    <h2>বিশ্ববিদ্যালয়ভেদে যা আলাদা হতে পারে</h2>
+    <ul>
+      <li><b>গ্রেড-সারণি।</b> কোন নম্বরে কোন গ্রেড, আর কোন গ্রেডে কত পয়েন্ট, সেটা বিশ্ববিদ্যালয়ের নিজস্ব। অনেক বিশ্ববিদ্যালয়ে ৪.০০ স্কেল চলে, তবে সবখানে না। আপনার ট্রান্সক্রিপ্ট বা বিভাগের সারণি দেখুন।</li>
+      <li><b>রিটেক ও গ্রেড উন্নয়ন।</b> আবার পরীক্ষা দিলে আগের গ্রেড বাদ যায় নাকি দুটোই ধরা হয়, নিয়ম আলাদা। এই ক্যালকুলেটর সেটা ধরে না। রিটেক করা কোর্সের জন্য আপনার বিশ্ববিদ্যালয়ের নিয়ম অনুযায়ী ঠিক গ্রেড পয়েন্ট বসান।</li>
+      <li><b>ফেল করা (F) কোর্স।</b> কীভাবে সিজিপিএ-তে ধরা হয়, সেটাও বিশ্ববিদ্যালয়ের নিয়মে।</li>
+      <li><b>ক্রেডিটবিহীন কোর্স।</b> যেগুলোর ক্রেডিট নেই বা সিজিপিএ-তে ধরা হয় না, সেগুলো বাদ দিন।</li>
+    </ul>
+  </section>
+
+  <section class="gd-sec" id="faq">
+    <h2>প্রশ্নোত্তর</h2>
+    <div class="gd-faq">
+      <details><summary>প্রতিটা কোর্সের গ্রেড পয়েন্ট কোথায় পাব?</summary><p>আপনার সেমিস্টারের ফলাফল-পত্র বা ট্রান্সক্রিপ্টে প্রতিটা কোর্সের পাশে গ্রেড আর গ্রেড পয়েন্ট ছাপা থাকে। না থাকলে গ্রেড থেকে পয়েন্ট বের করতে বিশ্ববিদ্যালয়ের সারণি দেখুন।</p></details>
+      <details><summary>ক্রেডিট ঘরে কী বসাব?</summary><p>কোর্সের ক্রেডিট আওয়ার, যেমন ৩ বা ১.৫। ০ থেকে ১২-র মধ্যে বসানো যায়।</p></details>
+      <details><summary>সেমিস্টারের জিপিএ (এসজিপিএ) বের করতে কী করব?</summary><p>শুধু সেই সেমিস্টারের কোর্সগুলো "কোর্স থেকে" অংশে বসান। যে ফল আসে, সেটাই ওই সেমিস্টারের এসজিপিএ।</p></details>
+      <details><summary>আমার বসানো তথ্য কি কোথাও জমা হয়?</summary><p>না। হিসাবটা আপনার ব্রাউজারেই হয়, কোনো তথ্য সার্ভারে যায় না।</p></details>
+    </div>
+  </section>
+
+  <section class="gd-sec" id="src">
+    <h2>সূত্র ও সীমা</h2>
+    <ul class="gd-src">
+      <li>সূত্রগুলো গাণিতিক গড়ের (ক্রেডিট-ভারযুক্ত) সাধারণ নিয়ম। কোনো বিশ্ববিদ্যালয়ের নির্দিষ্ট নিয়ম নয়।</li>
+      <li>আপনার বিশ্ববিদ্যালয়ের নিয়ম ও ট্রান্সক্রিপ্ট এখানকার হিসাবের চেয়ে আগে মানতে হবে।</li>
+      <li>ভুল পেলে জানান: <a href="mailto:teamprotishthan@gmail.com">teamprotishthan@gmail.com</a>।</li>
+    </ul>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-end"></div>
+
+  <section class="gd-cta">
+    <h2>আপনার বিশ্ববিদ্যালয় কি আমাদের তালিকায় আছে?</h2>
+    <p>তথ্যভান্ডারে নাম দিয়ে খুঁজে দেখুন, আর শিক্ষিত কার্ডে আপনার পুরো পড়াশোনার গল্প এক জায়গায় রাখুন।</p>
+    <div class="gd-btns"><a class="gd-btn pri" href="/">প্রতিষ্ঠান খুঁজুন</a><a class="gd-btn" href="/card">শিক্ষিত কার্ড বানান</a><a class="gd-btn" href="/gpa">এসএসসি-এইচএসসি জিপিএ</a></div>
+  </section>
+</main>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=13"></script>
+<script src="/gpa-calc.js?v=1"></script>
+<script src="/calc-ui.js?v=1"></script>
+<script src="/ads.js?v=1" defer></script>
+</body>
+</html>

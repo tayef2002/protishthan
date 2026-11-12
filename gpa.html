@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<title>জিপিএ ক্যালকুলেটর (এসএসসি-এইচএসসি): হিসাবের নিয়ম, ৪র্থ বিষয়, উদাহরণ | Protishthan</title>
+<meta name="description" content="প্রতিটা বিষয়ের নম্বর বা গ্রেড বসিয়ে এসএসসি-এইচএসসির জিপিএ হিসাব করুন। গ্রেড পয়েন্ট সারণি, ৪র্থ বিষয়ের নিয়ম, ধাপে ধাপে উদাহরণ ও প্রশ্নোত্তর।">
+<link rel="canonical" href="https://protishthan.com/gpa">
+<meta property="og:title" content="জিপিএ ক্যালকুলেটর (এসএসসি-এইচএসসি) | Protishthan">
+<meta property="og:description" content="নম্বর বা গ্রেড বসান, জিপিএ হিসাব হয়ে যাবে। ৪র্থ বিষয়ের নিয়ম আর উদাহরণসহ।">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Protishthan">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=9">
+<link rel="stylesheet" href="/footer.css?v=5">
+<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/lipi.css?v=2">
+<link rel="stylesheet" href="/guide.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
+<script src="/nav.js?v=6"></script>
+
+<main class="gd">
+  <p class="gd-crumb"><a href="/">হোম</a> › <a href="/guide">শিক্ষা গাইড</a> › জিপিএ ক্যালকুলেটর</p>
+
+  <header class="gd-hero">
+    <span class="gd-eyebrow">ক্যালকুলেটর</span>
+    <h1>এসএসসি-এইচএসসি জিপিএ ক্যালকুলেটর</h1>
+    <p>প্রতিটা বিষয়ের নম্বর বা গ্রেড বসান, জিপিএ নিজে হিসাব হয়ে যাবে। ৪র্থ বিষয় থাকলে সেটাও ধরা হয়। নিচে গ্রেডের সারণি, হিসাবের ধাপ আর উদাহরণ আছে।</p>
+    <div class="gd-meta"><span>হালনাগাদ: <b>১২ নভেম্বর ২০২৬</b></span><span>পড়তে <b>৫ মিনিট</b></span></div>
+    <div class="gd-note"><b>মনে রাখবেন:</b> এটা আনুমানিক হিসাব। আপনার মার্কশিটে ছাপা জিপিএ-ই চূড়ান্ত। আপনি যা বসান, তা আপনার ফোন বা কম্পিউটারেই থাকে, কোথাও পাঠানো হয় না।</div>
+  </header>
+
+  <section class="cc" id="ccGpa" data-calc="gpa" aria-label="জিপিএ ক্যালকুলেটর">
+    <div class="cc-seg" role="group" aria-label="কীভাবে বসাবেন">
+      <button type="button" data-mode="marks" aria-pressed="true">নম্বর দিয়ে</button>
+      <button type="button" data-mode="grade" aria-pressed="false">গ্রেড দিয়ে</button>
+    </div>
+    <div class="cc-h">আবশ্যিক বিষয়গুলো</div>
+    <div class="cc-rows" id="ccRows"></div>
+    <button type="button" class="cc-add" id="ccAdd">+ বিষয় যোগ করুন</button>
+    <div class="cc-fourth">
+      <label><input type="checkbox" id="ccFourthOn"> আমার ৪র্থ বিষয় আছে</label>
+      <div id="ccFourthRow" hidden></div>
+    </div>
+    <div class="cc-out" id="ccOut" aria-live="polite"><p>নম্বর বা গ্রেড বসালেই জিপিএ এখানে হিসাব হয়ে দেখা যাবে।</p></div>
+    <div class="cc-tools"><button type="button" id="ccReset">সব মুছে নতুন করে শুরু</button></div>
+  </section>
+
+  <section class="gd-sec" id="table">
+    <h2>এসএসসি-এইচএসসির গ্রেড ও গ্রেড পয়েন্ট</h2>
+    <p>প্রতিটা বিষয়ে পাওয়া নম্বর থেকে একটা গ্রেড আর একটা গ্রেড পয়েন্ট ঠিক হয়। জিপিএ হিসাবের পুরোটাই এই পয়েন্টের ওপর দাঁড়িয়ে।</p>
+    <div class="gd-table-wrap">
+      <table class="gd-table">
+        <thead><tr><th>নম্বর</th><th>গ্রেড</th><th>গ্রেড পয়েন্ট</th></tr></thead>
+        <tbody>
+          <tr><td>৮০–১০০</td><td>A+</td><td>৫.০০</td></tr>
+          <tr><td>৭০–৭৯</td><td>A</td><td>৪.০০</td></tr>
+          <tr><td>৬০–৬৯</td><td>A-</td><td>৩.৫০</td></tr>
+          <tr><td>৫০–৫৯</td><td>B</td><td>৩.০০</td></tr>
+          <tr><td>৪০–৪৯</td><td>C</td><td>২.০০</td></tr>
+          <tr><td>৩৩–৩৯</td><td>D</td><td>১.০০</td></tr>
+          <tr><td>০–৩২</td><td>F (অকৃতকার্য)</td><td>০.০০</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="gd-src">সারণির সূত্র: <a href="https://en.banglapedia.org/index.php/Public_Examination_System" rel="noopener">Banglapedia, Public Examination System</a>।</p>
+  </section>
+
+  <section class="gd-sec" id="how">
+    <h2>জিপিএ কীভাবে হিসাব হয়, ধাপে ধাপে</h2>
+    <ol>
+      <li>প্রতিটা <b>আবশ্যিক বিষয়ের</b> নম্বর দেখে গ্রেড পয়েন্ট ঠিক করুন (ওপরের সারণি)।</li>
+      <li>সব আবশ্যিক বিষয়ের গ্রেড পয়েন্ট <b>যোগ</b> করুন।</li>
+      <li>৪র্থ বিষয় থাকলে তার গ্রেড পয়েন্ট থেকে <b>২.০০ বাদ</b> দিন। যা থাকে সেটা যোগফলের সাথে যোগ করুন (২.০০-এর কম হলে কিছুই যোগ হয় না)।</li>
+      <li>মোট যোগফলকে <b>আবশ্যিক বিষয়ের সংখ্যা</b> দিয়ে ভাগ করুন। ৪র্থ বিষয় এই ভাগের সংখ্যায় ধরা হয় না।</li>
+      <li>ভাগফল ৫.০০-এর বেশি হলেও জিপিএ <b>সর্বোচ্চ ৫.০০</b>।</li>
+    </ol>
+    <div class="gd-ex">
+      <b>একটা উদাহরণ</b> (বিষয়ের সংখ্যা আপনার বোর্ড, শাখা আর কারিকুলাম অনুযায়ী আলাদা হতে পারে, এখানে ৭টি ধরা হয়েছে):<br>
+      সাতটি আবশ্যিক বিষয়ে গ্রেড: A+, A+, A, A, A-, B, A+<br>
+      গ্রেড পয়েন্ট: ৫ + ৫ + ৪ + ৪ + ৩.৫ + ৩ + ৫ = <b>২৯.৫০</b><br>
+      ৪র্থ বিষয়ে A+ (৫.০০) পেলে যোগ হয় ৫.০০ − ২.০০ = <b>৩.০০</b>, মোট <b>৩২.৫০</b><br>
+      জিপিএ = ৩২.৫০ ÷ ৭ = ৪.৬৪২৮… ≈ <b>৪.৬৪</b><br>
+      ৪র্থ বিষয় না থাকলে হতো ২৯.৫০ ÷ ৭ = ৪.২১। মানে ৪র্থ বিষয় এখানে জিপিএ ০.৪৩ বাড়িয়েছে।
+    </div>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-mid"></div>
+
+  <section class="gd-sec" id="fourth">
+    <h2>৪র্থ বিষয়ের নিয়ম, সহজ কথায়</h2>
+    <p>৪র্থ বিষয় (ঐচ্ছিক বিষয়) ভালো করলে জিপিএ বাড়াতে পারে, কিন্তু খারাপ করলে জিপিএ কমায় না। কারণ শুধু ২.০০-এর <b>ওপরের অংশটুকু</b> যোগ হয়:</p>
+    <div class="gd-table-wrap">
+      <table class="gd-table">
+        <thead><tr><th>৪র্থ বিষয়ে গ্রেড</th><th>গ্রেড পয়েন্ট</th><th>যোগফলে যোগ হয়</th></tr></thead>
+        <tbody>
+          <tr><td>A+</td><td>৫.০০</td><td>৩.০০</td></tr>
+          <tr><td>A</td><td>৪.০০</td><td>২.০০</td></tr>
+          <tr><td>A-</td><td>৩.৫০</td><td>১.৫০</td></tr>
+          <tr><td>B</td><td>৩.০০</td><td>১.০০</td></tr>
+          <tr><td>C</td><td>২.০০</td><td>০.০০</td></tr>
+          <tr><td>D বা F</td><td>১.০০ বা ০.০০</td><td>০.০০ (কিছুই কমে না)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>সাধারণ নিয়মে ৪র্থ বিষয়ে কম পেলে আপনি ফেল করেন না, শুধু বাড়তি পয়েন্ট পান না। আবশ্যিক বিষয়ে F থাকলে ফলাফল অকৃতকার্য, তখন জিপিএ হয় না (০.০০)।</p>
+    <p>এই নিয়মগুলো বোর্ডের প্রচলিত নিয়ম। নতুন কারিকুলাম, ভোকেশনাল বা অন্য বোর্ডে কিছু আলাদা হতে পারে, তাই আপনার বোর্ডের সর্বশেষ বিজ্ঞপ্তি আর মার্কশিটের সাথে মিলিয়ে নেবেন।</p>
+  </section>
+
+  <section class="gd-sec" id="mistakes">
+    <h2>হিসাবে সাধারণ ভুলগুলো</h2>
+    <ul>
+      <li><b>৪র্থ বিষয়ের পুরো পয়েন্ট যোগ করা।</b> শুধু ২.০০-এর ওপরের অংশ যোগ হয়।</li>
+      <li><b>৪র্থ বিষয়কে ভাগের সংখ্যায় ধরা।</b> ভাগ হয় শুধু আবশ্যিক বিষয়ের সংখ্যা দিয়ে।</li>
+      <li><b>নম্বরের গড় থেকে জিপিএ বের করা।</b> আগে প্রতিটা বিষয়ের গ্রেড পয়েন্ট ঠিক করতে হয়, তারপর তার গড়।</li>
+      <li><b>দুই পত্রের বিষয়ে আলাদা গ্রেড ধরা।</b> মার্কশিটে বিষয়ভিত্তিক যে গ্রেড বা গ্রেড পয়েন্ট ছাপা থাকে, "গ্রেড দিয়ে" মোডে সেটাই বসান।</li>
+    </ul>
+  </section>
+
+  <section class="gd-sec" id="scale4">
+    <h2>জিপিএ-৪ স্কেল নিয়ে একটা কথা</h2>
+    <p>২০১৯ সালের সেপ্টেম্বরে জেএসসি, এসএসসি ও এইচএসসিতে জিপিএ-৫ এর বদলে ৪-পয়েন্ট স্কেল চালুর প্রস্তাব আলোচনায় এসেছিল। ওই সময় সেটা <b>চূড়ান্ত হয়নি</b>, মন্ত্রী আরও কয়েকটা সভার কথা বলেছিলেন (সূত্র: <a href="https://www.tbsnews.net/bangladesh/education/gpa-4-scale-replace-gpa-5-public-exams" rel="noopener">TBS News, সেপ্টেম্বর ২০১৯</a>)।</p>
+    <p>এই পেজের ক্যালকুলেটর ওপরের ৫.০০ স্কেলে চলে। আপনার পরীক্ষায় কোন স্কেল প্রযোজ্য, তা বোর্ডের সর্বশেষ ফলাফল-বিজ্ঞপ্তি থেকে নিশ্চিত হোন। স্কেল বদলালে আমরা এই পেজ হালনাগাদ করব।</p>
+  </section>
+
+  <section class="gd-sec" id="faq">
+    <h2>প্রশ্নোত্তর</h2>
+    <div class="gd-faq">
+      <details><summary>জিপিএ ৫.০০ পেতে কী লাগে?</summary><p>সব আবশ্যিক বিষয়ে A+ (৮০ বা বেশি) পেলে ৫.০০ হয়। এই হিসাব অনুযায়ী ৪র্থ বিষয়ে A+ থাকলে এক-দুটো বিষয়ে A থাকলেও ৫.০০ হতে পারে, কারণ জিপিএ ৫.০০-এর বেশি হতে পারে না। যেমন সাতটি আবশ্যিক বিষয়ের ছয়টায় A+ আর একটায় A হলে যোগফল ৩৪, ৪র্থ বিষয়ের A+ থেকে আরও ৩ যোগ হয়ে ৩৭, ভাগফল ৫.২৮, যা ৫.০০-এ আটকে যায়। ক্যালকুলেটরে বসিয়ে মিলিয়ে দেখতে পারেন।</p></details>
+      <details><summary>৩৩ পেলে কি পাস?</summary><p>সারণি অনুযায়ী ৩৩ থেকে ৩৯ নম্বরে D গ্রেড (১.০০ পয়েন্ট) পাওয়া যায়, আর ৩২ বা কমে F। তবে কোনো বিষয়ে তাত্ত্বিক ও ব্যবহারিক অংশের আলাদা পাস মার্ক থাকতে পারে। সেই বিস্তারিত নিয়ম বোর্ডের বিজ্ঞপ্তিতে দেখুন।</p></details>
+      <details><summary>মার্কশিটের জিপিএ আর এই টুলের জিপিএ মিলছে না কেন?</summary><p>সবচেয়ে সম্ভাব্য কারণ চারটা: বিষয়ের সংখ্যা ভুল ধরা, ৪র্থ বিষয় ঠিকমতো না দেওয়া, দশমিকের শেষ অঙ্ক কেটে বা রাউন্ড করে দেখানোর পার্থক্য (এই টুল কেটে দেখায়), অথবা আপনার কারিকুলামে বোর্ডের আলাদা নিয়ম। মিল না পেলে মার্কশিটের জিপিএ-ই ঠিক।</p></details>
+      <details><summary>দাখিল বা আলিমের জন্যও কি একই?</summary><p>আমরা এখানে এসএসসি-এইচএসসির সারণি আর প্রচলিত নিয়ম ধরেছি। মাদ্রাসা বা অন্য বোর্ডের পরীক্ষার জন্য নিজের বোর্ডের নিয়ম মিলিয়ে নিন।</p></details>
+      <details><summary>ফলাফল কোথায় দেখব?</summary><p>বোর্ডের অফিসিয়াল ফলাফল সাইটে: <a href="http://www.educationboardresults.gov.bd" rel="noopener">educationboardresults.gov.bd</a>। কোনো শিক্ষার্থীর ব্যক্তিগত ফলাফল Protishthan রাখে না বা প্রকাশ করে না।</p></details>
+      <details><summary>আমার বসানো তথ্য কি কোথাও জমা হয়?</summary><p>না। হিসাবটা আপনার ব্রাউজারেই হয়, কোনো তথ্য সার্ভারে যায় না।</p></details>
+    </div>
+  </section>
+
+  <section class="gd-sec" id="src">
+    <h2>সূত্র ও সীমা</h2>
+    <ul class="gd-src">
+      <li>গ্রেড সারণি: <a href="https://en.banglapedia.org/index.php/Public_Examination_System" rel="noopener">Banglapedia, Public Examination System</a>।</li>
+      <li>জিপিএ-৪ স্কেলের প্রস্তাব: <a href="https://www.tbsnews.net/bangladesh/education/gpa-4-scale-replace-gpa-5-public-exams" rel="noopener">TBS News, ৮–৯ সেপ্টেম্বর ২০১৯</a>।</li>
+      <li>৪র্থ বিষয়ের নিয়ম আর আবশ্যিক বিষয়ে F-এর ফল: বোর্ডের প্রচলিত নিয়ম। আমরা এর জন্য একটা একক সরকারি দলিলের লিংক দিতে পারিনি, তাই বোর্ডের সর্বশেষ বিজ্ঞপ্তি আর আপনার মার্কশিট ছাড়া এগুলোকে চূড়ান্ত ধরবেন না।</li>
+      <li>ভুল পেলে জানান: <a href="mailto:teamprotishthan@gmail.com">teamprotishthan@gmail.com</a>। যাচাই করে ঠিক করব।</li>
+    </ul>
+  </section>
+
+  <div class="ad-slot" data-slot="guide-end"></div>
+
+  <section class="gd-cta">
+    <h2>পড়াশোনার গল্প এক কার্ডে</h2>
+    <p>জিপিএ তো হলো। এবার স্কুল, কলেজ আর বিশ্ববিদ্যালয় মিলিয়ে আপনার শিক্ষাজীবনের কার্ডটা বানিয়ে ফেলুন, ৩০ সেকেন্ডে, ফ্রিতে।</p>
+    <div class="gd-btns"><a class="gd-btn pri" href="/card">শিক্ষিত কার্ড বানান</a><a class="gd-btn" href="/cgpa">সিজিপিএ ক্যালকুলেটর</a><a class="gd-btn" href="/guide">আরও গাইড</a></div>
+  </section>
+</main>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=13"></script>
+<script src="/gpa-calc.js?v=1"></script>
+<script src="/calc-ui.js?v=1"></script>
+<script src="/ads.js?v=1" defer></script>
+</body>
+</html>
