@@ -355,6 +355,16 @@ http.createServer((req, res) => {
     return;
   }
 
+  // /api/dir: production answers it with a Cloudflare Pages Function (functions/api/dir.js: the read-only questions of the directory and of /tutor).
+  // Here the same file is run, so a page opened on localhost shows the same data (same database, same public key). There is no edge cache here: every call asks the database.
+  if (urlPath === '/api/dir' && req.method === 'GET') {
+    import(require('url').pathToFileURL(path.join(ROOT, 'functions', 'api', 'dir.js')).href)
+      .then(m => m.onRequestGet({ request: new Request('http://localhost:' + PORT + req.url), waitUntil() {} }))
+      .then(async r => { res.writeHead(r.status, { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' }); res.end(Buffer.from(await r.arrayBuffer())); })
+      .catch(e => { res.writeHead(502, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'local /api/dir failed: ' + e.message })); });
+    return;
+  }
+
   if (urlPath === '/') urlPath = '/index.html';
   if (/^\/s\/[^\/]+\/?$/.test(urlPath)) urlPath = '/s.html';   // public skill profile (production serves it through functions/s/[username].js)
   // pretty URLs like Cloudflare Pages: /card -> /card.html
