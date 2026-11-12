@@ -103,8 +103,10 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 .tt-pick{display:flex;flex-wrap:wrap;gap:8px}
 .tt-pick button{min-height:42px;padding:0 16px;border-radius:100px;border:1px solid var(--ln2);background:#fff;color:var(--tx);font-size:15px;font-weight:600;cursor:pointer;transition:background .12s,border-color .12s,color .12s}
 .tt-pick button:hover{border-color:#9DB7F5;background:var(--soft)}
-.tt-pick button[aria-pressed=true]{background:var(--soft2);border-color:var(--tb);color:var(--tb2)}
+.tt-pick button[aria-pressed=true]{background:linear-gradient(135deg,#1A56DB,#3B6FF0);border-color:transparent;color:#fff;box-shadow:0 10px 20px -12px rgba(26,86,219,.85);animation:ttpop .22s ease-out}
+.tt-pick button[aria-pressed=true]:hover{background:linear-gradient(135deg,#1244B5,#2F5FE0);border-color:transparent}
 .tt-pick button[aria-pressed=true]::before{content:'✓ ';font-weight:800}
+@keyframes ttpop{0%{transform:scale(.94)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
 .tt-check{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--ln);border-radius:14px;background:#fff;cursor:pointer;font-size:15px;line-height:1.55}
 .tt-check input{flex:none;width:20px;height:20px;margin-top:2px;accent-color:var(--tb)}
 .tt-check[data-bad=true]{border-color:#EF4444}
@@ -383,4 +385,4 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .tt-join2{margin-top:44px;border-radius:24px}
   .tt-wact{position:sticky;bottom:-22px;margin:6px -22px -22px;padding:12px 22px calc(14px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);backdrop-filter:blur(8px)}
 }
-@media(prefers-reduced-motion:reduce){.tt-fl,.tt-dlg [data-rs],.tts.open .tts-panel{animation:none}.tts-chev{transition:none}.tt-t,.tt-bc{transition:none}.tt-t:hover,.tt-bc:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.tt-fl,.tt-dlg [data-rs],.tts.open .tts-panel,.tt-pick button[aria-pressed=true]{animation:none}.tts-chev{transition:none}.tt-t,.tt-bc{transition:none}.tt-t:hover,.tt-bc:hover{transform:none}}
