@@ -19,6 +19,8 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
     create function public.skill_text_ok(t text) returns boolean language sql immutable as $$ select lower(t) !~ 'badword|খারাপশব্দ' $$;
   `);
   await db.exec(SQL);
+  const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-18_tutor_request_status.sql'), 'utf8');
+  await db.exec(SQL2);
   const as = async (uid, fn) => { await db.exec(`select set_config('test.uid', '${uid || ''}', false)`); return fn(); };
   const q = async (sql, params) => (await db.query(sql, params)).rows;
   const err = async (sql, params) => { try { await db.query(sql, params); return null; } catch (e) { return e.message; } };
@@ -114,8 +116,19 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('anon may NOT call the profile functions', !(await can('x', `has_function_privilege('anon', 'public.tutor_profile_save(jsonb,boolean)', 'execute') or has_function_privilege('anon', 'public.tutor_my_profile()', 'execute') or has_function_privilege('anon', 'public.tutor_profile_pause(boolean)', 'execute')`)));
   ok('row security is on for all four tables', (await q(`select count(*)::int n from pg_class where relname in ('tutor_profiles','tutor_requests','tutor_matches','tutor_settings') and relrowsecurity`))[0].n === 4);
   ok('there is an admin-only policy on each', (await q(`select count(*)::int n from pg_policies where tablename like 'tutor_%' and policyname like '%admin'`))[0].n === 4);
+  // ---- the status of a request
+  const rid = (await q('select id from public.tutor_requests order by created_at limit 1'))[0].id;
+  let st = (await q('select public.tutor_request_status($1::uuid) as s', [rid]))[0].s;
+  ok('status of a request: the status, the time and how many were sent, nothing else', st && st.status === 'new' && Number(st.sent) === 0 && st.created_at && Object.keys(st).sort().join() === 'created_at,sent,status', JSON.stringify(st));
+  await db.exec(`insert into public.tutor_matches (request_id, tutor_id) values ('${rid}', '${U1}')`); await db.exec(`update public.tutor_requests set status = 'matching' where id = '${rid}'`);
+  st = (await q('select public.tutor_request_status($1::uuid) as s', [rid]))[0].s;
+  ok('after the admin sent a profile: "matching" and 1 sent', st.status === 'matching' && Number(st.sent) === 1, JSON.stringify(st));
+  ok('an id that does not exist answers null', (await q(`select public.tutor_request_status('00000000-0000-0000-0000-000000000000') as s`))[0].s === null);
+  await db.exec(`update public.tutor_requests set status = 'spam' where id = '${rid}'`);
+  ok('a request marked spam answers nothing', (await q('select public.tutor_request_status($1::uuid) as s', [rid]))[0].s === null);
+  ok('anon may ask the status', await can('x', `has_function_privilege('anon', 'public.tutor_request_status(uuid)', 'execute')`));
   // run it twice: safe to run again
-  let again = null; try { await db.exec(SQL); } catch (e) { again = e.message; }
+  let again = null; try { await db.exec(SQL); await db.exec(SQL2); } catch (e) { again = e.message; }
   ok('the migration can run twice without an error', again === null, String(again));
   ok('and the settings row is still one row', (await q('select count(*)::int n from public.tutor_settings'))[0].n === 1);
 

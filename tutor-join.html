@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=2">
+<link rel="stylesheet" href="/tutor.css?v=3">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -31,10 +31,15 @@
 <main class="tt">
   <p class="tt-crumb"><a href="/">হোম</a> › <a href="/tutor">ভাইয়া-আপু</a> › টিউটর হিসেবে যোগ দিন</p>
 
-  <header class="tt-hero" style="padding-bottom:28px">
-    <span class="tt-eyebrow">টিউটরের জন্য</span>
-    <h1>টিউটর হিসেবে যোগ দিন</h1>
-    <p>৪টা ছোট ধাপে নিজের প্রোফাইল বানান। যোগ দেওয়া ফ্রি, ফোন নম্বর অভিভাবক সরাসরি দেখবেন না।</p>
+  <header class="tt-hero2 tt-hero3">
+    <nav class="tt-seg2" aria-label="আপনি কে?"><a href="/tutor">আমি টিউটর খুঁজছি</a><span class="on" aria-current="page">আমি টিউটর হতে চাই</span></nav>
+    <h1>পড়াতে ভালোবাসেন? <span class="grad">ভাইয়া-আপু</span> হয়ে যোগ দিন</h1>
+    <p class="lead">৪টা ছোট ধাপে নিজের প্রোফাইল বানান। যোগ দেওয়া ফ্রি, আর আপনার ফোন নম্বর অভিভাবক সরাসরি দেখবেন না।</p>
+    <ol class="tt-road" aria-label="কীভাবে কাজ করে">
+      <li><i>১</i><b>Google দিয়ে সাইন-ইন</b><small>পাসওয়ার্ড ছাড়া, ৫ সেকেন্ডে</small></li>
+      <li><i>২</i><b>প্রোফাইল বানান</b><small>৪ ধাপ, প্রতিটা নিজে সেভ হয়</small></li>
+      <li><i>৩</i><b>আমরা দেখে অনুমোদন দিই</b><small>তারপর হোয়াটসঅ্যাপে জানাই</small></li>
+    </ol>
   </header>
 
   <div id="jLoad" class="tt-sk" style="height:180px;margin-top:24px" aria-label="লোড হচ্ছে"></div>
@@ -69,7 +74,8 @@
   <form class="tt-wiz" id="jWiz" hidden novalidate>
     <aside class="tt-side" aria-label="ধাপ"><h3>ধাপ</h3><ol id="jSide">
       <li data-s="1"><i>১</i>পরিচয়</li><li data-s="2"><i>২</i>পড়াশোনা</li><li data-s="3"><i>৩</i>কী পড়াবেন</li><li data-s="4"><i>৪</i>নিজের কথা</li>
-    </ol></aside>
+    </ol>
+    <div class="tt-meter" id="jMeter" aria-live="polite"><div class="top"><span>প্রোফাইল কতটা সম্পূর্ণ</span><b id="jMeterN">০%</b></div><div class="bar"><i id="jMeterB"></i></div><p id="jMeterTip"></p></div></aside>
     <div class="tt-panel">
       <div class="tt-prog" aria-hidden="true"><div class="top"><span id="jProgN"></span><span id="jProgT"></span></div><div class="bar"><i id="jProgB" style="width:25%"></i></div></div>
 
@@ -133,7 +139,7 @@
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
-<script src="/tutor-data.js?v=1"></script>
+<script src="/tutor-data.js?v=2"></script>
 <script>
 (function(){
   'use strict';
@@ -177,7 +183,14 @@
     $('jArea').value = P.area_note; $('jFee').value = P.fee_note; $('jBio').value = P.bio; $('jTerms').checked = !!P.terms_ok; bioCount();
   }
   const draftKey = () => 'tt_draft_' + (ME ? ME.user_id : 'x');
-  function stash(){ readAll(); ls.set(draftKey(), JSON.stringify({ P: P, step: step })); }
+  function stash(){ readAll(); ls.set(draftKey(), JSON.stringify({ P: P, step: step })); meter(); }
+  /* how complete the profile is, and the next thing worth adding (a complete profile gets chosen more often) */
+  function meter(){
+    const s = D.profileStrength(P), tip = s.tips[0];
+    $('jMeterN').textContent = D.bn(s.pct) + '%'; $('jMeterB').style.width = s.pct + '%'; $('jMeter').dataset.full = s.pct >= 100 ? 'true' : 'false';
+    $('jMeterTip').textContent = s.pct >= 100 ? 'দারুণ, প্রোফাইল সম্পূর্ণ।' : tip ? 'পরের কাজ: ' + tip + '।' : '';
+    const pt = $('jProgT'); if(pt && step) pt.textContent = ['পরিচয়', 'পড়াশোনা', 'কী পড়াবেন', 'নিজের কথা'][step - 1] + ' · সম্পূর্ণ ' + D.bn(s.pct) + '%';
+  }
   function bioCount(){ $('jBioN').textContent = D.bn($('jBio').value.length) + '/৪০০'; }
 
   /* ---------- steps ---------- */
@@ -187,7 +200,7 @@
     step = Math.max(1, Math.min(4, n));
     document.querySelectorAll('[data-step]').forEach(s => { s.hidden = Number(s.dataset.step) !== step; });
     document.querySelectorAll('#jSide li').forEach(li => { const k = Number(li.dataset.s); li.className = k === step ? 'on' : k < step ? 'done' : ''; li.querySelector('i').textContent = k < step ? '✓' : D.bn(k); });
-    $('jProgN').textContent = 'ধাপ ' + D.bn(step) + ' / ৪'; $('jProgT').textContent = ['পরিচয়', 'পড়াশোনা', 'কী পড়াবেন', 'নিজের কথা'][step - 1]; $('jProgB').style.width = (step * 25) + '%';
+    $('jProgN').textContent = 'ধাপ ' + D.bn(step) + ' / ৪'; $('jProgB').style.width = (step * 25) + '%';
     $('jBack').style.visibility = step === 1 ? 'hidden' : 'visible'; $('jNext').textContent = step === 4 ? 'জমা দিন' : 'পরের ধাপ';
     ['jStepErr'].forEach(id => setErr(id, '')); $('jSaved').textContent = ''; $('jSaved').className = 'tt-saved';
     if(step === 4) preview();

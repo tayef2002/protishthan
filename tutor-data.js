@@ -110,7 +110,32 @@
       '\nআগ্রহী হলে জানান, আমরা নম্বর বিনিময় করিয়ে দেব। প্রথম ক্লাসে আপনি নিজে উপস্থিত থাকুন।';
   }
 
-  var api = { SUBJECTS: SUBJECTS, CLASSES: CLASSES, MODES: MODES, TIMES: TIMES, LEVELS: LEVELS, GENDERS: GENDERS, STATUS: STATUS, REQ_STATUS: REQ_STATUS, MSG: MSG, errText: errText,
+  /* how complete a tutor's profile is (0 to 100) and what to add next; the weights add up to 100 */
+  function profileStrength(p){
+    var pts = 0, tips = [], add = function(ok, w, tip){ if(ok) pts += w; else if(tip) tips.push(tip); };
+    var has = function(a, k){ return (a || []).indexOf(k) > -1; };
+    add(cleanText(p.full_name, 60).length >= 2, 10, 'পুরো নাম লিখুন');
+    add(!!normalizePhone(p.phone), 10, 'হোয়াটসঅ্যাপ নম্বর দিন');
+    add(cleanText(p.institution, 80).length >= 2 && cleanText(p.department, 60).length >= 2 && !!p.edu_level, 15, 'প্রতিষ্ঠান, বিভাগ আর ধাপ লিখুন');
+    var s = (p.subjects || []).length; add(s >= 1, 10, 'অন্তত একটা বিষয় বেছে নিন'); add(s >= 3, 5, 'আরও কয়েকটা বিষয় বাছলে বেশি অনুরোধের সাথে মিলবে');
+    add((p.classes || []).length >= 1, 10, 'কোন শ্রেণি পড়াবেন বেছে নিন');
+    add((p.modes || []).length >= 1, 5, 'বাসায় না অনলাইনে, বেছে নিন');
+    add(!!p.district && (!has(p.modes, 'home') || !!p.upazila), 10, 'জেলা আর উপজেলা বেছে নিন');
+    add((p.times || []).length >= 1, 5, 'কখন সময় হবে, বলুন');
+    var b = cleanBio(p.bio, 400).length; add(b >= 20, 10, 'নিজের কথা কয়েক লাইনে লিখুন'); add(b >= 120, 5, 'নিজের কথা আরেকটু বিস্তারিত লিখলে অভিভাবকের আস্থা বাড়ে');
+    add(!!p.gender, 5, 'আপু না ভাইয়া, কোনটা বলে ডাকা হবে তা বেছে নিন');
+    return { pct: Math.min(100, pts), tips: tips };
+  }
+  /* what a guardian reads about their own request */
+  function requestLine(st){
+    var s = st && st.status, n = Number(st && st.sent) || 0;
+    if(s === 'matching') return n > 0 ? 'আপনার জন্য টিউটর মিলানো হচ্ছে। ' + bn(n) + ' জনের কাছে জানানো হয়েছে।' : 'আপনার জন্য টিউটর খুঁজছি।';
+    if(s === 'matched') return 'টিউটর মিলে গেছে ✓';
+    if(s === 'closed') return 'অনুরোধটা বন্ধ করা হয়েছে।';
+    return 'আমরা আপনার অনুরোধ দেখছি।';
+  }
+
+  var api = { profileStrength: profileStrength, requestLine: requestLine, SUBJECTS: SUBJECTS, CLASSES: CLASSES, MODES: MODES, TIMES: TIMES, LEVELS: LEVELS, GENDERS: GENDERS, STATUS: STATUS, REQ_STATUS: REQ_STATUS, MSG: MSG, errText: errText,
     labelOf: labelOf, labels: labels, keysOf: keysOf, enDigits: enDigits, bn: bn, cleanText: cleanText, cleanBio: cleanBio, normalizePhone: normalizePhone, textProblem: textProblem,
     validateRequest: validateRequest, validateProfile: validateProfile, searchArgs: searchArgs, wantLine: wantLine, waNumber: waNumber, waLink: waLink, msgToTutor: msgToTutor, msgToGuardian: msgToGuardian };
   root.TutorData = api;

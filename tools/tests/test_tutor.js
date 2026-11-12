@@ -61,6 +61,22 @@ yes('the text to a TUTOR names the request and carries no guardian name or numbe
 yes('the text to a GUARDIAN carries the tutor identity and the verified line, never the tutor number or the real name', (() => { const m = D.msgToGuardian(R, TU); return m.includes('রহিমা বেগম') && m.includes('করিম ভাইয়া') && m.includes('বরিশাল বিশ্ববিদ্যালয়') && m.includes('NID ও সনদের কপি দেখেছি') && !m.includes('01711223344') && !m.includes('মোঃ করিম উদ্দিন'); })());
 yes('an unverified tutor gets no verified line', !D.msgToGuardian(R, Object.assign({}, TU, { verify: 'none' })).includes('NID'));
 
+// ----- how complete a profile is, and what a guardian reads about their request -----
+eq('a full profile is 100 and has nothing left to add', [D.profileStrength(Object.assign({}, PROF, { gender: 'male', times: ['evening'], subjects: ['math', 'physics', 'ict'], bio: 'আমি গণিত পড়াতে ভালোবাসি। তিন বছরের অভিজ্ঞতা আছে। প্রতিটা বিষয় ধাপে ধাপে বুঝিয়ে পড়াই, আর প্রতি সপ্তাহে ছোট একটা পরীক্ষা নিই, যাতে পড়া মনে থাকে।' })).pct, D.profileStrength(Object.assign({}, PROF, { gender: 'male', times: ['evening'], subjects: ['math', 'physics', 'ict'], bio: 'আমি গণিত পড়াতে ভালোবাসি। তিন বছরের অভিজ্ঞতা আছে। প্রতিটা বিষয় ধাপে ধাপে বুঝিয়ে পড়াই, আর প্রতি সপ্তাহে ছোট একটা পরীক্ষা নিই, যাতে পড়া মনে থাকে।' })).tips.length], [100, 0]);
+eq('an empty draft is 0 with tips to follow', [D.profileStrength({}).pct, D.profileStrength({}).tips.length > 3], [0, true]);
+yes('the strength only grows when something is added (a name, then a phone)', (() => { const a = D.profileStrength({ full_name: 'করিম উদ্দিন' }).pct, b = D.profileStrength({ full_name: 'করিম উদ্দিন', phone: '01711223344' }).pct; return a > 0 && b > a && b <= 100; })());
+yes('the strength never passes 100 and every tip is Bangla', (() => { const s = D.profileStrength(PROF); return s.pct <= 100 && s.tips.every(t => /[ঀ-৿]/.test(t)); })());
+eq('the request line by status', [D.requestLine({ status: 'new' }), D.requestLine({ status: 'matching', sent: 0 }), D.requestLine({ status: 'matching', sent: 2 }), D.requestLine({ status: 'matched' }), D.requestLine({ status: 'closed' }), D.requestLine(null)].map(x => /[ঀ-৿]/.test(x)), [true, true, true, true, true, true]);
+yes('the request line says how many were told, in Bangla digits, and never promises a time', D.requestLine({ status: 'matching', sent: 2 }).includes('২ জনের') && !/ঘণ্টা|মিনিট|দিনের মধ্যে/.test(['new', 'matching', 'matched', 'closed'].map(s => D.requestLine({ status: s, sent: 3 })).join(' ')));
+
+// ----- the request-status function: what a guardian may learn about their own request -----
+const stSql = read('migrations/2026-12-18_tutor_request_status.sql');
+const stBody = (stSql.match(/create or replace function public\.tutor_request_status[^]*?as \$\$[^]*?\$\$/) || [''])[0].replace(/--[^\n]*/g, '');
+yes('the status function answers only the status, the time and a count (never a name, number, note or tutor)', /jsonb_build_object\('status'[^)]*'created_at'[^)]*'sent'/.test(stBody) && !/\b(phone|name|note|tutor_id|tutor_pid|device|user_id|admin_note)\b/.test(stBody.replace(/'(status|created_at|sent)'/g, '')));
+yes('the status function answers nothing for spam and is guarded by the unguessable id', /r\.id = p_id/.test(stBody) && /r\.status <> 'spam'/.test(stBody));
+yes('the status function is a security-definer function with a fixed search path, open to anon and signed-in members', /security definer set search_path = public/.test(stBody) && /revoke all on function public\.tutor_request_status\(uuid\) from public;/.test(stSql) && /grant execute on function public\.tutor_request_status\(uuid\) to anon, authenticated;/.test(stSql));
+yes('the status migration can run twice', /create or replace function/.test(stSql) && !/create table|create policy/.test(stSql));
+
 // ----- one set of lists everywhere: tutor-data.js, the SQL and /api/dir -----
 const sql = read('migrations/2026-12-17_tutors.sql'), dir = read('functions/api/dir.js');
 const sqlList = fn => ((sql.match(new RegExp('function public\\.' + fn + '\\(\\)[^]*?array\\[([^\\]]+)\\]')) || [])[1] || '').split(',').map(x => x.trim().replace(/'/g, ''));
@@ -89,7 +105,7 @@ const page = read('tutor.html'), join = read('tutor-join.html'), admin = read('a
 for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
   yes(f + ': Bangla page with a title and a description', /<html lang="bn">/.test(h) && (h.match(/<title>([^<]+)<\/title>/) || [])[1].length > 20 && /<meta name="description" content="[^"]{60,}/.test(h));
   eq(f + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
-  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=2/.test(h) && /tutor-data\.js\?v=1/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
+  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=3/.test(h) && /tutor-data\.js\?v=2/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
   yes(f + ': no ad place and no ad script on a service page', !/ad-slot|ads\.js|googlesyndication/.test(h));
   yes(f + ': never reads a tutor table directly (only the functions, and /api/dir)', !/\.from\(\s*['"]tutor_/.test(h));
   yes(f + ': every outside link carries rel="noopener"', [...h.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"[^>]*>/g)].filter(m => !/protishthan\.com/.test(m[1])).every(m => /rel="noopener"/.test(m[0])));
@@ -98,18 +114,25 @@ for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
 }
 yes('tutor.html is indexable and has its clean canonical', !/noindex/.test(page) && /rel="canonical" href="https:\/\/protishthan\.com\/tutor"/.test(page));
 yes('tutor-join.html is not indexed (a personal flow)', /<meta name="robots" content="noindex">/.test(join));
-yes('the public page calls exactly the three public functions', (() => { const names = [...page.matchAll(/rpc\('([a-z_]+)'/g)].map(m => m[1]); return names.length === 1 && names[0] === 'tutor_request_add'; })() && /f=tutorstate/.test(page) && /f=tutors/.test(page));
-yes('the join page calls only the member functions', (() => { const names = new Set([...join.matchAll(/rpc\('([a-z_]+)'/g)].map(m => m[1])); return [...names].sort().join() === 'tutor_my_profile,tutor_profile_pause,tutor_profile_save'; })());
+yes('the public page calls only the request function and the status function, and reads the list through /api/dir', (() => { const names = [...page.matchAll(/rpc\('([a-z_]+)'/g)].map(m => m[1]).sort(); return names.join() === 'tutor_request_add,tutor_request_status'; })() && /f=tutorstate/.test(page) && /f=tutors/.test(page));yes('the join page calls only the member functions', (() => { const names = new Set([...join.matchAll(/rpc\('([a-z_]+)'/g)].map(m => m[1])); return [...names].sort().join() === 'tutor_my_profile,tutor_profile_pause,tutor_profile_save'; })());
 // the argument names the pages send are exactly the SQL parameter names
 const params = fn => { const m = sql.match(new RegExp('function public\\.' + fn + '\\(([^)]*)\\)')); return m ? m[1].replace(/default [^,]+/g, '').split(',').map(x => x.trim().split(/\s+/)[0]).filter(Boolean) : []; };
 const sent = (h, fn) => { const m = h.match(new RegExp("rpc\\('" + fn + "', \\{([^}]*)\\}")); return m ? [...m[1].matchAll(/(p_[a-z_]+):/g)].map(x => x[1]) : []; };
 eq('tutor_request_add: the page sends the SQL parameters, no more, no fewer', sent(page, 'tutor_request_add').sort(), params('tutor_request_add').sort());
+eq('tutor_request_status: the page sends only the request id', sent(page, 'tutor_request_status'), ['p_id']);
 eq('tutor_profile_save: the page sends p_data and p_submit', sent(join, 'tutor_profile_save').sort(), params('tutor_profile_save').sort());
 eq('tutor_profile_pause: the page sends p_pause', sent(join, 'tutor_profile_pause').sort(), params('tutor_profile_pause').sort());
 yes('the request form has a hidden trap field that the server checks', /id="rHp"/.test(page) && /p_hp: \$\('rHp'\)\.value/.test(page) && /raise exception 'SPAM'/.test(sql));
 yes('the join flow has all four steps and the consent boxes', [1, 2, 3, 4].every(n => new RegExp('data-step="' + n + '"').test(join)) && /id="jAge"/.test(join) && /id="jTerms"/.test(join));
 yes('the page says plainly what it cannot do (no background check, no guarantee)', /ব্যাকগ্রাউন্ড চেক নয়/.test(page) && /নিশ্চয়তা/.test(page));
 yes('no invented numbers, ratings or testimonials on the public page', !/[★⭐]|\d+\s*\+?\s*(জন|হাজার)\s*(টিউটর|অভিভাবক)\s*(যুক্ত|আছেন)|রিভিউ\s*[০-৯0-9]/.test(page) && !/testimonial|"rating"/i.test(page));
+
+const css = read('tutor.css');
+yes('the redesigned landing: who-are-you switch, pill search, problem cards, verification ladder, checklist, tutor call-to-action, FAQ', /class="tt-seg2"/.test(page) && /class="tt-pill"/.test(page) && (page.match(/class="tt-bc"/g) || []).length === 6 && (page.match(/class="tt-lv/g) || []).length === 3 && /id="ttClList"/.test(page) && /class="tt-join2"/.test(page) && (page.match(/<details>/g) || []).length === 6);
+yes('the hero picture is decoration only (hidden from screen readers, no text a reader needs) and moves only when motion is allowed', /<div class="tt-art" aria-hidden="true">/.test(page) && /prefers-reduced-motion:reduce\)\{\.tt-fl/.test(css));
+yes('the sample tutor card is labelled as a sample and holds no real person', /class="tt-sample">নমুনা/.test(page) && /নমুনা নাম/.test(page));
+yes('the public landing keeps the honest lines: free for guardians, the number is shown only to a tutor who agrees, not a background check, the fee is theirs to agree', /অভিভাবকের জন্য ফ্রি/.test(page) && /ব্যাকগ্রাউন্ড চেক নয়/.test(page) && /ফি আপনি আর টিউটর নিজেরা ঠিক করেন/.test(page));
+yes('the join page has the meter and the three-step road, and shows the guardian-side switch', /id="jMeter"/.test(join) && /class="tt-road"/.test(join) && /<a href="\/tutor">আমি টিউটর খুঁজছি<\/a>/.test(join));
 
 // ----- the admin tab -----
 yes('the admin has the menu item, the view, the two switches and the lists', /id="nav-tutors"/.test(admin) && /id="view-tutors"/.test(admin) && /id="ttListing"/.test(admin) && /id="ttOpen"/.test(admin) && /id="ttListReq"/.test(admin) && /id="ttListPro"/.test(admin));
