@@ -1,7 +1,9 @@
 /* ভাইয়া-আপু: the card-style dropdown (the same look as the home page filters: a search box, an "all" row, option cards in two columns).
    It wraps a normal <select>, which stays in the page (hidden) as the single source of truth: the page code keeps reading and setting select.value, filling its options,
    disabling it and marking it aria-invalid, and the dropdown follows. Nothing is sent anywhere.
-   TTSelect.enhance(select, { search: 'placeholder text' (omit for no search box), allLabel: 'the row that clears the choice' (omit if a choice is required), float: true (opens over the page; a bottom sheet on a phone) }) */
+   TTSelect.enhance(select, { search: 'placeholder text' (omit for no search box), allLabel: 'the row that clears the choice' (omit if a choice is required), float: true (opens over the page; a bottom sheet on a phone),
+                               compact: true (the sidebar look of the home page filters: an icon tile, a small label above the value; with icon: '<svg…>', label: 'জেলা', clear: true for a round × that empties the choice) })
+   It tells the page when a card opens or closes with a bubbling 'tts:toggle' event. */
 (function(root){
   'use strict';
   var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -17,8 +19,9 @@
     sel.classList.add('tts-native'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
     var lab = sel.id ? document.querySelector('label[for="' + sel.id + '"]') : null;
     var wrap = document.createElement('div');
-    wrap.className = 'tts' + (o.float ? ' tts-float' : ' tts-field');
-    wrap.innerHTML = '<button type="button" class="tts-btn" aria-haspopup="listbox" aria-expanded="false"' + (sel.id ? ' id="' + esc(sel.id) + '-btn"' : '') + '><span class="tts-val"></span>' + CHEV + '</button>' +
+    wrap.className = 'tts' + (o.float ? ' tts-float' : ' tts-field') + (o.compact ? ' tts-compact' : '');
+    var face = o.compact ? ((o.icon ? '<span class="tts-ic" aria-hidden="true">' + o.icon + '</span>' : '') + '<span class="tts-txt"><span class="tts-lbl">' + esc(o.label || '') + '</span><span class="tts-val"></span></span>' + (o.clear ? '<span class="tts-clear-slot"></span>' : '')) : '<span class="tts-val"></span>';
+    wrap.innerHTML = '<button type="button" class="tts-btn" aria-haspopup="listbox" aria-expanded="false"' + (sel.id ? ' id="' + esc(sel.id) + '-btn"' : '') + '>' + face + CHEV + '</button>' +
       '<div class="tts-bd"></div>' +
       '<div class="tts-panel" role="listbox">' + (o.search ? '<div class="tts-search">' + LENS + '<input type="text" autocomplete="off" placeholder="' + esc(o.search) + '" aria-label="' + esc(o.search) + '"></div>' : '') + '<div class="tts-list"></div></div>';
     sel.insertAdjacentElement('afterend', wrap);
@@ -42,6 +45,7 @@
       var c = cur();
       val.textContent = c ? c.text : '';
       wrap.classList.toggle('empty', !sel.value);
+      var slot = wrap.querySelector('.tts-clear-slot'); if(slot) slot.innerHTML = sel.value && !sel.disabled ? '<span class="tts-clear" role="button" aria-label="মুছুন">×</span>' : '';
       btn.disabled = !!sel.disabled;
       if(sel.getAttribute('aria-invalid') === 'true') btn.setAttribute('aria-invalid', 'true'); else btn.removeAttribute('aria-invalid');
       btn.setAttribute('aria-label', (lab ? lab.textContent.trim() + ': ' : '') + (c ? c.text : ''));
@@ -50,7 +54,7 @@
     function open(){
       if(btn.disabled) return;
       if(openOne && openOne !== api) openOne.close();
-      openOne = api; wrap.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      openOne = api; wrap.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); wrap.dispatchEvent(new CustomEvent('tts:toggle', { bubbles: true, detail: { open: true } }));
       if(input) input.value = '';
       render('');
       var fine = root.matchMedia && root.matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -61,7 +65,7 @@
       setTimeout(function(){ if(isOpen() && !wrap.classList.contains('tts-float')) wrap.querySelector('.tts-panel').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 40);
     }
     function close(){
-      wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); if(openOne === api) openOne = null;
+      var was = wrap.classList.contains('open'); wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); if(openOne === api) openOne = null; if(was) wrap.dispatchEvent(new CustomEvent('tts:toggle', { bubbles: true, detail: { open: false } }));
       [].forEach.call(list.querySelectorAll('.kb'), function(x){ x.classList.remove('kb'); });
     }
     function pick(v){
@@ -78,7 +82,7 @@
       if(act > -1) opts[i].focus({ preventScroll: true });
     }
 
-    btn.addEventListener('click', function(){ isOpen() ? close() : open(); });
+    btn.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('.tts-clear')){ e.stopPropagation(); pick(''); return; } isOpen() ? close() : open(); });
     wrap.querySelector('.tts-bd').addEventListener('click', close);
     if(lab) lab.addEventListener('click', function(e){ e.preventDefault(); isOpen() ? close() : open(); });
     list.addEventListener('click', function(e){ var b = e.target.closest ? e.target.closest('.tts-opt') : null; if(b) pick(b.getAttribute('data-v')); });

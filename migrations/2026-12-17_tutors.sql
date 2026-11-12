@@ -151,6 +151,9 @@ create or replace function public.tutor_state() returns jsonb language sql stabl
 $$;
 
 -- ---------- public: the search (approved profiles, and only when the admin has switched the list on) ----------
+-- (if a later file has already given this function more arguments or columns, they are taken off here so only this file's version is left: run the later files again after this one)
+drop function if exists public.tutor_search(text, text, text, text, text, int, int, text, text, text, boolean, boolean, boolean, text);
+drop function if exists public.tutor_search(text, text, text, text, text, int, int);
 create or replace function public.tutor_search(p_district text default null, p_upazila text default null, p_class text default null, p_subject text default null, p_mode text default null, p_limit int default 12, p_offset int default 0)
 returns table (pid text, name text, gender text, institution text, department text, edu_level text, subjects text[], classes text[], modes text[], times text[], district text, upazila text, bio text, verified boolean, local boolean, total bigint)
 language sql stable security definer set search_path = public as $$
@@ -177,6 +180,7 @@ $$;
 
 -- ---------- public: a guardian's request. Answers {id}; a refusal raises one of:
 -- SPAM CLOSED BAD_DEVICE BAD_NAME BAD_PHONE BAD_CLASS BAD_SUBJECT BAD_MODE BAD_AREA BAD_TEXT BAD_LINK BAD_PRIVATE TOO_FAST DAILY_LIMIT PHONE_LIMIT DUPLICATE BUSY
+drop function if exists public.tutor_request_add(text, text, text, text, text, text, text[], text, text, text, text, text, text, text, boolean);
 create or replace function public.tutor_request_add(
   p_device text, p_name text, p_phone text, p_district text, p_upazila text, p_class text,
   p_subjects text[], p_mode text, p_note text, p_tutor text, p_hp text)

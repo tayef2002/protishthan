@@ -22,6 +22,7 @@
   var PREFS = [['', 'যেকোনো'], ['female', 'আপু'], ['male', 'ভাইয়া']];
   var STUDENT_LEVELS = [['weak', 'পড়ায় দুর্বল'], ['mid', 'মাঝারি'], ['good', 'ভালো, আরও এগোতে চায়']];
   var GOALS = [['exam', 'পরীক্ষার ভালো প্রস্তুতি'], ['concept', 'ভিত শক্ত করা'], ['homework', 'হোমওয়ার্ক আর স্কুলের পড়ায় সাহায্য']];
+  var SORTS = [['best', 'সেরা মিল', 'আপনার এলাকার আর যাচাইকৃত টিউটর আগে'], ['new', 'নতুন যোগ দিয়েছেন', 'এলাকার টিউটর আগে, তাঁদের মধ্যে নতুনরা'], ['verified', 'যাচাইকৃত আগে', 'যাঁদের NID ও সনদ আমরা দেখেছি, তাঁরা আগে']];
   var STATUS = { draft: 'খসড়া', submitted: 'রিভিউয়ের অপেক্ষায়', approved: 'অনুমোদিত', rejected: 'অনুমোদন হয়নি', paused: 'বিরতিতে' };
   var REQ_STATUS = { 'new': 'নতুন', matching: 'মিলানো চলছে', matched: 'মিলে গেছে', closed: 'বন্ধ', spam: 'স্প্যাম' };
 
@@ -112,9 +113,69 @@
     if(f && keysOf(CLASSES).indexOf(f.cls) > -1) a.p_class = f.cls;
     if(f && keysOf(SUBJECTS).indexOf(f.subject) > -1) a.p_subject = f.subject;
     if(f && (f.mode === 'home' || f.mode === 'online')) a.p_mode = f.mode;
+    if(f && keysOf(GENDERS).indexOf(f.gender) > -1) a.p_gender = f.gender;
+    if(f && keysOf(MEDIUMS).indexOf(f.medium) > -1) a.p_medium = f.medium;
+    if(f && keysOf(EXAMS).indexOf(f.exam) > -1) a.p_exam = f.exam;
+    if(f && f.trial === true) a.p_trial = true;
+    if(f && f.verified === true) a.p_verified = true;
+    if(f && f.pledge === true) a.p_pledge = true;
+    if(f && (f.sort === 'new' || f.sort === 'verified')) a.p_sort = f.sort;
     return a;
   }
-
+  /* the question for /api/dir?f=tutorfacets: the counts per option for an area and a mode (class, subject and the other filters do not narrow the counts) */
+  function facetArgs(f){
+    var a = {};
+    if(f && f.district) a.p_district = f.district;
+    if(f && f.upazila) a.p_upazila = f.upazila;
+    if(f && (f.mode === 'home' || f.mode === 'online')) a.p_mode = f.mode;
+    return a;
+  }
+  /* the filters of the results page: what a visit starts with, what the address holds, and back */
+  function blankFilters(){ return { district: '', upazila: '', cls: '', subject: '', mode: 'any', gender: '', medium: '', exam: '', trial: false, verified: false, pledge: false, sort: 'best' }; }
+  var QP = { district: 'd', upazila: 'u', cls: 'c', subject: 's', mode: 'm', gender: 'g', medium: 'md', exam: 'x', trial: 't', verified: 'v', pledge: 'p', sort: 'o' };
+  function queryFromFilters(f){
+    var p = [], add = function(k, v){ p.push(k + '=' + encodeURIComponent(v)); };
+    if(f.district) add(QP.district, f.district); if(f.upazila) add(QP.upazila, f.upazila); if(f.cls) add(QP.cls, f.cls); if(f.subject) add(QP.subject, f.subject);
+    if(f.mode === 'home' || f.mode === 'online') add(QP.mode, f.mode);
+    if(f.gender) add(QP.gender, f.gender); if(f.medium) add(QP.medium, f.medium); if(f.exam) add(QP.exam, f.exam);
+    if(f.trial) add(QP.trial, '1'); if(f.verified) add(QP.verified, '1'); if(f.pledge) add(QP.pledge, '1');
+    if(f.sort === 'new' || f.sort === 'verified') add(QP.sort, f.sort);
+    return p.join('&');
+  }
+  /* an address a visitor (or a shared link) brings: only values from our own lists are taken, the rest is ignored. The district and upazila are checked by the page against the location list. */
+  function filtersFromQuery(search){
+    var f = blankFilters(), q = new URLSearchParams(String(search || '').replace(/^\?/, '')), pick = function(k, list){ var v = q.get(QP[k]) || ''; return keysOf(list).indexOf(v) > -1 ? v : ''; };
+    f.district = cleanText(q.get(QP.district) || '', 40); f.upazila = cleanText(q.get(QP.upazila) || '', 60);
+    f.cls = pick('cls', CLASSES); f.subject = pick('subject', SUBJECTS); f.gender = pick('gender', GENDERS); f.medium = pick('medium', MEDIUMS); f.exam = pick('exam', EXAMS);
+    f.mode = q.get(QP.mode) === 'home' || q.get(QP.mode) === 'online' ? q.get(QP.mode) : 'any';
+    f.trial = q.get(QP.trial) === '1'; f.verified = q.get(QP.verified) === '1'; f.pledge = q.get(QP.pledge) === '1';
+    f.sort = q.get(QP.sort) === 'new' || q.get(QP.sort) === 'verified' ? q.get(QP.sort) : 'best';
+    return f;
+  }
+  /* the removable chips above the results: [key, label] for every filter that is on (the sort is not a filter) */
+  function filterChips(f){
+    var c = [];
+    if(f.district) c.push(['district', f.district]); if(f.upazila) c.push(['upazila', f.upazila]);
+    if(f.mode === 'home') c.push(['mode', 'বাসায় পড়ান']); if(f.mode === 'online') c.push(['mode', 'অনলাইনে পড়ান']);
+    if(f.cls) c.push(['cls', labelOf(CLASSES, f.cls)]); if(f.subject) c.push(['subject', labelOf(SUBJECTS, f.subject)]);
+    if(f.gender) c.push(['gender', labelOf(GENDERS, f.gender)]); if(f.medium) c.push(['medium', labelOf(MEDIUMS, f.medium)]); if(f.exam) c.push(['exam', labelOf(EXAMS, f.exam)]);
+    if(f.trial) c.push(['trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল']); if(f.verified) c.push(['verified', 'শুধু যাচাইকৃত']); if(f.pledge) c.push(['pledge', 'প্রতিশ্রুতি দিয়েছেন']);
+    return c;
+  }
+  /* the classes a tutor teaches as one short text: [c1-5, c6-8] gives "১-৮", [c9-10, admission] gives "৯-১০, ভর্তি" */
+  var CLASS_RANGES = { 'c1-5': [1, 5], 'c6-8': [6, 8], 'c9-10': [9, 10], 'c11-12': [11, 12] };
+  function classSpan(keys){
+    var rs = (keys || []).filter(function(k){ return CLASS_RANGES[k]; }).map(function(k){ return CLASS_RANGES[k].slice(); }).sort(function(a, b){ return a[0] - b[0]; }), merged = [];
+    rs.forEach(function(x){ var last = merged[merged.length - 1]; if(last && x[0] === last[1] + 1) last[1] = x[1]; else merged.push(x); });
+    var parts = merged.map(function(m){ return bn(m[0]) + '-' + bn(m[1]); });
+    if((keys || []).indexOf('admission') > -1) parts.push('ভর্তি');
+    return parts.join(', ');
+  }
+  /* the three small facts on a result card (like the students / teachers / founded boxes of the directory): what a tutor offers, never a claim */
+  function statsOf(t){
+    var m = t.modes || [], how = m.indexOf('home') > -1 && m.indexOf('online') > -1 ? 'বাসা + অনলাইন' : m.indexOf('home') > -1 ? 'বাসায়' : m.indexOf('online') > -1 ? 'অনলাইনে' : '';
+    return [{ l: 'শ্রেণি', v: classSpan(t.classes) }, { l: 'কীভাবে', v: how }, { l: 'প্রথম ক্লাস', v: t.trial ? 'ফ্রি ট্রায়াল' : '' }];
+  }
   /* a short, readable line about what a guardian wants (admin tab, WhatsApp messages) */
   function wantLine(r){
     var where = r.mode === 'online' ? 'অনলাইনে' : [r.district, r.upazila].filter(Boolean).join(', ') + (r.mode === 'home' ? ' (বাসায়)' : '');
@@ -210,6 +271,7 @@
   }
 
   var api = { profileStrength: profileStrength, requestLine: requestLine, prefLine: prefLine, extrasOf: extrasOf, extrasHtml: extrasHtml, normalizeGpa: normalizeGpa,
+    SORTS: SORTS, facetArgs: facetArgs, blankFilters: blankFilters, queryFromFilters: queryFromFilters, filtersFromQuery: filtersFromQuery, filterChips: filterChips, classSpan: classSpan, statsOf: statsOf,
     MEDIUMS: MEDIUMS, EXAMS: EXAMS, STYLES: STYLES, BATCHES: BATCHES, DAYS: DAYS, SESSIONS: SESSIONS, EXPS: EXPS, TAUGHTS: TAUGHTS, PLEDGES: PLEDGES, PREFS: PREFS, STUDENT_LEVELS: STUDENT_LEVELS, GOALS: GOALS,
     SUBJECTS: SUBJECTS, CLASSES: CLASSES, MODES: MODES, TIMES: TIMES, LEVELS: LEVELS, GENDERS: GENDERS, STATUS: STATUS, REQ_STATUS: REQ_STATUS, MSG: MSG, errText: errText,
     labelOf: labelOf, labels: labels, keysOf: keysOf, enDigits: enDigits, bn: bn, cleanText: cleanText, cleanBio: cleanBio, normalizePhone: normalizePhone, textProblem: textProblem,

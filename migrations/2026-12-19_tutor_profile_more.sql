@@ -43,6 +43,7 @@ create or replace function public.tutor_gpa(p text) returns text language sql im
 $$;
 
 -- ---------- public: the search. It gains columns, so it is dropped and made again ----------
+drop function if exists public.tutor_search(text, text, text, text, text, int, int, text, text, text, boolean, boolean, boolean, text);
 drop function if exists public.tutor_search(text, text, text, text, text, int, int);
 create function public.tutor_search(p_district text default null, p_upazila text default null, p_class text default null, p_subject text default null, p_mode text default null, p_limit int default 12, p_offset int default 0)
 returns table (pid text, name text, gender text, institution text, department text, edu_level text, subjects text[], classes text[], modes text[], times text[], district text, upazila text, bio text, verified boolean, local boolean, total bigint,

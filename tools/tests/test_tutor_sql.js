@@ -182,6 +182,60 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('the database itself refuses a bad GPA, batch or session even from a direct write', /check/i.test(String(await err(`update public.tutor_profiles set ssc_gpa = '7.0' where user_id = '${U1}'`))) && /check/i.test(String(await err(`update public.tutor_profiles set batch = 'x' where user_id = '${U1}'`))) && /check/i.test(String(await err(`update public.tutor_profiles set session_mins = 50 where user_id = '${U1}'`))));
   ok('after the upgrade the grants are the same: anon may search and send requests, anon may NOT save profiles', await can('x', `has_function_privilege('anon', 'public.tutor_search(text,text,text,text,text,int,int)', 'execute') and has_function_privilege('anon', 'public.tutor_request_add(text,text,text,text,text,text,text[],text,text,text,text,text,text,text,boolean)', 'execute') and not has_function_privilege('anon', 'public.tutor_profile_save(jsonb,boolean)', 'execute') and has_function_privilege('authenticated', 'public.tutor_profile_save(jsonb,boolean)', 'execute')`));
 
+  // ================= the browse system (2026-12-20): filters, sorts and counts, run as an UPGRADE on top of everything above =================
+  const SQL4 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-20_tutor_browse.sql'), 'utf8');
+  let b1 = null; try { await db.exec(SQL4); } catch (e) { b1 = e.message; }
+  ok('the browse migration runs on a database that already has tutors', b1 === null, String(b1));
+  let b2 = null; try { await db.exec(SQL4); await db.exec(SQL4); await db.exec(SQL); await db.exec(SQL2); await db.exec(SQL3); await db.exec(SQL4); } catch (e) { b2 = e.message; }
+  ok('and it can run twice, and all the files can be run again in order', b2 === null, String(b2));
+  ok('exactly one tutor_search and one tutor_facets exist (the old 7-argument form is gone)', (await q(`select count(*)::int n from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'tutor_search'`))[0].n === 1 && (await q(`select count(*)::int n from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'tutor_facets'`))[0].n === 1);
+  ok('the OLD page\'s 7-argument search call still works (the new arguments have defaults)', (await S('বরিশাল', 'বরিশাল সদর', null, null, 'home', 12, 0)).length >= 1);
+
+  // five tutors with known attributes (the trigger that touches updated_at is paused so the order is under control)
+  const U3 = '33333333-3333-3333-3333-333333333333', U4 = '44444444-4444-4444-4444-444444444444', U5 = '55555555-5555-5555-5555-555555555555', U6 = '66666666-6666-6666-6666-666666666666';
+  const mk = (extra) => Object.assign({}, PROF, { display_name: 'x', age_ok: true, terms_ok: true }, extra);
+  await save(U1, mk({ display_name: 'করিম ভাইয়া', gender: 'male', district: 'বরিশাল', upazila: 'বরিশাল সদর', modes: ['home', 'online'], classes: ['c6-8', 'c9-10'], subjects: ['math', 'physics'], medium: ['bangla'], exams: ['ssc'], trial: true, pledge: ['guardian_first', 'open_place', 'hours'], fee_note: '', fee_show: false, achv: '', ssc_gpa: '', hsc_gpa: '' }), true);
+  await save(U3, mk({ full_name: 'নীলা আহমেদ', display_name: 'নীলা আপু', gender: 'female', phone: '01811111112', district: 'ঢাকা', upazila: 'ধানমন্ডি', modes: ['home'], classes: ['c9-10', 'c11-12'], subjects: ['math', 'physics'], medium: ['english_version'], exams: ['hsc', 'admission_eng'], trial: true, pledge: ['guardian_first', 'open_place', 'hours'] }), true);
+  await save(U4, mk({ full_name: 'রাফি হাসান', display_name: 'রাফি ভাইয়া', gender: 'male', phone: '01811111113', district: 'বরিশাল', upazila: 'বরিশাল সদর', modes: ['home', 'online'], classes: ['c6-8'], subjects: ['english'], medium: ['bangla'], exams: ['ssc'], trial: false, pledge: [] }), true);
+  await save(U5, mk({ full_name: 'মিম জাহান', display_name: 'মিম আপু', gender: 'female', phone: '01811111114', district: 'খুলনা', upazila: 'ডুমুরিয়া', modes: ['online'], classes: ['c1-5'], subjects: ['math'], medium: ['bangla'], exams: [], trial: true, pledge: ['guardian_first', 'hours'] }), true);
+  await save(U6, mk({ full_name: 'অপেক্ষায় আছেন', display_name: 'অপেক্ষা', phone: '01811111115' }), true);        // submitted, never approved
+  await db.exec(`alter table public.tutor_profiles disable trigger tutor_profiles_touch`);
+  await db.exec(`update public.tutor_profiles set status = 'approved', verify = 'verified', approved_at = '2026-03-01', updated_at = '2026-05-01' where user_id = '${U1}'`);
+  await db.exec(`update public.tutor_profiles set status = 'approved', verify = 'none', approved_at = '2026-01-01', updated_at = '2026-05-02' where user_id = '${U3}'`);
+  await db.exec(`update public.tutor_profiles set status = 'approved', verify = 'none', approved_at = '2026-04-01', updated_at = '2026-05-03' where user_id = '${U4}'`);
+  await db.exec(`update public.tutor_profiles set status = 'approved', verify = 'none', approved_at = '2026-02-01', updated_at = '2026-05-04' where user_id = '${U5}'`);
+  await db.exec(`update public.tutor_profiles set status = 'submitted' where user_id in ('${U6}', '${U2}')`);
+  await db.exec(`alter table public.tutor_profiles enable trigger tutor_profiles_touch`);
+  await db.exec(`update public.tutor_settings set public_listing = true`);
+  const SB = (o) => q('select * from public.tutor_search(' + Object.keys(o).map((k, i) => k + ' => $' + (i + 1)).join(', ') + ')', Object.values(o));
+  const names = (rs) => rs.map(r => r.name).join(',');
+  ok('with the list on there are four tutors (the submitted ones are never shown)', (await SB({ p_limit: 30 })).length === 4 && Number((await SB({ p_limit: 1 }))[0].total) === 4);
+  ok('filter: who teaches (apu / bhaiya)', names(await SB({ p_gender: 'female', p_limit: 30 })).split(',').sort().join() === 'নীলা আপু,মিম আপু' && names(await SB({ p_gender: 'male', p_limit: 30 })).split(',').sort().join() === 'করিম ভাইয়া,রাফি ভাইয়া');
+  ok('filter: medium and exam focus', names(await SB({ p_medium: 'english_version', p_limit: 30 })) === 'নীলা আপু' && (await SB({ p_medium: 'bangla', p_limit: 30 })).length === 3 && (await SB({ p_exam: 'ssc', p_limit: 30 })).length === 2 && names(await SB({ p_exam: 'hsc', p_limit: 30 })) === 'নীলা আপু' && (await SB({ p_exam: 'ielts', p_limit: 30 })).length === 0);
+  ok('filter: free trial, verified only, three promises', (await SB({ p_trial: true, p_limit: 30 })).length === 3 && names(await SB({ p_verified: true, p_limit: 30 })) === 'করিম ভাইয়া' && (await SB({ p_pledge: true, p_limit: 30 })).length === 2);
+  ok('filters combine (and a false flag is no filter)', names(await SB({ p_gender: 'female', p_trial: true, p_pledge: true, p_limit: 30 })) === 'নীলা আপু' && (await SB({ p_trial: false, p_verified: false, p_pledge: false, p_limit: 30 })).length === 4);
+  ok('a filter value that does not exist is no error, only an empty answer; an unknown sort is the default one', (await SB({ p_gender: 'alien', p_limit: 30 })).length === 0 && names(await SB({ p_sort: 'zzz', p_district: 'ঢাকা', p_upazila: 'ধানমন্ডি', p_limit: 30 })) === names(await SB({ p_district: 'ঢাকা', p_upazila: 'ধানমন্ডি', p_limit: 30 })));
+  const dhaka = { p_district: 'ঢাকা', p_upazila: 'ধানমন্ডি', p_limit: 30 }, barisal = { p_district: 'বরিশাল', p_upazila: 'বরিশাল সদর', p_limit: 30 };
+  ok('sort best: the area first, then verified, then recently active', names(await SB(Object.assign({ p_sort: 'best' }, dhaka))) === 'নীলা আপু,করিম ভাইয়া,মিম আপু,রাফি ভাইয়া' && names(await SB(barisal)) === 'করিম ভাইয়া,রাফি ভাইয়া,মিম আপু', names(await SB(Object.assign({ p_sort: 'best' }, dhaka))));
+  ok('sort verified: the verified tutor first even when from elsewhere, then the area', names(await SB(Object.assign({ p_sort: 'verified' }, dhaka))) === 'করিম ভাইয়া,নীলা আপু,মিম আপু,রাফি ভাইয়া', names(await SB(Object.assign({ p_sort: 'verified' }, dhaka))));
+  ok('sort new: the area first, then who joined last', names(await SB(Object.assign({ p_sort: 'new' }, dhaka))) === 'নীলা আপু,রাফি ভাইয়া,করিম ভাইয়া,মিম আপু' && names(await SB(Object.assign({ p_sort: 'new' }, barisal))) === 'রাফি ভাইয়া,করিম ভাইয়া,মিম আপু', names(await SB(Object.assign({ p_sort: 'new' }, barisal))));
+  const pages = []; for (const o of [0, 1, 2, 3]) pages.push(...(await SB({ p_limit: 1, p_offset: o })).map(r => r.pid));
+  ok('paging is stable: one by one gives every tutor once', new Set(pages).size === 4 && pages.length === 4, pages.join());
+  const F = async (d, u, m) => (await q('select public.tutor_facets($1,$2,$3) as f', [d, u, m]))[0].f;
+  let f1 = await F('বরিশাল', 'বরিশাল সদর', null);
+  ok('facets for Barisal Sadar: total, modes, classes, subjects', f1.total === 3 && f1.modes.home === 2 && f1.modes.online === 3 && f1.classes['c6-8'] === 2 && f1.classes['c9-10'] === 1 && f1.classes['c1-5'] === 1 && !('c11-12' in f1.classes) && f1.subjects.math === 2 && f1.subjects.physics === 1 && f1.subjects.english === 1, JSON.stringify(f1));
+  ok('facets: gender, medium, exams, trial, verified, three promises', f1.gender.male === 2 && f1.gender.female === 1 && f1.medium.bangla === 3 && f1.exams.ssc === 2 && f1.trial === 2 && f1.verified === 1 && f1.pledge === 1, JSON.stringify(f1));
+  const f2 = await F('ঢাকা', 'ধানমন্ডি', 'home');
+  ok('facets follow the mode: Dhanmondi at home is only the one tutor who teaches there', f2.total === 1 && f2.modes.home === 1 && f2.classes['c11-12'] === 1 && f2.medium.english_version === 1, JSON.stringify(f2));
+  ok('facets give only counts: the keys are fixed and no name, number or id appears', Object.keys(f1).sort().join() === 'classes,exams,gender,medium,modes,pledge,subjects,total,trial,verified' && !/করিম|নীলা|0181|01711|[0-9a-f]{12}/.test(JSON.stringify(f1)), JSON.stringify(f1));
+  await db.exec(`update public.tutor_settings set public_listing = false`);
+  const f0 = await F(null, null, null);
+  ok('with the list off the facets are all zero (nothing is revealed) and the search is empty', f0.total === 0 && Object.keys(f0.classes).length === 0 && f0.trial === 0 && (await SB({ p_limit: 30 })).length === 0, JSON.stringify(f0));
+  await db.exec(`update public.tutor_settings set public_listing = true`);
+  ok('anon may call the new search and the facets, and still not the profile functions', await can('x', `has_function_privilege('anon', 'public.tutor_search(text,text,text,text,text,int,int,text,text,text,boolean,boolean,boolean,text)', 'execute') and has_function_privilege('anon', 'public.tutor_facets(text,text,text)', 'execute') and not has_function_privilege('anon', 'public.tutor_profile_save(jsonb,boolean)', 'execute') and not has_function_privilege('anon', 'public.tutor_my_profile()', 'execute')`));
+  const cols3 = Object.keys((await SB({ p_limit: 1 }))[0]);
+  ok('the search still returns the same columns and never the phone, real name, area note, admin note, user id, fee switch or promise list', ['pid', 'name', 'gender', 'trial', 'pledge_all', 'fee', 'total', 'local'].every(c => cols3.includes(c)) && !cols3.some(c => ['phone', 'full_name', 'fee_note', 'fee_show', 'pledge', 'admin_note', 'user_id', 'area_note'].includes(c)), cols3.join());
+
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error('ERR', e); process.exit(1); });

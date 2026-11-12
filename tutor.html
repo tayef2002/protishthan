@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=9">
+<link rel="stylesheet" href="/tutor.css?v=11">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -47,6 +47,7 @@
     </form>
     <div class="tt-modes"><span class="tt-lab" id="sModeL">কোথায় পড়াবেন</span><div class="tt-pick" id="sMode" role="group" aria-labelledby="sModeL"></div></div>
     <div class="tt-quick" id="sQuick"><span>জনপ্রিয়</span><button type="button" data-s="math">গণিত</button><button type="button" data-s="english">ইংরেজি</button><button type="button" data-s="science">বিজ্ঞান</button><button type="button" data-s="admission">ভর্তি প্রস্তুতি</button><button type="button" data-s="handwriting">হাতের লেখা</button><button type="button" data-m="online">অনলাইনে</button></div>
+    <p class="tt-direct">সময় নেই? <button type="button" class="tt-linkbtn" id="ttDirect" data-t="tutor_direct_click">সরাসরি অনুরোধ পাঠান →</button></p>
 
     <div class="tt-trust">
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>অভিভাবকের জন্য ফ্রি</span>
@@ -105,10 +106,45 @@
   <section class="tt-my" id="myReq" aria-live="polite" hidden></section>
 
   <section class="tt-res" id="ttRes" aria-live="polite" aria-busy="false" hidden>
-    <div class="tt-resbar"><h2 id="ttResT" tabindex="-1"></h2><button type="button" class="tt-btn sec sm" id="ttResReq">অনুরোধ পাঠান</button></div>
-    <div id="ttResBody"></div>
+    <div class="rs-layout">
+      <aside class="rs-filters" id="rsFilters" aria-label="ফিল্টার">
+        <div class="rs-fhead"><h2>ফিল্টার</h2><button type="button" class="rs-reset" id="rsReset">সব মুছুন</button><button type="button" class="rs-close" id="rsClose" aria-label="বন্ধ করুন">×</button></div>
+        <div class="rs-sec"><div class="rs-ft">কীভাবে পড়াবেন</div><div class="rs-opts" id="fMode"></div></div>
+        <div class="rs-sec"><div class="rs-ft">জেলা ও উপজেলা</div><select id="fDist" aria-label="জেলা"></select><select id="fUp" aria-label="উপজেলা"></select></div>
+        <div class="rs-sec"><div class="rs-ft">শ্রেণি</div><div class="rs-chips" id="fCls"></div></div>
+        <div class="rs-sec"><div class="rs-ft">বিষয়</div><div class="rs-chips" id="fSub"></div></div>
+        <div class="rs-sec"><div class="rs-ft">কে পড়াবেন</div><div class="rs-chips" id="fGender"></div></div>
+        <div class="rs-sec"><div class="rs-ft">শিক্ষার মাধ্যম</div><div class="rs-chips" id="fMed"></div></div>
+        <div class="rs-sec"><div class="rs-ft">পরীক্ষার প্রস্তুতি</div><div class="rs-chips" id="fExam"></div></div>
+        <div class="rs-sec" id="fSwitches"></div>
+        <button type="button" class="rs-apply" id="rsApply">ফলাফল দেখুন</button>
+      </aside>
+      <section class="rs-main">
+        <div class="rs-head">
+          <div class="rs-title"><h2 id="ttResT" tabindex="-1">টিউটরের তালিকা</h2><span class="rs-count" id="rsCount"></span></div>
+          <div class="rs-tools">
+            <button type="button" class="rs-fbtn" id="rsOpen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>ফিল্টার <span class="rs-fc" id="rsFc"></span></button>
+            <div class="rs-sort" id="rsSort">
+              <button type="button" class="rs-sortbtn" id="rsSortBtn" aria-haspopup="listbox" aria-expanded="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4"/><path d="M17 20V4M13 8l4-4 4 4"/></svg>
+                <span class="rs-sortlbl">সাজান:</span><b id="rsSortLbl">সেরা মিল</b>
+                <svg class="rs-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="rs-pop" id="rsPop" role="listbox" aria-label="সাজানোর ধরন">
+                <div class="rs-pophead">ফলাফল সাজান</div>
+                <button type="button" class="rs-so" role="option" data-v="best"><span class="rs-soic rs-so-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span><span class="rs-sotx"><b>সেরা মিল</b><small>আপনার এলাকার আর যাচাইকৃত টিউটর আগে</small></span><svg class="rs-ck" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+                <button type="button" class="rs-so" role="option" data-v="new"><span class="rs-soic rs-so-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="rs-sotx"><b>নতুন যোগ দিয়েছেন</b><small>এলাকার টিউটর আগে, তাঁদের মধ্যে নতুনরা</small></span><svg class="rs-ck" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+                <button type="button" class="rs-so" role="option" data-v="verified"><span class="rs-soic rs-so-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="rs-sotx"><b>যাচাইকৃত আগে</b><small>যাঁদের NID ও সনদ আমরা দেখেছি, তাঁরা আগে</small></span><svg class="rs-ck" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rs-active" id="rsActive"></div>
+        <div class="rs-cards" id="ttResBody" tabindex="-1"></div>
+      </section>
+    </div>
+    <div class="rs-overlay" id="rsOverlay"></div>
   </section>
-
   <section class="tt-sec" id="why">
     <h2>অভিভাবকের প্রতিটা চিন্তার উত্তর</h2>
     <p class="sub">টিউটর খোঁজার সময় যা যা মনে আসে, আমরা সেগুলো ধরেই এই সেবা সাজিয়েছি। যা পারি না, সেটাও সোজাসুজি বলেছি।</p>
@@ -229,13 +265,19 @@
     </div>
   </div>
 </div>
-<div class="tt-toast" id="ttToast" role="status" aria-live="polite"></div>
+<div class="tt-ov" id="tdOv" role="dialog" aria-modal="true" aria-labelledby="tdT">
+  <div class="tt-dlg" id="tdDlg">
+    <button type="button" class="tt-x" id="tdX" aria-label="বন্ধ করুন">×</button>
+    <div id="tdBody"></div>
+    <div class="tt-wact" style="margin-top:16px"><button type="button" class="tt-btn gh" id="tdClose">বন্ধ করুন</button><button type="button" class="tt-btn pri" id="tdReq">এঁকে অনুরোধ পাঠান</button></div>
+  </div>
+</div><div class="tt-toast" id="ttToast" role="status" aria-live="polite"></div>
 
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
-<script src="/tutor-data.js?v=3"></script>
-<script src="/tt-select.js?v=1"></script>
+<script src="/tutor-data.js?v=4"></script>
+<script src="/tt-select.js?v=2"></script>
 <script>
 (function(){
   'use strict';
@@ -244,8 +286,7 @@
   const T = (n, p) => { try{ window.track && window.track(n, p); }catch(e){} };
   const LOC = window.BD_LOCATIONS || [];
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
-  const S = { f: { district: '', upazila: '', cls: '', subject: '', mode: 'any' }, tutors: [], total: 0, offset: 0, busy: false, searched: false, listing: false, open: true, failed: false, tutorPid: '', tutorName: '' };
-  const PAGE = 12;
+  const S = { f: D.blankFilters(), tutors: [], total: 0, offset: 0, busy: false, shown: false, listing: false, open: true, failed: false, tutorPid: '', tutorName: '', facets: null, facetKey: '', seq: 0, fseq: 0, fresh: 0, stateP: null, detail: null };
   const memberSb = () => window.Protishthan && Protishthan.member && Protishthan.member.sb;
 
   /* ---------- small helpers ---------- */
@@ -260,100 +301,237 @@
       if(multi){ if(!on && max && pressedList(box).length >= max){ toast('সর্বোচ্চ ' + D.bn(max) + 'টা বেছে নেওয়া যায়।'); return; } b.setAttribute('aria-pressed', on ? 'false' : 'true'); } else setPressed(box, toggle && on ? '' : b.dataset.v);
       if(onChange) onChange(); }); }
 
-  /* ---------- the search form ---------- */
-  function readFilters(){ S.f.district = $('sDist').value; S.f.upazila = $('sUp').value; S.f.cls = $('sCls').value; S.f.subject = $('sSub').value; S.f.mode = pressedList($('sMode'))[0] || 'any'; }
-  function syncUrl(){ try{ const p = new URLSearchParams(); if(S.f.district) p.set('d', S.f.district); if(S.f.upazila) p.set('u', S.f.upazila); if(S.f.cls) p.set('c', S.f.cls); if(S.f.subject) p.set('s', S.f.subject); if(S.f.mode !== 'any') p.set('m', S.f.mode); history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : '')); }catch(e){} }
-  function runSearch(){ readFilters();
-    if(S.f.mode !== 'online' && !S.f.district){ $('sDist').setAttribute('aria-invalid', 'true'); $('sDistErr').classList.add('on'); $('sDist').focus(); return; }
-    syncUrl(); T('tutor_search', { mode: S.f.mode }); search(false); }
+  /* ---------- the filters: one state (S.f), shown in the hero form and in the sidebar ---------- */
+  const PAGE = 12;
+  const PIN = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+  const MAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>';
+  const needsArea = () => S.f.mode !== 'online' && !S.f.district;
+  const whereText = () => S.f.mode === 'online' ? 'অনলাইনে' : [S.f.district, S.f.upazila].filter(Boolean).join(', ');
+  const lock = () => { document.body.style.overflow = (document.querySelector('.tt-ov.show') || $('rsFilters').classList.contains('open')) ? 'hidden' : ''; };
+  function syncPair(dSel, uSel, noUp, allUp){
+    if(dSel.value !== S.f.district) dSel.value = S.f.district;
+    const ups = upazilasOf(S.f.district);
+    if(uSel.dataset.for !== S.f.district){ fill(uSel, ups, S.f.district ? allUp : noUp, S.f.upazila); uSel.dataset.for = S.f.district; } else if(uSel.value !== S.f.upazila) uSel.value = S.f.upazila;
+    uSel.disabled = !ups.length;
+  }
+  function syncControls(){
+    const f = S.f;
+    syncPair($('sDist'), $('sUp'), 'আগে জেলা', 'সব উপজেলা');
+    if($('sCls').value !== f.cls) $('sCls').value = f.cls; if($('sSub').value !== f.subject) $('sSub').value = f.subject; setPressed($('sMode'), f.mode);
+    syncPair($('fDist'), $('fUp'), 'আগে জেলা বেছে নিন', 'সব উপজেলা');
+  }
+  /* the sidebar: the options with how many tutors each has for the chosen area (counts come from /api/dir?f=tutorfacets; without them the options show no numbers) */
+  function renderFilters(){
+    const fc = S.facets, f = S.f, num = (obj, k) => fc ? (Number((obj || {})[k]) || 0) : null, cn = v => v === null ? '' : '<i class="cn">' + D.bn(v) + '</i>';
+    const cls = (base, key, val, count) => base + (f[key] === val ? ' sel' : '') + (count === 0 && f[key] !== val ? ' zero' : '');
+    const opt = (key, val, label, count) => '<button type="button" class="' + cls('rs-opt', key, val, count) + '" data-f="' + key + '" data-v="' + esc(val) + '" aria-pressed="' + (f[key] === val) + '"><span>' + esc(label) + '</span>' + cn(count) + '</button>';
+    const chip = (key, val, label, count) => '<button type="button" class="' + cls('rs-chip', key, val, count) + '" data-f="' + key + '" data-v="' + esc(val) + '" aria-pressed="' + (f[key] === val) + '">' + esc(label) + cn(count) + '</button>';
+    $('fMode').innerHTML = opt('mode', 'any', 'যেকোনোভাবে', fc ? (Number(fc.total) || 0) : null) + opt('mode', 'home', 'বাসায়', num(fc && fc.modes, 'home')) + opt('mode', 'online', 'অনলাইনে', num(fc && fc.modes, 'online'));
+    $('fCls').innerHTML = D.CLASSES.map(x => chip('cls', x[0], x[1], num(fc && fc.classes, x[0]))).join('');
+    $('fSub').innerHTML = D.SUBJECTS.map(x => chip('subject', x[0], x[1], num(fc && fc.subjects, x[0]))).join('');
+    $('fGender').innerHTML = D.GENDERS.map(x => chip('gender', x[0], x[1], num(fc && fc.gender, x[0]))).join('');
+    $('fMed').innerHTML = D.MEDIUMS.map(x => chip('medium', x[0], x[1], num(fc && fc.medium, x[0]))).join('');
+    $('fExam').innerHTML = D.EXAMS.map(x => chip('exam', x[0], x[1], num(fc && fc.exams, x[0]))).join('');
+    const sw = (key, title, sub) => { const n = fc ? (Number(fc[key]) || 0) : null; return '<div class="rs-tg" data-sw="' + key + '"><div><b>' + esc(title) + '</b><small>' + esc(sub) + (n === null ? '' : ' · ' + D.bn(n) + ' জন') + '</small></div><button type="button" class="rs-sw" role="switch" aria-checked="' + (!!f[key]) + '" aria-label="' + esc(title) + '"></button></div>'; };
+    $('fSwitches').innerHTML = sw('trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল', 'যাঁরা ট্রায়ালে রাজি') + sw('verified', 'শুধু যাচাইকৃত', 'NID ও সনদ আমরা দেখেছি') + sw('pledge', 'প্রতিশ্রুতি দিয়েছেন', 'তিনটা প্রতিশ্রুতিতেই রাজি');
+  }
+  function renderChips(){ const c = D.filterChips(S.f); $('rsActive').innerHTML = c.map(x => '<span class="rs-ac">' + esc(x[1]) + '<button type="button" aria-label="সরান" data-clear="' + x[0] + '">×</button></span>').join(''); $('rsFc').textContent = c.length ? D.bn(c.length) : ''; }
+  function renderSort(){ $('rsSortLbl').textContent = D.labelOf(D.SORTS, S.f.sort); document.querySelectorAll('.rs-so').forEach(b => { const on = b.dataset.v === S.f.sort; b.classList.toggle('sel', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }); }
+  function syncUrl(){ if(!S.shown) return; try{ const q = D.queryFromFilters(S.f); history.replaceState(null, '', location.pathname + (q ? '?' + q : '')); }catch(e){} }
+  const CLEAR = { district: { district: '', upazila: '' }, upazila: { upazila: '' }, mode: { mode: 'any' }, cls: { cls: '' }, subject: { subject: '' }, gender: { gender: '' }, medium: { medium: '' }, exam: { exam: '' }, trial: { trial: false }, verified: { verified: false }, pledge: { pledge: false } };
+  function resetFilters(){ T('tutor_filters_reset'); setF(Object.assign(D.blankFilters(), { sort: S.f.sort })); }
+  /* every change goes through here: the state, both forms, the chips, the address, the counts, and (once results are on screen) a new search a moment later */
+  function setF(patch, o){
+    const was = S.f.district;
+    Object.assign(S.f, patch);
+    if('district' in patch && patch.district !== was && !('upazila' in patch)) S.f.upazila = '';
+    if(S.f.district){ $('sDist').removeAttribute('aria-invalid'); $('sDistErr').classList.remove('on'); }
+    syncControls(); renderFilters(); renderChips(); renderSort(); syncUrl();
+    if(S.shown) schedule(o);
+  }
+  let timer = null;
+  function schedule(o){ clearTimeout(timer); timer = setTimeout(() => run(false, o), 120); }
+  function toResults(){ $('ttRes').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
+  function runSearch(){
+    if(needsArea()){ $('sDist').setAttribute('aria-invalid', 'true'); $('sDistErr').classList.add('on'); $('sDist').focus(); return; }
+    T('tutor_search', { mode: S.f.mode }); S.shown = true; syncUrl(); clearTimeout(timer); run(false, { scroll: true });
+  }
   function initForm(){
     fill($('sDist'), LOC.map(x => x.n), 'বেছে নিন'); fill($('sUp'), [], 'আগে জেলা'); $('sUp').disabled = true;
     fill($('sCls'), D.CLASSES, 'যেকোনো'); fill($('sSub'), D.SUBJECTS, 'যেকোনো');
+    fill($('fDist'), LOC.map(x => x.n), 'জেলা বেছে নিন'); fill($('fUp'), [], 'আগে জেলা বেছে নিন'); $('fUp').disabled = true;
     // the card-style pickers (same look as the home page filters); the selects underneath stay the single source of truth
     if(window.TTSelect){
       TTSelect.enhance($('sDist'), { float: true, search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
       TTSelect.enhance($('sUp'), { float: true, search: 'উপজেলা খুঁজুন…', allLabel: 'সব উপজেলা' });
       TTSelect.enhance($('sCls'), { float: true, allLabel: 'যেকোনো শ্রেণি' });
       TTSelect.enhance($('sSub'), { float: true, search: 'বিষয় খুঁজুন… (যেমন: গণিত)', allLabel: 'যেকোনো বিষয়' });
+      TTSelect.enhance($('fDist'), { compact: true, icon: MAP, label: 'জেলা', clear: true, search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
+      TTSelect.enhance($('fUp'), { compact: true, icon: PIN.replace('width="12" height="12"', 'width="16" height="16"'), label: 'উপজেলা / থানা', clear: true, search: 'উপজেলা খুঁজুন…', allLabel: 'সব উপজেলা' });
       TTSelect.enhance($('rDist'), { search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
       TTSelect.enhance($('rUp'), { search: 'উপজেলা খুঁজুন…' });
     }
-    $('sDist').addEventListener('change', () => { const ups = upazilasOf($('sDist').value); fill($('sUp'), ups, 'সব উপজেলা'); $('sUp').disabled = !ups.length; $('sDist').removeAttribute('aria-invalid'); $('sDistErr').classList.remove('on'); });
-    makePick($('sMode'), [['any', 'যেকোনোভাবে'], ['home', 'বাসায়'], ['online', 'অনলাইনে']], false, null); setPressed($('sMode'), 'any');
+    makePick($('sMode'), [['any', 'যেকোনোভাবে'], ['home', 'বাসায়'], ['online', 'অনলাইনে']], false, () => setF({ mode: pressedList($('sMode'))[0] || 'any' }));
+    $('sDist').addEventListener('change', () => setF({ district: $('sDist').value })); $('sUp').addEventListener('change', () => setF({ upazila: $('sUp').value }));
+    $('sCls').addEventListener('change', () => setF({ cls: $('sCls').value })); $('sSub').addEventListener('change', () => setF({ subject: $('sSub').value }));
+    $('fDist').addEventListener('change', () => setF({ district: $('fDist').value })); $('fUp').addEventListener('change', () => setF({ upazila: $('fUp').value }));
     $('ttSearch').addEventListener('submit', e => { e.preventDefault(); runSearch(); });
+    $('ttDirect').addEventListener('click', () => openReq(null));
     // the quick chips: a subject or "online" is set at once; with an area chosen the search runs, otherwise the area box is asked for
     $('sQuick').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return;
-      if(b.dataset.s){ $('sSub').value = b.dataset.s; } else if(b.dataset.m){ setPressed($('sMode'), b.dataset.m); }
-      readFilters(); T('tutor_quick', { s: b.dataset.s || b.dataset.m });
-      if(S.f.district || S.f.mode === 'online') runSearch(); else { $('sDist').focus(); toast('এবার জেলা বেছে নিন।'); } });
+      T('tutor_quick', { s: b.dataset.s || b.dataset.m });
+      Object.assign(S.f, b.dataset.s ? { subject: b.dataset.s } : { mode: b.dataset.m }); syncControls(); renderFilters(); renderChips();
+      if(!needsArea()) runSearch(); else { $('sDist').focus(); toast('এবার জেলা বেছে নিন।'); } });
+    // the sidebar
+    $('rsFilters').addEventListener('click', e => {
+      const b = e.target.closest('[data-f]'); if(b){ const k = b.dataset.f, v = b.dataset.v; T('tutor_filter', { k: k }); setF({ [k]: (S.f[k] === v && k !== 'mode') ? '' : v }); return; }
+      const sw = e.target.closest('[data-sw]'); if(sw){ const k = sw.dataset.sw; T('tutor_filter', { k: k }); setF({ [k]: !S.f[k] }); return; }
+      if(e.target.closest('#rsReset')){ resetFilters(); return; }
+      if(e.target.closest('#rsClose') || e.target.closest('#rsApply')){ closeSheet(); }
+    });
+    $('rsActive').addEventListener('click', e => { const b = e.target.closest('[data-clear]'); if(b && CLEAR[b.dataset.clear]) setF(CLEAR[b.dataset.clear]); });
+    $('rsFilters').addEventListener('tts:toggle', () => $('rsFilters').classList.toggle('picking', !!$('rsFilters').querySelector('.tts.open')));
+    $('rsOpen').addEventListener('click', openSheet); $('rsOverlay').addEventListener('click', closeSheet);
     // a shared link or a back button: restore the search
-    const p = new URLSearchParams(location.search), d = p.get('d') || '';
-    if(d && LOC.some(x => x.n === d)){ $('sDist').value = d; const ups = upazilasOf(d); fill($('sUp'), ups, 'সব উপজেলা', p.get('u') || ''); $('sUp').disabled = !ups.length; }
-    if(D.keysOf(D.CLASSES).includes(p.get('c'))) $('sCls').value = p.get('c');
-    if(D.keysOf(D.SUBJECTS).includes(p.get('s'))) $('sSub').value = p.get('s');
-    if(['home', 'online'].includes(p.get('m'))) setPressed($('sMode'), p.get('m'));
-    readFilters();
-    if(S.f.district || S.f.mode === 'online') search(false);
+    S.f = D.filtersFromQuery(location.search);
+    if(S.f.district && !LOC.some(x => x.n === S.f.district)){ S.f.district = ''; S.f.upazila = ''; }
+    if(S.f.upazila && upazilasOf(S.f.district).indexOf(S.f.upazila) < 0) S.f.upazila = '';
+    syncControls(); renderFilters(); renderChips(); renderSort();
+    if(!needsArea()){ S.shown = true; run(false, { scroll: true }); }
   }
+  /* the sort menu */
+  function toggleSort(force){
+    const m = $('rsSort'), open = typeof force === 'boolean' ? force : !m.classList.contains('open');
+    m.classList.toggle('open', open); $('rsSortBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+    if(open){ const s = m.querySelector('.rs-so.sel') || m.querySelector('.rs-so'); m.querySelectorAll('.rs-so').forEach(o => o.classList.remove('kb')); s.classList.add('kb'); }
+  }
+  $('rsSortBtn').addEventListener('click', () => toggleSort());
+  $('rsPop').addEventListener('click', e => { const b = e.target.closest('.rs-so'); if(!b) return; T('tutor_sort', { v: b.dataset.v }); toggleSort(false); setF({ sort: b.dataset.v }); $('rsSortBtn').focus(); });
+  document.addEventListener('click', e => { const m = $('rsSort'); if(m.classList.contains('open') && !m.contains(e.target)) toggleSort(false); });
+  $('rsSort').addEventListener('keydown', e => {
+    if(!$('rsSort').classList.contains('open')) return;
+    const opts = [].slice.call($('rsSort').querySelectorAll('.rs-so')); let i = opts.findIndex(o => o.classList.contains('kb'));
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); i = e.key === 'ArrowDown' ? (i + 1) % opts.length : (i - 1 + opts.length) % opts.length; opts.forEach(o => o.classList.remove('kb')); opts[i].classList.add('kb'); }
+    else if(e.key === 'Enter' && i >= 0){ e.preventDefault(); opts[i].click(); }
+  });
+  /* the filter sheet on a phone */
+  function openSheet(){ $('rsFilters').classList.add('open'); $('rsOverlay').classList.add('show'); lock(); }
+  function closeSheet(){ $('rsFilters').classList.remove('open'); $('rsOverlay').classList.remove('show'); lock(); }
 
   /* ---------- asking, and showing ---------- */
   async function loadState(){ try{ const r = await fetch('/api/dir?f=tutorstate'); if(r.ok){ const s = await r.json(); S.listing = !!(s && s.listing); S.open = !(s && s.requests === false); } }catch(e){} }
-  async function search(append){
-    if(S.busy) return; S.busy = true; S.failed = false;
-    if(!append){ S.offset = 0; S.tutors = []; }
-    const res = $('ttRes'); res.hidden = false; res.setAttribute('aria-busy', 'true');
-    if(!append){ $('ttResT').textContent = 'খোঁজা হচ্ছে…'; $('ttResBody').innerHTML = '<div class="tt-grid"><div class="tt-sk"></div><div class="tt-sk"></div><div class="tt-sk"></div></div>'; res.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
+  async function loadFacets(){
+    if(!S.listing || needsArea()){ S.facets = null; S.facetKey = ''; renderFilters(); return; }
+    const key = JSON.stringify(D.facetArgs(S.f)); if(S.facetKey === key && S.facets) return;
+    S.facetKey = key; const my = ++S.fseq;
+    try{ const r = await fetch('/api/dir?f=tutorfacets&a=' + encodeURIComponent(key)); if(!r.ok) throw new Error('http ' + r.status); const j = await r.json(); if(my !== S.fseq) return; S.facets = (j && typeof j === 'object' && !Array.isArray(j) && 'total' in j) ? j : null; }
+    catch(e){ if(my !== S.fseq) return; S.facets = null; S.facetKey = ''; }
+    renderFilters();
+  }
+  async function run(append, o){
+    const my = ++S.seq; o = o || {};
+    S.shown = true; $('ttRes').hidden = false;
+    if(!append){ S.offset = 0; S.tutors = []; S.fresh = 0; S.total = 0; }
+    S.failed = false;
+    if(S.stateP) await S.stateP;
+    if(my !== S.seq) return;
+    $('ttRes').classList.toggle('rs-solo', !S.listing);
+    if(!append) loadFacets();
+    if(!S.listing || needsArea()){ S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render(); if(o.scroll) toResults(); return; }
+    S.busy = true; $('ttRes').setAttribute('aria-busy', 'true'); render(); if(o.scroll && !append) toResults();
     try{
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000);
-      const r = await fetch('/api/dir?f=tutors&a=' + encodeURIComponent(JSON.stringify(D.searchArgs({ district: S.f.district, upazila: S.f.upazila, cls: S.f.cls, subject: S.f.subject, mode: S.f.mode === 'any' ? '' : S.f.mode, limit: PAGE, offset: S.offset }))), { signal: ctl.signal });
+      const r = await fetch('/api/dir?f=tutors&a=' + encodeURIComponent(JSON.stringify(D.searchArgs(Object.assign({}, S.f, { limit: PAGE, offset: S.offset })))), { signal: ctl.signal });
       clearTimeout(to);
       if(!r.ok) throw new Error('http ' + r.status);
       const rows = await r.json(); if(!Array.isArray(rows)) throw new Error('shape');
-      S.tutors = S.tutors.concat(rows); S.offset += rows.length; S.total = rows.length ? Number(rows[0].total) || S.tutors.length : (append ? S.total : 0);
-    }catch(e){ S.failed = true; }
-    S.busy = false; S.searched = true; res.setAttribute('aria-busy', 'false'); render();
-    const h = $('ttResT'); if(h && !append) h.focus({ preventScroll: true });
+      if(my !== S.seq) return;
+      S.fresh = S.tutors.length; S.tutors = S.tutors.concat(rows); S.offset += rows.length; S.total = rows.length ? Number(rows[0].total) || S.tutors.length : (append ? S.total : 0);
+    }catch(e){ if(my !== S.seq) return; S.failed = true; }
+    S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render();
+    if(!append){ const h = S.listing ? $('ttResT') : $('ttResBody'); if(h) h.focus({ preventScroll: true }); }
   }
   const COLORS = ['#1A56DB', '#7C3AED', '#0F766E', '#B45309', '#BE185D', '#4338CA'];
   const colorOf = s => COLORS[String(s || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
   const initial = n => (String(n || '?').trim().charAt(0) || '?').toUpperCase();
-  function card(t){
-    const subs = D.labels(D.SUBJECTS, t.subjects), shown = subs.slice(0, 4), more = subs.length - shown.length, lv = D.labelOf(D.LEVELS, t.edu_level);
-    const where = t.modes && t.modes.includes('home') ? [t.district, t.upazila].filter(Boolean).join(', ') : '';
-    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasHtml(t, esc);
-    return '<article class="tt-t" aria-label="' + esc(t.name) + '">' +
-      '<div class="tt-t-h"><span class="tt-avw"><span class="tt-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span><div><b>' + esc(t.name) + (g ? ' <span class="tt-b gray" style="vertical-align:2px">' + esc(g) + '</span>' : '') + '</b><small>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</small></div></div>' +
-      '<div class="tt-badges">' + (t.verified ? '<span class="tt-b ok" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓ যাচাইকৃত</span>' : '') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + ex.badges + '</div>' +
-      '<div class="tt-chips">' + shown.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + (more > 0 ? '<span class="tt-c">+' + D.bn(more) + '</span>' : '') + ex.chips + '</div>' +
-      '<div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' + (ex.lines ? '<div class="tt-ex">' + ex.lines + '</div>' : '') +
-      (t.bio ? '<div class="tt-bio" id="b-' + esc(t.pid) + '">' + esc(t.bio) + '</div><button type="button" class="tt-more" data-more="' + esc(t.pid) + '" hidden>আরও পড়ুন</button>' : '') +
-      '<div class="tt-t-f"><button type="button" class="tt-btn pri sm blk" data-req="' + esc(t.pid) + '">অনুরোধ পাঠান</button></div></article>';
+  const tag = (cls, text) => '<span class="rs-tag' + (cls ? ' ' + cls : '') + '">' + esc(text) + '</span>';
+  /* a result card: the same shape as a directory card (a tile, the name, where, a badge, three small facts, tags, a footer) */
+  function card(t, i){
+    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasOf(t), st = D.statsOf(t), subs = D.labels(D.SUBJECTS, t.subjects), more = subs.length - 3;
+    const home = (t.modes || []).indexOf('home') > -1, loc = home ? [t.upazila, t.district].filter(Boolean).join(', ') : '';
+    const tags = subs.slice(0, 3).map(s => tag('blue', s)).concat(more > 0 ? [tag('', '+' + D.bn(more))] : [], D.labels(D.MEDIUMS, t.medium).slice(0, 1).map(x => tag('', x)), D.labels(D.EXAMS, t.exams).slice(0, 2).map(x => tag('', x)),
+      ex.badges.filter(b => b.k === 'pledge').map(b => tag('vio', b.text)), t.local === false ? [tag('amber', 'অনলাইনে পড়ান')] : []);
+    return '<article class="rs-card' + (i >= S.fresh ? ' rs-new' : '') + '" style="--i:' + Math.max(0, i - S.fresh) + '">' +
+      '<div class="rs-top"><span class="tt-avw"><span class="rs-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span>' +
+      '<div class="rs-hd"><h3 class="rs-name"><button type="button" data-open="' + esc(t.pid) + '">' + esc(t.name) + '</button>' + (g ? '<span class="rs-g">' + esc(g) + '</span>' : '') + '</h3>' +
+      '<div class="rs-loc">' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</div><div class="rs-loc">' + PIN + ' ' + esc(loc || 'অনলাইনে পড়ান') + '</div></div>' +
+      '<span class="rs-badge' + (t.verified ? '' : ' gray') + '">' + (t.verified ? '✓ যাচাইকৃত' : 'অনুমোদিত') + '</span></div>' +
+      '<div class="rs-stats">' + st.map(x => '<div class="rs-stat"><b>' + (x.v ? esc(x.v) : '—') + '</b><span>' + esc(x.l) + '</span></div>').join('') + '</div>' +
+      (tags.length ? '<div class="rs-tags">' + tags.join('') + '</div>' : '') +
+      '<div class="rs-foot"><span class="rs-fee">' + (t.fee ? 'ফি: ' + esc(t.fee) : '') + '</span><span class="rs-cta">বিস্তারিত দেখুন →</span></div></article>';
   }
-  function whereText(){ const f = S.f; return f.mode === 'online' ? 'অনলাইনে' : [f.district, f.upazila].filter(Boolean).join(', '); }
+  const reqBtn = () => '<button type="button" class="tt-btn pri" data-req="">অনুরোধ পাঠান</button>';
+  const ctaBox = () => '<div class="rs-cta2"><div><b>মনের মতো টিউটর পাচ্ছেন না?</b><span>অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</span></div>' + reqBtn() + '</div>';
+  const SEARCH_IC = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+  function moreHtml(){
+    if(S.busy) return '<div class="rs-more-wrap"><span class="rs-spin"></span> আরও টিউটর আনা হচ্ছে…</div>';
+    if(S.tutors.length < S.total) return '<div class="rs-more-wrap"><button type="button" class="rs-more" id="ttMore">আরও দেখান <span class="rs-mn">' + D.bn(S.total - S.tutors.length) + ' জন বাকি</span><svg class="rs-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>';
+    return '';
+  }
   function render(){
-    const body = $('ttResBody'), title = $('ttResT');
+    const body = $('ttResBody'), solo = !S.listing;
+    $('ttRes').classList.toggle('rs-solo', solo);
+    let count = '';
+    if(S.busy && !S.tutors.length) count = 'খোঁজা হচ্ছে…';
+    else if(S.failed && !S.tutors.length) count = 'তালিকা এখন লোড হয়নি';
+    else if(!solo && !needsArea()) count = D.bn(S.total) + ' জন টিউটর ' + (S.tutors.length < S.total ? 'পাওয়া গেছে' : 'দেখাচ্ছে') + (whereText() ? ' · ' + whereText() : '');
+    $('rsCount').textContent = count;
+    const want = [S.f.cls ? D.labelOf(D.CLASSES, S.f.cls) : '', S.f.subject ? D.labelOf(D.SUBJECTS, S.f.subject) : '', whereText()].filter(Boolean).join(' · ');
+    if(solo){   // the public list is not on yet: say so and offer the request
+      body.innerHTML = '<div class="rs-empty"><div class="ic">' + SEARCH_IC + '</div><b>আপনার জন্য টিউটর খুঁজে দিচ্ছি</b>' + (want ? '<div class="rs-want">' + esc(want) + '</div><br>' : '') +
+        '<p>এখন আমরা টিউটর হাতে হাতে মিলিয়ে দিচ্ছি। অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</p>' + reqBtn() + '</div>'; return;
+    }
+    if(needsArea()){
+      body.innerHTML = '<div class="rs-empty"><div class="ic">' + PIN.replace('width="12" height="12"', 'width="30" height="30"') + '</div><b>আগে আপনার জেলা বেছে নিন</b><p>জেলা বেছে নিলে আপনার এলাকার টিউটর আগে দেখাব। অনলাইনে পড়ানো টিউটর দেখতে "অনলাইনে" বাছুন।</p><button type="button" class="tt-btn sec" data-pickarea>জেলা বেছে নিন</button></div>'; return;
+    }
+    if(S.busy && !S.tutors.length){ body.innerHTML = '<div class="rs-sk"></div><div class="rs-sk"></div><div class="rs-sk"></div><div class="rs-sk"></div>'; return; }
     if(S.failed && !S.tutors.length){
-      title.textContent = 'তালিকা এখন লোড হয়নি';
-      body.innerHTML = '<div class="tt-empty"><h3>একটু সমস্যা হয়েছে</h3><p>টিউটরের তালিকা এখন আনা যায়নি। আবার চেষ্টা করুন, কিংবা সরাসরি অনুরোধ পাঠান, আমরা মিলিয়ে দেব।</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button type="button" class="tt-btn sec" id="ttRetry">আবার চেষ্টা করুন</button><button type="button" class="tt-btn pri" data-req="">অনুরোধ পাঠান</button></div></div>'; return;
+      body.innerHTML = '<div class="rs-empty"><b>একটু সমস্যা হয়েছে</b><p>টিউটরের তালিকা এখন আনা যায়নি। আবার চেষ্টা করুন, কিংবা সরাসরি অনুরোধ পাঠান, আমরা মিলিয়ে দেব।</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button type="button" class="tt-btn sec" id="ttRetry">আবার চেষ্টা করুন</button>' + reqBtn() + '</div></div>'; return;
     }
     if(!S.tutors.length){
-      title.textContent = 'এই মুহূর্তে তালিকায় কেউ নেই';
-      const want = [S.f.cls ? D.labelOf(D.CLASSES, S.f.cls) : '', S.f.subject ? D.labelOf(D.SUBJECTS, S.f.subject) : '', whereText()].filter(Boolean).join(' · ');
-      body.innerHTML = '<div class="tt-empty"><div class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.6"/><path d="M2.5 20c.7-3.6 3.4-5.6 6.5-5.6"/><circle cx="17" cy="16" r="4"/><path d="m20 19 2 2"/></svg></div><h3>আপনার জন্য টিউটর খুঁজে দিচ্ছি</h3>' + (want ? '<div class="tt-want">' + esc(want) + '</div><br>' : '') +
-        '<p>এখন আমরা টিউটর হাতে হাতে মিলিয়ে দিচ্ছি। অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</p><button type="button" class="tt-btn pri" data-req="">অনুরোধ পাঠান</button></div>'; return;
+      body.innerHTML = '<div class="rs-empty"><div class="ic">' + SEARCH_IC + '</div><b>এই ফিল্টারে কোনো টিউটর পাওয়া যায়নি</b>' + (want ? '<div class="rs-want">' + esc(want) + '</div><br>' : '') + '<p>ফিল্টার বদলে দেখুন, অথবা <button type="button" class="lnk" data-reset>সব ফিল্টার মুছুন</button>।</p></div>' + ctaBox(); return;
     }
-    title.innerHTML = esc(D.bn(S.total)) + ' জন টিউটর পাওয়া গেছে' + (whereText() ? '<small>' + esc(whereText()) + '</small>' : '');
-    body.innerHTML = '<div class="tt-grid">' + S.tutors.map(card).join('') + '</div>' + (S.tutors.length < S.total ? '<div style="text-align:center;margin-top:18px"><button type="button" class="tt-btn sec" id="ttMore">আরও দেখুন</button></div>' : '') +
-      '<p class="tt-hint" style="margin-top:14px">পছন্দ না হলে <button type="button" class="tt-more" data-req="">অনুরোধ পাঠান</button>, আমরা আপনার জন্য খুঁজে দেব।</p>';
-    body.querySelectorAll('.tt-bio').forEach(b => { if(b.scrollHeight > b.clientHeight + 2){ const m = body.querySelector('[data-more="' + b.id.slice(2) + '"]'); if(m) m.hidden = false; } });
+    body.innerHTML = S.tutors.map(card).join('') + moreHtml() + ctaBox();
   }
   $('ttResBody').addEventListener('click', e => {
-    const req = e.target.closest('[data-req]'); if(req){ const pid = req.getAttribute('data-req'); const t = S.tutors.find(x => x.pid === pid); openReq(t ? { pid: t.pid, name: t.name } : null); return; }
-    const mo = e.target.closest('[data-more]'); if(mo){ const b = $('b-' + mo.getAttribute('data-more')); if(b){ const open = b.classList.toggle('open'); mo.textContent = open ? 'কম দেখুন' : 'আরও পড়ুন'; } return; }
-    if(e.target.id === 'ttMore') search(true); else if(e.target.id === 'ttRetry') search(false);
+    const op = e.target.closest('[data-open]'); if(op){ openDetail(op.getAttribute('data-open')); return; }
+    if(e.target.closest('[data-req]')){ openReq(null); return; }
+    if(e.target.closest('#ttMore')){ T('tutor_more'); run(true); return; }
+    if(e.target.closest('#ttRetry')){ run(false); return; }
+    if(e.target.closest('[data-reset]')){ resetFilters(); return; }
+    if(e.target.closest('[data-pickarea]')){ window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { const t = $('sDist')._tts; if(t) t.open(); else $('sDist').focus(); }, 350); }
   });
-  $('ttResReq').addEventListener('click', () => openReq(null));
 
+  /* ---------- one tutor in full (opened from a card) ---------- */
+  function detailHtml(t){
+    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasHtml(t, esc), lv = D.labelOf(D.LEVELS, t.edu_level), home = (t.modes || []).indexOf('home') > -1, where = home ? [t.upazila, t.district].filter(Boolean).join(', ') : '';
+    return '<div class="td-head"><span class="tt-avw"><span class="rs-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk">✓</i>' : '') + '</span><div><h2 id="tdT">' + esc(t.name) + (g ? ' <span class="rs-g">' + esc(g) + '</span>' : '') + '</h2><small>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</small></div></div>' +
+      '<div class="tt-badges">' + (t.verified ? '<span class="tt-b ok">✓ যাচাইকৃত: আমরা NID ও সনদের কপি দেখেছি</span>' : '<span class="tt-b gray">অনুমোদিত প্রোফাইল</span>') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + ex.badges + '</div>' +
+      '<div class="td-sec"><span class="tt-lab">যা পড়ান</span><div class="tt-chips">' + D.labels(D.SUBJECTS, t.subjects).map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + ex.chips + '</div></div>' +
+      '<div class="tt-meta td-sec"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + ((t.times || []).length ? '<br><b>সময়:</b> ' + esc(D.labels(D.TIMES, t.times).join(', ')) : '') + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' +
+      (ex.lines ? '<div class="tt-ex td-sec">' + ex.lines + '</div>' : '') +
+      (t.bio ? '<div class="td-sec"><span class="tt-lab">নিজের কথা</span><div class="tt-bio open">' + esc(t.bio) + '</div></div>' : '') +
+      '<p class="td-note">ফোন নম্বর আমরা দিই না। অনুরোধ পাঠালে আমরা যোগাযোগ করিয়ে দেব। প্রথম ক্লাসে আপনি নিজে উপস্থিত থাকুন।</p>';
+  }
+  function openDetail(pid){
+    const t = S.tutors.find(x => x.pid === pid); if(!t) return; T('tutor_open');
+    S.detail = t; lastFocus = document.activeElement; $('tdBody').innerHTML = detailHtml(t); $('tdOv').classList.add('show'); lock();
+    setTimeout(() => $('tdReq').focus(), 50);
+  }
+  function closeDetail(restore){ $('tdOv').classList.remove('show'); lock(); if(restore !== false && lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){} }
+  $('tdX').addEventListener('click', () => closeDetail()); $('tdClose').addEventListener('click', () => closeDetail());
+  $('tdOv').addEventListener('click', e => { if(e.target === $('tdOv')) closeDetail(); });
+  $('tdReq').addEventListener('click', () => { const t = S.detail; closeDetail(false); openReq(t ? { pid: t.pid, name: t.name } : null); });
   /* ---------- "your requests": what became of what you sent (kept on this device; the server answers the status only) ---------- */
   const REQ_KEY = 'tt_reqs';
   const myReqs = () => { try{ return (JSON.parse(ls.get(REQ_KEY) || '[]') || []).filter(x => x && /^[0-9a-f-]{36}$/.test(x.id)).slice(0, 3); }catch(e){ return []; } };
@@ -392,7 +570,7 @@
     S.tutorPid = tutor ? tutor.pid : ''; S.tutorName = tutor ? tutor.name : '';
     $('reqT').textContent = tutor ? 'অনুরোধ পাঠান: ' + tutor.name : 'টিউটরের অনুরোধ পাঠান';
     if(!$('rCls').children.length){ makePick($('rCls'), D.CLASSES, false, () => setErr('rClsErr', '')); makePick($('rSub'), D.SUBJECTS, true, () => setErr('rSubErr', ''), 6); makePick($('rMode'), [['home', 'বাসায়'], ['online', 'অনলাইনে'], ['any', 'যেকোনোভাবে']], false, syncArea); makePick($('rPref'), D.PREFS, false, null); makePick($('rLv'), D.STUDENT_LEVELS, false, null, 0, true); makePick($('rGoal'), D.GOALS, false, null, 0, true); }
-    setPressed($('rPref'), ''); setPressed($('rLv'), ''); setPressed($('rGoal'), ''); $('rTrial').checked = false;
+    setPressed($('rPref'), S.f.gender || ''); setPressed($('rLv'), ''); setPressed($('rGoal'), ''); $('rTrial').checked = !!S.f.trial;
     setPressed($('rCls'), S.f.cls); $('rSub').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', S.f.subject === b.dataset.v ? 'true' : 'false'));
     setPressed($('rMode'), S.f.mode === 'any' ? 'home' : S.f.mode);
     fill($('rDist'), LOC.map(x => x.n), 'জেলা', S.f.district); fill($('rUp'), upazilasOf(S.f.district), 'উপজেলা', S.f.upazila); $('rUp').disabled = !upazilasOf(S.f.district).length;
@@ -400,10 +578,10 @@
     ['rClsErr', 'rSubErr', 'rAreaErr', 'rNameErr', 'rPhoneErr', 'rNoteErr', 'rErr'].forEach(id => setErr(id, ''));
     $('reqForm').hidden = false; $('reqDone').hidden = true; $('rGo').disabled = !S.open;
     showRStep(firstOpenStep(readReq())); if(!S.open) setErr('rErr', 'CLOSED');
-    $('reqOv').classList.add('show'); document.body.style.overflow = 'hidden';
+    $('reqOv').classList.add('show'); lock();
     setTimeout(() => { const f = firstField(rStep); if(f) f.focus(); }, 60);
   }
-  function closeReq(){ $('reqOv').classList.remove('show'); document.body.style.overflow = ''; if(lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){} }
+  function closeReq(){ $('reqOv').classList.remove('show'); lock(); if(lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){} }
   $('reqX').addEventListener('click', closeReq); $('doneOk').addEventListener('click', closeReq);
   $('reqOv').addEventListener('click', e => { if(e.target === $('reqOv')) closeReq(); });
   $('rDist').addEventListener('change', () => { const ups = upazilasOf($('rDist').value); fill($('rUp'), ups, 'উপজেলা'); $('rUp').disabled = !ups.length; setErr('rAreaErr', ''); });
@@ -411,9 +589,10 @@
   ['rName', 'rPhone', 'rNote'].forEach(id => $(id).addEventListener('input', () => { setErr(id + 'Err', ''); setErr('rErr', ''); }));
   $('rBack').addEventListener('click', () => { showRStep(Math.max(1, rStep - 1)); const f = firstField(rStep); if(f) f.focus(); });
   document.addEventListener('keydown', e => {
-    if(!$('reqOv').classList.contains('show')) return;
-    if(e.key === 'Escape'){ closeReq(); return; }
-    if(e.key === 'Tab'){ const f = [].slice.call($('reqDlg').querySelectorAll('button:not([disabled]),input:not([tabindex="-1"]),select:not([disabled]),textarea,a[href]')).filter(x => x.offsetParent !== null); if(!f.length) return; const a = f[0], z = f[f.length - 1];
+    const ov = document.querySelector('.tt-ov.show');
+    if(!ov){ if(e.key === 'Escape'){ if($('rsFilters').classList.contains('open')) closeSheet(); else if($('rsSort').classList.contains('open')) toggleSort(false); } return; }
+    if(e.key === 'Escape'){ if(ov.id === 'tdOv') closeDetail(); else closeReq(); return; }
+    if(e.key === 'Tab'){ const f = [].slice.call(ov.querySelector('.tt-dlg').querySelectorAll('button:not([disabled]),input:not([tabindex="-1"]),select:not([disabled]),textarea,a[href]')).filter(x => x.offsetParent !== null); if(!f.length) return; const a = f[0], z = f[f.length - 1];
       if(e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if(!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
   });
   $('reqF').addEventListener('submit', async e => {
@@ -447,7 +626,7 @@
 
   /* ---------- go ---------- */
   document.querySelectorAll('[data-t]').forEach(a => a.addEventListener('click', () => T(a.getAttribute('data-t'))));
-  initForm(); loadState(); renderCheck();
+  S.stateP = loadState(); initForm(); renderCheck();
   const M = window.Protishthan && Protishthan.member; if(M){ M.ready().then(loadMyReqs); } else loadMyReqs();
 })();
 </script>

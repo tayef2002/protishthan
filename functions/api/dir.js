@@ -12,6 +12,8 @@
 //   GET /api/dir?f=search&a={"p_q":"bani","p_limit":8}
 //   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0,"p_kind":"idea","p_sort":"top"}   (card page: the public opinion board, kept for a minute; kind and sort are optional)
 //   GET /api/dir?f=tutors&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_class":"c6-8","p_subject":"math","p_mode":"home","p_limit":12,"p_offset":0}   (/tutor: approved tutors, only when the admin switched the list on; every part is optional)
+//   GET /api/dir?f=tutors&a={...,"p_gender":"female","p_medium":"bangla","p_exam":"ssc","p_trial":true,"p_verified":true,"p_pledge":true,"p_sort":"new"}   (the filters and sorts of the results system; each is optional and sent on only when used)
+//   GET /api/dir?f=tutorfacets&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_mode":"home"}   (/tutor: how many tutors per filter option for that area and mode: only counts)
 //   GET /api/dir?f=tutorstate                                  (/tutor: is the list on, are new requests open)
 
 import { rest } from '../_lib/seo.js';
@@ -27,6 +29,10 @@ const int = (v, lo, hi, dflt) => v === undefined ? dflt : (Number.isInteger(v) &
 const oneOf = (v, list) => (v === null || v === undefined || v === '') ? null : (typeof v === 'string' && list.includes(v) ? v : undefined);   // undefined = not acceptable
 const TUTOR_CLASSES = ['c1-5', 'c6-8', 'c9-10', 'c11-12', 'admission'];
 const TUTOR_SUBJECTS = ['bangla', 'english', 'math', 'science', 'physics', 'chemistry', 'biology', 'hmath', 'ict', 'accounting', 'business', 'economics', 'social', 'religion', 'arabic', 'handwriting', 'admission', 'primary_all'];
+const TUTOR_MEDIUMS = ['bangla', 'english_version', 'english_medium', 'madrasa'];
+const TUTOR_EXAMS = ['scholarship', 'ssc', 'hsc', 'admission_med', 'admission_eng', 'admission_uni', 'ielts', 'olevel'];
+const TUTOR_SORTS = ['best', 'new', 'verified'];
+const flag = v => (v === undefined || v === null || v === false) ? null : (v === true ? true : undefined);   // a yes/no filter: only "yes" means anything; undefined = not acceptable
 const strList = (v, maxItems, maxLen) => {
   if (v === null || v === undefined) return null;
   if (!Array.isArray(v) || v.length > maxItems) return undefined;
@@ -61,8 +67,19 @@ const QUESTIONS = {
   } },
   tutors:   { ttl: 60, build: a => {                       // /tutor: approved tutors (the function returns nothing until the admin switches the public list on; it never returns a mobile number or the real name)
     const district = str(a.p_district, 40), upazila = str(a.p_upazila, 60), cls = oneOf(a.p_class, TUTOR_CLASSES), subject = oneOf(a.p_subject, TUTOR_SUBJECTS), mode = oneOf(a.p_mode, ['home', 'online']), limit = int(a.p_limit, 1, 30, 12), offset = int(a.p_offset, 0, 500, 0);
-    if ([district, upazila, cls, subject, mode, limit, offset].includes(undefined)) return null;
-    return { path: 'rpc/tutor_search', rpc: { p_district: district || null, p_upazila: upazila || null, p_class: cls, p_subject: subject, p_mode: mode, p_limit: limit, p_offset: offset } };
+    const gender = oneOf(a.p_gender, ['female', 'male']), medium = oneOf(a.p_medium, TUTOR_MEDIUMS), exam = oneOf(a.p_exam, TUTOR_EXAMS), trial = flag(a.p_trial), verified = flag(a.p_verified), pledge = flag(a.p_pledge);
+    const sort = (a.p_sort === undefined || a.p_sort === null || a.p_sort === '') ? 'best' : (TUTOR_SORTS.includes(a.p_sort) ? a.p_sort : undefined);
+    if ([district, upazila, cls, subject, mode, limit, offset, gender, medium, exam, trial, verified, pledge, sort].includes(undefined)) return null;
+    const rpc = { p_district: district || null, p_upazila: upazila || null, p_class: cls, p_subject: subject, p_mode: mode, p_limit: limit, p_offset: offset };
+    // the newer arguments go to the database only when they are used, so a database that has not had the 2026-12-20 update yet still answers the plain search
+    if (gender) rpc.p_gender = gender; if (medium) rpc.p_medium = medium; if (exam) rpc.p_exam = exam;
+    if (trial) rpc.p_trial = true; if (verified) rpc.p_verified = true; if (pledge) rpc.p_pledge = true; if (sort !== 'best') rpc.p_sort = sort;
+    return { path: 'rpc/tutor_search', rpc: rpc };
+  } },
+  tutorfacets: { ttl: 60, build: a => {                    // /tutor: how many tutors per filter option for an area and a mode (only counts; all zero until the admin switches the list on)
+    const district = str(a.p_district, 40), upazila = str(a.p_upazila, 60), mode = oneOf(a.p_mode, ['home', 'online']);
+    if ([district, upazila, mode].includes(undefined)) return null;
+    return { path: 'rpc/tutor_facets', rpc: { p_district: district || null, p_upazila: upazila || null, p_mode: mode } };
   } },
   tutorstate: { ttl: 60, build: () => ({ path: 'rpc/tutor_state', rpc: {} }) },
   search:   { ttl: 600, build: a => {
