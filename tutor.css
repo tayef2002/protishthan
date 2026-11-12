@@ -199,10 +199,6 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 .tt-seg select:focus{outline:0}
 .tt-seg:has(.tts-btn:focus-visible){box-shadow:0 0 0 3px rgba(26,86,219,.3)}
 .tt-seg select:disabled{color:var(--tx3);cursor:not-allowed}
-.tt-seg select[aria-invalid=true]{color:var(--err)}
-.tt-seg .tt-err{margin:0}
-.tt-seg .tt-err.on{position:absolute;left:14px;top:calc(100% + 10px);z-index:4;padding:5px 12px;border-radius:9px;background:#B91C1C;color:#fff;font-size:12.5px;white-space:nowrap}
-.tt-seg .tt-err.on::before{content:'';position:absolute;left:18px;top:-5px;width:10px;height:10px;background:#B91C1C;transform:rotate(45deg)}
 .tt-pill .tt-btn{min-height:56px;padding:0 30px;border-radius:100px;font-size:16.5px}
 .tt-modes{display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:center;align-items:center;margin-top:14px}
 .tt-modes .tt-lab{font-size:13.5px}
@@ -356,8 +352,12 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 
 /* ===== the results system: the same system as the directory on the home page (filter sidebar with counts, header with count and sort, removable chips, two-column cards, "show more") ===== */
 .rs-layout{display:grid;grid-template-columns:288px minmax(0,1fr);gap:28px;align-items:start}
-.rs-solo .rs-layout{grid-template-columns:minmax(0,1fr)}
+.rs-solo .rs-layout,.tt-res:not(.on) .rs-layout{grid-template-columns:minmax(0,1fr)}
 .rs-solo .rs-filters,.rs-solo .rs-head,.rs-solo .rs-active{display:none}
+/* the list is on the page from the start: until the page knows whether the list is on, it looks like the "off" page (one column, placeholders, the height of the offer), so the page that is live today does not jump when the answer arrives */
+.tt-res:not(.on) .rs-filters,.tt-res:not(.on) .rs-head,.tt-res:not(.on) .rs-active{display:none}
+.tt-res:not(.on) .rs-cards{min-height:280px}
+@media(max-width:900px){.tt-res:not(.on) .rs-sk+.rs-sk{display:none}}
 .rs-filters{position:sticky;top:100px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid var(--ln);border-radius:18px;padding:18px 16px 16px;box-shadow:0 1px 2px rgba(15,23,42,.04);scrollbar-width:none}
 .rs-filters::-webkit-scrollbar{display:none}
 .rs-fhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -562,8 +562,6 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .tt-seg select,.tts-btn{font-size:15px}
   .tt-quick [data-m="online"]{display:none}
   .tt-art .tt-mon{display:none}
-  .tt-seg .tt-err.on{position:static;margin-top:2px;padding:0;background:none;color:var(--err);white-space:normal}
-  .tt-seg .tt-err.on::before{display:none}
   .tt-bento,.tt-lad{grid-template-columns:1fr}
   .tt-bc,.tt-lv{padding:18px}
   .tt-bc .ic{margin-bottom:10px}

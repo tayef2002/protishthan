@@ -24,7 +24,8 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=15">
+<link rel="stylesheet" href="/tutor.css?v=16">
+<noscript><style>.tt-res{display:none}</style></noscript>
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -39,7 +40,7 @@
     <p class="lead">বিশ্ববিদ্যালয়ের শিক্ষার্থী টিউটর, আপনার এলাকায় বা অনলাইনে।</p>
 
     <form class="tt-pill" id="ttSearch" role="search" aria-label="টিউটর খুঁজুন" novalidate>
-      <div class="tt-seg"><label for="sDist">জেলা</label><select id="sDist"></select><div class="tt-err" id="sDistErr" role="alert">জেলা বেছে নিন।</div></div>
+      <div class="tt-seg"><label for="sDist">জেলা</label><select id="sDist"></select></div>
       <div class="tt-seg"><label for="sUp">উপজেলা</label><select id="sUp"></select></div>
       <div class="tt-seg"><label for="sCls">শ্রেণি</label><select id="sCls"></select></div>
       <div class="tt-seg"><label for="sSub">বিষয়</label><select id="sSub"></select></div>
@@ -163,7 +164,7 @@
 
   <section class="tt-my" id="myReq" aria-live="polite" hidden></section>
 
-  <section class="tt-res" id="ttRes" aria-live="polite" aria-busy="false" hidden>
+  <section class="tt-res" id="ttRes" aria-live="polite" aria-busy="true">
     <div class="rs-layout">
       <aside class="rs-filters" id="rsFilters" aria-label="ফিল্টার">
         <div class="rs-fhead"><h2>ফিল্টার</h2><button type="button" class="rs-reset" id="rsReset">সব মুছুন</button><button type="button" class="rs-close" id="rsClose" aria-label="বন্ধ করুন">×</button></div>
@@ -198,7 +199,7 @@
           </div>
         </div>
         <div class="rs-active" id="rsActive"></div>
-        <div class="rs-cards" id="ttResBody" tabindex="-1"></div>
+        <div class="rs-cards" id="ttResBody" tabindex="-1"><div class="rs-sk"></div><div class="rs-sk"></div></div>
       </section>
     </div>
     <div class="rs-overlay" id="rsOverlay"></div>
@@ -363,8 +364,7 @@
   const PAGE = 12;
   const PIN = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
   const MAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>';
-  const needsArea = () => S.f.mode !== 'online' && !S.f.district;
-  const whereText = () => S.f.mode === 'online' ? 'অনলাইনে' : [S.f.district, S.f.upazila].filter(Boolean).join(', ');
+  const whereText =() => S.f.mode === 'online' ? 'অনলাইনে' : [S.f.district, S.f.upazila].filter(Boolean).join(', ');
   const lock = () => { document.body.style.overflow = (document.querySelector('.tt-ov.show') || $('rsFilters').classList.contains('open')) ? 'hidden' : ''; };
   function syncPair(dSel, uSel, noUp, allUp){
     if(dSel.value !== S.f.district) dSel.value = S.f.district;
@@ -403,7 +403,6 @@
     const was = S.f.district;
     Object.assign(S.f, patch);
     if('district' in patch && patch.district !== was && !('upazila' in patch)) S.f.upazila = '';
-    if(S.f.district){ $('sDist').removeAttribute('aria-invalid'); $('sDistErr').classList.remove('on'); }
     syncControls(); renderFilters(); renderChips(); renderSort(); syncUrl();
     if(S.shown) schedule(o);
   }
@@ -411,16 +410,15 @@
   function schedule(o){ clearTimeout(timer); timer = setTimeout(() => run(false, o), 120); }
   function toResults(){ $('ttRes').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
   function runSearch(){
-    if(needsArea()){ $('sDist').setAttribute('aria-invalid', 'true'); $('sDistErr').classList.add('on'); $('sDist').focus(); return; }
-    T('tutor_search', { mode: S.f.mode }); S.shown = true; syncUrl(); clearTimeout(timer); run(false, { scroll: true });
+    T('tutor_search', { mode: S.f.mode }); syncUrl(); clearTimeout(timer); run(false, { scroll: true });
   }
   function initForm(){
-    fill($('sDist'), LOC.map(x => x.n), 'বেছে নিন'); fill($('sUp'), [], 'আগে জেলা'); $('sUp').disabled = true;
+    fill($('sDist'), LOC.map(x => x.n), 'যেকোনো'); fill($('sUp'), [], 'আগে জেলা'); $('sUp').disabled = true;
     fill($('sCls'), D.CLASSES, 'যেকোনো'); fill($('sSub'), D.SUBJECTS, 'যেকোনো');
     fill($('fDist'), LOC.map(x => x.n), 'জেলা বেছে নিন'); fill($('fUp'), [], 'আগে জেলা বেছে নিন'); $('fUp').disabled = true;
     // the card-style pickers (same look as the home page filters); the selects underneath stay the single source of truth
     if(window.TTSelect){
-      TTSelect.enhance($('sDist'), { float: true, search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
+      TTSelect.enhance($('sDist'), { float: true, allLabel: 'যেকোনো জেলা', search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' });
       TTSelect.enhance($('sUp'), { float: true, search: 'উপজেলা খুঁজুন…', allLabel: 'সব উপজেলা' });
       TTSelect.enhance($('sCls'), { float: true, allLabel: 'যেকোনো শ্রেণি' });
       TTSelect.enhance($('sSub'), { float: true, search: 'বিষয় খুঁজুন… (যেমন: গণিত)', allLabel: 'যেকোনো বিষয়' });
@@ -435,11 +433,11 @@
     $('fDist').addEventListener('change', () => setF({ district: $('fDist').value })); $('fUp').addEventListener('change', () => setF({ upazila: $('fUp').value }));
     $('ttSearch').addEventListener('submit', e => { e.preventDefault(); runSearch(); });
     $('ttDirect').addEventListener('click', () => openReq(null));
-    // the quick chips: a subject or "online" is set at once; with an area chosen the search runs, otherwise the area box is asked for
+    // the quick chips: a subject or "online" is set and the list below answers at once
     $('sQuick').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return;
       T('tutor_quick', { s: b.dataset.s || b.dataset.m });
       Object.assign(S.f, b.dataset.s ? { subject: b.dataset.s } : { mode: b.dataset.m }); syncControls(); renderFilters(); renderChips();
-      if(!needsArea()) runSearch(); else { $('sDist').focus(); toast('এবার জেলা বেছে নিন।'); } });
+      runSearch(); });
     // the sidebar
     $('rsFilters').addEventListener('click', e => {
       const b = e.target.closest('[data-f]'); if(b){ const k = b.dataset.f, v = b.dataset.v; T('tutor_filter', { k: k }); setF({ [k]: (S.f[k] === v && k !== 'mode') ? '' : v }); return; }
@@ -455,7 +453,9 @@
     if(S.f.district && !LOC.some(x => x.n === S.f.district)){ S.f.district = ''; S.f.upazila = ''; }
     if(S.f.upazila && upazilasOf(S.f.district).indexOf(S.f.upazila) < 0) S.f.upazila = '';
     syncControls(); renderFilters(); renderChips(); renderSort();
-    if(!needsArea()){ S.shown = true; run(false, { scroll: true }); }
+    // the list is on the page from the start, like the directory's: a shared link with filters scrolls to it, a plain visit moves and focuses nothing
+    const fromLink = D.queryFromFilters(S.f) !== '';
+    S.shown = true; run(false, { scroll: fromLink, quiet: !fromLink });
   }
   /* the sort menu */
   function toggleSort(force){
@@ -479,7 +479,7 @@
   /* ---------- asking, and showing ---------- */
   async function loadState(){ try{ const r = await fetch('/api/dir?f=tutorstate'); if(r.ok){ const s = await r.json(); S.listing = !!(s && s.listing); S.open = !(s && s.requests === false); } }catch(e){} }
   async function loadFacets(){
-    if(!S.listing || needsArea()){ S.facets = null; S.facetKey = ''; renderFilters(); return; }
+    if(!S.listing){ S.facets = null; S.facetKey = ''; renderFilters(); return; }
     const key = JSON.stringify(D.facetArgs(S.f)); if(S.facetKey === key && S.facets) return;
     S.facetKey = key; const my = ++S.fseq;
     try{ const r = await fetch('/api/dir?f=tutorfacets&a=' + encodeURIComponent(key)); if(!r.ok) throw new Error('http ' + r.status); const j = await r.json(); if(my !== S.fseq) return; S.facets = (j && typeof j === 'object' && !Array.isArray(j) && 'total' in j) ? j : null; }
@@ -488,14 +488,14 @@
   }
   async function run(append, o){
     const my = ++S.seq; o = o || {};
-    S.shown = true; $('ttRes').hidden = false;
+    S.shown = true;
     if(!append){ S.offset = 0; S.tutors = []; S.fresh = 0; S.total = 0; }
     S.failed = false;
     if(S.stateP) await S.stateP;
     if(my !== S.seq) return;
-    $('ttRes').classList.toggle('rs-solo', !S.listing);
+    $('ttRes').classList.toggle('rs-solo', !S.listing); $('ttRes').classList.add('on');   // the sidebar and the header show once we know whether the list is on
     if(!append) loadFacets();
-    if(!S.listing || needsArea()){ S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render(); if(o.scroll) toResults(); return; }
+    if(!S.listing){ S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render(); if(o.scroll) toResults(); return; }
     S.busy = true; $('ttRes').setAttribute('aria-busy', 'true'); render(); if(o.scroll && !append) toResults();
     try{
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000);
@@ -507,7 +507,7 @@
       S.fresh = S.tutors.length; S.tutors = S.tutors.concat(rows); S.offset += rows.length; S.total = rows.length ? Number(rows[0].total) || S.tutors.length : (append ? S.total : 0);
     }catch(e){ if(my !== S.seq) return; S.failed = true; }
     S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render();
-    if(!append){ const h = S.listing ? $('ttResT') : $('ttResBody'); if(h) h.focus({ preventScroll: true }); }
+    if(!append && !o.quiet){ const h = S.listing ? $('ttResT') : $('ttResBody'); if(h) h.focus({ preventScroll: true }); }
   }
   const COLORS = ['#1A56DB', '#7C3AED', '#0F766E', '#B45309', '#BE185D', '#4338CA'];
   const colorOf = s => COLORS[String(s || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
@@ -542,21 +542,21 @@
     let count = '';
     if(S.busy && !S.tutors.length) count = 'খোঁজা হচ্ছে…';
     else if(S.failed && !S.tutors.length) count = 'তালিকা এখন লোড হয়নি';
-    else if(!solo && !needsArea()) count = D.bn(S.total) + ' জন টিউটর ' + (S.tutors.length < S.total ? 'পাওয়া গেছে' : 'দেখাচ্ছে') + (whereText() ? ' · ' + whereText() : '');
+    else if(!solo) count = D.bn(S.total) + ' জন টিউটর ' + (S.tutors.length < S.total ? 'পাওয়া গেছে' : 'দেখাচ্ছে') + (whereText() ? ' · ' + whereText() : '');
     $('rsCount').textContent = count;
     const want = [S.f.cls ? D.labelOf(D.CLASSES, S.f.cls) : '', S.f.subject ? D.labelOf(D.SUBJECTS, S.f.subject) : '', whereText()].filter(Boolean).join(' · ');
     if(solo){   // the public list is not on yet: say so and offer the request
       body.innerHTML = '<div class="rs-empty"><div class="ic">' + SEARCH_IC + '</div><b>আপনার জন্য টিউটর খুঁজে দিচ্ছি</b>' + (want ? '<div class="rs-want">' + esc(want) + '</div><br>' : '') +
         '<p>এখন আমরা টিউটর হাতে হাতে মিলিয়ে দিচ্ছি। অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</p>' + reqBtn() + '</div>'; return;
     }
-    if(needsArea()){
-      body.innerHTML = '<div class="rs-empty"><div class="ic">' + PIN.replace('width="12" height="12"', 'width="30" height="30"') + '</div><b>আগে আপনার জেলা বেছে নিন</b><p>জেলা বেছে নিলে আপনার এলাকার টিউটর আগে দেখাব। অনলাইনে পড়ানো টিউটর দেখতে "অনলাইনে" বাছুন।</p><button type="button" class="tt-btn sec" data-pickarea>জেলা বেছে নিন</button></div>'; return;
-    }
     if(S.busy && !S.tutors.length){ body.innerHTML = '<div class="rs-sk"></div><div class="rs-sk"></div><div class="rs-sk"></div><div class="rs-sk"></div>'; return; }
     if(S.failed && !S.tutors.length){
       body.innerHTML = '<div class="rs-empty"><b>একটু সমস্যা হয়েছে</b><p>টিউটরের তালিকা এখন আনা যায়নি। আবার চেষ্টা করুন, কিংবা সরাসরি অনুরোধ পাঠান, আমরা মিলিয়ে দেব।</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button type="button" class="tt-btn sec" id="ttRetry">আবার চেষ্টা করুন</button>' + reqBtn() + '</div></div>'; return;
     }
     if(!S.tutors.length){
+      if(!D.filterChips(S.f).length){   // the list is on but nobody is in it yet (no filter to blame)
+        body.innerHTML = '<div class="rs-empty"><div class="ic">' + SEARCH_IC + '</div><b>এখনো কোনো টিউটর তালিকায় আসেননি</b><p>অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</p>' + reqBtn() + '</div>'; return;
+      }
       body.innerHTML = '<div class="rs-empty"><div class="ic">' + SEARCH_IC + '</div><b>এই ফিল্টারে কোনো টিউটর পাওয়া যায়নি</b>' + (want ? '<div class="rs-want">' + esc(want) + '</div><br>' : '') + '<p>ফিল্টার বদলে দেখুন, অথবা <button type="button" class="lnk" data-reset>সব ফিল্টার মুছুন</button>।</p></div>' + ctaBox(); return;
     }
     body.innerHTML = S.tutors.map(card).join('') + moreHtml() + ctaBox();
@@ -567,7 +567,6 @@
     if(e.target.closest('#ttMore')){ T('tutor_more'); run(true); return; }
     if(e.target.closest('#ttRetry')){ run(false); return; }
     if(e.target.closest('[data-reset]')){ resetFilters(); return; }
-    if(e.target.closest('[data-pickarea]')){ window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { const t = $('sDist')._tts; if(t) t.open(); else $('sDist').focus(); }, 350); }
   });
 
   /* ---------- one tutor in full (opened from a card) ---------- */
