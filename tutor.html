@@ -810,7 +810,7 @@
   function popSchedule(){
     const force = /[?&]popup=1(&|$)/.test(location.search);
     if(!force && (D.queryFromFilters(S.f) !== '' || popSkipped())) return;
-    setTimeout(() => popTry(force), force ? 1200 : (Number(window.__popDelay) || 9000));
+    setTimeout(() => popTry(force), force ? 1200 : (Number(window.__popDelay) || 5000));
   }
 
   /* ---------- go ---------- */
