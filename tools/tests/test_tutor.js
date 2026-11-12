@@ -107,7 +107,7 @@ const page = read('tutor.html'), join = read('tutor-join.html'), admin = read('a
 for (const [f, h] of [['tutor.html', page], ['tutor-join.html', join]]) {
   yes(f + ': Bangla page with a title and a description', /<html lang="bn">/.test(h) && (h.match(/<title>([^<]+)<\/title>/) || [])[1].length > 20 && /<meta name="description" content="[^"]{60,}/.test(h));
   eq(f + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
-  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=11/.test(h) && /tutor-data\.js\?v=4/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
+  yes(f + ': the nav, the footer, the shared sheet and the data file are there, data before the page code', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /tutor\.css\?v=14/.test(h) && /tutor-data\.js\?v=4/.test(h) && h.indexOf('tutor-data.js') < h.indexOf("const D = window.TutorData"));
   yes(f + ': no ad place and no ad script on a service page', !/ad-slot|ads\.js|googlesyndication/.test(h));
   yes(f + ': never reads a tutor table directly (only the functions, and /api/dir)', !/\.from\(\s*['"]tutor_/.test(h));
   yes(f + ': every outside link carries rel="noopener"', [...h.matchAll(/<a [^>]*href="(https?:\/\/[^"]+)"[^>]*>/g)].filter(m => !/protishthan\.com/.test(m[1])).every(m => /rel="noopener"/.test(m[0])));
@@ -202,6 +202,9 @@ yes('the request dialog carries the filters over: who teaches and a free trial',
 yes('with the public list off the page asks nothing about tutors (the answer is known) and shows only the offer', /if\(!S\.listing \|\| needsArea\(\)\)\{ S\.busy = false/.test(page) && /rs-solo/.test(page) && /\.rs-solo \.rs-filters,\.rs-solo \.rs-head,\.rs-solo \.rs-active\{display:none\}/.test(css));
 yes('a stale answer never overwrites a newer search (a sequence number) and the counts have their own', /const my = \+\+S\.seq/.test(page) && /if\(my !== S\.seq\) return/.test(page) && /const my = \+\+S\.fseq/.test(page));
 yes('no invented numbers, ratings or testimonials in the results code', !/[★⭐]/.test(page) && !/\d+\s*\+?\s*(জন|হাজার)\s*(টিউটর|অভিভাবক)\s*(যুক্ত|আছেন)/.test(page));
+
+yes('the banner is compact: the two chip groups share one row, the direct request link is in the row of ticks, the picture is shorter and clips its own corners (so a dropdown is never cut off by the banner), and the phone puts the four fields two by two', /<div class="tt-chiprow">\s*<div class="tt-modes">[^]*?id="sQuick"[^]*?<\/div>\s*<\/div>/.test(page) && /class="tt-trust">[^]*?id="ttDirect"[^]*?<\/div>\s*<\/header>|class="tt-trust">[^]*?id="ttDirect"/.test(page) && /<svg viewBox="0 56 1200 194"/.test(page) && /\.tt-art\{[^}]*overflow:hidden;border-radius:0 0 31px 31px\}/.test(css) && !/\.tt-hero2\{[^}]*overflow:hidden/.test(css) && /\.tt-pill\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\);padding:8px;margin-top:16px\}/.test(css) && /\.tt-art \.tt-mon\{display:none\}/.test(css) && /class="tt-mon"/.test(page));
+yes('the headline and the lead are short enough for the compact banner, and the free-for-guardians line is kept (in the row of ticks)', /<p class="lead">বিশ্ববিদ্যালয়ের শিক্ষার্থী টিউটর, আপনার এলাকায় বা অনলাইনে।<\/p>/.test(page) && /অভিভাবকের জন্য ফ্রি<\/span>/.test(page));
 
 // ----- a signed-in tutor's first tap must stick (the join page used to start its flow twice and wire every chip box twice) -----
 yes('the join page starts its flow once even when the member script also announces the sign-in, and wires each chip box once', /function boot\(\)\{[^}]*bootP/.test(join) && /async function bootRun\(\)/.test(join) && /if\(box\.dataset\.wired\) return; box\.dataset\.wired = '1'/.test(join));
