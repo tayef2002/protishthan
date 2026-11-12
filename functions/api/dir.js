@@ -10,7 +10,7 @@
 //   GET /api/dir?f=members&a={"p_q":"..","p_limit":5}       (card page: names members typed for institutions not yet listed)
 //   GET /api/dir?f=browse&a={"p_q":..,"p_districts":[..],"p_upazila":..,"p_type":..,"p_limit":30,"p_offset":0}
 //   GET /api/dir?f=search&a={"p_q":"bani","p_limit":8}
-//   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0}      (card page: the public opinion board, kept for a minute)
+//   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0,"p_kind":"idea","p_sort":"top"}   (card page: the public opinion board, kept for a minute; kind and sort are optional)
 
 import { rest } from '../_lib/seo.js';
 
@@ -45,10 +45,14 @@ const QUESTIONS = {
     if ([q, districts, upazila, type, limit, offset].includes(undefined)) return null;
     return { path: 'rpc/directory_browse', rpc: { p_q: q || null, p_districts: districts, p_upazila: upazila || null, p_type: type || null, p_limit: limit, p_offset: offset } };
   } },
-  comments: { ttl: 60, build: a => {                       // the public opinion board of the card page (published comments only; the function never returns the device or the account)
+  comments: { ttl: 60, build: a => {                       // the public opinion board of the card page (published comments only; the functions never return the device or the account)
     const limit = int(a.p_limit, 1, 30, 10), offset = int(a.p_offset, 0, 1000, 0);
-    if (limit === undefined || offset === undefined) return null;
-    return { path: 'rpc/card_comment_list', rpc: { p_limit: limit, p_offset: offset } };
+    const kind = (a.p_kind === undefined || a.p_kind === null || a.p_kind === '') ? null : (['opinion', 'idea', 'problem'].includes(a.p_kind) ? a.p_kind : undefined);
+    const sort = a.p_sort === undefined ? 'new' : (['new', 'top'].includes(a.p_sort) ? a.p_sort : undefined);
+    if ([limit, offset, kind, sort].includes(undefined)) return null;
+    // the plain question (page, offset) goes to the first function; asking for a kind or a sort goes to the feed (2026-12-16 migration), so an old page keeps working either way
+    if (a.p_kind === undefined && a.p_sort === undefined) return { path: 'rpc/card_comment_list', rpc: { p_limit: limit, p_offset: offset } };
+    return { path: 'rpc/card_comment_feed', rpc: { p_limit: limit, p_offset: offset, p_kind: kind, p_sort: sort } };
   } },
   search:   { ttl: 600, build: a => {
     const q = str(a.p_q, 100), limit = int(a.p_limit, 1, 20, 8);

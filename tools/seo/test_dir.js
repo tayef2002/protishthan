@@ -47,6 +47,17 @@ const A = o => 'a=' + encodeURIComponent(JSON.stringify(o));
   for (let i = 0; i < 30; i++) await call('f=comments&' + A({ p_limit: 10, p_offset: 0 })); ok(dbCalls === 1, 'comments: 30 more visitors = still one database question');
   await call('f=comments&' + A({ p_limit: 10, p_offset: 10 })); ok(dbCalls === 2, 'comments: the next page is its own question');
   now += 61; await call('f=comments'); ok(dbCalls === 3, 'comments: after a minute one new question');
+  // comments, step 2: a kind and a sort go to the feed function; without them the first function is still used, so an old page keeps working
+  r = await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'hack', p_sort: 'new' })); ok(r.status === 400, 'comments: an unknown kind is refused');
+  r = await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: null, p_sort: 'random' })); ok(r.status === 400, 'comments: an unknown sort is refused');
+  r = await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 7, p_sort: 'new' })); ok(r.status === 400, 'comments: a kind that is not text is refused');
+  dbCalls = 0; r = await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' })); ok(r.status === 200 && /rpc\/card_comment_feed/.test(lastUrl), 'comments: a kind and a sort go to the feed function');
+  ok(JSON.stringify(JSON.parse(lastBody)) === JSON.stringify({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' }), 'comments: the feed arguments are sent in a fixed order');
+  await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: '', p_sort: 'new' })); ok(JSON.parse(lastBody).p_kind === null && /card_comment_feed/.test(lastUrl), 'comments: an empty kind means all kinds');
+  await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_sort: 'top' })); ok(/card_comment_feed/.test(lastUrl) && JSON.parse(lastBody).p_kind === null, 'comments: a sort alone is enough for the feed');
+  now += 61; await call('f=comments&' + A({ p_limit: 10, p_offset: 0 })); ok(/rpc\/card_comment_list/.test(lastUrl) && JSON.stringify(JSON.parse(lastBody)) === JSON.stringify({ p_limit: 10, p_offset: 0 }), 'comments: no kind and no sort = the first function with its two arguments only');
+  dbCalls = 0; await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' })); await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'idea', p_sort: 'top' })); ok(dbCalls === 1, 'comments: the same filtered page twice = one database question');
+  await call('f=comments&' + A({ p_limit: 10, p_offset: 0, p_kind: 'problem', p_sort: 'top' })); ok(dbCalls === 2, 'comments: another kind is its own question');
 
   // search + browse: arguments are checked and cleaned, the same question shares one answer
   r = await call('f=search&' + A({ p_q: '   ', p_limit: 8 })); ok(r.status === 400, 'search: an empty word is refused');

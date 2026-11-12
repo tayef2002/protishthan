@@ -596,7 +596,7 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     <div class="view" id="view-cardcm">
       <div class="section-card" style="overflow-x:auto">
         <div class="sec-h">শিক্ষিত কার্ড: মতামত, আইডিয়া ও সমস্যা <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="ccCount"></span></div>
-        <div class="bill-note" style="margin-top:0">কার্ড পেজের নিচে ব্যবহারকারীরা যা লেখেন, এখানে জমা হয়। লেখা সাথে সাথে সবার সামনে দেখা যায়। আপত্তিকর বা ভুয়া কিছু দেখলে "লুকান" চাপুন (মুছে যায় না, পরে ফেরানো যায়)। ৩ জন আলাদা মানুষ রিপোর্ট করলে লেখাটা আপনাআপনি লুকিয়ে যায় আর এখানে "নতুন"-তে আসে। "উত্তর" লিখে সেভ করলে সেটা ওই লেখার নিচে সবার সামনে "Protishthan টিমের উত্তর" হিসেবে দেখায়।</div>
+        <div class="bill-note" style="margin-top:0">কার্ড পেজের নিচে ব্যবহারকারীরা যা লেখেন, এখানে জমা হয়। লেখা সাথে সাথে সবার সামনে দেখা যায়। আপত্তিকর বা ভুয়া কিছু দেখলে "লুকান" চাপুন (মুছে যায় না, পরে ফেরানো যায়)। ৩ জন আলাদা মানুষ রিপোর্ট করলে লেখাটা আপনাআপনি লুকিয়ে যায় আর এখানে "নতুন"-তে আসে। "উত্তর" লিখে সেভ করলে সেটা ওই লেখার নিচে সবার সামনে "Protishthan টিমের উত্তর" হিসেবে দেখায়। ভোট বেশি পাওয়া আইডিয়া আর সমস্যার পাশে "অবস্থা-ট্যাগ" (পর্যালোচনায় / পরিকল্পনায় / কাজ চলছে / হয়ে গেছে) দিলে ব্যবহারকারীরা দেখেন আপনি তাঁদের কথা শুনছেন, আর "ওপরে পিন করুন" চাপলে লেখাটা বোর্ডের সবার ওপরে থাকে। (ভোট, ট্যাগ আর পিন কাজ করে migrations/2026-12-16_card_comments_v2.sql চালানোর পর।)</div>
         <label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0;padding:12px 14px;border:1px solid #E2E8F0;border-radius:12px;background:#F8FAFF;cursor:pointer">
           <input type="checkbox" id="ccApprove" onchange="ccToggleApprove(this.checked)" style="margin-top:3px">
           <span><b>নতুন লেখা আগে আমি দেখে অনুমোদন করব</b><br><span style="font-size:13px;color:var(--text-3)">চালু করলে নতুন কারও লেখা সাথে সাথে সবার সামনে যাবে না, এখানে "অনুমোদনের অপেক্ষায়" থাকবে, আপনি "প্রকাশ করুন" চাপলে দেখা যাবে। বন্ধ থাকলে লেখা সাথে সাথে প্রকাশ হয় (আমার সুপারিশ, যতক্ষণ না বেশি স্প্যাম আসে)।</span></span>
@@ -1380,7 +1380,10 @@ ADMIN_READY.then(() => loadNames());
 
 /* ---- কার্ড মতামত: what visitors write on the card page (migrations/2026-12-15_card_comments.sql). Read and changed with the admin session (sbAdmin): the tables are closed to everybody else. ---- */
 navTitles.cardcm = ['কার্ড মতামত', 'শিক্ষিত কার্ড পেজে ব্যবহারকারীদের মতামত, আইডিয়া ও সমস্যা'];
-let CC_ROWS = [], CC_FILTER = 'new';
+let CC_ROWS = [], CC_FILTER = 'new', CC_REASON = {}, CC_DRAFTS = {};
+const CC_RLAB = { spam: 'স্প্যাম', abuse: 'আপত্তিকর ভাষা', private: 'ব্যক্তিগত তথ্য', other: 'অন্য কারণ', '': 'কারণ লেখা হয়নি' };
+const CC_TAGS = { '': '— কোনো ট্যাগ নেই', review: 'পর্যালোচনায়', planned: 'পরিকল্পনায়', progress: 'কাজ চলছে', done: 'হয়ে গেছে' };
+function ccReasonText(id){ const c = {}; (CC_REASON[id] || []).forEach(x => { c[x] = (c[x] || 0) + 1; }); return Object.keys(c).map(k => (CC_RLAB[k] || CC_RLAB.other) + (c[k] > 1 ? ' ×' + c[k] : '')).join(', '); }
 const CC_KIND = { opinion: ['মতামত', '#EEF3FF', '#1A56DB'], idea: ['আইডিয়া', '#FEF3C7', '#92400E'], problem: ['সমস্যা', '#FEE2E2', '#B91C1C'] };
 const CC_STATUS = { published: ['প্রকাশিত', '#DCFCE7', '#166534'], pending: ['অনুমোদনের অপেক্ষায়', '#FEF3C7', '#92400E'], hidden: ['লুকানো', '#F1F5F9', '#475569'] };
 function ccEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
@@ -1395,6 +1398,10 @@ async function loadCardComments(){
   const a = await sbAdmin.from('card_comments').select('*').order('created_at', { ascending: false }).limit(400);
   if(a.error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + ccEsc(a.error.message) + ' — migrations/2026-12-15_card_comments.sql চালানো হয়েছে কি?</div>'; return; }
   CC_ROWS = a.data || [];
+  // why people reported (the reason column comes with the second migration; without it only the count is known)
+  let rp = await sbAdmin.from('card_comment_reports').select('comment_id,reason').limit(2000);
+  if(rp.error) rp = await sbAdmin.from('card_comment_reports').select('comment_id').limit(2000);
+  CC_REASON = {}; ((rp && rp.data) || []).forEach(x => { (CC_REASON[x.comment_id] = CC_REASON[x.comment_id] || []).push(x.reason || ''); });
   const s = await sbAdmin.from('card_comment_settings').select('approve_first').eq('id', 1).maybeSingle();
   document.getElementById('ccApprove').checked = !!(s && s.data && s.data.approve_first);
   ccRefreshBadge();
@@ -1411,14 +1418,21 @@ function renderCardComments(){
   let rows = CC_ROWS.filter(r => CC_FILTER === 'all' || (CC_FILTER === 'hidden' ? r.status === 'hidden' : ccIsNew(r)));
   if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (CC_FILTER === 'new' ? 'নতুন কিছু নেই।' : CC_FILTER === 'hidden' ? 'কিছু লুকানো নেই।' : 'এখনো কেউ কিছু লেখেননি।') + '</div>'; return; }
   const btn = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
+  box.querySelectorAll('textarea').forEach(t => { CC_DRAFTS[t.id.slice(4)] = t.value; });       // a reply being typed in one row survives a click in another
   box.innerHTML = rows.map(r => {
-    const k = CC_KIND[r.kind] || CC_KIND.opinion, st = CC_STATUS[r.status] || CC_STATUS.published, id = ccEsc(r.id);
+    const k = CC_KIND[r.kind] || CC_KIND.opinion, st = CC_STATUS[r.status] || CC_STATUS.published, id = ccEsc(r.id), v2 = 'status_label' in r;
+    const draft = Object.prototype.hasOwnProperty.call(CC_DRAFTS, r.id) ? CC_DRAFTS[r.id] : (r.reply || '');
     return '<div style="border:1px solid ' + (ccIsNew(r) ? '#93C5FD' : '#E2E8F0') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#fff">' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b style="font-size:15px">' + ccEsc(r.name || 'একজন ব্যবহারকারী') + '</b>' + ccChip(k, k[0]) + ccChip(st, st[0]) +
-      (r.reports ? '<span style="font-size:12.5px;font-weight:800;color:#B91C1C">⚠ ' + r.reports + ' জন রিপোর্ট করেছেন</span>' : '') +
+      (v2 ? '<span style="font-size:12.5px;font-weight:800;color:#1E40AF;background:#EEF3FF;border-radius:100px;padding:2px 9px">▲ ' + (r.votes || 0) + ' ভোট</span>' : '') +
+      (r.pinned ? '<span style="font-size:12px;font-weight:800;color:#1E40AF;background:#DBE7FF;border-radius:100px;padding:2px 9px">📌 পিন করা</span>' : '') +
+      (r.reports ? '<span style="font-size:12.5px;font-weight:800;color:#B91C1C">⚠ ' + r.reports + ' জন রিপোর্ট করেছেন' + (ccReasonText(r.id) ? ' (' + ccEsc(ccReasonText(r.id)) + ')' : '') + '</span>' : '') +
       '<span style="font-size:12.5px;color:var(--text-3)">' + new Date(r.created_at).toLocaleString('bn-BD') + ' · ' + (r.user_id ? 'সদস্য' : 'অতিথি') + ' · ডিভাইস ' + ccEsc(String(r.device).slice(0, 6)) + '</span></div>' +
       '<div style="white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;line-height:1.6;font-size:14.5px">' + ccEsc(r.body) + '</div>' +
-      '<textarea id="ccR-' + id + '" rows="2" maxlength="800" placeholder="উত্তর লিখুন (সবার সামনে ‘Protishthan টিমের উত্তর’ হিসেবে দেখাবে)" style="width:100%;padding:9px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ccEsc(r.reply || '') + '</textarea>' +
+      (v2 ? '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px"><label style="font-size:13px;font-weight:700;color:#475569">অবস্থা-ট্যাগ (সবার সামনে দেখায়) <select data-id="' + id + '" onchange="ccLabel(this.dataset.id,this.value)" style="margin-left:6px;padding:6px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px">' +
+        Object.keys(CC_TAGS).map(t => '<option value="' + t + '"' + ((r.status_label || '') === t ? ' selected' : '') + '>' + CC_TAGS[t] + '</option>').join('') + '</select></label>' +
+        '<button type="button" data-id="' + id + '" onclick="ccPin(this.dataset.id)" style="padding:6px 12px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">' + (r.pinned ? 'পিন সরান' : 'ওপরে পিন করুন') + '</button></div>' : '') +
+      '<textarea id="ccR-' + id + '" rows="2" maxlength="800" placeholder="উত্তর লিখুন (সবার সামনে ‘Protishthan টিমের উত্তর’ হিসেবে দেখাবে)" style="width:100%;padding:9px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ccEsc(draft) + '</textarea>' +
       '<div><button type="button" data-id="' + id + '" onclick="ccReply(this.dataset.id)" ' + btn + '>উত্তর সেভ করুন</button>' +
       (r.status === 'published' ? '' : '<button type="button" data-id="' + id + '" onclick="ccStatus(this.dataset.id,\'published\')" ' + btn + '>প্রকাশ করুন</button>') +
       (r.status === 'hidden' ? '' : '<button type="button" data-id="' + id + '" onclick="ccStatus(this.dataset.id,\'hidden\')" ' + btn + '>লুকান</button>') +
@@ -1434,15 +1448,19 @@ async function ccUpdate(id, patch){
 }
 function ccSeen(id){ return ccUpdate(id, { seen: true }); }
 function ccStatus(id, status){ return ccUpdate(id, { status, seen: true }); }
-function ccReply(id){
+async function ccReply(id){
   const v = document.getElementById('ccR-' + id).value.trim();
-  return ccUpdate(id, { reply: v || null, replied_at: v ? new Date().toISOString() : null, seen: true });
+  const ok = await ccUpdate(id, { reply: v || null, replied_at: v ? new Date().toISOString() : null, seen: true });
+  if(ok) delete CC_DRAFTS[id];
+  return ok;
 }
+function ccLabel(id, v){ return ccUpdate(id, { status_label: v || null, seen: true }); }
+function ccPin(id){ const r = CC_ROWS.find(x => x.id === id); return ccUpdate(id, { pinned: !(r && r.pinned), seen: true }); }
 async function ccDelete(id){
   if(!confirm('এই লেখাটা চিরতরে মুছে ফেলবেন? (ফেরানো যাবে না। শুধু লুকাতে চাইলে "লুকান" চাপুন।)')) return;
   const { error } = await sbAdmin.from('card_comments').delete().eq('id', id);
   if(error){ alert('হয়নি: ' + error.message); return; }
-  CC_ROWS = CC_ROWS.filter(x => x.id !== id); ccRefreshBadge(); renderCardComments();
+  CC_ROWS = CC_ROWS.filter(x => x.id !== id); delete CC_DRAFTS[id]; ccRefreshBadge(); renderCardComments();
 }
 async function ccToggleApprove(on){
   const { error } = await sbAdmin.from('card_comment_settings').update({ approve_first: on }).eq('id', 1);

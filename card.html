@@ -78,48 +78,114 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .lb-find label{display:block;font-size:13.5px;font-weight:800;margin-bottom:8px}
 .lb-found{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .lb-note{font-size:12.5px;color:var(--text-3);margin-top:16px}.lb-note a{color:var(--blue);font-weight:700;text-decoration:none}
-/* the opinion board: shown only once the list has loaded (see CM-START in the script) */
-.cm{margin-top:34px;margin-bottom:8px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:28px 28px 24px}
+/* the opinion board (the script block CM-START): narrow and centred like a feedback board, in the order write, filter, read. Shown only once the list has loaded. */
+.cm{--cm-blue:#1A56DB;--cm-ink:#0F172A;--cm-mute:#64748B;--cm-line:#E6EBF3;margin:34px auto 8px;max-width:880px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:32px 32px 28px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 14px 34px -20px rgba(15,23,42,.2)}
 .cm[hidden]{display:none}
-.cm h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.6px;line-height:1.25;margin-bottom:6px}
-.cm-head p{font-size:14.5px;color:var(--text-2);max-width:640px}
-.cm-form{margin-top:20px;display:flex;flex-direction:column;gap:10px}
-.cm-kinds{display:flex;gap:8px;flex-wrap:wrap}
-.cm-kind{border:1.5px solid var(--border);background:#fff;border-radius:100px;padding:8px 16px;font:700 14px 'Hind Siliguri','Inter',sans-serif;color:#475569;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-.cm-kind:hover{border-color:#B8C4DA}
-.cm-kind.on[data-k=opinion]{background:#EEF3FF;border-color:#1A56DB;color:#1A56DB}
-.cm-kind.on[data-k=idea]{background:#FEF3C7;border-color:#D97706;color:#92400E}
-.cm-kind.on[data-k=problem]{background:#FEE2E2;border-color:#DC2626;color:#B91C1C}
-.cm-ta{resize:vertical;min-height:104px;line-height:1.55}
-.cm-row{display:flex;gap:10px;align-items:center}
-.cm-row .inp{flex:1;min-width:0}
-.cm-count{font-size:12.5px;color:var(--text-3);white-space:nowrap}
-.cm-warn{font-size:12.5px;color:var(--text-3)}
-.cm-act{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.cm-msg{font-size:13.5px;font-weight:600;color:var(--text-2)}.cm-msg.err{color:#B91C1C}.cm-msg.ok{color:#047857}
-.cm-listhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:26px 0 12px;padding-top:18px;border-top:1px solid #EEF2F7;font-size:15px}
-.cm-listhead span{font-size:13px;color:var(--text-3)}
-.cm-list{list-style:none;display:flex;flex-direction:column;gap:10px}
-.cm-item{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px 16px;border:1px solid #E8EDF5;border-radius:16px;background:#fff}
-.cm-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
-.cm-top{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
-.cm-top b{font-size:15px;overflow-wrap:anywhere}
-.cm-k{font-size:11.5px;font-weight:800;border-radius:100px;padding:2px 9px}
-.cm-k.opinion{background:#EEF3FF;color:#1A56DB}.cm-k.idea{background:#FEF3C7;color:#92400E}.cm-k.problem{background:#FEE2E2;color:#B91C1C}
-.cm-top time{font-size:12.5px;color:var(--text-3)}
-.cm-body{margin-top:6px;font-size:14.5px;line-height:1.6;color:#1E293B;white-space:pre-wrap;overflow-wrap:anywhere}
-.cm-reply{margin-top:10px;padding:10px 12px;border-left:3px solid var(--blue);background:#F5F8FF;border-radius:0 12px 12px 0}
-.cm-reply b{font-size:12.5px;color:var(--blue)}
-.cm-reply p{margin-top:2px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:#334155}
-.cm-rep{margin-top:8px;border:none;background:none;padding:0;font:600 12px 'Hind Siliguri','Inter',sans-serif;color:var(--text-3);cursor:pointer;text-decoration:underline}
-.cm-rep:disabled{text-decoration:none;cursor:default}
-.cm-more{margin:14px auto 0;display:flex}
+.cm button,.cm select,.cm textarea,.cm input{font-family:'Hind Siliguri','Inter',sans-serif}
+.cm button:focus-visible,.cm select:focus-visible,.cm a:focus-visible{outline:3px solid rgba(26,86,219,.4);outline-offset:2px}
+.cm-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cm-head h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.6px;line-height:1.25;margin:0 0 6px}
+.cm-head p{font-size:15px;line-height:1.6;color:var(--text-2);max-width:620px}
+/* writing */
+.cm-form{margin-top:22px;padding:16px;border:1px solid var(--cm-line);border-radius:20px;background:linear-gradient(180deg,#FBFCFF,#F6F8FD)}
+.cm-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:#EAEFF7;border-radius:14px}
+.cm-kind{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;border:0;border-radius:11px;background:transparent;font-size:14.5px;font-weight:700;color:#475569;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.cm-kind svg{flex:none}
+.cm-kind:hover{color:var(--cm-ink)}
+.cm-kind[aria-pressed=true]{background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.16),0 0 0 1px rgba(15,23,42,.03)}
+.cm-kind[aria-pressed=true][data-k=opinion]{color:#1A56DB}.cm-kind[aria-pressed=true][data-k=idea]{color:#B45309}.cm-kind[aria-pressed=true][data-k=problem]{color:#B91C1C}
+.cm-hint{margin:10px 2px 0;font-size:13.5px;color:var(--cm-mute)}
+.cm-box{margin-top:10px;background:#fff;border:1px solid #D5DDEA;border-radius:14px;transition:border-color .15s,box-shadow .15s}
+.cm-box:focus-within,.cm-name:focus-within{border-color:var(--cm-blue);box-shadow:0 0 0 3px rgba(26,86,219,.14)}
+.cm-ta{display:block;width:100%;border:0;outline:0;background:transparent;resize:none;padding:14px 16px 4px;font-size:15.5px;line-height:1.6;color:var(--cm-ink);min-height:112px;max-height:300px;box-sizing:border-box}
+.cm-ta::placeholder,.cm-name input::placeholder{color:#94A3B8}
+.cm-box-foot{display:flex;justify-content:flex-end;padding:0 14px 10px}
+.cm-count{font-size:12.5px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.cm-count.warn{color:#B45309}.cm-count.max{color:#B91C1C;font-weight:700}
+.cm-row{display:flex;gap:10px;margin-top:10px;align-items:stretch}
+.cm-name{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fff;border:1px solid #D5DDEA;border-radius:12px;color:#94A3B8;transition:border-color .15s,box-shadow .15s}
+.cm-name input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:15px;padding:12px 0;color:var(--cm-ink)}
+.cm-send{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 24px;border:0;border-radius:12px;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px -8px rgba(37,99,235,.65);transition:transform .12s,box-shadow .15s,opacity .15s}
+.cm-send:hover:not(:disabled){transform:translateY(-1px)}
+.cm-send:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}
+.cm-rules{margin:10px 2px 0;font-size:12.5px;line-height:1.55;color:var(--text-3)}
+.cm-msg{margin:8px 2px 0;font-size:14px;font-weight:700;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.cm-msg:empty{display:none}
+.cm-msg svg{flex:none;margin-top:2px}
+.cm-msg.err{color:#B91C1C}.cm-msg.ok{color:#047857}
+/* filter and sort */
+.cm-bar{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin:30px 0 0;border-bottom:1px solid var(--cm-line)}
+.cm-bar[hidden]{display:none}
+.cm-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.cm-tabs::-webkit-scrollbar{display:none}
+.cm-tab{position:relative;border:0;background:none;padding:10px 14px 12px;font-size:14.5px;font-weight:700;color:var(--cm-mute);cursor:pointer;white-space:nowrap}
+.cm-tab:hover{color:var(--cm-ink)}
+.cm-tab[aria-pressed=true]{color:var(--cm-blue)}
+.cm-tab[aria-pressed=true]::after{content:'';position:absolute;left:10px;right:10px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--cm-blue)}
+.cm-sort{padding-bottom:7px}
+.cm-sort select{appearance:none;-webkit-appearance:none;border:1px solid #D5DDEA;border-radius:10px;padding:8px 30px 8px 12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;font-size:13.5px;font-weight:700;color:#334155;cursor:pointer}
+.cm-meta{margin:14px 2px;font-size:13px;color:var(--text-3);min-height:18px}
+/* the list */
+.cm-list{list-style:none;display:flex;flex-direction:column;gap:12px;padding:0;margin:0}
+.cm-item{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;padding:16px 16px 12px;border:1px solid var(--cm-line);border-radius:18px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.cm-item:hover{border-color:#D3DCEB;box-shadow:0 8px 20px -14px rgba(15,23,42,.3)}
+.cm-item.pin{border-color:#C9D9FC;background:linear-gradient(180deg,#F5F9FF,#fff 70%)}
+.cm-item.fresh{animation:cmIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes cmIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.cm-v1 .cm-item{grid-template-columns:minmax(0,1fr)}
+.cm-vote{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:52px;height:58px;padding:0;border:1px solid #DCE3EF;border-radius:14px;background:#fff;color:#475569;font-size:15px;font-weight:800;cursor:pointer;transition:border-color .15s,background .15s,color .15s,transform .12s}
+.cm-vote svg{flex:none}
+.cm-vote:hover:not(:disabled){border-color:#9DB7F5;background:#F5F8FF;color:var(--cm-blue)}
+.cm-vote:active:not(:disabled){transform:scale(.96)}
+.cm-vote[aria-pressed=true]{border-color:var(--cm-blue);background:var(--cm-blue);color:#fff}
+.cm-vote:disabled{opacity:.6;cursor:default}
+.cm-main{min-width:0}
+.cm-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}
+.cm-av{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#fff;flex:none}
+.cm-who{font-size:15px;font-weight:800;overflow-wrap:anywhere}
+.cm-chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:100px;font-size:11.5px;font-weight:800;white-space:nowrap}
+.cm-chip svg{width:12px;height:12px}
+.cm-chip i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.cm-chip.opinion{background:#EEF3FF;color:#1A56DB}.cm-chip.idea{background:#FEF3C7;color:#92400E}.cm-chip.problem{background:#FEE2E2;color:#B91C1C}
+.cm-chip.st-review{background:#F1F5F9;color:#475569}.cm-chip.st-planned{background:#EDE9FE;color:#6D28D9}.cm-chip.st-progress{background:#FFEDD5;color:#C2410C}.cm-chip.st-done{background:#DCFCE7;color:#166534}
+.cm-chip.pinc{background:#DBE7FF;color:#1E40AF}
+.cm-top time{margin-left:auto;font-size:12.5px;color:var(--text-3);white-space:nowrap}
+.cm-body{margin:9px 0 0;font-size:15px;line-height:1.7;color:#1E293B;white-space:pre-wrap;overflow-wrap:anywhere}
+.cm-body.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.cm-readmore{margin-top:4px;border:0;background:none;padding:0;color:var(--cm-blue);font-size:13.5px;font-weight:700;cursor:pointer}
+.cm-reply{margin-top:12px;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:12px 14px;border-radius:14px;background:#F2F6FF;border:1px solid #DAE6FF}
+.cm-reply img{width:30px;height:30px;border-radius:50%;object-fit:contain;background:linear-gradient(135deg,#1A56DB,#5B8DEF);padding:6px;box-sizing:border-box}   /* the logo is white: it sits on the brand blue like in the Facebook box */
+.cm-reply-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#1E3A8A}
+.cm-reply-h svg{color:#1A56DB}
+.cm-reply-h time{margin-left:2px;font-size:12px;font-weight:500;color:var(--text-3)}
+.cm-reply p{margin:3px 0 0;font-size:14.5px;line-height:1.65;color:#1E293B;white-space:pre-wrap;overflow-wrap:anywhere}
+.cm-foot{display:flex;gap:14px;align-items:center;margin-top:8px;min-height:30px}
+.cm-act{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:5px 8px;margin-left:-8px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--text-3);cursor:pointer}
+.cm-act:hover:not(:disabled){color:#334155;background:#F1F5F9}
+.cm-act:disabled{cursor:default}
+.cm-rp{display:none;flex-wrap:wrap;gap:6px;margin-top:6px;padding:10px 12px;border:1px solid var(--cm-line);border-radius:12px;background:#FAFBFD}
+.cm-rp.open{display:flex}
+.cm-rp b{width:100%;font-size:12.5px;color:#475569}
+.cm-rp button{border:1px solid #D5DDEA;background:#fff;border-radius:100px;padding:6px 13px;font-size:13px;font-weight:600;color:#334155;cursor:pointer}
+.cm-rp button:hover{border-color:#9DB7F5;background:#F5F8FF}
+.cm-sk{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;padding:16px;border:1px solid var(--cm-line);border-radius:18px}
+.cm-v1 .cm-sk{grid-template-columns:minmax(0,1fr)}.cm-v1 .cm-sk .v{display:none}
+.cm-sk i{display:block;border-radius:10px;background:linear-gradient(90deg,#EEF2F8 25%,#F8FAFD 37%,#EEF2F8 63%);background-size:400% 100%;animation:cmSh 1.3s ease infinite}
+.cm-sk .v{width:52px;height:58px}.cm-sk .l1{height:14px;width:42%}.cm-sk .l2{height:12px;margin-top:14px}.cm-sk .l3{height:12px;margin-top:9px;width:68%}
+@keyframes cmSh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.cm-empty{list-style:none;text-align:center;padding:38px 16px;border:1px dashed #CBD5E4;border-radius:18px;color:var(--cm-mute);font-size:14px}
+.cm-empty svg{display:block;margin:0 auto 10px;color:#94A3B8}
+.cm-empty b{display:block;color:#334155;font-size:15.5px;margin-bottom:2px}
+.cm-more{display:flex;align-items:center;margin:16px auto 0;padding:11px 24px;border:1px solid #D5DDEA;border-radius:100px;background:#fff;font-size:14.5px;font-weight:700;color:#334155;cursor:pointer;transition:border-color .15s,color .15s}
 .cm-more[hidden]{display:none}
+.cm-more:hover:not(:disabled){border-color:#9DB7F5;color:var(--cm-blue)}
+.cm-more:disabled{opacity:.6;cursor:default}
 .cm-faq{margin-top:12px;font-size:14px;color:var(--text-2)}.cm-faq a{color:var(--blue);font-weight:700}
 .cm-faq[hidden],.dl-fbk[hidden]{display:none}
 .cm-inl{color:inherit;text-decoration:none;cursor:default}.cm-inl.on{color:var(--blue);font-weight:700;text-decoration:underline;cursor:pointer}
 .dl-fbk{display:block;margin-top:10px;font-size:12.5px;color:var(--text-3);text-align:center;text-decoration:underline}
-@media(max-width:560px){.cm{padding:22px 16px 18px;border-radius:20px}.cm-item{grid-template-columns:34px minmax(0,1fr);gap:10px;padding:12px}.cm-av{width:34px;height:34px;font-size:14px}.cm-row{flex-wrap:wrap}.cm-row .inp{flex:1 1 100%}}
+@media(max-width:560px){.cm{padding:22px 14px 20px;border-radius:20px}.cm-form{padding:12px;border-radius:16px}.cm-kind{gap:5px;font-size:13.5px;padding:0 4px}.cm-row{flex-direction:column}.cm-send{width:100%}.cm-item{grid-template-columns:44px minmax(0,1fr);gap:10px;padding:12px 12px 8px}.cm-v1 .cm-item,.cm-v1 .cm-sk{grid-template-columns:minmax(0,1fr)}.cm-vote{width:44px;height:52px;border-radius:12px}.cm-sk{grid-template-columns:44px minmax(0,1fr);gap:10px}.cm-sk .v{width:44px;height:52px}.cm-top time{margin-left:0}.cm-reply{padding:10px 12px}.cm-bar{align-items:stretch}.cm-sort{padding-bottom:8px;width:100%}.cm-sort select{width:100%}}
+@media(prefers-reduced-motion:reduce){.cm-item.fresh,.cm-sk i{animation:none}.cm *{transition:none!important}}
 @media(max-width:560px){.lb{padding:22px 16px 18px;border-radius:20px}.lb-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:10px 12px}.lb-rank{width:32px;height:32px;font-size:14px}.lb-sel{width:100%}.lb-name{font-size:14.5px}}
 .dl-live{display:inline-flex;align-items:center;gap:clamp(6px,2.2vw,9px);margin-top:20px;padding:9px clamp(11px,3.4vw,18px);border-radius:100px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:clamp(11.5px,3.7vw,14.5px);font-weight:600;color:rgba(255,255,255,.92);white-space:nowrap;max-width:100%}   /* always ONE line: on a narrow phone the type and the gaps shrink instead of the last word dropping to a second line */
 .dl-live b{color:#FDE68A;font-weight:800;font-size:1.1em;letter-spacing:-.2px}
@@ -904,28 +970,41 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
   </section>
 
   <section class="cm" id="feedback" aria-labelledby="cmT" hidden>
-    <div class="cm-head">
-      <span class="lb-kick">আপনার মতামত</span>
-      <h2 id="cmT">কার্ড নিয়ে কিছু বলার আছে?</h2>
+    <header class="cm-head">
+      <span class="lb-kick">কমিউনিটি</span>
+      <h2 id="cmT">কার্ড নিয়ে আপনার কথা</h2>
       <p>মতামত, নতুন আইডিয়া বা কোনো সমস্যা হলে লিখুন। লেখাটা সবাই দেখতে পাবেন, আমরা সব পড়ি আর দরকারে উত্তর দিই।</p>
-    </div>
+    </header>
     <form class="cm-form" id="cmForm" novalidate>
-      <div class="cm-kinds" id="cmKinds" role="radiogroup" aria-label="কী নিয়ে লিখছেন">
-        <button type="button" class="cm-kind on" data-k="opinion" role="radio" aria-checked="true">মতামত</button>
-        <button type="button" class="cm-kind" data-k="idea" role="radio" aria-checked="false">আইডিয়া</button>
-        <button type="button" class="cm-kind" data-k="problem" role="radio" aria-checked="false">সমস্যা</button>
+      <div class="cm-seg" id="cmKinds" role="group" aria-label="কী নিয়ে লিখছেন">
+        <button type="button" class="cm-kind" data-k="opinion" aria-pressed="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/></svg>মতামত</button>
+        <button type="button" class="cm-kind" data-k="idea" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg>আইডিয়া</button>
+        <button type="button" class="cm-kind" data-k="problem" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></svg>সমস্যা</button>
       </div>
-      <textarea class="inp cm-ta" id="cmBody" maxlength="600" rows="4" aria-label="আপনার লেখা" placeholder="আপনার মতামত, আইডিয়া বা সমস্যাটা এখানে লিখুন"></textarea>
+      <p class="cm-hint" id="cmHint">কার্ড বা সাইট নিয়ে আপনার ভালো-মন্দ লাগা</p>
+      <div class="cm-box">
+        <textarea class="cm-ta" id="cmBody" maxlength="600" rows="4" aria-label="আপনার লেখা" aria-describedby="cmHint cmRules" placeholder="যা মনে হচ্ছে, এখানে লিখুন"></textarea>
+        <div class="cm-box-foot"><span class="cm-count" id="cmCount">০/৬০০</span></div>
+      </div>
       <div class="cm-row">
-        <input class="inp" id="cmName" maxlength="40" autocomplete="name" aria-label="আপনার নাম (লিখতে না চাইলে ফাঁকা রাখুন)" placeholder="আপনার নাম (না দিলে ‘একজন ব্যবহারকারী’)">
-        <span class="cm-count" id="cmCount">০/৬০০</span>
+        <label class="cm-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.9-4 4.1-6 8-6s7.1 2 8 6"/></svg><input id="cmName" maxlength="40" autocomplete="name" placeholder="আপনার নাম (না দিলে ‘একজন ব্যবহারকারী’)" aria-label="আপনার নাম, ঐচ্ছিক"></label>
+        <button type="submit" class="cm-send" id="cmSend" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg><span>পাঠান</span></button>
       </div>
-      <p class="cm-warn">ফোন নম্বর, ইমেইল বা লিংক লিখবেন না। এখানে যা লিখবেন, সবার সামনে দেখা যাবে।</p>
-      <div class="cm-act"><button type="submit" class="btn btn-primary" id="cmSend">পাঠান</button><span class="cm-msg" id="cmMsg" aria-live="polite"></span></div>
+      <p class="cm-rules" id="cmRules">ফোন নম্বর, ইমেইল বা লিংক লিখবেন না। লেখা সবার সামনে দেখা যাবে। কীবোর্ডে Ctrl + Enter চেপেও পাঠানো যায়।</p>
+      <p class="cm-msg" id="cmMsg" role="status" aria-live="polite"></p>
     </form>
-    <div class="cm-listhead"><b>সবার মতামত</b><span id="cmTotal"></span></div>
-    <ul class="cm-list" id="cmList"><li class="lb-empty">লোড হচ্ছে…</li></ul>
-    <button type="button" class="btn btn-ghost cm-more" id="cmMore" hidden>আরও দেখুন</button>
+    <div class="cm-bar" id="cmBar">
+      <div class="cm-tabs" id="cmTabs" role="group" aria-label="লেখার ধরন অনুযায়ী দেখুন">
+        <button type="button" class="cm-tab" data-f="" aria-pressed="true">সব</button>
+        <button type="button" class="cm-tab" data-f="opinion" aria-pressed="false">মতামত</button>
+        <button type="button" class="cm-tab" data-f="idea" aria-pressed="false">আইডিয়া</button>
+        <button type="button" class="cm-tab" data-f="problem" aria-pressed="false">সমস্যা</button>
+      </div>
+      <label class="cm-sort"><span class="cm-sr">সাজান</span><select id="cmSort"><option value="new">নতুন আগে</option><option value="top">জনপ্রিয় আগে</option></select></label>
+    </div>
+    <div class="cm-meta"><span id="cmTotal"></span></div>
+    <ul class="cm-list" id="cmList" aria-busy="true"><li class="cm-sk" aria-hidden="true"><i class="v"></i><div><i class="l1"></i><i class="l2"></i><i class="l3"></i></div></li><li class="cm-sk" aria-hidden="true"><i class="v"></i><div><i class="l1"></i><i class="l2"></i><i class="l3"></i></div></li><li class="cm-sk" aria-hidden="true"><i class="v"></i><div><i class="l1"></i><i class="l2"></i><i class="l3"></i></div></li></ul>
+    <button type="button" class="cm-more" id="cmMore" hidden>আরও দেখুন</button>
   </section>
 </main>
 
@@ -2402,10 +2481,27 @@ restoreState();
 lastSnap = JSON.stringify(snapshot());
 syncCloud();
 /* ---------------- the opinion board (মতামত) ---------------- */
-// Opinions, ideas and problems written by visitors, public, read by the admin in admin.html (কার্ড মতামত). Needs migrations/2026-12-15_card_comments.sql: until it is run the list cannot load,
-// and the whole section (and the links to it) simply stays hidden, nothing looks broken. The list comes through /api/dir (kept for a minute for everybody), writing goes straight to the database.
+// Opinions, ideas and problems written by visitors: public, voted on, answered by the team, read by the admin in admin.html (কার্ড মতামত).
+// Needs migrations/2026-12-15_card_comments.sql (the board) and 2026-12-16_card_comments_v2.sql (votes, tags, pin, sort, filter, report reasons). Until the second one is run the board
+// falls back to the plain list (no votes, no filter) and keeps working; until the first one is run the whole section stays hidden. The list comes through /api/dir (kept for a minute).
 /* CM-START (tools/tests/test_card_comments.js runs this block as it is) */
-var CM_KINDS = { opinion: 'মতামত', idea: 'আইডিয়া', problem: 'সমস্যা' };
+var CM_SVG = {
+  msg: '<path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/>',
+  bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+  warn: '<path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/>',
+  up: '<path d="M6 15l6-6 6 6"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8 5.4-5.7"/>',
+  pin: '<path d="M12 17v5"/><path d="M8 3h8l-1.2 6.2L18 13H6l3.2-3.8L8 3z"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 4h12l-2.2 4L17 12H5"/>'
+};
+function cmIcon(name, size){ return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (CM_SVG[name] || '') + '</svg>'; }
+var CM_KINDS = {
+  opinion: { t: 'মতামত', ic: 'msg', vote: 'সহমত', hint: 'কার্ড বা সাইট নিয়ে আপনার ভালো-মন্দ লাগা', ph: 'যা মনে হচ্ছে, এখানে লিখুন' },
+  idea: { t: 'আইডিয়া', ic: 'bulb', vote: 'সমর্থন', hint: 'নতুন কী যোগ হলে ভালো হয়? কেন কাজে লাগবে?', ph: 'আপনার আইডিয়াটা কী?' },
+  problem: { t: 'সমস্যা', ic: 'warn', vote: 'আমারও এই সমস্যা', hint: 'কী হচ্ছে না? কোন ফোন বা ব্রাউজারে? কী চাপার পর?', ph: 'সমস্যাটা খুলে লিখুন' }
+};
+var CM_LABELS = { review: 'পর্যালোচনায়', planned: 'পরিকল্পনায়', progress: 'কাজ চলছে', done: 'হয়ে গেছে' };
+var CM_REASONS = { spam: 'স্প্যাম বা বিজ্ঞাপন', abuse: 'আপত্তিকর ভাষা', private: 'ব্যক্তিগত তথ্য', other: 'অন্য কারণ' };
 // the same rules the database enforces, so a mistake is explained at once; returns '' when the text is fine
 function cmCheck(body, name){
   const b = String(body || '').replace(/[ \t]+/g, ' ').trim(), nm = String(name || '').trim();
@@ -2419,9 +2515,9 @@ function cmCheck(body, name){
 function cmErr(e){
   const m = String((e && (e.message || e.details)) || e || '');
   const map = [['TOO_SHORT', 'আরেকটু বিস্তারিত লিখুন (অন্তত ৮ অক্ষর)।'], ['TOO_LONG', 'লেখাটা ৬০০ অক্ষরের মধ্যে রাখুন।'], ['BAD_TEXT', 'কিছু শব্দ এখানে লেখা যাবে না, ভদ্রভাবে লিখুন।'],
-    ['BAD_LINK', 'লিংক বা ইমেইল লেখা যাবে না।'], ['BAD_PRIVATE', 'ফোন নম্বর লেখা যাবে না।'], ['TOO_FAST', 'একটু পরে আবার লিখুন।'],
+    ['BAD_LINK', 'লিংক বা ইমেইল লেখা যাবে না।'], ['BAD_PRIVATE', 'ফোন নম্বর লেখা যাবে না।'], ['TOO_FAST', 'একটু পরে আবার চেষ্টা করুন।'],
     ['DAILY_LIMIT', 'আজকের জন্য ৪টা মতামত হয়ে গেছে, কাল আবার লিখুন।'], ['DUPLICATE', 'এই লেখাটা আপনি আগেই পাঠিয়েছেন।'],
-    ['BUSY', 'এখন অনেকে লিখছেন, একটু পরে চেষ্টা করুন।'], ['BAD_KIND', 'কী নিয়ে লিখছেন, সেটা বেছে নিন।']];
+    ['BUSY', 'এখন অনেকে লিখছেন, একটু পরে চেষ্টা করুন।'], ['BAD_KIND', 'কী নিয়ে লিখছেন, সেটা বেছে নিন।'], ['NOT_FOUND', 'লেখাটা আর নেই।']];
   for(const [k, t] of map) if(m.indexOf(k) >= 0) return t;
   if(/schema cache|PGRST00[0-3]|failed to fetch|network|timed? ?out|gateway|upstream|unavailable|\b5\d\d\b/i.test(m + ' ' + ((e && e.code) || ''))) return 'সার্ভার এখন একটু ব্যস্ত। আপনার লেখাটা এই ডিভাইসে সেভ আছে, কিছুক্ষণ পরে আবার পাঠান।';
   return 'পাঠানো যায়নি, একটু পরে আবার চেষ্টা করুন।';
@@ -2435,91 +2531,176 @@ function cmWhen(iso, nowMs){
   if(s < 30 * 86400) return bn(Math.floor(s / 86400)) + ' দিন আগে';
   return new Date(t).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+function cmFull(iso){ const t = Date.parse(iso); return Number.isFinite(t) ? new Date(t).toLocaleString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
 function cmHue(s){ let h = 0; for(const ch of String(s || '')) h = (h * 31 + ch.codePointAt(0)) % 360; return h; }
 function cmInitial(s){ const a = Array.from(String(s || '').trim()); return a.length ? a[0] : '?'; }
-// one comment as HTML (everything typed by a visitor goes through esc). r.mine = written just now in this browser: no report button for the writer's own text
-function cmItemHtml(r, reported){
-  const kind = CM_KINDS[r.kind] ? r.kind : 'opinion';
-  return '<li class="cm-item" data-id="' + esc(r.id) + '"><span class="cm-av" style="background:hsl(' + cmHue(r.name) + ',55%,46%)" aria-hidden="true">' + esc(cmInitial(r.name)) + '</span><div>' +
-    '<div class="cm-top"><b>' + esc(r.name) + '</b><span class="cm-k ' + kind + '">' + CM_KINDS[kind] + '</span><time datetime="' + esc(r.created_at) + '">' + cmWhen(r.created_at) + '</time></div>' +
-    '<p class="cm-body">' + esc(r.body) + '</p>' +
-    (r.reply ? '<div class="cm-reply"><b>Protishthan টিমের উত্তর</b><p>' + esc(r.reply) + '</p></div>' : '') +
-    (r.mine ? '' : '<button type="button" class="cm-rep" data-id="' + esc(r.id) + '"' + (reported ? ' disabled>রিপোর্ট হয়েছে' : '>রিপোর্ট করুন') + '</button>') +
-    '</div></li>';
+function cmCounter(n){ return n >= 590 ? 'max' : (n >= 520 ? 'warn' : ''); }          // the character counter turns amber, then red, near the limit
+function cmLong(body){ const b = String(body || ''); return b.length > 300 || b.split('\n').length > 5; }   // long texts are shown short, with "আরও পড়ুন"
+// one comment as HTML (everything typed by a visitor goes through esc).
+// st = { v2: the vote buttons exist, voted: this browser voted, reported: this browser reported, fresh: written just now }; r.mine = written just now in this browser: no report button for the writer's own text
+function cmItemHtml(r, st){
+  st = st || {};
+  const kind = CM_KINDS[r.kind] ? r.kind : 'opinion', K = CM_KINDS[kind], id = esc(r.id);
+  const votes = Math.max(Number(r.votes) || 0, st.voted ? 1 : 0), label = CM_LABELS[r.label] ? r.label : '', long = cmLong(r.body);
+  let h = '<li class="cm-item' + (r.pinned ? ' pin' : '') + (st.fresh ? ' fresh' : '') + '" data-id="' + id + '">';
+  if(st.v2) h += '<button type="button" class="cm-vote" data-id="' + id + '" data-n="' + votes + '" aria-pressed="' + (st.voted ? 'true' : 'false') + '" aria-label="' + esc(K.vote) + ': এখন ' + bn(votes) + ' জন" title="' + esc(K.vote) + '">' + cmIcon('up', 18) + '<span>' + bn(votes) + '</span></button>';
+  h += '<div class="cm-main"><div class="cm-top"><span class="cm-av" style="background:hsl(' + cmHue(r.name) + ',55%,46%)" aria-hidden="true">' + esc(cmInitial(r.name)) + '</span><b class="cm-who">' + esc(r.name) + '</b>' +
+    '<span class="cm-chip ' + kind + '">' + cmIcon(K.ic, 12) + K.t + '</span>' +
+    (label ? '<span class="cm-chip st-' + label + '"><i></i>' + CM_LABELS[label] + '</span>' : '') +
+    (r.pinned ? '<span class="cm-chip pinc">' + cmIcon('pin', 12) + 'পিন করা</span>' : '') +
+    '<time datetime="' + esc(r.created_at) + '" title="' + esc(cmFull(r.created_at)) + '">' + cmWhen(r.created_at) + '</time></div>' +
+    '<p class="cm-body' + (long ? ' clamp' : '') + '">' + esc(r.body) + '</p>' + (long ? '<button type="button" class="cm-readmore" aria-expanded="false">আরও পড়ুন</button>' : '');
+  if(r.reply) h += '<div class="cm-reply"><img src="logo-sm.webp" alt="" width="30" height="30" decoding="async"><div><div class="cm-reply-h">Protishthan টিম' + cmIcon('check', 15) +
+    (r.replied_at ? '<time datetime="' + esc(r.replied_at) + '" title="' + esc(cmFull(r.replied_at)) + '">' + cmWhen(r.replied_at) + '</time>' : '') + '</div><p>' + esc(r.reply) + '</p></div></div>';
+  if(!r.mine) h += '<div class="cm-foot"><button type="button" class="cm-act" data-act="report"' + (st.reported ? ' disabled' : '') + '>' + cmIcon('flag', 14) + (st.reported ? 'রিপোর্ট হয়েছে' : 'রিপোর্ট') + '</button></div>' +
+    '<div class="cm-rp" role="group" aria-label="রিপোর্টের কারণ"><b>কেন রিপোর্ট করছেন?</b>' + Object.keys(CM_REASONS).map(k => '<button type="button" data-r="' + k + '">' + CM_REASONS[k] + '</button>').join('') + '<button type="button" data-r="">বাতিল</button></div>';
+  return h + '</div></li>';
+}
+function cmSkeleton(n){ let h = ''; for(let i = 0; i < n; i++) h += '<li class="cm-sk" aria-hidden="true"><i class="v"></i><div><i class="l1"></i><i class="l2"></i><i class="l3"></i></div></li>'; return h; }
+function cmEmptyHtml(filter){
+  return '<li class="cm-empty" id="cmEmpty">' + cmIcon('msg', 34) + '<b>' + (filter ? 'এই ধরনের কোনো লেখা এখনও নেই' : 'এখনো কেউ লেখেননি') + '</b>' + (filter ? 'সবার লেখা দেখতে "সব" বেছে নিন, অথবা আপনিই প্রথম লিখুন।' : 'প্রথম মতামতটা আপনার হোক।') + '</li>';
 }
 /* CM-END */
-let CM_ACTIVE = false, CM_OFF = 0, CM_BUSY = false, CM_KIND = 'opinion';
+let CM_ACTIVE = false, CM_OFF = 0, CM_BUSY = false, CM_KIND = 'opinion', CM_FILTER = '', CM_SORT = 'new', CM_V2 = true, CM_REQ = 0;
 const CM_PAGE = 10;
 const cmEl = id => document.getElementById(id);
-function cmReportedIds(){ try{ return JSON.parse(localStorage.getItem('sk_cm_rep') || '[]'); }catch(e){ return []; } }
+const cmStore = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; }catch(e){ return d; } };
+const cmSave = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+// asks for one page. The new feed (filter, sort, votes) first; if its database function does not exist yet (the second migration is not run), or an older edge answered with the plain list,
+// the board switches to the plain list for good (no votes, no filter), so the live board never goes blank.
 async function cmFetch(off){
-  const args = { p_limit: CM_PAGE, p_offset: off };
-  try{ const r = await fetch('/api/dir?f=comments&a=' + encodeURIComponent(JSON.stringify(args))); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) return j; } }catch(e){}
-  const { data, error } = await sb.rpc('card_comment_list', args); if(error) throw error; return data || [];
+  const base = { p_limit: CM_PAGE, p_offset: off };
+  const args = CM_V2 ? Object.assign({}, base, { p_kind: CM_FILTER || null, p_sort: CM_SORT }) : base;
+  let rows = null;
+  try{ const r = await fetch('/api/dir?f=comments&a=' + encodeURIComponent(JSON.stringify(args))); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) rows = j; } }catch(e){}
+  if(rows === null){
+    const { data, error } = await sb.rpc(CM_V2 ? 'card_comment_feed' : 'card_comment_list', args);
+    if(error){
+      if(CM_V2 && /PGRST202|Could not find the function/i.test(String(error.code + ' ' + error.message))){ CM_V2 = false; return cmFetch(off); }
+      throw error;
+    }
+    rows = data || [];
+  }
+  if(CM_V2 && rows.length && !('votes' in rows[0])) CM_V2 = false;
+  return rows;
 }
-function cmMsg(kind, text){ const m = cmEl('cmMsg'); m.textContent = text || ''; m.className = 'cm-msg' + (kind ? ' ' + kind : ''); }
-function cmTotalText(n){ cmEl('cmTotal').textContent = n ? bn(n) + 'টি মতামত' : ''; }
+function cmApplyMode(){ cmEl('feedback').classList.toggle('cm-v1', !CM_V2); cmEl('cmBar').hidden = !CM_V2; }
+function cmMsg(kind, text){
+  const m = cmEl('cmMsg'); m.className = 'cm-msg' + (kind ? ' ' + kind : '');
+  if(!text){ m.textContent = ''; return; }
+  m.innerHTML = (kind ? cmIcon(kind === 'ok' ? 'check' : 'warn', 16) : '') + '<span></span>'; m.lastChild.textContent = text;
+}
 async function cmLoad(more){
-  if(CM_BUSY) return; CM_BUSY = true;
+  if(more && CM_BUSY) return;
+  const token = ++CM_REQ; CM_BUSY = true;
   const list = cmEl('cmList'), btn = cmEl('cmMore');
+  if(!more && CM_ACTIVE){ list.innerHTML = cmSkeleton(3); btn.hidden = true; }
+  list.setAttribute('aria-busy', 'true'); if(more){ btn.disabled = true; }
   try{
     const rows = await cmFetch(more ? CM_OFF : 0);
+    if(token !== CM_REQ) return;
+    cmApplyMode();
     if(!more){ list.innerHTML = ''; CM_OFF = 0; }
-    const rep = cmReportedIds();
-    list.insertAdjacentHTML('beforeend', rows.filter(r => !list.querySelector('[data-id="' + String(r.id).replace(/"/g, '') + '"]')).map(r => cmItemHtml(r, rep.indexOf(r.id) >= 0)).join(''));
+    const rep = cmStore('sk_cm_rep', []), votes = cmStore('sk_cm_votes', {});
+    const have = id => { const e = list.querySelectorAll('[data-id]'); for(let i = 0; i < e.length; i++) if(e[i].dataset.id === String(id)) return true; return false; };
+    list.insertAdjacentHTML('beforeend', rows.filter(r => !have(r.id)).map(r => cmItemHtml(r, { v2: CM_V2, reported: rep.indexOf(r.id) >= 0, voted: !!votes[r.id] })).join(''));
     CM_OFF += rows.length;
-    const total = rows.length ? (Number(rows[0].total) || CM_OFF) : 0;     // every row carries the total of published comments
-    if(rows.length) cmTotalText(total);
+    const total = rows.length ? (Number(rows[0].total) || CM_OFF) : 0;
+    cmEl('cmTotal').textContent = total ? bn(total) + 'টি ' + (CM_FILTER ? CM_KINDS[CM_FILTER].t : 'লেখা') : '';
     btn.hidden = !(rows.length && CM_OFF < total);
-    if(!list.children.length) list.innerHTML = '<li class="lb-empty" id="cmEmpty">এখনো কেউ লেখেননি। প্রথম মতামতটা আপনার হোক।</li>';
+    if(!list.children.length) list.innerHTML = cmEmptyHtml(CM_FILTER);
     if(!CM_ACTIVE) cmActivate();
-  }catch(e){ if(more) toast('আরও লোড করা যায়নি, একটু পরে চেষ্টা করুন'); }
-  finally{ CM_BUSY = false; }
+  }catch(e){
+    if(token === CM_REQ){
+      if(more) toast('আরও লোড করা যায়নি, একটু পরে চেষ্টা করুন');
+      else if(CM_ACTIVE){ list.innerHTML = '<li class="cm-empty">' + cmIcon('warn', 34) + '<b>লেখাগুলো এখন লোড হচ্ছে না</b>একটু পরে পেজ রিফ্রেশ করুন।</li>'; }
+    }
+  }
+  finally{ if(token === CM_REQ){ CM_BUSY = false; btn.disabled = false; list.setAttribute('aria-busy', 'false'); } }
 }
 function cmActivate(){
   CM_ACTIVE = true;
   cmEl('feedback').hidden = false; cmEl('cmFaq').hidden = false; cmEl('cmPopLink').hidden = false; cmEl('cmFollowLink').classList.add('on');
-  const ta = cmEl('cmBody'), nm = cmEl('cmName'), cnt = cmEl('cmCount');
+  const ta = cmEl('cmBody'), nm = cmEl('cmName'), form = cmEl('cmForm');
   try{ nm.value = localStorage.getItem('sk_cm_name') || ''; ta.value = localStorage.getItem('sk_cm_draft') || ''; }catch(e){}
-  const upd = () => { cnt.textContent = bn(ta.value.length) + '/৬০০'; };
-  upd();
-  ta.addEventListener('input', () => { upd(); try{ localStorage.setItem('sk_cm_draft', ta.value); }catch(e){} });
+  const sync = () => {
+    const n = ta.value.length, c = cmEl('cmCount'), t = ta.value.trim().length;
+    c.textContent = bn(n) + '/৬০০'; c.className = 'cm-count ' + cmCounter(n);
+    ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 300) + 'px';          // grows with the text, up to 300 px
+    cmEl('cmSend').disabled = !(t >= 8 && t <= 600);
+  };
+  sync();
+  ta.addEventListener('input', () => { sync(); cmMsg('', ''); try{ localStorage.setItem('sk_cm_draft', ta.value); }catch(e){} });
+  ta.addEventListener('keydown', e => { if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); if(!cmEl('cmSend').disabled) form.requestSubmit(); } });
   cmEl('cmKinds').addEventListener('click', e => {
     const b = e.target.closest('.cm-kind'); if(!b) return; CM_KIND = b.dataset.k;
-    cmEl('cmKinds').querySelectorAll('.cm-kind').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    cmEl('cmKinds').querySelectorAll('.cm-kind').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    cmEl('cmHint').textContent = CM_KINDS[CM_KIND].hint; ta.placeholder = CM_KINDS[CM_KIND].ph;
   });
-  cmEl('cmForm').addEventListener('submit', cmSend);
+  cmEl('cmTabs').addEventListener('click', e => {
+    const b = e.target.closest('.cm-tab'); if(!b || b.dataset.f === CM_FILTER) return; CM_FILTER = b.dataset.f;
+    cmEl('cmTabs').querySelectorAll('.cm-tab').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    T('card_comment_filter', { f: CM_FILTER || 'all' }); cmLoad(false);
+  });
+  cmEl('cmSort').addEventListener('change', e => { CM_SORT = e.target.value === 'top' ? 'top' : 'new'; T('card_comment_sort', { s: CM_SORT }); cmLoad(false); });
+  form.addEventListener('submit', cmSend);
   cmEl('cmMore').addEventListener('click', () => cmLoad(true));
-  cmEl('cmList').addEventListener('click', cmReport);
+  cmEl('cmList').addEventListener('click', cmListClick);
   if(location.hash === '#feedback') setTimeout(openFeedback, 250);
 }
 async function cmSend(e){
   e.preventDefault();
-  const ta = cmEl('cmBody'), nm = cmEl('cmName'), btn = cmEl('cmSend');
+  const ta = cmEl('cmBody'), nm = cmEl('cmName'), btn = cmEl('cmSend'), label = btn.querySelector('span');
   const bad = cmCheck(ta.value, nm.value); if(bad){ cmMsg('err', bad); return; }
-  btn.disabled = true; cmMsg('', 'পাঠানো হচ্ছে…');
+  btn.disabled = true; label.textContent = 'পাঠানো হচ্ছে…'; cmMsg('', '');
+  let sent = false;
   try{
     const name = nm.value.trim(), body = ta.value.trim();
     const { data, error } = await sb.rpc('card_comment_add', { p_device: deviceId(), p_name: name, p_kind: CM_KIND, p_body: body }); if(error) throw error;
+    sent = true;
     try{ localStorage.setItem('sk_cm_name', name); localStorage.removeItem('sk_cm_draft'); }catch(_){}
-    ta.value = ''; cmEl('cmCount').textContent = '০/৬০০';
+    ta.value = ''; ta.dispatchEvent(new Event('input'));
     T('card_comment_post', { k: CM_KIND });
     if(data && data.status === 'pending'){ cmMsg('ok', 'ধন্যবাদ! আপনার লেখা জমা হয়েছে, দেখে নিয়ে প্রকাশ করা হবে।'); return; }
     cmMsg('ok', 'ধন্যবাদ! আপনার লেখা সবার সামনে দেখা যাচ্ছে।');
     const empty = cmEl('cmEmpty'); if(empty) empty.remove();
-    cmEl('cmList').insertAdjacentHTML('afterbegin', cmItemHtml({ id: (data && data.id) || ('n' + Date.now()), name: name || 'একজন ব্যবহারকারী', kind: CM_KIND, body, created_at: (data && data.created_at) || new Date().toISOString(), mine: true }));
+    cmEl('cmList').insertAdjacentHTML('afterbegin', cmItemHtml({ id: (data && data.id) || ('n' + Date.now()), name: name || 'একজন ব্যবহারকারী', kind: CM_KIND, body, votes: 0, created_at: (data && data.created_at) || new Date().toISOString(), mine: true }, { v2: CM_V2, fresh: true }));
   }catch(err){ cmMsg('err', cmErr(err)); }
+  finally{ label.textContent = 'পাঠান'; if(!sent) btn.disabled = !(ta.value.trim().length >= 8); }
+}
+function cmListClick(e){
+  const t = e.target;
+  const vote = t.closest('.cm-vote'); if(vote){ cmVote(vote); return; }
+  const more = t.closest('.cm-readmore');
+  if(more){ const body = more.previousElementSibling, open = body.classList.toggle('clamp') === false; more.textContent = open ? 'কম দেখুন' : 'আরও পড়ুন'; more.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
+  const rb = t.closest('[data-act=report]');
+  if(rb){ const item = rb.closest('.cm-item'), panel = item.querySelector('.cm-rp'), was = panel.classList.contains('open'); cmEl('cmList').querySelectorAll('.cm-rp.open').forEach(p => p.classList.remove('open')); if(!was) panel.classList.add('open'); return; }
+  const why = t.closest('.cm-rp [data-r]'); if(why) cmReport(why);
+}
+async function cmVote(btn){
+  if(btn.disabled) return;
+  const id = btn.dataset.id, on = btn.getAttribute('aria-pressed') !== 'true', n0 = parseInt(btn.dataset.n || '0', 10) || 0, kind = (btn.closest('.cm-item').querySelector('.cm-chip') || {}).className || '';
+  const paint = (n, pressed) => { btn.dataset.n = n; btn.setAttribute('aria-pressed', pressed ? 'true' : 'false'); btn.querySelector('span').textContent = bn(n); };
+  paint(Math.max(0, n0 + (on ? 1 : -1)), on); btn.disabled = true;                      // shown at once, confirmed (or taken back) when the database answers
+  try{
+    const { data, error } = await sb.rpc('card_comment_vote', { p_id: id, p_device: deviceId(), p_on: on }); if(error) throw error;
+    paint(Math.max(Number(data) || 0, on ? 1 : 0), on);
+    const mine = cmStore('sk_cm_votes', {}); if(on) mine[id] = 1; else delete mine[id]; cmSave('sk_cm_votes', mine);
+    T('card_comment_vote', { on: on ? 1 : 0, k: /opinion|idea|problem/.exec(kind) ? /opinion|idea|problem/.exec(kind)[0] : '' });
+  }catch(err){ paint(n0, !on); toast(cmErr(err)); }
   finally{ btn.disabled = false; }
 }
-async function cmReport(e){
-  const b = e.target.closest('.cm-rep'); if(!b || b.disabled) return;
-  if(!confirm('এই লেখাটা আপত্তিকর বা ভুয়া মনে হলে অ্যাডমিনকে জানাবেন?')) return;
-  b.disabled = true; b.textContent = 'পাঠানো হচ্ছে…';
+async function cmReport(btn){
+  const reason = btn.dataset.r, item = btn.closest('.cm-item'), panel = btn.closest('.cm-rp'), id = item.dataset.id;
+  panel.classList.remove('open'); if(!reason) return;
+  const ab = item.querySelector('[data-act=report]'); ab.disabled = true;
   try{
-    const { error } = await sb.rpc('card_comment_report', { p_id: b.dataset.id, p_device: deviceId() }); if(error) throw error;
-    const ids = cmReportedIds(); ids.push(b.dataset.id); try{ localStorage.setItem('sk_cm_rep', JSON.stringify(ids.slice(-200))); }catch(_){}
-    b.textContent = 'রিপোর্ট হয়েছে';
-  }catch(err){ b.disabled = false; b.textContent = 'রিপোর্ট করুন'; toast('রিপোর্ট পাঠানো যায়নি, একটু পরে চেষ্টা করুন'); }
+    let res = await sb.rpc('card_comment_flag', { p_id: id, p_device: deviceId(), p_reason: reason });
+    if(res.error && /PGRST202|Could not find the function/i.test(String(res.error.code + ' ' + res.error.message))) res = await sb.rpc('card_comment_report', { p_id: id, p_device: deviceId() });   // the second migration is not run yet
+    if(res.error) throw res.error;
+    const ids = cmStore('sk_cm_rep', []); ids.push(id); cmSave('sk_cm_rep', ids.slice(-200));
+    ab.innerHTML = cmIcon('flag', 14) + 'রিপোর্ট হয়েছে'; T('card_comment_report', { r: reason }); toast('ধন্যবাদ, অ্যাডমিন দেখবেন');
+  }catch(err){ ab.disabled = false; toast('রিপোর্ট পাঠানো যায়নি, একটু পরে চেষ্টা করুন'); }
 }
 // the links to the board (under the FAQ, in the download popup, in the Facebook box) call this; it does nothing while the board is not on the page
 function openFeedback(){
@@ -2532,7 +2713,6 @@ function openFeedback(){
 }
 // load once, a moment after the page is ready (one cheap question that the edge answers for everybody); a failure leaves the board hidden
 (function(){ const go = () => setTimeout(() => cmLoad(false), 2500); if(document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true }); })();
-
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
 </script>
