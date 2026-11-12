@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=14">
+<link rel="stylesheet" href="/tutor.css?v=15">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -45,59 +45,115 @@
       <div class="tt-seg"><label for="sSub">বিষয়</label><select id="sSub"></select></div>
       <button class="tt-btn pri" type="submit" id="sGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>খুঁজুন</button>
     </form>
-    <div class="tt-chiprow">
     <div class="tt-modes"><span class="tt-lab" id="sModeL">কোথায় পড়াবেন</span><div class="tt-pick" id="sMode" role="group" aria-labelledby="sModeL"></div></div>
     <div class="tt-quick" id="sQuick"><span>জনপ্রিয়</span><button type="button" data-s="math">গণিত</button><button type="button" data-s="english">ইংরেজি</button><button type="button" data-s="science">বিজ্ঞান</button><button type="button" data-s="admission">ভর্তি প্রস্তুতি</button><button type="button" data-s="handwriting">হাতের লেখা</button><button type="button" data-m="online">অনলাইনে</button></div>
-    </div>
 
     <div class="tt-trust">
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>অভিভাবকের জন্য ফ্রি</span>
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>নম্বর শুধু রাজি হওয়া টিউটর দেখবেন</span>
       <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>প্রথম ক্লাসে আপনি নিজে থাকুন</span>
-      <span class="tt-tlink">সময় নেই? <button type="button" class="tt-linkbtn" id="ttDirect" data-t="tutor_direct_click">সরাসরি অনুরোধ পাঠান →</button></span>
     </div>
-
+    <p class="tt-direct">সময় নেই? <button type="button" class="tt-linkbtn" id="ttDirect" data-t="tutor_direct_click">সরাসরি অনুরোধ পাঠান →</button></p>
     <div class="tt-art" aria-hidden="true">
-      <svg viewBox="0 56 1200 194" preserveAspectRatio="xMidYMax slice" focusable="false">
-        <path d="M0 190C120 150 260 160 380 188S640 150 800 184 1040 150 1200 180V250H0Z" fill="#DCE9FB"/>
-        <path d="M0 214C170 188 320 200 480 214S780 192 980 212 1140 200 1200 208V250H0Z" fill="#CFE8DA"/>
-        <rect y="226" width="1200" height="24" fill="#D9E3F7"/><rect y="222" width="1200" height="5" fill="#E9EFFC"/>
-        <circle cx="1140" cy="96" r="38" fill="#FFF4D2"/><circle cx="1140" cy="96" r="25" fill="#FFE28F"/>
-        <g transform="translate(0 22)"><g class="tt-fl s1"><path d="M190 50q5 5 10 0q5-5 10 0q-3 8-10 13-7-5-10-13z" fill="#F43F5E" opacity=".85"/></g></g>
-        <g transform="translate(60 0)">
-          <rect y="126" width="176" height="100" fill="#FBE3B0"/><rect y="216" width="176" height="10" fill="#E9B872"/>
-          <path d="M-12 126L88 74 188 126Z" fill="#7C6CE0"/><rect x="132" y="84" width="16" height="30" fill="#6A5BD0"/>
-          <rect x="22" y="148" width="36" height="32" rx="3" fill="#7DD3FC"/><path d="M40 148v32M22 164h36" stroke="#fff" stroke-width="2"/>
-          <rect x="118" y="148" width="36" height="32" rx="3" fill="#FDE68A"/><path d="M136 148v32M118 164h36" stroke="#fff" stroke-width="2"/>
-          <rect x="70" y="170" width="36" height="56" rx="4" fill="#B7791F"/><circle cx="99" cy="200" r="2.4" fill="#FDE68A"/>
+      <svg viewBox="0 0 1200 160" preserveAspectRatio="xMidYMax slice" focusable="false">
+        <defs>
+          <linearGradient id="tta-h1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CBDDFA"/><stop offset="1" stop-color="#E4EDFD"/></linearGradient>
+          <linearGradient id="tta-h2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DAD2F8"/><stop offset="1" stop-color="#ECE8FC"/></linearGradient>
+          <linearGradient id="tta-h3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B3E2CB"/><stop offset="1" stop-color="#D4EFE0"/></linearGradient>
+          <linearGradient id="tta-fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E5ECFB"/><stop offset="1" stop-color="#CFDBF4"/></linearGradient>
+          <radialGradient id="tta-gl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <linearGradient id="tta-bl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A83F7"/><stop offset="1" stop-color="#1A56DB"/></linearGradient>
+          <linearGradient id="tta-am" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCC53A"/><stop offset="1" stop-color="#F59E0B"/></linearGradient>
+          <linearGradient id="tta-vi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A57CFB"/><stop offset="1" stop-color="#6D3FEA"/></linearGradient>
+          <linearGradient id="tta-ro" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FB7C93"/><stop offset="1" stop-color="#E11D48"/></linearGradient>
+          <linearGradient id="tta-wd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2AD66"/><stop offset="1" stop-color="#C48A45"/></linearGradient>
+        </defs>
+        <path d="M0 86C100 60 212 68 322 90S542 64 662 84 882 60 1002 82 1142 68 1200 78V160H0Z" fill="url(#tta-h1)"/>
+        <path d="M0 106C140 82 292 96 432 110S702 84 862 104 1102 88 1200 100V160H0Z" fill="url(#tta-h2)"/>
+        <path d="M0 124C170 104 330 116 490 126S800 106 1000 124 1140 114 1200 120V160H0Z" fill="url(#tta-h3)"/>
+        <ellipse cx="600" cy="100" rx="310" ry="74" fill="url(#tta-gl)"/>
+        <rect y="134" width="1200" height="26" fill="url(#tta-fl)"/><rect y="134" width="1200" height="2.5" fill="#F3F7FE"/>
+        <circle cx="62" cy="32" r="27" fill="#FFF3C9"/><circle cx="62" cy="32" r="17" fill="#FFE08A"/>
+
+        <g transform="translate(250 20)"><g class="tt-fl s1" fill="#fff" opacity=".92"><ellipse cx="24" cy="15" rx="24" ry="9"/><ellipse cx="15" cy="9" rx="11" ry="9"/><ellipse cx="32" cy="7" rx="14" ry="10"/></g></g>
+        <g transform="translate(868 12)"><g class="tt-fl s3" fill="#fff" opacity=".9"><ellipse cx="24" cy="15" rx="24" ry="9"/><ellipse cx="15" cy="9" rx="11" ry="9"/><ellipse cx="32" cy="7" rx="14" ry="10"/></g></g>
+        <g fill="none" stroke="#8A9BC4" stroke-width="1.7" stroke-linecap="round"><path d="M330 56q5-6 10 0 5-6 10 0"/><path d="M356 44q4-5 8 0 4-5 8 0"/><path d="M790 40q5-6 10 0 5-6 10 0"/></g>
+
+        <g transform="translate(36 134)"><rect x="-4" y="-38" width="8" height="38" rx="3" fill="#B7791F"/><circle cy="-56" r="25" fill="#34D399"/><circle cx="-16" cy="-42" r="15" fill="#10B981"/><circle cx="16" cy="-42" r="15" fill="#10B981"/><circle cx="-7" cy="-64" r="7" fill="#6EE7B7" opacity=".7"/></g>
+        <g transform="translate(346 134) scale(.8)"><rect x="-4" y="-38" width="8" height="38" rx="3" fill="#B7791F"/><circle cy="-56" r="25" fill="#34D399"/><circle cx="-16" cy="-42" r="15" fill="#10B981"/><circle cx="16" cy="-42" r="15" fill="#10B981"/><circle cx="-7" cy="-64" r="7" fill="#6EE7B7" opacity=".7"/></g>
+        <g transform="translate(838 134) scale(.78)"><rect x="-4" y="-38" width="8" height="38" rx="3" fill="#B7791F"/><circle cy="-56" r="25" fill="#34D399"/><circle cx="-16" cy="-42" r="15" fill="#10B981"/><circle cx="16" cy="-42" r="15" fill="#10B981"/><circle cx="-7" cy="-64" r="7" fill="#6EE7B7" opacity=".7"/></g>
+        <g transform="translate(1176 134)"><rect x="-4" y="-38" width="8" height="38" rx="3" fill="#B7791F"/><circle cy="-56" r="25" fill="#34D399"/><circle cx="-16" cy="-42" r="15" fill="#10B981"/><circle cx="16" cy="-42" r="15" fill="#10B981"/><circle cx="-7" cy="-64" r="7" fill="#6EE7B7" opacity=".7"/></g>
+
+        <g transform="translate(96 0)">
+          <rect x="10" y="88" width="120" height="46" fill="#FFF0D0"/><rect x="10" y="126" width="120" height="8" fill="#F0CE94"/>
+          <path d="M-4 90L70 50 144 90Z" fill="#7C6CE0"/><path d="M-4 90L70 50l7 4-68 36Z" fill="#9B8CF0"/><rect x="108" y="58" width="14" height="24" fill="#6A5BD0"/>
+          <rect x="58" y="102" width="26" height="32" rx="4" fill="#B7791F"/><circle cx="78" cy="119" r="2.2" fill="#FDE68A"/>
+          <rect x="22" y="100" width="24" height="20" rx="3" fill="#BDE7FB"/><path d="M34 100v20M22 110h24" stroke="#fff" stroke-width="2"/>
+          <rect x="96" y="100" width="24" height="20" rx="3" fill="#FDE68A"/><path d="M108 100v20M96 110h24" stroke="#fff" stroke-width="2"/>
+          <rect x="20" y="120" width="28" height="5" rx="2" fill="#B7791F"/><circle cx="26" cy="118" r="3" fill="#F43F5E"/><circle cx="34" cy="117" r="3" fill="#FB7185"/><circle cx="42" cy="118" r="3" fill="#F43F5E"/>
         </g>
-        <g transform="translate(300 226)"><rect x="-4" y="-34" width="8" height="34" rx="3" fill="#B7791F"/><circle cy="-52" r="24" fill="#34D399"/><circle cx="-15" cy="-40" r="15" fill="#10B981"/><circle cx="15" cy="-40" r="15" fill="#10B981"/></g>
-        <g transform="translate(1160 226)"><rect x="-4" y="-30" width="8" height="30" rx="3" fill="#B7791F"/><circle cy="-46" r="21" fill="#34D399"/><circle cx="-13" cy="-35" r="13" fill="#10B981"/><circle cx="13" cy="-35" r="13" fill="#10B981"/></g>
+
+        <g stroke="#10B981" stroke-width="1.4" stroke-linecap="round"><path d="M300 134v-6M312 134v-8M324 134v-5M868 134v-6M880 134v-8M892 134v-5"/></g>
+        <g><circle cx="300" cy="127" r="2.8" fill="#F43F5E"/><circle cx="312" cy="125" r="2.8" fill="#FBBF24"/><circle cx="324" cy="128" r="2.8" fill="#A78BFA"/><circle cx="868" cy="127" r="2.8" fill="#FBBF24"/><circle cx="880" cy="125" r="2.8" fill="#F43F5E"/><circle cx="892" cy="128" r="2.8" fill="#A78BFA"/></g>
+        <g fill="#34D399"><ellipse cx="258" cy="132" rx="17" ry="8"/><ellipse cx="276" cy="133" rx="12" ry="7" fill="#10B981"/><ellipse cx="772" cy="133" rx="15" ry="7"/><ellipse cx="788" cy="134" rx="10" ry="6" fill="#10B981"/></g>
+
         <g>
-          <rect x="498" y="150" width="46" height="62" rx="15" fill="#F59E0B"/>
-          <circle cx="521" cy="128" r="23" fill="#F2C6A0"/><path d="M498 126a23 23 0 0 1 46 0q-12-13-23-10t-23 10Z" fill="#3F2A1D"/>
-          <circle cx="513" cy="130" r="2.2" fill="#3F2A1D"/><circle cx="529" cy="130" r="2.2" fill="#3F2A1D"/><path d="M515 138q6 5 12 0" stroke="#9A5B3C" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <ellipse cx="692" cy="128" rx="29" ry="31" fill="#2B1B12"/>
-          <rect x="662" y="150" width="60" height="62" rx="18" fill="#1A56DB"/><path d="M682 150l10 12 10-12z" fill="#fff"/>
-          <circle cx="692" cy="124" r="23" fill="#F2C6A0"/><path d="M669 120a23 23 0 0 1 46 0q-12 6-23 4t-23-4Z" fill="#2B1B12"/>
-          <circle cx="684" cy="126" r="2.2" fill="#3F2A1D"/><circle cx="700" cy="126" r="2.2" fill="#3F2A1D"/><path d="M686 134q6 5 12 0" stroke="#9A5B3C" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <ellipse cx="404" cy="135" rx="17" ry="3.2" fill="#1A2F66" opacity=".13"/>
+          <path d="M389 134c1-16 1-30 3-42a12 12 0 0 1 24 0c2 12 2 26 3 42z" fill="url(#tta-ro)"/>
+          <path d="M392 95c8 4 17 14 24 31l-8 .6c-5-12-11-21-18-26z" fill="#FDA4AF" opacity=".9"/>
+          <path d="M414 97l10-1" stroke="#E11D48" stroke-width="6" stroke-linecap="round"/><path d="M424 96q6-2 7-17" stroke="#E0AA7E" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="431" cy="77" r="4.4" fill="#E0AA7E"/>
+          <circle cx="404" cy="76" r="11.5" fill="#E0AA7E"/><path d="M392.5 75a11.5 11.5 0 0 1 23 0c-5-6-11-6.5-11.5-6.5S397.5 69 392.5 75z" fill="#2B1B12"/><circle cx="404" cy="63" r="5.5" fill="#2B1B12"/>
+          <circle cx="400" cy="77" r="1.5" fill="#3F2A1D"/><circle cx="408" cy="77" r="1.5" fill="#3F2A1D"/><path d="M400.5 82q3.5 3 7 0" stroke="#9A5B3C" stroke-width="1.6" fill="none" stroke-linecap="round"/>
         </g>
-        <rect x="440" y="196" width="340" height="14" rx="7" fill="#C79A5B"/><rect x="466" y="208" width="10" height="20" fill="#A67A3E"/><rect x="744" y="208" width="10" height="20" fill="#A67A3E"/>
-        <path d="M584 196c-16-9-30-9-46-4v-16c16-5 30-5 46 4 16-9 30-9 46-4v16c-16-5-30-5-46 4Z" fill="#fff" stroke="#B9C9EE" stroke-width="1.4"/><path d="M584 180v16" stroke="#B9C9EE" stroke-width="1.4"/>
-        <path d="M548 186h26M548 190h20M598 186h26M598 190h20" stroke="#C7D6F5" stroke-width="1.6" stroke-linecap="round"/>
-        <rect x="640" y="168" width="48" height="28" rx="3" fill="#0B1229"/><rect x="632" y="196" width="64" height="5" rx="2" fill="#CBD5E1"/><path d="M657 182l5 5 9-10" stroke="#34D399" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="452" y="182" width="16" height="14" rx="2" fill="#6366F1"/><path d="M456 182l-2-8M461 182v-9M465 182l3-7" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
-        <g transform="translate(716 62)"><g class="tt-fl"><rect width="150" height="34" rx="17" fill="#fff" stroke="#BDEBD6" stroke-width="1.4"/><circle cx="18" cy="17" r="10" fill="#10B981"/><path d="M13.5 17l3 3 6-6.5" stroke="#fff" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><text x="36" y="22" font-size="13.5" font-weight="700" fill="#047857" font-family="Hind Siliguri,Inter,sans-serif">যাচাইকৃত টিউটর</text></g></g>
-        <g transform="translate(318 66)"><g class="tt-fl s2"><rect width="132" height="32" rx="16" fill="#fff" stroke="#C7D6F5" stroke-width="1.4"/><text x="66" y="21" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1244B5" font-family="Hind Siliguri,Inter,sans-serif">গণিত · শ্রেণি ৮</text></g></g>
-        <g transform="translate(488 62)"><g class="tt-fl s3"><path d="M0 0h84a10 10 0 0 1 10 10v12a10 10 0 0 1-10 10H22l-12 9v-9H0z" fill="#fff" stroke="#E9D5FF" stroke-width="1.4"/><text x="47" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9" font-family="Hind Siliguri,Inter,sans-serif">বুঝেছি!</text></g></g>
-        <g class="tt-fl s2"><path transform="translate(640 74)" d="M0-8L2.4-2.4 8 0 2.4 2.4 0 8-2.4 2.4-8 0-2.4-2.4Z" fill="#F5B316"/></g>
-        <g class="tt-fl s3"><path transform="translate(872 112)" d="M0-6L1.8-1.8 6 0 1.8 1.8 0 6-1.8 1.8-6 0-1.8-1.8Z" fill="#F5B316"/></g>
+        <g class="tt-fl s2"><path transform="translate(440 62)" d="M0 4C-7-2-6-8 0-5 6-8 7-2 0 4Z" fill="#F43F5E"/></g>
+
+        <ellipse cx="602" cy="136" rx="176" ry="5" fill="#1A2F66" opacity=".1"/>
+        <g>
+          <path d="M494 114V98a18 18 0 0 1 18-18h24a18 18 0 0 1 18 18v16z" fill="url(#tta-bl)"/>
+          <rect x="519" y="70" width="10" height="14" fill="#D9A073"/><path d="M513 80l11 13 11-13z" fill="#fff"/>
+          <circle cx="506" cy="58" r="3.5" fill="#D9A073"/><circle cx="542" cy="58" r="3.5" fill="#D9A073"/>
+          <circle cx="524" cy="56" r="18" fill="#E6B088"/><path d="M505 54a19 19 0 0 1 38 0q-4-9-19-9t-19 9Z" fill="#2B1B12"/>
+          <g fill="none" stroke="#1F2937" stroke-width="1.6"><circle cx="517" cy="58" r="5.2"/><circle cx="531" cy="58" r="5.2"/><path d="M522.2 58h3.6"/></g>
+          <circle cx="517" cy="58" r="1.4" fill="#3F2A1D"/><circle cx="531" cy="58" r="1.4" fill="#3F2A1D"/><path d="M518 66q6 5 12 0" stroke="#9A5B3C" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </g>
+        <g>
+          <path d="M654 114v-12a14 14 0 0 1 14-14h24a14 14 0 0 1 14 14v12z" fill="url(#tta-am)"/>
+          <rect x="675" y="80" width="10" height="9" fill="#E7B085"/>
+          <circle cx="662" cy="80" r="5.5" fill="#2B1B12"/><circle cx="698" cy="80" r="5.5" fill="#2B1B12"/><circle cx="661" cy="75" r="2.5" fill="#F43F5E"/><circle cx="699" cy="75" r="2.5" fill="#F43F5E"/>
+          <circle cx="680" cy="72" r="16" fill="#F1C398"/><path d="M664 70a16 16 0 0 1 32 0q-8-9-16-8t-16 8Z" fill="#2B1B12"/>
+          <circle cx="674" cy="74" r="1.8" fill="#3F2A1D"/><circle cx="686" cy="74" r="1.8" fill="#3F2A1D"/><path d="M674 80q6 5 12 0" stroke="#9A5B3C" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <circle cx="669" cy="79" r="2.8" fill="#F9A8A8" opacity=".6"/><circle cx="691" cy="79" r="2.8" fill="#F9A8A8" opacity=".6"/>
+        </g>
+
+        <rect x="452" y="110" width="300" height="10" rx="5" fill="url(#tta-wd)"/><rect x="474" y="119" width="9" height="17" fill="#B07A3A"/><rect x="722" y="119" width="9" height="17" fill="#B07A3A"/>
+        <rect x="456" y="100" width="40" height="10" rx="2" fill="#6366F1"/><rect x="460" y="91" width="34" height="9" rx="2" fill="#F43F5E"/><rect x="457" y="82" width="38" height="9" rx="2" fill="#10B981"/>
+        <path d="M602 110c-14-8-30-8-44-3V92c14-5 30-5 44 3 14-8 30-8 44-3v15c-14-5-30-5-44 3Z" fill="#fff" stroke="#B9C9EE" stroke-width="1.4"/><path d="M602 95v15" stroke="#B9C9EE" stroke-width="1.4"/>
+        <path d="M566 99h26M566 103h20M612 99h26M612 103h20" stroke="#C7D6F5" stroke-width="1.6" stroke-linecap="round"/>
+        <ellipse cx="738" cy="110" rx="10" ry="3" fill="#64748B"/><path d="M738 109l-5-26 16-14" stroke="#64748B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <g transform="rotate(-20 750 70)"><path d="M738 64h24l5 12h-34z" fill="#F59E0B"/></g><ellipse cx="752" cy="84" rx="16" ry="9" fill="#FDE68A" opacity=".4"/>
+
+        <path d="M546 92c14 0 26 6 34 14" stroke="url(#tta-bl)" stroke-width="11" stroke-linecap="round" fill="none"/><circle cx="583" cy="106.5" r="5.4" fill="#E6B088"/>
+        <path d="M668 96c-12 2-20 6-26 12" stroke="url(#tta-am)" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="641" cy="107" r="4.8" fill="#F1C398"/>
+        <path d="M631 112l14-11" stroke="#F59E0B" stroke-width="3.2" stroke-linecap="round"/><path d="M631 112l-2.5 2" stroke="#1F2937" stroke-width="3.2" stroke-linecap="round"/>
+
+        <g transform="translate(180 34)"><g class="tt-fl s1"><circle r="16" fill="#fff" stroke="#D6E2FA" stroke-width="1.4"/><path d="M0 9C-6 3-8-1-8-4a8 8 0 0 1 16 0c0 3-2 7-8 13Z" fill="#7C3AED"/><circle cy="-4" r="3" fill="#fff"/></g></g>
+        <g transform="translate(472 38)"><g class="tt-fl s2"><circle r="16" fill="#fff" stroke="#D6E2FA" stroke-width="1.4"/><path d="M0-8L11-2 0 4-11-2Z" fill="#1A56DB"/><path d="M-6 1v6c0 2.5 12 2.5 12 0V1L0 4Z" fill="#4A83F7"/><path d="M11-2v8" stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"/><circle cx="11" cy="7.5" r="1.8" fill="#F59E0B"/></g></g>
+        <g transform="translate(602 40)"><g class="tt-fl"><circle r="17" fill="#fff" stroke="#BDEBD6" stroke-width="1.4"/><path d="M0-9L8-6v6c0 5-4 8-8 10-4-2-8-5-8-10v-6Z" fill="#10B981"/><path d="M-4 0l3 3 5-6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+        <g transform="translate(728 34)"><g class="tt-fl s3"><circle r="15" fill="#fff" stroke="#FDE6A8" stroke-width="1.4"/><path d="M0-9a6.5 6.5 0 0 1 4 11.6V5h-8v-2.4A6.5 6.5 0 0 1 0-9Z" fill="#F59E0B"/><rect x="-3.5" y="6.5" width="7" height="2.5" rx="1.2" fill="#B45309"/></g></g>
+        <g class="tt-fl s2"><path transform="translate(552 30)" d="M0-7L2.1-2.1 7 0 2.1 2.1 0 7-2.1 2.1-7 0-2.1-2.1Z" fill="#F5B316"/></g>
+        <g class="tt-fl s3"><path transform="translate(664 22)" d="M0-5L1.5-1.5 5 0 1.5 1.5 0 5-1.5 1.5-5 0-1.5-1.5Z" fill="#F5B316"/></g>
+
         <g class="tt-mon" transform="translate(930 0)">
-          <rect x="0" y="118" width="170" height="104" rx="10" fill="#fff" stroke="#C7D6F5" stroke-width="2"/><rect x="9" y="127" width="152" height="80" rx="6" fill="#E8F0FF"/>
-          <circle cx="104" cy="160" r="15" fill="#F2C6A0"/><path d="M89 158a15 15 0 0 1 30 0q-8-8-15-6t-15 6Z" fill="#2B1B12"/><rect x="88" y="176" width="32" height="26" rx="10" fill="#1A56DB"/>
-          <circle cx="52" cy="166" r="13" fill="#F2C6A0"/><path d="M39 164a13 13 0 0 1 26 0q-7-8-13-6t-13 6Z" fill="#3F2A1D"/><rect x="38" y="180" width="28" height="22" rx="9" fill="#F59E0B"/>
-          <rect x="62" y="132" width="46" height="16" rx="8" fill="#fff" opacity=".95"/><text x="85" y="144" text-anchor="middle" font-size="11" font-weight="700" fill="#1244B5" font-family="Hind Siliguri,Inter,sans-serif">অনলাইনে</text>
-          <rect x="76" y="222" width="18" height="6" fill="#B9C9EE"/><rect x="58" y="228" width="54" height="5" rx="2.5" fill="#B9C9EE"/>
+          <ellipse cx="113" cy="136" rx="112" ry="4.5" fill="#1A2F66" opacity=".1"/>
+          <rect x="16" y="118" width="194" height="9" rx="4.5" fill="url(#tta-wd)"/><rect x="34" y="126" width="9" height="10" fill="#B07A3A"/><rect x="184" y="126" width="9" height="10" fill="#B07A3A"/>
+          <path d="M105 106h16v12h-16z" fill="#B9C9EE"/><rect x="88" y="115" width="50" height="4" rx="2" fill="#B9C9EE"/>
+          <rect x="48" y="42" width="130" height="68" rx="9" fill="#fff" stroke="#C7D6F5" stroke-width="2"/><rect x="55" y="49" width="116" height="54" rx="5" fill="#E3EDFF"/>
+          <ellipse cx="113" cy="75" rx="15" ry="17" fill="#3B2216"/><path d="M93 103a20 17 0 0 1 40 0z" fill="url(#tta-vi)"/><circle cx="113" cy="72" r="11" fill="#EDBB92"/><path d="M101 70a12 12 0 0 1 24 0q-6-5-12-4t-12 4Z" fill="#3B2216"/>
+          <circle cx="109" cy="73" r="1.3" fill="#3F2A1D"/><circle cx="117" cy="73" r="1.3" fill="#3F2A1D"/><path d="M109.5 77.5q3.5 3 7 0" stroke="#9A5B3C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <rect x="140" y="54" width="26" height="22" rx="4" fill="#FEF3C7"/><circle cx="153" cy="63" r="5.5" fill="#F1C398"/><path d="M147.5 62a5.5 5.5 0 0 1 11 0q-3-3-5.5-2.5t-5.5 2.5Z" fill="#2B1B12"/><path d="M144 76a9 8 0 0 1 18 0z" fill="url(#tta-am)"/>
+          <circle cx="64" cy="58" r="3.2" fill="#EF4444"/>
+          <g transform="translate(196 118)"><path d="M-8-14h16l-3 14h-10z" fill="#FB923C"/><path d="M0-14C-10-24-14-34-8-40 0-34 2-24 0-14Z" fill="#10B981"/><path d="M0-14C10-26 16-30 22-28 20-18 10-14 0-14Z" fill="#34D399"/><path d="M0-14C-8-20-16-20-20-18-18-10-8-8 0-14Z" fill="#6EE7B7"/></g>
+          <g transform="translate(113 18)"><g class="tt-fl s2"><circle r="15" fill="#fff" stroke="#D6E2FA" stroke-width="1.4"/><path d="M-9-2a13 13 0 0 1 18 0M-6 2a8 8 0 0 1 12 0" stroke="#1A56DB" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cy="7" r="1.9" fill="#1A56DB"/></g></g>
         </g>
       </svg>
     </div>
