@@ -184,6 +184,13 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .cm-faq[hidden],.dl-fbk[hidden]{display:none}
 .cm-inl{color:inherit;text-decoration:none;cursor:default}.cm-inl.on{color:var(--blue);font-weight:700;text-decoration:underline;cursor:pointer}
 .dl-fbk{display:block;margin-top:10px;font-size:12.5px;color:var(--text-3);text-align:center;text-decoration:underline}
+.tband{max-width:880px;margin:22px auto 0;padding:18px 22px;border-radius:20px;background:linear-gradient(135deg,#EEF3FF,#F4F0FF);border:1px solid #DCE7FF;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tband b{display:block;font-size:17px;color:#0B1B4D;line-height:1.4}
+.tband span{display:block;font-size:14px;color:#475569;line-height:1.6;max-width:560px}
+.tband a{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:12px;background:#1A56DB;color:#fff;font-weight:700;font-size:14.5px;text-decoration:none;white-space:nowrap}
+.tband a:hover{background:#1244B5}
+.tband a:focus-visible{outline:3px solid rgba(26,86,219,.4);outline-offset:2px}
+@media(max-width:640px){.tband{flex-direction:column;align-items:stretch;text-align:left;padding:16px}.tband a{width:100%}}
 @media(max-width:560px){.cm{padding:22px 14px 20px;border-radius:20px}.cm-form{padding:12px;border-radius:16px}.cm-kind{gap:5px;font-size:13.5px;padding:0 4px}.cm-row{flex-direction:column}.cm-send{width:100%}.cm-item{grid-template-columns:44px minmax(0,1fr);gap:10px;padding:12px 12px 8px}.cm-v1 .cm-item,.cm-v1 .cm-sk{grid-template-columns:minmax(0,1fr)}.cm-vote{width:44px;height:52px;border-radius:12px}.cm-sk{grid-template-columns:44px minmax(0,1fr);gap:10px}.cm-sk .v{width:44px;height:52px}.cm-top time{margin-left:0}.cm-reply{padding:10px 12px}.cm-bar{align-items:stretch}.cm-sort{padding-bottom:8px;width:100%}.cm-sort select{width:100%}}
 @media(prefers-reduced-motion:reduce){.cm-item.fresh,.cm-sk i{animation:none}.cm *{transition:none!important}}
 @media(max-width:560px){.lb{padding:22px 16px 18px;border-radius:20px}.lb-row{grid-template-columns:38px minmax(0,1fr) auto;gap:10px;padding:10px 12px}.lb-rank{width:32px;height:32px;font-size:14px}.lb-sel{width:100%}.lb-name{font-size:14.5px}}
@@ -763,7 +770,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 <body data-clarity-mask="True">
 
 <div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"></div>
-<script src="/nav.js?v=6"></script>
+<script src="/nav.js?v=7"></script>
 
 <section class="hero">
   <div class="hero-fx" aria-hidden="true"><svg class="hf-ring r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="78"/><circle cx="100" cy="100" r="60"/></svg><svg class="hf-ring r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="74"/></svg><i class="hf-sp" style="left:46%;top:14%"></i><i class="hf-sp" style="left:8%;top:78%"></i><i class="hf-sp" style="left:92%;top:84%"></i></div>
@@ -1007,11 +1014,16 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="cm-more" id="cmMore" hidden>আরও দেখুন</button>
   </section>
 
+  <aside class="tband" aria-label="ভাইয়া-আপু টিউটর">
+    <div><b>পড়াতে ভালোবাসেন?</b><span>ভাইয়া-আপু টিউটর হিসেবে যোগ দিন। যোগ দেওয়া ফ্রি, ফোন নম্বর গোপন থাকে, আর অভিভাবকের অনুরোধ এলে আপনাকে জানানো হয়।</span></div>
+    <a href="/tutor-join" onclick="window.track&amp;&amp;window.track('card_tutor_band')">টিউটর হিসেবে যোগ দিন</a>
+  </aside>
+
   <div class="ad-slot" data-slot="card-end"></div>
 </main>
 
 <div id="pfoot" data-art="card"></div>
-<script src="/footer.js?v=13"></script>
+<script src="/footer.js?v=14"></script>
 <script src="/analytics.js?v=3"></script>
 <script src="/ads.js?v=2" defer></script>
 
@@ -1067,6 +1079,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
     <button type="button" class="dl-fb dl-other" id="dlOther" onclick="dlOtherSize()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span>স্টোরি সাইজ ডাউনলোড</span></button>
     <a class="dl-fbk" id="cmPopLink" href="#feedback" hidden onclick="return openFeedback()">কোনো সমস্যা বা আইডিয়া থাকলে আমাদের জানান</a>
+    <a class="dl-fbk" href="/tutor-join" onclick="window.track&amp;&amp;window.track('card_tutor_link')">পড়াতে ভালোবাসেন? টিউটর হিসেবে যোগ দিন</a>
   </div>
 </div>
 <div class="toast" id="toast"></div>

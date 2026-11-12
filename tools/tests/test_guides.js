@@ -7,7 +7,7 @@ const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.string
 const yes = (name, v) => eq(name, !!v, true);
 
 const PAGES = { guide: 'guide.html', gpa: 'gpa.html', cgpa: 'cgpa.html', eiin: 'eiin.html', 'choose-institution': 'choose-institution.html', 'result-check': 'result-check.html', 'xi-admission': 'xi-admission.html', 'education-streams': 'education-streams.html', 'verify-university': 'verify-university.html', 'certificate-guide': 'certificate-guide.html' };
-const ROUTES = new Set(['/', '/area', '/results', '/card', '/skill', '/list-institution', '/about', '/privacy', '/terms', '/partner', '/info', ...Object.keys(PAGES).map(k => '/' + k)]);   // clean addresses the site answers
+const ROUTES = new Set(['/', '/area', '/results', '/card', '/skill', '/list-institution', '/about', '/privacy', '/terms', '/partner', '/info', '/tutor', '/tutor-join', ...Object.keys(PAGES).map(k => '/' + k)]);   // clean addresses the site answers
 
 for (const [slug, file] of Object.entries(PAGES)) {
   const h = read(file);
@@ -19,7 +19,7 @@ for (const [slug, file] of Object.entries(PAGES)) {
   eq(file + ': canonical is its own clean address', (h.match(/<link rel="canonical" href="([^"]+)"/) || [])[1], 'https://protishthan.com/' + slug);
   eq(file + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
   yes(file + ': not noindex (it is in the sitemap)', !/name="robots"[^>]*noindex/.test(h));
-  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=13/.test(h));
+  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=14/.test(h));
   yes(file + ': the date of the last update is written on the page', /১২ নভেম্বর ২০২৬/.test(h));
   if (slug !== 'guide') yes(file + ': a way to report a mistake', /teamprotishthan@gmail\.com/.test(h));
   // every internal link goes to a page that exists
@@ -81,7 +81,7 @@ const sm = read('tools/seo/build_sitemap.js');
 for (const slug of Object.keys(PAGES)) yes('the sitemap list has /' + slug, new RegExp("\\['/" + slug + "', '" + PAGES[slug].replace('.', '\\.') + "'\\]").test(sm));
 const ft = read('footer.js');
 yes('the footer links the guide and both calculators', /guide\.html/.test(ft) && /gpa\.html/.test(ft) && /cgpa\.html/.test(ft));
-const stale = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).filter(f => /footer\.js\?v=12/.test(read(f)));
+const stale = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).filter(f => /footer\.js\?v=13/.test(read(f)));
 eq('no page still asks for the old footer.js (the new links would not show for hours)', stale, []);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

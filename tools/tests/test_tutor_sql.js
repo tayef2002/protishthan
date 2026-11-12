@@ -12,6 +12,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   const db = new PGlite();
   await db.exec(`
     create role anon; create role authenticated;
+    alter default privileges in schema public grant execute on functions to anon, authenticated;   -- what Supabase does by itself
     create schema auth;
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
     create function public.is_admin() returns boolean language sql stable as $$ select current_setting('test.admin', true) = '1' $$;

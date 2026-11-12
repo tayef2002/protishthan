@@ -11,6 +11,7 @@ const PAGES = [
   ['/partner', 'partner.html'], ['/about', 'about.html'], ['/privacy', 'privacy.html'], ['/terms', 'terms.html'],
   ['/guide', 'guide.html'], ['/gpa', 'gpa.html'], ['/cgpa', 'cgpa.html'], ['/eiin', 'eiin.html'], ['/choose-institution', 'choose-institution.html'],
   ['/result-check', 'result-check.html'], ['/xi-admission', 'xi-admission.html'], ['/education-streams', 'education-streams.html'], ['/verify-university', 'verify-university.html'], ['/certificate-guide', 'certificate-guide.html'],
+  ['/tutor', 'tutor.html'],
 ];
 
 function lastChange(file) {

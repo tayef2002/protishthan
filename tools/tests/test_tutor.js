@@ -80,6 +80,7 @@ const searchFull = (sql.match(/function public\.tutor_search[^]*?\$\$;/) || ['']
 yes('the public search is off until the admin switches it on, and only shows approved profiles', /public_listing/.test(searchFull) && /t\.status = 'approved'/.test(searchFull));
 yes('the public search has a hard limit', /least\(coalesce\(p_limit, 12\), 30\)/.test(sql) && /least\(coalesce\(p_offset, 0\), 500\)/.test(sql));
 yes('anon may call only the three public functions; the profile ones are for signed-in members', ['tutor_state()', 'tutor_search(text, text, text, text, text, int, int)', 'tutor_request_add(text, text, text, text, text, text, text[], text, text, text, text)'].every(f => sql.includes('grant execute on function public.' + f + ' to anon, authenticated')) && ['tutor_my_profile()', 'tutor_profile_save(jsonb, boolean)', 'tutor_profile_pause(boolean)'].every(f => sql.includes('grant execute on function public.' + f + ' to authenticated;')));
+yes('the member functions are explicitly taken away from anon (Supabase gives new functions to anon by default)', ['tutor_my_profile()', 'tutor_profile_save(jsonb, boolean)', 'tutor_profile_pause(boolean)'].every(f => sql.includes('revoke execute on function public.' + f + ' from anon;')));
 yes('the verify mark and the status are never set from a tutor-side function (only the admin policy can)', !/tutor_profile_save[^]*?\bverify\s*=/.test((sql.match(/function public\.tutor_profile_save[^]*?end \$\$;/) || [''])[0]));
 yes('the SQL can run twice (create if not exists / or replace / drop policy if exists)', !/create table public\./.test(sql) && !/create policy [a-z_]+ on public\.tutor_[a-z]+ for/.test(sql.replace(/drop policy if exists[^;]*;\ncreate policy/g, '')));
 
@@ -121,6 +122,17 @@ const pv = read('privacy.html'), tm = read('terms.html');
 yes('the privacy page has the tutor section and says what is never public and that papers are not kept', /id="tutor"/.test(pv) && /মোবাইল নম্বর, আসল নাম, আনুমানিক ফি আর এলাকার নাম শুধু আমাদের টিম দেখে/.test(pv) && /কাগজ আমরা ওয়েবসাইটের ডাটাবেসে রাখি না/.test(pv) && /বিক্রি করি না/.test(pv) && /১৮ বা তার বেশি/.test(pv));
 yes('the terms page has the tutor section: not an employer, teachers\' rule, what "verified" means, no income guarantee', /id="tutor"/.test(tm) && /নিয়োগকারী/.test(tm) && /২০১২ সালের নীতিমালা/.test(tm) && /ব্যাকগ্রাউন্ড চেক নয়/.test(tm) && /আয়েরও কোনো নিশ্চয়তা নেই/.test(tm));
 yes('the privacy and terms contents lists agree with their sections', [pv, tm].every(h => JSON.stringify([...h.matchAll(/<a href="#([a-z0-9]+)"><i>([০-৯]+)<\/i>/g)].map(m => [m[1], m[2]])) === JSON.stringify([...h.matchAll(/<section class="lg-sec" id="([a-z0-9]+)"><h2><span class="n">([০-৯]+)<\/span>/g)].map(m => [m[1], m[2]]))));
+
+// ----- the links that make it visible (added after the SQL was run) -----
+const nav = read('nav.js'), foot = read('footer.js'), card = read('card.html'), sm = read('sitemap-pages.xml'), hub = read('guide.html');
+yes('the top menu has the tutor page, with its icon', /k: 'tutor', t: 'ভাইয়া-আপু'[^}]*href: 'tutor\.html'/.test(nav) && /tutor: '<svg/.test(nav));
+yes('the join page highlights the same menu item', /data-active="tutor"/.test(join));
+yes('the footer links the tutor page', /\['ভাইয়া-আপু \(টিউটর\)', 'tutor\.html'\]/.test(foot));
+yes('the card page: a small line in the download popup and a slim band at the very end, both to the join page', /href="\/tutor-join" onclick="window\.track&amp;&amp;window\.track\('card_tutor_link'\)"/.test(card) && /class="tband"[^]*href="\/tutor-join"/.test(card));
+yes('the band says what is true: free, number private, requests will be told, and sits before the ad place (which is still the last thing in main)', /যোগ দেওয়া ফ্রি, ফোন নম্বর গোপন থাকে/.test(card) && card.indexOf('class="tband"') < card.indexOf('data-slot="card-end"') && card.indexOf('</main>') - card.indexOf('data-slot="card-end"') < 80);
+yes('the sitemap lists /tutor and not the personal flow', /<loc>https:\/\/protishthan\.com\/tutor<\/loc>/.test(sm) && !/tutor-join/.test(sm));
+yes('the guide hub links the tutor page', /href="\/tutor"/.test(hub));
+yes('every page asks for the current menu and footer scripts (the new links would not show for hours otherwise)', fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).every(f => { const h = read(f); return !/nav\.js\?v=[0-6]\b/.test(h) && !/footer\.js\?v=1[0-3]\b/.test(h); }));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

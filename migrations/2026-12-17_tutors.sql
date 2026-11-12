@@ -307,6 +307,10 @@ grant execute on function public.tutor_request_add(text, text, text, text, text,
 grant execute on function public.tutor_my_profile() to authenticated;
 grant execute on function public.tutor_profile_save(jsonb, boolean) to authenticated;
 grant execute on function public.tutor_profile_pause(boolean) to authenticated;
+-- Supabase hands every new function to anon and authenticated by itself (default privileges), so "revoke from public" is not enough: the three member functions are taken away from anon here
+revoke execute on function public.tutor_my_profile() from anon;
+revoke execute on function public.tutor_profile_save(jsonb, boolean) from anon;
+revoke execute on function public.tutor_profile_pause(boolean) from anon;
 
 -- check: all three answers must come without an error (the list is empty and "listing" is false until the admin switches it on)
 select public.tutor_state() as state;
