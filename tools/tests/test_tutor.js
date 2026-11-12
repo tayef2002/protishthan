@@ -247,7 +247,7 @@ yes('the tutor card promises nothing that is not there (no list of tutors yet, n
 yes('the old slim band is gone, and the ad place is still the last thing in main', !/tband/.test(card) && card.indexOf('</main>') - card.indexOf('data-slot="card-end"') < 80);
 yes('the sitemap lists /tutor and not the personal flow', /<loc>https:\/\/protishthan\.com\/tutor<\/loc>/.test(sm) && !/tutor-join/.test(sm));
 yes('the guide hub links the tutor page', /href="\/tutor"/.test(hub));
-yes('every page asks for the current menu and footer scripts (the new links would not show for hours otherwise)', fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).every(f => { const h = read(f); return !/nav\.js\?v=[0-7]\b/.test(h) && !/footer\.js\?v=1[0-3]\b/.test(h); }));
+yes('every page asks for the current menu and footer scripts (the new links would not show for hours otherwise)', fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).every(f => { const h = read(f); return !/nav\.js\?v=[0-8]\b/.test(h) && !/footer\.js\?v=1[0-4]\b/.test(h); }));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

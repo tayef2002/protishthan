@@ -1,4 +1,4 @@
-// The home page's top headline (the hook): what it says, that it promises only what the site really has, and that search engines still see the old keyword line.   node tools/tests/test_home_hero.js
+// The home page's top headline (the hook): what it says, that it promises only what the site really has, and that search engines still see the old keyword line. Also the home page's name in the menus and footers.   node tools/tests/test_home_hero.js
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -27,6 +27,12 @@ yes('the hero promises only what the site has: no "best", no ranks, no guarantee
 yes('the hook points at things that are really on the page: the two-question finder right below, and the search box', /onclick="gwOpen\(\)"/.test(hero + page.slice(page.indexOf('<div class="search-panel">'), page.indexOf('<div class="search-panel">') + 3000)) && /২টা প্রশ্নের উত্তর দিন, বাকিটা আমরা সাজিয়ে দেব/.test(page) && /id="mainSearch"/.test(page));
 yes('the old keyword line moved out of the headline but stays in the title, the share title, the description and the footer, so search engines still see it', /<title>[^<]*বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার/.test(page) && /og:title" content="[^"]*বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার/.test(page) && /name="description" content="বাংলাদেশের মাদ্রাসা, স্কুল, কলেজ ও কোচিং সেন্টারের তথ্যভান্ডার/.test(page) && /বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার/.test(read('footer.js')));
 yes('on small screens the line under the headline is hidden, so the headline alone must carry the hook and the answer (it does: worry + "এখানেই"); its two lines are balanced', /@media\(max-width:768px\)\{[^]*?\.search-hero p\{display:none\}/.test(page) && /\.search-hero h1\{[^}]*text-wrap:balance\}/.test(page) && /ভর্তি/.test(l1) && /এখানেই/.test(l2));
+
+// ----- the page's name in the menus: "প্রতিষ্ঠান খুঁজুন" (what to do), while "তথ্যভান্ডার" stays the descriptive name of the database -----
+const nav = read('nav.js'), foot = read('footer.js'), member = read('member.html'), nf = read('404.html'), about = read('about.html');
+yes('the top menu (the bar, the phone menu and the phone bottom tabs all use one label) calls the home page "প্রতিষ্ঠান খুঁজুন", in the site menu and in the partner login menu', (nav.match(/\{ k: 'info',\s+t: 'প্রতিষ্ঠান খুঁজুন', href: 'index\.html' \}/g) || []).length === 2 && !/t: 'তথ্যভান্ডার'/.test(nav));
+yes('the shared footer, the home page\'s own footer, the small footer of the member page and the list on the 404 page use the same name', /\['প্রতিষ্ঠান খুঁজুন', 'index\.html'\]/.test(foot) && !/\['তথ্যভান্ডার', 'index\.html'\]/.test(foot) && /<h4>প্রতিষ্ঠান খুঁজুন<\/h4>/.test(page) && /<a href="index\.html">প্রতিষ্ঠান খুঁজুন<\/a> · <a href="card\.html">শিক্ষিত কার্ড<\/a>/.test(member) && /<a href="\/">প্রতিষ্ঠান খুঁজুন<\/a>/.test(nf));
+yes('"তথ্যভান্ডার" stays as the name of the database where it is a name, not a button: the footer sentence, the about page, the breadcrumbs and the page title', /বাংলাদেশের সকল শিক্ষা প্রতিষ্ঠানের তথ্যভান্ডার, আর আপনার নিজের/.test(foot) && /তথ্যভান্ডার, শিক্ষিত কার্ড আর স্কিল আইডেন্টিটি/.test(about) && /name: 'তথ্যভান্ডার'/.test(read('functions/institution-detail.js')) && /<title>[^<]*তথ্যভান্ডার/.test(page));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

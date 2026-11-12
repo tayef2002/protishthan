@@ -19,7 +19,7 @@ for (const [slug, file] of Object.entries(PAGES)) {
   eq(file + ': canonical is its own clean address', (h.match(/<link rel="canonical" href="([^"]+)"/) || [])[1], 'https://protishthan.com/' + slug);
   eq(file + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
   yes(file + ': not noindex (it is in the sitemap)', !/name="robots"[^>]*noindex/.test(h));
-  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=14/.test(h));
+  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=15/.test(h));
   yes(file + ': the date of the last update is written on the page', /১২ নভেম্বর ২০২৬/.test(h));
   if (slug !== 'guide') yes(file + ': a way to report a mistake', /teamprotishthan@gmail\.com/.test(h));
   // every internal link goes to a page that exists
@@ -81,7 +81,7 @@ const sm = read('tools/seo/build_sitemap.js');
 for (const slug of Object.keys(PAGES)) yes('the sitemap list has /' + slug, new RegExp("\\['/" + slug + "', '" + PAGES[slug].replace('.', '\\.') + "'\\]").test(sm));
 const ft = read('footer.js');
 yes('the footer links the guide and both calculators', /guide\.html/.test(ft) && /gpa\.html/.test(ft) && /cgpa\.html/.test(ft));
-const stale = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).filter(f => /footer\.js\?v=13/.test(read(f)));
+const stale = fs.readdirSync(ROOT).filter(f => f.endsWith('.html')).filter(f => /footer\.js\?v=1[0-4]\b/.test(read(f)));
 eq('no page still asks for the old footer.js (the new links would not show for hours)', stale, []);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
