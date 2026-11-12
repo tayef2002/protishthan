@@ -231,7 +231,7 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
     </form>
   </div>
 </div>
-<script src="/tutor-data.js?v=2"></script>
+<script src="/tutor-data.js?v=3"></script>
 <script>
 /* Admin gate: a separate auth session ('prot-admin') that must belong to admin_users.
    Data loaders wait on ADMIN_READY, so nothing is fetched before the check passes. */
@@ -1538,7 +1538,7 @@ function ttCands(r){
   const relax = !!TT_RELAX[r.id], ok = TT_PRO.filter(p => p.status === 'approved');
   const loc = p => p.district === r.district && (!r.upazila || p.upazila === r.upazila), subj = p => (p.subjects || []).some(x => (r.subjects || []).includes(x)), cls = p => (p.classes || []).includes(r.class_band), onl = p => (p.modes || []).includes('online');
   let rows = ok.filter(p => relax ? true : (subj(p) && cls(p) && (r.mode === 'online' ? onl(p) : (r.mode === 'home' ? loc(p) && (p.modes || []).includes('home') : (loc(p) || onl(p))))));
-  const score = p => (loc(p) ? 4 : 0) + (p.verify === 'verified' ? 2 : 0) + (subj(p) ? 1 : 0);
+  const score = p => (loc(p) ? 4 : 0) + (p.verify === 'verified' ? 2 : 0) + (subj(p) ? 1 : 0) + (r.pref_gender && p.gender === r.pref_gender ? 3 : 0) + (r.want_trial && p.trial ? 1 : 0);
   return rows.sort((x, y) => score(y) - score(x));
 }
 function ttReqCard(r){
@@ -1548,13 +1548,13 @@ function ttReqCard(r){
     '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b style="font-size:15px">' + ttEsc(r.name) + '</b>' + ttChip(st, TD.REQ_STATUS[r.status] || r.status) +
     '<a href="' + ttEsc(wa) + '" target="_blank" rel="noopener" style="font-weight:700;color:#047857;text-decoration:none">📱 ' + ttEsc(r.phone) + ' (WhatsApp)</a>' +
     '<span style="font-size:12.5px;color:var(--text-3)">' + new Date(r.created_at).toLocaleString('bn-BD') + (r.user_id ? ' · সদস্য' : '') + '</span></div>' +
-    '<div style="margin:8px 0;font-size:14.5px;line-height:1.6"><b>' + ttEsc(TD.wantLine(r)) + '</b>' + (r.note ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere">' + ttEsc(r.note) + '</div>' : '') +
+    '<div style="margin:8px 0;font-size:14.5px;line-height:1.6"><b>' + ttEsc(TD.wantLine(r)) + '</b>' + (TD.prefLine(r) ? '<div style="font-size:13.5px;font-weight:600;color:#6D28D9">অভিভাবকের পছন্দ: ' + ttEsc(TD.prefLine(r)) + '</div>' : '') + (r.note ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere">' + ttEsc(r.note) + '</div>' : '') +
     (r.tutor_pid ? '<div style="font-size:13px;color:#1E40AF">ওঁর নির্দিষ্ট টিউটর চেয়েছেন: ' + (asked ? ttEsc(ttName(asked)) + ' (' + ttEsc(asked.institution) + ')' : 'প্রোফাইল পাওয়া যায়নি (' + ttEsc(r.tutor_pid) + ')') + '</div>' : '') + '</div>';
   if(mats.length) h += '<div style="margin:6px 0 8px;padding:8px 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px"><b>পাঠানো হয়েছে</b>' + mats.map(m => { const p = TT_PRO.find(x => x.user_id === m.tutor_id); return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px"><span>' + ttEsc(ttName(p)) + (p ? ' · ' + ttEsc(p.institution) : '') + '</span><select data-id="' + ttEsc(m.id) + '" onchange="ttMatchStatus(this.dataset.id, this.value)" style="padding:4px 8px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13px">' + Object.keys(TT_MS).map(k => '<option value="' + k + '"' + (m.status === k ? ' selected' : '') + '>' + TT_MS[k] + '</option>').join('') + '</select>' + (p ? '<button type="button" ' + TT_B + ' data-r="' + id + '" data-t="' + ttEsc(p.user_id) + '" onclick="ttSendGuardian(this.dataset.r, this.dataset.t)">অভিভাবককে পরিচয় পাঠান</button>' : '') + '<button type="button" data-id="' + ttEsc(m.id) + '" onclick="ttMatchDel(this.dataset.id)" style="border:0;background:none;color:#B91C1C;font:inherit;font-size:13px;cursor:pointer">সরান</button></div>'; }).join('') + '</div>';
   if(TT_OPEN[r.id]){
     const cs = ttCands(r);
     h += '<div style="margin:8px 0;padding:10px 12px;border:1px dashed #93C5FD;border-radius:12px;background:#F8FBFF"><b style="font-size:14px">মানানসই অনুমোদিত টিউটর (' + cs.length + ' জন)</b> <label style="font-size:12.5px;color:#475569;margin-left:8px"><input type="checkbox" data-id="' + id + '" ' + (TT_RELAX[r.id] ? 'checked ' : '') + 'onchange="ttRelax(this.dataset.id, this.checked)"> অন্য এলাকা বা বিষয়ের অনুমোদিত টিউটরও দেখান</label>' +
-      (cs.length ? cs.map(p => { const sent = mats.some(m => m.tutor_id === p.user_id); return '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px;line-height:1.55"><b>' + ttEsc(ttName(p)) + '</b> ' + (p.verify === 'verified' ? ttChip(['#DCFCE7', '#166534'], '✓ যাচাইকৃত') : '') + ' <span style="color:#475569">' + ttEsc(p.institution) + ', ' + ttEsc(p.department) + '</span><br>' + ttEsc(TD.labels(TD.SUBJECTS, p.subjects).join(', ')) + ' · ' + ttEsc(TD.labels(TD.CLASSES, p.classes).join(', ')) + ' · ' + ttEsc(TD.labels(TD.MODES, p.modes).join(' ও ')) + ' · ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) +
+      (cs.length ? cs.map(p => { const sent = mats.some(m => m.tutor_id === p.user_id); return '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px;line-height:1.55"><b>' + ttEsc(ttName(p)) + '</b> ' + (p.verify === 'verified' ? ttChip(['#DCFCE7', '#166534'], '✓ যাচাইকৃত') : '') + (r.pref_gender ? (p.gender === r.pref_gender ? ttChip(['#EDE9FE', '#5B3FD6'], 'পছন্দমতো ' + ttEsc(TD.labelOf(TD.GENDERS, p.gender))) : ttChip(['#F1F5F9', '#475569'], 'অভিভাবক চেয়েছেন ' + ttEsc(TD.labelOf(TD.GENDERS, r.pref_gender)))) : '') + (r.want_trial && p.trial ? ttChip(['#DCFCE7', '#166534'], 'ট্রায়ালে রাজি') : '') + ' <span style="color:#475569">' + ttEsc(p.institution) + ', ' + ttEsc(p.department) + '</span><br>' + ttEsc(TD.labels(TD.SUBJECTS, p.subjects).join(', ')) + ' · ' + ttEsc(TD.labels(TD.CLASSES, p.classes).join(', ')) + ' · ' + ttEsc(TD.labels(TD.MODES, p.modes).join(' ও ')) + ' · ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) +
         '<br><button type="button" ' + TT_B_OK + ' data-r="' + id + '" data-t="' + ttEsc(p.user_id) + '" onclick="ttSendTutor(this.dataset.r, this.dataset.t)">' + (sent ? 'আবার টিউটরকে পাঠান (WhatsApp)' : 'টিউটরকে পাঠান (WhatsApp)') + '</button></div>'; }).join('') : '<div style="margin-top:8px;font-size:13.5px;color:#92400E">এই অনুরোধের সাথে মেলে এমন অনুমোদিত টিউটর নেই। "টিউটর প্রোফাইল" ট্যাবে প্রোফাইল অনুমোদন করুন, বা ওপরের টিকচিহ্ন দিয়ে অন্য এলাকা বা বিষয়ের টিউটর দেখুন।</div>') + '</div>';
   }
   h += '<textarea id="ttN-' + id + '" rows="2" maxlength="600" placeholder="আপনার নোট (শুধু আপনি দেখেন)" style="width:100%;margin-top:6px;padding:8px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ttEsc(draft) + '</textarea>' +
@@ -1571,6 +1571,10 @@ function renderTtReq(){
   if(!rows.length){ box.innerHTML = '<div class="bill-note">' + (TT_RF === 'new' ? 'নতুন কোনো অনুরোধ নেই।' : TT_RF === 'matching' ? 'মিলানো চলছে এমন কিছু নেই।' : 'এখনো কোনো অনুরোধ আসেনি।') + '</div>'; return; }
   box.innerHTML = rows.map(ttReqCard).join('');
 }
+function ttExtras(p){
+  const x = TD.extrasOf(p), parts = x.badges.map(b => '✓ ' + b.text).concat(x.chips.length ? ['মাধ্যম ও পরীক্ষা: ' + x.chips.join(', ')] : [], x.lines);
+  return parts.length ? '<div style="margin-top:8px;padding:8px 10px;background:#F8FAFF;border:1px solid #E2E8F0;border-radius:10px;font-size:13.5px;line-height:1.65"><b>বাড়তি তথ্য (টিউটরের নিজের দেওয়া, যাচাই নয়)</b>' + parts.map(l => '<div>' + ttEsc(l) + '</div>').join('') + '</div>' : '';
+}
 function ttProCard(p){
   const id = ttEsc(p.user_id), st = TT_PS[p.status] || TT_PS.draft, draft = Object.prototype.hasOwnProperty.call(TT_DRAFT, 'p' + p.user_id) ? TT_DRAFT['p' + p.user_id] : (p.admin_note || ''), wa = TD.waLink(p.phone, 'আসসালামু আলাইকুম ' + (p.full_name || '') + '। ভাইয়া-আপু (Protishthan) থেকে বলছি।');
   return '<div style="border:1px solid ' + (ttAct(p) ? '#FCD34D' : '#E2E8F0') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#fff">' +
@@ -1580,7 +1584,7 @@ function ttProCard(p){
     '<span style="font-size:12.5px;color:var(--text-3)">' + new Date(p.updated_at).toLocaleString('bn-BD') + '</span></div>' +
     '<div style="margin:8px 0;font-size:14px;line-height:1.7"><b>' + ttEsc(p.institution) + '</b>, ' + ttEsc(p.department) + ' · ' + ttEsc(TD.labelOf(TD.LEVELS, p.edu_level)) + (p.gender ? ' · ' + ttEsc(TD.labelOf(TD.GENDERS, p.gender)) : '') + '<br>' +
     '<b>পড়ান:</b> ' + ttEsc(TD.labels(TD.SUBJECTS, p.subjects).join(', ')) + ' · <b>শ্রেণি:</b> ' + ttEsc(TD.labels(TD.CLASSES, p.classes).join(', ')) + '<br><b>কীভাবে:</b> ' + ttEsc(TD.labels(TD.MODES, p.modes).join(' ও ')) + ' · <b>সময়:</b> ' + ttEsc(TD.labels(TD.TIMES, p.times).join(', ') || '—') +
-    '<br><b>এলাকা:</b> ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) + (p.area_note ? ' (' + ttEsc(p.area_note) + ')' : '') + (p.fee_note ? ' · <b>ফি:</b> ' + ttEsc(p.fee_note) : '') + (p.bio ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px">' + ttEsc(p.bio) + '</div>' : '') + '</div>' +
+    '<br><b>এলাকা:</b> ' + ttEsc([p.district, p.upazila].filter(Boolean).join(', ')) + (p.area_note ? ' (' + ttEsc(p.area_note) + ')' : '') + (p.fee_note ? ' · <b>ফি:</b> ' + ttEsc(p.fee_note) : '') + (p.bio ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px">' + ttEsc(p.bio) + '</div>' : '') + ttExtras(p) + '</div>' +
     '<textarea id="ttN-p' + id + '" rows="2" maxlength="600" placeholder="আপনার নোট (শুধু আপনি দেখেন), যেমন, কীভাবে যাচাই করেছেন" style="width:100%;padding:8px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit;font-size:14px;resize:vertical">' + ttEsc(draft) + '</textarea>' +
     '<div><button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttProNote(this.dataset.id)">নোট সেভ</button>' +
     (p.status === 'approved' && !p.edited ? '' : '<button type="button" ' + TT_B_OK + ' data-id="' + id + '" onclick="ttApprove(this.dataset.id)">' + (p.edited ? 'আবার দেখেছি, ঠিক আছে' : 'অনুমোদন দিন') + '</button>') +

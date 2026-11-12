@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=7">
+<link rel="stylesheet" href="/tutor.css?v=8">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -73,7 +73,7 @@
 
   <form class="tt-wiz" id="jWiz" hidden novalidate>
     <aside class="tt-side" aria-label="ধাপ"><h3>ধাপ</h3><ol id="jSide">
-      <li data-s="1"><i>১</i>পরিচয়</li><li data-s="2"><i>২</i>পড়াশোনা</li><li data-s="3"><i>৩</i>কী পড়াবেন</li><li data-s="4"><i>৪</i>নিজের কথা</li>
+      <li data-s="1"><i>১</i>পরিচয়</li><li data-s="2"><i>২</i>পড়াশোনা</li><li data-s="3"><i>৩</i>কী পড়াবেন</li><li data-s="4"><i>৪</i>পড়ানোর ধরন<em>ঐচ্ছিক</em></li><li data-s="5"><i>৫</i>অভিজ্ঞতা, প্রতিশ্রুতি<em>ঐচ্ছিক</em></li><li data-s="6"><i>৬</i>নিজের কথা</li>
     </ol>
     <div class="tt-meter" id="jMeter" aria-live="polite"><div class="top"><span>প্রোফাইল কতটা সম্পূর্ণ</span><b id="jMeterN">০%</b></div><div class="bar"><i id="jMeterB"></i></div><p id="jMeterTip"></p></div></aside>
     <div class="tt-panel">
@@ -116,6 +116,39 @@
       </div>
 
       <div data-step="4" hidden>
+        <h2 tabindex="-1">আপনি কীভাবে পড়ান <span class="tt-opt">ঐচ্ছিক</span></h2><p class="sub">এই ধাপ আর পরের ধাপ না ভরলেও চলে। তবে যিনি বেশি জানান, অভিভাবক তাঁকে সহজে ভরসা করেন।</p>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div><label class="tt-check tt-big"><input type="checkbox" id="jTrial"><span><b>প্রথম ক্লাস ফ্রি ট্রায়াল</b><br>প্রথম ক্লাসটা ট্রায়াল হিসেবে নিতে রাজি। পছন্দ হলে অভিভাবক চালিয়ে যাবেন। এটা অভিভাবকের ভরসার সবচেয়ে বড় কারণ।</span></label></div>
+          <div class="tt-f"><span class="tt-lab" id="jMedL">কোন মাধ্যমে পড়ান</span><div class="tt-pick" id="jMed" role="group" aria-labelledby="jMedL"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jExamL">কোন পরীক্ষার প্রস্তুতি করান</span><div class="tt-pick" id="jExam" role="group" aria-labelledby="jExamL"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jStyleL">আপনার পড়ানোর ধরন (সর্বোচ্চ ৫টা)</span><div class="tt-pick" id="jStyle" role="group" aria-labelledby="jStyleL"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="jBatchL">কতজনকে একসাথে পড়ান</span><div class="tt-pick" id="jBatch" role="group" aria-labelledby="jBatchL"></div></div>
+          <div class="tt-row2">
+            <div class="tt-f"><span class="tt-lab" id="jDaysL">সপ্তাহে সর্বোচ্চ কয়দিন পারেন</span><div class="tt-pick" id="jDays" role="group" aria-labelledby="jDaysL"></div></div>
+            <div class="tt-f"><span class="tt-lab" id="jSessL">প্রতি ক্লাস কতক্ষণ</span><div class="tt-pick" id="jSess" role="group" aria-labelledby="jSessL"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div data-step="5" hidden>
+        <h2 tabindex="-1">অভিজ্ঞতা আর প্রতিশ্রুতি <span class="tt-opt">ঐচ্ছিক</span></h2><p class="sub">এগুলো আপনার নিজের দেওয়া কথা, অভিভাবক এভাবেই দেখবেন। আমরা "যাচাইকৃত" চিহ্ন দিই শুধু কাগজ দেখার পর।</p>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="tt-row2">
+            <div class="tt-f"><span class="tt-lab" id="jExpL">পড়ানোর অভিজ্ঞতা</span><div class="tt-pick" id="jExp" role="group" aria-labelledby="jExpL"></div></div>
+            <div class="tt-f"><span class="tt-lab" id="jTaughtL">এ পর্যন্ত কতজনকে পড়িয়েছেন</span><div class="tt-pick" id="jTaught" role="group" aria-labelledby="jTaughtL"></div></div>
+          </div>
+          <div class="tt-row2">
+            <div class="tt-f"><label for="jSsc">আপনার এসএসসি জিপিএ</label><input class="tt-in" id="jSsc" inputmode="decimal" maxlength="5" placeholder="যেমন, ৫.০০"></div>
+            <div class="tt-f"><label for="jHsc">আপনার এইচএসসি জিপিএ</label><input class="tt-in" id="jHsc" inputmode="decimal" maxlength="5" placeholder="যেমন, ৪.৮৩"></div>
+            <div class="tt-err" id="jGpaErr" role="alert" style="grid-column:1/-1"></div>
+          </div>
+          <div class="tt-f"><label for="jAchv">একটা বিশেষ অর্জন (ঐচ্ছিক)</label><input class="tt-in" id="jAchv" maxlength="120" placeholder="যেমন, বিশ্ববিদ্যালয় ভর্তি পরীক্ষায় উত্তীর্ণ"><div class="tt-err" id="jAchvErr" role="alert"></div></div>
+          <div><label class="tt-check"><input type="checkbox" id="jFeeShow"><span>আনুমানিক ফি অভিভাবককে দেখান। ফি ধাপ ৩-এ লিখেছেন। না টিক দিলে শুধু আমরা দেখি। ফি ঠিক করবেন আপনি আর অভিভাবক নিজেরা।</span></label></div>
+          <div class="tt-f"><span class="tt-lab">তিনটা প্রতিশ্রুতি</span><div class="tt-hint" style="margin-bottom:6px">তিনটাতেই টিক দিলে আপনার কার্ডে "প্রতিশ্রুতি দিয়েছেন" চিহ্ন যাবে। এটা প্রতিশ্রুতি, যাচাই নয়।</div><div id="jPledge" style="display:flex;flex-direction:column;gap:8px"></div></div>
+        </div>
+      </div>
+
+      <div data-step="6" hidden>
         <h2 tabindex="-1">নিজের কথা</h2><p class="sub">অভিভাবক এটা পড়ে ঠিক করবেন আপনাকে বেছে নেবেন কিনা। সৎ আর সাধারণ ভাষায় লিখুন।</p>
         <div style="display:flex;flex-direction:column;gap:18px">
           <div class="tt-f"><label for="jBio">আপনার সম্পর্কে কয়েক লাইন</label><textarea class="tt-in" id="jBio" maxlength="400" rows="5" placeholder="কোন বিষয় ভালো পারেন, আগে পড়িয়েছেন কিনা, কীভাবে পড়ান। ফোন নম্বর বা লিংক লিখবেন না।"></textarea><div style="display:flex;justify-content:space-between"><div class="tt-err" id="jBioErr" role="alert"></div><span class="tt-hint" id="jBioN">০/৪০০</span></div></div>
@@ -138,7 +171,7 @@
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
-<script src="/tutor-data.js?v=2"></script>
+<script src="/tutor-data.js?v=3"></script>
 <script src="/tt-select.js?v=1"></script>
 <script>
 (function(){
@@ -149,7 +182,7 @@
   const LOC = window.BD_LOCATIONS || [];
   const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }, del(k){ try{ localStorage.removeItem(k); }catch(e){} } };
   const upazilasOf = d => (LOC.find(x => x.n === d) || { u: [] }).u;
-  const blank = () => ({ full_name: '', display_name: '', gender: '', phone: '', institution: '', department: '', edu_level: '', subjects: [], classes: [], modes: [], times: [], district: '', upazila: '', area_note: '', fee_note: '', bio: '', age_ok: false, terms_ok: false });
+  const blank = () => ({ full_name: '', display_name: '', gender: '', phone: '', institution: '', department: '', edu_level: '', subjects: [], classes: [], modes: [], times: [], district: '', upazila: '', area_note: '', fee_note: '', bio: '', age_ok: false, terms_ok: false, medium: [], exams: [], style: [], trial: false, batch: '', days_max: 0, session_mins: 0, exp: '', taught: '', ssc_gpa: '', hsc_gpa: '', achv: '', fee_show: false, pledge: [] });
   let P = blank(), step = 1, profile = null, ME = null, sb = null, booted = false;
   const SHOW = ['jGate', 'jStatus', 'jWiz', 'jDown', 'jLoad'];
   function view(id){ SHOW.forEach(x => { $(x).hidden = x !== id; }); }
@@ -175,6 +208,9 @@
     P.institution = D.cleanText($('jIns').value, 80); P.department = D.cleanText($('jDep').value, 60); P.edu_level = pressed($('jLv'))[0] || '';
     P.subjects = pressed($('jSub')); P.classes = pressed($('jCls')); P.modes = pressed($('jMode')); P.times = pressed($('jTime')); P.district = $('jDist').value; P.upazila = $('jUp').value; P.area_note = D.cleanText($('jArea').value, 80); P.fee_note = D.cleanText($('jFee').value, 60);
     P.bio = D.cleanBio($('jBio').value, 400); P.terms_ok = $('jTerms').checked;
+    P.trial = $('jTrial').checked; P.medium = pressed($('jMed')); P.exams = pressed($('jExam')); P.style = pressed($('jStyle')); P.batch = pressed($('jBatch'))[0] || ''; P.days_max = Number(pressed($('jDays'))[0] || 0); P.session_mins = Number(pressed($('jSess'))[0] || 0);
+    P.exp = pressed($('jExp'))[0] || ''; P.taught = pressed($('jTaught'))[0] || ''; P.ssc_gpa = $('jSsc').value.trim(); P.hsc_gpa = $('jHsc').value.trim(); P.achv = D.cleanText($('jAchv').value, 120); P.fee_show = $('jFeeShow').checked;
+    P.pledge = [].slice.call(document.querySelectorAll('#jPledge input:checked')).map(c => c.dataset.k);
   }
   function writeAll(){
     $('jFull').value = P.full_name; $('jDisp').value = P.display_name; setPick($('jGen'), P.gender ? [P.gender] : []); $('jPhone').value = P.phone; $('jAge').checked = !!P.age_ok;
@@ -182,6 +218,9 @@
     setPick($('jSub'), P.subjects); setPick($('jCls'), P.classes); setPick($('jMode'), P.modes); setPick($('jTime'), P.times);
     fill($('jDist'), LOC.map(x => x.n), 'জেলা', P.district); const ups = upazilasOf(P.district); fill($('jUp'), ups, 'উপজেলা', P.upazila); $('jUp').disabled = !ups.length;
     $('jArea').value = P.area_note; $('jFee').value = P.fee_note; $('jBio').value = P.bio; $('jTerms').checked = !!P.terms_ok; bioCount();
+    $('jTrial').checked = !!P.trial; setPick($('jMed'), P.medium || []); setPick($('jExam'), P.exams || []); setPick($('jStyle'), P.style || []); setPick($('jBatch'), P.batch ? [P.batch] : []); setPick($('jDays'), P.days_max ? [String(P.days_max)] : []); setPick($('jSess'), P.session_mins ? [String(P.session_mins)] : []);
+    setPick($('jExp'), P.exp ? [P.exp] : []); setPick($('jTaught'), P.taught ? [P.taught] : []); $('jSsc').value = P.ssc_gpa || ''; $('jHsc').value = P.hsc_gpa || ''; $('jAchv').value = P.achv || ''; $('jFeeShow').checked = !!P.fee_show;
+    document.querySelectorAll('#jPledge input').forEach(c => { c.checked = (P.pledge || []).indexOf(c.dataset.k) > -1; });
   }
   const draftKey = () => 'tt_draft_' + (ME ? ME.user_id : 'x');
   function stash(){ readAll(); ls.set(draftKey(), JSON.stringify({ P: P, step: step })); meter(); }
@@ -190,21 +229,21 @@
     const s = D.profileStrength(P), tip = s.tips[0];
     $('jMeterN').textContent = D.bn(s.pct) + '%'; $('jMeterB').style.width = s.pct + '%'; $('jMeter').dataset.full = s.pct >= 100 ? 'true' : 'false';
     $('jMeterTip').textContent = s.pct >= 100 ? 'দারুণ, প্রোফাইল সম্পূর্ণ।' : tip ? 'পরের কাজ: ' + tip + '।' : '';
-    const pt = $('jProgT'); if(pt && step) pt.textContent = ['পরিচয়', 'পড়াশোনা', 'কী পড়াবেন', 'নিজের কথা'][step - 1] + ' · সম্পূর্ণ ' + D.bn(s.pct) + '%';
+    const pt = $('jProgT'); if(pt && step) pt.textContent = ['পরিচয়', 'পড়াশোনা', 'কী পড়াবেন', 'পড়ানোর ধরন', 'অভিজ্ঞতা', 'নিজের কথা'][step - 1] + ' · সম্পূর্ণ ' + D.bn(s.pct) + '%';
   }
   function bioCount(){ $('jBioN').textContent = D.bn($('jBio').value.length) + '/৪০০'; }
 
   /* ---------- steps ---------- */
-  const FIELD_ERR = { full_name: 'jFullErr', display_name: 'jDispErr', phone: 'jPhoneErr', age_ok: 'jAgeErr', study: 'jStudyErr', institution: 'jStudyErr', department: 'jStudyErr', subjects: 'jSubErr', classes: 'jClsErr', modes: 'jModeErr', area: 'jAreaErr', area_note: 'jAreaErr', fee_note: 'jAreaErr', bio: 'jBioErr', terms_ok: 'jTermsErr' };
-  const STEP_FIELDS = { 1: ['full_name', 'display_name', 'phone', 'age_ok'], 2: ['study', 'institution', 'department'], 3: ['subjects', 'classes', 'modes', 'area', 'area_note', 'fee_note'], 4: ['bio', 'terms_ok'] };
+  const FIELD_ERR = { full_name: 'jFullErr', display_name: 'jDispErr', phone: 'jPhoneErr', age_ok: 'jAgeErr', study: 'jStudyErr', institution: 'jStudyErr', department: 'jStudyErr', subjects: 'jSubErr', classes: 'jClsErr', modes: 'jModeErr', area: 'jAreaErr', area_note: 'jAreaErr', fee_note: 'jAreaErr', ssc_gpa: 'jGpaErr', hsc_gpa: 'jGpaErr', achv: 'jAchvErr', bio: 'jBioErr', terms_ok: 'jTermsErr' };
+  const STEP_FIELDS = { 1: ['full_name', 'display_name', 'phone', 'age_ok'], 2: ['study', 'institution', 'department'], 3: ['subjects', 'classes', 'modes', 'area', 'area_note', 'fee_note'], 4: [], 5: ['ssc_gpa', 'hsc_gpa', 'achv'], 6: ['bio', 'terms_ok'] };
   function showStep(n, quiet){
-    step = Math.max(1, Math.min(4, n));
+    step = Math.max(1, Math.min(6, n));
     document.querySelectorAll('[data-step]').forEach(s => { s.hidden = Number(s.dataset.step) !== step; });
     document.querySelectorAll('#jSide li').forEach(li => { const k = Number(li.dataset.s); li.className = k === step ? 'on' : k < step ? 'done' : ''; li.querySelector('i').textContent = k < step ? '✓' : D.bn(k); });
-    $('jProgN').textContent = 'ধাপ ' + D.bn(step) + ' / ৪'; $('jProgB').style.width = (step * 25) + '%';
-    $('jBack').style.visibility = step === 1 ? 'hidden' : 'visible'; $('jNext').textContent = step === 4 ? 'জমা দিন' : 'পরের ধাপ';
+    $('jProgN').textContent = 'ধাপ ' + D.bn(step) + ' / ৬'; $('jProgB').style.width = Math.round(step * 100 / 6) + '%';
+    $('jBack').style.visibility = step === 1 ? 'hidden' : 'visible'; $('jNext').textContent = step === 6 ? 'জমা দিন' : 'পরের ধাপ';
     ['jStepErr'].forEach(id => setErr(id, '')); $('jSaved').textContent = ''; $('jSaved').className = 'tt-saved';
-    if(step === 4) preview();
+    if(step === 6) preview();
     const h = document.querySelector('[data-step="' + step + '"] h2'); if(h && !quiet){ h.focus({ preventScroll: true }); h.scrollIntoView({ block: 'start', behavior: 'auto' }); window.scrollBy(0, -90); }
     stash();
   }
@@ -220,36 +259,40 @@
     readAll(); const clean = {}; Object.keys(blank()).forEach(k => { clean[k] = P[k]; });
     const { data, error } = await sb.rpc('tutor_profile_save', { p_data: clean, p_submit: !!submit });
     if(error) return { error: error };
-    profile = data; return { data: data };
+    profile = data; return { data: data, upgraded: !!(data && 'trial' in data) };
   }
   $('jWiz').addEventListener('submit', async e => {
     e.preventDefault();
     const errs = stepErrors(step); showErrors(errs, step); if(Object.keys(errs).length) return;
     const btn = $('jNext'); btn.disabled = true; $('jSaved').textContent = 'সেভ হচ্ছে…'; $('jSaved').className = 'tt-saved';
-    const r = await save(step === 4);
+    const r = await save(step === 6);
     btn.disabled = false;
     if(r.error){ $('jSaved').textContent = ''; setErr('jStepErr', null); const el = $('jStepErr'); el.textContent = D.errText(r.error); el.classList.add('on'); return; }
-    if(step === 4){ T('tutor_profile_submit'); ls.del(draftKey()); renderStatus(true); view('jStatus'); window.scrollTo({ top: 0 }); return; }
-    $('jSaved').textContent = 'সেভ হয়েছে ✓'; $('jSaved').className = 'tt-saved ok'; T('tutor_profile_step', { step: step });
+    if(step === 6){ T('tutor_profile_submit'); ls.del(draftKey()); renderStatus(true); view('jStatus'); window.scrollTo({ top: 0 }); return; }
+    $('jSaved').textContent = r.upgraded === false ? 'মূল তথ্য সেভ হয়েছে ✓ (বাড়তি তথ্য সেভ হবে সার্ভার আপডেটের পর)' : 'সেভ হয়েছে ✓'; $('jSaved').className = 'tt-saved ok'; T('tutor_profile_step', { step: step });
     showStep(step + 1);
   });
   $('jBack').addEventListener('click', () => { readAll(); showStep(step - 1); });
-  ['jFull', 'jDisp', 'jPhone', 'jIns', 'jDep', 'jArea', 'jFee', 'jBio', 'jAge', 'jTerms'].forEach(id => $(id).addEventListener('input', () => {
+  ['jFull', 'jDisp', 'jPhone', 'jIns', 'jDep', 'jArea', 'jFee', 'jBio', 'jAge', 'jTerms', 'jTrial', 'jSsc', 'jHsc', 'jAchv', 'jFeeShow'].forEach(id => $(id).addEventListener('input', () => {
     if(id === 'jBio') bioCount();
     if(id === 'jAge'){ setErr('jAgeErr', ''); $('jAgeBox').dataset.bad = 'false'; } else if(id === 'jTerms'){ setErr('jTermsErr', ''); $('jTermsBox').dataset.bad = 'false'; }
-    else if(id === 'jIns' || id === 'jDep'){ setErr('jStudyErr', ''); } else if(id === 'jArea' || id === 'jFee'){ setErr('jAreaErr', ''); } else clearNear($(id));
+    else if(id === 'jIns' || id === 'jDep'){ setErr('jStudyErr', ''); } else if(id === 'jArea' || id === 'jFee'){ setErr('jAreaErr', ''); }
+    else if(id === 'jSsc' || id === 'jHsc'){ setErr('jGpaErr', ''); $('jSsc').removeAttribute('aria-invalid'); $('jHsc').removeAttribute('aria-invalid'); } else if(id === 'jAchv'){ setErr('jAchvErr', ''); }
+    else if(id !== 'jTrial' && id !== 'jFeeShow') clearNear($(id));
     setErr('jStepErr', ''); stash(); }));
+  $('jPledge').addEventListener('change', () => { setErr('jStepErr', ''); stash(); });
   $('jDist').addEventListener('change', () => { const ups = upazilasOf($('jDist').value); fill($('jUp'), ups, 'উপজেলা'); $('jUp').disabled = !ups.length; setErr('jAreaErr', ''); stash(); });
   $('jUp').addEventListener('change', () => { setErr('jAreaErr', ''); stash(); });
   function preview(){
-    readAll(); const subs = D.labels(D.SUBJECTS, P.subjects).slice(0, 4), name = P.display_name || (P.full_name || '').split(' ')[0] || 'আপনার নাম', g = D.labelOf(D.GENDERS, P.gender), lv = D.labelOf(D.LEVELS, P.edu_level);
+    readAll(); const subs = D.labels(D.SUBJECTS, P.subjects).slice(0, 4), name = P.display_name || (P.full_name || '').split(' ')[0] || 'আপনার নাম', g = D.labelOf(D.GENDERS, P.gender), lv = D.labelOf(D.LEVELS, P.edu_level), ex = D.extrasHtml(P, esc);
     $('jPrev').innerHTML = '<article class="tt-t" style="box-shadow:none"><div class="tt-t-h"><span class="tt-av" style="background:#1A56DB" aria-hidden="true">' + esc((name.charAt(0) || '?').toUpperCase()) + '</span><div><b>' + esc(name) + (g ? ' <span class="tt-b gray" style="vertical-align:2px">' + esc(g) + '</span>' : '') + '</b><small>' + esc(P.institution) + (P.department ? ', ' + esc(P.department) : '') + '</small></div></div>' +
-      '<div class="tt-badges">' + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + '</div>' +
-      '<div class="tt-chips">' + subs.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + '</div>' +
+      '<div class="tt-badges">' + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + ex.badges + '</div>' +
+      '<div class="tt-chips">' + subs.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + ex.chips + '</div>' +
       '<div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, P.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, P.modes).join(' ও ')) + (P.modes.indexOf('home') > -1 ? '<br><b>এলাকা:</b> ' + esc([P.district, P.upazila].filter(Boolean).join(', ')) : '') + '</div>' +
+      (ex.lines ? '<div class="tt-ex">' + ex.lines + '</div>' : '') +
       (P.bio ? '<div class="tt-bio open">' + esc(P.bio) + '</div>' : '') + '</article>';
   }
-  $('jBio').addEventListener('input', () => { if(step === 4) preview(); });
+  $('jBio').addEventListener('input', () => { if(step === 6) preview(); });
 
   /* ---------- the status view ---------- */
   function sumRow(k, v){ return v ? '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>' : ''; }
@@ -261,7 +304,10 @@
       paused: ['আপনি বিরতিতে আছেন', 'বিরতিতে থাকলে আমরা আপনার প্রোফাইল কাউকে পাঠাই না। চাইলে এখনই আবার চালু করুন।'], draft: ['খসড়া সেভ করা আছে', 'শেষ করে জমা দিলে আমরা দেখব।'] }[st];
     $('jStatusBox').className = 'tt-status ' + st; $('jStatusT').textContent = (justSubmitted ? '✓ ' : '') + T_[0]; $('jStatusP').textContent = T_[1];
     $('jStatusIc').innerHTML = st === 'approved' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
-    $('jSum').innerHTML = sumRow('প্রদর্শন নাম', p.display_name) + sumRow('পড়াশোনা', [p.institution, p.department].filter(Boolean).join(', ')) + sumRow('বিষয়', D.labels(D.SUBJECTS, p.subjects).join(', ')) + sumRow('শ্রেণি', D.labels(D.CLASSES, p.classes).join(', ')) + sumRow('কীভাবে', D.labels(D.MODES, p.modes).join(' ও ')) + sumRow('এলাকা', [p.district, p.upazila].filter(Boolean).join(', ')) + sumRow('যাচাই', p.verify === 'verified' ? 'আমরা NID ও সনদের কপি দেখেছি' : '');
+    $('jSum').innerHTML = sumRow('প্রদর্শন নাম', p.display_name) + sumRow('পড়াশোনা', [p.institution, p.department].filter(Boolean).join(', ')) + sumRow('বিষয়', D.labels(D.SUBJECTS, p.subjects).join(', ')) + sumRow('শ্রেণি', D.labels(D.CLASSES, p.classes).join(', ')) + sumRow('কীভাবে', D.labels(D.MODES, p.modes).join(' ও ')) + sumRow('এলাকা', [p.district, p.upazila].filter(Boolean).join(', ')) + sumRow('যাচাই', p.verify === 'verified' ? 'আমরা NID ও সনদের কপি দেখেছি' : '') +
+      sumRow('ট্রায়াল', p.trial ? 'প্রথম ক্লাস ফ্রি' : '') + sumRow('মাধ্যম', D.labels(D.MEDIUMS, p.medium).join(', ')) + sumRow('পরীক্ষার প্রস্তুতি', D.labels(D.EXAMS, p.exams).join(', ')) +
+      sumRow('অভিজ্ঞতা', [D.labelOf(D.EXPS, p.exp), p.taught ? 'পড়িয়েছেন ' + D.labelOf(D.TAUGHTS, p.taught) : ''].filter(Boolean).join(' · ')) +
+      sumRow('প্রতিশ্রুতি', (p.pledge || []).length >= 3 ? 'তিনটাই দিয়েছেন' : (p.pledge || []).length ? D.bn((p.pledge || []).length) + 'টা দিয়েছেন' : '') + sumRow('ফি অভিভাবককে', p.fee_show && p.fee_note ? 'দেখানো হবে: ' + p.fee_note : '');
     $('jPause').hidden = !(st === 'approved' || st === 'paused'); $('jPause').textContent = st === 'paused' ? 'আবার চালু করুন' : 'বিরতি নিন'; $('jPauseHint').hidden = $('jPause').hidden;
   }
   $('jEdit').addEventListener('click', () => { P = Object.assign(blank(), profile || {}); P.terms_ok = !!(profile && profile.terms_ok); writeAll(); view('jWiz'); showStep(1); });
@@ -285,6 +331,8 @@
     if(error){ view('jDown'); return; }
     profile = data || null;
     if(window.TTSelect){ TTSelect.enhance($('jDist'), { search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' }); TTSelect.enhance($('jUp'), { search: 'উপজেলা খুঁজুন…' }); }
+    makePick($('jMed'), D.MEDIUMS, true, 4); makePick($('jExam'), D.EXAMS, true, 8); makePick($('jStyle'), D.STYLES, true, 5); makePick($('jBatch'), D.BATCHES, false); makePick($('jDays'), D.DAYS, false); makePick($('jSess'), D.SESSIONS, false); makePick($('jExp'), D.EXPS, false); makePick($('jTaught'), D.TAUGHTS, false);
+    $('jPledge').innerHTML = D.PLEDGES.map(x => '<label class="tt-check"><input type="checkbox" data-k="' + esc(x[0]) + '"><span>' + esc(x[1]) + '</span></label>').join('');
     makePick($('jGen'), D.GENDERS, false); makePick($('jLv'), D.LEVELS.map(x => [x[0], x[1]]), false); makePick($('jSub'), D.SUBJECTS, true, 10); makePick($('jCls'), D.CLASSES, true); makePick($('jMode'), D.MODES, true); makePick($('jTime'), D.TIMES, true);
     if(profile && profile.status !== 'draft'){ renderStatus(false); view('jStatus'); return; }
     P = Object.assign(blank(), profile || {}); let s = 1;

@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=7">
+<link rel="stylesheet" href="/tutor.css?v=8">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -162,9 +162,10 @@
       <span class="tt-sample">নমুনা, দেখানোর জন্য</span>
       <article class="tt-t">
         <div class="tt-t-h"><span class="tt-avw"><span class="tt-av" style="background:#7C3AED">ন</span><i class="tt-vk">✓</i></span><div><b>নমুনা নাম <span class="tt-b gray" style="vertical-align:2px">আপু</span></b><small>নমুনা বিশ্ববিদ্যালয়, ইংরেজি</small></div></div>
-        <div class="tt-badges"><span class="tt-b ok">✓ যাচাইকৃত</span><span class="tt-b gray">স্নাতকে পড়ছেন</span></div>
-        <div class="tt-chips"><span class="tt-c">ইংরেজি</span><span class="tt-c">বাংলা</span></div>
+        <div class="tt-badges"><span class="tt-b ok">✓ যাচাইকৃত</span><span class="tt-b gray">স্নাতকে পড়ছেন</span><span class="tt-b ok">✓ প্রথম ক্লাস ফ্রি ট্রায়াল</span><span class="tt-b vio">✓ প্রতিশ্রুতি দিয়েছেন</span></div>
+        <div class="tt-chips"><span class="tt-c">ইংরেজি</span><span class="tt-c">বাংলা</span><span class="tt-c alt">বাংলা মাধ্যম</span></div>
         <div class="tt-meta"><b>শ্রেণি:</b> ১-৫, ৬-৮<br><b>কীভাবে:</b> বাসায় ও অনলাইনে</div>
+        <div class="tt-ex"><div>পড়ানোর ধরন: আগে ধারণা পরিষ্কার করি</div><div>অভিজ্ঞতা: ১-২ বছর <span class="tt-self">(নিজে দিয়েছেন)</span></div></div>
       </article>
     </div>
   </section>
@@ -186,7 +187,7 @@
   <div class="tt-dlg" id="reqDlg">
     <button type="button" class="tt-x" id="reqX" aria-label="বন্ধ করুন">×</button>
     <div id="reqForm">
-      <div class="tt-dots" id="rDots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+      <div class="tt-dots" id="rDots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
       <h2 id="reqT">টিউটরের অনুরোধ পাঠান</h2>
       <p class="sub" id="reqSub">কোন শ্রেণি আর কোন বিষয়?</p>
       <form class="tt-form" id="reqF" novalidate>
@@ -204,6 +205,13 @@
           </div>
         </div>
         <div data-rs="3" class="tt-form" hidden>
+          <p class="tt-hint" style="margin-top:-4px">সবগুলো ঐচ্ছিক। জানালে আমরা মানানসই টিউটর বেছে দিতে পারি, না জানালেও চলবে।</p>
+          <div class="tt-f"><span class="tt-lab" id="rPrefL">কে পড়ালে ভালো হয়</span><div class="tt-pick" id="rPref" role="group" aria-labelledby="rPrefL"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="rLvL">সন্তানের পড়ার অবস্থা</span><div class="tt-pick" id="rLv" role="group" aria-labelledby="rLvL"></div></div>
+          <div class="tt-f"><span class="tt-lab" id="rGoalL">আপনি কী চান</span><div class="tt-pick" id="rGoal" role="group" aria-labelledby="rGoalL"></div></div>
+          <div><label class="tt-check"><input type="checkbox" id="rTrial"><span>আগে একটা ট্রায়াল ক্লাস চাই, পছন্দ হলে চালিয়ে যাব।</span></label></div>
+        </div>
+        <div data-rs="4" class="tt-form" hidden>
           <div class="tt-f"><label for="rName">আপনার নাম</label><input class="tt-in" id="rName" maxlength="60" autocomplete="name" placeholder="যেমন, রহিমা বেগম"><div class="tt-err" id="rNameErr" role="alert"></div></div>
           <div class="tt-f"><label for="rPhone">হোয়াটসঅ্যাপ নম্বর</label><input class="tt-in" id="rPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="01XXXXXXXXX"><div class="tt-hint">এই নম্বরে আমরা যোগাযোগ করব। কারও কাছে প্রকাশ করা হয় না।</div><div class="tt-err" id="rPhoneErr" role="alert"></div></div>
           <div class="tt-f"><label for="rNote">আর কিছু জানানোর থাকলে (ঐচ্ছিক)</label><textarea class="tt-in" id="rNote" maxlength="300" placeholder="যেমন, সপ্তাহে ৩ দিন, সন্ধ্যায়। ফোন নম্বর বা লিংক এখানে লিখবেন না।"></textarea><div class="tt-err" id="rNoteErr" role="alert"></div></div>
@@ -228,7 +236,7 @@
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=14"></script>
 <script src="/bd-locations.js?v=1"></script>
-<script src="/tutor-data.js?v=2"></script>
+<script src="/tutor-data.js?v=3"></script>
 <script src="/tt-select.js?v=1"></script>
 <script>
 (function(){
@@ -249,9 +257,9 @@
   const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d || ('tmp-' + Math.random().toString(36).slice(2) + Date.now()); };
   function setPressed(box, v){ box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false')); }
   function pressedList(box){ return [].slice.call(box.querySelectorAll('button[aria-pressed=true]')).map(b => b.dataset.v); }
-  function makePick(box, list, multi, onChange, max){ box.innerHTML = list.map(x => '<button type="button" data-v="' + esc(x[0]) + '" aria-pressed="false">' + esc(x[1]) + '</button>').join('');
+  function makePick(box, list, multi, onChange, max, toggle){ box.innerHTML = list.map(x => '<button type="button" data-v="' + esc(x[0]) + '" aria-pressed="false">' + esc(x[1]) + '</button>').join('');
     box.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; const on = b.getAttribute('aria-pressed') === 'true';
-      if(multi){ if(!on && max && pressedList(box).length >= max){ toast('সর্বোচ্চ ' + D.bn(max) + 'টা বেছে নেওয়া যায়।'); return; } b.setAttribute('aria-pressed', on ? 'false' : 'true'); } else setPressed(box, b.dataset.v);
+      if(multi){ if(!on && max && pressedList(box).length >= max){ toast('সর্বোচ্চ ' + D.bn(max) + 'টা বেছে নেওয়া যায়।'); return; } b.setAttribute('aria-pressed', on ? 'false' : 'true'); } else setPressed(box, toggle && on ? '' : b.dataset.v);
       if(onChange) onChange(); }); }
 
   /* ---------- the search form ---------- */
@@ -314,12 +322,12 @@
   function card(t){
     const subs = D.labels(D.SUBJECTS, t.subjects), shown = subs.slice(0, 4), more = subs.length - shown.length, lv = D.labelOf(D.LEVELS, t.edu_level);
     const where = t.modes && t.modes.includes('home') ? [t.district, t.upazila].filter(Boolean).join(', ') : '';
-    const g = D.labelOf(D.GENDERS, t.gender);
+    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasHtml(t, esc);
     return '<article class="tt-t" aria-label="' + esc(t.name) + '">' +
       '<div class="tt-t-h"><span class="tt-avw"><span class="tt-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span><div><b>' + esc(t.name) + (g ? ' <span class="tt-b gray" style="vertical-align:2px">' + esc(g) + '</span>' : '') + '</b><small>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</small></div></div>' +
-      '<div class="tt-badges">' + (t.verified ? '<span class="tt-b ok" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓ যাচাইকৃত</span>' : '') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + '</div>' +
-      '<div class="tt-chips">' + shown.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + (more > 0 ? '<span class="tt-c">+' + D.bn(more) + '</span>' : '') + '</div>' +
-      '<div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' +
+      '<div class="tt-badges">' + (t.verified ? '<span class="tt-b ok" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓ যাচাইকৃত</span>' : '') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + ex.badges + '</div>' +
+      '<div class="tt-chips">' + shown.map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + (more > 0 ? '<span class="tt-c">+' + D.bn(more) + '</span>' : '') + ex.chips + '</div>' +
+      '<div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' + (ex.lines ? '<div class="tt-ex">' + ex.lines + '</div>' : '') +
       (t.bio ? '<div class="tt-bio" id="b-' + esc(t.pid) + '">' + esc(t.bio) + '</div><button type="button" class="tt-more" data-more="' + esc(t.pid) + '" hidden>আরও পড়ুন</button>' : '') +
       '<div class="tt-t-f"><button type="button" class="tt-btn pri sm blk" data-req="' + esc(t.pid) + '">অনুরোধ পাঠান</button></div></article>';
   }
@@ -368,24 +376,25 @@
   let lastFocus = null, rStep = 1;
   function setErr(id, code){ const el = $(id); if(!el) return; el.textContent = code ? (D.MSG[code] || code) : ''; el.classList.toggle('on', !!code); if(id === 'rErr') return; const inp = el.parentElement && el.parentElement.querySelector('.tt-in'); if(inp) code ? inp.setAttribute('aria-invalid', 'true') : inp.removeAttribute('aria-invalid'); }
   function syncArea(){ const online = pressedList($('rMode'))[0] === 'online'; $('rAreaBox').style.display = online ? 'none' : ''; }
-  function readReq(){ const mode = pressedList($('rMode'))[0] || 'any'; return { name: $('rName').value, phone: $('rPhone').value, cls: pressedList($('rCls'))[0] || '', subjects: pressedList($('rSub')), mode: mode, district: mode === 'online' ? '' : $('rDist').value, upazila: mode === 'online' ? '' : $('rUp').value, note: $('rNote').value }; }
-  function firstField(n){ return n === 3 ? $('rName') : $('reqDlg').querySelector('[data-rs="' + n + '"] button, [data-rs="' + n + '"] select'); }
+  function readReq(){ const mode = pressedList($('rMode'))[0] || 'any'; return { name: $('rName').value, phone: $('rPhone').value, cls: pressedList($('rCls'))[0] || '', subjects: pressedList($('rSub')), mode: mode, district: mode === 'online' ? '' : $('rDist').value, upazila: mode === 'online' ? '' : $('rUp').value, note: $('rNote').value, pref: pressedList($('rPref'))[0] || '', level: pressedList($('rLv'))[0] || '', goal: pressedList($('rGoal'))[0] || '', trial: $('rTrial').checked }; }
+  function firstField(n){ return n === 4 ? $('rName') : n === 3 ? $('rPref').querySelector('button') : $('reqDlg').querySelector('[data-rs="' + n + '"] button, [data-rs="' + n + '"] select'); }
   function showRStep(n){
     rStep = n; document.querySelectorAll('[data-rs]').forEach(s => { s.hidden = Number(s.dataset.rs) !== n; });
     document.querySelectorAll('#rDots i').forEach((d, i) => { d.className = i + 1 === n ? 'on' : i + 1 < n ? 'done' : ''; });
-    $('rBack').style.visibility = n === 1 ? 'hidden' : 'visible'; $('rGo').textContent = n === 3 ? 'অনুরোধ পাঠান' : 'পরের ধাপ';
-    $('reqSub').textContent = ['কোন শ্রেণি আর কোন বিষয়?', 'কোথায় পড়াবেন?', 'আপনার তথ্য, যাতে আমরা যোগাযোগ করতে পারি'][n - 1];
+    $('rBack').style.visibility = n === 1 ? 'hidden' : 'visible'; $('rGo').textContent = n === 4 ? 'অনুরোধ পাঠান' : 'পরের ধাপ';
+    $('reqSub').textContent = ['কোন শ্রেণি আর কোন বিষয়?', 'কোথায় পড়াবেন?', 'কোনো বিশেষ পছন্দ থাকলে বলুন (ঐচ্ছিক)', 'আপনার তথ্য, যাতে আমরা যোগাযোগ করতে পারি'][n - 1];
     setErr('rErr', '');
   }
-  function firstOpenStep(r){ if(!r.cls || !r.subjects.length) return 1; if(r.mode !== 'online' && (!r.district || !r.upazila)) return 2; return 3; }
-  const STEP_KEYS = { 1: { cls: 'rClsErr', subjects: 'rSubErr' }, 2: { area: 'rAreaErr', mode: null }, 3: { name: 'rNameErr', phone: 'rPhoneErr', note: 'rNoteErr' } };
+  function firstOpenStep(r){ if(!r.cls || !r.subjects.length) return 1; if(r.mode !== 'online' && (!r.district || !r.upazila)) return 2; return 3; }   // everything known from the search: open at the wishes (step 3), one tap from the details
+  const STEP_KEYS = { 1: { cls: 'rClsErr', subjects: 'rSubErr' }, 2: { area: 'rAreaErr', mode: null }, 3: {}, 4: { name: 'rNameErr', phone: 'rPhoneErr', note: 'rNoteErr' } };
   function stepErrors(n){ const all = D.validateRequest(readReq()), mine = {}; Object.keys(STEP_KEYS[n]).forEach(k => { if(all[k]) mine[k] = all[k]; if(STEP_KEYS[n][k]) setErr(STEP_KEYS[n][k], all[k] || ''); }); return mine; }
   function openReq(tutor){
     T('tutor_request_open', { tutor: tutor ? 1 : 0 });
     lastFocus = document.activeElement;
     S.tutorPid = tutor ? tutor.pid : ''; S.tutorName = tutor ? tutor.name : '';
     $('reqT').textContent = tutor ? 'অনুরোধ পাঠান: ' + tutor.name : 'টিউটরের অনুরোধ পাঠান';
-    if(!$('rCls').children.length){ makePick($('rCls'), D.CLASSES, false, () => setErr('rClsErr', '')); makePick($('rSub'), D.SUBJECTS, true, () => setErr('rSubErr', ''), 6); makePick($('rMode'), [['home', 'বাসায়'], ['online', 'অনলাইনে'], ['any', 'যেকোনোভাবে']], false, syncArea); }
+    if(!$('rCls').children.length){ makePick($('rCls'), D.CLASSES, false, () => setErr('rClsErr', '')); makePick($('rSub'), D.SUBJECTS, true, () => setErr('rSubErr', ''), 6); makePick($('rMode'), [['home', 'বাসায়'], ['online', 'অনলাইনে'], ['any', 'যেকোনোভাবে']], false, syncArea); makePick($('rPref'), D.PREFS, false, null); makePick($('rLv'), D.STUDENT_LEVELS, false, null, 0, true); makePick($('rGoal'), D.GOALS, false, null, 0, true); }
+    setPressed($('rPref'), ''); setPressed($('rLv'), ''); setPressed($('rGoal'), ''); $('rTrial').checked = false;
     setPressed($('rCls'), S.f.cls); $('rSub').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', S.f.subject === b.dataset.v ? 'true' : 'false'));
     setPressed($('rMode'), S.f.mode === 'any' ? 'home' : S.f.mode);
     fill($('rDist'), LOC.map(x => x.n), 'জেলা', S.f.district); fill($('rUp'), upazilasOf(S.f.district), 'উপজেলা', S.f.upazila); $('rUp').disabled = !upazilasOf(S.f.district).length;
@@ -413,11 +422,14 @@
     e.preventDefault();
     const errs = stepErrors(rStep);
     if(Object.keys(errs).length){ const first = Object.keys(errs)[0], map = { cls: '#rCls button', subjects: '#rSub button', area: '#rDist', name: '#rName', phone: '#rPhone', note: '#rNote' }; const f = document.querySelector(map[first]); if(f) f.focus(); return; }
-    if(rStep < 3){ showRStep(rStep + 1); const f = firstField(rStep); if(f) f.focus(); T('tutor_request_step', { step: rStep }); return; }
-    const r = readReq(), all = D.validateRequest(r); if(Object.keys(all).length){ const k = Object.keys(all)[0]; showRStep(k === 'cls' || k === 'subjects' ? 1 : k === 'area' ? 2 : 3); stepErrors(rStep); return; }
+    if(rStep < 4){ showRStep(rStep + 1); const f = firstField(rStep); if(f) f.focus(); T('tutor_request_step', { step: rStep }); return; }
+    const r = readReq(), all = D.validateRequest(r); if(Object.keys(all).length){ const k = Object.keys(all)[0]; showRStep(k === 'cls' || k === 'subjects' ? 1 : k === 'area' ? 2 : 4); stepErrors(rStep); return; }
     const sb = memberSb(); if(!sb){ setErr('rErr', 'SPAM'); return; }
     const go = $('rGo'); go.disabled = true; go.textContent = 'পাঠানো হচ্ছে…';
-    const { data, error } = await sb.rpc('tutor_request_add', { p_device: deviceId(), p_name: D.cleanText(r.name, 60), p_phone: r.phone, p_district: r.district, p_upazila: r.upazila, p_class: r.cls, p_subjects: r.subjects, p_mode: r.mode, p_note: D.cleanText(r.note, 300), p_tutor: S.tutorPid || null, p_hp: $('rHp').value });
+    const args = { p_device: deviceId(), p_name: D.cleanText(r.name, 60), p_phone: r.phone, p_district: r.district, p_upazila: r.upazila, p_class: r.cls, p_subjects: r.subjects, p_mode: r.mode, p_note: D.cleanText(r.note, 300), p_tutor: S.tutorPid || null, p_hp: $('rHp').value, p_pref: r.pref, p_level: r.level, p_goal: r.goal, p_trial: !!r.trial };
+    let { data, error } = await sb.rpc('tutor_request_add', args);
+    // the wishes need the server's 2026-12-19 update: until it is run, a call with them is not found, so the plain request goes instead (the guardian still gets served)
+    if(error && /PGRST202|Could not find the function|schema cache/i.test(String(error.code || '') + ' ' + String(error.message || ''))){ ['p_pref', 'p_level', 'p_goal', 'p_trial'].forEach(k => { delete args[k]; }); ({ data, error } = await sb.rpc('tutor_request_add', args)); }
     go.textContent = 'অনুরোধ পাঠান'; go.disabled = false;
     if(error){ setErr('rErr', null); const el = $('rErr'); el.textContent = D.errText(error); el.classList.add('on'); T('tutor_request_error', { code: String(error.message || '').slice(0, 20) }); return; }
     T('tutor_request_sent', { tutor: S.tutorPid ? 1 : 0, mode: r.mode });

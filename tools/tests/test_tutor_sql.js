@@ -132,6 +132,56 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('the migration can run twice without an error', again === null, String(again));
   ok('and the settings row is still one row', (await q('select count(*)::int n from public.tutor_settings'))[0].n === 1);
 
+  // ================= the extras (2026-12-19): run as an UPGRADE on top of the data made above =================
+  const SQL3 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-19_tutor_profile_more.sql'), 'utf8');
+  let up = null; try { await db.exec(SQL3); } catch (e) { up = e.message; }
+  ok('the extras migration runs on a database that already has tutors and requests', up === null, String(up));
+  let up2 = null; try { await db.exec(SQL3); await db.exec(SQL2); } catch (e) { up2 = e.message; }
+  ok('and it can run twice', up2 === null, String(up2));
+  ok('exactly one tutor_request_add and one tutor_search remain (no overload to confuse a call)', (await q(`select count(*)::int n from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'tutor_request_add'`))[0].n === 1 && (await q(`select count(*)::int n from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'tutor_search'`))[0].n === 1);
+  ok('the OLD page\'s 11-argument request call still works against the new function', (await add({ dev: 'device-3001', phone: '01899999991', c: 'c9-10', s: ['bangla'] })) === null);
+  const oldRow = (await q(`select * from public.tutor_requests where phone = '01899999991'`))[0];
+  ok('and the wishes it did not send are empty', oldRow.pref_gender === '' && oldRow.student_level === '' && oldRow.goal === '' && oldRow.want_trial === false, JSON.stringify(oldRow));
+  const add2 = async (o) => { const p = Object.assign({ dev: 'device-4001', name: 'রহিমা বেগম', phone: '01877777771', d: 'বরিশাল', u: 'বরিশাল সদর', c: 'c6-8', s: ['math'], m: 'home', n: '', t: null, hp: '', pref: 'female', level: 'weak', goal: 'exam', trial: true }, o || {}); return err('select public.tutor_request_add($1,$2,$3,$4,$5,$6,$7::text[],$8,$9,$10,$11,$12,$13,$14,$15)', [p.dev, p.name, p.phone, p.d, p.u, p.c, p.s, p.m, p.n, p.t, p.hp, p.pref, p.level, p.goal, p.trial]); };
+  ok('a request with wishes is accepted', (await add2()) === null);
+  const wr = (await q(`select * from public.tutor_requests where phone = '01877777771'`))[0];
+  ok('the wishes are stored', wr.pref_gender === 'female' && wr.student_level === 'weak' && wr.goal === 'exam' && wr.want_trial === true, JSON.stringify(wr));
+  for (const [code, over] of [['BAD_PREF', { dev: 'device-4002', phone: '01877777772', pref: 'alien' }], ['BAD_LEVEL', { dev: 'device-4003', phone: '01877777773', level: 'x' }], ['BAD_GOAL', { dev: 'device-4004', phone: '01877777774', goal: 'x' }]]) { const e = await add2(over); ok('refused: ' + code, e && e.includes(code), String(e)); }
+  ok('blank wishes are fine', (await add2({ dev: 'device-4005', phone: '01877777775', pref: '', level: '', goal: '', trial: false, c: 'c11-12' })) === null);
+
+  // the tutor side: the extras are saved, cleaned and shown only as designed
+  await db.exec(`update public.tutor_profiles set edited = false where user_id = '${U1}'`);
+  const EX = { medium: ['bangla', 'english_version', 'bogus'], exams: ['ssc', 'hsc', 'nonsense'], style: ['concept', 'fun'], trial: true, batch: 'both', days_max: 4, session_mins: 90, exp: 'y3_5', taught: 'n6_20', ssc_gpa: '৫.০০', hsc_gpa: '4.8', achv: 'ঢাবি ভর্তি পরীক্ষায় উত্তীর্ণ', fee_show: true, fee_note: 'মাসে ২০০০', pledge: ['guardian_first', 'open_place', 'hours'] };
+  s = await save(U1, Object.assign({}, PROF, EX), true);
+  ok('extras are saved, unknown keys dropped, the GPA written in clean digits', s.out && JSON.stringify(s.out.medium) === JSON.stringify(['bangla', 'english_version']) && JSON.stringify(s.out.exams) === JSON.stringify(['hsc', 'ssc']) && s.out.trial === true && s.out.batch === 'both' && s.out.days_max === 4 && s.out.session_mins === 90 && s.out.exp === 'y3_5' && s.out.taught === 'n6_20' && s.out.ssc_gpa === '5.00' && s.out.hsc_gpa === '4.8' && s.out.fee_show === true && s.out.pledge.length === 3, JSON.stringify(s));
+  ok('my_profile hands the extras back to the tutor', s.out && ['medium', 'trial', 'pledge', 'fee_show', 'ssc_gpa'].every(k => k in s.out));
+  rows = await S('বরিশাল', 'বরিশাল সদর', null, null, 'home', 12, 0);
+  const t1 = rows[0];
+  ok('the public search shows the extras', t1 && t1.trial === true && t1.exp === 'y3_5' && t1.taught === 'n6_20' && t1.ssc_gpa === '5.00' && t1.hsc_gpa === '4.8' && t1.batch === 'both' && t1.days_max === 4 && t1.session_mins === 90 && JSON.stringify(t1.medium) === JSON.stringify(['bangla', 'english_version']) && t1.achv === 'ঢাবি ভর্তি পরীক্ষায় উত্তীর্ণ' && t1.pledge_all === true, JSON.stringify(t1));
+  ok('the fee shows when the tutor ticked "show my fee"', t1 && t1.fee === 'মাসে ২০০০');
+  const cols2 = Object.keys(t1);
+  ok('the search still never returns the phone, real name, area note, admin note, user id, nor the raw fee switch or promise list', !cols2.some(c => ['phone', 'full_name', 'fee_note', 'fee_show', 'pledge', 'admin_note', 'user_id', 'area_note'].includes(c)), cols2.join(','));
+  s = await save(U1, Object.assign({}, PROF, EX, { fee_show: false }), true);
+  ok('with the fee switch off the fee is not in the search', (await S('বরিশাল', 'বরিশাল সদর', null, null, 'home', 12, 0))[0].fee === '');
+  s = await save(U1, Object.assign({}, PROF, EX, { fee_show: true, fee_note: '' }), true);
+  ok('"show my fee" with no fee written switches itself off', s.out && s.out.fee_show === false, JSON.stringify(s));
+  s = await save(U1, Object.assign({}, PROF, EX, { pledge: ['guardian_first', 'hours'] }), true);
+  ok('two promises are not the badge (all three are)', (await S('বরিশাল', 'বরিশাল সদর', null, null, 'home', 12, 0))[0].pledge_all === false);
+  s = await save(U1, Object.assign({}, PROF, { batch: 'x', days_max: 9, session_mins: 50, exp: 'forever', taught: 'many', pledge: ['x'], medium: ['x'] }), true);
+  ok('out-of-list values become empty, not an error', s.out && s.out.batch === '' && s.out.days_max === 0 && s.out.session_mins === 0 && s.out.exp === '' && s.out.taught === '' && s.out.pledge.length === 0 && s.out.medium.length === 0, JSON.stringify(s));
+  for (const [what, mut] of [['5.5', { ssc_gpa: '5.5' }], ['0.9', { ssc_gpa: '0.9' }], ['text', { hsc_gpa: 'abc' }], ['6', { hsc_gpa: '6' }]]) { const e = (await save(U1, Object.assign({}, PROF, mut), false)).err || ''; ok('a GPA of ' + what + ' is refused, even in a draft: BAD_GPA', e.includes('BAD_GPA'), e); }
+  ok('empty GPAs are fine and a GPA of 5 or 1.00 is fine', (await save(U1, Object.assign({}, PROF, { ssc_gpa: '', hsc_gpa: '' }), false)).out && (await save(U1, Object.assign({}, PROF, { ssc_gpa: '5', hsc_gpa: '1.00' }), false)).out.ssc_gpa === '5');
+  const eLink = (await save(U1, Object.assign({}, PROF, { achv: 'দেখুন www.example.com' }), false)).err || '';
+  ok('a link in the achievement line is refused', eLink.includes('BAD_LINK'), eLink);
+  await save(U1, Object.assign({}, PROF, EX), true);       // the baseline: the text the guardian reads is now what it is
+  await db.exec(`update public.tutor_profiles set edited = false where user_id = '${U1}'`);
+  await save(U1, Object.assign({}, PROF, EX, { trial: false, exp: 'new' }), true);
+  ok('changing only a tick or a choice does not ask the admin to look again', (await q(`select edited from public.tutor_profiles where user_id = '${U1}'`))[0].edited === false);
+  await save(U1, Object.assign({}, PROF, EX, { achv: 'আরেকটা অর্জন, এবার নতুন লিখলাম' }), true);
+  ok('changing the achievement text does (it is free text the guardian reads)', (await q(`select edited from public.tutor_profiles where user_id = '${U1}'`))[0].edited === true);
+  ok('the database itself refuses a bad GPA, batch or session even from a direct write', /check/i.test(String(await err(`update public.tutor_profiles set ssc_gpa = '7.0' where user_id = '${U1}'`))) && /check/i.test(String(await err(`update public.tutor_profiles set batch = 'x' where user_id = '${U1}'`))) && /check/i.test(String(await err(`update public.tutor_profiles set session_mins = 50 where user_id = '${U1}'`))));
+  ok('after the upgrade the grants are the same: anon may search and send requests, anon may NOT save profiles', await can('x', `has_function_privilege('anon', 'public.tutor_search(text,text,text,text,text,int,int)', 'execute') and has_function_privilege('anon', 'public.tutor_request_add(text,text,text,text,text,text,text[],text,text,text,text,text,text,text,boolean)', 'execute') and not has_function_privilege('anon', 'public.tutor_profile_save(jsonb,boolean)', 'execute') and has_function_privilege('authenticated', 'public.tutor_profile_save(jsonb,boolean)', 'execute')`));
+
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error('ERR', e); process.exit(1); });
