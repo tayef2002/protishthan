@@ -62,6 +62,7 @@
   if(!preview && !ADS.enabled) return;                       // switched off: do nothing at all
   var CSS = '.ad-slot{display:none}'
     + '.ad-slot.on,.ad-slot.measure{display:block;box-sizing:border-box;width:100%;max-width:740px;margin:56px auto;padding:12px 14px 16px;background:#fff;border:1px solid #E2E8F0;border-radius:18px;text-align:center}'
+    + '.gd .ad-slot.on,.gd .ad-slot.measure{margin-left:0}'     // on the guide pages the box lines up with the text column
     + '.ad-slot.measure{visibility:hidden;height:300px;overflow:hidden}'
     + '.ad-slot .ad-lab{display:block;margin:0 0 8px;text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.4px;color:#94A3B8}'
     + '.ad-slot ins.adsbygoogle{display:block;width:100%;min-height:120px}'
