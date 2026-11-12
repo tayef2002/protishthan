@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=16">
+<link rel="stylesheet" href="/tutor.css?v=17">
 <noscript><style>.tt-res{display:none}</style></noscript>
 <script src="/analytics.js?v=3" defer></script>
 </head>
@@ -160,6 +160,22 @@
     </div>
   </header>
 
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <symbol id="tti-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="tti-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="tti-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="tti-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="2"/><path d="M2 19.5h20"/></symbol>
+    <symbol id="tti-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3.4 3 14.6 0 18M12 3c-3 3.4-3 14.6 0 18"/></symbol>
+    <symbol id="tti-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></symbol>
+    <symbol id="tti-book" viewBox="0 0 24 24"><path d="M2.5 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9.5-.5V19c-3-1.5-6-1.5-9.5.5-3.5-2-6.5-2-9.5-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="tti-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.9.8 3.1 2.6 3.5 5.2"/></symbol>
+    <symbol id="tti-lang" viewBox="0 0 24 24"><path d="M4 6h10M9 4v2M6.5 6c.5 3.2 2.8 5.6 6 7M12.5 6c-.6 3.4-3 6.2-6.5 8"/><path d="M13.5 20l3.8-9 3.8 9M14.8 17h5"/></symbol>
+    <symbol id="tti-clip" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6V7H9z"/><path d="m9 14 2 2 4-4"/></symbol>
+    <symbol id="tti-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12"/><path d="M12 8c-1.5-3.2-5.5-3.2-5.5-.8S10.5 8 12 8zm0 0c1.5-3.2 5.5-3.2 5.5-.8S13.5 8 12 8z"/></symbol>
+    <symbol id="tti-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/></symbol>
+    <symbol id="tti-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="tti-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs></svg>
   <noscript><p class="tt-note bad" style="margin-top:20px">টিউটর খুঁজতে আর অনুরোধ পাঠাতে জাভাস্ক্রিপ্ট চালু থাকতে হবে।</p></noscript>
 
   <section class="tt-my" id="myReq" aria-live="polite" hidden></section>
@@ -167,15 +183,15 @@
   <section class="tt-res" id="ttRes" aria-live="polite" aria-busy="true">
     <div class="rs-layout">
       <aside class="rs-filters" id="rsFilters" aria-label="ফিল্টার">
-        <div class="rs-fhead"><h2>ফিল্টার</h2><button type="button" class="rs-reset" id="rsReset">সব মুছুন</button><button type="button" class="rs-close" id="rsClose" aria-label="বন্ধ করুন">×</button></div>
-        <div class="rs-sec"><div class="rs-ft">কীভাবে পড়াবেন</div><div class="rs-opts" id="fMode"></div></div>
-        <div class="rs-sec"><div class="rs-ft">জেলা ও উপজেলা</div><select id="fDist" aria-label="জেলা"></select><select id="fUp" aria-label="উপজেলা"></select></div>
-        <div class="rs-sec"><div class="rs-ft">শ্রেণি</div><div class="rs-chips" id="fCls"></div></div>
-        <div class="rs-sec"><div class="rs-ft">বিষয়</div><div class="rs-chips" id="fSub"></div></div>
-        <div class="rs-sec"><div class="rs-ft">কে পড়াবেন</div><div class="rs-chips" id="fGender"></div></div>
-        <div class="rs-sec"><div class="rs-ft">শিক্ষার মাধ্যম</div><div class="rs-chips" id="fMed"></div></div>
-        <div class="rs-sec"><div class="rs-ft">পরীক্ষার প্রস্তুতি</div><div class="rs-chips" id="fExam"></div></div>
-        <div class="rs-sec" id="fSwitches"></div>
+        <div class="rs-fhead"><span class="rs-fic" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><h2>ফিল্টার</h2><button type="button" class="rs-reset" id="rsReset">সব মুছুন</button><button type="button" class="rs-close" id="rsClose" aria-label="বন্ধ করুন">×</button></div>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-pin"/></svg></span>আপনার এলাকা<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><select id="fDist" aria-label="জেলা"></select><select id="fUp" aria-label="উপজেলা"></select></div></details>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-shield"/></svg></span>বিশ্বাস ও সুবিধা<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb" id="fSwitches"></div></details>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c3"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-home"/></svg></span>কীভাবে পড়াবেন<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-modes" id="fMode"></div></div></details>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c4"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-cap"/></svg></span>শ্রেণি<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-chips" id="fCls"></div></div></details>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-book"/></svg></span>বিষয়<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-chips" id="fSub"></div></div></details>
+        <details class="rs-sec" open><summary class="rs-ft"><span class="rs-si c1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-users"/></svg></span>কে পড়াবেন<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-chips" id="fGender"></div></div></details>
+        <details class="rs-sec" id="fMedSec"><summary class="rs-ft"><span class="rs-si c6"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-lang"/></svg></span>শিক্ষার মাধ্যম<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-chips" id="fMed"></div></div></details>
+        <details class="rs-sec" id="fExamSec"><summary class="rs-ft"><span class="rs-si c3"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-clip"/></svg></span>পরীক্ষার প্রস্তুতি<svg class="rs-cv" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-chev"/></svg></summary><div class="rs-sb"><div class="rs-chips" id="fExam"></div></div></details>
         <button type="button" class="rs-apply" id="rsApply">ফলাফল দেখুন</button>
       </aside>
       <section class="rs-main">
@@ -364,7 +380,9 @@
   const PAGE = 12;
   const PIN = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
   const MAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>';
-  const whereText =() => S.f.mode === 'online' ? 'অনলাইনে' : [S.f.district, S.f.upazila].filter(Boolean).join(', ');
+  const ICO = (n, s) => '<svg width="' + (s || 15) + '" height="' + (s || 15) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#tti-' + n + '"/></svg>';   // the small icons live once in the page (the sprite above)
+  const SUB_SHOWN = 8;
+  const whereText = () => S.f.mode === 'online' ? 'অনলাইনে' : [S.f.district, S.f.upazila].filter(Boolean).join(', ');
   const lock = () => { document.body.style.overflow = (document.querySelector('.tt-ov.show') || $('rsFilters').classList.contains('open')) ? 'hidden' : ''; };
   function syncPair(dSel, uSel, noUp, allUp){
     if(dSel.value !== S.f.district) dSel.value = S.f.district;
@@ -382,16 +400,21 @@
   function renderFilters(){
     const fc = S.facets, f = S.f, num = (obj, k) => fc ? (Number((obj || {})[k]) || 0) : null, cn = v => v === null ? '' : '<i class="cn">' + D.bn(v) + '</i>';
     const cls = (base, key, val, count) => base + (f[key] === val ? ' sel' : '') + (count === 0 && f[key] !== val ? ' zero' : '');
-    const opt = (key, val, label, count) => '<button type="button" class="' + cls('rs-opt', key, val, count) + '" data-f="' + key + '" data-v="' + esc(val) + '" aria-pressed="' + (f[key] === val) + '"><span>' + esc(label) + '</span>' + cn(count) + '</button>';
     const chip = (key, val, label, count) => '<button type="button" class="' + cls('rs-chip', key, val, count) + '" data-f="' + key + '" data-v="' + esc(val) + '" aria-pressed="' + (f[key] === val) + '">' + esc(label) + cn(count) + '</button>';
-    $('fMode').innerHTML = opt('mode', 'any', 'যেকোনোভাবে', fc ? (Number(fc.total) || 0) : null) + opt('mode', 'home', 'বাসায়', num(fc && fc.modes, 'home')) + opt('mode', 'online', 'অনলাইনে', num(fc && fc.modes, 'online'));
+    // how to teach: three tiles with an icon (the count sits under the label)
+    const tile = (val, label, count, icon) => '<button type="button" class="' + cls('rs-opt', 'mode', val, count) + '" data-f="mode" data-v="' + val + '" aria-pressed="' + (f.mode === val) + '">' + ICO(icon, 20) + '<span>' + esc(label) + '</span>' + cn(count) + '</button>';
+    $('fMode').innerHTML = tile('any', 'যেকোনোভাবে', fc ? (Number(fc.total) || 0) : null, 'globe') + tile('home', 'বাসায়', num(fc && fc.modes, 'home'), 'home') + tile('online', 'অনলাইনে', num(fc && fc.modes, 'online'), 'laptop');
     $('fCls').innerHTML = D.CLASSES.map(x => chip('cls', x[0], x[1], num(fc && fc.classes, x[0]))).join('');
-    $('fSub').innerHTML = D.SUBJECTS.map(x => chip('subject', x[0], x[1], num(fc && fc.subjects, x[0]))).join('');
+    // the subjects: the first eight, the rest behind "show more" (it opens by itself when a hidden one is chosen)
+    const selAt = D.SUBJECTS.findIndex(x => x[0] === f.subject), open = S.subsOpen || selAt >= SUB_SHOWN;
+    $('fSub').innerHTML = (open ? D.SUBJECTS : D.SUBJECTS.slice(0, SUB_SHOWN)).map(x => chip('subject', x[0], x[1], num(fc && fc.subjects, x[0]))).join('') +
+      (D.SUBJECTS.length > SUB_SHOWN ? (open ? (S.subsOpen ? '<button type="button" class="rs-moreb" data-more="sub">কম দেখুন</button>' : '') : '<button type="button" class="rs-moreb" data-more="sub">আরও ' + D.bn(D.SUBJECTS.length - SUB_SHOWN) + 'টি দেখুন</button>') : '');
     $('fGender').innerHTML = D.GENDERS.map(x => chip('gender', x[0], x[1], num(fc && fc.gender, x[0]))).join('');
     $('fMed').innerHTML = D.MEDIUMS.map(x => chip('medium', x[0], x[1], num(fc && fc.medium, x[0]))).join('');
     $('fExam').innerHTML = D.EXAMS.map(x => chip('exam', x[0], x[1], num(fc && fc.exams, x[0]))).join('');
-    const sw = (key, title, sub) => { const n = fc ? (Number(fc[key]) || 0) : null; return '<div class="rs-tg" data-sw="' + key + '"><div><b>' + esc(title) + '</b><small>' + esc(sub) + (n === null ? '' : ' · ' + D.bn(n) + ' জন') + '</small></div><button type="button" class="rs-sw" role="switch" aria-checked="' + (!!f[key]) + '" aria-label="' + esc(title) + '"></button></div>'; };
-    $('fSwitches').innerHTML = sw('trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল', 'যাঁরা ট্রায়ালে রাজি') + sw('verified', 'শুধু যাচাইকৃত', 'NID ও সনদ আমরা দেখেছি') + sw('pledge', 'প্রতিশ্রুতি দিয়েছেন', 'তিনটা প্রতিশ্রুতিতেই রাজি');
+    if(f.medium) $('fMedSec').open = true; if(f.exam) $('fExamSec').open = true;   // a group that is folded away opens when it holds a chosen filter
+    const sw = (key, title, sub, icon, tone) => { const n = fc ? (Number(fc[key]) || 0) : null; return '<div class="rs-tg" data-sw="' + key + '"><span class="rs-si ' + tone + '">' + ICO(icon, 16) + '</span><div><b>' + esc(title) + '</b><small>' + esc(sub) + (n === null ? '' : ' · ' + D.bn(n) + ' জন') + '</small></div><button type="button" class="rs-sw" role="switch" aria-checked="' + (!!f[key]) + '" aria-label="' + esc(title) + '"></button></div>'; };
+    $('fSwitches').innerHTML = sw('verified', 'শুধু যাচাইকৃত', 'NID ও সনদ আমরা দেখেছি', 'shield', 'c2') + sw('trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল', 'যাঁরা ট্রায়ালে রাজি', 'gift', 'c4') + sw('pledge', 'প্রতিশ্রুতি দিয়েছেন', 'তিনটা প্রতিশ্রুতিতেই রাজি', 'heart', 'c5');
   }
   function renderChips(){ const c = D.filterChips(S.f); $('rsActive').innerHTML = c.map(x => '<span class="rs-ac">' + esc(x[1]) + '<button type="button" aria-label="সরান" data-clear="' + x[0] + '">×</button></span>').join(''); $('rsFc').textContent = c.length ? D.bn(c.length) : ''; }
   function renderSort(){ $('rsSortLbl').textContent = D.labelOf(D.SORTS, S.f.sort); document.querySelectorAll('.rs-so').forEach(b => { const on = b.dataset.v === S.f.sort; b.classList.toggle('sel', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }); }
@@ -440,6 +463,7 @@
       runSearch(); });
     // the sidebar
     $('rsFilters').addEventListener('click', e => {
+      const mb = e.target.closest('[data-more]'); if(mb){ S.subsOpen = !S.subsOpen; renderFilters(); return; }
       const b = e.target.closest('[data-f]'); if(b){ const k = b.dataset.f, v = b.dataset.v; T('tutor_filter', { k: k }); setF({ [k]: (S.f[k] === v && k !== 'mode') ? '' : v }); return; }
       const sw = e.target.closest('[data-sw]'); if(sw){ const k = sw.dataset.sw; T('tutor_filter', { k: k }); setF({ [k]: !S.f[k] }); return; }
       if(e.target.closest('#rsReset')){ resetFilters(); return; }
@@ -509,24 +533,27 @@
     S.busy = false; $('ttRes').setAttribute('aria-busy', 'false'); render();
     if(!append && !o.quiet){ const h = S.listing ? $('ttResT') : $('ttResBody'); if(h) h.focus({ preventScroll: true }); }
   }
-  const COLORS = ['#1A56DB', '#7C3AED', '#0F766E', '#B45309', '#BE185D', '#4338CA'];
-  const colorOf = s => COLORS[String(s || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+  // each tutor gets one colour pair (deep enough for white text) from a short list: the card's identity panel and the avatar in the profile use it
+  const PAIRS = [['#1E40AF', '#3B5BDB'], ['#5B21B6', '#7C3AED'], ['#115E59', '#0F766E'], ['#9A3412', '#C2410C'], ['#9D174D', '#BE185D'], ['#3730A3', '#4F46E5']];
+  const pairOf = s => PAIRS[String(s || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % PAIRS.length];
+  const colorOf = s => pairOf(s)[0];
   const initial = n => (String(n || '?').trim().charAt(0) || '?').toUpperCase();
   const tag = (cls, text) => '<span class="rs-tag' + (cls ? ' ' + cls : '') + '">' + esc(text) + '</span>';
-  /* a result card: the same shape as a directory card (a tile, the name, where, a badge, three small facts, tags, a footer) */
+  /* a result card: a wide profile card. On the left an identity panel in the tutor's own colour (initial, name, আপু/ভাইয়া, the approved or verified mark), on the right where they study and teach, three facts, tags, the fee and the button to the whole profile */
   function card(t, i){
-    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasOf(t), st = D.statsOf(t), subs = D.labels(D.SUBJECTS, t.subjects), more = subs.length - 3;
+    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasOf(t), st = D.statsOf(t), subs = D.labels(D.SUBJECTS, t.subjects), more = subs.length - 3, pr = pairOf(t.pid);
     const home = (t.modes || []).indexOf('home') > -1, loc = home ? [t.upazila, t.district].filter(Boolean).join(', ') : '';
     const tags = subs.slice(0, 3).map(s => tag('blue', s)).concat(more > 0 ? [tag('', '+' + D.bn(more))] : [], D.labels(D.MEDIUMS, t.medium).slice(0, 1).map(x => tag('', x)), D.labels(D.EXAMS, t.exams).slice(0, 2).map(x => tag('', x)),
       ex.badges.filter(b => b.k === 'pledge').map(b => tag('vio', b.text)), t.local === false ? [tag('amber', 'অনলাইনে পড়ান')] : []);
-    return '<article class="rs-card' + (i >= S.fresh ? ' rs-new' : '') + '" style="--i:' + Math.max(0, i - S.fresh) + '">' +
-      '<div class="rs-top"><span class="tt-avw"><span class="rs-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span>' +
-      '<div class="rs-hd"><h3 class="rs-name"><button type="button" data-open="' + esc(t.pid) + '">' + esc(t.name) + '</button>' + (g ? '<span class="rs-g">' + esc(g) + '</span>' : '') + '</h3>' +
-      '<div class="rs-loc">' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</div><div class="rs-loc">' + PIN + ' ' + esc(loc || 'অনলাইনে পড়ান') + '</div></div>' +
+    return '<article class="rs-card' + (i >= S.fresh ? ' rs-new' : '') + '" style="--i:' + Math.max(0, i - S.fresh) + ';--c1:' + pr[0] + ';--c2:' + pr[1] + '">' +
+      '<div class="rs-id"><span class="tt-avw"><span class="rs-av" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span>' +
+      '<h3 class="rs-name"><button type="button" data-open="' + esc(t.pid) + '">' + esc(t.name) + '</button></h3>' + (g ? '<span class="rs-g">' + esc(g) + '</span>' : '') +
       '<span class="rs-badge' + (t.verified ? '' : ' gray') + '">' + (t.verified ? '✓ যাচাইকৃত' : 'অনুমোদিত') + '</span></div>' +
-      '<div class="rs-stats">' + st.map(x => '<div class="rs-stat"><b>' + (x.v ? esc(x.v) : '—') + '</b><span>' + esc(x.l) + '</span></div>').join('') + '</div>' +
+      '<div class="rs-bd"><div class="rs-hd"><div class="rs-inst">' + ICO('cap', 17) + '<span>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</span></div>' +
+      '<div class="rs-loc">' + ICO('pin', 15) + '<span>' + esc(loc || 'অনলাইনে পড়ান') + '</span></div></div>' +
+      '<div class="rs-stats">' + st.map(x => '<div class="rs-stat"><span>' + esc(x.l) + '</span><b>' + (x.v ? esc(x.v) : '—') + '</b></div>').join('') + '</div>' +
       (tags.length ? '<div class="rs-tags">' + tags.join('') + '</div>' : '') +
-      '<div class="rs-foot"><span class="rs-fee">' + (t.fee ? 'ফি: ' + esc(t.fee) : '') + '</span><span class="rs-cta">বিস্তারিত দেখুন →</span></div></article>';
+      '<div class="rs-foot"><span class="rs-fee">' + (t.fee ? 'ফি: ' + esc(t.fee) : '') + '</span><span class="rs-cta">বিস্তারিত দেখুন ' + ICO('arrow', 15) + '</span></div></div></article>';
   }
   const reqBtn = () => '<button type="button" class="tt-btn pri" data-req="">অনুরোধ পাঠান</button>';
   const ctaBox = () => '<div class="rs-cta2"><div><b>মনের মতো টিউটর পাচ্ছেন না?</b><span>অনুরোধটা পাঠান, আমরা যাচাই করা টিউটরের পরিচয় আপনার হোয়াটসঅ্যাপে পাঠাব।</span></div>' + reqBtn() + '</div>';
