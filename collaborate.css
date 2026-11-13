@@ -158,7 +158,6 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.co-hero-bg i,.co-final-bg i,.co-net .ln,.co-net .nd,.co-net .halo,.co-360 svg{animation:none}.co-btn,.co-door{transition:none}}
 
-.co-way .n{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#7C3AED);color:#fff;font-weight:800;font-size:17px}
 
 /* the hero picture: everyone around Protishthan, joined by moving lines */
 .co-hero-vis{display:flex;align-items:center;justify-content:center}
@@ -239,24 +238,55 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   .co-belong-act .co-btn{width:100%}
 }
 
-/* brands: who is in front of the brand, and what that attention is worth */
-.co-sub{max-width:760px;margin:44px auto 18px;text-align:center;font-size:clamp(20px,2.6vw,26px);line-height:1.35;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+/* brands: infographic blocks. A hub (the brand in the middle), four audience cards, a value quadrant, five icon cards */
+.co-sub{max-width:760px;margin:52px auto 22px;text-align:center;font-size:clamp(20px,2.6vw,27px);line-height:1.35;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+.co-sub::after{content:"";display:block;width:44px;height:4px;margin:10px auto 0;border-radius:4px;background:linear-gradient(90deg,#1A56DB,#7C3AED)}
 .co-brands .co-head+.co-sub{margin-top:8px}
-.co-aud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.co-au{display:flex;flex-direction:column;background:#fff;border:1px solid var(--ln);border-radius:26px;padding:22px 20px}
-.co-au .ic{width:46px;height:46px;border-radius:14px}.co-au .ic svg{width:22px;height:22px}
-.co-au h4{margin:14px 0 6px;font-size:18px;color:var(--ink);line-height:1.3}
-.co-au p{font-size:14px;line-height:1.65;color:var(--tx2)}
-.co-au .what{color:var(--tx)}
-.co-au .when,.co-au .fit{margin-top:10px;padding-top:10px;border-top:1px dashed var(--ln)}
-.co-au p b{display:block;font-size:12px;letter-spacing:.04em;color:var(--tb);margin-bottom:1px}
-.co-au .fit{margin-top:auto;padding-top:12px}
-.co-val{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.co-val>div{padding:22px 20px;border-radius:24px;color:#fff;background:linear-gradient(150deg,#1A2B6B,#3B1D8F)}
-.co-val>div:nth-child(2){background:linear-gradient(150deg,#3B1D8F,#6D28D9)}
-.co-val>div:nth-child(3){background:linear-gradient(150deg,#14215C,#1A56DB)}
-.co-val>div:nth-child(4){background:linear-gradient(150deg,#0F766E,#1A56DB)}
-.co-val b{display:block;font-size:17px;line-height:1.35;color:var(--gold)}
-.co-val span{display:block;margin-top:6px;font-size:14px;line-height:1.65;color:rgba(255,255,255,.86)}
-@media(max-width:1000px){.co-aud,.co-val{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:640px){.co-aud,.co-val{grid-template-columns:minmax(0,1fr)}.co-sub{margin-top:34px}}
+
+/* the hub */
+.co-hubwrap{max-width:960px;margin:0 auto 26px;padding:6px 10px;border-radius:32px;background:radial-gradient(520px 220px at 50% 50%,#EEF3FF,transparent 70%)}
+.co-hub{display:block;width:100%;height:auto;overflow:visible}
+.co-hub .spoke{fill:none;stroke:#7C8FE8;stroke-width:2.2;stroke-dasharray:5 8;stroke-linecap:round;animation:coFlow 3s linear infinite}
+.co-hub .aura{fill:rgba(124,58,237,.08);stroke:rgba(124,58,237,.25);stroke-width:1.4;animation:coHalo 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.co-hub .hub-t1{fill:rgba(255,255,255,.85);font:600 15px 'Hind Siliguri','Inter',sans-serif}
+.co-hub .hub-t2{fill:#fff;font:800 25px 'Hind Siliguri','Inter',sans-serif}
+.co-hub .hub-l1{fill:#0B1B4D;font:800 19px 'Hind Siliguri','Inter',sans-serif}
+.co-hub .hub-l2{fill:#64748B;font:500 14px 'Hind Siliguri','Inter',sans-serif}
+
+/* the four audience cards */
+.co-pcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.co-pc{display:flex;flex-direction:column;background:#fff;border:1px solid var(--ln);border-radius:26px;overflow:hidden}
+.co-pc-head{display:flex;align-items:center;gap:12px;padding:18px 18px;color:#fff;background:var(--g)}
+.co-pc-head i{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45)}
+.co-pc-head h4{font-size:17px;line-height:1.3;font-weight:800}
+.co-pc-row{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;padding:14px 16px 0}
+.co-pc-row:last-child{padding-bottom:16px;margin-top:auto}
+.co-pc-row>i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#EEF3FF;color:var(--tb)}
+.co-pc-row b{display:block;font-size:12.5px;letter-spacing:.03em;color:var(--tb);margin-bottom:1px}
+.co-pc-row p{font-size:14px;line-height:1.6;color:var(--tx2)}
+.co-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.co-chips span{padding:3px 10px;border-radius:100px;background:#F1F5FF;border:1px solid #DCE6FA;font-size:12.5px;font-weight:600;color:#1E3A8A}
+
+/* the value quadrant */
+.co-quad{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:980px;margin:0 auto}
+.co-q{display:grid;grid-template-columns:62px minmax(0,1fr);gap:16px;align-items:start;padding:26px 24px 24px;border-radius:28px;color:#fff;background:var(--g)}
+.co-q>i{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.4)}
+.co-q b{display:block;font-size:19px;line-height:1.3;color:var(--gold)}
+.co-q span{display:block;margin-top:6px;font-size:14.5px;line-height:1.7;color:rgba(255,255,255,.9)}
+.co-quad-mid{position:absolute;left:50%;top:50%;z-index:2;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border:6px solid var(--bg);box-shadow:0 0 0 2px #DCE6FA}
+.co-quad-mid b{font-size:15px;line-height:1.2;color:var(--ink)}
+.co-quad-mid span{font-size:20px;font-weight:800;line-height:1.2;background:linear-gradient(90deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* the five ways, with an icon and a big faded number */
+.co-way{overflow:hidden}
+.co-way .wi{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#7C3AED);color:#fff;box-shadow:0 0 0 6px #EEF3FF}
+.co-way .n{position:absolute;top:8px;right:18px;font-size:64px;line-height:1;font-weight:800;color:#EEF2FA;pointer-events:none}
+.co-way h3{position:relative}
+
+@media(max-width:1100px){.co-pcs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+  .co-hubwrap{display:none}
+  .co-quad{grid-template-columns:minmax(0,1fr)}
+  .co-quad-mid{display:none}
+}
+@media(max-width:640px){.co-pcs{grid-template-columns:minmax(0,1fr)}.co-sub{margin-top:40px}}
