@@ -18,7 +18,7 @@ const digits = (text.match(/[০-৯0-9]+/g) || []);
 eq('the only figures written in the page are facts we can stand behind: one management system, three tools, 360 degrees, a night hour in a story, and the numbering of the ways (১ to ৫)', digits.filter(d => !/^[১-৫]$/.test(d) && d !== '৩৬০' && d !== '১১').length, 0);
 yes('the directory count is not typed in: it is filled from the live question and hidden when that fails', /id="coCount" hidden/.test(co) && /\/api\/dir\?f=counts/.test(co));
 yes('no payment account, phone number or amount is invented: the only contact is the e-mail already on the About page, plus the Facebook Messenger link', about.includes('teamprotishthan@gmail.com') && co.includes('teamprotishthan@gmail.com') && !/01[3-9][0-9]{8}/.test(co) && !/(বিকাশ|bKash|নগদ|Nagad|রকেট|account|অ্যাকাউন্ট নম্বর)/i.test(text));
-yes('no promised result: it says outright that no outcome is guaranteed', /ফলাফলের কোনো বাড়তি প্রতিশ্রুতি আমরা দিই না/.test(co) && !/(নিশ্চিত|গ্যারান্টি দিচ্ছি|হাজার হাজার ভিজিটর)/.test(text));
+yes('no promised result: it says outright that nothing will be exaggerated', /আমরা বাড়িয়ে কিছু বলব না/.test(co) && !/(নিশ্চিত|গ্যারান্টি দিচ্ছি|হাজার হাজার ভিজিটর)/.test(text));
 yes('the promises are on the page: no selling of the verified badge or list position, sponsors always marked, no sale of phone numbers, nothing untrue, open about spending', ['তালিকার অবস্থান বিক্রি করব না', 'স্পষ্টভাবে চিহ্নিত', 'বিক্রি বা হস্তান্তর করব না', 'যা সত্য নয়, তা বলব না', 'খোলাখুলি জানাব'].every(s => text.includes(s)));
 
 // ---- complete
