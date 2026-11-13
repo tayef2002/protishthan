@@ -18,9 +18,8 @@
   /* free tools: each becomes a card in the dropdown (and a row on phones) */
   var TOOLS = [
     { k: 'card',  t: 'শিক্ষিত কার্ড',    d: '৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান',     href: 'card.html',  ic: 'card',  g: 'linear-gradient(135deg,#047857,#0F766E)' },
-    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' }
-    /* ভাইয়া-আপু is kept out of the menu until the service is finished. To show it again, add after the skill entry:
-       ,{ k: 'tutor', t: 'ভাইয়া-আপু', d: 'যাচাই করা টিউটর খুঁজুন, বা টিউটর হিসেবে যোগ দিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' }  (the icon is already in IC) */
+    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
+    { k: 'tutor', t: 'ভাইয়া-আপু',        d: 'যাচাই করা টিউটর খুঁজুন, বা টিউটর হিসেবে যোগ দিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' }
   ];
   var TOOLS_PAGES = TOOLS.map(function(x){ return x.k; });
 
@@ -82,7 +81,7 @@
     '</div>';
   /* phones: opt in with data-tabs="1" to get a bottom tab bar instead of the hamburger */
   if(el.dataset.tabs){
-    var tabs = set.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span>' + esc(l.t) + '</span></a>'; }).join('');
+    var tabs = set.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span' + (/\s/.test(l.t) ? '' : ' class="nw"') + '>' + esc(l.t) + '</span></a>'; }).join('');
     var tb = document.createElement('div'); tb.className = 'sn-tabs'; tb.setAttribute('role', 'navigation'); tb.setAttribute('aria-label', 'প্রধান মেনু'); tb.innerHTML = tabs; document.body.appendChild(tb);
     el.classList.add('has-tabs'); document.body.classList.add('has-tabs');
   }

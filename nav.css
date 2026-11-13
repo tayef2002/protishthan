@@ -74,17 +74,34 @@
   .ptn .btn-primary-nav{height:38px;padding:0 14px;font-size:13px}
   .ptn .mb-pt{display:none}
 }
+/* five links beside the account area need room: from 901 to 1180px the links sit closer and the account chip keeps only the avatar (the first name goes); below 960px the links tighten once more */
+@media(min-width:901px) and (max-width:1180px){
+  .sn-bar{gap:10px}
+  .sn-l{padding:0 10px}
+  .ptn .mb-aw .mb-pt{display:none}
+  .ptn .mb-aw .mb-acc{padding:4px 8px 4px 4px}
+}
+@media(min-width:901px) and (max-width:960px){
+  .sn-l{padding:0 7px;font-size:14px}
+}
 /* bottom tab bar (data-tabs): a floating twin of the top bar */
 .sn-tabs{display:none}
 @media(max-width:900px){
   .ptn.has-tabs .sn-burger,.ptn.has-tabs .sn-drawer{display:none}
   body.has-tabs{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   .sn-tabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:250;height:64px;padding:6px;border-radius:20px;border:1px solid #E2E8F0;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);font-family:'Hind Siliguri','Inter',sans-serif}
-  .sn-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;border-radius:14px;color:#64748B;font-size:11.5px;line-height:1.2;font-weight:600;text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .18s,background .18s}
+  .sn-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;border-radius:14px;color:#64748B;font-size:11px;line-height:1.15;font-weight:600;text-align:center;text-decoration:none;white-space:normal;-webkit-tap-highlight-color:transparent;transition:color .18s,background .18s}
+  .sn-tab span{display:block;text-wrap:balance}
+  .sn-tab span.nw{white-space:nowrap}
   .sn-tab svg{width:22px;height:22px;transition:transform .2s}
   .sn-tab:active svg{transform:scale(.9)}
   .sn-tab.on{color:#1A56DB;background:#E6EDFF;font-weight:700}
   .sn-tab.on svg{stroke-width:2.3}
+}
+/* the narrowest phones (320px): "স্কিল আইডেন্টিটি" takes two lines, so the bar gets a little taller */
+@media(max-width:340px){
+  .sn-tabs{height:70px}
+  body.has-tabs{padding-bottom:calc(98px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){.ptn *{transition:none!important}}
 
@@ -98,7 +115,7 @@
 .ptn .mb-nw,.ptn .mb-aw{display:flex;align-items:center;position:relative}
 .ptn .mb-ic{display:flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box}
 .ptn .mb-acc{box-sizing:border-box;line-height:1}
-.ptn .mb-pt{display:block;line-height:1.2}
+.ptn .mb-pt{display:block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2}
 .ptn .mb-ic{width:42px;height:42px;border-radius:13px;color:var(--sn-mut);background:transparent;border:1px solid var(--sn-line)}
 .ptn .mb-ic:hover{background:var(--sn-hov);color:var(--sn-ink);transform:none}
 .ptn .mb-dot{box-shadow:0 0 0 2px var(--sn-pop)}
