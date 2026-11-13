@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/footer.css?v=5">
 <link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/lipi.css?v=2">
-<link rel="stylesheet" href="/tutor.css?v=20">
+<link rel="stylesheet" href="/tutor.css?v=21">
 <noscript><style>.tt-res{display:none}</style></noscript>
 <script src="/analytics.js?v=3" defer></script>
 </head>
@@ -222,6 +222,7 @@
         </div>
         <div class="rs-active" id="rsActive"></div>
         <div class="rs-cards" id="ttResBody" tabindex="-1"><div class="rs-sk"></div><div class="rs-sk"></div></div>
+        <article class="td-view" id="tdView" hidden tabindex="-1" aria-labelledby="tdT"></article>
       </section>
     </div>
     <div class="rs-overlay" id="rsOverlay"></div>
@@ -332,13 +333,6 @@
       <p class="tt-hint" style="margin-bottom:16px">অনুরোধের অবস্থা এই পেজের ওপরে "আপনার অনুরোধ" অংশে দেখতে পাবেন। কতক্ষণে উত্তর পাবেন, তা আগে থেকে নিশ্চিত বলতে পারছি না।</p>
       <button type="button" class="tt-btn pri blk" id="doneOk">ঠিক আছে</button>
     </div>
-  </div>
-</div>
-<div class="tt-ov" id="tdOv" role="dialog" aria-modal="true" aria-labelledby="tdT">
-  <div class="tt-dlg" id="tdDlg">
-    <button type="button" class="tt-x" id="tdX" aria-label="বন্ধ করুন">×</button>
-    <div id="tdBody"></div>
-    <div class="tt-wact" style="margin-top:16px"><button type="button" class="tt-btn gh" id="tdClose">বন্ধ করুন</button><button type="button" class="tt-btn pri" id="tdReq">এঁকে অনুরোধ পাঠান</button></div>
   </div>
 </div>
 <!-- the "join as a tutor" popup: guardians are waiting, tutors are few. It shows once after a while (see the script), never over a search or a dialog, and ?popup=1 shows it at once for a preview -->
@@ -465,7 +459,7 @@
   function resetFilters(){ T('tutor_filters_reset'); setF(Object.assign(D.blankFilters(), { sort: S.f.sort })); }
   /* every change goes through here: the state, both forms, the chips, the address, the counts, and (once results are on screen) a new search a moment later */
   function setF(patch, o){
-    S.touched = true;   // someone who filters is a guardian at work: the join popup stays away
+    S.touched = true; closeDetail({ keepHistory: true, noScroll: true });   // someone who filters is a guardian at work: the join popup stays away
     const was = S.f.district;
     Object.assign(S.f, patch);
     if('district' in patch && patch.district !== was && !('upazila' in patch)) S.f.upazila = '';
@@ -476,7 +470,7 @@
   function schedule(o){ clearTimeout(timer); timer = setTimeout(() => run(false, o), 120); }
   function toResults(){ $('ttRes').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }
   function runSearch(){
-    S.touched = true;
+    S.touched = true; closeDetail({ keepHistory: true, noScroll: true });
     T('tutor_search', { mode: S.f.mode }); syncUrl(); clearTimeout(timer); run(false, { scroll: true });
   }
   function initForm(){
@@ -640,27 +634,50 @@
     if(e.target.closest('[data-reset]')){ resetFilters(); return; }
   });
 
-  /* ---------- one tutor in full (opened from a card) ---------- */
-  function detailHtml(t){
-    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasHtml(t, esc), lv = D.labelOf(D.LEVELS, t.edu_level), home = (t.modes || []).indexOf('home') > -1, where = home ? [t.upazila, t.district].filter(Boolean).join(', ') : '';
-    return '<div class="td-head"><span class="tt-avw"><span class="rs-av" style="background:' + colorOf(t.pid) + '" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk">✓</i>' : '') + '</span><div><h2 id="tdT">' + esc(t.name) + (g ? ' <span class="rs-g">' + esc(g) + '</span>' : '') + '</h2><small>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</small></div></div>' +
-      '<div class="tt-badges">' + (t.verified ? '<span class="tt-b ok">✓ যাচাইকৃত: আমরা NID ও সনদের কপি দেখেছি</span>' : '<span class="tt-b gray">অনুমোদিত প্রোফাইল</span>') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + ex.badges + '</div>' +
-      '<div class="td-sec"><span class="tt-lab">যা পড়ান</span><div class="tt-chips">' + D.labels(D.SUBJECTS, t.subjects).map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + ex.chips + '</div></div>' +
-      '<div class="tt-meta td-sec"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + ((t.times || []).length ? '<br><b>সময়:</b> ' + esc(D.labels(D.TIMES, t.times).join(', ')) : '') + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' +
-      (ex.lines ? '<div class="tt-ex td-sec">' + ex.lines + '</div>' : '') +
-      (t.bio ? '<div class="td-sec"><span class="tt-lab">নিজের কথা</span><div class="tt-bio open">' + esc(t.bio) + '</div></div>' : '') +
-      '<p class="td-note">ফোন নম্বর আমরা দিই না। অনুরোধ পাঠালে আমরা যোগাযোগ করিয়ে দেব। প্রথম ক্লাসে আপনি নিজে উপস্থিত থাকুন।</p>';
+  /* ---------- one tutor in full: it opens in the results column (beside the filters) and "back" returns to the list exactly where it was ---------- */
+  function detailHtml(t, i){
+    const g = D.labelOf(D.GENDERS, t.gender), ex = D.extrasHtml(t, esc), lv = D.labelOf(D.LEVELS, t.edu_level), st = D.statsOf(t), pr = pairOf(t.pid);
+    const home = (t.modes || []).indexOf('home') > -1, where = home ? [t.upazila, t.district].filter(Boolean).join(', ') : '';
+    const arrow = ICO('arrow', 16);
+    return '<div class="td-bar"><button type="button" class="td-back" data-tdback>' + arrow + 'আরও টিউটর দেখুন</button>' +
+        '<div class="td-pn"><button type="button" data-tdgo="-1" aria-label="আগের টিউটর"' + (i > 0 ? '' : ' disabled') + '>‹</button><span>' + D.bn(i + 1) + ' / ' + D.bn(S.total) + '</span><button type="button" data-tdgo="1" aria-label="পরের টিউটর"' + (i < S.tutors.length - 1 ? '' : ' disabled') + '>›</button></div></div>' +
+      '<div class="td-hero" style="--c1:' + pr[0] + ';--c2:' + pr[1] + '"><span class="tt-avw"><span class="rs-av" aria-hidden="true">' + esc(initial(t.name)) + '</span>' + (t.verified ? '<i class="tt-vk" title="আমরা এঁর NID ও সনদের কপি দেখেছি">✓</i>' : '') + '</span>' +
+        '<div class="td-id"><h2 id="tdT">' + esc(t.name) + (g ? ' <span class="rs-g">' + esc(g) + '</span>' : '') + '</h2>' +
+        '<p class="td-inst">' + ICO('cap', 17) + '<span>' + esc(t.institution) + (t.department ? ', ' + esc(t.department) : '') + '</span></p>' +
+        '<p class="td-loc">' + ICO('pin', 15) + '<span>' + esc(where || 'অনলাইনে পড়ান') + '</span></p>' +
+        '<span class="rs-badge' + (t.verified ? '' : ' gray') + '">' + (t.verified ? '✓ যাচাইকৃত' : 'অনুমোদিত') + '</span></div>' +
+        '<div class="td-stats">' + st.map(x => '<div><span>' + esc(x.l) + '</span><b>' + (x.v ? esc(x.v) : '—') + '</b></div>').join('') + '</div></div>' +
+      '<div class="td-body"><div class="td-main">' +
+        '<section class="td-card"><h3>যা পড়ান</h3><div class="tt-chips">' + D.labels(D.SUBJECTS, t.subjects).map(s => '<span class="tt-c">' + esc(s) + '</span>').join('') + ex.chips + '</div></section>' +
+        '<section class="td-card"><h3>শ্রেণি ও পড়ানোর ধরন</h3><div class="tt-meta"><b>শ্রেণি:</b> ' + esc(D.labels(D.CLASSES, t.classes).map(x => x.replace('শ্রেণি ', '')).join(', ')) + '<br><b>কীভাবে:</b> ' + esc(D.labels(D.MODES, t.modes).join(' ও ')) + ((t.times || []).length ? '<br><b>সময়:</b> ' + esc(D.labels(D.TIMES, t.times).join(', ')) : '') + (where ? '<br><b>এলাকা:</b> ' + esc(where) : '') + '</div>' + (ex.lines ? '<div class="tt-ex">' + ex.lines + '</div>' : '') + '</section>' +
+        (t.bio ? '<section class="td-card"><h3>নিজের কথা</h3><div class="tt-bio open">' + esc(t.bio) + '</div></section>' : '') +
+      '</div><aside class="td-side"><div class="td-card"><div class="tt-badges">' + (t.verified ? '<span class="tt-b ok">✓ যাচাইকৃত: আমরা NID ও সনদের কপি দেখেছি</span>' : '<span class="tt-b gray">অনুমোদিত প্রোফাইল</span>') + (lv ? '<span class="tt-b gray">' + esc(lv.replace(' করেছি', '').replace('পড়ছি', 'পড়ছেন')) + '</span>' : '') + (t.local === false ? '<span class="tt-b">অনলাইনে পড়ান</span>' : '') + ex.badges + '</div>' +
+        '<button type="button" class="tt-btn pri blk" data-tdreq>এঁকে অনুরোধ পাঠান</button>' +
+        '<p class="td-note">ফোন নম্বর আমরা দিই না। অনুরোধ পাঠালে আমরা যোগাযোগ করিয়ে দেব। প্রথম ক্লাসে আপনি নিজে উপস্থিত থাকুন।</p></div></aside></div>' +
+      '<div class="td-bar td-bar2"><button type="button" class="td-back" data-tdback>' + arrow + 'আরও টিউটর দেখুন</button></div>';
   }
   function openDetail(pid){
-    const t = S.tutors.find(x => x.pid === pid); if(!t) return; S.touched = true; T('tutor_open');
-    S.detail = t; lastFocus = document.activeElement; $('tdBody').innerHTML = detailHtml(t); $('tdOv').classList.add('show'); lock();
-    setTimeout(() => $('tdReq').focus(), 50);
+    const i = S.tutors.findIndex(x => x.pid === pid); if(i < 0) return; const t = S.tutors[i], v = $('tdView'), fromList = v.hidden;
+    if(fromList){ S.touched = true; T('tutor_open'); S.listY = window.scrollY; lastFocus = document.activeElement; }
+    S.detail = t; v.innerHTML = detailHtml(t, i); v.hidden = false; $('ttRes').classList.add('rs-detail');
+    v.classList.remove('in'); void v.offsetWidth; v.classList.add('in');
+    window.scrollTo(0, Math.max(0, $('ttRes').getBoundingClientRect().top + window.scrollY - 96));
+    try{ if(fromList){ history.pushState({ ttd: pid }, '', location.href); S.dpush = true; } else history.replaceState({ ttd: pid }, '', location.href); }catch(e){ S.dpush = false; }   // the browser's Back button closes the profile
+    try{ v.focus({ preventScroll: true }); }catch(e){}
   }
-  function closeDetail(restore){ $('tdOv').classList.remove('show'); lock(); if(restore !== false && lastFocus && lastFocus.focus) try{ lastFocus.focus(); }catch(e){} }
-  $('tdX').addEventListener('click', () => closeDetail()); $('tdClose').addEventListener('click', () => closeDetail());
-  $('tdOv').addEventListener('click', e => { if(e.target === $('tdOv')) closeDetail(); });
-  $('tdReq').addEventListener('click', () => { const t = S.detail; closeDetail(false); openReq(t ? { pid: t.pid, name: t.name } : null); });
-  /* ---------- "your requests": what became of what you sent (kept on this device; the server answers the status only) ---------- */
+  function closeDetail(o){
+    o = o || {}; const v = $('tdView'); if(v.hidden) return;
+    v.hidden = true; $('ttRes').classList.remove('rs-detail');
+    if(S.dpush){ S.dpush = false; if(!o.fromPop && !o.keepHistory){ try{ history.back(); }catch(e){} } }
+    if(!o.noScroll){ window.scrollTo(0, S.listY || 0); const b = S.detail && document.querySelector('[data-open="' + String(S.detail.pid).replace(/"/g, '') + '"]'); if(b) try{ b.focus({ preventScroll: true }); }catch(e){} }
+    S.detail = null;
+  }
+  $('tdView').addEventListener('click', e => {
+    if(e.target.closest('[data-tdback]')){ closeDetail(); return; }
+    const go = e.target.closest('[data-tdgo]'); if(go){ const i = S.tutors.findIndex(x => S.detail && x.pid === S.detail.pid) + Number(go.getAttribute('data-tdgo')); if(S.tutors[i]) openDetail(S.tutors[i].pid); return; }
+    if(e.target.closest('[data-tdreq]')){ const t = S.detail; openReq(t ? { pid: t.pid, name: t.name } : null); }
+  });
+  window.addEventListener('popstate', () => { if(!$('tdView').hidden){ S.dpush = false; closeDetail({ fromPop: true }); } });  /* ---------- "your requests": what became of what you sent (kept on this device; the server answers the status only) ---------- */
   const REQ_KEY = 'tt_reqs';
   const myReqs = () => { try{ return (JSON.parse(ls.get(REQ_KEY) || '[]') || []).filter(x => x && /^[0-9a-f-]{36}$/.test(x.id)).slice(0, 3); }catch(e){ return []; } };
   function rememberReq(id, want){ const a = myReqs().filter(x => x.id !== id); a.unshift({ id: id, at: Date.now(), want: want }); ls.set(REQ_KEY, JSON.stringify(a.slice(0, 3))); }
@@ -727,8 +744,8 @@
       return;
     }
     const ov = document.querySelector('.tt-ov.show');
-    if(!ov){ if(e.key === 'Escape'){ if($('rsFilters').classList.contains('open')) closeSheet(); else if($('rsSort').classList.contains('open')) toggleSort(false); } return; }
-    if(e.key === 'Escape'){ if(ov.id === 'tdOv') closeDetail(); else closeReq(); return; }
+    if(!ov){ if(e.key === 'Escape'){ if($('rsFilters').classList.contains('open')) closeSheet(); else if($('rsSort').classList.contains('open')) toggleSort(false); else if(!$('tdView').hidden) closeDetail(); } return; }
+    if(e.key === 'Escape'){ closeReq(); return; }
     if(e.key === 'Tab'){ const f = [].slice.call(ov.querySelector('.tt-dlg').querySelectorAll('button:not([disabled]),input:not([tabindex="-1"]),select:not([disabled]),textarea,a[href]')).filter(x => x.offsetParent !== null); if(!f.length) return; const a = f[0], z = f[f.length - 1];
       if(e.shiftKey && document.activeElement === a){ e.preventDefault(); z.focus(); } else if(!e.shiftKey && document.activeElement === z){ e.preventDefault(); a.focus(); } }
   });
