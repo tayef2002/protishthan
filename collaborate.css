@@ -515,6 +515,12 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .ad-c .ft u{padding:3px 9px;border-radius:100px;background:var(--g);color:#fff;font-size:9px}
 .ad-b u{margin-top:0;align-self:center}
 
+/* phone placement animation */
+.adw::before{content:"আপনার ব্র্যান্ডের জায়গা";position:absolute;z-index:0;left:10px;right:10px;top:8px;bottom:8px;display:grid;place-items:center;border:1.5px dashed var(--c);border-radius:14px;background:rgba(255,255,255,.8);color:var(--c);font-size:11px;font-weight:800;opacity:0}
+.adw.k1 .ad{animation:adPop1 16s infinite}.adw.k2 .ad{animation:adPop2 16s infinite}.adw.k3 .ad{animation:adPop3 16s infinite}
+.adw.k1::before{animation:phOut1 16s infinite}.adw.k2::before{animation:phOut2 16s infinite}.adw.k3::before{animation:phOut3 16s infinite}
+@media(prefers-reduced-motion:reduce){.adw .ad,.adw::before{animation:none!important}.adw::before{opacity:0}}
+
 /* laptop view */
 .co-tabs-wrap{max-width:1120px}
 .co-pn{padding:46px 28px 30px}
@@ -577,6 +583,8 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .lp-base{position:relative;width:calc(100% + 44px);margin:0 -22px;height:15px;border-radius:0 0 24px 24px;background:linear-gradient(180deg,#E3E7EE,#B9C0CD);box-shadow:0 1px 0 #fff inset}
 .lp-base i{position:absolute;left:50%;top:0;width:110px;height:5px;margin-left:-55px;border-radius:0 0 8px 8px;background:#9AA3B2}
 
+/* the page's own top bar is fixed: it stays where it is while the page scrolls under it */
+.lp-nav{position:absolute;z-index:5;left:0;top:0;width:1189px;height:62px;border-radius:20px;background-repeat:no-repeat;background-position:-38px -16px;transform-origin:0 0;transform:scale(var(--k)) translate(38px,16px);pointer-events:none;box-shadow:0 8px 24px rgba(15,23,42,.12)}
 /* the home page filter column stays on screen while the results scroll (position: sticky on the real page) */
 .dcov{position:absolute;z-index:1;pointer-events:none}
 .lp-stk{position:absolute;z-index:3;left:0;top:0;width:var(--sw);height:var(--sh);border-radius:18px;overflow:hidden;background-repeat:no-repeat;background-size:1280px var(--bh);transform-origin:0 0;transform:scale(var(--k)) translate(var(--sx),var(--f0));will-change:transform;animation:dStk 16s cubic-bezier(.45,0,.2,1) infinite}
@@ -662,3 +670,18 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .dad-j.dad-n u{margin-left:auto}
 
 .dad-j.dad-n .tg{top:auto;bottom:0;right:auto;left:26px;border-radius:12px 12px 0 0}
+
+/* the placement animation: the brand's place is first an empty frame, then the ad drops into it when the page arrives there */
+.dw::before{content:"আপনার ব্র্যান্ডের জায়গা";position:absolute;z-index:0;left:var(--pl);right:var(--pr);top:14px;bottom:14px;display:grid;place-items:center;border:4px dashed var(--c);border-radius:24px;background:rgba(255,255,255,.78);color:var(--c);font-size:30px;font-weight:800;opacity:0}
+.dw .dad{opacity:1}
+.dw.k1 .dad{animation:adPop1 16s infinite}.dw.k2 .dad{animation:adPop2 16s infinite}.dw.k3 .dad{animation:adPop3 16s infinite}
+.dw.k1::before{animation:phOut1 16s infinite}.dw.k2::before{animation:phOut2 16s infinite}.dw.k3::before{animation:phOut3 16s infinite}
+@keyframes adPop1{0%,10%{opacity:0;transform:translateY(26px) scale(.9)}14%{opacity:1;transform:translateY(-4px) scale(1.03)}17%,100%{opacity:1;transform:none}}
+@keyframes adPop2{0%,38%{opacity:0;transform:translateY(26px) scale(.9)}42%{opacity:1;transform:translateY(-4px) scale(1.03)}45%,100%{opacity:1;transform:none}}
+@keyframes adPop3{0%,65%{opacity:0;transform:translateY(26px) scale(.9)}69%{opacity:1;transform:translateY(-4px) scale(1.03)}72%,100%{opacity:1;transform:none}}
+@keyframes phOut1{0%,10%{opacity:1}14%,100%{opacity:0}}
+@keyframes phOut2{0%,38%{opacity:1}42%,100%{opacity:0}}
+@keyframes phOut3{0%,65%{opacity:1}69%,100%{opacity:0}}
+.dw .dad u{animation:ctaPulse 16s infinite}
+@keyframes ctaPulse{0%,100%{transform:none}20%,23%,48%,51%,76%,79%{transform:scale(1.07)}21.5%,49.5%,77.5%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.dw .dad,.dw::before,.dw .dad u{animation:none!important}.dw::before{opacity:0}}
