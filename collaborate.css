@@ -424,7 +424,9 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 @keyframes phSb{0%,6%{transform:translateY(0)}16%,34%{transform:translateY(var(--s1))}44%,61%{transform:translateY(var(--s2))}71%,88%{transform:translateY(var(--s3))}98%,100%{transform:translateY(0)}}
 
 /* the brand's place: three kinds, drawn in the same style as the site */
-.adw{box-sizing:border-box;padding:8px 10px;background:#fff}
+.adw{position:relative;box-sizing:border-box;padding:8px 10px;overflow:hidden;background:transparent}
+.adbg{position:absolute;left:0;top:0;width:220px;height:1px;transform-origin:0 0;transform:scaleY(var(--h));pointer-events:none}
+.adw .ad{position:relative;z-index:1}
 .ad{position:relative;height:100%;box-sizing:border-box;border-radius:14px;overflow:hidden}
 .ad .tg{position:absolute;z-index:2;right:8px;top:6px;padding:1px 7px;border-radius:100px;background:rgba(15,23,42,.08);font-size:8.5px;font-weight:800;color:#475569;letter-spacing:.02em}
 .lgo{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--g);color:#fff;font-style:normal}
