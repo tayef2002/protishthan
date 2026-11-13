@@ -18,7 +18,7 @@ language sql stable security definer set search_path = public as $$
   with k as (select public.bn_key(p_name) as q, public.phon_key(p_name) as p),
   m as (
     select l.id, l.institution_name, l.institution_type, l.district, l.upazila, l.desired_slug, l.status, l.verification, l.needs_bn_name,
-           (l.search_key = k.q or l.search_key_en = k.q) as exact,
+           coalesce(l.search_key = k.q or l.search_key_en = k.q, false) as exact,
            (coalesce(trim(p_upazila), '') <> '' and coalesce(trim(l.upazila), '') = trim(p_upazila)) as here
     from public.listing_submissions l, k
     where trim(l.district) = trim(p_district)
