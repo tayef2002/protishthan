@@ -11,6 +11,8 @@
 //   GET /api/dir?f=browse&a={"p_q":..,"p_districts":[..],"p_upazila":..,"p_type":..,"p_limit":30,"p_offset":0}
 //   GET /api/dir?f=search&a={"p_q":"bani","p_limit":8}
 //   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0,"p_kind":"idea","p_sort":"top"}   (card page: the public opinion board, kept for a minute; kind and sort are optional)
+//   GET /api/dir?f=comments&a={"p_limit":10,"p_offset":0,"p_kind":"idea","p_sort":"top","p_label":"planned"}   (/feedback page: the same board plus a status filter: open|review|planned|progress|done; needs 2026-12-24_feedback_page.sql)
+//   GET /api/dir?f=commentstats                                (/feedback page: the real numbers of the board: posts per kind and per status, replies, votes)
 //   GET /api/dir?f=tutors&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_class":"c6-8","p_subject":"math","p_mode":"home","p_limit":12,"p_offset":0}   (/tutor: approved tutors, only when the admin switched the list on; every part is optional)
 //   GET /api/dir?f=tutors&a={...,"p_gender":"female","p_medium":"bangla","p_exam":"ssc","p_trial":true,"p_verified":true,"p_pledge":true,"p_sort":"new"}   (the filters and sorts of the results system; each is optional and sent on only when used)
 //   GET /api/dir?f=tutorfacets&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_mode":"home"}   (/tutor: how many tutors per filter option for that area and mode: only counts)
@@ -60,11 +62,15 @@ const QUESTIONS = {
     const limit = int(a.p_limit, 1, 30, 10), offset = int(a.p_offset, 0, 1000, 0);
     const kind = (a.p_kind === undefined || a.p_kind === null || a.p_kind === '') ? null : (['opinion', 'idea', 'problem'].includes(a.p_kind) ? a.p_kind : undefined);
     const sort = a.p_sort === undefined ? 'new' : (['new', 'top'].includes(a.p_sort) ? a.p_sort : undefined);
-    if ([limit, offset, kind, sort].includes(undefined)) return null;
+    const label = (a.p_label === undefined || a.p_label === null || a.p_label === '') ? null : (['open', 'review', 'planned', 'progress', 'done'].includes(a.p_label) ? a.p_label : undefined);
+    if ([limit, offset, kind, sort, label].includes(undefined)) return null;
     // the plain question (page, offset) goes to the first function; asking for a kind or a sort goes to the feed (2026-12-16 migration), so an old page keeps working either way
     if (a.p_kind === undefined && a.p_sort === undefined) return { path: 'rpc/card_comment_list', rpc: { p_limit: limit, p_offset: offset } };
-    return { path: 'rpc/card_comment_feed', rpc: { p_limit: limit, p_offset: offset, p_kind: kind, p_sort: sort } };
+    const rpc = { p_limit: limit, p_offset: offset, p_kind: kind, p_sort: sort };
+    if (label) rpc.p_label = label;                           // sent only when used, so the page keeps working before the 2026-12-24 migration is run
+    return { path: 'rpc/card_comment_feed', rpc: rpc };
   } },
+  commentstats: { ttl: 60, build: () => ({ path: 'rpc/card_comment_stats', rpc: {} }) },
   tutors:   { ttl: 60, build: a => {                       // /tutor: approved tutors (the function returns nothing until the admin switches the public list on; it never returns a mobile number or the real name)
     const district = str(a.p_district, 40), upazila = str(a.p_upazila, 60), cls = oneOf(a.p_class, TUTOR_CLASSES), subject = oneOf(a.p_subject, TUTOR_SUBJECTS), mode = oneOf(a.p_mode, ['home', 'online']), limit = int(a.p_limit, 1, 30, 12), offset = int(a.p_offset, 0, 500, 0);
     const gender = oneOf(a.p_gender, ['female', 'male']), medium = oneOf(a.p_medium, TUTOR_MEDIUMS), exam = oneOf(a.p_exam, TUTOR_EXAMS), trial = flag(a.p_trial), verified = flag(a.p_verified), pledge = flag(a.p_pledge);
