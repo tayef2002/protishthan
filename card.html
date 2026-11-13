@@ -1089,7 +1089,7 @@ fetch('/api/dir?f=verifiedlite')
 const LEVEL_IC = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>';
 document.getElementById('eduRows').innerHTML = LEVELS.map(l=>`
   <div class="edu" id="edu-${l.key}"${l.only ? ' style="display:none"' : ''}>
-    <div class="edu-head"><span class="edu-ic">${LEVEL_IC}</span><div class="edu-title">${l.title}<small id="sub-${l.key}">${l.sub}</small></div></div>
+    <div class="edu-head"><span class="edu-ic">${LEVEL_IC}</span><div class="edu-title"><span id="ttl-${l.key}">${l.title}</span><small id="sub-${l.key}">${l.sub}</small></div></div>
     <div class="edu-grid">
       <div class="ac" id="ac-${l.key}">
         <input class="inp" data-k="${l.key}" data-f="name" placeholder="${l.ph}" autocomplete="off">
@@ -1362,7 +1362,16 @@ function syncEduRow(k){
   updateUnl(k);
   syncYearUI(k);
   const lv = LEVELS.find(l => l.key === k), tr = S.edu[k].track || 'g';
-  const sub = document.getElementById('sub-' + k); if(sub && lv) sub.textContent = tr === 'g' ? lv.sub : lvName(lv, S.edu[k]);
+  const sub = document.getElementById('sub-' + k), ttl = document.getElementById('ttl-' + k);
+  if(sub && lv){
+    if(tr === 'q'){   // Qawmi: only the Qawmi name of the level (Ibtedaiyyah, Mutawassitah, ...); the two Qawmi-only levels keep their small hint
+      if(ttl) ttl.textContent = lvName(lv, S.edu[k]);
+      sub.textContent = lv.key === 'hifz' ? 'যদি হাফেজ হন' : lv.key === 'ifta' ? 'দাওরার পর' : '';
+    } else {
+      if(ttl) ttl.textContent = lv.title;
+      sub.textContent = tr === 'g' ? lv.sub : lvName(lv, S.edu[k]);
+    }
+  }
 
   const ed = S.edu[k];
   document.getElementById('edu-' + k).classList.toggle('filled', !!ed.name.trim());
