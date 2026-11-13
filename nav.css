@@ -26,21 +26,24 @@
 /* dropdown (desktop) */
 .sn-pop{position:absolute;left:50%;top:calc(100% + 12px);width:360px;margin-left:-180px;padding:8px;border-radius:20px;border:1px solid var(--sn-pop-line);background:var(--sn-pop);box-shadow:none;opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top center;transition:opacity .18s,transform .22s cubic-bezier(.2,.8,.2,1),visibility .18s}
 .sn-pop.open{opacity:1;visibility:visible;transform:none}
-/* the wide menu (a promo card on the left, the list on the right): used by "আরও" */
-.sn-pop.sn-mega{display:grid;grid-template-columns:232px minmax(0,1fr);gap:8px;width:592px;margin-left:0;left:auto;right:-72px;padding:8px;border-radius:24px}
-.sn-pr{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px 18px 16px;border-radius:17px;overflow:hidden;color:#fff;text-decoration:none;background:radial-gradient(120% 90% at 0 0,#3B2A8F 0,transparent 60%),linear-gradient(160deg,#1A2B6B,#0F1C4D 70%)}
+/* the wide menu: as wide as the top bar itself (a navy promo card on the left, the pages as tiles on the right); used by "আরও" */
+.sn-links>li.sn-has-mega{position:static}
+.sn-pop.sn-mega{display:grid;grid-template-columns:300px minmax(0,1fr);gap:10px;left:0;right:0;width:auto;margin-left:0;padding:10px;border-radius:26px}
+.sn-pr{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:210px;padding:22px 22px 18px;border-radius:19px;overflow:hidden;color:#fff;text-decoration:none;background:radial-gradient(120% 90% at 0 0,#3B2A8F 0,transparent 60%),linear-gradient(160deg,#1A2B6B,#0F1C4D 70%)}
 .sn-pr::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1.4px);background-size:14px 14px;-webkit-mask-image:linear-gradient(200deg,#000,transparent 65%);mask-image:linear-gradient(200deg,#000,transparent 65%);pointer-events:none}
 .sn-pr>*{position:relative}
-.sn-pr i{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.14);margin-bottom:4px}
-.sn-pr i svg{width:20px;height:20px}
-.sn-pr b{font:700 16.5px/1.35 'Hind Siliguri','Inter',sans-serif}
-.sn-pr span{font:400 13px/1.55 'Hind Siliguri','Inter',sans-serif;color:rgba(255,255,255,.8)}
-.sn-pr u{margin-top:auto;padding-top:10px;text-decoration:none;font:700 13.5px 'Hind Siliguri',sans-serif;color:#fff;border-bottom:1.5px solid rgba(255,255,255,.5);padding-bottom:1px;align-self:flex-start;transition:border-color .15s}
+.sn-pr i{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.14);margin-bottom:6px}
+.sn-pr i svg{width:21px;height:21px}
+.sn-pr b{font:700 18px/1.35 'Hind Siliguri','Inter',sans-serif}
+.sn-pr span{font:400 13.5px/1.55 'Hind Siliguri','Inter',sans-serif;color:rgba(255,255,255,.8)}
+.sn-pr u{margin-top:auto;padding-top:12px;text-decoration:none;font:700 14px 'Hind Siliguri',sans-serif;color:#fff;border-bottom:1.5px solid rgba(255,255,255,.5);padding-bottom:1px;align-self:flex-start;transition:border-color .15s}
 .sn-pr:hover u{border-color:#fff}
-.sn-list{display:flex;flex-direction:column;gap:2px;min-width:0;padding:4px 2px 2px}
-.sn-lab{padding:6px 12px 8px;font:700 11.5px 'Hind Siliguri',sans-serif;letter-spacing:.06em;color:var(--sn-pop-mut)}
-.sn-mega .sn-it{position:relative;padding-right:34px}
-.sn-mega .sn-it::after{content:"";position:absolute;right:14px;top:50%;width:14px;height:14px;margin-top:-7px;opacity:0;transform:translateX(-4px);transition:opacity .15s,transform .15s;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat}
+.sn-list{display:flex;flex-direction:column;min-width:0;padding:6px 6px 4px}
+.sn-lab{padding:2px 4px 12px;font:700 11.5px 'Hind Siliguri',sans-serif;letter-spacing:.06em;color:var(--sn-pop-mut)}
+.sn-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-content:start}
+.sn-mega .sn-it{position:relative;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 38px 16px 16px;border:1px solid var(--sn-pop-line);border-radius:18px;transition:background .15s,border-color .15s}
+.sn-mega .sn-it:hover{border-color:#C7D5F5}
+.sn-mega .sn-it::after{content:"";position:absolute;right:16px;top:20px;width:15px;height:15px;opacity:0;transform:translateX(-4px);transition:opacity .15s,transform .15s;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat}
 .sn-mega .sn-it:hover::after{opacity:1;transform:none}
 .sn-pop::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px}
 .sn-it{display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:14px;color:var(--sn-pop-ink);transition:background .15s}
