@@ -91,7 +91,7 @@ export function shell({ title, desc, canonical, robots = 'index,follow,max-image
     '<meta property="og:image" content="' + SITE + '/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#F4F6FB">\n' +
     '<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
-    '<link rel="stylesheet" href="/nav.css?v=12"><link rel="stylesheet" href="/footer.css?v=5">\n' +
+    '<link rel="stylesheet" href="/nav.css?v=13"><link rel="stylesheet" href="/footer.css?v=5">\n' +
     '<style>' + AREA_CSS + '</style>\n' +
     '<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/lipi.css?v=2">\n' +
     ldTags + '\n<script src="/analytics.js?v=3" defer></script>\n</head>\n<body>\n' +
