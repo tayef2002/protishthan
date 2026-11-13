@@ -290,3 +290,27 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   .co-quad-mid{display:none}
 }
 @media(max-width:640px){.co-pcs{grid-template-columns:minmax(0,1fr)}.co-sub{margin-top:40px}}
+
+/* the promises: five seals on one line (a timeline on a phone) */
+.co-charter-in{display:block;text-align:center;padding:56px 32px 54px;background:radial-gradient(640px 320px at 50% 0,rgba(16,185,129,.2),transparent 65%),linear-gradient(135deg,#0B1B4D,#14215C 55%,#1E1B6B)}
+.co-charter .co-head{max-width:640px;margin:0 auto 40px;text-align:center}
+.co-charter .co-head p{color:rgba(255,255,255,.8)}
+.co-seals{list-style:none;position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;text-align:center}
+.co-seals::before{content:"";position:absolute;left:10%;right:10%;top:67px;border-top:2px dashed rgba(255,255,255,.3)}
+.co-seal{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 6px}
+.co-seal .no{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--gold);margin-bottom:12px;line-height:1.2}
+.co-seal .badge{position:relative;display:grid;place-items:center;width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#10B981,#0F766E);color:#fff;box-shadow:0 0 0 7px rgba(16,185,129,.2),0 0 0 8px rgba(255,255,255,.22)}
+.co-seal .badge svg{width:34px;height:34px}
+.co-seal .badge em{position:absolute;right:-6px;top:-6px;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#7C2D12;font-style:normal;font-weight:800;font-size:14px;line-height:1}
+.co-seal b{margin-top:22px;font-size:15.5px;line-height:1.55;color:#fff}
+.co-seal .sub{margin-top:8px;font-size:13.5px;line-height:1.65;color:rgba(255,255,255,.76)}
+@media(max-width:1000px){
+  .co-charter-in{padding:40px 20px 38px}
+  .co-seals{grid-template-columns:minmax(0,1fr);gap:22px;text-align:left}
+  .co-seals::before{left:38px;right:auto;top:38px;bottom:38px;border-top:0;border-left:2px dashed rgba(255,255,255,.3)}
+  .co-seal{display:grid;grid-template-columns:76px minmax(0,1fr);column-gap:16px;align-items:start;padding:0}
+  .co-seal .badge{grid-column:1;grid-row:1 / span 3}
+  .co-seal .no{grid-column:2;grid-row:1;margin:4px 0 2px}
+  .co-seal b{grid-column:2;grid-row:2;margin:0}
+  .co-seal .sub{grid-column:2;grid-row:3;margin-top:4px}
+}
