@@ -2602,7 +2602,7 @@ function cmEmptyHtml(filter){
 }
 /* CM-END */
 let CM_ACTIVE = false, CM_OFF = 0, CM_BUSY = false, CM_KIND = 'opinion', CM_FILTER = '', CM_SORT = 'new', CM_V2 = true, CM_REQ = 0;
-const CM_PAGE = 5;   // five at a time: the board stays short, "আরও দেখুন" brings the next five
+const CM_PAGE = 3;   // three at a time: the board stays short, "আরও দেখুন" brings the next three
 const cmEl = id => document.getElementById(id);
 const cmStore = (k, d) => { try{ const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; }catch(e){ return d; } };
 const cmSave = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
