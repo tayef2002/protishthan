@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=13">
 <link rel="stylesheet" href="/footer.css?v=5">
-<link rel="stylesheet" href="/feedback.css?v=3">
+<link rel="stylesheet" href="/feedback.css?v=4">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -62,6 +62,7 @@
             <label class="fb-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.9-4 4.1-6 8-6s7.1 2 8 6"/></svg><input id="cmName" maxlength="40" autocomplete="name" placeholder="আপনার নাম (না দিলে ‘একজন ব্যবহারকারী’)" aria-label="আপনার নাম, ঐচ্ছিক"></label>
             <button type="submit" class="fb-send" id="cmSend" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg><span>পাঠান</span></button>
           </div>
+          <p class="fb-rules fb-who" id="fbWho" hidden>আপনি লগইন করা আছেন, তাই আপনার অ্যাকাউন্টের নাম বসেছে। চাইলে নামটা বদলাতে পারেন।</p>
           <p class="fb-rules" id="cmRules">ফোন নম্বর, ইমেইল বা লিংক লিখবেন না। লেখা সবার সামনে দেখা যাবে।</p>
           <p class="fb-msg" id="cmMsg" role="status" aria-live="polite"></p>
         </form>
@@ -413,6 +414,21 @@ async function cmReport(btn){
   sync();
   ta.addEventListener('input', () => { sync(); cmMsg('', ''); try{ localStorage.setItem('sk_cm_draft', ta.value); }catch(e){} });
   ta.addEventListener('keydown', e => { if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); if(!cmEl('cmSend').disabled) form.requestSubmit(); } });
+  // signed in (Google): the account name is put in the name box and shown on the post. It can be changed; typing your own name there wins.
+  nm.addEventListener('input', () => { nm.dataset.touched = '1'; });
+  try{
+    const M = window.Protishthan && window.Protishthan.member;
+    if(M){
+      let last = '';
+      const fillName = me => {
+        const n = me && me.display_name && String(me.display_name).indexOf('@') < 0 ? String(me.display_name).trim().slice(0, 40) : '';
+        if(n && !nm.dataset.touched){ nm.value = n; last = n; }
+        else if(!n && last && nm.value === last){ nm.value = ''; last = ''; }
+        cmEl('fbWho').hidden = !(n && nm.value === n);
+      };
+      M.ready().then(fillName); M.onChange(fillName);
+    }
+  }catch(e){}
   cmEl('cmKinds').addEventListener('click', e => { const b = e.target.closest('.fb-k'); if(b){ pickKind(b.dataset.k); T('fb_kind', { k: b.dataset.k }); } });
   cmEl('cmTabs').addEventListener('click', e => {
     const b = e.target.closest('.fb-tab'); if(!b || b.dataset.f === CM_FILTER) return; CM_FILTER = b.dataset.f;

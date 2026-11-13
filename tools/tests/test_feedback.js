@@ -25,6 +25,8 @@ yes('phone layout: one column, full-width send, single-column kinds', /@media\(m
 yes('reduced motion respected', /prefers-reduced-motion:reduce/.test(read('feedback.css')));
 yes('page does not promise a result it cannot keep (no "within N days", no "we will fix")', !/(ঘণ্টার মধ্যে|দিনের মধ্যে|ঠিক করে দেব|নিশ্চিত)/.test(fb.replace(blockOf(fb), '')));
 
+yes('the account name of a signed-in member fills the name box on both pages (never an e-mail address), typing your own name wins, and signing out clears it', ['feedback.html', 'card.html'].every(f => { const h = read(f); return h.includes('window.Protishthan.member') && h.includes("indexOf('@') < 0") && h.includes('dataset.touched') && h.includes('M.onChange(fillName)'); }));
+
 // ---- edge + database
 yes('the edge accepts the status filter (open|review|planned|progress|done) and sends it only when used', /\['open', 'review', 'planned', 'progress', 'done'\]/.test(dir) && /if \(label\) rpc\.p_label = label;/.test(dir));
 yes('the edge has the stats question', /commentstats: \{ ttl: 60/.test(dir));

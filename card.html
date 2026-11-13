@@ -2673,6 +2673,21 @@ function cmActivate(){
   };
   sync();
   ta.addEventListener('input', () => { sync(); cmMsg('', ''); try{ localStorage.setItem('sk_cm_draft', ta.value); }catch(e){} });
+  // signed in (Google): the account name is put in the name box and shown on the post. It can be changed; typing your own name there wins.
+  nm.addEventListener('input', () => { nm.dataset.touched = '1'; });
+  try{
+    const M = window.Protishthan && window.Protishthan.member;
+    if(M){
+      let last = '';
+      const fillName = me => {
+        const n = me && me.display_name && String(me.display_name).indexOf('@') < 0 ? String(me.display_name).trim().slice(0, 40) : '';
+        if(n && !nm.dataset.touched){ nm.value = n; last = n; }
+        else if(!n && last && nm.value === last){ nm.value = ''; last = ''; }
+
+      };
+      M.ready().then(fillName); M.onChange(fillName);
+    }
+  }catch(e){}
   ta.addEventListener('keydown', e => { if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); if(!cmEl('cmSend').disabled) form.requestSubmit(); } });
   cmEl('cmKinds').addEventListener('click', e => {
     const b = e.target.closest('.cm-kind'); if(!b) return; CM_KIND = b.dataset.k;
