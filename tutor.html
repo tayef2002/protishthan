@@ -703,7 +703,7 @@
     if(!$('rCls').children.length){ makePick($('rCls'), D.CLASSES, false, () => setErr('rClsErr', '')); makePick($('rSub'), D.SUBJECTS, true, () => setErr('rSubErr', ''), 6); makePick($('rMode'), [['home', 'বাসায়'], ['online', 'অনলাইনে'], ['any', 'যেকোনোভাবে']], false, syncArea); makePick($('rPref'), D.PREFS, false, null); makePick($('rLv'), D.STUDENT_LEVELS, false, null, 0, true); makePick($('rGoal'), D.GOALS, false, null, 0, true); }
     setPressed($('rPref'), S.f.gender || ''); setPressed($('rLv'), ''); setPressed($('rGoal'), ''); $('rTrial').checked = !!S.f.trial;
     setPressed($('rCls'), S.f.cls); $('rSub').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', S.f.subject === b.dataset.v ? 'true' : 'false'));
-    setPressed($('rMode'), S.f.mode === 'any' ? 'home' : S.f.mode);
+    setPressed($('rMode'), S.f.mode === 'any' ? (S.f.trial ? 'any' : 'home') : S.f.mode);   // a trial wish from the filters needs a way of teaching that allows it
     fill($('rDist'), LOC.map(x => x.n), 'জেলা', S.f.district); fill($('rUp'), upazilasOf(S.f.district), 'উপজেলা', S.f.upazila); $('rUp').disabled = !upazilasOf(S.f.district).length;
     syncArea();
     ['rClsErr', 'rSubErr', 'rAreaErr', 'rNameErr', 'rPhoneErr', 'rNoteErr', 'rErr'].forEach(id => setErr(id, ''));
