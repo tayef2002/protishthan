@@ -11,9 +11,9 @@ const blockOf = h => { const a = h.indexOf('/* CM-START'), b = h.indexOf('/* CM-
 // ---- one board, two pages
 yes('the rules-and-markup block is in both pages', blockOf(fb).length > 3000 && blockOf(card).length > 3000);
 yes('the block is IDENTICAL to the card page\'s (change one, change both: build it from card.html)', blockOf(fb) === blockOf(card));
-for (const fn of ['card_comment_add', 'card_comment_vote', 'card_comment_flag']) yes('both pages call ' + fn, fb.includes("'" + fn + "'") && card.includes("'" + fn + "'"));
-yes('the posts are read through the same edge question', fb.includes("dirGet('comments'") && card.includes("f=comments"));
-yes('the same browser keys, so a draft, a vote and a name carry over from the card page', ['sk_cm_name', 'sk_cm_draft', 'sk_cm_votes', 'sk_cm_rep', 'sk_dev'].every(k => fb.includes(k) && card.includes(k)));
+for (const fn of ['card_comment_add', 'card_comment_vote', 'card_comment_flag']) yes('the feedback page calls ' + fn + ' and the card page no longer writes (it only links to /feedback)', fb.includes("'" + fn + "'") && !card.includes("'" + fn + "'"));
+yes('the card page banner reads the two latest posts through the same edge question, and every way in goes to /feedback', fb.includes("dirGet('comments'") && card.includes("f=comments") && card.includes('class="fbn"') && card.includes('id="fbnLive"') && card.includes('href="/feedback#write"') && !card.includes('openFeedback'));
+yes('the browser keys of the board (draft, name, votes, reports, device) are used by the feedback page', ['sk_cm_name', 'sk_cm_draft', 'sk_cm_votes', 'sk_cm_rep', 'sk_dev'].every(k => fb.includes(k)));
 yes('every post is written to the page as escaped text (esc) and the new-post path never uses raw body', /cmItemHtml\(\{ id:/.test(fb) && !/innerHTML = [^;]*\.body/.test(fb));
 
 // ---- the page itself
@@ -25,7 +25,7 @@ yes('phone layout: one column, full-width send, single-column kinds', /@media\(m
 yes('reduced motion respected', /prefers-reduced-motion:reduce/.test(read('feedback.css')));
 yes('page does not promise a result it cannot keep (no "within N days", no "we will fix")', !/(ঘণ্টার মধ্যে|দিনের মধ্যে|ঠিক করে দেব|নিশ্চিত)/.test(fb.replace(blockOf(fb), '')));
 
-yes('the account name of a signed-in member fills the name box on both pages (never an e-mail address), typing your own name wins, and signing out clears it', ['feedback.html', 'card.html'].every(f => { const h = read(f); return h.includes('window.Protishthan.member') && h.includes("indexOf('@') < 0") && h.includes('dataset.touched') && h.includes('M.onChange(fillName)'); }));
+yes('the account name of a signed-in member fills the name box on the feedback page (never an e-mail address), typing your own name wins, and signing out clears it', ['feedback.html'].every(f => { const h = read(f); return h.includes('window.Protishthan.member') && h.includes("indexOf('@') < 0") && h.includes('dataset.touched') && h.includes('M.onChange(fillName)'); }));
 
 // ---- edge + database
 yes('the edge accepts the status filter (open|review|planned|progress|done) and sends it only when used', /\['open', 'review', 'planned', 'progress', 'done'\]/.test(dir) && /if \(label\) rpc\.p_label = label;/.test(dir));

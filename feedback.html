@@ -445,6 +445,7 @@ async function cmReport(btn){
   cmEl('fbCta').addEventListener('click', e => { e.preventDefault(); cmEl('write').scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(() => { try{ ta.focus({ preventScroll: true }); }catch(_){} }, 500); T('fb_cta'); });
   const q = new URLSearchParams(location.search).get('k'); if(q) pickKind(q);
   T('fb_view');
+  if(location.hash === '#write') setTimeout(() => { try{ ta.focus({ preventScroll: true }); }catch(_){} }, 700);   // the card page's banner and the menu link here
   cmLoad(false); fbLoadStats();
 })();
 </script>
