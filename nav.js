@@ -12,6 +12,8 @@
     tutor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.9.8 3.1 2.6 3.5 5.2"/></svg>',
     info:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6M12 10v.01"/></svg>',
     service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+    feedback: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/></svg>',
+    partner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.6.8 2.7 2.4 3 5.2"/></svg>',
     chev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
@@ -23,6 +25,12 @@
   ];
   var TOOLS_PAGES = TOOLS.map(function(x){ return x.k; });
 
+  /* the "আরও" dropdown (and a group in the phone drawer): pages that are not tools. HOW TO ADD ONE: a line here. tab: 'short label' also puts it in the phone bottom bar (pages that use data-tabs). */
+  var MORE = [
+    { k: 'feedback', t: 'মন্তব্য ও পরামর্শ', tab: 'মন্তব্য', d: 'আইডিয়া, মতামত বা সমস্যার কথা জানান', href: 'feedback.html', ic: 'feedback', g: 'linear-gradient(135deg,#7C3AED,#DB2777)', tag: 'নতুন' },
+    { k: 'partner',  t: 'Partner প্রোগ্রাম',   d: 'এলাকার প্রতিষ্ঠান যাচাইয়ে আমাদের সঙ্গী হোন', href: 'partner.html', ic: 'partner', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
+  ];
+
   /* While there are only a few pages, every page is a plain link in the bar. When the list grows (about 7+), set GROUP_TOOLS = true
      and the free tools fold into a "ফ্রি টুলস" dropdown (and a section on phones) with no other change. */
   var GROUP_TOOLS = false;
@@ -32,7 +40,7 @@
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
       { k: 'about',   t: 'আমাদের কথা', href: 'about.html' }
-    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })),
+    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS, note: 'আরও টুল শীঘ্রই আসছে' }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })).concat([{ k: 'more', t: 'আরও', menu: MORE }]),
     partner: [
       { t: 'কীভাবে কাজ করে', href: '#how' }, { t: 'আয়ের হিসাব', href: '#earn' }, { t: 'সুবিধা', href: '#why' }, { t: 'প্রশ্নোত্তর', href: '#faq' }
     ],
@@ -52,7 +60,6 @@
   var set = SETS[el.dataset.set] || SETS.main, cta = CTAS[el.dataset.cta] || CTAS.member;
   var here = (location.pathname.split('/').pop() || 'index').replace(/\.html$/, '') || 'index';
   var active = el.dataset.active || (here === 'index' || here === '' ? 'info' : here === 'software' ? 'service' : here);
-  var inTools = TOOLS_PAGES.indexOf(active) > -1;
   var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 
   function item(x, cls){
@@ -60,8 +67,8 @@
   }
   var links = set.map(function(l, i){
     if(l.menu){
-      var on = inTools;
-      return '<li><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop" id="snm' + i + '" role="menu">' + l.menu.map(function(x){ return item(x); }).join('') + '<div class="sn-more">আরও টুল শীঘ্রই আসছে</div></div></li>';
+      var on = l.menu.some(function(x){ return x.k === active; });
+      return '<li><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop" id="snm' + i + '" role="menu">' + l.menu.map(function(x){ return item(x); }).join('') + (l.note ? '<div class="sn-more">' + esc(l.note) + '</div>' : '') + '</div></li>';
     }
     var cur = l.k && l.k === active;
     return '<li><a class="sn-l' + (cur ? ' on' : '') + '" href="' + esc(l.href) + '"' + (cur ? ' aria-current="page"' : '') + '>' + esc(l.t) + '</a></li>';
@@ -81,7 +88,8 @@
     '</div>';
   /* phones: opt in with data-tabs="1" to get a bottom tab bar instead of the hamburger */
   if(el.dataset.tabs){
-    var tabs = set.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span' + (/\s/.test(l.t) ? '' : ' class="nw"') + '>' + esc(l.t) + '</span></a>'; }).join('');
+    var tabSet = set.reduce(function(a, l){ return l.menu ? a.concat(l.menu.filter(function(x){ return x.tab || l.k === 'tools'; }).map(function(x){ return { k: x.k, t: x.tab || x.t, href: x.href }; })) : a.concat(l); }, []);
+    var tabs = tabSet.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span' + (/\s/.test(l.t) ? '' : ' class="nw"') + '>' + esc(l.t) + '</span></a>'; }).join('');
     var tb = document.createElement('div'); tb.className = 'sn-tabs'; tb.setAttribute('role', 'navigation'); tb.setAttribute('aria-label', 'প্রধান মেনু'); tb.innerHTML = tabs; document.body.appendChild(tb);
     el.classList.add('has-tabs'); document.body.classList.add('has-tabs');
   }
