@@ -1409,7 +1409,7 @@ async function loadContribs(){
   CO_ROWS.forEach(r => { r.__who = who[r.user_id] || {}; });
   const open = CO_ROWS.filter(r => r.status === 'pending').length, b = document.getElementById('contribsBadge');
   b.textContent = open; b.style.display = open ? '' : 'none';
-  renderContribs();
+  coFilter(open ? 'pending' : 'all');   // nothing waiting: show everything instead of an empty page
 }
 function renderContribs(){
   const rows = CO_ROWS.filter(r => CO_FILTER === 'all' || r.status === 'pending'), box = document.getElementById('coList');
@@ -1453,7 +1453,7 @@ async function loadClaims(){
   CL_ROWS.forEach(r => { r.__who = who[r.user_id] || {}; });
   const open = CL_ROWS.filter(r => r.status === 'pending').length, b = document.getElementById('claimsBadge');
   b.textContent = open; b.style.display = open ? '' : 'none';
-  renderClaims();
+  clFilter(open ? 'pending' : 'all');
 }
 function renderClaims(){
   const rows = CL_ROWS.filter(r => CL_FILTER === 'all' || r.status === 'pending'), box = document.getElementById('clList');
@@ -1495,7 +1495,7 @@ async function loadNames(){
   NM_ROWS = data || [];
   const fresh = NM_ROWS.filter(r => r.status === 'new').length, b = document.getElementById('namesBadge');
   b.textContent = fresh; b.style.display = fresh ? '' : 'none';
-  renderNames();
+  nmFilter(fresh ? 'new' : 'all');
 }
 function renderNames(){
   const rows = NM_ROWS.filter(r => NM_FILTER === 'all' || r.status === 'new'), box = document.getElementById('nmList');
@@ -1542,7 +1542,7 @@ async function loadCardComments(){
   const s = await sbAdmin.from('card_comment_settings').select('approve_first').eq('id', 1).maybeSingle();
   document.getElementById('ccApprove').checked = !!(s && s.data && s.data.approve_first);
   ccRefreshBadge();
-  renderCardComments();
+  ccFilter(CC_ROWS.some(ccIsNew) ? 'new' : 'all');
 }
 function ccIsNew(r){ return !r.seen || r.status === 'pending'; }
 function ccRefreshBadge(){
@@ -1796,7 +1796,7 @@ async function loadSkills(){
   const reported = SK_ROWS.filter(p => SK_REP[p.user_id] && !p.hidden).length, b = document.getElementById('skillsBadge');
   b.textContent = reported; b.style.display = reported ? '' : 'none';
   document.getElementById('skCount').textContent = 'মোট ' + SK_ROWS.length + 'টি, প্রকাশিত ' + SK_ROWS.filter(p => p.published).length + 'টি';
-  renderSkills();
+  skFilter(Object.keys(SK_REP).length ? 'rep' : 'all');   // nothing reported: show everyone instead of an empty page
 }
 function renderSkills(){
   const box = document.getElementById('skList');
