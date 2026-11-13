@@ -41,8 +41,8 @@
   var SETS = {
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
-      { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD },
-      { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR },
+      { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD, promo: { ic: 'card', lab: 'ফ্রি টুলস', t: 'নিজের শিক্ষাজীবন, এক কার্ডে', d: '৩০ সেকেন্ডে শিক্ষিত কার্ড বানান, আর স্কিল পেজে নিজের সব স্কিল সাজান।', btn: 'কার্ড বানান', href: 'card.html' } },
+      { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR, promo: { ic: 'tutor', lab: 'টিউটর', t: 'যাচাই করা ভাইয়া-আপু, আপনার এলাকায়', d: 'নিজের সন্তানের জন্য টিউটর খুঁজুন, অথবা নিজেই টিউটর হয়ে যোগ দিন।', btn: 'টিউটর খুঁজুন', href: 'tutor.html' } },
       { k: 'about',   t: 'আমাদের কথা', menu: ABOUT, promo: { lab: 'আমাদের নিয়ে', t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }
     ],
     partner: [
@@ -72,7 +72,7 @@
   var links = set.map(function(l, i){
     if(l.menu){
       var on = l.menu.some(function(x){ return x.k === active; });
-      return '<li' + (l.promo ? ' class="sn-has-mega"' : '') + '><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop' + (l.promo ? ' sn-mega' : '') + '" id="snm' + i + '" role="menu">' + (l.promo ? '<a class="sn-pr" href="' + esc(l.promo.href) + '"><i aria-hidden="true">' + IC.feedback + '</i><b>' + esc(l.promo.t) + '</b><span>' + esc(l.promo.d) + '</span><u>' + esc(l.promo.btn) + ' →</u></a><div class="sn-list"><div class="sn-lab">' + esc(l.promo.lab || l.t) + '</div><div class="sn-tiles">' : '') + l.menu.map(function(x){ return item(x); }).join('') + (l.promo ? '</div></div>' : '') + (l.note ? '<div class="sn-more">' + esc(l.note) + '</div>' : '') + '</div></li>';
+      return '<li' + (l.promo ? ' class="sn-has-mega"' : '') + '><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop' + (l.promo ? ' sn-mega' : '') + '" id="snm' + i + '" role="menu">' + (l.promo ? '<a class="sn-pr" href="' + esc(l.promo.href) + '"><i aria-hidden="true">' + (IC[l.promo.ic] || IC.feedback) + '</i><b>' + esc(l.promo.t) + '</b><span>' + esc(l.promo.d) + '</span><u>' + esc(l.promo.btn) + ' →</u></a><div class="sn-list"><div class="sn-lab">' + esc(l.promo.lab || l.t) + '</div><div class="sn-tiles">' : '') + l.menu.map(function(x){ return item(x); }).join('') + (l.promo ? '</div></div>' : '') + (l.note ? '<div class="sn-more">' + esc(l.note) + '</div>' : '') + '</div></li>';
     }
     var cur = l.k && l.k === active;
     return '<li><a class="sn-l' + (cur ? ' on' : '') + '" href="' + esc(l.href) + '"' + (cur ? ' aria-current="page"' : '') + '>' + esc(l.t) + '</a></li>';

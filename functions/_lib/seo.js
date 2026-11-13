@@ -95,7 +95,7 @@ export function shell({ title, desc, canonical, robots = 'index,follow,max-image
     '<style>' + AREA_CSS + '</style>\n' +
     '<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/lipi.css?v=2">\n' +
     ldTags + '\n<script src="/analytics.js?v=3" defer></script>\n</head>\n<body>\n' +
-    '<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"' + (active ? ' data-active="' + active + '"' : '') + '></div>\n<script src="/nav.js?v=16"></script>\n' +
+    '<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"' + (active ? ' data-active="' + active + '"' : '') + '></div>\n<script src="/nav.js?v=17"></script>\n' +
     body + '\n<div id="pfoot"></div>\n<script src="/footer.js?v=17"></script>\n</body>\n</html>';
 }
 
