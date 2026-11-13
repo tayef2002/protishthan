@@ -2409,5 +2409,17 @@ async function fbnLoad(){
 Promise.all([document.fonts.load(F(700, 40)), document.fonts.load(F(600, 24)), document.fonts.load(F(500, 20))]).finally(()=>draw());
 draw();
 </script>
+<script>
+/* the live preview is taller than a short screen: pin it by its bottom edge then, so the buttons under the card stay reachable while the left column scrolls */
+(function(){
+  var pv = document.querySelector('.preview'); if(!pv) return;
+  function fit(){
+    if(getComputedStyle(pv).position !== 'sticky'){ pv.style.top = ''; return; }
+    pv.style.top = Math.min(84, Math.round(window.innerHeight - pv.offsetHeight - 24)) + 'px';
+  }
+  fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+  if(window.ResizeObserver) new ResizeObserver(fit).observe(pv);
+})();
+</script>
 </body>
 </html>
