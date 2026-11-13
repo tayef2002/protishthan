@@ -659,6 +659,13 @@ button{font-family:inherit;font-size:inherit;color:inherit}
   .hx-fc.f1{right:0}.hx-fc.f2{left:0}
 }
 @media(prefers-reduced-motion:reduce){.hx-blob,.hx-pulse,.hx-ring,.hx-cp,.hx-fc{animation:none!important}.hx-pulse{opacity:.4}}
+
+/* orbit chips placed by script (they push each other aside) */
+.hx-ringline{position:absolute;left:50%;top:50%;aspect-ratio:1;border-radius:50%;border:1.5px dashed rgba(26,86,219,.28);transform:translate(-50%,-50%);animation:hxSpin 60s linear infinite}
+.hx-ringline.r1{width:52%}.hx-ringline.r2{width:80%;border-color:rgba(124,58,237,.26);animation-direction:reverse}
+.hx-chip{position:absolute;left:0;top:0;z-index:4;opacity:0;will-change:transform}
+.hx-live .hx-chip{opacity:1}
+.hx-chip .hx-cp{animation:none!important}
 /* quick-jump bar and anchors */
 .co-sec{scroll-margin-top:150px}
 .co-anc{display:block;height:0;scroll-margin-top:150px}
