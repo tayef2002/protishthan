@@ -137,6 +137,8 @@ textarea{resize:vertical;min-height:80px}
 .nm-f{padding:10px 14px;border-top:1px solid #FDE9A8;display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 12.5px 'Hind Siliguri',sans-serif;color:#A16207}
 .nm-f button{border:0;background:none;color:#1A56DB;font:700 12.5px 'Hind Siliguri',sans-serif;cursor:pointer;text-decoration:underline}
 @media(max-width:520px){.nm-r{flex-wrap:wrap}.nm-r a:first-of-type{margin-left:auto}}
+.area-first{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#F1F5FF;border:1px solid #DCE7FF;color:#1E3A8A;font-size:13.5px;line-height:1.6}
+.nm-wait{margin:6px 2px 0;color:#64748B;font-size:12.5px;line-height:1.5}
 </style>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -177,10 +179,28 @@ textarea{resize:vertical;min-height:80px}
 
       <!-- STEP 1: Institution Info -->
       <div class="fstep active" id="step1">
+        <div class="area-first">প্রথমে এলাকা বেছে নিন, তারপর নাম লিখুন। তাহলে নামটা আগে জমা পড়ে থাকলে সাথে সাথে জানিয়ে দিতে পারব।</div>
+        <div class="field-row">
+          <div class="field">
+            <label>জেলা <span class="req">*</span></label>
+            <select id="instDistrict" onchange="onDistrictChange()">
+              <option value="">নির্বাচন করুন</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>উপজেলা / থানা <span class="req">*</span></label>
+            <select id="instUpazila" disabled>
+              <option value="">আগে জেলা দিন</option>
+            </select>
+          </div>
+        </div>
+
         <div class="field">
           <label>প্রতিষ্ঠানের নাম <span class="req">*</span></label>
           <input type="text" id="instName" placeholder="বাংলায় লিখুন, যেমন: দারুল উলুম মাদ্রাসা" autocomplete="off" lang="bn">
           <div id="nmSug" class="nm-sug" hidden aria-live="polite"></div>
+          <div id="nmWait" class="nm-wait" hidden>জেলা আর উপজেলা বেছে নিলে নামটা আগে জমা পড়েছে কিনা এখনই দেখিয়ে দেব।</div>
+          <div id="dupBox" aria-live="polite"></div>
         </div>
 
         <div class="field">
@@ -201,23 +221,6 @@ textarea{resize:vertical;min-height:80px}
           </div>
           <div class="field-error" id="typeErr">প্রতিষ্ঠানের ধরন নির্বাচন করুন</div>
         </div>
-
-        <div class="field-row">
-          <div class="field">
-            <label>জেলা <span class="req">*</span></label>
-            <select id="instDistrict" onchange="onDistrictChange()">
-              <option value="">নির্বাচন করুন</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>উপজেলা / থানা <span class="req">*</span></label>
-            <select id="instUpazila" disabled>
-              <option value="">আগে জেলা দিন</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="dupBox" aria-live="polite"></div>
 
         <div class="field">
           <label>আনুমানিক শিক্ষার্থী সংখ্যা</label>
@@ -514,6 +517,7 @@ const deviceId = () => { try{ let d = localStorage.getItem('pt_dev'); if(!d){ d 
 async function refreshDup(){
   const nm = BnName.norm(document.getElementById('instName').value), di = document.getElementById('instDistrict').value, up = document.getElementById('instUpazila').value;
   const box = document.getElementById('dupBox'); const seq = ++DUP_SEQ;
+  const wait = document.getElementById('nmWait'); if(wait) wait.hidden = !(nm && (di === '' || !up));   // a name without an area cannot be checked yet: say what to do
   if(DUP_DONE && DUP_DONE !== nm) DUP_DONE = '';
   if(DUP_DONE){ DUP_STOP = true; return []; }              // the Bangla name of an existing listing was just sent: nothing new is made from this name
   if(!nm || di === '' || BnName.hasLatin(nm)){ box.innerHTML = ''; DUP_STOP = false; return []; }
