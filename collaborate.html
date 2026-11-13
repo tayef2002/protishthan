@@ -598,7 +598,7 @@ document.getElementById('coCopy').addEventListener('click', async () => {
   if('ResizeObserver' in window) new ResizeObserver(() => measure()).observe(orbit); else window.addEventListener('resize', measure);
 })();
 // the contact number: the WhatsApp button appears only when the number below is a full Bangladeshi mobile number
-const WA_NUM = '0132889573';   // as given; a Bangladeshi mobile number has 11 digits (01XXXXXXXXX), so the button stays hidden until this is complete
+const WA_NUM = '01328859573';   // the Protishthan WhatsApp number (the button shows only for a full 11-digit mobile number)
 (function(){
   const a = document.getElementById('coWa'); if(!a) return;
   if(/^01[3-9][0-9]{8}$/.test(WA_NUM)){ a.href = 'https://wa.me/88' + WA_NUM + '?text=' + encodeURIComponent('আসসালামু আলাইকুম, Protishthan-এর সঙ্গে সহযোগিতা নিয়ে কথা বলতে চাই।'); a.hidden = false; }
