@@ -91,11 +91,11 @@ export function shell({ title, desc, canonical, robots = 'index,follow,max-image
     '<meta property="og:image" content="' + SITE + '/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">\n' +
     '<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#F4F6FB">\n' +
     '<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
-    '<link rel="stylesheet" href="/nav.css?v=10"><link rel="stylesheet" href="/footer.css?v=5">\n' +
+    '<link rel="stylesheet" href="/nav.css?v=11"><link rel="stylesheet" href="/footer.css?v=5">\n' +
     '<style>' + AREA_CSS + '</style>\n' +
     '<link rel="preload" href="/Font/SolaimanLipi-sub.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/lipi.css?v=2">\n' +
     ldTags + '\n<script src="/analytics.js?v=3" defer></script>\n</head>\n<body>\n' +
-    '<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"' + (active ? ' data-active="' + active + '"' : '') + '></div>\n<script src="/nav.js?v=11"></script>\n' +
+    '<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member"' + (active ? ' data-active="' + active + '"' : '') + '></div>\n<script src="/nav.js?v=12"></script>\n' +
     body + '\n<div id="pfoot"></div>\n<script src="/footer.js?v=16"></script>\n</body>\n</html>';
 }
 

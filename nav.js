@@ -40,7 +40,7 @@
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
       { k: 'about',   t: 'আমাদের কথা', href: 'about.html' }
-    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS, note: 'আরও টুল শীঘ্রই আসছে' }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })).concat([{ k: 'more', t: 'আরও', menu: MORE }]),
+    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS, note: 'আরও টুল শীঘ্রই আসছে' }] : TOOLS.map(function(x){ return { k: x.k, t: x.t, href: x.href }; })).concat([{ k: 'more', t: 'আরও', menu: MORE, promo: { t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }]),
     partner: [
       { t: 'কীভাবে কাজ করে', href: '#how' }, { t: 'আয়ের হিসাব', href: '#earn' }, { t: 'সুবিধা', href: '#why' }, { t: 'প্রশ্নোত্তর', href: '#faq' }
     ],
@@ -68,7 +68,7 @@
   var links = set.map(function(l, i){
     if(l.menu){
       var on = l.menu.some(function(x){ return x.k === active; });
-      return '<li><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop" id="snm' + i + '" role="menu">' + l.menu.map(function(x){ return item(x); }).join('') + (l.note ? '<div class="sn-more">' + esc(l.note) + '</div>' : '') + '</div></li>';
+      return '<li><button type="button" class="sn-l' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="snm' + i + '">' + esc(l.t) + IC.chev + '</button><div class="sn-pop' + (l.promo ? ' sn-mega' : '') + '" id="snm' + i + '" role="menu">' + (l.promo ? '<a class="sn-pr" href="' + esc(l.promo.href) + '"><i aria-hidden="true">' + IC.feedback + '</i><b>' + esc(l.promo.t) + '</b><span>' + esc(l.promo.d) + '</span><u>' + esc(l.promo.btn) + ' →</u></a><div class="sn-list"><div class="sn-lab">' + esc(l.t) + ' কিছু</div>' : '') + l.menu.map(function(x){ return item(x); }).join('') + (l.promo ? '</div>' : '') + (l.note ? '<div class="sn-more">' + esc(l.note) + '</div>' : '') + '</div></li>';
     }
     var cur = l.k && l.k === active;
     return '<li><a class="sn-l' + (cur ? ' on' : '') + '" href="' + esc(l.href) + '"' + (cur ? ' aria-current="page"' : '') + '>' + esc(l.t) + '</a></li>';
