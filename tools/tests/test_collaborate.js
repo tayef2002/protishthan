@@ -29,5 +29,9 @@ yes('links to the real pages: partner, feedback (write box), Messenger', /href="
 yes('phone layout: columns collapse, buttons go full width; motion is skipped when the visitor asks for less', /@media\(max-width:940px\)/.test(css) && /@media\(max-width:640px\)/.test(css) && /\.co-hero-act \.co-btn\{width:100%\}/.test(css) && /prefers-reduced-motion:reduce/.test(css));
 yes('the page is readable without JavaScript: the reveal effect only starts hidden when JS has added its class', /\.co-js \.rv\{opacity:0/.test(css) && !/^\.rv\{opacity:0/m.test(css));
 
+// ---- the site menu: four tabs, each opening its related pages (a computer: hover or click; a phone: a sheet above the bottom bar)
+yes('the main menu is four tabs in this order: প্রতিষ্ঠান খুঁজুন (a plain link), শিক্ষিত কার্ড, ভাইয়া-আপু, আমাদের কথা; the skill page lives inside the card tab', /main: \[\s*\{ k: 'info',[^}]*\},\s*\{ k: 'card',\s+t: 'শিক্ষিত কার্ড', menu: CARD \},\s*\{ k: 'tutor',\s+t: 'ভাইয়া-আপু', menu: TUTOR \},\s*\{ k: 'about',\s+t: 'আমাদের কথা', menu: ABOUT/.test(nav) && /var CARD = \[\s*\{ k: 'card'[^\n]*\n\s*\{ k: 'skill'/.test(nav) && !/\{ k: 'skill', t: 'স্কিল আইডেন্টিটি', href/.test(nav));
+yes('the phone bottom bar opens a sheet from each group tab (button with aria-expanded), closes on the backdrop, a link or Escape, and the sheet is styled with the light menu colours', /class="sn-tab' \+ \(on/.test(nav) && /aria-haspopup="true" aria-expanded="false" aria-controls="sns/.test(nav) && /back\.addEventListener\('click', closeSheets\)/.test(nav) && /e\.key === 'Escape'\) closeSheets/.test(nav) && /\.sn-sheets\[data-theme=light\]/.test(read('nav.css')) && /\.sn-sheet\.open\{/.test(read('nav.css')));
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

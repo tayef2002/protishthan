@@ -1,5 +1,5 @@
 /* Protishthan — shared top bar.
-   HOW TO ADD A PAGE: add one line to TOOLS (a free tool: it goes in the "ফ্রি টুলস" menu) or to SETS.main (a top-level link).
+   HOW TO ADD A PAGE: add one line to the group it belongs to (CARD, TUTOR, ABOUT), or to SETS.main (a top-level link).
    Pages only need:  <div id="nav" class="sn" data-theme="dark|light" data-set="main" data-cta="member"></div>
    followed by <script src="/nav.js"></script>, plus <link rel="stylesheet" href="/nav.css"> in the head. */
 (function(){
@@ -15,40 +15,36 @@
     feedback: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/></svg>',
     partner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.6.8 2.7 2.4 3 5.2"/></svg>',
     heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.2-4.4-9.2-9C1.4 8.2 3.4 5 6.5 5c1.9 0 3.3 1 4.1 2.3h2.8C14.2 6 15.6 5 17.5 5c3.1 0 5.1 3.2 3.7 6.5-2 4.6-9.2 9-9.2 9z"/></svg>',
+    about: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/></svg>',
     chev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
-  /* free tools: each becomes a card in the dropdown (and a row on phones) */
-  var TOOLS = [
+  /* Every tab of the site menu is one of these groups: it opens its related pages (hover or click on a computer, a small sheet on the phone bottom bar).
+     The first entry of a group is the tab's own page. HOW TO ADD A PAGE: one line in the group it belongs to. */
+  var CARD = [
     { k: 'card',  t: 'শিক্ষিত কার্ড',    d: '৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান',     href: 'card.html',  ic: 'card',  g: 'linear-gradient(135deg,#047857,#0F766E)' },
-    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
-    { k: 'tutor', t: 'ভাইয়া-আপু',        d: 'যাচাই করা টিউটর খুঁজুন, বা টিউটর হিসেবে যোগ দিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' }
+    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' }
   ];
-  var TOOLS_PAGES = TOOLS.map(function(x){ return x.k; });
 
-  /* Related pages open from the tab they belong to (hover or click), like a section of the site; the tab's own page is the first tile.
-     HOW TO ADD ONE: a line in ABOUT (under "আমাদের কথা") or TUTOR. tab: 'short label' also puts it in the phone bottom bar (pages that use data-tabs); end: true puts that tab last. */
   var ABOUT = [
     { k: 'about',    t: 'আমাদের কথা',        d: 'Protishthan কী, কেন বানানো হয়েছে', href: 'about.html', ic: 'info', g: 'linear-gradient(135deg,#1A56DB,#5B8DEF)' },
-    { k: 'feedback', t: 'মন্তব্য ও পরামর্শ', tab: 'মন্তব্য', end: true, d: 'আইডিয়া, মতামত বা সমস্যার কথা জানান', href: 'feedback.html', ic: 'feedback', g: 'linear-gradient(135deg,#7C3AED,#DB2777)', tag: 'নতুন' },
+    { k: 'feedback', t: 'মন্তব্য ও পরামর্শ', d: 'আইডিয়া, মতামত বা সমস্যার কথা জানান', href: 'feedback.html', ic: 'feedback', g: 'linear-gradient(135deg,#7C3AED,#DB2777)', tag: 'নতুন' },
     { k: 'collaborate', t: 'পাশে দাঁড়ান', d: 'ব্র্যান্ড, সংগঠন বা ব্যক্তি, সঙ্গী হোন', href: 'collaborate.html', ic: 'heart', g: 'linear-gradient(135deg,#BE123C,#F97316)' },
     { k: 'partner',  t: 'Partner প্রোগ্রাম',   d: 'এলাকার প্রতিষ্ঠান যাচাইয়ে আমাদের সঙ্গী হোন', href: 'partner.html', ic: 'partner', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
   ];
   var TUTOR = [
-    { k: 'tutor',      t: 'টিউটর খুঁজুন',          tab: 'ভাইয়া-আপু', d: 'যাচাই করা ভাইয়া-আপু টিউটর খুঁজে নিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' },
+    { k: 'tutor',      t: 'টিউটর খুঁজুন',          d: 'যাচাই করা ভাইয়া-আপু টিউটর খুঁজে নিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' },
     { k: 'tutor-join', t: 'টিউটর হিসেবে যোগ দিন', d: 'নিজের প্রোফাইল বানান, যোগ দেওয়া ফ্রি', href: 'tutor-join.html', ic: 'partner', g: 'linear-gradient(135deg,#047857,#10B981)' }
   ];
-
-  /* While there are only a few pages, every page is a plain link in the bar. When the list grows (about 7+), set GROUP_TOOLS = true
-     and the free tools fold into a "ফ্রি টুলস" dropdown (and a section on phones) with no other change. */
-  var GROUP_TOOLS = false;
 
   /* link sets: "main" is the site menu; others are for special pages */
   var SETS = {
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
+      { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD },
+      { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR },
       { k: 'about',   t: 'আমাদের কথা', menu: ABOUT, promo: { lab: 'আমাদের নিয়ে', t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }
-    ].concat(GROUP_TOOLS ? [{ k: 'tools', t: 'ফ্রি টুলস', menu: TOOLS, note: 'আরও টুল শীঘ্রই আসছে' }] : TOOLS.map(function(x){ return x.k === 'tutor' ? { k: 'tutor', t: x.t, menu: TUTOR } : { k: x.k, t: x.t, href: x.href }; })),
+    ],
     partner: [
       { t: 'কীভাবে কাজ করে', href: '#how' }, { t: 'আয়ের হিসাব', href: '#earn' }, { t: 'সুবিধা', href: '#why' }, { t: 'প্রশ্নোত্তর', href: '#faq' }
     ],
@@ -96,10 +92,26 @@
     '</div>';
   /* phones: opt in with data-tabs="1" to get a bottom tab bar instead of the hamburger */
   if(el.dataset.tabs){
-    var tabSet = set.reduce(function(a, l){ return l.menu ? a.concat(l.menu.filter(function(x){ return (x.tab || l.k === 'tools') && !x.end; }).map(function(x){ return { k: x.k, t: x.tab || x.t, href: x.href }; })) : a.concat(l); }, []);
-    set.forEach(function(l){ if(l.menu) l.menu.forEach(function(x){ if(x.end && x.tab) tabSet.push({ k: x.k, t: x.tab, href: x.href }); }); });
-    var tabs = tabSet.filter(function(l){ return l.k && IC[l.k]; }).map(function(l){ var on = l.k === active; return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + '<span' + (/\s/.test(l.t) ? '' : ' class="nw"') + '>' + esc(l.t) + '</span></a>'; }).join('');
+    var tabItems = set.filter(function(l){ return l.k && IC[l.k]; });
+    var tabs = tabItems.map(function(l, i){
+      var on = l.k === active || (l.menu && l.menu.some(function(x){ return x.k === active; }));
+      var lab = '<span' + (/\s/.test(l.t) ? '' : ' class="nw"') + '>' + esc(l.t) + '</span>';
+      if(l.menu) return '<button type="button" class="sn-tab' + (on ? ' on' : '') + '" aria-haspopup="true" aria-expanded="false" aria-controls="sns' + i + '">' + IC[l.k] + lab + '</button>';
+      return '<a class="sn-tab' + (on ? ' on' : '') + '" href="' + esc(l.href) + '"' + (on ? ' aria-current="page"' : '') + '>' + IC[l.k] + lab + '</a>';
+    }).join('');
     var tb = document.createElement('div'); tb.className = 'sn-tabs'; tb.setAttribute('role', 'navigation'); tb.setAttribute('aria-label', 'প্রধান মেনু'); tb.innerHTML = tabs; document.body.appendChild(tb);
+    var sh = document.createElement('div'); sh.className = 'sn-sheets'; sh.setAttribute('data-theme', 'light');
+    sh.innerHTML = '<div class="sn-back"></div>' + tabItems.map(function(l, i){ return l.menu ? '<div class="sn-sheet" id="sns' + i + '" role="menu">' + l.menu.map(function(x){ return item(x); }).join('') + '</div>' : ''; }).join('');
+    document.body.appendChild(sh);
+    var sbtns = [].slice.call(tb.querySelectorAll('button.sn-tab')), sheets = [].slice.call(sh.querySelectorAll('.sn-sheet')), back = sh.querySelector('.sn-back');
+    var closeSheets = function(){ sheets.forEach(function(p){ p.classList.remove('open'); }); sbtns.forEach(function(b){ b.setAttribute('aria-expanded', 'false'); }); back.classList.remove('open'); };
+    sbtns.forEach(function(b){ b.addEventListener('click', function(){
+      var p = document.getElementById(b.getAttribute('aria-controls')), was = p.classList.contains('open');
+      closeSheets(); if(!was){ p.classList.add('open'); b.setAttribute('aria-expanded', 'true'); back.classList.add('open'); }
+    }); });
+    back.addEventListener('click', closeSheets);
+    sh.addEventListener('click', function(e){ if(e.target.closest('a')) closeSheets(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheets(); });
     el.classList.add('has-tabs'); document.body.classList.add('has-tabs');
   }
   el.dataset.ready = '1'; if(!el.dataset.theme) el.dataset.theme = 'dark';
