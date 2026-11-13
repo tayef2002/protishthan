@@ -542,12 +542,31 @@
   function closeSheet(){ $('rsFilters').classList.remove('open'); $('rsOverlay').classList.remove('show'); lock(); }
 
   /* ---------- asking, and showing ---------- */
-  async function loadState(){ try{ const r = await fetch('/api/dir?f=tutorstate'); if(r.ok){ const s = await r.json(); S.listing = !!(s && s.listing); S.open = !(s && s.requests === false); } }catch(e){} }
+  /* the edge first (kept for a minute for everybody). When /api answers "not found" (the free daily limit of server calls is reached) or cannot be reached, the same read-only question goes straight to the
+     database, and /api is not asked again for ten minutes. Any other answer from /api (busy, refused) is an error: the same question is not piled onto the database. */
+  const SBU = 'https://eoqeeuujvpydhmfteqqj.supabase.co', SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU';
+  const DIR_RPC = { tutorstate: 'tutor_state', tutorfacets: 'tutor_facets', tutors: 'tutor_search' };
+  const DIR_BASE = { tutorstate: [], tutorfacets: ['p_district', 'p_upazila', 'p_mode'], tutors: ['p_district', 'p_upazila', 'p_class', 'p_subject', 'p_mode'] };
+  let DIR_OFF = 0;
+  async function dirGet(f, args, signal){
+    if(Date.now() >= DIR_OFF){
+      try{
+        const r = await fetch('/api/dir?f=' + f + (args ? '&a=' + encodeURIComponent(JSON.stringify(args)) : ''), { signal: signal });
+        if(r.ok) return await r.json();
+        if(r.status === 404) DIR_OFF = Date.now() + 600000; else throw new Error('http ' + r.status);
+      }catch(e){ if(e && (e.name === 'AbortError' || /^http /.test(e.message || ''))) throw e; }
+    }
+    const body = Object.assign({}, args || {}); (DIR_BASE[f] || []).forEach(k => { if(!(k in body)) body[k] = null; });
+    const r = await fetch(SBU + '/rest/v1/rpc/' + DIR_RPC[f], { method: 'POST', headers: { apikey: SBK, Authorization: 'Bearer ' + SBK, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: signal });
+    if(!r.ok) throw new Error('http ' + r.status);
+    return await r.json();
+  }
+  async function loadState(){ try{ const s = await dirGet('tutorstate'); S.listing = !!(s && s.listing); S.open = !(s && s.requests === false); }catch(e){} }
   async function loadFacets(){
     if(!S.listing){ S.facets = null; S.facetKey = ''; renderFilters(); return; }
     const key = JSON.stringify(D.facetArgs(S.f)); if(S.facetKey === key && S.facets) return;
     S.facetKey = key; const my = ++S.fseq;
-    try{ const r = await fetch('/api/dir?f=tutorfacets&a=' + encodeURIComponent(key)); if(!r.ok) throw new Error('http ' + r.status); const j = await r.json(); if(my !== S.fseq) return; S.facets = (j && typeof j === 'object' && !Array.isArray(j) && 'total' in j) ? j : null; }
+    try{ const j = await dirGet('tutorfacets', JSON.parse(key)); if(my !== S.fseq) return; S.facets = (j && typeof j === 'object' && !Array.isArray(j) && 'total' in j) ? j : null; }
     catch(e){ if(my !== S.fseq) return; S.facets = null; S.facetKey = ''; }
     renderFilters();
   }
@@ -564,10 +583,8 @@
     S.busy = true; $('ttRes').setAttribute('aria-busy', 'true'); render(); if(o.scroll && !append) toResults();
     try{
       const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 9000);
-      const r = await fetch('/api/dir?f=tutors&a=' + encodeURIComponent(JSON.stringify(D.searchArgs(Object.assign({}, S.f, { limit: PAGE, offset: S.offset })))), { signal: ctl.signal });
-      clearTimeout(to);
-      if(!r.ok) throw new Error('http ' + r.status);
-      const rows = await r.json(); if(!Array.isArray(rows)) throw new Error('shape');
+      let rows; try{ rows = await dirGet('tutors', D.searchArgs(Object.assign({}, S.f, { limit: PAGE, offset: S.offset })), ctl.signal); } finally { clearTimeout(to); }
+      if(!Array.isArray(rows)) throw new Error('shape');
       if(my !== S.seq) return;
       S.fresh = S.tutors.length; S.tutors = S.tutors.concat(rows); S.offset += rows.length; S.total = rows.length ? Number(rows[0].total) || S.tutors.length : (append ? S.total : 0);
     }catch(e){ if(my !== S.seq) return; S.failed = true; }
