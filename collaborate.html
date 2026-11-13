@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=18">
 <link rel="stylesheet" href="/footer.css?v=5">
-<link rel="stylesheet" href="/collaborate.css?v=36">
+<link rel="stylesheet" href="/collaborate.css?v=38">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -381,12 +381,51 @@
     <div class="co-final-bg" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
     <div class="co-final-in">
       <h2 id="finalT">আজ যে স্বপ্ন, কাল সেটাই হবে আমাদের সবার বাস্তবতা</h2>
-      <p>একটা ইমেইল বা একটা মেসেজ দিয়েই শুরু হতে পারে। আমরা প্রতিটা বার্তা নিজে পড়ি, আর প্রতিটা সঙ্গীকে নিজের মানুষ মনে করি।</p>
+      <p>একটা মেসেজেই শুরু হয়। আমরা প্রতিটা বার্তা নিজে পড়ি।</p>
       <div class="co-final-act">
-        <a class="co-btn white lg" href="mailto:teamprotishthan@gmail.com" data-mail="general" data-t="final_mail"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>ইমেইল করুন</a>
-        <a class="co-btn ghost lg" href="https://m.me/Protishthan" target="_blank" rel="noopener" data-t="final_messenger"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/></svg>Messenger-এ লিখুন</a>
+        <a class="co-btn white big" href="mailto:teamprotishthan@gmail.com" data-mail="general" data-t="final_mail"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3 7 9 6 9-6"/></svg>ইমেইল করুন</a>
+        <a class="co-btn ghost big" id="coWa" href="#" target="_blank" rel="noopener" data-t="final_whatsapp" hidden><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.2-1.2-1.8-.9-.7.5c-.8-.4-1.5-1.1-1.9-1.9l.5-.7-.9-1.8L9 9.5z"/></svg>WhatsApp-এ লিখুন</a>
       </div>
       <p class="co-final-mail">ইমেইল: <b id="coMail">teamprotishthan@gmail.com</b> <button type="button" id="coCopy" class="co-copy">কপি করুন</button></p>
+      <a class="co-final-form" href="#inquiry" data-t="final_form">অথবা নিচের ফর্মে লিখুন ↓</a>
+    </div>
+  </section>
+
+  <section class="co-sec co-inq" id="inquiry" aria-labelledby="inqT">
+    <div class="iq-wrap">
+      <div class="iq-side">
+        <span class="iq-kick">সরাসরি লিখুন</span>
+        <h2 id="inqT">আপনার কথা আমাদের জানান</h2>
+        <p>কয়েকটা লাইনেই যথেষ্ট। আমরা নিজে পড়ে WhatsApp-এ যোগাযোগ করব।</p>
+        <ul class="iq-pts">
+          <li><i>১</i><span>আপনি লেখেন</span></li>
+          <li><i>২</i><span>আমরা পড়ি</span></li>
+          <li><i>৩</i><span>WhatsApp-এ কথা হয়</span></li>
+        </ul>
+      </div>
+      <form class="iq-form" id="iqForm" novalidate>
+        <div class="iq-row">
+          <label class="iq-f"><span>আপনার নাম</span><input name="name" maxlength="60" autocomplete="name" placeholder="যেমন: রাফিউল ইসলাম" required></label>
+          <label class="iq-f"><span>WhatsApp নম্বর</span><input name="phone" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="01XXXXXXXXX" required></label>
+        </div>
+        <div class="iq-row">
+          <label class="iq-f"><span>ব্র্যান্ড বা প্রতিষ্ঠানের নাম <em>ঐচ্ছিক</em></span><input name="brand" maxlength="80" autocomplete="organization" placeholder="যেমন: আপনার কোম্পানির নাম"></label>
+          <label class="iq-f"><span>কী নিয়ে কথা বলতে চান?</span><select name="topic"><option value="">বেছে নিন</option><option>স্পন্সর করা স্থান</option><option>যৌথ ক্যাম্পেইন</option><option>যৌথ লেখা বা কনটেন্ট</option><option>বৃত্তি বা ভর্তির প্রচার</option><option>সার্ভার বা টুল সাপোর্ট</option><option>আর্থিক সমর্থন</option><option>অন্য কিছু</option></select></label>
+        </div>
+        <label class="iq-f"><span>সংক্ষেপে লিখুন, কেন যোগাযোগ করছেন</span><textarea name="message" rows="4" maxlength="800" placeholder="আপনি কী চান, বা আপনার ব্র্যান্ড কী করে, সংক্ষেপে" required></textarea><small class="iq-count" id="iqCount">০/৮০০</small></label>
+        <input class="iq-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="iq-msg" id="iqMsg" role="status" aria-live="polite"></p>
+        <div class="iq-foot">
+          <button type="submit" class="iq-send" id="iqSend"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg><span>বার্তা পাঠান</span></button>
+          <small>আপনার নম্বর শুধু এই বিষয়ে যোগাযোগের জন্য ব্যবহার হবে, আর কোথাও দেখানো হবে না।</small>
+        </div>
+      </form>
+      <div class="iq-done" id="iqDone" hidden>
+        <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#10B981"/><path d="m19 33 9 9 17-19" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <b>ধন্যবাদ, বার্তা পেয়েছি!</b>
+        <span>আমরা নিজে পড়ে WhatsApp-এ যোগাযোগ করব।</span>
+        <button type="button" id="iqAgain">আরেকটা বার্তা লিখুন</button>
+      </div>
     </div>
   </section>
 </main>
@@ -546,6 +585,47 @@ document.getElementById('coCopy').addEventListener('click', async () => {
   if('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; if(visible) kick(); }).observe(orbit);
   document.addEventListener('visibilitychange', kick);
   if('ResizeObserver' in window) new ResizeObserver(() => measure()).observe(orbit); else window.addEventListener('resize', measure);
+})();
+// the contact number: the WhatsApp button appears only when the number below is a full Bangladeshi mobile number
+const WA_NUM = '0132889573';   // as given; a Bangladeshi mobile number has 11 digits (01XXXXXXXXX), so the button stays hidden until this is complete
+(function(){
+  const a = document.getElementById('coWa'); if(!a) return;
+  if(/^01[3-9][0-9]{8}$/.test(WA_NUM)){ a.href = 'https://wa.me/88' + WA_NUM + '?text=' + encodeURIComponent('আসসালামু আলাইকুম, Protishthan-এর সঙ্গে সহযোগিতা নিয়ে কথা বলতে চাই।'); a.hidden = false; }
+})();
+
+// the form: checked here the same way the database checks it, sent through one database function, nothing is shown to anyone but the admin
+(function(){
+  const form = document.getElementById('iqForm'); if(!form || !window.supabase) return;
+  const sbq = window.supabase.createClient('https://eoqeeuujvpydhmfteqqj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU');
+  const msg = document.getElementById('iqMsg'), send = document.getElementById('iqSend'), done = document.getElementById('iqDone'), count = document.getElementById('iqCount');
+  const ta = form.elements.message;
+  const dev = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
+  const plain = s => String(s || '').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  const phone = s => { let p = plain(s).replace(/[^0-9+]/g, ''); if(p.indexOf('+880') === 0) p = '0' + p.slice(4); else if(p.indexOf('880') === 0) p = '0' + p.slice(3); return p; };
+  const show = (kind, text) => { msg.className = 'iq-msg' + (kind ? ' ' + kind : ''); msg.textContent = text || ''; };
+  const ERR = { BAD_NAME: 'নামটা লিখুন (অন্তত ২ অক্ষর)।', BAD_PHONE: 'সঠিক মোবাইল নম্বর লিখুন (যেমন 01XXXXXXXXX)।', TOO_SHORT: 'আরেকটু বিস্তারিত লিখুন (অন্তত ১০ অক্ষর)।', BAD_LINK: 'এখানে লিংক লেখা যাবে না।', BUSY: 'এখন অনেকে লিখছেন, একটু পরে চেষ্টা করুন।', DAILY_LIMIT: 'আজকের জন্য তিনটা বার্তা হয়ে গেছে, কাল আবার লিখুন।', DUPLICATE: 'এই বার্তাটা আপনি আগেই পাঠিয়েছেন।' };
+  const bnN = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  ta.addEventListener('input', () => { count.textContent = bnN(ta.value.length) + '/৮০০'; show('', ''); });
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); show('', '');
+    const f = form.elements; if(f.website.value) return;   // a hidden field only a robot fills
+    const name = f.name.value.trim(), brand = f.brand.value.trim(), ph = phone(f.phone.value), body = ta.value.trim();
+    if(name.length < 2) return show('err', ERR.BAD_NAME);
+    if(!/^01[3-9][0-9]{8}$/.test(ph)) return show('err', ERR.BAD_PHONE);
+    if(body.length < 10) return show('err', ERR.TOO_SHORT);
+    if(/(https?:|www\.)/i.test(body + ' ' + brand)) return show('err', ERR.BAD_LINK);
+    send.disabled = true; send.querySelector('span').textContent = 'পাঠানো হচ্ছে…';
+    try{
+      const { error } = await sbq.rpc('collab_inquiry_add', { p_name: name, p_brand: brand, p_phone: ph, p_topic: f.topic.value, p_message: body, p_device: dev() });
+      if(error) throw error;
+      T('collab_form_sent', { t: f.topic.value || '' });
+      form.hidden = true; done.hidden = false; form.reset(); count.textContent = '০/৮০০';
+    }catch(err){
+      const m = String((err && (err.message || err.details)) || err), k = Object.keys(ERR).find(x => m.indexOf(x) >= 0);
+      show('err', k ? ERR[k] : 'পাঠানো যায়নি। একটু পরে আবার চেষ্টা করুন, অথবা উপরের ইমেইল ঠিকানায় লিখুন।');
+    }finally{ send.disabled = false; send.querySelector('span').textContent = 'বার্তা পাঠান'; }
+  });
+  document.getElementById('iqAgain').addEventListener('click', () => { done.hidden = true; form.hidden = false; form.elements.name.focus(); });
 })();
 T('collab_view');
 </script>

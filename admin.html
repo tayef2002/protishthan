@@ -433,6 +433,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-icon">💬</span><span>কার্ড মতামত</span>
       <span class="nav-badge" id="cardcmBadge" style="display:none">0</span>
     </button>
+    <button class="nav-item" id="nav-collab" onclick="showView('collab')">
+      <span class="nav-icon">🤝</span><span>সহযোগিতার বার্তা</span>
+      <span class="nav-badge" id="collabBadge" style="display:none">0</span>
+    </button>
     <button class="nav-item" id="nav-tutors" onclick="showView('tutors')">
       <span class="nav-icon">🎓</span><span>ভাইয়া-আপু (টিউটর)</span>
       <span class="nav-badge" id="tutorsBadge" style="display:none">0</span>
@@ -672,6 +676,14 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       </div>
     </div>
 
+    <div class="view" id="view-collab">
+      <div class="section-card" style="overflow-x:auto">
+        <div class="sec-h">সহযোগিতা পেজের বার্তা <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="cbCount"></span></div>
+        <div class="bill-note" style="margin-bottom:10px">ব্র্যান্ড, প্রতিষ্ঠান বা ব্যক্তি /collaborate পেজের ফর্মে যা লেখেন, এখানে আসে। শুধু আপনি দেখতে পান। WhatsApp-এ যোগাযোগ করে "হয়ে গেছে" চিহ্ন দিন।</div>
+        <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap"><button class="pay-btn" type="button" id="cbF-new" onclick="cbFilter('new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="cbF-all" onclick="cbFilter('all')" style="width:auto;padding:8px 14px">সব</button></div>
+        <div id="cbList"></div>
+      </div>
+    </div>
     <div class="view" id="view-tutors">
       <div class="section-card">
         <div class="sec-h">ভাইয়া-আপু: সেটিং <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="ttCount"></span></div>
@@ -783,7 +795,8 @@ document.getElementById('topbarDate').textContent = new Date().toLocaleDateStrin
 
 const navTitles = {
   overview: ['Overview', 'সারসংক্ষেপ ও পরিসংখ্যান'],
-  submissions: ['Listing Submissions', 'প্রতিষ্ঠানের তালিকাভুক্তির আবেদন review ও approve']
+  submissions: ['Listing Submissions', 'প্রতিষ্ঠানের তালিকাভুক্তির আবেদন review ও approve'],
+  collab: ['সহযোগিতার বার্তা', '/collaborate পেজের ফর্ম থেকে আসা বার্তা']
 };
 
 function showView(name){
@@ -1776,6 +1789,41 @@ async function ttSetting(key, on){
   if(error){ alert('হয়নি: ' + error.message); el.checked = !on; }
 }
 ttFilter('req', 'new'); ttFilter('pro', 'sub'); ttTab('req');
+/* ---------------- collaboration messages (the form of /collaborate; migrations/2026-12-25_collab_inquiries.sql) ---------------- */
+let CB_ROWS = [], CB_MODE = 'new';
+const cbEsc = x => String(x == null ? '' : x).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+async function loadCollab(){
+  const box = document.getElementById('cbList');
+  const a = await sbAdmin.from('collab_inquiries').select('*').order('created_at', { ascending: false }).limit(300);
+  if(a.error){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + cbEsc(a.error.message) + ' — migrations/2026-12-25_collab_inquiries.sql চালানো হয়েছে কি?</div>'; return; }
+  CB_ROWS = a.data || [];
+  const n = CB_ROWS.filter(r => r.status === 'new').length, b = document.getElementById('collabBadge');
+  b.textContent = n; b.style.display = n ? '' : 'none';
+  cbFilter(n ? 'new' : 'all');
+}
+function cbFilter(m){
+  CB_MODE = m;
+  ['new', 'all'].forEach(k => { const e = document.getElementById('cbF-' + k); if(e) e.style.outline = k === m ? '2px solid #1A56DB' : 'none'; });
+  const rows = CB_ROWS.filter(r => m === 'all' || r.status === 'new');
+  document.getElementById('cbCount').textContent = CB_ROWS.length ? '(' + CB_ROWS.length + 'টি, নতুন ' + CB_ROWS.filter(r => r.status === 'new').length + 'টি)' : '';
+  document.getElementById('cbList').innerHTML = rows.length ? rows.map(r => {
+    const wa = 'https://wa.me/88' + encodeURIComponent(r.phone) + '?text=' + encodeURIComponent('আসসালামু আলাইকুম ' + r.name + ', Protishthan থেকে বলছি। সহযোগিতা নিয়ে আপনার বার্তা পেয়েছি।');
+    return '<div style="border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;margin-bottom:10px;background:' + (r.status === 'new' ? '#F8FAFF' : '#fff') + '">' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><b>' + cbEsc(r.name) + '</b>' + (r.brand ? '<span style="color:#475569">· ' + cbEsc(r.brand) + '</span>' : '') + (r.topic ? '<span style="background:#EEF3FF;color:#1A56DB;border-radius:100px;padding:2px 10px;font-size:12px;font-weight:700">' + cbEsc(r.topic) + '</span>' : '') + '<span style="margin-left:auto;font-size:12px;color:#94A3B8">' + new Date(r.created_at).toLocaleString('bn-BD') + '</span></div>' +
+      '<div style="margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere">' + cbEsc(r.message) + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><a href="' + wa + '" target="_blank" rel="noopener" class="pay-btn" style="width:auto;padding:7px 14px;text-decoration:none">WhatsApp: ' + cbEsc(r.phone) + '</a>' +
+      '<button class="pay-btn" type="button" style="width:auto;padding:7px 14px" onclick="cbDone(\'' + r.id + '\',' + (r.status === 'new') + ')">' + (r.status === 'new' ? 'হয়ে গেছে' : 'আবার নতুন করুন') + '</button></div></div>';
+  }).join('') : '<div class="bill-note">কোনো বার্তা নেই।</div>';
+}
+async function cbDone(id, done){
+  const u = await sbAdmin.from('collab_inquiries').update({ status: done ? 'done' : 'new' }).eq('id', id);
+  if(u.error){ adminAlert('সেভ হয়নি: ' + u.error.message); return; }
+  const r = CB_ROWS.find(x => x.id === id); if(r) r.status = done ? 'done' : 'new';
+  const n = CB_ROWS.filter(x => x.status === 'new').length, b = document.getElementById('collabBadge'); b.textContent = n; b.style.display = n ? '' : 'none';
+  cbFilter(CB_MODE);
+}
+ADMIN_READY.then(() => loadCollab());
+
 ADMIN_READY.then(() => loadTutors());
 navTitles.skills = ['স্কিল প্রোফাইল', 'ব্যবহারকারীদের স্কিল আইডেন্টিটি পেজ ও রিপোর্ট'];
 let SK_ROWS = [], SK_REP = {}, SK_FILTER = 'rep';
