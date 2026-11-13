@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=18">
 <link rel="stylesheet" href="/footer.css?v=5">
-<link rel="stylesheet" href="/collaborate.css?v=38">
+<link rel="stylesheet" href="/collaborate.css?v=39">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -410,7 +410,18 @@
         </div>
         <div class="iq-row">
           <label class="iq-f"><span>ব্র্যান্ড বা প্রতিষ্ঠানের নাম <em>ঐচ্ছিক</em></span><input name="brand" maxlength="80" autocomplete="organization" placeholder="যেমন: আপনার কোম্পানির নাম"></label>
-          <label class="iq-f"><span>কী নিয়ে কথা বলতে চান?</span><select name="topic"><option value="">বেছে নিন</option><option>স্পন্সর করা স্থান</option><option>যৌথ ক্যাম্পেইন</option><option>যৌথ লেখা বা কনটেন্ট</option><option>বৃত্তি বা ভর্তির প্রচার</option><option>সার্ভার বা টুল সাপোর্ট</option><option>আর্থিক সমর্থন</option><option>অন্য কিছু</option></select></label>
+          <div class="iq-f iq-pick" id="iqPick"><span id="iqPickL">কী নিয়ে কথা বলতে চান?</span>
+            <input type="hidden" name="topic" value="">
+            <button type="button" class="iq-pbtn" id="iqPickBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="iqPickL iqPickBtn"><span class="pv">বেছে নিন</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <ul class="iq-plist" id="iqPickList" role="listbox" tabindex="-1" aria-labelledby="iqPickL" hidden>
+              <li role="option" id="iqo0" data-v="স্পন্সর করা স্থান" aria-selected="false" style="--c:#D97706"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></i><div><b>স্পন্সর করা স্থান</b><small>আমাদের পেজে আপনার ব্র্যান্ডের জায়গা</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo1" data-v="যৌথ ক্যাম্পেইন" aria-selected="false" style="--c:#DB2777"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/></svg></i><div><b>যৌথ ক্যাম্পেইন</b><small>একসঙ্গে একটা শিক্ষামূলক উদ্যোগ</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo2" data-v="যৌথ লেখা বা কনটেন্ট" aria-selected="false" style="--c:#1A56DB"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></i><div><b>যৌথ লেখা বা কনটেন্ট</b><small>শিক্ষার তথ্য, গাইড বা খবর একসঙ্গে</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo3" data-v="বৃত্তি বা ভর্তির প্রচার" aria-selected="false" style="--c:#7C3AED"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.2 2.7 3 6 3s6-1.8 6-3v-5"/></svg></i><div><b>বৃত্তি বা ভর্তির প্রচার</b><small>আপনার ভর্তি বা বৃত্তির খবর</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo4" data-v="সার্ভার বা টুল সাপোর্ট" aria-selected="false" style="--c:#0F766E"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1.8"/><rect x="3" y="14" width="18" height="6" rx="1.8"/><path d="M7 7h.01M7 17h.01"/></svg></i><div><b>সার্ভার বা টুল সাপোর্ট</b><small>হোস্টিং, নিরাপত্তা, ডিজাইন বা মেসেজিং</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo5" data-v="আর্থিক সমর্থন" aria-selected="false" style="--c:#DC2626"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.2-4.4-9.2-9C1.4 8.2 3.4 5 6.5 5c1.9 0 3.3 1 4.1 2.3h2.8C14.2 6 15.6 5 17.5 5c3.1 0 5.1 3.2 3.7 6.5-2 4.6-9.2 9-9.2 9z"/></svg></i><div><b>আর্থিক সমর্থন</b><small>ছোট বা বড় যেকোনো সাহায্য</small></div><em aria-hidden="true">✓</em></li>
+              <li role="option" id="iqo6" data-v="অন্য কিছু" aria-selected="false" style="--c:#475569"><i><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/></svg></i><div><b>অন্য কিছু</b><small>অন্য কোনো বিষয়ে কথা বলতে চাই</small></div><em aria-hidden="true">✓</em></li>
+            </ul></div>
         </div>
         <label class="iq-f"><span>সংক্ষেপে লিখুন, কেন যোগাযোগ করছেন</span><textarea name="message" rows="4" maxlength="800" placeholder="আপনি কী চান, বা আপনার ব্র্যান্ড কী করে, সংক্ষেপে" required></textarea><small class="iq-count" id="iqCount">০/৮০০</small></label>
         <input class="iq-hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -626,6 +637,26 @@ const WA_NUM = '0132889573';   // as given; a Bangladeshi mobile number has 11 d
     }finally{ send.disabled = false; send.querySelector('span').textContent = 'বার্তা পাঠান'; }
   });
   document.getElementById('iqAgain').addEventListener('click', () => { done.hidden = true; form.hidden = false; form.elements.name.focus(); });
+})();
+// the custom topic picker of the form: opens a list of cards, keyboard works (arrows, Enter, Escape), the chosen topic goes in the hidden field
+(function(){
+  const root = document.getElementById('iqPick'); if(!root) return;
+  const btn = document.getElementById('iqPickBtn'), list = document.getElementById('iqPickList'), val = root.querySelector('input[name=topic]'), shown = btn.querySelector('.pv');
+  const opts = [].slice.call(list.querySelectorAll('[role=option]')); let cur = -1;
+  const mark = i => { cur = i; opts.forEach((o, k) => o.classList.toggle('hi', k === i)); if(i >= 0){ btn.setAttribute('aria-activedescendant', opts[i].id); opts[i].scrollIntoView({ block: 'nearest' }); } };
+  const open = () => { list.hidden = false; btn.setAttribute('aria-expanded', 'true'); root.classList.add('open'); const sel = opts.findIndex(o => o.getAttribute('aria-selected') === 'true'); mark(sel >= 0 ? sel : 0); };
+  const close = (focus) => { list.hidden = true; btn.setAttribute('aria-expanded', 'false'); root.classList.remove('open'); btn.removeAttribute('aria-activedescendant'); if(focus) btn.focus(); };
+  const pick = i => { const o = opts[i]; opts.forEach(x => x.setAttribute('aria-selected', x === o ? 'true' : 'false')); val.value = o.dataset.v; shown.textContent = o.dataset.v; root.classList.add('has'); close(true); };
+  btn.addEventListener('click', () => list.hidden ? open() : close());
+  opts.forEach((o, i) => { o.addEventListener('click', () => pick(i)); o.addEventListener('mousemove', () => mark(i)); });
+  btn.addEventListener('keydown', e => {
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if(list.hidden) open(); else mark((cur + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length); }
+    else if((e.key === 'Enter' || e.key === ' ') && !list.hidden){ e.preventDefault(); pick(cur < 0 ? 0 : cur); }
+    else if(e.key === 'Escape' && !list.hidden){ e.preventDefault(); close(true); }
+    else if(e.key === 'Tab' && !list.hidden){ close(false); }
+  });
+  document.addEventListener('click', e => { if(!root.contains(e.target) && !list.hidden) close(false); });
+  const form = document.getElementById('iqForm'); if(form) form.addEventListener('reset', () => { val.value = ''; shown.textContent = 'বেছে নিন'; root.classList.remove('has'); opts.forEach(x => x.setAttribute('aria-selected', 'false')); });
 })();
 T('collab_view');
 </script>
