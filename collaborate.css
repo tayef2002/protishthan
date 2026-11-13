@@ -577,6 +577,10 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .lp-base{position:relative;width:calc(100% + 44px);margin:0 -22px;height:15px;border-radius:0 0 24px 24px;background:linear-gradient(180deg,#E3E7EE,#B9C0CD);box-shadow:0 1px 0 #fff inset}
 .lp-base i{position:absolute;left:50%;top:0;width:110px;height:5px;margin-left:-55px;border-radius:0 0 8px 8px;background:#9AA3B2}
 
+/* the home page filter column stays on screen while the results scroll (position: sticky on the real page) */
+.dcov{position:absolute;z-index:1;pointer-events:none}
+.lp-stk{position:absolute;z-index:3;left:0;top:0;width:var(--sw);height:var(--sh);border-radius:18px;overflow:hidden;background-repeat:no-repeat;background-size:1280px var(--bh);transform-origin:0 0;transform:scale(var(--k)) translate(var(--sx),var(--f0));will-change:transform;animation:dStk 16s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes dStk{0%,6%{transform:scale(var(--k)) translate(var(--sx),var(--f0))}16%,34%{transform:scale(var(--k)) translate(var(--sx),var(--f1))}44%,61%{transform:scale(var(--k)) translate(var(--sx),var(--f2))}71%,88%{transform:scale(var(--k)) translate(var(--sx),var(--f3))}98%,100%{transform:scale(var(--k)) translate(var(--sx),var(--f0))}}
 /* the page, drawn in 1280-wide pixels */
 .dseg{display:block;width:1280px;background-repeat:no-repeat}
 .dw{position:relative;box-sizing:border-box;width:1280px;overflow:hidden}
@@ -641,6 +645,20 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 @media(max-width:720px){.lp{--k:.34375;--lw:440px}}
 @media(max-width:560px){.lp{--k:.2344;--lw:300px}.lp-bar span{font-size:8px}.lp-bar{height:18px}.lp-lid{padding:9px 10px 11px}.co-pn{padding:34px 18px 22px}}
 @media(prefers-reduced-motion:reduce){
-  .lp-roll,.lp-sb b,.dl,.dw .dad::after,.co-dt .co-pn.on .dk *{animation:none!important}
+  .lp-roll,.lp-stk,.lp-sb b,.dl,.dw .dad::after,.co-dt .co-pn.on .dk *{animation:none!important}
   .dl{opacity:1}
 }
+
+/* an ad in a narrow column (beside a pinned panel): the picture slot goes, the shape stacks */
+.dad-n .tx b{font-size:25px;white-space:normal}
+.dad-n .tx small{font-size:17px}
+.dad-c.dad-n{padding:20px 24px}
+.dad-c.dad-n .img{display:none}
+.dad-c.dad-n .ft s{display:none}
+.dad-c.dad-n .ft{justify-content:flex-end}
+.dad-c.dad-n .top{gap:16px}
+.dad-j.dad-n{flex-wrap:wrap;align-content:center;gap:14px 18px;padding:22px 26px}
+.dad-j.dad-n .tx{flex:1 1 180px}
+.dad-j.dad-n u{margin-left:auto}
+
+.dad-j.dad-n .tg{top:auto;bottom:0;right:auto;left:26px;border-radius:12px 12px 0 0}
