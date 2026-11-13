@@ -183,6 +183,13 @@ body.locked .gate{display:flex}
 input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
 .row2>*{min-width:0}
 @media(max-width:1100px){.row2:has(input[type=datetime-local]){grid-template-columns:1fr}}
+.sub-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.sub-src{display:inline-block;padding:1px 9px;border-radius:100px;background:#EEF2FF;color:#3730A3;font-size:11px;font-weight:700}
+.sub-src.member{background:#E2F6EC;color:#047857}.sub-src.old{background:#F1F5F9;color:#64748B}
+.sub-flag{display:inline-block;padding:1px 9px;border-radius:100px;background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700}
+.sub-origin{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px;padding:12px 14px;border-radius:12px;background:#EEF2FF;color:#3730A3;font-size:13px;line-height:1.55}
+.sub-origin.member{background:#E2F6EC;color:#047857}.sub-origin.old{background:#F1F5F9;color:#475569}
+.sub-origin span{font-weight:500}.sub-origin .sub-flag{font-weight:700}
 </style>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -796,7 +803,8 @@ function renderOverview(){
     recentBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:24px">কোনো submission নেই</td></tr>';
   } else {
     recentBody.innerHTML = recent.map(function(s){
-      return '<tr><td style="font-weight:600">'+escapeHtml(s.institution_name)+'</td><td><span class="type-pill">'+escapeHtml(s.institution_type||'-')+'</span></td><td>'+escapeHtml(s.district||'-')+'</td><td><span class="status-pill '+s.status+'">'+statusLabel(s.status)+'</span></td></tr>';
+      const org = subOrigin(s), flags = subFlags(s, allSubmissions);
+    return '<tr><td style="font-weight:600">'+escapeHtml(s.institution_name)+'<div class="sub-meta"><span class="sub-src '+org.k+'">'+escapeHtml(org.t)+'</span>'+flags.map(function(f){ return '<span class="sub-flag">'+escapeHtml(f)+'</span>'; }).join('')+'</div></td><td><span class="type-pill">'+escapeHtml(s.institution_type||'-')+'</span></td><td>'+escapeHtml(s.district||'-')+'</td><td><span class="status-pill '+s.status+'">'+statusLabel(s.status)+'</span></td></tr>';
     }).join('');
   }
 }
@@ -829,6 +837,28 @@ function filterStatus(status, btn){
   renderSubmissionsTable();
 }
 
+/* ORIGIN-START (tools/tests/test_admin_origin.js runs this block as it is) */
+// where a hand-submitted row came from. Only two doors create one: the public "প্রতিষ্ঠান যুক্ত করুন" form (writes the placeholder slug 'pending-<ms>') and a signed-in member's
+// "publish my institution" (writes 'pending-<ms>-<4 hex>'). Approving replaces the placeholder, so an approved row no longer shows its door.
+function subOrigin(s){
+  const g = String((s && s.desired_slug) || '');
+  if(/^pending-\d{10,}-[0-9a-f]{4}$/.test(g)) return { k: 'member', t: 'সদস্যের নিজের প্রতিষ্ঠান', d: 'সাইন-ইন করা সদস্য নিজের "আমার প্রতিষ্ঠান" থেকে প্রকাশ করেছেন' };
+  if(/^pending-\d{10,}$/.test(g)) return { k: 'form', t: 'ওয়েবসাইট ফর্ম', d: '"প্রতিষ্ঠান যুক্ত করুন" ফর্ম থেকে এসেছে। এতে সাইন-ইন লাগে না, নাম আর নম্বর জমাদাতার নিজে লেখা, আমরা যাচাই করিনি' };
+  return { k: 'old', t: s && s.status === 'approved' ? 'আগেই অনুমোদিত' : 'উৎস অজানা', d: '' };
+}
+// things worth a second look before approving (hints only: nothing is blocked)
+function subFlags(s, all){
+  const out = [], name = String(s.institution_name || ''), type = String(s.institution_type || ''), phone = String(s.contact_phone || ''), cname = String(s.contact_name || '').trim();
+  const said = [];
+  if(/বিশ্ববিদ্যালয়/.test(name)) said.push('বিশ্ববিদ্যালয়'); if(/মাদ্রাসা|মাদরাসা/.test(name)) said.push('মাদ্রাসা'); if(/কলেজ/.test(name)) said.push('কলেজ'); if(/কোচিং/.test(name)) said.push('কোচিং সেন্টার'); if(/স্কুল|বিদ্যালয়|একাডেমি/.test(name) && !/বিশ্ববিদ্যালয়/.test(name)) said.push('স্কুল');
+  if(said.length && type && said.indexOf(type) < 0) out.push('নামের সাথে ধরন মিলছে না (নামে "' + said[0] + '", ধরন "' + type + '")');
+  const same = (all || []).filter(function(x){ return x.contact_phone && x.contact_phone === s.contact_phone; }).length;
+  if(phone && same > 1) out.push('এই নম্বর থেকে মোট ' + same.toLocaleString('bn-BD') + 'টি জমা পড়েছে');
+  if(/^[\d\s+\-]{6,}$/.test(cname)) out.push('যোগাযোগের নামের জায়গায় নম্বর লেখা');
+  if(phone && !/^01\d{9}$/.test(phone)) out.push('নম্বরটা ০১ দিয়ে ১১ সংখ্যার নয়');
+  return out;
+}
+/* ORIGIN-END */
 function renderSubmissionsTable(){
   const filtered = currentFilter === 'all' ? allSubmissions : allSubmissions.filter(function(s){ return s.status===currentFilter; });
   const body = document.getElementById('submissionsBody');
@@ -843,7 +873,8 @@ function renderSubmissionsTable(){
 
   body.innerHTML = filtered.map(function(s){
     const created = s.created_at ? new Date(s.created_at).toLocaleDateString('bn-BD', dateOpts) : '-';
-    return '<tr><td style="font-weight:600">'+escapeHtml(s.institution_name)+'</td><td><span class="type-pill">'+escapeHtml(s.institution_type||'-')+'</span></td><td>'+escapeHtml(s.district||'-')+' / '+escapeHtml(s.upazila||'-')+'</td><td>'+escapeHtml(s.contact_name||'-')+'<br><span style="color:var(--text-3);font-size:11px">'+escapeHtml(s.contact_phone||'')+'</span></td><td><span class="status-pill '+s.status+'">'+statusLabel(s.status)+'</span></td><td style="color:var(--text-3);font-size:12px">'+created+'</td><td><button class="row-btn view" onclick="openDetail(\''+s.id+'\')">দেখুন</button></td></tr>';
+    const org = subOrigin(s), flags = subFlags(s, allSubmissions);
+    return '<tr><td style="font-weight:600">'+escapeHtml(s.institution_name)+'<div class="sub-meta"><span class="sub-src '+org.k+'">'+escapeHtml(org.t)+'</span>'+flags.map(function(f){ return '<span class="sub-flag">'+escapeHtml(f)+'</span>'; }).join('')+'</div></td><td><span class="type-pill">'+escapeHtml(s.institution_type||'-')+'</span></td><td>'+escapeHtml(s.district||'-')+' / '+escapeHtml(s.upazila||'-')+'</td><td>'+escapeHtml(s.contact_name||'-')+'<br><span style="color:var(--text-3);font-size:11px">'+escapeHtml(s.contact_phone||'')+'</span></td><td><span class="status-pill '+s.status+'">'+statusLabel(s.status)+'</span></td><td style="color:var(--text-3);font-size:12px">'+created+'</td><td><button class="row-btn view" onclick="openDetail(\''+s.id+'\')">দেখুন</button></td></tr>';
   }).join('');
 }
 
@@ -862,7 +893,9 @@ function openDetail(id){
 
   const sessionMonthDisplay = s.session_start_month === 'অন্য' ? (s.other_session_month||'অন্য') : (s.session_start_month||'দেওয়া হয়নি');
 
-  let html = '<div class="detail-grid">';
+  const org = subOrigin(s), flags = subFlags(s, allSubmissions);
+  let html = '<div class="sub-origin '+org.k+'"><b>কোথা থেকে এসেছে: '+escapeHtml(org.t)+'</b>'+(org.d ? '<span>'+escapeHtml(org.d)+'</span>' : '')+flags.map(function(f){ return '<span class="sub-flag">⚠ '+escapeHtml(f)+'</span>'; }).join('')+'</div>';
+  html += '<div class="detail-grid">';
   html += '<div class="detail-item"><div class="k">ধরন</div><div class="v">'+escapeHtml(s.institution_type||'-')+'</div></div>';
   html += '<div class="detail-item"><div class="k">জেলা / উপজেলা</div><div class="v">'+escapeHtml(s.district||'-')+' / '+escapeHtml(s.upazila||'-')+'</div></div>';
   html += '<div class="detail-item"><div class="k">যোগাযোগের নাম</div><div class="v">'+escapeHtml(s.contact_name||'-')+'</div></div>';
