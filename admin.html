@@ -843,6 +843,21 @@ function filterStatus(status, btn){
   renderSubmissionsTable();
 }
 
+/* DUPCHK-START (tools/tests/test_dup_guard.js runs this block as it is) */
+// Before approving: is there already a listing of this institution (the same name, or a name that sounds the same, in the same upazila)? Hints only; the admin decides.
+// directory_check is the function the public form asks too (migrations/2026-12-22_duplicate_guard.sql). The row itself comes back as a match, so it is left out.
+function dupOthers(rows, s){
+  return (rows || []).filter(function(x){ return x.id ? x.id !== s.id : !(x.status === 'pending' && x.institution_name === s.institution_name); })
+                     .filter(function(x){ return x.match_level === 'same_upazila' || x.match_level === 'likely_same'; });
+}
+async function subDupRows(s){
+  try{
+    const r = await sb.rpc('directory_check', { p_name: s.institution_name, p_district: s.district, p_upazila: s.upazila || null });
+    return dupOthers(r && !r.error ? r.data : [], s);
+  }catch(e){ return []; }
+}
+function dupLine(x){ return x.institution_name + ' (' + [x.institution_type, x.upazila, x.district].filter(Boolean).join(' · ') + ', ' + (x.status === 'approved' ? 'অনুমোদিত' : 'অপেক্ষায়') + ')'; }
+/* DUPCHK-END */
 /* ORIGIN-START (tools/tests/test_admin_origin.js runs this block as it is) */
 // where a hand-submitted row came from. Only two doors create one: the public "প্রতিষ্ঠান যুক্ত করুন" form (writes the placeholder slug 'pending-<ms>') and a signed-in member's
 // "publish my institution" (writes 'pending-<ms>-<4 hex>'). Approving replaces the placeholder, so an approved row no longer shows its door.
@@ -903,7 +918,8 @@ function openDetail(id){
   const sessionMonthDisplay = s.session_start_month === 'অন্য' ? (s.other_session_month||'অন্য') : (s.session_start_month||'দেওয়া হয়নি');
 
   const org = subOrigin(s), flags = subFlags(s, allSubmissions);
-  let html = '<div class="sub-origin '+org.k+'"><b>কোথা থেকে এসেছে: '+escapeHtml(org.t)+'</b>'+(org.d ? '<span>'+escapeHtml(org.d)+'</span>' : '')+flags.map(function(f){ return '<span class="sub-flag">⚠ '+escapeHtml(f)+'</span>'; }).join('')+'</div>';
+  window._detailId = s.id;
+  let html = '<div id="subDupBox"></div><div class="sub-origin '+org.k+'"><b>কোথা থেকে এসেছে: '+escapeHtml(org.t)+'</b>'+(org.d ? '<span>'+escapeHtml(org.d)+'</span>' : '')+flags.map(function(f){ return '<span class="sub-flag">⚠ '+escapeHtml(f)+'</span>'; }).join('')+'</div>';
   html += '<div class="detail-grid">';
   html += '<div class="detail-item"><div class="k">ধরন</div><div class="v">'+escapeHtml(s.institution_type||'-')+'</div></div>';
   html += '<div class="detail-item"><div class="k">জেলা / উপজেলা</div><div class="v">'+escapeHtml(s.district||'-')+' / '+escapeHtml(s.upazila||'-')+'</div></div>';
@@ -945,6 +961,7 @@ function openDetail(id){
 
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('detailModal').classList.add('show');
+  if(s.status === 'pending'){ subDupRows(s).then(function(rows){ const el = document.getElementById('subDupBox'); if(!el || window._detailId !== s.id || !rows.length) return; el.innerHTML = '<div style="margin-bottom:14px;padding:12px 14px;border-radius:12px;background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;font-size:13px;line-height:1.6"><b>⚠ এই উপজেলায় একই নামের বা একই উচ্চারণের প্রতিষ্ঠান আগেই আছে</b>' + rows.map(function(x){ return '<div style="margin-top:4px;font-weight:600">• '+escapeHtml(dupLine(x))+'</div>'; }).join('') + '<div style="margin-top:6px">একই প্রতিষ্ঠান দুবার অনুমোদন দিলে তালিকায় দুটো হবে। আগে মিলিয়ে নিন।</div></div>'; }); }
 }
 
 function closeModal(){
@@ -958,6 +975,8 @@ async function approveWithSlug(id){
     alert('সঠিক slug দিন (কমপক্ষে ৩ অক্ষর, শুধু ছোট হাতের ইংরেজি অক্ষর/সংখ্যা/হাইফেন)');
     return;
   }
+  const row = allSubmissions.find(function(x){ return x.id === id; });
+  if(row){ const dups = await subDupRows(row); if(dups.length && !confirm('⚠ এই উপজেলায় একই নামের বা একই উচ্চারণের প্রতিষ্ঠান আগেই আছে:\n\n' + dups.map(function(x){ return '• ' + dupLine(x); }).join('\n') + '\n\nতবুও অনুমোদন দিলে একই প্রতিষ্ঠান দুবার তালিকায় থাকবে। অনুমোদন দেবেন?')) return; }
   try{
     const { data: prnData, error: prnError } = await sb.rpc('next_prn_number');
     if(prnError) throw prnError;

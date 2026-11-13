@@ -147,7 +147,7 @@ textarea{resize:vertical;min-height:80px}
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<script src="/bnname.js?v=3"></script>
+<script src="/bnname.js?v=5"></script>
 <script src="/analytics.js?v=3" defer></script>
 <link rel="canonical" href="https://protishthan.com/list-institution">
 <meta name="description" content="আপনার স্কুল, মাদ্রাসা, কলেজ বা কোচিং সেন্টার বিনামূল্যে Protishthan তথ্যভান্ডারে যুক্ত করুন। ফর্ম পূরণ করলেই প্রতিষ্ঠানের নিজের পাতা তৈরি হয়।">
@@ -509,17 +509,33 @@ function onSessionMonthChange(){
 }
 
 /* one institution, one listing: the same name in the same upazila cannot be registered twice */
-let DUP_STOP = false, DUP_SEQ = 0;
+let DUP_STOP = false, DUP_SEQ = 0, DUP_ACK = '', DUP_DONE = '';
+const deviceId = () => { try{ let d = localStorage.getItem('pt_dev'); if(!d){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem('pt_dev', d); } return d; }catch(e){ return ''; } };
 async function refreshDup(){
   const nm = BnName.norm(document.getElementById('instName').value), di = document.getElementById('instDistrict').value, up = document.getElementById('instUpazila').value;
   const box = document.getElementById('dupBox'); const seq = ++DUP_SEQ;
+  if(DUP_DONE && DUP_DONE !== nm) DUP_DONE = '';
+  if(DUP_DONE){ DUP_STOP = true; return []; }              // the Bangla name of an existing listing was just sent: nothing new is made from this name
   if(!nm || di === '' || BnName.hasLatin(nm)){ box.innerHTML = ''; DUP_STOP = false; return []; }
   const rows = await BnName.dupCheck(sb, nm, BD_LOCATIONS[di].n, up);
   if(seq !== DUP_SEQ) return rows;
-  box.innerHTML = BnName.dupHtml(rows); DUP_STOP = rows.some(r => r.match_level === 'same_upazila');
+  const lk = BnName.likelyKey(rows);
+  box.innerHTML = BnName.dupHtml(rows, { canSuggest: true });
+  const ck = document.getElementById('dupDiff');
+  if(ck){ ck.checked = DUP_ACK === lk; ck.addEventListener('change', () => { DUP_ACK = ck.checked ? lk : ''; DUP_STOP = rows.some(r => r.match_level === 'same_upazila') || (!!lk && DUP_ACK !== lk); }); }
+  // refused: the same name in the same upazila; and a red alert (the same sound there) until the person says it is a different institution
+  DUP_STOP = rows.some(r => r.match_level === 'same_upazila') || (!!lk && DUP_ACK !== lk);
   return rows;
 }
-async function goToStep(step){
+// "this is my institution: send the Bangla name" on a listing that has only an English name: the name goes to that listing's suggestions instead of a second listing being made
+document.getElementById('dupBox').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-dup-suggest]'); if(!btn) return;
+  const nm = BnName.norm(document.getElementById('instName').value); btn.disabled = true;
+  const { error } = await sb.rpc('suggest_bangla_name', { p_listing: btn.getAttribute('data-dup-suggest'), p_name: nm, p_device: deviceId() });
+  if(error){ btn.disabled = false; const m = String(error.message || ''); alert(/TOO_MANY/.test(m) ? 'আজ অনেকবার পাঠানো হয়ে গেছে, কাল আবার চেষ্টা করুন।' : /BAD_NAME/.test(m) ? 'নামটা বাংলায় লিখুন, কমপক্ষে ৩ অক্ষর।' : 'এখন পাঠানো যায়নি, একটু পরে চেষ্টা করুন।'); return; }
+  DUP_DONE = nm; DUP_STOP = true;
+  document.getElementById('dupBox').innerHTML = '<div class="dup dup-done"><b>ধন্যবাদ, বাংলা নামটা জমা হয়েছে</b><p>আমরা দেখে ওই প্রতিষ্ঠানেই বসিয়ে দেব। নতুন করে আরেকটা প্রতিষ্ঠান বানানোর দরকার নেই।</p></div>';
+});async function goToStep(step){
   if(step === 2){
     const name = BnName.norm(document.getElementById('instName').value);
     if(!name){
