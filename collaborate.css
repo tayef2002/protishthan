@@ -662,12 +662,17 @@ button{font-family:inherit;font-size:inherit;color:inherit}
 .dad-c.dad-n .ft s{display:none}
 .dad-c.dad-n .ft{justify-content:flex-end}
 .dad-c.dad-n .top{gap:16px}
-.dad-j.dad-n{flex-wrap:wrap;align-content:center;gap:14px 18px;padding:22px 26px}
-.dad-j.dad-n .tx{flex:1 1 180px}
-.dad-j.dad-n u{margin-left:auto}
 
-.dad-j.dad-n .tg{top:auto;bottom:0;right:auto;left:26px;border-radius:12px 12px 0 0}
 
 .dw .dad u{animation:ctaPulse 16s infinite}
 @keyframes ctaPulse{0%,100%{transform:none}20%,23%,48%,51%,76%,79%{transform:scale(1.07)}21.5%,49.5%,77.5%{transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.dw .dad u{animation:none!important}}
+
+/* the joint ad in a narrow column: logos and the tag on one row, the title and line under them, the button at the bottom right */
+.dad-j.dad-n{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"duo tag" "tx tx" "cta cta";align-content:center;gap:10px 14px;padding:16px 26px}
+.dad-j.dad-n .duo{grid-area:duo}
+.dad-j.dad-n .tg{position:static;grid-area:tag;align-self:center;justify-self:end;padding:3px 14px;border-radius:100px;font-size:15px}
+.dad-j.dad-n .tx{grid-area:tx;flex:none}
+.dad-j.dad-n .tx b{font-size:23px;white-space:nowrap}
+.dad-j.dad-n .tx small{font-size:16px;white-space:nowrap}
+.dad-j.dad-n u{grid-area:cta;justify-self:end;padding:9px 24px;font-size:19px}
