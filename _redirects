@@ -1,0 +1,3 @@
+# When the free daily limit of server calls is reached, /s/<name> (a skill page) is not served by its function and would answer 404.
+# This rule shows the same page instead (it reads the name from the address and asks the database itself); only the link-preview tags are missing until the limit resets.
+/s/*  /s.html  200
