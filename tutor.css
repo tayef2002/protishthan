@@ -442,29 +442,26 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
 .rs-ck{flex:none;color:var(--tb);opacity:0}
 .rs-so.sel .rs-ck{opacity:1}
 /* the cards: one wide profile card per tutor */
-.rs-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-.rs-card{--c1:#1E40AF;--c2:#3B5BDB;position:relative;display:grid;grid-template-columns:200px minmax(0,1fr);background:#fff;border:1px solid #E1E8F6;border-radius:22px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:border-color .25s}
+.rs-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:14px}
+.rs-card{--c1:#1E40AF;--c2:#3B5BDB;position:relative;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;container-type:inline-size;cursor:pointer;background:#fff;border:1px solid #E1E8F6;border-radius:22px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:border-color .25s}
 .rs-card:hover{border-color:#C3D3F6}
 /* the identity panel, in the tutor's own colour */
-.rs-id{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:20px 14px 16px;text-align:center;color:#fff;background:radial-gradient(130px 130px at 100% 0,rgba(255,255,255,.2),transparent 70%),radial-gradient(110px 110px at 0 100%,rgba(255,255,255,.14),transparent 70%),linear-gradient(160deg,var(--c1),var(--c2))}
-.rs-id .tt-avw{margin-bottom:2px}
+.rs-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'av name badge' 'av role badge';align-items:center;justify-items:start;column-gap:13px;row-gap:3px;padding:14px 16px;text-align:left;color:#fff;background:radial-gradient(130px 130px at 100% 0,rgba(255,255,255,.2),transparent 70%),radial-gradient(110px 110px at 0 100%,rgba(255,255,255,.14),transparent 70%),linear-gradient(160deg,var(--c1),var(--c2))}
+.rs-id .tt-avw{grid-area:av;margin:0}
 .rs-av{flex:none;width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
-.rs-id .rs-av{width:68px;height:68px;border-radius:50%;background:#fff;color:var(--c1);font-size:28px;box-shadow:0 0 0 5px rgba(255,255,255,.28),0 14px 24px -14px rgba(0,0,0,.55)}
+.rs-id .rs-av{width:56px;height:56px;border-radius:50%;background:#fff;color:var(--c1);font-size:24px;box-shadow:0 0 0 4px rgba(255,255,255,.28),0 12px 20px -12px rgba(0,0,0,.55)}
 .rs-id .tt-vk{width:24px;height:24px;right:-2px;bottom:-2px;font-size:12px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
-.rs-name{margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#fff;overflow-wrap:anywhere}
-.rs-name button{display:inline;border:0;background:none;padding:0;font:inherit;color:inherit;text-align:center;cursor:pointer}
+.rs-name{grid-area:name;align-self:end;margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#fff;overflow-wrap:anywhere;text-align:left}
+.rs-name button{display:inline;border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .rs-name button::after{content:'';position:absolute;inset:0;border-radius:22px}
 .rs-name button:focus-visible{outline:0}
 .rs-name button:focus-visible::after{outline:3px solid rgba(26,86,219,.42);outline-offset:2px}
-.rs-g{display:inline-block;padding:2px 11px;border-radius:100px;background:rgba(255,255,255,.2);color:#fff;font-size:11.5px;font-weight:700}
-.rs-badge{margin-top:auto;padding:4px 11px;border-radius:100px;background:#fff;color:#047857;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 8px 14px -10px rgba(0,0,0,.5)}
+.rs-g{grid-area:role;align-self:start;display:inline-block;padding:2px 11px;border-radius:100px;background:rgba(255,255,255,.2);color:#fff;font-size:11.5px;font-weight:700}
+.rs-badge{grid-area:badge;margin:0;padding:4px 11px;border-radius:100px;background:#fff;color:#047857;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 8px 14px -10px rgba(0,0,0,.5)}
 .rs-badge.gray{background:rgba(255,255,255,.18);color:#fff;box-shadow:none}
 /* the details side */
 .rs-bd{display:flex;flex-direction:column;gap:12px;min-width:0;padding:16px 20px 14px}
 .rs-hd{display:flex;flex-direction:column;gap:5px;min-width:0}
-.rs-inst{display:flex;align-items:flex-start;gap:9px;font-size:15px;font-weight:800;line-height:1.45;color:var(--ink)}
-.rs-inst svg{flex:none;margin-top:3px;color:#6D28D9}
-.rs-inst span{min-width:0;overflow-wrap:anywhere}
 .rs-loc{display:flex;align-items:center;gap:9px;font-size:13px;line-height:1.5;color:var(--tx3)}
 .rs-loc svg{flex:none;color:#E11D48}
 .rs-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #E9EEF8;border-radius:14px;background:#FAFBFF}
@@ -599,18 +596,13 @@ textarea.tt-in{height:auto;min-height:92px;padding:12px 14px;resize:vertical;lin
   .rs-pop{left:0;right:auto}
 }
 /* a phone: the card turns upright, the identity panel becomes a band on top */
-@media(max-width:640px){
-  .rs-card{grid-template-columns:1fr}
-  .rs-id{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:'av name badge' 'av role badge';align-items:center;justify-items:start;column-gap:13px;row-gap:3px;padding:14px 16px;text-align:left}
-  .rs-id .tt-avw{grid-area:av;margin:0}
-  .rs-id .rs-av{width:56px;height:56px;font-size:24px}
-  .rs-name{grid-area:name;align-self:end;text-align:left}
-  .rs-name button{text-align:left}
-  .rs-g{grid-area:role;align-self:start}
-  .rs-badge{grid-area:badge;margin:0}
-  .rs-bd{padding:14px 16px}
-  .rs-cta2{padding:18px 18px}
+/* a card is upright and about half the width of the column: two across on a wide screen, one on a phone; in a narrow card the badge drops under the name */
+@container (max-width:340px){
+  .rs-id{grid-template-columns:auto minmax(0,1fr);grid-template-areas:'av name' 'av role' 'badge badge'}
+  .rs-badge{margin-top:6px}
 }
+.rs-bd{padding:14px 16px}
+@media(max-width:640px){.rs-cta2{padding:18px 18px}}
 @media(max-width:480px){.rs-sortlbl{display:none}.rs-stat b{font-size:12.5px}.rs-stat{padding:8px 9px}}
 @media(prefers-reduced-motion:reduce){.rs-new,.rs-arrow,.rs-spin,.rs-sk{animation:none}.rs-card,.rs-filters,.rs-cv{transition:none}}
 
