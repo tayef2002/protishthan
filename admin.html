@@ -724,7 +724,7 @@ const sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
 );
 
-let allSubmissions = [];
+let allSubmissions = [], submissionsFailed = false;
 let currentFilter = 'all';
 
 const dateOpts = { day:'numeric', month:'long', year:'numeric' };
@@ -755,15 +755,21 @@ function showSoon(title){
 }
 
 async function loadSubmissions(){
-  try{
-    // hand-submitted listings only: the imported directory (source is not null, tens of thousands of rows) would fill the 1000-row page and hide the real queue
-    const { data, error } = await sb.from('listing_submissions').select('*').is('source', null).order('created_at', { ascending: false });
-    if(error) throw error;
-    allSubmissions = data || [];
-  }catch(e){
-    allSubmissions = [];
-    console.error('Failed to load submissions', e);
+  // hand-submitted listings only: the imported directory (source is not null, tens of thousands of rows) would fill the 1000-row page and hide the real queue.
+  // The question needs the partial index of migrations/2026-12-21_admin_queue_index.sql; without it a busy database can time out, so it is asked twice before giving up,
+  // and a failure never empties a queue that was already on screen (it says so instead of "no submissions").
+  let ok = false;
+  for(let n = 0; n < 2 && !ok; n++){
+    try{
+      const { data, error } = await sb.from('listing_submissions').select('*').is('source', null).order('created_at', { ascending: false });
+      if(error) throw error;
+      allSubmissions = data || []; ok = true;
+    }catch(e){
+      console.error('Failed to load submissions', e);
+      if(n === 0) await new Promise(function(r){ setTimeout(r, 2500); });
+    }
   }
+  submissionsFailed = !ok;
   renderOverview();
   renderSubmissionsTable();
 }
@@ -778,7 +784,7 @@ function renderOverview(){
   document.getElementById('statPending').textContent = pending;
   document.getElementById('statApproved').textContent = approved;
   document.getElementById('statRejected').textContent = rejected;
-  document.getElementById('pendingBadge').textContent = pending;
+  document.getElementById('pendingBadge').textContent = (submissionsFailed && !total) ? '!' : pending;
 
   const districtCounts = {};
   allSubmissions.forEach(function(s){
@@ -866,6 +872,9 @@ function renderSubmissionsTable(){
 
   if(filtered.length === 0){
     body.innerHTML = '';
+    emptyState.innerHTML = (submissionsFailed && !allSubmissions.length)
+      ? '<div class="ic">⚠️</div><div>তালিকা এখন লোড হয়নি (ডাটাবেস ধীর সাড়া দিচ্ছে), আপনার কোনো তথ্য হারায়নি।</div><div style="margin-top:12px"><button class="row-btn view" onclick="loadSubmissions()">আবার চেষ্টা করুন</button></div>'
+      : '<div class="ic">📭</div><div>কোনো submission পাওয়া যায়নি</div>';
     emptyState.style.display = 'block';
     return;
   }

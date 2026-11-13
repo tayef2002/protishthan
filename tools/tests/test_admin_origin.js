@@ -35,5 +35,9 @@ yes('every row shows its door and its hints under the name', /const org = subOri
 yes('the detail starts with "where it came from" and the hints', /<b>কোথা থেকে এসেছে: '\+escapeHtml\(org\.t\)/.test(admin) && /class="sub-origin '\+org\.k/.test(admin));
 yes('the queue still reads only hand-submitted rows (source is null), so imported rows never fill it', /from\('listing_submissions'\)\.select\('\*'\)\.is\('source', null\)/.test(admin));
 
+// a failed load must never look like "no submissions" (2026-11-13: a database timeout emptied the queue on screen)
+const sql = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-21_admin_queue_index.sql'), 'utf8');
+yes('the queue asks twice before giving up, and a failure keeps what was on screen and says so with a retry button instead of "no submissions"', /for\(let n = 0; n < 2 && !ok; n\+\+\)/.test(admin) && /submissionsFailed = !ok;/.test(admin) && !/allSubmissions = \[\];\s*console\.error\('Failed to load submissions'/.test(admin) && /তালিকা এখন লোড হয়নি/.test(admin) && /onclick="loadSubmissions\(\)">আবার চেষ্টা করুন/.test(admin) && /\(submissionsFailed && !total\) \? '!' : pending/.test(admin));
+yes('the migration is one partial index for exactly the admin\'s question (hand-submitted rows, newest first), safe to run twice', /create index if not exists listing_handsubmitted_idx on public\.listing_submissions \(created_at desc\) where source is null;/.test(sql) && !/concurrently/i.test(sql));
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
