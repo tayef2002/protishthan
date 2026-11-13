@@ -15,14 +15,14 @@ yes('the page highlights its own menu entry and loads the current nav, footer an
 
 // ---- honest: the only numbers in the visible text are the four services; the directory count is read live
 const digits = (text.match(/[০-৯0-9]+/g) || []);
-eq('the only figures written in the page are "৪টি" (the four services) and the numbering of steps and ways (১ to ৫)', digits.filter(d => !/^[১-৫]$/.test(d) && d !== '৪').length, 0);
+eq('the only figures written in the page are facts we can stand behind: one management system, three tools, 360 degrees, a night hour in a story, and the numbering of the ways (১ to ৫)', digits.filter(d => !/^[১-৫]$/.test(d) && d !== '৩৬০' && d !== '১১').length, 0);
 yes('the directory count is not typed in: it is filled from the live question and hidden when that fails', /id="coCount" hidden/.test(co) && /\/api\/dir\?f=counts/.test(co));
 yes('no payment account, phone number or amount is invented: the only contact is the e-mail already on the About page, plus the Facebook Messenger link', about.includes('teamprotishthan@gmail.com') && co.includes('teamprotishthan@gmail.com') && !/01[3-9][0-9]{8}/.test(co) && !/(বিকাশ|bKash|নগদ|Nagad|রকেট|account|অ্যাকাউন্ট নম্বর)/i.test(text));
 yes('no promised result: it says outright that no outcome is guaranteed', /ফলাফলের কোনো বাড়তি প্রতিশ্রুতি আমরা দিই না/.test(co) && !/(নিশ্চিত|গ্যারান্টি দিচ্ছি|হাজার হাজার ভিজিটর)/.test(text));
 yes('the promises are on the page: no selling of the verified badge or list position, sponsors always marked, no sale of phone numbers, nothing untrue, open about spending', ['তালিকার অবস্থান বিক্রি করব না', 'স্পষ্টভাবে চিহ্নিত', 'বিক্রি বা হস্তান্তর করব না', 'যা সত্য নয়, তা বলব না', 'খোলাখুলি জানাব'].every(s => text.includes(s)));
 
 // ---- complete
-yes('every section is there: opening, why, honest cost, two doors, brands (five ways), people (three ways), promises, steps, questions, last word', ['class="co-hero"', 'id="why"', 'id="cost"', 'id="ways"', 'id="brands"', 'id="people"', 'id="promise"', 'id="how"', 'id="faq"', 'id="contact"'].every(s => co.includes(s)) && (co.match(/class="co-way rv"/g) || []).length === 5 && (co.match(/class="co-p rv"/g) || []).length === 3);
+yes('every section is there: the dream, imagine, today and tomorrow, the full system, the network, belonging, the honest cost, two doors, brands (five ways), people (three ways), promises, questions, last word', ['class="co-hero"', 'id="imagine"', 'id="change"', 'id="system"', 'id="network"', 'id="belong"', 'id="cost"', 'id="ways"', 'id="brands"', 'id="people"', 'id="promise"', 'id="faq"', 'id="contact"'].every(s => co.includes(s)) && (co.match(/class="co-way rv"/g) || []).length === 5 && (co.match(/class="co-p rv"/g) || []).length === 3);
 yes('every in-page link has a target', [...co.matchAll(/href="#([a-z]+)"/g)].every(m => co.includes('id="' + m[1] + '"')));
 yes('the mail buttons carry ready-written messages (brand, support, general) and the address can be copied', /MAILS = \{[^]*brand:[^]*support:[^]*general:/.test(co) && /data-mail="brand"/.test(co) && /data-mail="support"/.test(co) && /id="coCopy"/.test(co));
 yes('links to the real pages: partner, feedback (write box), Messenger', /href="\/partner"/.test(co) && /href="\/feedback#write"/.test(co) && /m\.me\/Protishthan/.test(co));
@@ -35,3 +35,4 @@ yes('the phone bottom bar opens a sheet from each group tab (button with aria-ex
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
+
