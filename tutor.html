@@ -393,7 +393,7 @@
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=15"></script>
 <script src="/bd-locations.js?v=1"></script>
-<script src="/tutor-data.js?v=4"></script>
+<script src="/tutor-data.js?v=5"></script>
 <script src="/tt-select.js?v=2"></script>
 <script>
 (function(){
@@ -456,7 +456,7 @@
     $('fExam').innerHTML = D.EXAMS.map(x => chip('exam', x[0], x[1], num(fc && fc.exams, x[0]))).join('');
     if(f.medium) $('fMedSec').open = true; if(f.exam) $('fExamSec').open = true;   // a group that is folded away opens when it holds a chosen filter
     const sw = (key, title, sub, icon, tone) => { const n = fc ? (Number(fc[key]) || 0) : null; return '<div class="rs-tg" data-sw="' + key + '"><span class="rs-si ' + tone + '">' + ICO(icon, 16) + '</span><div><b>' + esc(title) + '</b><small>' + esc(sub) + (n === null ? '' : ' · ' + D.bn(n) + ' জন') + '</small></div><button type="button" class="rs-sw" role="switch" aria-checked="' + (!!f[key]) + '" aria-label="' + esc(title) + '"></button></div>'; };
-    $('fSwitches').innerHTML = sw('verified', 'শুধু যাচাইকৃত', 'NID ও সনদ আমরা দেখেছি', 'shield', 'c2') + sw('trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল', 'যাঁরা ট্রায়ালে রাজি', 'gift', 'c4') + sw('pledge', 'প্রতিশ্রুতি দিয়েছেন', 'তিনটা প্রতিশ্রুতিতেই রাজি', 'heart', 'c5');
+    $('fSwitches').innerHTML = sw('verified', 'যাচাইকৃত', 'NID ও সনদ দেখা হয়েছে', 'shield', 'c2') + sw('trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল', 'যাঁরা ট্রায়ালে রাজি', 'gift', 'c4') + sw('pledge', 'প্রতিশ্রুতি দিয়েছেন', 'তিনটা প্রতিশ্রুতিতেই রাজি', 'heart', 'c5');
   }
   function renderChips(){ const c = D.filterChips(S.f); $('rsActive').innerHTML = c.map(x => '<span class="rs-ac">' + esc(x[1]) + '<button type="button" aria-label="সরান" data-clear="' + x[0] + '">×</button></span>').join(''); $('rsFc').textContent = c.length ? D.bn(c.length) : ''; }
   function renderSort(){ $('rsSortLbl').textContent = D.labelOf(D.SORTS, S.f.sort); document.querySelectorAll('.rs-so').forEach(b => { const on = b.dataset.v === S.f.sort; b.classList.toggle('sel', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }); }

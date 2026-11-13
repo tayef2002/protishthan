@@ -159,7 +159,7 @@
     if(f.mode === 'home') c.push(['mode', 'বাসায় পড়ান']); if(f.mode === 'online') c.push(['mode', 'অনলাইনে পড়ান']);
     if(f.cls) c.push(['cls', labelOf(CLASSES, f.cls)]); if(f.subject) c.push(['subject', labelOf(SUBJECTS, f.subject)]);
     if(f.gender) c.push(['gender', labelOf(GENDERS, f.gender)]); if(f.medium) c.push(['medium', labelOf(MEDIUMS, f.medium)]); if(f.exam) c.push(['exam', labelOf(EXAMS, f.exam)]);
-    if(f.trial) c.push(['trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল']); if(f.verified) c.push(['verified', 'শুধু যাচাইকৃত']); if(f.pledge) c.push(['pledge', 'প্রতিশ্রুতি দিয়েছেন']);
+    if(f.trial) c.push(['trial', 'প্রথম ক্লাস ফ্রি ট্রায়াল']); if(f.verified) c.push(['verified', 'যাচাইকৃত']); if(f.pledge) c.push(['pledge', 'প্রতিশ্রুতি দিয়েছেন']);
     return c;
   }
   /* the classes a tutor teaches as one short text: [c1-5, c6-8] gives "১-৮", [c9-10, admission] gives "৯-১০, ভর্তি" */
