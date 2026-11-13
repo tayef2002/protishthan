@@ -50,7 +50,7 @@ eq('the row itself is left out (by id)', dupOthers([row({ id: 'me', status: 'pen
 eq('the row itself is left out when an older function gives no id', dupOthers([{ match_level: 'same_upazila', institution_name: 'ঢাকা কলেজ', status: 'pending' }, { match_level: 'same_upazila', institution_name: 'ঢাকা কলেজ', status: 'approved' }], me).length, 1);
 eq('only a same-name or same-sound match in the same upazila counts', dupOthers([row({ id: 'a', match_level: 'same_district' }), row({ id: 'b', match_level: 'similar' }), row({ id: 'c', match_level: 'likely_same' })], me).map(x => x.id), ['c']);
 yes('a line says what and where', /ঢাকা কলেজ \(কলেজ · ধানমন্ডি · ঢাকা, অনুমোদিত\)/.test(dupLine(row())));
-yes('approving asks again and wants a yes before a second listing of the same institution is approved; the detail shows a red box for a pending row', /const dups = await subDupRows\(row\); if\(dups\.length && !confirm\(/.test(admin) && /একই প্রতিষ্ঠান দুবার অনুমোদন দিলে তালিকায় দুটো হবে/.test(admin) && /id="subDupBox"/.test(admin) && /window\._detailId !== s\.id/.test(admin));
+yes('approving asks again and wants a yes before a second listing of the same institution is approved; the detail shows a red box for a pending row', /const dups = await subDupRows\(row\); if\(dups\.length && !await adminConfirm\(/.test(admin) && /তবুও অনুমোদন দিলে একই প্রতিষ্ঠান দুবার তালিকায় থাকবে/.test(admin) && /একই প্রতিষ্ঠান দুবার অনুমোদন দিলে তালিকায় দুটো হবে/.test(admin) && /id="subDupBox"/.test(admin) && /window\._detailId !== s\.id/.test(admin));
 yes('the check blocks nothing by itself: no function in the block changes a row', !/update\(|insert\(|delete\(/.test(block));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

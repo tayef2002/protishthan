@@ -190,6 +190,24 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
 .sub-origin{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px;padding:12px 14px;border-radius:12px;background:#EEF2FF;color:#3730A3;font-size:13px;line-height:1.55}
 .sub-origin.member{background:#E2F6EC;color:#047857}.sub-origin.old{background:#F1F5F9;color:#475569}
 .sub-origin span{font-weight:500}.sub-origin .sub-flag{font-weight:700}
+.ad-ov{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,18,40,.55);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);animation:adFade .18s ease-out}
+.ad-ov.ad-out{opacity:0;transition:opacity .14s}
+.ad-box{width:min(440px,100%);padding:26px 26px 20px;border-radius:24px;background:#fff;color:#0F172A;font-family:'Hind Siliguri','Inter',sans-serif;box-shadow:0 40px 80px -30px rgba(6,12,40,.7);outline:0;animation:adPop .3s cubic-bezier(.2,.85,.25,1)}
+.ad-ic{display:flex;align-items:center;justify-content:center;width:50px;height:50px;margin-bottom:12px;border-radius:50%;font-size:24px;font-weight:800;color:#fff;background:#3B82F6;box-shadow:0 12px 20px -10px rgba(59,130,246,.8)}
+.ad-tone-warn .ad-ic{background:#F59E0B;box-shadow:0 12px 20px -10px rgba(245,158,11,.8)}.ad-tone-danger .ad-ic{background:#EF4444;box-shadow:0 12px 20px -10px rgba(239,68,68,.8)}.ad-tone-ok .ad-ic{background:#10B981;box-shadow:0 12px 20px -10px rgba(16,185,129,.8)}
+.ad-t{margin:0 0 6px;font-size:19px;line-height:1.35;font-weight:800;color:#0B1B4D}
+.ad-msg{max-height:46vh;overflow:auto;font-size:14.5px;line-height:1.7;color:#475569;white-space:pre-wrap;overflow-wrap:anywhere}
+.ad-in{width:100%;margin-top:12px;height:46px;padding:0 14px;border:1.5px solid #CBD5E1;border-radius:12px;font:inherit;font-size:15px;color:#0F172A}
+.ad-in:focus{outline:0;border-color:#1A56DB;box-shadow:0 0 0 4px rgba(26,86,219,.14)}
+.ad-act{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.ad-btn{min-height:44px;padding:0 20px;border:0;border-radius:12px;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer;transition:filter .15s,background .15s}
+.ad-btn.ad-ok{background:linear-gradient(135deg,#1A56DB,#3B6FF0);color:#fff}.ad-tone-warn .ad-btn.ad-ok{background:linear-gradient(135deg,#D97706,#F59E0B)}.ad-tone-danger .ad-btn.ad-ok{background:linear-gradient(135deg,#DC2626,#EF4444)}
+.ad-ok:hover{filter:brightness(1.08)}
+.ad-no{background:#F1F5F9;color:#334155}.ad-no:hover{background:#E2E8F0}
+.ad-btn:focus-visible{outline:3px solid rgba(26,86,219,.4);outline-offset:2px}
+@keyframes adFade{from{opacity:0}to{opacity:1}}@keyframes adPop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@media(max-width:480px){.ad-act{flex-direction:column-reverse}.ad-btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.ad-ov,.ad-box{animation:none}}
 </style>
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -240,6 +258,42 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
 </div>
 <script src="/tutor-data.js?v=5"></script>
 <script>
+/* ADMINDLG-START (tools/tests/test_admin_dialog.js runs this block as it is) */
+// The admin's own pop-ups, in place of the browser's grey "protishthan.com says" boxes: adminConfirm (yes/no), adminPrompt (a line of text) and adminAlert (a notice).
+// alert() itself is routed here too, so every old message gets the same look; raw server codes (NOT_ALLOWED ...) are turned into a sentence.
+(function(){
+  var CODES = {
+    ENGLISH_NAME_NOT_ALLOWED: 'প্রতিষ্ঠানের নাম বাংলায় লিখতে হবে।',
+    DUPLICATE_INSTITUTION: 'এই নামে প্রতিষ্ঠান এই উপজেলায় আগেই আছে।',
+    NOT_ALLOWED: 'এই কাজের অনুমতি পাওয়া যায়নি। অ্যাডমিন লগইনের সময় শেষ হয়ে থাকতে পারে। পেজ রিফ্রেশ করে আবার লগইন করুন।',
+    NOT_SIGNED_IN: 'আপনি সাইন-ইন করা নেই। পেজ রিফ্রেশ করে আবার লগইন করুন।',
+    PRN_EXHAUSTED: 'PRN নম্বর শেষ হয়ে গেছে।'
+  };
+  var ICON = { danger: '!', warn: '!', info: 'i', ok: '✓' };
+  function human(m){ m = String(m == null ? '' : m); var ks = Object.keys(CODES); for(var i = 0; i < ks.length; i++){ if(m.indexOf(ks[i]) > -1) return CODES[ks[i]]; } return m; }  function ask(o){
+    return new Promise(function(resolve){
+      var back = document.activeElement, host = document.createElement('div'), tone = o.tone || 'info';
+      host.className = 'ad-ov'; host.setAttribute('role', 'alertdialog'); host.setAttribute('aria-modal', 'true');
+      host.innerHTML = '<div class="ad-box ad-tone-' + tone + '" tabindex="-1"><div class="ad-ic" aria-hidden="true">' + ICON[tone] + '</div><h3 class="ad-t"></h3><div class="ad-msg"></div>' + (o.input ? '<input class="ad-in" type="text" autocomplete="off">' : '') +
+        '<div class="ad-act">' + (o.cancel === null ? '' : '<button type="button" class="ad-btn ad-no"></button>') + '<button type="button" class="ad-btn ad-ok"></button></div></div>';
+      host.querySelector('.ad-t').textContent = o.title || ''; host.querySelector('.ad-msg').textContent = o.message || '';
+      host.querySelector('.ad-ok').textContent = o.ok || 'ঠিক আছে'; var no = host.querySelector('.ad-no'); if(no) no.textContent = o.cancel || 'বাতিল';
+      var inp = host.querySelector('.ad-in'); if(inp){ inp.value = o.value || ''; inp.placeholder = o.placeholder || ''; }
+      function done(v){ document.removeEventListener('keydown', key, true); host.classList.add('ad-out'); setTimeout(function(){ if(host.parentNode) host.parentNode.removeChild(host); }, 140); try{ if(back && back.focus) back.focus(); }catch(e){} resolve(v); }
+      function yes(){ done(inp ? inp.value : true); } function nope(){ done(inp ? null : false); }
+      function key(e){ if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); nope(); } else if(e.key === 'Enter'){ var ae = document.activeElement; e.preventDefault(); e.stopPropagation(); if(ae && ae.tagName === 'BUTTON' && host.contains(ae)) ae.click(); else yes(); } else if(e.key === 'Tab'){ var f = [].slice.call(host.querySelectorAll('button,input')); if(!f.length) return; var i = f.indexOf(document.activeElement); e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus(); } }
+      host.querySelector('.ad-ok').addEventListener('click', yes); if(no) no.addEventListener('click', nope);
+      host.addEventListener('mousedown', function(e){ if(e.target === host && o.cancel !== null) nope(); });
+      document.addEventListener('keydown', key, true); document.body.appendChild(host);
+      setTimeout(function(){ (inp || host.querySelector((o.focus === 'cancel' || o.tone === 'danger') && no ? '.ad-no' : '.ad-ok')).focus(); if(inp) inp.select(); }, 30);
+    });
+  }
+  window.adminConfirm = function(message, o){ var danger = /মুছ|চিরতরে/.test(String(message)); return ask(Object.assign({ message: message, title: danger ? 'মুছে ফেলবেন?' : 'নিশ্চিত করুন', tone: danger ? 'danger' : 'warn', ok: danger ? 'হ্যাঁ, মুছুন' : 'হ্যাঁ, করুন', cancel: 'বাতিল' }, o || {})); };
+  window.adminPrompt = function(message, value, o){ return ask(Object.assign({ message: message, title: 'লিখে দিন', tone: 'info', input: true, value: value || '', ok: 'ঠিক আছে', cancel: 'বাতিল' }, o || {})); };
+  window.adminAlert = function(message, o){ var m = human(message), bad = /সমস্যা|হয়নি|ভুল|পারেনি|NOT_|ERROR|error|failed/i.test(String(message)); return ask(Object.assign({ message: m, title: bad ? 'কাজটা হয়নি' : 'জানানো হচ্ছে', tone: bad ? 'danger' : 'info', ok: 'ঠিক আছে', cancel: null }, o || {})); };
+  window.alert = function(m){ window.adminAlert(m); };
+})();
+/* ADMINDLG-END */
 /* Admin gate: a separate auth session ('prot-admin') that must belong to admin_users.
    Data loaders wait on ADMIN_READY, so nothing is fetched before the check passes. */
 const sbAdmin = supabase.createClient(
@@ -718,11 +772,8 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
 
 
 <script>
-const { createClient } = supabase;
-const sb = createClient(
-  'https://eoqeeuujvpydhmfteqqj.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcWVldXVqdnB5ZGhtZnRlcXFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTM2NTgsImV4cCI6MjA5NzE4OTY1OH0.xuC-_euxf0DTqTpD5b8_6vgnkjeJjZIFqdKw-Bq3YbU'
-);
+// one client for the whole page: the one the admin gate logged in ('prot-admin'). A second, plain client carried no admin login, so every call that checks is_admin() (approving a listing, the PRN number, partners, billing...) answered NOT_ALLOWED.
+const sb = sbAdmin;
 
 let allSubmissions = [], submissionsFailed = false;
 let currentFilter = 'all';
@@ -976,7 +1027,7 @@ async function approveWithSlug(id){
     return;
   }
   const row = allSubmissions.find(function(x){ return x.id === id; });
-  if(row){ const dups = await subDupRows(row); if(dups.length && !confirm('⚠ এই উপজেলায় একই নামের বা একই উচ্চারণের প্রতিষ্ঠান আগেই আছে:\n\n' + dups.map(function(x){ return '• ' + dupLine(x); }).join('\n') + '\n\nতবুও অনুমোদন দিলে একই প্রতিষ্ঠান দুবার তালিকায় থাকবে। অনুমোদন দেবেন?')) return; }
+  if(row){ const dups = await subDupRows(row); if(dups.length && !await adminConfirm('এই উপজেলায় একই নামের বা একই উচ্চারণের প্রতিষ্ঠান আগেই আছে:\n\n' + dups.map(function(x){ return '• ' + dupLine(x); }).join('\n') + '\n\nতবুও অনুমোদন দিলে একই প্রতিষ্ঠান দুবার তালিকায় থাকবে।', { title: 'একই প্রতিষ্ঠান আগেই আছে', tone: 'warn', ok: 'তবুও অনুমোদন দিন', cancel: 'আগে মিলিয়ে দেখি', focus: 'cancel' })) return; }
   try{
     const { data: prnData, error: prnError } = await sb.rpc('next_prn_number');
     if(prnError) throw prnError;
@@ -1202,7 +1253,7 @@ async function savePayment(e){
   const inst = billInst.find(i=>i.id === document.getElementById('payInst').value);
   const amount = Number(document.getElementById('payAmount').value);
   if(!inst || !(amount > 0)) return;
-  if(!confirm(inst.name + ' — ' + taka(amount) + ' পেমেন্ট সেভ করবেন?')) return;
+  if(!await adminConfirm(inst.name + ' — ' + taka(amount) + ' পেমেন্ট সেভ করবেন?')) return;
   const btn = document.getElementById('payBtn'); btn.disabled = true;
   const { error } = await sbAdmin.from('institution_payments').insert({
     institution_id: inst.id, amount,
@@ -1222,7 +1273,7 @@ async function deletePayment(id){
   const p = billPays.find(x=>x.id === id); if(!p) return;
   const c = billComms.find(x=>x.payment_id === id);
   if(c && c.status === 'paid'){ alert('এই পেমেন্টের কমিশন Partner-কে দেওয়া হয়ে গেছে, তাই মোছা যাবে না।'); return; }
-  if(!confirm('এই পেমেন্ট (' + taka(p.amount) + ') মুছে দেবেন? এর কমিশনও মুছে যাবে।')) return;
+  if(!await adminConfirm('এই পেমেন্ট (' + taka(p.amount) + ') মুছে দেবেন? এর কমিশনও মুছে যাবে।')) return;
   const { error } = await sbAdmin.from('institution_payments').delete().eq('id', id);
   if(error){ alert('মোছা যায়নি: ' + error.message); return; }
   await loadBilling();
@@ -1232,7 +1283,7 @@ async function payOutAgent(agentId){
   const rows = billComms.filter(c=>c.agent_id === agentId && c.status !== 'paid');
   const a = billAgents[agentId] || {};
   const total = rows.reduce((s, c)=>s + Number(c.amount || 0), 0);
-  if(!rows.length || !confirm((a.full_name || 'এই সদস্য') + '-কে ' + taka(total) + ' দেওয়া হয়েছে বলে চিহ্নিত করবেন?' + (a.phone ? '\nফোন/bKash: ' + a.phone : ''))) return;
+  if(!rows.length || !await adminConfirm((a.full_name || 'এই সদস্য') + '-কে ' + taka(total) + ' দেওয়া হয়েছে বলে চিহ্নিত করবেন?' + (a.phone ? '\nফোন/bKash: ' + a.phone : ''))) return;
   const { error } = await sbAdmin.rpc('mark_commission_paid', { ids: rows.map(r=>r.id) });
   if(error){ alert('হয়নি: ' + error.message); return; }
   await loadBilling();
@@ -1302,7 +1353,7 @@ function readBoardFile(file){
 
 async function importBoardFile(){
   if(!brRows.length) return;
-  if(!confirm(brRows.length + 'টি সারি ইমপোর্ট করবেন?')) return;
+  if(!await adminConfirm(brRows.length + 'টি সারি ইমপোর্ট করবেন?')) return;
   const btn = document.getElementById('brBtn'), bar = document.getElementById('brBar'), box = document.getElementById('brPreview');
   btn.disabled = true;
   const size = 500; let done = 0;
@@ -1327,7 +1378,7 @@ async function loadBoardAvail(){
 }
 
 async function deleteBoardSet(exam, year, board){
-  if(!confirm(exam + ' ' + year + ' (' + (BR_BOARD[board] || board) + ') — এই পুরো সেটটি মুছে দেবেন?')) return;
+  if(!await adminConfirm(exam + ' ' + year + ' (' + (BR_BOARD[board] || board) + ') — এই পুরো সেটটি মুছে দেবেন?')) return;
   const { error } = await sbAdmin.from('board_results').delete().match({ exam, year, board });
   if(error){ alert('মোছা যায়নি: ' + error.message); return; }
   loadBoardAvail();
@@ -1375,7 +1426,7 @@ function renderContribs(){
 }
 async function coReview(id, ok){
   let note = null;
-  if(!ok){ note = prompt('ফেরত দেওয়ার কারণ (সদস্য দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
+  if(!ok){ note = await adminPrompt('ফেরত দেওয়ার কারণ (সদস্য দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
   const { error } = await sb.rpc('review_contribution', { p_id: id, p_approve: ok, p_note: note || null });
   if(error){ alert('হয়নি: ' + error.message); return; }
   loadContribs();
@@ -1420,8 +1471,8 @@ function renderClaims(){
 }
 async function clReview(id, ok){
   let note = null;
-  if(ok){ if(!confirm('ফোনে নিশ্চিত হয়েছেন? অনুমোদনে পাতায় "প্রতিষ্ঠান নিজে নিশ্চিত" ব্যাজ বসবে।')) return; }
-  else { note = prompt('ফেরত দেওয়ার কারণ (দাবিকারী দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
+  if(ok){ if(!await adminConfirm('ফোনে নিশ্চিত হয়েছেন? অনুমোদনে পাতায় "প্রতিষ্ঠান নিজে নিশ্চিত" ব্যাজ বসবে।')) return; }
+  else { note = await adminPrompt('ফেরত দেওয়ার কারণ (দাবিকারী দেখতে পাবেন, ঐচ্ছিক)'); if(note === null) return; }
   const { error } = await sb.rpc('review_claim', { p_id: id, p_approve: ok, p_note: note || null });
   if(error){ alert('হয়নি: ' + (/ALREADY_CLAIMED/.test(error.message) ? 'এই প্রতিষ্ঠান আগেই দাবি করা হয়েছে।' : error.message)); return; }
   loadClaims();
@@ -1543,7 +1594,7 @@ async function ccReply(id){
 function ccLabel(id, v){ return ccUpdate(id, { status_label: v || null, seen: true }); }
 function ccPin(id){ const r = CC_ROWS.find(x => x.id === id); return ccUpdate(id, { pinned: !(r && r.pinned), seen: true }); }
 async function ccDelete(id){
-  if(!confirm('এই লেখাটা চিরতরে মুছে ফেলবেন? (ফেরানো যাবে না। শুধু লুকাতে চাইলে "লুকান" চাপুন।)')) return;
+  if(!await adminConfirm('এই লেখাটা চিরতরে মুছে ফেলবেন? (ফেরানো যাবে না। শুধু লুকাতে চাইলে "লুকান" চাপুন।)')) return;
   const { error } = await sbAdmin.from('card_comments').delete().eq('id', id);
   if(error){ alert('হয়নি: ' + error.message); return; }
   CC_ROWS = CC_ROWS.filter(x => x.id !== id); delete CC_DRAFTS[id]; ccRefreshBadge(); renderCardComments();
@@ -1671,7 +1722,7 @@ async function ttReqNote(id){ const v = document.getElementById('ttN-' + id).val
 function ttOpenCands(id){ TT_OPEN[id] = !TT_OPEN[id]; renderTtReq(); }
 function ttRelax(id, on){ TT_RELAX[id] = on; renderTtReq(); }
 async function ttReqDel(id){
-  if(!confirm('এই অনুরোধটা চিরতরে মুছবেন? (ফেরানো যাবে না। স্প্যাম হলে বরং অবস্থা "স্প্যাম" করুন।)')) return;
+  if(!await adminConfirm('এই অনুরোধটা চিরতরে মুছবেন? (ফেরানো যাবে না। স্প্যাম হলে বরং অবস্থা "স্প্যাম" করুন।)')) return;
   const { error } = await sbAdmin.from('tutor_requests').delete().eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; }
   TT_REQ = TT_REQ.filter(x => x.id !== id); TT_MAT = TT_MAT.filter(m => m.request_id !== id); ttCount(); renderTtReq();
 }
@@ -1696,30 +1747,30 @@ async function ttMatchStatus(id, v){
   const { error } = await sbAdmin.from('tutor_matches').update({ status: v }).eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; }
   const m = TT_MAT.find(x => x.id === id); if(m){ m.status = v; if(v === 'started'){ const r = TT_REQ.find(x => x.id === m.request_id); if(r && r.status !== 'matched') await ttReqUpdate(r.id, { status: 'matched', seen: true }); } } renderTtReq();
 }
-async function ttMatchDel(id){ if(!confirm('এই "পাঠানো" লেখাটা সরাবেন?')) return; const { error } = await sbAdmin.from('tutor_matches').delete().eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; } TT_MAT = TT_MAT.filter(x => x.id !== id); renderTtReq(); }
+async function ttMatchDel(id){ if(!await adminConfirm('এই "পাঠানো" লেখাটা সরাবেন?')) return; const { error } = await sbAdmin.from('tutor_matches').delete().eq('id', id); if(error){ alert('হয়নি: ' + error.message); return; } TT_MAT = TT_MAT.filter(x => x.id !== id); renderTtReq(); }
 async function ttProUpdate(uid, patch){
   const { error } = await sbAdmin.from('tutor_profiles').update(patch).eq('user_id', uid);
   if(error){ alert('হয়নি: ' + error.message); return false; }
   const p = TT_PRO.find(x => x.user_id === uid); if(p) Object.assign(p, patch); TT_PPIN[uid] = true; ttCount(); renderTtPro(); renderTtReq(); return true;
 }
 function ttApprove(uid){ const p = TT_PRO.find(x => x.user_id === uid); const patch = { status: 'approved', seen: true, edited: false }; if(!p.approved_at) patch.approved_at = new Date().toISOString(); return ttProUpdate(uid, patch); }
-function ttReject(uid){ const p = TT_PRO.find(x => x.user_id === uid); const note = prompt('কেন অনুমোদন দিচ্ছেন না? (শুধু আপনি দেখবেন, ঐচ্ছিক)', p.admin_note || ''); if(note === null) return; return ttProUpdate(uid, { status: 'rejected', seen: true, admin_note: note.slice(0, 600) }); }
-function ttVerify(uid){
+async function ttReject(uid){ const p = TT_PRO.find(x => x.user_id === uid); const note = await adminPrompt('কেন অনুমোদন দিচ্ছেন না? (শুধু আপনি দেখবেন, ঐচ্ছিক)', p.admin_note || ''); if(note === null) return; return ttProUpdate(uid, { status: 'rejected', seen: true, admin_note: note.slice(0, 600) }); }
+async function ttVerify(uid){
   const p = TT_PRO.find(x => x.user_id === uid);
   if(p.verify === 'verified') return ttProUpdate(uid, { verify: 'none', verified_at: null });
-  if(!confirm('আপনি কি ওঁর NID ও সনদের কপি নিজে দেখেছেন? এই চিহ্ন অভিভাবকের সামনে "যাচাইকৃত" দেখায়, তাই সত্যিই দেখে থাকলেই দিন।')) return;
+  if(!await adminConfirm('আপনি কি ওঁর NID ও সনদের কপি নিজে দেখেছেন? এই চিহ্ন অভিভাবকের সামনে "যাচাইকৃত" দেখায়, তাই সত্যিই দেখে থাকলেই দিন।')) return;
   return ttProUpdate(uid, { verify: 'verified', verified_at: new Date().toISOString(), seen: true });
 }
 function ttPausePro(uid, pause){ return ttProUpdate(uid, { status: pause ? 'paused' : 'approved' }); }
 async function ttProNote(uid){ const v = document.getElementById('ttN-p' + uid).value.trim().slice(0, 600); const ok = await ttProUpdate(uid, { admin_note: v }); if(ok) delete TT_DRAFT['p' + uid]; }
 async function ttProDel(uid){
-  if(!confirm('এই টিউটরের প্রোফাইল চিরতরে মুছবেন? (ফেরানো যাবে না। শুধু সরাতে চাইলে "বিরতিতে রাখুন" বা "অনুমোদন দেব না" চাপুন।)')) return;
+  if(!await adminConfirm('এই টিউটরের প্রোফাইল চিরতরে মুছবেন? (ফেরানো যাবে না। শুধু সরাতে চাইলে "বিরতিতে রাখুন" বা "অনুমোদন দেব না" চাপুন।)')) return;
   const { error } = await sbAdmin.from('tutor_profiles').delete().eq('user_id', uid); if(error){ alert('হয়নি: ' + error.message); return; }
   TT_PRO = TT_PRO.filter(x => x.user_id !== uid); TT_MAT = TT_MAT.filter(m => m.tutor_id !== uid); delete TT_DRAFT['p' + uid]; ttCount(); renderTtPro(); renderTtReq();
 }
 async function ttSetting(key, on){
   const el = document.getElementById(key === 'public_listing' ? 'ttListing' : 'ttOpen');
-  if(key === 'public_listing' && on && !confirm('পাবলিক তালিকা চালু করবেন? অনুমোদিত সব টিউটরের প্রদর্শন নাম, প্রতিষ্ঠান, বিভাগ, বিষয়, শ্রেণি, উপজেলা আর নিজের কথা সবার সামনে সার্চে দেখাবে। ফোন নম্বর, আসল নাম, ফি আর আপনার নোট কখনো না।')){ el.checked = false; return; }
+  if(key === 'public_listing' && on && !await adminConfirm('পাবলিক তালিকা চালু করবেন? অনুমোদিত সব টিউটরের প্রদর্শন নাম, প্রতিষ্ঠান, বিভাগ, বিষয়, শ্রেণি, উপজেলা আর নিজের কথা সবার সামনে সার্চে দেখাবে। ফোন নম্বর, আসল নাম, ফি আর আপনার নোট কখনো না।')){ el.checked = false; return; }
   const patch = {}; patch[key] = on;
   const { error } = await sbAdmin.from('tutor_settings').update(patch).eq('id', 1);
   if(error){ alert('হয়নি: ' + error.message); el.checked = !on; }
@@ -1760,7 +1811,7 @@ function renderSkills(){
   }).join('') + '</tbody></table>';
 }
 async function skHide(uid, hide){
-  if(hide && !confirm('এই প্রোফাইলটা সবার কাছ থেকে লুকাবেন?')) return;
+  if(hide && !await adminConfirm('এই প্রোফাইলটা সবার কাছ থেকে লুকাবেন?')) return;
   const { error } = await sb.rpc('admin_set_skill_hidden', { p_user: uid, p_hidden: hide });
   if(error){ alert('হয়নি: ' + error.message); return; }
   loadSkills();
