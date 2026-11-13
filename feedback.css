@@ -50,7 +50,8 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .fb-k[aria-pressed=true][data-k=opinion]{border-color:#1A56DB}.fb-k[aria-pressed=true][data-k=idea]{border-color:#D97706}.fb-k[aria-pressed=true][data-k=problem]{border-color:#DC2626}
 .fb-hint{margin:14px 2px 0;font-size:14px;font-weight:600;color:var(--tx2)}
 .fb-box{margin-top:8px;background:#fff;border:1px solid #D5DDEA;border-radius:16px;transition:border-color .15s,box-shadow .15s}
-.fb-box:focus-within,.fb-name:focus-within{border-color:var(--tb);box-shadow:0 0 0 3px rgba(26,86,219,.14)}
+/* the writing boxes show no coloured ring or border when clicked (the owner's choice) */
+.fb .fb-ta:focus,.fb .fb-ta:focus-visible,.fb .fb-name input:focus,.fb .fb-name input:focus-visible,.fb .fb-sort select:focus-visible{outline:none}
 .fb-ta{display:block;width:100%;border:0;outline:0;background:transparent;resize:none;padding:15px 17px 4px;font-size:16px;line-height:1.65;min-height:132px;max-height:320px;color:var(--tx)}
 .fb-ta::placeholder,.fb-name input::placeholder{color:#94A3B8}
 .fb-box-foot{display:flex;justify-content:space-between;gap:10px;padding:0 15px 10px;font-size:12.5px;color:var(--tx3)}
