@@ -312,7 +312,7 @@
           <div class="tt-f"><span class="tt-lab" id="rPrefL">কে পড়ালে ভালো হয়</span><div class="tt-pick" id="rPref" role="group" aria-labelledby="rPrefL"></div></div>
           <div class="tt-f"><span class="tt-lab" id="rLvL">সন্তানের পড়ার অবস্থা</span><div class="tt-pick" id="rLv" role="group" aria-labelledby="rLvL"></div></div>
           <div class="tt-f"><span class="tt-lab" id="rGoalL">আপনি কী চান</span><div class="tt-pick" id="rGoal" role="group" aria-labelledby="rGoalL"></div></div>
-          <div><label class="tt-check"><input type="checkbox" id="rTrial"><span>আগে একটা ট্রায়াল ক্লাস চাই, পছন্দ হলে চালিয়ে যাব।</span></label></div>
+          <div id="rTrialBox"><label class="tt-check"><input type="checkbox" id="rTrial"><span>আগে একটা ট্রায়াল ক্লাস চাই, পছন্দ হলে চালিয়ে যাব।</span></label></div>
         </div>
         <div data-rs="4" class="tt-form" hidden>
           <div class="tt-f"><label for="rName">আপনার নাম</label><input class="tt-in" id="rName" maxlength="60" autocomplete="name" placeholder="যেমন, রহিমা বেগম"><div class="tt-err" id="rNameErr" role="alert"></div></div>
@@ -679,7 +679,9 @@
   /* ---------- the request dialog: three small steps ---------- */
   let lastFocus = null, rStep = 1;
   function setErr(id, code){ const el = $(id); if(!el) return; el.textContent = code ? (D.MSG[code] || code) : ''; el.classList.toggle('on', !!code); if(id === 'rErr') return; const inp = el.parentElement && el.parentElement.querySelector('.tt-in'); if(inp) code ? inp.setAttribute('aria-invalid', 'true') : inp.removeAttribute('aria-invalid'); }
-  function syncArea(){ const online = pressedList($('rMode'))[0] === 'online'; $('rAreaBox').style.display = online ? 'none' : ''; }
+  // a trial class is offered when the lessons can be online: it is hidden (and unticked) for "at home" only
+  function syncTrial(){ const home = pressedList($('rMode'))[0] === 'home'; $('rTrialBox').hidden = home; if(home) $('rTrial').checked = false; }
+  function syncArea(){ const online = pressedList($('rMode'))[0] === 'online'; $('rAreaBox').style.display = online ? 'none' : ''; syncTrial(); }
   function readReq(){ const mode = pressedList($('rMode'))[0] || 'any'; return { name: $('rName').value, phone: $('rPhone').value, cls: pressedList($('rCls'))[0] || '', subjects: pressedList($('rSub')), mode: mode, district: mode === 'online' ? '' : $('rDist').value, upazila: mode === 'online' ? '' : $('rUp').value, note: $('rNote').value, pref: pressedList($('rPref'))[0] || '', level: pressedList($('rLv'))[0] || '', goal: pressedList($('rGoal'))[0] || '', trial: $('rTrial').checked }; }
   function firstField(n){ return n === 4 ? $('rName') : n === 3 ? $('rPref').querySelector('button') : $('reqDlg').querySelector('[data-rs="' + n + '"] button, [data-rs="' + n + '"] select'); }
   function showRStep(n){
