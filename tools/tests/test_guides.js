@@ -19,7 +19,7 @@ for (const [slug, file] of Object.entries(PAGES)) {
   eq(file + ': canonical is its own clean address', (h.match(/<link rel="canonical" href="([^"]+)"/) || [])[1], 'https://protishthan.com/' + slug);
   eq(file + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
   yes(file + ': not noindex (it is in the sitemap)', !/name="robots"[^>]*noindex/.test(h));
-  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=16/.test(h));
+  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=17/.test(h));
   yes(file + ': the date of the last update is written on the page', /১২ নভেম্বর ২০২৬/.test(h));
   if (slug !== 'guide') yes(file + ': a way to report a mistake', /teamprotishthan@gmail\.com/.test(h));
   // every internal link goes to a page that exists

@@ -14,6 +14,7 @@
     service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
     feedback: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.1A8.5 8.5 0 1 1 21 12z"/><path d="M8.5 11.5h7M8.5 14.5h4"/></svg>',
     partner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.6.8 2.7 2.4 3 5.2"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.2-4.4-9.2-9C1.4 8.2 3.4 5 6.5 5c1.9 0 3.3 1 4.1 2.3h2.8C14.2 6 15.6 5 17.5 5c3.1 0 5.1 3.2 3.7 6.5-2 4.6-9.2 9-9.2 9z"/></svg>',
     chev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
@@ -30,6 +31,7 @@
   var ABOUT = [
     { k: 'about',    t: 'আমাদের কথা',        d: 'Protishthan কী, কেন বানানো হয়েছে', href: 'about.html', ic: 'info', g: 'linear-gradient(135deg,#1A56DB,#5B8DEF)' },
     { k: 'feedback', t: 'মন্তব্য ও পরামর্শ', tab: 'মন্তব্য', end: true, d: 'আইডিয়া, মতামত বা সমস্যার কথা জানান', href: 'feedback.html', ic: 'feedback', g: 'linear-gradient(135deg,#7C3AED,#DB2777)', tag: 'নতুন' },
+    { k: 'collaborate', t: 'পাশে দাঁড়ান', d: 'ব্র্যান্ড, সংগঠন বা ব্যক্তি, সঙ্গী হোন', href: 'collaborate.html', ic: 'heart', g: 'linear-gradient(135deg,#BE123C,#F97316)' },
     { k: 'partner',  t: 'Partner প্রোগ্রাম',   d: 'এলাকার প্রতিষ্ঠান যাচাইয়ে আমাদের সঙ্গী হোন', href: 'partner.html', ic: 'partner', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
   ];
   var TUTOR = [
