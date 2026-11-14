@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=2">
+<link rel="stylesheet" href="/memory.css?v=3">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -32,8 +32,8 @@
 <main class="mc" id="mc">
   <section class="mc-hero">
     <span class="mc-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 7v3M12 7v3M15 7v3"/></svg>মেমোরি কার্ড</span>
-    <h1>ছবি দিন, দু-লাইন লিখুন, <span>কার্ড তৈরি</span></h1>
-    <p>একটা টেমপ্লেট বাছুন, ছবি আর ছোট লেখা দিন, ডাউনলোড করুন। এক মিনিটের কাজ, যতবার ইচ্ছে।</p>
+    <h1>আপনার স্মৃতি, <span>একটা কার্ডে</span></h1>
+    <p>পুরনো টিভি, ক্যাসেট, ঘুড়ি, ডাকটিকিট, যেকোনো একটা আকার বাছুন, তার ভেতরে নিজের ছবি বসান, দু-লাইন লিখুন। ফেসবুকে দেওয়ার কার্ড তৈরি এক মিনিটে।</p>
   </section>
 
   <div class="mc-grid">
@@ -49,7 +49,7 @@
 
     <section class="mc-form" aria-label="কার্ড বানান">
       <div class="mc-f">
-        <label>১. টেমপ্লেট বাছুন</label>
+        <label>১. একটা আকার বাছুন</label>
         <div class="mc-tpls" id="tpls" role="radiogroup" aria-label="টেমপ্লেট"></div>
       </div>
       <div class="mc-f" id="phWrap">
@@ -63,10 +63,6 @@
         <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off" placeholder="শিরোনাম, যেমন: আমাদের সেই দিন">
         <textarea id="txt" class="mc-inp mc-line" maxlength="160" rows="2" placeholder="ছোট একটা লাইন বা দুটো (ঐচ্ছিক)"></textarea>
         <input id="sm" class="mc-inp" maxlength="40" autocomplete="off" placeholder="তারিখ, জায়গা বা নাম (ঐচ্ছিক)">
-      </div>
-      <div class="mc-f" id="posWrap">
-        <label>লেখা কোথায় থাকবে</label>
-        <div class="mc-seg" id="pos" role="radiogroup" aria-label="লেখার জায়গা"></div>
       </div>
       <div class="mc-row">
         <div class="mc-f"><label>রং</label><div class="mc-th" id="themes" role="radiogroup" aria-label="রং"></div></div>
@@ -88,189 +84,218 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const bn = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
-  const en = s => String(s == null ? '' : s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
   const track = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
   function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
 
-  const THEMES = { blue: ['#1A56DB', '#7C3AED'], violet: ['#6D28D9', '#DB2777'], teal: ['#0F766E', '#1A56DB'], amber: ['#B45309', '#DB2777'], rose: ['#BE123C', '#7C3AED'] };
+  /* the colours: soft, light and friendly. bg is the paper, bg2 a deeper tint of it, ac the accent, dk the ink. */
+  const THEMES = {
+    mint: { n: 'পুদিনা', bg: '#EAF7F0', bg2: '#CDEEDC', ac: '#2E9E74', dk: '#14433A' },
+    sky: { n: 'আকাশি', bg: '#EAF3FD', bg2: '#CFE3FA', ac: '#2F7DE1', dk: '#16365E' },
+    peach: { n: 'পীচ', bg: '#FFF0E6', bg2: '#FFDAC4', ac: '#E8743B', dk: '#5A2A12' },
+    lavender: { n: 'ল্যাভেন্ডার', bg: '#F2EDFD', bg2: '#DDD2F9', ac: '#7C5CE0', dk: '#2F2260' },
+    lemon: { n: 'লেবু', bg: '#FFF8DC', bg2: '#FBEAA0', ac: '#D4A60E', dk: '#4F3F06' },
+    rose: { n: 'গোলাপি', bg: '#FFEEF2', bg2: '#FFD2DD', ac: '#E04870', dk: '#5C1630' }
+  };
   const SIZES = { post: { w: 1080, h: 1350, n: 'পোস্ট (৪:৫)' }, story: { w: 1080, h: 1920, n: 'স্টোরি (৯:১৬)' } };
-  const POS = [['top', 'উপরে'], ['mid', 'মাঝে'], ['bottom', 'নিচে']];
-  /* the templates: how many photos, and where the words can go. Each one is a function below that draws on a W x H canvas. */
+  /* the shapes: an object we all remember, with a window for the photo. a = width / height of the object, ph = how many photos. */
   const TPLS = [
-    { k: 'card', n: 'মেমোরি কার্ড', ph: 1, pos: false, opt: true },
-    { k: 'polaroid', n: 'পোলারয়েড', ph: 1, pos: false },
-    { k: 'full', n: 'পুরো ছবি', ph: 1, pos: true },
-    { k: 'duo', n: 'পাশাপাশি দুই ছবি', ph: 2, pos: true, two: true },
-    { k: 'then', n: 'তখন আর এখন', ph: 2, pos: true, two: true },
-    { k: 'film', n: 'ফিল্ম স্ট্রিপ', ph: 2, pos: false },
-    { k: 'quote', n: 'কথা', ph: 1, pos: false, opt: true }
+    { k: 'polaroid', n: 'পোলারয়েড', a: .84, ph: 1 },
+    { k: 'tv', n: 'পুরনো টিভি', a: 1.12, ph: 1 },
+    { k: 'cassette', n: 'ক্যাসেট', a: 1.55, ph: 1 },
+    { k: 'nokia', n: 'নোকিয়া ফোন', a: .5, ph: 1 },
+    { k: 'sd', n: 'মেমোরি কার্ড', a: .8, ph: 1 },
+    { k: 'stamp', n: 'ডাকটিকিট', a: .82, ph: 1 },
+    { k: 'shapla', n: 'শাপলা', a: 1, ph: 1 },
+    { k: 'kite', n: 'ঘুড়ি', a: .7, ph: 1 },
+    { k: 'slate', n: 'স্লেট', a: 1.22, ph: 1 },
+    { k: 'flag', n: 'পতাকা', a: 1.5, ph: 1 },
+    { k: 'heart', n: 'হৃদয়', a: 1.08, ph: 1 },
+    { k: 'arch', n: 'জানালা', a: .74, ph: 1 },
+    { k: 'polaroid2', n: 'দুই পোলারয়েড', a: 1.2, ph: 2 },
+    { k: 'thennow', n: 'তখন আর এখন', a: 1.45, ph: 2 }
   ];
-  const S = { tpl: 'card', theme: 'blue', size: 'post', pos: 'bottom', photos: [null, null] };
+  const S = { tpl: 'polaroid', theme: 'mint', size: 'post', photos: [null, null] };
   const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
-  const DRAFT = 'mem_draft_v2';
+  const DRAFT = 'mem_draft_v3';
 
   /* ---------- small helpers for drawing ---------- */
-  let c = null;
-  const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif', NAVY = '#060B1F', GOLD1 = '#FFE9A8', GOLD2 = '#F5B933';
+  let c = null, PAL = THEMES.mint;
+  const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif';
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
   const rr = (x, y, w, h, r) => { r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
   const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
-  const glow = (W, H, x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + a); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
   const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = String(txt).split(/\s+/).filter(Boolean), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
-  /* the biggest size (from max down to min) at which the text fits in maxLines lines */
   function fit(txt, maxW, maxLines, max, min, weight, fam){ let sz = max, lines; do{ lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines + 1); sz -= 2; }while((lines.length > maxLines || lines.some(l => c.measureText(l).width > maxW)) && sz >= min); sz += 2; lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines); return { size: sz, lines }; }
-  function deepBg(W, H, th){ const base = mix(th[0], NAVY, .8); c.fillStyle = base; c.fillRect(0, 0, W, H); glow(W, H, 120, 120, W * .75, th[1], '8C'); glow(W, H, W - 60, H - 200, W * .9, th[0], 'B0'); grain(W, H, 18); }
-  let GR = null;
-  function grain(W, H, a){ if(!GR){ GR = document.createElement('canvas'); GR.width = GR.height = 160; const nc = GR.getContext('2d'), im = nc.createImageData(160, 160); let s = 77; for(let i = 0; i < im.data.length; i += 4){ s = (s * 1664525 + 1013904223) >>> 0; const v = s >>> 24; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } nc.putImageData(im, 0, 0); } c.save(); c.globalAlpha = a / 255; c.fillStyle = c.createPattern(GR, 'repeat'); c.fillRect(0, 0, W, H); c.restore(); }
-  /* a photo cropped to fill a rounded box; with no photo, a soft box that says "add a photo" */
-  function photo(img, x, y, w, h, r, th){
-    if(img){ const sc = Math.max(w / img.width, h / img.height), dw = img.width * sc, dh = img.height * sc; c.save(); rr(x, y, w, h, r); c.clip(); c.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh); c.restore(); return; }
-    c.save(); rr(x, y, w, h, r); c.fillStyle = mix(th[0], '#FFFFFF', .86); c.fill(); c.setLineDash([14, 12]); c.lineWidth = 4; c.strokeStyle = mix(th[0], '#FFFFFF', .55); c.stroke(); c.setLineDash([]);
-    const m = Math.min(w, h); c.fillStyle = mix(th[0], '#FFFFFF', .45); c.beginPath(); c.arc(x + w / 2, y + h / 2 - m * .06, m * .075, 0, 7); c.fill();
-    c.textAlign = 'center'; c.font = '700 ' + Math.max(24, Math.round(m * .06)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .17); c.restore();
+  /* a photo cropped to fill the current clip; with no photo, a soft box that says "add a photo" */
+  function fill(img, x, y, w, h){
+    if(img){ const sc = Math.max(w / img.width, h / img.height), dw = img.width * sc, dh = img.height * sc; c.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh); return; }
+    c.fillStyle = mix(PAL.ac, '#FFFFFF', .82); c.fillRect(x, y, w, h); const m = Math.min(w, h);
+    c.fillStyle = mix(PAL.ac, '#FFFFFF', .55); c.beginPath(); c.arc(x + w / 2, y + h / 2 - m * .06, m * .1, 0, 7); c.fill(); rr(x + w / 2 - m * .2, y + h / 2 + m * .06, m * .4, m * .16, m * .06); c.fill();
+    c.textAlign = 'center'; c.fillStyle = mix(PAL.ac, '#FFFFFF', .2); c.font = '700 ' + Math.max(22, Math.round(m * .07)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .34);
   }
-  function mark(W, H, dark){ c.save(); c.textAlign = 'center'; c.fillStyle = dark ? 'rgba(15,23,42,.45)' : 'rgba(255,255,255,.6)'; c.font = '800 24px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 36); c.restore(); }
-  /* the text block shared by several templates: a small line in a pill, the title, the line */
-  function textBlock(x, y, w, d, o){
-    o = o || {}; const col = o.col || '#fff', sub = o.sub || 'rgba(255,255,255,.88)';
-    const t = fit(d.title || 'আমাদের সেই দিন', w, 2, o.tmax || 92, 48, '800', DISP), l = d.line ? fit(d.line, w, o.lmax || 4, 40, 28, '500', HS) : null;
-    const total = (d.small ? 66 : 0) + t.lines.length * (t.size * 1.12) + t.size * .1 + 12 + (l ? l.size * 1.1 + l.lines.length * (l.size * 1.45) : 0);
-    if(o.measure) return total;
-    let cy = y; c.textAlign = 'left';
-    if(d.small){ c.font = '700 28px ' + HS; const sw = c.measureText(d.small).width + 40; rr(x, cy, sw, 48, 24); c.fillStyle = 'rgba(255,255,255,.16)'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.4)'; c.stroke(); c.fillStyle = col; c.fillText(d.small, x + 20, cy + 34); cy += 66; }
-    c.fillStyle = col; c.font = '800 ' + t.size + 'px ' + DISP; shadow(o.shadow ? 'rgba(0,0,0,.45)' : '', 16, 5); cy += t.size * .9; t.lines.forEach(s => { c.fillText(s, x, cy); cy += t.size * 1.12; }); shadow(); cy += 12 - t.size * .8;
-    if(l){ c.fillStyle = sub; c.font = '500 ' + l.size + 'px ' + HS; cy += l.size * 1.1; l.lines.forEach(s => { c.fillText(s, x, cy); cy += l.size * 1.45; }); }
-    return total;
+  /* put a photo into a shape: pathFn draws the shape's outline, the box says how big the photo should be */
+  function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h); c.restore(); }
+  const dark = () => PAL.dk, acc = () => PAL.ac, lite = t => mix(PAL.ac, '#FFFFFF', t);
+  function scallop(x, y, w, h, r, n, m){ const sx = w / n, sy = h / m; c.beginPath(); c.moveTo(x, y);
+    for(let i = 0; i < n; i++){ c.lineTo(x + (i + .5) * sx - r, y); c.arc(x + (i + .5) * sx, y, r, Math.PI, 0, true); } c.lineTo(x + w, y);
+    for(let i = 0; i < m; i++){ c.lineTo(x + w, y + (i + .5) * sy - r); c.arc(x + w, y + (i + .5) * sy, r, -Math.PI / 2, Math.PI / 2, true); } c.lineTo(x + w, y + h);
+    for(let i = n - 1; i >= 0; i--){ c.lineTo(x + (i + .5) * sx + r, y + h); c.arc(x + (i + .5) * sx, y + h, r, 0, Math.PI, true); } c.lineTo(x, y + h);
+    for(let i = m - 1; i >= 0; i--){ c.lineTo(x, y + (i + .5) * sy + r); c.arc(x, y + (i + .5) * sy, r, Math.PI / 2, -Math.PI / 2, true); } c.closePath(); }
+  const tape = (x, y, ang, w) => { c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = 'rgba(255,230,150,.8)'; c.fillRect(-w / 2, -w * .14, w, w * .28); c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(-w / 2, -w * .14, w, w * .06); c.restore(); };
+
+  /* ---------- the shapes. Each draws the object inside the box (x, y, w, h) and puts the photo(s) in its window(s). ---------- */
+  const SH = {};
+  SH.polaroid = (x, y, w, h) => {
+    c.save(); c.translate(x + w / 2, y + h / 2); c.rotate(-.045); c.translate(-(x + w / 2), -(y + h / 2));
+    shadow('rgba(16,35,63,.28)', 36, 16); rr(x, y, w, h, 12); c.fillStyle = '#fff'; c.fill(); shadow();
+    const m = w * .07, ps = w - m * 2; put(0, () => rr(x + m, y + m, ps, ps * 1.02, 6), x + m, y + m, ps, ps * 1.02);
+    c.strokeStyle = 'rgba(16,35,63,.1)'; c.lineWidth = 2; rr(x + m, y + m, ps, ps * 1.02, 6); c.stroke();
+    c.fillStyle = lite(.6); c.fillRect(x + w * .3, y + h - w * .1, w * .4, 6);
+    tape(x + w / 2, y + 2, .04, w * .34); c.restore();
+  };
+  SH.tv = (x, y, w, h) => {
+    c.strokeStyle = dark(); c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.moveTo(x + w * .5, y + h * .15); c.lineTo(x + w * .3, y + h * .01); c.moveTo(x + w * .5, y + h * .15); c.lineTo(x + w * .7, y + h * .01); c.stroke();
+    c.fillStyle = dark(); c.beginPath(); c.arc(x + w * .3, y + h * .01, 8, 0, 7); c.arc(x + w * .7, y + h * .01, 8, 0, 7); c.fill();
+    const by = y + h * .13, bh = h * .8; shadow('rgba(16,35,63,.25)', 30, 14); rr(x, by, w, bh, w * .07); c.fillStyle = acc(); c.fill(); shadow();
+    rr(x + w * .015, by + bh * .02, w * .97, bh * .96, w * .06); c.fillStyle = lite(.12); c.fill();
+    const sx = x + w * .055, sy = by + bh * .09, sw = w * .66, sh = bh * .82;
+    rr(sx - 8, sy - 8, sw + 16, sh + 16, w * .06); c.fillStyle = dark(); c.fill();
+    put(0, () => rr(sx, sy, sw, sh, w * .045), sx, sy, sw, sh);
+    c.save(); rr(sx, sy, sw, sh, w * .045); c.clip(); const gl = c.createLinearGradient(sx, sy, sx + sw * .7, sy + sh); gl.addColorStop(0, 'rgba(255,255,255,.28)'); gl.addColorStop(.35, 'rgba(255,255,255,.04)'); gl.addColorStop(.36, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(sx, sy, sw, sh); c.restore();
+    const px = x + w * .865; [.28, .46].forEach(f => { c.beginPath(); c.arc(px, by + bh * f, w * .05, 0, 7); c.fillStyle = lite(.75); c.fill(); c.lineWidth = 4; c.strokeStyle = dark(); c.stroke(); c.beginPath(); c.moveTo(px, by + bh * f); c.lineTo(px + w * .028, by + bh * f - w * .02); c.stroke(); });
+    c.strokeStyle = dark(); c.lineWidth = 5; for(let i = 0; i < 5; i++){ c.beginPath(); c.moveTo(px - w * .05, by + bh * (.62 + i * .05)); c.lineTo(px + w * .05, by + bh * (.62 + i * .05)); c.stroke(); }
+    rr(x + w * .1, by + bh - 2, w * .12, h * .06, 6); c.fillStyle = dark(); c.fill(); rr(x + w * .78, by + bh - 2, w * .12, h * .06, 6); c.fill();
+  };
+  SH.cassette = (x, y, w, h) => {
+    shadow('rgba(16,35,63,.25)', 30, 14); rr(x, y, w, h, w * .04); c.fillStyle = lite(.78); c.fill(); shadow(); c.lineWidth = 6; c.strokeStyle = dark(); c.stroke();
+    const lx = x + w * .07, ly = y + h * .09, lw = w * .86, lh = h * .56; rr(lx, ly, lw, lh, 12); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 3; c.strokeStyle = lite(.4); c.stroke();
+    c.fillStyle = acc(); c.fillRect(lx, ly + lh * .06, lw, lh * .09);
+    const px = lx + lw * .05, py = ly + lh * .2, pw = lw * .9, ph = lh * .74; put(0, () => rr(px, py, pw, ph, 8), px, py, pw, ph);
+    c.fillStyle = dark(); c.textAlign = 'left'; c.font = '800 ' + Math.round(h * .07) + 'px Inter, sans-serif'; c.fillText('MEMORY', lx + lw * .05, ly + lh * .135 + 2);
+    c.textAlign = 'right'; c.fillText('A', lx + lw * .95, ly + lh * .135 + 2);
+    c.beginPath(); c.moveTo(x + w * .2, y + h); c.lineTo(x + w * .26, y + h * .74); c.lineTo(x + w * .74, y + h * .74); c.lineTo(x + w * .8, y + h); c.closePath(); c.fillStyle = dark(); c.fill();
+    [.38, .62].forEach(f => { const rx = x + w * f, ry = y + h * .86; c.beginPath(); c.arc(rx, ry, w * .055, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = dark(); c.lineWidth = 3; for(let a = 0; a < 6; a++){ c.beginPath(); c.moveTo(rx, ry); c.lineTo(rx + Math.cos(a * 1.047) * w * .05, ry + Math.sin(a * 1.047) * w * .05); c.stroke(); } });
+    [[.04, .06], [.96, .06], [.04, .94], [.96, .94]].forEach(p => { c.beginPath(); c.arc(x + w * p[0], y + h * p[1], 7, 0, 7); c.fillStyle = dark(); c.fill(); });
+  };
+  SH.nokia = (x, y, w, h) => {
+    shadow('rgba(16,35,63,.3)', 34, 16); rr(x, y, w, h, w * .2); const g = c.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, mix(PAL.dk, '#FFFFFF', .15)); g.addColorStop(1, PAL.dk); c.fillStyle = g; c.fill(); shadow();
+    rr(x + w * .36, y + h * .035, w * .28, h * .012, 4); c.fillStyle = 'rgba(255,255,255,.35)'; c.fill();
+    const sx = x + w * .12, sy = y + h * .075, sw = w * .76, sh = h * .33; rr(sx - 8, sy - 8, sw + 16, sh + 16, w * .06); c.fillStyle = lite(.5); c.fill();
+    put(0, () => rr(sx, sy, sw, sh, w * .04), sx, sy, sw, sh);
+    c.save(); rr(sx, sy, sw, sh, w * .04); c.clip(); c.fillStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx + sw * .6, sy); c.lineTo(sx, sy + sh * .5); c.closePath(); c.fill(); c.restore();
+    const ny = y + h * .54; c.beginPath(); c.ellipse(x + w * .5, ny, w * .17, h * .04, 0, 0, 7); c.fillStyle = lite(.3); c.fill(); c.beginPath(); c.ellipse(x + w * .5, ny, w * .06, h * .02, 0, 0, 7); c.fillStyle = PAL.dk; c.fill();
+    [.22, .78].forEach(f => { rr(x + w * f - w * .09, ny - h * .035, w * .18, h * .035, 8); c.fillStyle = lite(.3); c.fill(); });
+    for(let r = 0; r < 4; r++) for(let k = 0; k < 3; k++){ const kx = x + w * (.14 + k * .27), ky = y + h * (.62 + r * .08); rr(kx, ky, w * .23, h * .06, 12); c.fillStyle = lite(.82); c.fill(); }
+  };
+  SH.sd = (x, y, w, h) => {
+    const cut = w * .17, R = w * .08; const path = () => { c.beginPath(); c.moveTo(x + R, y); c.lineTo(x + w - cut, y); c.lineTo(x + w, y + cut); c.lineTo(x + w, y + h - R); c.arcTo(x + w, y + h, x + w - R, y + h, R); c.lineTo(x + R, y + h); c.arcTo(x, y + h, x, y + h - R, R); c.lineTo(x, y + R); c.arcTo(x, y, x + R, y, R); c.closePath(); };
+    shadow('rgba(16,35,63,.3)', 36, 18); path(); const g = c.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, mix(PAL.dk, '#FFFFFF', .2)); g.addColorStop(1, PAL.dk); c.fillStyle = g; c.fill(); shadow();
+    c.save(); path(); c.clip(); c.fillStyle = acc(); c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w, y + h * .1); c.bezierCurveTo(x + w * .7, y + h * .2, x + w * .3, y + h * .04, x, y + h * .14); c.closePath(); c.fill(); c.restore();
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(x + w * .12, y + h * .075, w * .05, 0, 7); c.fill(); c.fillStyle = acc(); c.font = '800 ' + Math.round(w * .06) + 'px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('P', x + w * .12, y + h * .075 + w * .02);
+    c.fillStyle = '#fff'; c.textAlign = 'left'; c.font = '900 ' + Math.round(w * .095) + 'px Inter, sans-serif'; c.fillText('MEMORY', x + w * .2, y + h * .09);
+    const lx = x + w * .09, ly = y + h * .19, lw = w * .82, lh = h * .5; rr(lx, ly, lw, lh, 10); c.fillStyle = '#FFFCF3'; c.fill(); put(0, () => rr(lx + 8, ly + 8, lw - 16, lh - 16, 6), lx + 8, ly + 8, lw - 16, lh - 16);
+    const sy = y + h * .75, sh = h * .2; rr(x + w * .1, sy, w * .8, sh, 8); c.fillStyle = '#0B0C10'; c.fill();
+    for(let i = 0; i < 8; i++){ const pw = w * .8 * .09, px = x + w * .1 + w * .8 * (.045 + i * .115); const gg = c.createLinearGradient(px, 0, px + pw, 0); gg.addColorStop(0, '#B8860B'); gg.addColorStop(.4, '#FFE9A8'); gg.addColorStop(1, '#C9921A'); rr(px, sy + sh * .12, pw, sh * (i % 2 ? .62 : .72), 4); c.fillStyle = gg; c.fill(); }
+    c.fillStyle = '#0B0C10'; rr(x - 3, y + h * .36, w * .035, h * .12, 4); c.fill();
+  };
+  SH.stamp = (x, y, w, h) => {
+    const r = w * .026, n = 9, m = Math.round(9 * h / w);
+    shadow('rgba(16,35,63,.25)', 30, 14); scallop(x, y, w, h, r, n, m); c.fillStyle = '#fff'; c.fill(); shadow();
+    const ix = x + w * .1, iy = y + h * .08, iw = w * .8, ih = h * .72; put(0, () => { c.beginPath(); c.rect(ix, iy, iw, ih); }, ix, iy, iw, ih);
+    c.lineWidth = 3; c.strokeStyle = dark(); c.strokeRect(ix - 8, iy - 8, iw + 16, ih + 16);
+    c.fillStyle = dark(); c.textAlign = 'left'; c.font = '800 ' + Math.round(w * .05) + 'px ' + HS; c.fillText('বাংলাদেশ', ix - 6, y + h * .91); c.textAlign = 'right'; c.font = '900 ' + Math.round(w * .08) + 'px ' + HS; c.fillText('৫.০০', ix + iw + 6, y + h * .92);
+    c.save(); c.globalAlpha = .45; c.strokeStyle = acc(); c.lineWidth = 5; const px = x + w * .83, py = y + h * .28; c.beginPath(); c.arc(px, py, w * .13, 0, 7); c.stroke(); c.beginPath(); c.arc(px, py, w * .09, 0, 7); c.stroke(); for(let i = 0; i < 4; i++){ c.beginPath(); c.moveTo(px - w * .3, py - w * .06 + i * w * .04); c.lineTo(px - w * .14, py - w * .06 + i * w * .04); c.stroke(); } c.restore();
+  };
+  SH.shapla = (x, y, w, h) => {
+    const cx = x + w / 2, by = y + h * .8, green = mix('#2E9E5B', PAL.ac, .15);
+    c.beginPath(); c.ellipse(cx, by + h * .06, w * .49, h * .13, 0, 0, 7); c.fillStyle = green; shadow('rgba(16,35,63,.2)', 24, 10); c.fill(); shadow();
+    c.beginPath(); c.ellipse(cx, by + h * .06, w * .49, h * .13, 0, 0, 7); c.lineWidth = 4; c.strokeStyle = mix(green, '#000000', .25); c.stroke();
+    c.beginPath(); c.moveTo(cx, by + h * .06); c.lineTo(cx + w * .49, by + h * .02); c.lineTo(cx + w * .3, by - h * .03); c.closePath(); c.fillStyle = PAL.bg; c.fill();
+    const petal = (ang, len, wid, col) => { c.save(); c.translate(cx, by); c.rotate(ang); c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(wid, -len * .25, wid * .7, -len * .8, 0, -len); c.bezierCurveTo(-wid * .7, -len * .8, -wid, -len * .25, 0, 0); c.fillStyle = col; c.fill(); c.lineWidth = 3; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .2); c.stroke(); c.restore(); };
+    petal(-1.2, h * .56, w * .2, lite(.62)); petal(1.2, h * .56, w * .2, lite(.62)); petal(-.75, h * .66, w * .22, lite(.74)); petal(.75, h * .66, w * .22, lite(.74));
+    const front = () => { c.beginPath(); [[-.42, .6], [.42, .6], [0, .74]].forEach(p => { const L = h * p[1], W2 = w * .21, A = p[0]; const cs = Math.cos(A), sn = Math.sin(A), T = (px, py) => [cx + px * cs - py * sn, by + px * sn + py * cs]; let q = T(0, 0); c.moveTo(q[0], q[1]); let a = T(W2, -L * .25), b = T(W2 * .7, -L * .8), d = T(0, -L); c.bezierCurveTo(a[0], a[1], b[0], b[1], d[0], d[1]); a = T(-W2 * .7, -L * .8); b = T(-W2, -L * .25); d = T(0, 0); c.bezierCurveTo(a[0], a[1], b[0], b[1], d[0], d[1]); }); };
+    put(0, front, x + w * .12, y + h * .02, w * .76, h * .8);
+    c.beginPath(); c.arc(cx, by - h * .02, w * .035, 0, 7); c.fillStyle = '#F5B933'; c.fill();
+  };
+  SH.kite = (x, y, w, h) => {
+    const cx = x + w / 2, top = y, mid = y + h * .3, bot = y + h * .62;
+    const dia = () => { c.beginPath(); c.moveTo(cx, top); c.lineTo(x + w, mid); c.lineTo(cx, bot); c.lineTo(x, mid); c.closePath(); };
+    shadow('rgba(16,35,63,.22)', 26, 12); dia(); c.fillStyle = '#fff'; c.fill(); shadow();
+    put(0, dia, x, y, w, h * .62); c.save(); dia(); c.clip(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 4; c.beginPath(); c.moveTo(cx, top); c.lineTo(cx, bot); c.moveTo(x, mid); c.lineTo(x + w, mid); c.stroke(); c.restore();
+    dia(); c.lineWidth = 10; c.lineJoin = 'round'; c.strokeStyle = acc(); c.stroke();
+    c.strokeStyle = dark(); c.lineWidth = 4; c.beginPath(); c.moveTo(cx, bot); for(let i = 1; i <= 8; i++){ c.quadraticCurveTo(cx + (i % 2 ? 1 : -1) * w * .16, y + h * (.62 + .046 * (i - .5)), cx, y + h * (.62 + .046 * i)); } c.stroke();
+    [.72, .82, .92].forEach((f, i) => { const by = y + h * f, bx = cx + (i % 2 ? 1 : -1) * w * .03; c.fillStyle = i % 2 ? acc() : lite(.35); c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + w * .1, by - h * .02); c.lineTo(bx + w * .1, by + h * .02); c.closePath(); c.fill(); c.beginPath(); c.moveTo(bx, by); c.lineTo(bx - w * .1, by - h * .02); c.lineTo(bx - w * .1, by + h * .02); c.closePath(); c.fill(); });
+  };
+  SH.slate = (x, y, w, h) => {
+    const wood = '#C28A55';
+    shadow('rgba(16,35,63,.28)', 30, 14); rr(x, y, w, h, w * .04); c.fillStyle = wood; c.fill(); shadow(); c.lineWidth = 5; c.strokeStyle = mix(wood, '#000000', .35); c.stroke();
+    const bx = x + w * .05, by = y + h * .06, bw = w * .9, bh = h * .76; rr(bx, by, bw, bh, 10); c.fillStyle = '#1E3A33'; c.fill();
+    put(0, () => rr(bx + 6, by + 6, bw - 12, bh - 12, 6), bx + 6, by + 6, bw - 12, bh - 12);
+    c.save(); rr(bx, by, bw, bh, 10); c.clip(); c.strokeStyle = 'rgba(255,255,255,.2)'; c.lineWidth = 8; c.beginPath(); c.moveTo(bx - 20, by + bh * .3); c.quadraticCurveTo(bx + bw * .4, by + bh * .2, bx + bw + 20, by + bh * .12); c.stroke(); c.restore();
+    rr(bx, by, bw, bh, 10); c.lineWidth = 4; c.strokeStyle = mix(wood, '#000000', .3); c.stroke();
+    const ty = y + h * .87; rr(x + w * .05, ty, w * .9, h * .07, 6); c.fillStyle = mix(wood, '#FFFFFF', .15); c.fill();
+    rr(x + w * .12, ty + h * .012, w * .12, h * .026, 6); c.fillStyle = '#fff'; c.fill(); rr(x + w * .27, ty + h * .012, w * .09, h * .026, 6); c.fillStyle = '#FFE9A8'; c.fill();
+    rr(x + w * .66, ty + h * .006, w * .2, h * .04, 6); c.fillStyle = '#7C5A3A'; c.fill();
+  };
+  SH.flag = (x, y, w, h) => {
+    const fx = x + w * .05, fy = y + h * .04, fw = w * .95, fh = h * .74;
+    c.fillStyle = dark(); rr(x, y, w * .022, h, 6); c.fill(); c.beginPath(); c.arc(x + w * .011, y, w * .02, 0, 7); c.fillStyle = '#F5B933'; c.fill();
+    shadow('rgba(16,35,63,.25)', 28, 12); c.beginPath(); c.moveTo(fx, fy); c.bezierCurveTo(fx + fw * .3, fy - fh * .06, fx + fw * .65, fy + fh * .06, fx + fw, fy); c.lineTo(fx + fw, fy + fh); c.bezierCurveTo(fx + fw * .65, fy + fh * 1.06, fx + fw * .3, fy + fh * .94, fx, fy + fh); c.closePath(); c.fillStyle = '#006A4E'; c.fill(); shadow();
+    const dx = fx + fw * .46, dy = fy + fh * .5, dr = fh * .38; put(0, () => { c.beginPath(); c.arc(dx, dy, dr, 0, 7); }, dx - dr, dy - dr, dr * 2, dr * 2);
+    c.beginPath(); c.arc(dx, dy, dr, 0, 7); c.lineWidth = 10; c.strokeStyle = '#F42A41'; c.stroke();
+  };
+  SH.heart = (x, y, w, h) => {
+    const P = () => { const sx = w / 100, sy = h / 100; c.beginPath(); c.moveTo(x + 50 * sx, y + 92 * sy); c.bezierCurveTo(x + 8 * sx, y + 62 * sy, x - 2 * sx, y + 30 * sy, x + 20 * sx, y + 14 * sy); c.bezierCurveTo(x + 36 * sx, y + 3 * sy, x + 50 * sx, y + 12 * sy, x + 50 * sx, y + 26 * sy); c.bezierCurveTo(x + 50 * sx, y + 12 * sy, x + 64 * sx, y + 3 * sy, x + 80 * sx, y + 14 * sy); c.bezierCurveTo(x + 102 * sx, y + 30 * sy, x + 92 * sx, y + 62 * sy, x + 50 * sx, y + 92 * sy); c.closePath(); };
+    shadow('rgba(16,35,63,.25)', 30, 14); P(); c.fillStyle = '#fff'; c.fill(); shadow(); put(0, P, x, y, w, h); P(); c.lineWidth = 14; c.lineJoin = 'round'; c.strokeStyle = '#fff'; c.stroke(); P(); c.lineWidth = 4; c.strokeStyle = acc(); c.stroke();
+  };
+  SH.arch = (x, y, w, h) => {
+    const A = (ix, iy, iw, ih) => { c.beginPath(); c.moveTo(ix, iy + ih); c.lineTo(ix, iy + iw / 2); c.arc(ix + iw / 2, iy + iw / 2, iw / 2, Math.PI, 0); c.lineTo(ix + iw, iy + ih); c.closePath(); };
+    shadow('rgba(16,35,63,.22)', 30, 14); A(x, y, w, h * .94); c.fillStyle = '#fff'; c.fill(); shadow();
+    const m = w * .06; put(0, () => A(x + m, y + m, w - m * 2, h * .94 - m * 2), x + m, y + m, w - m * 2, h * .94 - m * 2);
+    A(x, y, w, h * .94); c.lineWidth = 3; c.strokeStyle = acc(); c.stroke();
+    rr(x - w * .04, y + h * .93, w * 1.08, h * .035, 6); c.fillStyle = lite(.5); c.fill(); rr(x - w * .09, y + h * .96, w * 1.18, h * .04, 6); c.fillStyle = lite(.7); c.fill();
+  };
+  SH.polaroid2 = (x, y, w, h) => {
+    const pw = w * .5, ph = pw * 1.2;
+    const one = (px, py, ang, i) => { c.save(); c.translate(px + pw / 2, py + ph / 2); c.rotate(ang); c.translate(-(px + pw / 2), -(py + ph / 2)); shadow('rgba(16,35,63,.28)', 30, 14); rr(px, py, pw, ph, 10); c.fillStyle = '#fff'; c.fill(); shadow(); const m = pw * .07, ps = pw - m * 2; put(i, () => rr(px + m, py + m, ps, ps * 1.02, 5), px + m, py + m, ps, ps * 1.02); tape(px + pw / 2, py + 2, .05, pw * .32); c.restore(); };
+    one(x + w * .04, y + h * .05, -.1, 0); one(x + w * .44, y + h * .22, .08, 1);
+  };
+  SH.thennow = (x, y, w, h) => {
+    const aw = w * .45, ah = h * .86, A = (ix, iy, iw, ih) => { c.beginPath(); c.moveTo(ix, iy + ih); c.lineTo(ix, iy + iw / 2); c.arc(ix + iw / 2, iy + iw / 2, iw / 2, Math.PI, 0); c.lineTo(ix + iw, iy + ih); c.closePath(); };
+    [[x, 0, 'তখন'], [x + w - aw, 1, 'এখন']].forEach(p => { const ax = p[0], i = p[1]; shadow('rgba(16,35,63,.22)', 26, 12); A(ax, y, aw, ah); c.fillStyle = '#fff'; c.fill(); shadow(); const m = aw * .06; put(i, () => A(ax + m, y + m, aw - m * 2, ah - m * 2), ax + m, y + m, aw - m * 2, ah - m * 2); A(ax, y, aw, ah); c.lineWidth = 3; c.strokeStyle = acc(); c.stroke();
+      c.font = '800 ' + Math.round(h * .075) + 'px ' + HS; const tw = c.measureText(p[2]).width + 44; rr(ax + aw / 2 - tw / 2, y + ah + h * .03, tw, h * .1, h * .05); c.fillStyle = i ? acc() : dark(); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText(p[2], ax + aw / 2, y + ah + h * .03 + h * .073); });
+    c.beginPath(); c.arc(x + w / 2, y + ah * .5, h * .06, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = acc(); c.lineWidth = 6; c.lineCap = 'round'; c.lineJoin = 'round'; const mx = x + w / 2, my = y + ah * .5; c.beginPath(); c.moveTo(mx - h * .03, my); c.lineTo(mx + h * .03, my); c.moveTo(mx + h * .008, my - h * .025); c.lineTo(mx + h * .035, my); c.lineTo(mx + h * .008, my + h * .025); c.stroke();
+  };
+
+  /* ---------- the whole card: a soft paper, the object with the photo, a few words below ---------- */
+  function paper(W, H){
+    c.fillStyle = PAL.bg; c.fillRect(0, 0, W, H);
+    c.fillStyle = PAL.bg2; c.beginPath(); c.arc(W * .08, H * .1, W * .34, 0, 7); c.fill(); c.beginPath(); c.arc(W * .95, H * .92, W * .42, 0, 7); c.fill();
+    c.globalAlpha = .55; c.fillStyle = PAL.bg2; c.beginPath(); c.arc(W * .92, H * .12, W * .12, 0, 7); c.fill(); c.globalAlpha = 1;
+    c.fillStyle = mix(PAL.ac, '#FFFFFF', .7); let s = 11; const r = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    for(let i = 0; i < 46; i++){ const px = r() * W, py = r() * H, rad = 3 + r() * 5; c.globalAlpha = .35 + r() * .35; c.beginPath(); c.arc(px, py, rad, 0, 7); c.fill(); } c.globalAlpha = 1;
+    c.strokeStyle = mix(PAL.ac, '#FFFFFF', .72); c.lineWidth = 4; c.globalAlpha = .6; [[.14, .22], [.86, .74], [.2, .86]].forEach(p => { const px = W * p[0], py = H * p[1]; c.beginPath(); c.moveTo(px - 16, py); c.lineTo(px + 16, py); c.moveTo(px, py - 16); c.lineTo(px, py + 16); c.stroke(); }); c.globalAlpha = 1;
+  }
+  function render1(W, H, d, key){
+    PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
+    paper(W, H); const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
+    const title = d.title || 'আমাদের সেই দিন', tt = fit(title, mw, 2, 78, 44, '800', DISP), ll = d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
+    const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small ? 84 : 0);
+    const GAP = 56, top = H * .06, bottom = H - 110, regionH = bottom - top - capH - GAP;
+    const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
+    const ox = (W - ow) / 2, oy = g0;
+    c.save(); SH[key](ox, oy, ow, oh); c.restore();
+    let y = oy + oh + GAP; c.textAlign = 'center';
+    c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .2;
+    if(ll){ c.fillStyle = mix(PAL.dk, '#FFFFFF', .25); c.font = '500 ' + ll.size + 'px ' + HS; y += 22; ll.lines.forEach(s => { y += ll.size * 1.5; c.fillText(s, W / 2, y - ll.size * .45); }); }
+    if(d.small){ c.font = '700 30px ' + HS; const sw = c.measureText(d.small).width + 48; y += 26; rr(W / 2 - sw / 2, y, sw, 54, 27); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .5); c.stroke(); c.fillStyle = PAL.ac; c.fillText(d.small, W / 2, y + 37); }
+    c.fillStyle = mix(PAL.dk, '#FFFFFF', .55); c.font = '800 22px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 46);
   }
 
-  /* ---------- the templates ---------- */
-  const T = {};
-  // 1) the memory card, as a real one: black plastic, a printed swoosh, gold contacts, the memory on a paper label
-  T.card = (W, H, d, th) => {
-    deepBg(W, H, th); const oy = (H - 1350) / 2; c.save(); c.translate(0, oy);
-    const cx = 120, cy = 128, cw = 840, ch = 1060, cut = 118, R = 44;
-    const path = () => { c.beginPath(); c.moveTo(cx + R, cy); c.lineTo(cx + cw - cut, cy); c.lineTo(cx + cw, cy + cut); c.lineTo(cx + cw, cy + ch - R); c.arcTo(cx + cw, cy + ch, cx + cw - R, cy + ch, R); c.lineTo(cx + R, cy + ch); c.arcTo(cx, cy + ch, cx, cy + ch - R, R); c.lineTo(cx, cy + R); c.arcTo(cx, cy, cx + R, cy, R); c.closePath(); };
-    c.save(); c.translate(W / 2, cy + ch / 2); c.rotate(-.01); c.translate(-W / 2, -(cy + ch / 2));
-    shadow('rgba(0,0,0,.62)', 70, 34); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
-    c.save(); path(); c.clip();
-    const pb = c.createLinearGradient(cx, cy, cx + cw * .6, cy + ch); pb.addColorStop(0, '#3A3F4D'); pb.addColorStop(.45, '#1F222B'); pb.addColorStop(1, '#101218'); c.fillStyle = pb; c.fillRect(cx, cy, cw, ch);
-    c.save(); c.translate(cx, cy); grain(cw, ch, 14); c.restore();
-    const sw = c.createLinearGradient(cx, cy, cx + cw, cy + 340); sw.addColorStop(0, mix(th[0], '#000000', .15)); sw.addColorStop(.6, th[0]); sw.addColorStop(1, th[1]);
-    c.fillStyle = sw; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + cw, cy); c.lineTo(cx + cw, cy + 190); c.bezierCurveTo(cx + cw * .72, cy + 300, cx + cw * .3, cy + 120, cx, cy + 250); c.closePath(); c.fill();
-    c.fillStyle = 'rgba(255,255,255,.09)'; c.beginPath(); c.moveTo(cx, cy + 250); c.bezierCurveTo(cx + cw * .3, cy + 120, cx + cw * .72, cy + 300, cx + cw, cy + 190); c.lineTo(cx + cw, cy + 206); c.bezierCurveTo(cx + cw * .72, cy + 318, cx + cw * .3, cy + 138, cx, cy + 268); c.closePath(); c.fill();
-    c.textAlign = 'center'; c.beginPath(); c.arc(cx + 78, cy + 78, 26, 0, 7); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.fillStyle = th[0]; c.font = '800 30px Inter, sans-serif'; c.fillText('P', cx + 78, cy + 89);
-    c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', cx + 118, cy + 90);
-    const sg = c.createLinearGradient(cx, cy + 130, cx, cy + 215); sg.addColorStop(0, '#FFFFFF'); sg.addColorStop(.55, '#D7DCE6'); sg.addColorStop(1, '#9AA3B5'); c.fillStyle = sg; c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.45)', 8, 4); c.fillText('MEMORY', cx + 52, cy + 200); shadow();
-    c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.9)'; c.fillText('মেমোরি কার্ড', cx + 56, cy + 252);
-    c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 4; c.beginPath(); c.arc(cx + 450, cy + 247, 25, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.95)'; c.font = '800 28px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', cx + 458, cy + 257); c.textAlign = 'left';
-    const yr = (en(d.small || '').match(/\d{4}/) || [''])[0], cap = yr ? bn(yr) : '∞'; c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '900 ' + (yr ? 74 : 92) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8, 4); c.fillText(cap, cx + cw - 54, cy + 262 + (yr ? 0 : 6)); shadow(); c.textAlign = 'left';
-    // the paper label
-    const lx = cx + 44, ly = cy + 330, lw = cw - 88, lh = ch - 330 - 214, pad = 44, tw = lw - pad * 2;
-    c.save(); c.translate(lx + lw / 2, ly + lh / 2); c.rotate(-.011); c.translate(-(lx + lw / 2), -(ly + lh / 2));
-    shadow('rgba(0,0,0,.45)', 22, 10); rr(lx, ly, lw, lh, 18); c.fillStyle = '#FFFCF3'; c.fill(); shadow();
-    c.save(); rr(lx, ly, lw, lh, 18); c.clip();
-    c.fillStyle = mix(th[0], '#FFFFFF', .93); c.fillRect(lx, ly, lw, 14);
-    c.strokeStyle = mix(th[0], '#FFFFFF', .82); c.lineWidth = 2; for(let yy = ly + 70; yy < ly + lh; yy += 48){ c.beginPath(); c.moveTo(lx, yy); c.lineTo(lx + lw, yy); c.stroke(); }
-    c.strokeStyle = 'rgba(220,60,70,.35)'; c.beginPath(); c.moveTo(lx + 22, ly); c.lineTo(lx + 22, ly + lh); c.stroke();
-    const avail = lh - 78, hasImg = !!d.photos[0], lpad = pad + 6, ltw = tw - 10, title = d.title || 'আমাদের সেই দিন', body = d.line || '', foot = d.small || '';
-    const tl = wrap(title, ltw, '800 54px ' + DISP, 2);
-    let maxL = hasImg ? 3 : 6, bl = body ? wrap(body, ltw, '500 33px ' + HS, maxL) : [];
-    const LHT = 62, LHB = 48, textOf = b => tl.length * LHT + 12 + b.length * LHB + (foot ? 52 : 0);
-    while(textOf(bl) > avail - (hasImg ? 150 + 26 : 0) && maxL > 2){ maxL--; bl = wrap(body, ltw, '500 33px ' + HS, maxL); }
-    const textH = textOf(bl), ph = hasImg ? Math.max(150, Math.min(300, avail - textH - 26)) : 0, total = (hasImg ? ph + 26 : 0) + textH;
-    let y = ly + Math.max(22, (lh - total) / 2);
-    if(hasImg){ const ix = lx + lpad, iw = ltw, im = d.photos[0], sc = Math.max(iw / im.width, ph / im.height), dw = im.width * sc, dh = im.height * sc; c.save(); rr(ix, y, iw, ph, 16); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, y + (ph - dh) / 2, dw, dh); c.restore(); c.lineWidth = 5; c.strokeStyle = '#fff'; rr(ix, y, iw, ph, 16); c.stroke(); y += ph + 26; }
-    c.textAlign = 'left'; c.fillStyle = mix(th[0], NAVY, .5); c.font = '800 54px ' + DISP; y += 44; tl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHT; }); y -= 14;
-    c.fillStyle = '#2B3445'; c.font = '500 33px ' + HS; y += 26; bl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHB; });
-    if(foot){ c.fillStyle = th[0]; c.font = '700 29px ' + HS; c.fillText(foot, lx + lpad, y + 14); }
-    c.restore();
-    c.save(); c.translate(lx + lw - 96, ly - 6); c.rotate(.12); c.fillStyle = 'rgba(255,238,170,.78)'; c.fillRect(-52, -20, 104, 40); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-52, -20, 104, 8); c.restore();
-    c.restore();
-    c.fillStyle = '#0B0C10'; rr(cx - 4, cy + 520, 26, 96, 8); c.fill(); const lk = c.createLinearGradient(cx, 0, cx + 20, 0); lk.addColorStop(0, '#E7EAF0'); lk.addColorStop(1, '#9CA4B4'); rr(cx + 1, cy + 530, 15, 44, 5); c.fillStyle = lk; c.fill();
-    const sy = cy + ch - 196, sh2 = 160; rr(cx + 62, sy, cw - 124, sh2, 18); c.fillStyle = '#08090D'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.1)'; c.stroke();
-    const n = 9, gap = 11, pw = (cw - 124 - 36 - gap * (n - 1)) / n, px0 = cx + 62 + 18;
-    for(let i = 0; i < n; i++){ const px = px0 + i * (pw + gap), ph2 = i % 2 ? sh2 - 38 : sh2 - 28; const g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, '#B8860B'); g.addColorStop(.3, GOLD1); g.addColorStop(.6, GOLD2); g.addColorStop(1, '#A87408'); rr(px, sy + 14, pw, ph2, 7); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(px + 5, sy + 20, 4, ph2 - 14); }
-    const sh = c.createLinearGradient(cx, cy, cx + cw * .9, cy + ch * .5); sh.addColorStop(0, 'rgba(255,255,255,.22)'); sh.addColorStop(.3, 'rgba(255,255,255,.05)'); sh.addColorStop(.31, 'rgba(255,255,255,0)'); c.fillStyle = sh; c.fillRect(cx, cy, cw, ch);
-    c.restore();
-    path(); const eg = c.createLinearGradient(cx, cy, cx + cw, cy + ch); eg.addColorStop(0, 'rgba(255,255,255,.55)'); eg.addColorStop(.5, 'rgba(255,255,255,.08)'); eg.addColorStop(1, 'rgba(255,255,255,.25)'); c.lineWidth = 4; c.strokeStyle = eg; c.stroke();
-    c.restore(); c.restore(); mark(W, H);
-  };
-
-  // 2) a polaroid on a soft background, with a caption under the photo
-  T.polaroid = (W, H, d, th) => {
-    deepBg(W, H, th); const pw = W * .8, side = pw - 80, capH = 330, ph = 60 + side + capH, px = (W - pw) / 2, py = (H - ph) / 2 - 10;
-    c.save(); c.translate(W / 2, py + ph / 2); c.rotate(-.035); c.translate(-W / 2, -(py + ph / 2));
-    shadow('rgba(0,0,0,.55)', 50, 24); rr(px, py, pw, ph, 14); c.fillStyle = '#FBFAF6'; c.fill(); shadow();
-    photo(d.photos[0], px + 40, py + 40, side, side, 6, th);
-    const tx = px + 56, tw = pw - 112; c.textAlign = 'left';
-    const t = fit(d.title || 'আমাদের সেই দিন', tw, 2, 64, 40, '800', DISP), l = d.line ? fit(d.line, tw, 2, 32, 24, '500', HS) : null;
-    let y = py + 40 + side + 36 + t.size * .85; c.fillStyle = mix(th[0], NAVY, .55); c.font = '800 ' + t.size + 'px ' + DISP; t.lines.forEach(s => { c.fillText(s, tx, y); y += t.size * 1.08; });
-    if(l){ c.fillStyle = '#4B5563'; c.font = '500 ' + l.size + 'px ' + HS; y += 4; l.lines.forEach(s => { c.fillText(s, tx, y + l.size * .6); y += l.size * 1.4; }); }
-    if(d.small){ c.fillStyle = th[0]; c.font = '700 28px ' + HS; c.textAlign = 'right'; c.fillText(d.small, px + pw - 56, py + ph - 30); }
-    c.save(); c.translate(W / 2, py - 4); c.rotate(.05); c.fillStyle = 'rgba(255,238,170,.8)'; c.fillRect(-90, -24, 180, 48); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-90, -24, 180, 10); c.restore();
-    c.restore(); mark(W, H);
-  };
-
-  // 3) the whole picture, the words over it at the top, the middle or the bottom
-  T.full = (W, H, d, th) => {
-    if(d.photos[0]) photo(d.photos[0], 0, 0, W, H, 0, th); else { const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, th[0]); g.addColorStop(1, th[1]); c.fillStyle = g; c.fillRect(0, 0, W, H); }
-    const m = 84, w = W - m * 2, hgt = textBlock(0, 0, w, d, { measure: true });
-    let y, g;
-    if(S.pos === 'top'){ g = c.createLinearGradient(0, 0, 0, hgt + 340); g.addColorStop(0, 'rgba(6,11,31,.85)'); g.addColorStop(1, 'rgba(6,11,31,0)'); c.fillStyle = g; c.fillRect(0, 0, W, hgt + 340); y = 120; }
-    else if(S.pos === 'mid'){ c.fillStyle = 'rgba(6,11,31,.5)'; c.fillRect(0, 0, W, H); y = (H - hgt) / 2; }
-    else { g = c.createLinearGradient(0, H - hgt - 380, 0, H); g.addColorStop(0, 'rgba(6,11,31,0)'); g.addColorStop(1, 'rgba(6,11,31,.9)'); c.fillStyle = g; c.fillRect(0, H - hgt - 380, W, hgt + 380); y = H - hgt - 96; }
-    textBlock(m, y, w, d, { shadow: true }); mark(W, H);
-  };
-
-  // 4) two photos side by side, the words above or below
-  T.duo = (W, H, d, th) => {
-    deepBg(W, H, th); const m = 64, w = W - m * 2, o = { tmax: 80, lmax: 3, shadow: true }, hgt = textBlock(0, 0, w, d, { measure: true, tmax: 80, lmax: 3 }), gap = 24, top = S.pos === 'top';
-    const phH = H - hgt - 64 - 96 - 70, pw = (w - gap) / 2, py = top ? 96 + hgt + 64 : 96;
-    photo(d.photos[0], m, py, pw, phH, 28, th); photo(d.photos[1], m + pw + gap, py, pw, phH, 28, th);
-    textBlock(m, top ? 96 : py + phH + 56, w, d, o); mark(W, H);
-  };
-
-  // 5) then and now: two photos one above the other with their labels
-  T.then = (W, H, d, th) => {
-    deepBg(W, H, th); const m = 64, w = W - m * 2, o = { tmax: 76, lmax: 2, shadow: true }, hgt = textBlock(0, 0, w, d, { measure: true, tmax: 76, lmax: 2 }), gap = 36, top = S.pos === 'top';
-    const total = H - hgt - 70 - 96 - 48 - gap, ph = total / 2, y0 = top ? 96 + hgt + 48 : 96;
-    const lab = (txt, x, y) => { c.font = '800 36px ' + HS; const lw = c.measureText(txt).width + 48; rr(x, y, lw, 64, 32); c.fillStyle = GOLD2; c.fill(); c.fillStyle = '#3B2A00'; c.textAlign = 'left'; c.fillText(txt, x + 24, y + 44); };
-    photo(d.photos[0], m, y0, w, ph, 30, th); photo(d.photos[1], m, y0 + ph + gap, w, ph, 30, th); lab('তখন', m + 28, y0 + 28); lab('এখন', m + 28, y0 + ph + gap + 28);
-    const by = y0 + ph + gap / 2, bx = W - m - 70; c.beginPath(); c.arc(bx, by, 46, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = th[0]; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(bx, by - 18); c.lineTo(bx, by + 18); c.moveTo(bx - 16, by + 3); c.lineTo(bx, by + 19); c.lineTo(bx + 16, by + 3); c.stroke();
-    textBlock(m, top ? 96 : y0 + ph * 2 + gap + 48, w, d, o); mark(W, H);
-  };
-
-  // 6) a film strip with two frames, a warm tint, the caption below
-  T.film = (W, H, d, th) => {
-    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#2B1B12'); g.addColorStop(1, '#0E0A07'); c.fillStyle = g; c.fillRect(0, 0, W, H); glow(W, H, W * .8, 160, W * .8, '#F59E0B', '33'); grain(W, H, 20);
-    const sx = 150, sw = W - 300, sy = 70, capH = textBlock(0, 0, sw, d, { measure: true, tmax: 64, lmax: 2 }) + 40 + 110, sh = H - capH - 70;
-    c.save(); shadow('rgba(0,0,0,.6)', 40, 16); rr(sx, sy, sw, sh, 18); c.fillStyle = '#0A0A0C'; c.fill(); shadow();
-    const hole = (x, y) => { rr(x, y, 26, 38, 6); c.fillStyle = '#F3E9D2'; c.fill(); };
-    for(let y = sy + 26; y < sy + sh - 40; y += 66){ hole(sx + 22, y); hole(sx + sw - 48, y); }
-    const fx = sx + 84, fw = sw - 168, gap = 26, fh = (sh - 52 - gap) / 2;
-    [0, 1].forEach(i => { const fy = sy + 26 + i * (fh + gap); photo(d.photos[i], fx, fy, fw, fh, 8, th); c.save(); rr(fx, fy, fw, fh, 8); c.clip(); c.fillStyle = 'rgba(255,170,80,.13)'; c.fillRect(fx, fy, fw, fh); const vg = c.createRadialGradient(fx + fw / 2, fy + fh / 2, fh * .3, fx + fw / 2, fy + fh / 2, fw * .65); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)'); c.fillStyle = vg; c.fillRect(fx, fy, fw, fh); c.restore(); c.fillStyle = '#F3E9D2'; c.font = '700 22px Inter, sans-serif'; c.textAlign = 'left'; c.fillText(String(i + 1) + 'A', fx, fy + fh + 20); });
-    c.restore();
-    textBlock(sx, sy + sh + 40, sw, d, { col: '#FFF3DC', sub: 'rgba(255,243,220,.85)', tmax: 64, lmax: 2, shadow: true }); mark(W, H);
-  };
-
-  // 7) a few words, with a round photo if there is one
-  T.quote = (W, H, d, th) => {
-    deepBg(W, H, th); const m = 90, w = W - m * 2, has = !!d.photos[0]; let y = has ? 170 : 0;
-    if(has){ const r = 190; c.save(); c.beginPath(); c.arc(W / 2, y + r, r, 0, 7); c.clip(); const im = d.photos[0], sc = Math.max(r * 2 / im.width, r * 2 / im.height); c.drawImage(im, W / 2 - im.width * sc / 2, y + r - im.height * sc / 2, im.width * sc, im.height * sc); c.restore(); c.lineWidth = 10; c.strokeStyle = '#fff'; c.beginPath(); c.arc(W / 2, y + r, r, 0, 7); c.stroke(); y += r * 2 + 50; }
-    const q = fit(d.line || d.title || 'আপনার একটা কথা এখানে লিখুন', w, has ? 5 : 8, has ? 62 : 76, 36, '700', DISP), lh = q.size * 1.38;
-    const blockH = 110 + q.lines.length * lh + (d.line && d.title ? 90 : 0) + (d.small ? 60 : 0);
-    if(!has) y = (H - blockH) / 2;
-    c.textAlign = 'center'; c.fillStyle = GOLD1; c.font = '900 200px ' + DISP; c.fillText('“', W / 2, y + 120); y += 120;
-    c.fillStyle = '#fff'; c.font = '700 ' + q.size + 'px ' + DISP; shadow('rgba(0,0,0,.35)', 14, 4); q.lines.forEach(s => { c.fillText(s, W / 2, y + q.size); y += lh; }); shadow();
-    if(d.line && d.title){ y += 30; c.fillStyle = GOLD1; c.font = '800 40px ' + HS; c.fillText('— ' + d.title, W / 2, y + 40); y += 60; }
-    if(d.small){ c.fillStyle = 'rgba(255,255,255,.75)'; c.font = '600 32px ' + HS; c.fillText(d.small, W / 2, y + 40); }
-    mark(W, H);
-  };
-
-  /* ---------- drawing the picture and the small pictures of the templates ---------- */
+  /* ---------- drawing the picture and the small pictures of the shapes ---------- */
   const data = () => ({ title: $('ttl').value.trim(), line: $('txt').value.trim(), small: $('sm').value.trim(), photos: S.photos });
-  function paint(cv, W, H, d, tplKey, k){ const prev = c; c = cv.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, H); c.save(); c.textBaseline = 'alphabetic'; try{ T[tplKey](W, H, d, THEMES[S.theme] || THEMES.blue); }catch(e){ console.error(e); } c.restore(); c = prev; }
+  function paint(cv, W, H, d, key, k){ const prev = c; c = cv.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, H); c.save(); try{ render1(W, H, d, key); }catch(e){ console.error(e); } c.restore(); c = prev; }
   let raf = 0;
   function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
   async function render(){
@@ -278,51 +303,48 @@
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
     paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
   }
-  /* the small pictures in the template row: sample words and two sample photos, in the current colour and size */
-  const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#DB2777'], ['#22D3EE', '#4F46E5']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.arc(400, 330, 130, 0, 7); x.fill(); x.fillRect(240, 480, 320, 320); SAMPLE.push(s); }); return SAMPLE; }
+  const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"')]); }catch(e){}
-    const sz = SIZES[S.size], k = 150 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: 'ছোট একটা লাইন এখানে', small: '২০১৮', photos: sm };
+    const sz = SIZES.post, k = 170 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: '', small: '', photos: sm };
     TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, d, t.k, k); });
   }
 
   /* ---------- the form ---------- */
   function paintTpls(){ $('tpls').innerHTML = TPLS.map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : '') + '</span></button>').join(''); }
-  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k][0] + '" aria-label="' + k + '"></button>').join(''); }
+  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
-  function paintPos(){ const t = TP(), list = t.two ? POS.filter(p => p[0] !== 'mid') : POS; if(t.two && S.pos === 'mid') S.pos = 'bottom'; $('posWrap').hidden = !t.pos; $('pos').innerHTML = list.map(p => '<button type="button" role="radio" aria-checked="' + (S.pos === p[0]) + '" data-k="' + p[0] + '">' + p[1] + '</button>').join(''); }
   function paintSlots(){
-    const t = TP(), n = t.ph; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : t.opt ? '(ঐচ্ছিক)' : '';
-    $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'then' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
+    const t = TP(), n = t.ph; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
+    $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'thennow' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
     S.photos.forEach((im, i) => { const el = $('slots').querySelector('img[data-i="' + i + '"]'); if(el && im){ const s = document.createElement('canvas'); s.width = 160; s.height = 160; const x = s.getContext('2d'), sc = Math.max(160 / im.width, 160 / im.height); x.drawImage(im, 80 - im.width * sc / 2, 80 - im.height * sc / 2, im.width * sc, im.height * sc); el.src = s.toDataURL('image/jpeg', .7); } });
   }
   function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; }
-  $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); paintPos(); draw(); track('memory_tpl', { t: S.tpl }); };
-  $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; paintThemes(); thumbs(); draw(); };
-  $('size').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.size = b.dataset.k; paintSize(); thumbs(); draw(); };
-  $('pos').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.pos = b.dataset.k; paintPos(); draw(); };
+  $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); draw(); track('memory_tpl', { t: S.tpl }); };
+  $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; PAL = THEMES[S.theme]; paintThemes(); thumbs(); draw(); };
+  $('size').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.size = b.dataset.k; paintSize(); draw(); };
   ['ttl', 'txt', 'sm'].forEach(id => $(id).addEventListener('input', () => { counters(); draw(); }));
 
-  /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the empty slots in order */
+  /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the slots in order */
   let target = 0;
   $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
   $('file').onchange = async () => {
     const files = Array.from($('file').files || []).filter(f => /^image\//.test(f.type)); $('file').value = ''; if(!files.length) return;
-    let slot = target, put = 0;
+    let slot = target, put1 = 0;
     for(const f of files){
       if(slot >= TP().ph) break;
       try{
         let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
         const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-        S.photos[slot] = cv; slot++; put++;
+        S.photos[slot] = cv; slot++; put1++;
       }catch(e){ toast('একটা ছবি পড়া যায়নি।'); }
     }
-    if(put){ paintSlots(); draw(); }
+    if(put1){ paintSlots(); draw(); }
   };
 
   /* what was written last time is kept in this browser (not the photos), so the next card starts faster */
-  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, pos: S.pos, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; if(['top', 'mid', 'bottom'].includes(d.pos)) S.pos = d.pos; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
+  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
 
   /* ---------- download, share, caption ---------- */
   const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
@@ -336,7 +358,7 @@
   $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  loadDraft(); paintTpls(); paintThemes(); paintSize(); paintPos(); paintSlots(); counters(); showCount();
+  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
   draw(); thumbs();
   track('memory_view', {});
