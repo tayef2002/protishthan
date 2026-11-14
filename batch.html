@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=30">
+<link rel="stylesheet" href="/batch.css?v=31">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -526,7 +526,7 @@
       c.textAlign = 'center'; c.fillStyle = '#fff'; c.fillText(chip, W - 80 - cw / 2, 107);
 
       // 3) the seats panel is pinned above the button; the top block (the call, the name, the school) is centred in what is left
-      const goal = goalOf(n), shown = Math.min(goal, 20), cols = shown <= 10 ? 5 : 10, dd = cols === 5 ? 96 : 66, PH = 8 + 36 + 64 + 14 + (dd + 32 + dd) + 40, CTA_Y = H - 232, pTop = CTA_Y - 38 - PH;
+      const goal = goalOf(n), shown = Math.min(goal, 20), cols = shown <= 10 ? 5 : 10, dd = cols === 5 ? 96 : 66, PH = 8 + 36 + 64 + 14 + (dd + 32 + dd) + 40, CTA_Y = H - 244, pTop = CTA_Y - 38 - PH;
       const big = b.name || inst; let size = 136, lines;
       do{ lines = wrap(big, W - 170, '800 ' + size + 'px ' + DISP, 3); size -= 6; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 170)) && size > 64);
       const fs0 = size + 6, sl = b.name ? wrap(inst, W - 190, '600 38px ' + HS, 2) : [];
@@ -581,18 +581,23 @@
       }
 
       // 5) the one thing to do: a gold button. Facebook: join from the link in the comment (a printed link cannot be tapped). WhatsApp: the link is printed.
-      { const bx = 70, bw = W - 140, bh = 132, by = CTA_Y; const g = c.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2);
+      { const bx = 70, bw = W - 140, bh = 148, by = CTA_Y; const g = c.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2);
         shadow('rgba(245,185,51,.5)', 46, 12); rr(bx, by, bw, bh, bh / 2); c.fillStyle = g; c.fill(); shadow();
-        const ink = mixHex(th[0], NAVY, .7);
+        const ink = mixHex(th[0], NAVY, .7), tx = bx + 66, ax = bx + bw - 78, ay = by + bh / 2;
+        // the arrow sits at the end of the button (down for Facebook: the link is in the comment below; right for WhatsApp)
+        c.beginPath(); c.arc(ax, ay, 45, 0, 7); c.fillStyle = ink; c.fill();
+        c.strokeStyle = GOLD1; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath();
+        if(mode === 'fb'){ c.moveTo(ax, ay - 17); c.lineTo(ax, ay + 15); c.moveTo(ax - 16, ay + 1); c.lineTo(ax, ay + 17); c.lineTo(ax + 16, ay + 1); }
+        else { c.moveTo(ax - 17, ay); c.lineTo(ax + 15, ay); c.moveTo(ax + 1, ay - 16); c.lineTo(ax + 17, ay); c.lineTo(ax + 1, ay + 16); }
+        c.stroke();
+        c.textAlign = 'left';
         if(mode === 'fb'){
-          c.beginPath(); c.arc(bx + 70, by + bh / 2, 42, 0, 7); c.fillStyle = ink; c.fill();
-          c.strokeStyle = GOLD1; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(bx + 70, by + bh / 2 - 17); c.lineTo(bx + 70, by + bh / 2 + 15); c.moveTo(bx + 54, by + bh / 2 + 1); c.lineTo(bx + 70, by + bh / 2 + 17); c.lineTo(bx + 86, by + bh / 2 + 1); c.stroke();
-          c.textAlign = 'center'; c.fillStyle = mixHex(ink, '#FFFFFF', .12); c.font = '600 31px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', bx + 70 + (bw - 70) / 2 + 30, by + 52);
-          c.fillStyle = ink; c.font = '800 62px ' + DISP; c.fillText('ব্যাচে জয়েন করো', bx + 70 + (bw - 70) / 2 + 30, by + 112);
+          c.fillStyle = mixHex(ink, '#FFFFFF', .12); c.font = '600 30px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', tx, by + 56);
+          c.fillStyle = ink; c.font = '800 60px ' + DISP; c.fillText('ব্যাচে জয়েন করো', tx, by + 120);
         } else {
-          const sl2 = link.replace(/^https?:\/\//, ''); let fz = 34; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl2).width > bw - 120 && fz > 18){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
-          c.textAlign = 'center'; c.fillStyle = ink; c.font = '800 62px ' + DISP; c.fillText('ব্যাচে জয়েন করো', W / 2, by + 66);
-          c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillStyle = mixHex(ink, '#FFFFFF', .1); c.fillText(sl2, W / 2, by + 108);
+          const sl2 = link.replace(/^https?:\/\//, ''); let fz = 33; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl2).width > bw - 66 - 160 && fz > 18){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
+          c.fillStyle = ink; c.font = '800 60px ' + DISP; c.fillText('ব্যাচে জয়েন করো', tx, by + 76);
+          c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillStyle = mixHex(ink, '#FFFFFF', .1); c.fillText(sl2, tx, by + 122);
         }
       }
       c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '700 25px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM  ·  আমার ব্যাচ', W / 2, H - 50);
