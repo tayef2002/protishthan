@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>মেমোরি কার্ড: একটা স্মৃতি, একটা কার্ড | Protishthan</title>
+<meta name="description" content="স্কুলের বেঞ্চ, বন্ধুদের আড্ডা, প্রিয় স্যারের বকুনি, যেকোনো স্মৃতি নিয়ে একটা সুন্দর মেমোরি কার্ড বানান। বিনামূল্যে, সাইন-ইন ছাড়াই, যতবার ইচ্ছে।">
+<link rel="canonical" href="https://protishthan.com/memory">
+<meta property="og:title" content="মেমোরি কার্ড | Protishthan">
+<meta property="og:description" content="একটা স্মৃতি, একটা কার্ড। পুরনো দিনের কথা লিখুন, কার্ড বানিয়ে বন্ধুদের সাথে ভাগ করুন।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/memory">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/member.js?v=2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/memory.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="card"></div>
+<script src="/nav.js?v=20"></script>
+
+<main class="mc" id="mc">
+  <section class="mc-hero">
+    <span class="mc-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 7v3M12 7v3M15 7v3"/></svg>মেমোরি কার্ড</span>
+    <h1>একটা স্মৃতি, <span>একটা কার্ড</span></h1>
+    <p>মনে আছে সেই দিনগুলো? যেকোনো স্মৃতি লিখুন, একটা সুন্দর কার্ড বানিয়ে বন্ধুদের সাথে ভাগ করুন। যতবার ইচ্ছে, যত স্মৃতি নিয়ে।</p>
+  </section>
+
+  <div class="mc-grid">
+    <section class="mc-prev" aria-label="কার্ডের প্রিভিউ">
+      <canvas id="cv" width="1080" height="1350" aria-label="আপনার মেমোরি কার্ড"></canvas>
+      <div class="mc-acts">
+        <button type="button" class="mc-btn" id="dl">ডাউনলোড করুন</button>
+        <button type="button" class="mc-btn alt" id="sh" hidden>শেয়ার করুন</button>
+      </div>
+      <button type="button" class="mc-cap" id="cpCap">ক্যাপশন কপি করুন</button>
+      <p class="mc-cnt" id="cnt" hidden></p>
+    </section>
+
+    <section class="mc-form" aria-label="স্মৃতির তথ্য">
+      <div class="mc-f">
+        <label>কোন ধরনের স্মৃতি?</label>
+        <div class="mc-types" id="types" role="radiogroup" aria-label="স্মৃতির ধরন"></div>
+      </div>
+      <div class="mc-f">
+        <label for="ttl">স্মৃতির শিরোনাম <small id="ttlN"></small></label>
+        <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off">
+      </div>
+      <div class="mc-f">
+        <label for="txt">স্মৃতির কথা <small id="txtN"></small></label>
+        <textarea id="txt" class="mc-inp" maxlength="160" rows="4"></textarea>
+        <div class="mc-starts" id="starts" aria-label="শুরুর ইঙ্গিত"></div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-f"><label for="yr">সাল (ঐচ্ছিক)</label><input id="yr" class="mc-inp" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="যেমন ২০১৮"></div>
+        <div class="mc-f"><label for="who">কোথায় বা কার সাথে (ঐচ্ছিক)</label><input id="who" class="mc-inp" maxlength="40" autocomplete="off" placeholder="যেমন স্কুলের মাঠে, রাকিবের সাথে"></div>
+      </div>
+      <div class="mc-f">
+        <label>ছবি (ঐচ্ছিক)</label>
+        <div class="mc-photo">
+          <button type="button" class="mc-pick" id="pick"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg><span id="pickT">ছবি বাছুন</span></button>
+          <button type="button" class="mc-rm" id="rm" hidden>ছবি সরান</button>
+        </div>
+        <small class="mc-note">ছবি আপনার ফোনেই থাকে, আমরা সার্ভারে নিই না।</small>
+        <input type="file" id="file" accept="image/*" hidden>
+      </div>
+      <div class="mc-row">
+        <div class="mc-f"><label for="nm">আপনার নাম (ঐচ্ছিক)</label><input id="nm" class="mc-inp" maxlength="24" autocomplete="off" placeholder="কার্ডের নিচে থাকবে"></div>
+        <div class="mc-f"><label>রং</label><div class="mc-th" id="themes" role="radiogroup" aria-label="রং"></div></div>
+      </div>
+      <button type="button" class="mc-again" id="again">আরেকটা স্মৃতি বানান</button>
+    </section>
+  </div>
+
+  <p class="mc-foot">একটা সুন্দর স্মৃতি পেলে সেটা বন্ধুর সাথে ভাগ করুন। <a href="/batch">স্কুলের ব্যাচটাকেও এক জায়গায় আনুন</a></p>
+</main>
+
+<div id="pfoot" data-art="card"></div>
+<script src="/footer.js?v=20"></script>
+<div class="mc-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const bn = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const en = s => String(s == null ? '' : s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  const track = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+
+  /* the kinds of memory: a name, a starter title, and a few first words that help someone who does not know how to begin */
+  const TYPES = [
+    { k: 'school', t: 'স্কুল', ph: 'যেমন: শেষ বেঞ্চের গল্প', st: ['টিফিনের ঘণ্টা পড়লেই…', 'শেষ বেঞ্চে বসে আমরা…', 'পরীক্ষার আগের রাতে…', 'স্কুলের গেটের সামনে…'], th: 'blue' },
+    { k: 'friends', t: 'বন্ধু', ph: 'যেমন: আমাদের সেই আড্ডা', st: ['সেদিন আমরা সবাই মিলে…', 'ওর সাথে প্রথম দেখা…', 'আমাদের সেই গোপন জায়গা…', 'যে কথাটা আজও হাসায়…'], th: 'teal' },
+    { k: 'teacher', t: 'শিক্ষক', ph: 'যেমন: প্রিয় স্যার', st: ['স্যার যেদিন বলেছিলেন…', 'ওই বকুনিটা আজও মনে পড়ে…', 'ম্যাডামের হাতের লেখা…', 'যাঁর কথায় বদলে গিয়েছিলাম…'], th: 'violet' },
+    { k: 'trip', t: 'ভ্রমণ', ph: 'যেমন: সেই যাত্রা', st: ['ট্রেনের জানালা দিয়ে…', 'সেই রাতের বাসযাত্রা…', 'পৌঁছে দেখি…', 'ফেরার পথে…'], th: 'amber' },
+    { k: 'family', t: 'পরিবার', ph: 'যেমন: দাদুবাড়ির উঠোন', st: ['দাদুবাড়ির উঠোনে…', 'মায়ের হাতের রান্না…', 'বাবার সাথে সেই বিকেল…', 'ছোটবেলার সেই ঘর…'], th: 'rose' },
+    { k: 'eid', t: 'ঈদ ও উৎসব', ph: 'যেমন: চাঁদ রাতের আনন্দ', st: ['চাঁদ রাতে…', 'ঈদের সকালে…', 'নতুন জামার গন্ধ…', 'সেই মেলার দিন…'], th: 'amber' },
+    { k: 'first', t: 'প্রথম দিন', ph: 'যেমন: প্রথম দিনের ভয়', st: ['প্রথম দিনটা…', 'কাঁপা হাতে…', 'কেউ চিনত না, তবু…', 'সেদিনই বুঝেছিলাম…'], th: 'violet' },
+    { k: 'other', t: 'অন্য কিছু', ph: 'যেমন: যে স্মৃতি ভোলা যায় না', st: ['মনে পড়ে…', 'এখনও চোখ বন্ধ করলে…', 'সময় ফিরিয়ে দিলে…', 'কেউ জানে না, তবে…'], th: 'blue' }
+  ];
+  const THEMES = { blue: ['#1A56DB', '#7C3AED'], violet: ['#6D28D9', '#DB2777'], teal: ['#0F766E', '#1A56DB'], amber: ['#B45309', '#DB2777'], rose: ['#BE123C', '#7C3AED'] };
+  const S = { type: 'school', theme: 'blue', img: null, themeTouched: false };
+  const TY = () => TYPES.find(x => x.k === S.type) || TYPES[0];
+
+  const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+
+  /* ---------- the form ---------- */
+  function paintTypes(){ $('types').innerHTML = TYPES.map(t => '<button type="button" role="radio" aria-checked="' + (S.type === t.k) + '" data-k="' + t.k + '">' + t.t + '</button>').join(''); }
+  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k][0] + '" aria-label="' + k + '"></button>').join(''); }
+  function paintStarts(){ $('starts').innerHTML = '<span>কীভাবে শুরু করবেন?</span>' + TY().st.map(x => '<button type="button">' + x + '</button>').join(''); $('ttl').placeholder = TY().ph; }
+  function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; $('txtN').textContent = bn($('txt').value.length) + '/১৬০'; }
+  $('types').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.type = b.dataset.k; if(!S.themeTouched) S.theme = TY().th; paintTypes(); paintThemes(); paintStarts(); draw(); };
+  $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; S.themeTouched = true; paintThemes(); draw(); };
+  $('starts').onclick = e => { const b = e.target.closest('button'); if(!b) return; const t = $('txt'); if(t.value.trim()) t.value = t.value.trim() + ' ' + b.textContent; else t.value = b.textContent; t.focus(); counters(); draw(); };
+  ['ttl', 'txt', 'yr', 'who', 'nm'].forEach(id => $(id).addEventListener('input', () => { if(id === 'yr') $('yr').value = bn(en($('yr').value).replace(/\D/g, '').slice(0, 4)); counters(); draw(); }));
+
+  /* a photo: read in the browser, shrunk, kept in memory only */
+  $('pick').onclick = () => $('file').click();
+  $('rm').onclick = () => { S.img = null; $('pickT').textContent = 'ছবি বাছুন'; $('rm').hidden = true; draw(); };
+  $('file').onchange = async () => {
+    const f = ($('file').files || [])[0]; $('file').value = ''; if(!f || !/^image\//.test(f.type)) return;
+    try{
+      let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
+      const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1400 / Math.max(w, h));
+      const cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+      S.img = cv; $('pickT').textContent = 'ছবি বদলান'; $('rm').hidden = false; draw();
+    }catch(e){ toast('এই ছবিটা পড়া যায়নি, অন্য ছবি দিন।'); }
+  };
+
+  /* ---------- the card: drawn here in the browser, nothing leaves the phone ---------- */
+  const W = 1080, H = 1350;
+  let raf = 0;
+  function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
+  async function render(){
+    const cv = $('cv'), c = cv.getContext('2d'), th = THEMES[S.theme] || THEMES.blue;
+    const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif', NAVY = '#060B1F';
+    const base = mix(th[0], NAVY, .8), mid = mix(th[0], NAVY, .5), GOLD1 = '#FFE9A8', GOLD2 = '#F5B933';
+    const title = $('ttl').value.trim() || TY().ph.replace(/^যেমন:\s*/, ''), body = $('txt').value.trim() || 'এখানে আপনার স্মৃতির কথা লিখুন…', yr = $('yr').value.trim(), who = $('who').value.trim(), nm = $('nm').value.trim();
+    const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+    const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = txt.split(/\s+/), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
+    const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
+    const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + a); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
+
+    // the background: deep colour, two soft lights, fine grain
+    c.fillStyle = base; c.fillRect(0, 0, W, H); glow(120, 120, 800, th[1], '8C'); glow(W - 60, H - 200, 980, th[0], 'B0');
+    { const nz = document.createElement('canvas'); nz.width = nz.height = 160; const nc = nz.getContext('2d'), im = nc.createImageData(160, 160); let s = 77; for(let i = 0; i < im.data.length; i += 4){ s = (s * 1664525 + 1013904223) >>> 0; const v = (s >>> 24); im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 18; } nc.putImageData(im, 0, 0); c.fillStyle = c.createPattern(nz, 'repeat'); c.fillRect(0, 0, W, H); }
+    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.9)'; c.font = '700 36px ' + HS; c.fillText('একটা স্মৃতি, একটা কার্ড', W / 2, 108);
+
+    // the card itself: a memory-card shape (cut corner, notch, gold contacts), tilted a hair
+    const cx = 120, cy = 160, cw = 840, ch = 1010, cut = 120, R = 46;
+    c.save(); c.translate(W / 2, cy + ch / 2); c.rotate(-.012); c.translate(-W / 2, -(cy + ch / 2));
+    const path = () => { c.beginPath(); c.moveTo(cx + R, cy); c.lineTo(cx + cw - cut, cy); c.lineTo(cx + cw, cy + cut); c.lineTo(cx + cw, cy + ch - R); c.arcTo(cx + cw, cy + ch, cx + cw - R, cy + ch, R); c.lineTo(cx + R, cy + ch); c.arcTo(cx, cy + ch, cx, cy + ch - R, R); c.lineTo(cx, cy + R); c.arcTo(cx, cy, cx + R, cy, R); c.closePath(); };
+    shadow('rgba(0,0,0,.5)', 60, 26); path(); c.fillStyle = '#fff'; c.fill(); shadow();
+    c.save(); path(); c.clip();
+    const bg = c.createLinearGradient(cx, cy, cx + cw, cy + ch); bg.addColorStop(0, '#FFFFFF'); bg.addColorStop(1, mix(th[0], '#FFFFFF', .9)); c.fillStyle = bg; c.fillRect(cx, cy, cw, ch);
+    // the coloured head of the card
+    const hg = c.createLinearGradient(cx, cy, cx + cw, cy + 190); hg.addColorStop(0, mix(th[0], NAVY, .35)); hg.addColorStop(1, th[1]); c.fillStyle = hg; c.fillRect(cx, cy, cw, 190);
+    c.fillStyle = 'rgba(255,255,255,.1)'; c.beginPath(); c.arc(cx + 160, cy + 20, 240, 0, 7); c.fill();
+    c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 44px Inter, sans-serif'; c.fillText('MEMORY CARD', cx + 52, cy + 92);
+    c.font = '700 28px ' + HS; c.fillStyle = 'rgba(255,255,255,.85)'; c.fillText('মেমোরি কার্ড · ' + TY().t, cx + 52, cy + 138);
+    // a gloss across the head
+    const gl = c.createLinearGradient(cx, cy, cx + cw, cy + 190); gl.addColorStop(0, 'rgba(255,255,255,.18)'); gl.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(cx, cy, cw, 190);
+
+    // the inside: measured first, then drawn centred between the head and the contacts
+    const innerTop = cy + 190, innerBot = cy + ch - 150, pad = 56, tw = cw - pad * 2;
+    const hasImg = !!S.img, avail = innerBot - innerTop - 40;
+    const tl = wrap(title, tw, '800 64px ' + DISP, 2), foot = [yr, who].filter(Boolean).join('  ·  ');
+    let maxL = hasImg ? 3 : 6, bl = wrap(body, tw, '500 38px ' + HS, maxL);
+    const textOf = b => tl.length * 74 + 14 + b.length * 56 + (foot ? 64 : 0) + (nm ? 56 : 0) + (hasImg ? 0 : 84);
+    while(textOf(bl) > avail - (hasImg ? 150 + 34 : 0) && maxL > 2){ maxL--; bl = wrap(body, tw, '500 38px ' + HS, maxL); }     // long words are cut with … so the card never runs into the contacts
+    const textH = textOf(bl);
+    const ph = hasImg ? Math.max(150, Math.min(380, avail - textH - 34)) : 0;     // the picture takes what the words leave, so nothing runs into the gold contacts
+    const total = (hasImg ? ph + 34 : 0) + textH;
+    let y = innerTop + Math.max(34, (innerBot - innerTop - total) / 2);
+    if(hasImg){
+      const iw = tw, ih = ph, ix = cx + pad, iy = y, im = S.img, sc = Math.max(iw / im.width, ih / im.height), dw = im.width * sc, dh = im.height * sc;
+      c.save(); rr(ix, iy, iw, ih, 30); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, iy + (ih - dh) / 2, dw, dh); c.restore();
+      c.lineWidth = 6; c.strokeStyle = '#fff'; rr(ix, iy, iw, ih, 30); c.stroke(); y += ph + 34;
+    } else {
+      c.fillStyle = mix(th[0], '#FFFFFF', .78); c.font = '800 190px ' + DISP; c.textAlign = 'left'; c.fillText('“', cx + pad - 6, y + 112); y += 74;
+    }
+    c.textAlign = 'left'; c.fillStyle = mix(th[0], NAVY, .55); c.font = '800 64px ' + DISP; y += 44; tl.forEach(l => { c.fillText(l, cx + pad, y); y += 74; }); y -= 10;
+    c.fillStyle = '#334155'; c.font = '500 38px ' + HS; y += 24; bl.forEach(l => { c.fillText(l, cx + pad, y); y += 56; });
+    if(foot){ y += 8; c.fillStyle = th[0]; c.font = '700 31px ' + HS; c.fillText(foot, cx + pad, y + 16); y += 64; }
+    if(nm){ c.fillStyle = '#64748B'; c.font = '600 30px ' + HS; c.fillText('— ' + nm, cx + pad, y + 10); }
+    // the lock notch on the left edge and the gold contacts at the bottom
+    c.fillStyle = mix(th[0], NAVY, .3); rr(cx - 10, cy + 330, 22, 74, 10); c.fill();
+    const py = cy + ch - 118, pw = 52, gap = 22, n = 8, px0 = cx + (cw - (n * pw + (n - 1) * gap)) / 2;
+    for(let i = 0; i < n; i++){ const g = c.createLinearGradient(0, py, 0, py + 96); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2); rr(px0 + i * (pw + gap), py, pw, 96, 8); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(120,70,0,.18)'; c.fillRect(px0 + i * (pw + gap) + pw - 6, py + 6, 3, 84); }
+    c.restore();
+    // a soft shine over the whole card
+    c.save(); path(); c.clip(); const sh = c.createLinearGradient(cx, cy, cx + cw * .8, cy + ch * .6); sh.addColorStop(0, 'rgba(255,255,255,.22)'); sh.addColorStop(.35, 'rgba(255,255,255,0)'); c.fillStyle = sh; c.fillRect(cx, cy, cw, ch); c.restore();
+    c.restore();
+    // the foot of the picture
+    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '700 34px ' + HS; c.fillText('আপনার স্মৃতিটাও কার্ডে রাখুন', W / 2, H - 112);
+    c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '800 28px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 62);
+  }
+
+  /* ---------- download, share, caption ---------- */
+  const capText = () => { const t = $('ttl').value.trim() || TY().t + 'র স্মৃতি', b = $('txt').value.trim(); return t + (b ? '\n' + b : '') + '\n\nআপনার একটা স্মৃতি নিয়ে মেমোরি কার্ড বানান 👇\nprotishthan.com/memory'; };
+  const fileOf = () => new Promise(res => $('cv').toBlob(b => res(b ? new File([b], 'memory-card.png', { type: 'image/png' }) : null), 'image/png'));
+  function count(){ let n = 0; try{ n = +localStorage.getItem('mem_n') || 0; }catch(e){} return n; }
+  function bump(){ let n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
+  function showCount(){ const n = count(); const p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা মেমোরি কার্ড বানিয়েছেন।'; p.hidden = false; } }
+  $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { type: S.type, photo: S.img ? 1 : 0 }); toast('কার্ড ডাউনলোড হয়েছে। এবার বন্ধুদের সাথে ভাগ করুন।'); };
+  $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { type: S.type }); }catch(e){} };
+  $('cpCap').onclick = async () => { try{ await navigator.clipboard.writeText(capText()); }catch(e){ const t = document.createElement('textarea'); t.value = capText(); document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); }catch(_){} t.remove(); } toast('ক্যাপশন কপি হয়েছে।'); track('memory_caption', {}); };
+  $('again').onclick = () => { ['ttl', 'txt', 'yr', 'who'].forEach(id => { $(id).value = ''; }); S.img = null; $('pickT').textContent = 'ছবি বাছুন'; $('rm').hidden = true; counters(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); $('ttl').focus({ preventScroll: true }); };
+
+  /* start */
+  paintTypes(); paintThemes(); paintStarts(); counters(); showCount();
+  try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
+  try{ if(window.Protishthan && Protishthan.member) Protishthan.member.ready().then(() => { const me = Protishthan.member.current && Protishthan.member.current(); if(me && me.display_name && !$('nm').value) $('nm').value = String(me.display_name).slice(0, 24); draw(); }).catch(() => {}); }catch(e){}
+  draw();
+  track('memory_view', {});
+})();
+</script>
+</body>
+</html>

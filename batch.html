@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=38">
+<link rel="stylesheet" href="/batch.css?v=39">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -419,7 +419,7 @@
       const roomBar = '<a class="bt-room" id="roomBar" href="/messages#b:' + esc(b.id) + '" hidden><span class="bt-ci">' + ic('chat', 22) + '</span><div><b>ব্যাচ রুম</b><small id="roomSub">ব্যাচের সবার সাথে লেখায় কথা বলুন</small></div><em id="roomN" hidden></em><i>খুলুন →</i></a>';
       h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
     }
-    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
+    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a><a href="/memory">মেমোরি কার্ড বানান</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
     $('pg').innerHTML = h;
 
