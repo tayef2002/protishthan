@@ -198,11 +198,9 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
             <div class="mb-menu" role="menu">
               <div class="mb-hd"><span class="mb-pa big">${face}</span><div><b>${esc(nm || 'আমার প্রোফাইল')}</b><small>${esc(ME.email || '')}</small></div></div>
               <a role="menuitem" href="member.html">${I('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6"/>')}আমার প্রোফাইল</a>
-              <a role="menuitem" href="member.html#saved">${I('<path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}সেভ করা প্রতিষ্ঠান</a>
-              <a role="menuitem" href="messages.html">${I('<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/>')}Message</a>
+              <a role="menuitem" href="index.html?saved=1">${I('<path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')}সেভ করা প্রতিষ্ঠান</a>
               <a role="menuitem" href="skill.html">${I('<circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/>')}আমার স্কিল পেজ</a>
               <a role="menuitem" href="card.html">${I('<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M15 10h3.5M15 13h3"/>')}আমার শিক্ষিত কার্ড</a>
-              <a role="menuitem" href="partner.html">${I('<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>')}Partner প্রোগ্রাম</a>
               <button type="button" role="menuitem" class="mb-out">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}লগ আউট</button>
             </div></span>
         </span>`;

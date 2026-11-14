@@ -783,6 +783,27 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
   .edu-scene{height:150px;border-radius:0 0 24px 24px}
   .edu-scene svg{width:auto;height:100%;left:calc(50% - 760/1440*150px*1440/300)}
 }
+
+/* saved institutions: the button beside the sort tools and the drawer it opens */
+.r-saved-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);background:#fff;border-radius:100px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
+.r-saved-btn:hover{border-color:var(--blue);box-shadow:0 8px 20px -12px var(--blue)}.r-saved-btn[hidden]{display:none}
+.r-saved-btn b{min-width:20px;height:20px;padding:0 6px;border-radius:100px;background:#EEF3FF;font-size:12px;line-height:20px;text-align:center;font-weight:800}.r-saved-btn b:empty{display:none}
+.sv-ov{position:fixed;inset:0;z-index:2200;display:flex;justify-content:flex-end;background:rgba(10,22,40,.5);backdrop-filter:blur(3px);animation:svFade .18s ease-out}.sv-ov[hidden]{display:none}
+.sv-dr{width:min(440px,100%);height:100%;display:flex;flex-direction:column;background:#fff;box-shadow:-30px 0 80px rgba(0,0,0,.3);animation:svIn .22s cubic-bezier(.2,.8,.2,1)}
+.sv-dr header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 22px 14px;border-bottom:1px solid rgba(15,23,42,.08)}
+.sv-dr h2{margin:0;font-size:20px;font-weight:800;color:#0F172A;letter-spacing:-.2px}.sv-dr header p{margin:3px 0 0;font-size:13.5px;color:#64748B}
+.sv-x{flex:none;width:38px;height:38px;border:0;border-radius:50%;background:#F1F5F9;color:#475569;font-size:20px;line-height:1;cursor:pointer}.sv-x:hover{background:#E2E8F0}
+.sv-bd{flex:1;overflow:auto;padding:14px 16px 24px;display:grid;gap:10px;align-content:start}
+.sv-it{display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid rgba(15,23,42,.08);border-radius:18px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.sv-it:hover{border-color:#BFD2F7;box-shadow:0 12px 26px -18px #1A56DB}
+.sv-ic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#EEF3FF,#fff);border:1px solid #D6E3FB;color:#1A56DB;font-weight:800;font-size:17px}
+.sv-it>div{min-width:0;flex:1}.sv-it a{display:block;color:#0F172A;text-decoration:none;font-size:15px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}.sv-it a:hover{color:#1A56DB}
+.sv-it small{display:block;margin-top:2px;font-size:12.5px;color:#64748B}.sv-tg{display:inline-block;margin-top:5px;font-size:11.5px;font-weight:800;color:#166534;background:#DCFCE7;border-radius:100px;padding:1px 9px}
+.sv-rm{flex:none;width:36px;height:36px;border:0;border-radius:12px;background:#F8FAFF;color:#94A3B8;cursor:pointer;display:grid;place-items:center}.sv-rm:hover{background:#FEE2E2;color:#B91C1C}
+.sv-em{text-align:center;padding:48px 18px}.sv-em span{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 14px;border-radius:20px;background:#EEF3FF;color:#1A56DB}.sv-em b{display:block;font-size:18px;color:#0F172A;margin-bottom:6px}.sv-em p{margin:0 auto 16px;max-width:300px;font-size:14px;line-height:1.7;color:#64748B}
+@keyframes svIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}@keyframes svFade{from{opacity:0}to{opacity:1}}
+@media(max-width:560px){.sv-ov{align-items:flex-end}.sv-dr{width:100%;height:min(86vh,760px);border-radius:26px 26px 0 0;animation:svUp .24s cubic-bezier(.2,.8,.2,1)}@keyframes svUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}}
+@media(prefers-reduced-motion:reduce){.sv-ov,.sv-dr{animation:none}}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -1084,6 +1105,7 @@ nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0,.3)
           <span class="result-count" id="resultCount">লোড হচ্ছে...</span>
         </div>
         <div class="r-tools">
+          <button type="button" class="r-saved-btn" id="savedBtn" hidden onclick="svOpen()" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>সেভ করা</span><b id="savedN"></b></button>
           <button type="button" class="r-filter-btn" onclick="toggleFilters(true)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
             ফিল্টার <span class="r-fcount" id="activeFilterCount"></span>
@@ -2255,6 +2277,58 @@ window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scr
     paint(); ov.classList.add('show'); document.body.style.overflow = 'hidden';
   };
   window.gwClose = function(){ var ov = $g('gwOv'); if(ov) ov.classList.remove('show'); document.body.style.overflow = ''; };
+})();
+</script>
+
+<div class="sv-ov" id="svOv" hidden onclick="if(event.target===this)svClose()">
+  <aside class="sv-dr" role="dialog" aria-modal="true" aria-labelledby="svT">
+    <header><div><h2 id="svT">সেভ করা প্রতিষ্ঠান</h2><p id="svS"></p></div><button type="button" class="sv-x" aria-label="বন্ধ করুন" onclick="svClose()">×</button></header>
+    <div class="sv-bd" id="svBd"></div>
+  </aside>
+</div>
+<script>
+/* the member's saved institutions, one tap from the list: a button beside the filter tools opens a drawer. ?saved=1 (from the account menu) opens it straight away. */
+(function(){
+  var M = window.Protishthan && Protishthan.member; if(!M) return;
+  var $ = function(i){ return document.getElementById(i); };
+  var bn = function(x){ return String(x).replace(/[0-9]/g, function(d){ return '০১২৩৪৫৬৭৮৯'[d]; }); };
+  var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var IC_X = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+  var IC_B = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+  var ROWS = [];
+  function count(){ var n = ROWS.length; $('savedN').textContent = n ? bn(n) : ''; }
+  async function fetchRows(){
+    var r = await M.sb.from('saved_institutions').select('listing_id,created_at,listing_submissions(id,institution_name,institution_type,district,upazila,desired_slug,admission_status)').order('created_at', { ascending: false });
+    if(r.error) return null;
+    ROWS = (r.data || []).filter(function(x){ return x.listing_submissions; }); count(); return ROWS;
+  }
+  function paint(){
+    var bd = $('svBd'); $('svS').textContent = ROWS.length ? bn(ROWS.length) + 'টি প্রতিষ্ঠান সেভ করা আছে' : 'পছন্দের প্রতিষ্ঠান এখানে জমা থাকে';
+    if(!ROWS.length){ bd.innerHTML = '<div class="sv-em"><span>' + IC_B + '</span><b>এখনো কিছু সেভ করেননি</b><p>কোনো প্রতিষ্ঠানের পাতায় গিয়ে "সেভ করুন" চাপলে সেটা এখানে জমা হবে, পরে সহজে খুঁজে পাবেন।</p></div>'; return; }
+    bd.innerHTML = ROWS.map(function(r){ var s = r.listing_submissions, loc = [s.institution_type, s.upazila, s.district].filter(Boolean).join(' · ');
+      return '<article class="sv-it" data-id="' + esc(s.id) + '"><span class="sv-ic">' + esc(Array.from(String(s.institution_name || '?').trim())[0] || '?') + '</span><div><a href="institution-detail?slug=' + encodeURIComponent(s.desired_slug) + '">' + esc(s.institution_name) + '</a><small>' + esc(loc) + '</small>' + (s.admission_status === 'খোলা' ? '<span class="sv-tg">ভর্তি চলছে</span>' : '') + '</div><button type="button" class="sv-rm" aria-label="সেভ থেকে সরান" title="সেভ থেকে সরান">' + IC_X + '</button></article>'; }).join('');
+    bd.querySelectorAll('.sv-rm').forEach(function(b){ b.onclick = async function(){ var id = b.closest('.sv-it').dataset.id; b.disabled = true; var on = await M.saved.toggle(id); if(on === false){ ROWS = ROWS.filter(function(x){ return x.listing_submissions.id !== id; }); count(); paint(); } else b.disabled = false; }; });
+  }
+  window.svClose = function(){ var ov = $('svOv'); ov.hidden = true; document.body.style.overflow = ''; try{ var u = new URL(location.href); if(u.searchParams.has('saved')){ u.searchParams.delete('saved'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash); } }catch(e){} };
+  window.svOpen = async function(){
+    await M.ready();
+    if(!M.current()){ M.signIn('সেভ করা প্রতিষ্ঠান দেখতে সাইন-ইন করুন'); return; }
+    var ov = $('svOv'); ov.hidden = false; document.body.style.overflow = 'hidden';
+    $('svBd').innerHTML = '<div class="sv-em"><p>লোড হচ্ছে…</p></div>'; $('svS').textContent = '';
+    var rows = await fetchRows();
+    if(rows === null){ $('svBd').innerHTML = '<div class="sv-em"><b>তালিকা এখন আনা যাচ্ছে না</b><p>একটু পরে আবার চেষ্টা করুন।</p></div>'; return; }
+    paint();
+  };
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !$('svOv').hidden) svClose(); });
+  async function init(){
+    await M.ready(); var me = M.current();
+    $('savedBtn').hidden = !me;
+    if(me){ await fetchRows(); }
+    if(me && /[?&]saved=1/.test(location.search)) svOpen();
+    else if(!me && /[?&]saved=1/.test(location.search)) svOpen();
+  }
+  M.onChange(function(){ ROWS = []; init(); });
+  init();
 })();
 </script>
 </body>
