@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<title>মেমোরি কার্ড: একটা স্মৃতি, একটা কার্ড | Protishthan</title>
-<meta name="description" content="স্কুলের বেঞ্চ, বন্ধুদের আড্ডা, প্রিয় স্যারের বকুনি, যেকোনো স্মৃতি নিয়ে একটা সুন্দর মেমোরি কার্ড বানান। বিনামূল্যে, সাইন-ইন ছাড়াই, যতবার ইচ্ছে।">
+<title>মেমোরি কার্ড: ছবি আর দু-লাইন লিখুন, কার্ড তৈরি | Protishthan</title>
+<meta name="description" content="একটা টেমপ্লেট বাছুন, ছবি দিন, দু-লাইন লিখুন। এক মিনিটে সুন্দর মেমোরি কার্ড তৈরি, ডাউনলোড আর শেয়ার। বিনামূল্যে, সাইন-ইন ছাড়াই, প্রতিদিন যতবার ইচ্ছে।">
 <link rel="canonical" href="https://protishthan.com/memory">
 <meta property="og:title" content="মেমোরি কার্ড | Protishthan">
-<meta property="og:description" content="একটা স্মৃতি, একটা কার্ড। পুরনো দিনের কথা লিখুন, কার্ড বানিয়ে বন্ধুদের সাথে ভাগ করুন।">
+<meta property="og:description" content="টেমপ্লেট বাছুন, ছবি দিন, দু-লাইন লিখুন। এক মিনিটে মেমোরি কার্ড।">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://protishthan.com/memory">
 <meta property="og:image" content="https://protishthan.com/og-image.png">
@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=1">
+<link rel="stylesheet" href="/memory.css?v=2">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -32,13 +32,13 @@
 <main class="mc" id="mc">
   <section class="mc-hero">
     <span class="mc-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 7v3M12 7v3M15 7v3"/></svg>মেমোরি কার্ড</span>
-    <h1>একটা স্মৃতি, <span>একটা কার্ড</span></h1>
-    <p>মনে আছে সেই দিনগুলো? যেকোনো স্মৃতি লিখুন, একটা সুন্দর কার্ড বানিয়ে বন্ধুদের সাথে ভাগ করুন। যতবার ইচ্ছে, যত স্মৃতি নিয়ে।</p>
+    <h1>ছবি দিন, দু-লাইন লিখুন, <span>কার্ড তৈরি</span></h1>
+    <p>একটা টেমপ্লেট বাছুন, ছবি আর ছোট লেখা দিন, ডাউনলোড করুন। এক মিনিটের কাজ, যতবার ইচ্ছে।</p>
   </section>
 
   <div class="mc-grid">
     <section class="mc-prev" aria-label="কার্ডের প্রিভিউ">
-      <canvas id="cv" width="1080" height="1350" aria-label="আপনার মেমোরি কার্ড"></canvas>
+      <div class="mc-cvw" id="cvw"><canvas id="cv" width="1080" height="1350" aria-label="আপনার মেমোরি কার্ড"></canvas></div>
       <div class="mc-acts">
         <button type="button" class="mc-btn" id="dl">ডাউনলোড করুন</button>
         <button type="button" class="mc-btn alt" id="sh" hidden>শেয়ার করুন</button>
@@ -47,42 +47,36 @@
       <p class="mc-cnt" id="cnt" hidden></p>
     </section>
 
-    <section class="mc-form" aria-label="স্মৃতির তথ্য">
+    <section class="mc-form" aria-label="কার্ড বানান">
       <div class="mc-f">
-        <label>কোন ধরনের স্মৃতি?</label>
-        <div class="mc-types" id="types" role="radiogroup" aria-label="স্মৃতির ধরন"></div>
+        <label>১. টেমপ্লেট বাছুন</label>
+        <div class="mc-tpls" id="tpls" role="radiogroup" aria-label="টেমপ্লেট"></div>
       </div>
-      <div class="mc-f">
-        <label for="ttl">স্মৃতির শিরোনাম <small id="ttlN"></small></label>
-        <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off">
-      </div>
-      <div class="mc-f">
-        <label for="txt">স্মৃতির কথা <small id="txtN"></small></label>
-        <textarea id="txt" class="mc-inp" maxlength="160" rows="4"></textarea>
-        <div class="mc-starts" id="starts" aria-label="শুরুর ইঙ্গিত"></div>
-      </div>
-      <div class="mc-row">
-        <div class="mc-f"><label for="yr">সাল (ঐচ্ছিক)</label><input id="yr" class="mc-inp" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="যেমন ২০১৮"></div>
-        <div class="mc-f"><label for="who">কোথায় বা কার সাথে (ঐচ্ছিক)</label><input id="who" class="mc-inp" maxlength="40" autocomplete="off" placeholder="যেমন স্কুলের মাঠে, রাকিবের সাথে"></div>
-      </div>
-      <div class="mc-f">
-        <label>ছবি (ঐচ্ছিক)</label>
-        <div class="mc-photo">
-          <button type="button" class="mc-pick" id="pick"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg><span id="pickT">ছবি বাছুন</span></button>
-          <button type="button" class="mc-rm" id="rm" hidden>ছবি সরান</button>
-        </div>
+      <div class="mc-f" id="phWrap">
+        <label>২. ছবি <small id="phHint"></small></label>
+        <div class="mc-slots" id="slots"></div>
         <small class="mc-note">ছবি আপনার ফোনেই থাকে, আমরা সার্ভারে নিই না।</small>
-        <input type="file" id="file" accept="image/*" hidden>
+        <input type="file" id="file" accept="image/*" multiple hidden>
+      </div>
+      <div class="mc-f">
+        <label for="ttl">৩. লেখা <small id="ttlN"></small></label>
+        <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off" placeholder="শিরোনাম, যেমন: আমাদের সেই দিন">
+        <textarea id="txt" class="mc-inp mc-line" maxlength="160" rows="2" placeholder="ছোট একটা লাইন বা দুটো (ঐচ্ছিক)"></textarea>
+        <input id="sm" class="mc-inp" maxlength="40" autocomplete="off" placeholder="তারিখ, জায়গা বা নাম (ঐচ্ছিক)">
+      </div>
+      <div class="mc-f" id="posWrap">
+        <label>লেখা কোথায় থাকবে</label>
+        <div class="mc-seg" id="pos" role="radiogroup" aria-label="লেখার জায়গা"></div>
       </div>
       <div class="mc-row">
-        <div class="mc-f"><label for="nm">আপনার নাম (ঐচ্ছিক)</label><input id="nm" class="mc-inp" maxlength="24" autocomplete="off" placeholder="কার্ডের নিচে থাকবে"></div>
         <div class="mc-f"><label>রং</label><div class="mc-th" id="themes" role="radiogroup" aria-label="রং"></div></div>
+        <div class="mc-f"><label>সাইজ</label><div class="mc-seg" id="size" role="radiogroup" aria-label="সাইজ"></div></div>
       </div>
-      <button type="button" class="mc-again" id="again">আরেকটা স্মৃতি বানান</button>
+      <button type="button" class="mc-again" id="again">নতুন করে শুরু করুন</button>
     </section>
   </div>
 
-  <p class="mc-foot">একটা সুন্দর স্মৃতি পেলে সেটা বন্ধুর সাথে ভাগ করুন। <a href="/batch">স্কুলের ব্যাচটাকেও এক জায়গায় আনুন</a></p>
+  <p class="mc-foot">স্কুলের বন্ধুদের এক জায়গায় আনতে চান? <a href="/batch">ব্যাচ খুলুন</a></p>
 </main>
 
 <div id="pfoot" data-art="card"></div>
@@ -98,147 +92,253 @@
   const track = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
   function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
 
-  /* the kinds of memory: a name, a starter title, and a few first words that help someone who does not know how to begin */
-  const TYPES = [
-    { k: 'school', t: 'স্কুল', ph: 'যেমন: শেষ বেঞ্চের গল্প', st: ['টিফিনের ঘণ্টা পড়লেই…', 'শেষ বেঞ্চে বসে আমরা…', 'পরীক্ষার আগের রাতে…', 'স্কুলের গেটের সামনে…'], th: 'blue' },
-    { k: 'friends', t: 'বন্ধু', ph: 'যেমন: আমাদের সেই আড্ডা', st: ['সেদিন আমরা সবাই মিলে…', 'ওর সাথে প্রথম দেখা…', 'আমাদের সেই গোপন জায়গা…', 'যে কথাটা আজও হাসায়…'], th: 'teal' },
-    { k: 'teacher', t: 'শিক্ষক', ph: 'যেমন: প্রিয় স্যার', st: ['স্যার যেদিন বলেছিলেন…', 'ওই বকুনিটা আজও মনে পড়ে…', 'ম্যাডামের হাতের লেখা…', 'যাঁর কথায় বদলে গিয়েছিলাম…'], th: 'violet' },
-    { k: 'trip', t: 'ভ্রমণ', ph: 'যেমন: সেই যাত্রা', st: ['ট্রেনের জানালা দিয়ে…', 'সেই রাতের বাসযাত্রা…', 'পৌঁছে দেখি…', 'ফেরার পথে…'], th: 'amber' },
-    { k: 'family', t: 'পরিবার', ph: 'যেমন: দাদুবাড়ির উঠোন', st: ['দাদুবাড়ির উঠোনে…', 'মায়ের হাতের রান্না…', 'বাবার সাথে সেই বিকেল…', 'ছোটবেলার সেই ঘর…'], th: 'rose' },
-    { k: 'eid', t: 'ঈদ ও উৎসব', ph: 'যেমন: চাঁদ রাতের আনন্দ', st: ['চাঁদ রাতে…', 'ঈদের সকালে…', 'নতুন জামার গন্ধ…', 'সেই মেলার দিন…'], th: 'amber' },
-    { k: 'first', t: 'প্রথম দিন', ph: 'যেমন: প্রথম দিনের ভয়', st: ['প্রথম দিনটা…', 'কাঁপা হাতে…', 'কেউ চিনত না, তবু…', 'সেদিনই বুঝেছিলাম…'], th: 'violet' },
-    { k: 'other', t: 'অন্য কিছু', ph: 'যেমন: যে স্মৃতি ভোলা যায় না', st: ['মনে পড়ে…', 'এখনও চোখ বন্ধ করলে…', 'সময় ফিরিয়ে দিলে…', 'কেউ জানে না, তবে…'], th: 'blue' }
-  ];
   const THEMES = { blue: ['#1A56DB', '#7C3AED'], violet: ['#6D28D9', '#DB2777'], teal: ['#0F766E', '#1A56DB'], amber: ['#B45309', '#DB2777'], rose: ['#BE123C', '#7C3AED'] };
-  const S = { type: 'school', theme: 'blue', img: null, themeTouched: false };
-  const TY = () => TYPES.find(x => x.k === S.type) || TYPES[0];
+  const SIZES = { post: { w: 1080, h: 1350, n: 'পোস্ট (৪:৫)' }, story: { w: 1080, h: 1920, n: 'স্টোরি (৯:১৬)' } };
+  const POS = [['top', 'উপরে'], ['mid', 'মাঝে'], ['bottom', 'নিচে']];
+  /* the templates: how many photos, and where the words can go. Each one is a function below that draws on a W x H canvas. */
+  const TPLS = [
+    { k: 'card', n: 'মেমোরি কার্ড', ph: 1, pos: false, opt: true },
+    { k: 'polaroid', n: 'পোলারয়েড', ph: 1, pos: false },
+    { k: 'full', n: 'পুরো ছবি', ph: 1, pos: true },
+    { k: 'duo', n: 'পাশাপাশি দুই ছবি', ph: 2, pos: true, two: true },
+    { k: 'then', n: 'তখন আর এখন', ph: 2, pos: true, two: true },
+    { k: 'film', n: 'ফিল্ম স্ট্রিপ', ph: 2, pos: false },
+    { k: 'quote', n: 'কথা', ph: 1, pos: false, opt: true }
+  ];
+  const S = { tpl: 'card', theme: 'blue', size: 'post', pos: 'bottom', photos: [null, null] };
+  const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
+  const DRAFT = 'mem_draft_v2';
 
+  /* ---------- small helpers for drawing ---------- */
+  let c = null;
+  const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif', NAVY = '#060B1F', GOLD1 = '#FFE9A8', GOLD2 = '#F5B933';
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+  const rr = (x, y, w, h, r) => { r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+  const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
+  const glow = (W, H, x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + a); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
+  const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = String(txt).split(/\s+/).filter(Boolean), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
+  /* the biggest size (from max down to min) at which the text fits in maxLines lines */
+  function fit(txt, maxW, maxLines, max, min, weight, fam){ let sz = max, lines; do{ lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines + 1); sz -= 2; }while((lines.length > maxLines || lines.some(l => c.measureText(l).width > maxW)) && sz >= min); sz += 2; lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines); return { size: sz, lines }; }
+  function deepBg(W, H, th){ const base = mix(th[0], NAVY, .8); c.fillStyle = base; c.fillRect(0, 0, W, H); glow(W, H, 120, 120, W * .75, th[1], '8C'); glow(W, H, W - 60, H - 200, W * .9, th[0], 'B0'); grain(W, H, 18); }
+  let GR = null;
+  function grain(W, H, a){ if(!GR){ GR = document.createElement('canvas'); GR.width = GR.height = 160; const nc = GR.getContext('2d'), im = nc.createImageData(160, 160); let s = 77; for(let i = 0; i < im.data.length; i += 4){ s = (s * 1664525 + 1013904223) >>> 0; const v = s >>> 24; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } nc.putImageData(im, 0, 0); } c.save(); c.globalAlpha = a / 255; c.fillStyle = c.createPattern(GR, 'repeat'); c.fillRect(0, 0, W, H); c.restore(); }
+  /* a photo cropped to fill a rounded box; with no photo, a soft box that says "add a photo" */
+  function photo(img, x, y, w, h, r, th){
+    if(img){ const sc = Math.max(w / img.width, h / img.height), dw = img.width * sc, dh = img.height * sc; c.save(); rr(x, y, w, h, r); c.clip(); c.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh); c.restore(); return; }
+    c.save(); rr(x, y, w, h, r); c.fillStyle = mix(th[0], '#FFFFFF', .86); c.fill(); c.setLineDash([14, 12]); c.lineWidth = 4; c.strokeStyle = mix(th[0], '#FFFFFF', .55); c.stroke(); c.setLineDash([]);
+    const m = Math.min(w, h); c.fillStyle = mix(th[0], '#FFFFFF', .45); c.beginPath(); c.arc(x + w / 2, y + h / 2 - m * .06, m * .075, 0, 7); c.fill();
+    c.textAlign = 'center'; c.font = '700 ' + Math.max(24, Math.round(m * .06)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .17); c.restore();
+  }
+  function mark(W, H, dark){ c.save(); c.textAlign = 'center'; c.fillStyle = dark ? 'rgba(15,23,42,.45)' : 'rgba(255,255,255,.6)'; c.font = '800 24px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 36); c.restore(); }
+  /* the text block shared by several templates: a small line in a pill, the title, the line */
+  function textBlock(x, y, w, d, o){
+    o = o || {}; const col = o.col || '#fff', sub = o.sub || 'rgba(255,255,255,.88)';
+    const t = fit(d.title || 'আমাদের সেই দিন', w, 2, o.tmax || 92, 48, '800', DISP), l = d.line ? fit(d.line, w, o.lmax || 4, 40, 28, '500', HS) : null;
+    const total = (d.small ? 66 : 0) + t.lines.length * (t.size * 1.12) + t.size * .1 + 12 + (l ? l.size * 1.1 + l.lines.length * (l.size * 1.45) : 0);
+    if(o.measure) return total;
+    let cy = y; c.textAlign = 'left';
+    if(d.small){ c.font = '700 28px ' + HS; const sw = c.measureText(d.small).width + 40; rr(x, cy, sw, 48, 24); c.fillStyle = 'rgba(255,255,255,.16)'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.4)'; c.stroke(); c.fillStyle = col; c.fillText(d.small, x + 20, cy + 34); cy += 66; }
+    c.fillStyle = col; c.font = '800 ' + t.size + 'px ' + DISP; shadow(o.shadow ? 'rgba(0,0,0,.45)' : '', 16, 5); cy += t.size * .9; t.lines.forEach(s => { c.fillText(s, x, cy); cy += t.size * 1.12; }); shadow(); cy += 12 - t.size * .8;
+    if(l){ c.fillStyle = sub; c.font = '500 ' + l.size + 'px ' + HS; cy += l.size * 1.1; l.lines.forEach(s => { c.fillText(s, x, cy); cy += l.size * 1.45; }); }
+    return total;
+  }
 
-  /* ---------- the form ---------- */
-  function paintTypes(){ $('types').innerHTML = TYPES.map(t => '<button type="button" role="radio" aria-checked="' + (S.type === t.k) + '" data-k="' + t.k + '">' + t.t + '</button>').join(''); }
-  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k][0] + '" aria-label="' + k + '"></button>').join(''); }
-  function paintStarts(){ $('starts').innerHTML = '<span>কীভাবে শুরু করবেন?</span>' + TY().st.map(x => '<button type="button">' + x + '</button>').join(''); $('ttl').placeholder = TY().ph; }
-  function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; $('txtN').textContent = bn($('txt').value.length) + '/১৬০'; }
-  $('types').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.type = b.dataset.k; if(!S.themeTouched) S.theme = TY().th; paintTypes(); paintThemes(); paintStarts(); draw(); };
-  $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; S.themeTouched = true; paintThemes(); draw(); };
-  $('starts').onclick = e => { const b = e.target.closest('button'); if(!b) return; const t = $('txt'); if(t.value.trim()) t.value = t.value.trim() + ' ' + b.textContent; else t.value = b.textContent; t.focus(); counters(); draw(); };
-  ['ttl', 'txt', 'yr', 'who', 'nm'].forEach(id => $(id).addEventListener('input', () => { if(id === 'yr') $('yr').value = bn(en($('yr').value).replace(/\D/g, '').slice(0, 4)); counters(); draw(); }));
-
-  /* a photo: read in the browser, shrunk, kept in memory only */
-  $('pick').onclick = () => $('file').click();
-  $('rm').onclick = () => { S.img = null; $('pickT').textContent = 'ছবি বাছুন'; $('rm').hidden = true; draw(); };
-  $('file').onchange = async () => {
-    const f = ($('file').files || [])[0]; $('file').value = ''; if(!f || !/^image\//.test(f.type)) return;
-    try{
-      let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
-      const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1400 / Math.max(w, h));
-      const cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-      S.img = cv; $('pickT').textContent = 'ছবি বদলান'; $('rm').hidden = false; draw();
-    }catch(e){ toast('এই ছবিটা পড়া যায়নি, অন্য ছবি দিন।'); }
-  };
-
-  /* ---------- the card: drawn here in the browser, nothing leaves the phone ---------- */
-  const W = 1080, H = 1350;
-  let raf = 0;
-  function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
-  async function render(){
-    const cv = $('cv'), c = cv.getContext('2d'), th = THEMES[S.theme] || THEMES.blue;
-    const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif', NAVY = '#060B1F';
-    const base = mix(th[0], NAVY, .8), mid = mix(th[0], NAVY, .5), GOLD1 = '#FFE9A8', GOLD2 = '#F5B933';
-    const title = $('ttl').value.trim() || TY().ph.replace(/^যেমন:\s*/, ''), body = $('txt').value.trim() || 'এখানে আপনার স্মৃতির কথা লিখুন…', yr = $('yr').value.trim(), who = $('who').value.trim(), nm = $('nm').value.trim();
-    const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
-    const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = txt.split(/\s+/), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
-    const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
-    const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + a); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
-    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
-
-    // the background: deep colour, two soft lights, fine grain
-    c.fillStyle = base; c.fillRect(0, 0, W, H); glow(120, 120, 800, th[1], '8C'); glow(W - 60, H - 200, 980, th[0], 'B0');
-    { const nz = document.createElement('canvas'); nz.width = nz.height = 160; const nc = nz.getContext('2d'), im = nc.createImageData(160, 160); let s = 77; for(let i = 0; i < im.data.length; i += 4){ s = (s * 1664525 + 1013904223) >>> 0; const v = (s >>> 24); im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 18; } nc.putImageData(im, 0, 0); c.fillStyle = c.createPattern(nz, 'repeat'); c.fillRect(0, 0, W, H); }
-    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.9)'; c.font = '700 36px ' + HS; c.fillText('একটা স্মৃতি, একটা কার্ড', W / 2, 88);
-
-    // the card itself, as a real memory card: black plastic, a printed colour swoosh, silver print, a cut corner, a lock switch, gold contacts; the memory is a paper label stuck on it
-    const cx = 120, cy = 128, cw = 840, ch = 1060, cut = 118, R = 44, up = c => c;
+  /* ---------- the templates ---------- */
+  const T = {};
+  // 1) the memory card, as a real one: black plastic, a printed swoosh, gold contacts, the memory on a paper label
+  T.card = (W, H, d, th) => {
+    deepBg(W, H, th); const oy = (H - 1350) / 2; c.save(); c.translate(0, oy);
+    const cx = 120, cy = 128, cw = 840, ch = 1060, cut = 118, R = 44;
     const path = () => { c.beginPath(); c.moveTo(cx + R, cy); c.lineTo(cx + cw - cut, cy); c.lineTo(cx + cw, cy + cut); c.lineTo(cx + cw, cy + ch - R); c.arcTo(cx + cw, cy + ch, cx + cw - R, cy + ch, R); c.lineTo(cx + R, cy + ch); c.arcTo(cx, cy + ch, cx, cy + ch - R, R); c.lineTo(cx, cy + R); c.arcTo(cx, cy, cx + R, cy, R); c.closePath(); };
-    // a soft shadow on the table
     c.save(); c.translate(W / 2, cy + ch / 2); c.rotate(-.01); c.translate(-W / 2, -(cy + ch / 2));
     shadow('rgba(0,0,0,.62)', 70, 34); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
     c.save(); path(); c.clip();
-    // the plastic: a charcoal gradient with a faint grain
     const pb = c.createLinearGradient(cx, cy, cx + cw * .6, cy + ch); pb.addColorStop(0, '#3A3F4D'); pb.addColorStop(.45, '#1F222B'); pb.addColorStop(1, '#101218'); c.fillStyle = pb; c.fillRect(cx, cy, cw, ch);
-    { const gr = document.createElement('canvas'); gr.width = gr.height = 120; const gc = gr.getContext('2d'), gi = gc.createImageData(120, 120); let q = 41; for(let i = 0; i < gi.data.length; i += 4){ q = (q * 1664525 + 1013904223) >>> 0; const v = q >>> 24; gi.data[i] = gi.data[i + 1] = gi.data[i + 2] = v; gi.data[i + 3] = 14; } gc.putImageData(gi, 0, 0); c.fillStyle = c.createPattern(gr, 'repeat'); c.fillRect(cx, cy, cw, ch); }
-    // the printed colour swoosh across the top (in the colour the person picked)
+    c.save(); c.translate(cx, cy); grain(cw, ch, 14); c.restore();
     const sw = c.createLinearGradient(cx, cy, cx + cw, cy + 340); sw.addColorStop(0, mix(th[0], '#000000', .15)); sw.addColorStop(.6, th[0]); sw.addColorStop(1, th[1]);
     c.fillStyle = sw; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + cw, cy); c.lineTo(cx + cw, cy + 190); c.bezierCurveTo(cx + cw * .72, cy + 300, cx + cw * .3, cy + 120, cx, cy + 250); c.closePath(); c.fill();
     c.fillStyle = 'rgba(255,255,255,.09)'; c.beginPath(); c.moveTo(cx, cy + 250); c.bezierCurveTo(cx + cw * .3, cy + 120, cx + cw * .72, cy + 300, cx + cw, cy + 190); c.lineTo(cx + cw, cy + 206); c.bezierCurveTo(cx + cw * .72, cy + 318, cx + cw * .3, cy + 138, cx, cy + 268); c.closePath(); c.fill();
-    // the print: brand, big silver name, speed class and a "capacity" (the year, or infinity when there is none)
-    c.textAlign = 'left'; c.fillStyle = '#fff'; c.beginPath(); c.arc(cx + 78, cy + 78, 26, 0, 7); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.fillStyle = th[0]; c.font = '800 30px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('P', cx + 78, cy + 89);
+    c.textAlign = 'center'; c.beginPath(); c.arc(cx + 78, cy + 78, 26, 0, 7); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.fillStyle = th[0]; c.font = '800 30px Inter, sans-serif'; c.fillText('P', cx + 78, cy + 89);
     c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', cx + 118, cy + 90);
     const sg = c.createLinearGradient(cx, cy + 130, cx, cy + 215); sg.addColorStop(0, '#FFFFFF'); sg.addColorStop(.55, '#D7DCE6'); sg.addColorStop(1, '#9AA3B5'); c.fillStyle = sg; c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.45)', 8, 4); c.fillText('MEMORY', cx + 52, cy + 200); shadow();
-    c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.9)'; c.fillText('মেমোরি কার্ড · ' + TY().t, cx + 56, cy + 252);
+    c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.9)'; c.fillText('মেমোরি কার্ড', cx + 56, cy + 252);
     c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 4; c.beginPath(); c.arc(cx + 450, cy + 247, 25, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.95)'; c.font = '800 28px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', cx + 458, cy + 257); c.textAlign = 'left';
-    const cap = yr || '∞'; c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '900 ' + (yr ? 74 : 92) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8, 4); c.fillText(cap, cx + cw - 54, cy + 262 + (yr ? 0 : 6)); shadow(); c.textAlign = 'left';
-
-    // the paper label with the memory on it
+    const yr = (en(d.small || '').match(/\d{4}/) || [''])[0], cap = yr ? bn(yr) : '∞'; c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '900 ' + (yr ? 74 : 92) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8, 4); c.fillText(cap, cx + cw - 54, cy + 262 + (yr ? 0 : 6)); shadow(); c.textAlign = 'left';
+    // the paper label
     const lx = cx + 44, ly = cy + 330, lw = cw - 88, lh = ch - 330 - 214, pad = 44, tw = lw - pad * 2;
     c.save(); c.translate(lx + lw / 2, ly + lh / 2); c.rotate(-.011); c.translate(-(lx + lw / 2), -(ly + lh / 2));
     shadow('rgba(0,0,0,.45)', 22, 10); rr(lx, ly, lw, lh, 18); c.fillStyle = '#FFFCF3'; c.fill(); shadow();
     c.save(); rr(lx, ly, lw, lh, 18); c.clip();
     c.fillStyle = mix(th[0], '#FFFFFF', .93); c.fillRect(lx, ly, lw, 14);
     c.strokeStyle = mix(th[0], '#FFFFFF', .82); c.lineWidth = 2; for(let yy = ly + 70; yy < ly + lh; yy += 48){ c.beginPath(); c.moveTo(lx, yy); c.lineTo(lx + lw, yy); c.stroke(); }
-    c.strokeStyle = 'rgba(220,60,70,.35)'; c.lineWidth = 2; c.beginPath(); c.moveTo(lx + 22, ly); c.lineTo(lx + 22, ly + lh); c.stroke();
-    // the words, measured first and centred in the label
-    const avail = lh - 78, hasImg = !!S.img, lpad = pad + 6, ltw = tw - 10;
-    const tl = wrap(title, ltw, '800 54px ' + DISP, 2), foot = who;
-    let maxL = hasImg ? 3 : 6, bl = wrap(body, ltw, '500 33px ' + HS, maxL);
-    const LHT = 62, LHB = 48, textOf = b => tl.length * LHT + 12 + b.length * LHB + (foot ? 52 : 0) + (nm ? 48 : 0);
+    c.strokeStyle = 'rgba(220,60,70,.35)'; c.beginPath(); c.moveTo(lx + 22, ly); c.lineTo(lx + 22, ly + lh); c.stroke();
+    const avail = lh - 78, hasImg = !!d.photos[0], lpad = pad + 6, ltw = tw - 10, title = d.title || 'আমাদের সেই দিন', body = d.line || '', foot = d.small || '';
+    const tl = wrap(title, ltw, '800 54px ' + DISP, 2);
+    let maxL = hasImg ? 3 : 6, bl = body ? wrap(body, ltw, '500 33px ' + HS, maxL) : [];
+    const LHT = 62, LHB = 48, textOf = b => tl.length * LHT + 12 + b.length * LHB + (foot ? 52 : 0);
     while(textOf(bl) > avail - (hasImg ? 150 + 26 : 0) && maxL > 2){ maxL--; bl = wrap(body, ltw, '500 33px ' + HS, maxL); }
     const textH = textOf(bl), ph = hasImg ? Math.max(150, Math.min(300, avail - textH - 26)) : 0, total = (hasImg ? ph + 26 : 0) + textH;
     let y = ly + Math.max(22, (lh - total) / 2);
-    if(hasImg){ const ix = lx + lpad, iw = ltw, im = S.img, sc = Math.max(iw / im.width, ph / im.height), dw = im.width * sc, dh = im.height * sc; c.save(); rr(ix, y, iw, ph, 16); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, y + (ph - dh) / 2, dw, dh); c.restore(); c.lineWidth = 5; c.strokeStyle = '#fff'; rr(ix, y, iw, ph, 16); c.stroke(); y += ph + 26; }
+    if(hasImg){ const ix = lx + lpad, iw = ltw, im = d.photos[0], sc = Math.max(iw / im.width, ph / im.height), dw = im.width * sc, dh = im.height * sc; c.save(); rr(ix, y, iw, ph, 16); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, y + (ph - dh) / 2, dw, dh); c.restore(); c.lineWidth = 5; c.strokeStyle = '#fff'; rr(ix, y, iw, ph, 16); c.stroke(); y += ph + 26; }
     c.textAlign = 'left'; c.fillStyle = mix(th[0], NAVY, .5); c.font = '800 54px ' + DISP; y += 44; tl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHT; }); y -= 14;
     c.fillStyle = '#2B3445'; c.font = '500 33px ' + HS; y += 26; bl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHB; });
-    if(foot){ c.fillStyle = th[0]; c.font = '700 29px ' + HS; c.fillText(foot, lx + lpad, y + 14); y += 52; }
-    if(nm){ c.fillStyle = '#64748B'; c.font = '600 28px ' + HS; c.fillText('— ' + nm, lx + lpad, y + 10); }
+    if(foot){ c.fillStyle = th[0]; c.font = '700 29px ' + HS; c.fillText(foot, lx + lpad, y + 14); }
     c.restore();
-    // a piece of tape holding the label
     c.save(); c.translate(lx + lw - 96, ly - 6); c.rotate(.12); c.fillStyle = 'rgba(255,238,170,.78)'; c.fillRect(-52, -20, 104, 40); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-52, -20, 104, 8); c.restore();
     c.restore();
-
-    // the lock switch on the left edge
     c.fillStyle = '#0B0C10'; rr(cx - 4, cy + 520, 26, 96, 8); c.fill(); const lk = c.createLinearGradient(cx, 0, cx + 20, 0); lk.addColorStop(0, '#E7EAF0'); lk.addColorStop(1, '#9CA4B4'); rr(cx + 1, cy + 530, 15, 44, 5); c.fillStyle = lk; c.fill();
-    // the contacts: a recessed dark strip with nine gold pads, each with a little shine
     const sy = cy + ch - 196, sh2 = 160; rr(cx + 62, sy, cw - 124, sh2, 18); c.fillStyle = '#08090D'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.1)'; c.stroke();
     const n = 9, gap = 11, pw = (cw - 124 - 36 - gap * (n - 1)) / n, px0 = cx + 62 + 18;
-    for(let i = 0; i < n; i++){ const px = px0 + i * (pw + gap), pt = i === 0 || i === 4 || i === 8 ? sy + 14 : sy + 14, ph2 = i % 2 ? sh2 - 38 : sh2 - 28; const g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, '#B8860B'); g.addColorStop(.3, '#FFE9A8'); g.addColorStop(.6, '#F5B933'); g.addColorStop(1, '#A87408'); rr(px, pt, pw, ph2, 7); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(px + 5, pt + 6, 4, ph2 - 14); }
-    // light on the plastic: a diagonal sheen and the bevelled edge
+    for(let i = 0; i < n; i++){ const px = px0 + i * (pw + gap), ph2 = i % 2 ? sh2 - 38 : sh2 - 28; const g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, '#B8860B'); g.addColorStop(.3, GOLD1); g.addColorStop(.6, GOLD2); g.addColorStop(1, '#A87408'); rr(px, sy + 14, pw, ph2, 7); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(px + 5, sy + 20, 4, ph2 - 14); }
     const sh = c.createLinearGradient(cx, cy, cx + cw * .9, cy + ch * .5); sh.addColorStop(0, 'rgba(255,255,255,.22)'); sh.addColorStop(.3, 'rgba(255,255,255,.05)'); sh.addColorStop(.31, 'rgba(255,255,255,0)'); c.fillStyle = sh; c.fillRect(cx, cy, cw, ch);
     c.restore();
     path(); const eg = c.createLinearGradient(cx, cy, cx + cw, cy + ch); eg.addColorStop(0, 'rgba(255,255,255,.55)'); eg.addColorStop(.5, 'rgba(255,255,255,.08)'); eg.addColorStop(1, 'rgba(255,255,255,.25)'); c.lineWidth = 4; c.strokeStyle = eg; c.stroke();
+    c.restore(); c.restore(); mark(W, H);
+  };
+
+  // 2) a polaroid on a soft background, with a caption under the photo
+  T.polaroid = (W, H, d, th) => {
+    deepBg(W, H, th); const pw = W * .8, side = pw - 80, capH = 330, ph = 60 + side + capH, px = (W - pw) / 2, py = (H - ph) / 2 - 10;
+    c.save(); c.translate(W / 2, py + ph / 2); c.rotate(-.035); c.translate(-W / 2, -(py + ph / 2));
+    shadow('rgba(0,0,0,.55)', 50, 24); rr(px, py, pw, ph, 14); c.fillStyle = '#FBFAF6'; c.fill(); shadow();
+    photo(d.photos[0], px + 40, py + 40, side, side, 6, th);
+    const tx = px + 56, tw = pw - 112; c.textAlign = 'left';
+    const t = fit(d.title || 'আমাদের সেই দিন', tw, 2, 64, 40, '800', DISP), l = d.line ? fit(d.line, tw, 2, 32, 24, '500', HS) : null;
+    let y = py + 40 + side + 36 + t.size * .85; c.fillStyle = mix(th[0], NAVY, .55); c.font = '800 ' + t.size + 'px ' + DISP; t.lines.forEach(s => { c.fillText(s, tx, y); y += t.size * 1.08; });
+    if(l){ c.fillStyle = '#4B5563'; c.font = '500 ' + l.size + 'px ' + HS; y += 4; l.lines.forEach(s => { c.fillText(s, tx, y + l.size * .6); y += l.size * 1.4; }); }
+    if(d.small){ c.fillStyle = th[0]; c.font = '700 28px ' + HS; c.textAlign = 'right'; c.fillText(d.small, px + pw - 56, py + ph - 30); }
+    c.save(); c.translate(W / 2, py - 4); c.rotate(.05); c.fillStyle = 'rgba(255,238,170,.8)'; c.fillRect(-90, -24, 180, 48); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-90, -24, 180, 10); c.restore();
+    c.restore(); mark(W, H);
+  };
+
+  // 3) the whole picture, the words over it at the top, the middle or the bottom
+  T.full = (W, H, d, th) => {
+    if(d.photos[0]) photo(d.photos[0], 0, 0, W, H, 0, th); else { const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, th[0]); g.addColorStop(1, th[1]); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+    const m = 84, w = W - m * 2, hgt = textBlock(0, 0, w, d, { measure: true });
+    let y, g;
+    if(S.pos === 'top'){ g = c.createLinearGradient(0, 0, 0, hgt + 340); g.addColorStop(0, 'rgba(6,11,31,.85)'); g.addColorStop(1, 'rgba(6,11,31,0)'); c.fillStyle = g; c.fillRect(0, 0, W, hgt + 340); y = 120; }
+    else if(S.pos === 'mid'){ c.fillStyle = 'rgba(6,11,31,.5)'; c.fillRect(0, 0, W, H); y = (H - hgt) / 2; }
+    else { g = c.createLinearGradient(0, H - hgt - 380, 0, H); g.addColorStop(0, 'rgba(6,11,31,0)'); g.addColorStop(1, 'rgba(6,11,31,.9)'); c.fillStyle = g; c.fillRect(0, H - hgt - 380, W, hgt + 380); y = H - hgt - 96; }
+    textBlock(m, y, w, d, { shadow: true }); mark(W, H);
+  };
+
+  // 4) two photos side by side, the words above or below
+  T.duo = (W, H, d, th) => {
+    deepBg(W, H, th); const m = 64, w = W - m * 2, o = { tmax: 80, lmax: 3, shadow: true }, hgt = textBlock(0, 0, w, d, { measure: true, tmax: 80, lmax: 3 }), gap = 24, top = S.pos === 'top';
+    const phH = H - hgt - 64 - 96 - 70, pw = (w - gap) / 2, py = top ? 96 + hgt + 64 : 96;
+    photo(d.photos[0], m, py, pw, phH, 28, th); photo(d.photos[1], m + pw + gap, py, pw, phH, 28, th);
+    textBlock(m, top ? 96 : py + phH + 56, w, d, o); mark(W, H);
+  };
+
+  // 5) then and now: two photos one above the other with their labels
+  T.then = (W, H, d, th) => {
+    deepBg(W, H, th); const m = 64, w = W - m * 2, o = { tmax: 76, lmax: 2, shadow: true }, hgt = textBlock(0, 0, w, d, { measure: true, tmax: 76, lmax: 2 }), gap = 36, top = S.pos === 'top';
+    const total = H - hgt - 70 - 96 - 48 - gap, ph = total / 2, y0 = top ? 96 + hgt + 48 : 96;
+    const lab = (txt, x, y) => { c.font = '800 36px ' + HS; const lw = c.measureText(txt).width + 48; rr(x, y, lw, 64, 32); c.fillStyle = GOLD2; c.fill(); c.fillStyle = '#3B2A00'; c.textAlign = 'left'; c.fillText(txt, x + 24, y + 44); };
+    photo(d.photos[0], m, y0, w, ph, 30, th); photo(d.photos[1], m, y0 + ph + gap, w, ph, 30, th); lab('তখন', m + 28, y0 + 28); lab('এখন', m + 28, y0 + ph + gap + 28);
+    const by = y0 + ph + gap / 2, bx = W - m - 70; c.beginPath(); c.arc(bx, by, 46, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = th[0]; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(bx, by - 18); c.lineTo(bx, by + 18); c.moveTo(bx - 16, by + 3); c.lineTo(bx, by + 19); c.lineTo(bx + 16, by + 3); c.stroke();
+    textBlock(m, top ? 96 : y0 + ph * 2 + gap + 48, w, d, o); mark(W, H);
+  };
+
+  // 6) a film strip with two frames, a warm tint, the caption below
+  T.film = (W, H, d, th) => {
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#2B1B12'); g.addColorStop(1, '#0E0A07'); c.fillStyle = g; c.fillRect(0, 0, W, H); glow(W, H, W * .8, 160, W * .8, '#F59E0B', '33'); grain(W, H, 20);
+    const sx = 150, sw = W - 300, sy = 70, capH = textBlock(0, 0, sw, d, { measure: true, tmax: 64, lmax: 2 }) + 40 + 110, sh = H - capH - 70;
+    c.save(); shadow('rgba(0,0,0,.6)', 40, 16); rr(sx, sy, sw, sh, 18); c.fillStyle = '#0A0A0C'; c.fill(); shadow();
+    const hole = (x, y) => { rr(x, y, 26, 38, 6); c.fillStyle = '#F3E9D2'; c.fill(); };
+    for(let y = sy + 26; y < sy + sh - 40; y += 66){ hole(sx + 22, y); hole(sx + sw - 48, y); }
+    const fx = sx + 84, fw = sw - 168, gap = 26, fh = (sh - 52 - gap) / 2;
+    [0, 1].forEach(i => { const fy = sy + 26 + i * (fh + gap); photo(d.photos[i], fx, fy, fw, fh, 8, th); c.save(); rr(fx, fy, fw, fh, 8); c.clip(); c.fillStyle = 'rgba(255,170,80,.13)'; c.fillRect(fx, fy, fw, fh); const vg = c.createRadialGradient(fx + fw / 2, fy + fh / 2, fh * .3, fx + fw / 2, fy + fh / 2, fw * .65); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.35)'); c.fillStyle = vg; c.fillRect(fx, fy, fw, fh); c.restore(); c.fillStyle = '#F3E9D2'; c.font = '700 22px Inter, sans-serif'; c.textAlign = 'left'; c.fillText(String(i + 1) + 'A', fx, fy + fh + 20); });
     c.restore();
-    // the foot of the picture
-    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '700 34px ' + HS; c.fillText('আপনার স্মৃতিটাও কার্ডে রাখুন', W / 2, H - 100);
-    c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '800 28px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 52);
+    textBlock(sx, sy + sh + 40, sw, d, { col: '#FFF3DC', sub: 'rgba(255,243,220,.85)', tmax: 64, lmax: 2, shadow: true }); mark(W, H);
+  };
+
+  // 7) a few words, with a round photo if there is one
+  T.quote = (W, H, d, th) => {
+    deepBg(W, H, th); const m = 90, w = W - m * 2, has = !!d.photos[0]; let y = has ? 170 : 0;
+    if(has){ const r = 190; c.save(); c.beginPath(); c.arc(W / 2, y + r, r, 0, 7); c.clip(); const im = d.photos[0], sc = Math.max(r * 2 / im.width, r * 2 / im.height); c.drawImage(im, W / 2 - im.width * sc / 2, y + r - im.height * sc / 2, im.width * sc, im.height * sc); c.restore(); c.lineWidth = 10; c.strokeStyle = '#fff'; c.beginPath(); c.arc(W / 2, y + r, r, 0, 7); c.stroke(); y += r * 2 + 50; }
+    const q = fit(d.line || d.title || 'আপনার একটা কথা এখানে লিখুন', w, has ? 5 : 8, has ? 62 : 76, 36, '700', DISP), lh = q.size * 1.38;
+    const blockH = 110 + q.lines.length * lh + (d.line && d.title ? 90 : 0) + (d.small ? 60 : 0);
+    if(!has) y = (H - blockH) / 2;
+    c.textAlign = 'center'; c.fillStyle = GOLD1; c.font = '900 200px ' + DISP; c.fillText('“', W / 2, y + 120); y += 120;
+    c.fillStyle = '#fff'; c.font = '700 ' + q.size + 'px ' + DISP; shadow('rgba(0,0,0,.35)', 14, 4); q.lines.forEach(s => { c.fillText(s, W / 2, y + q.size); y += lh; }); shadow();
+    if(d.line && d.title){ y += 30; c.fillStyle = GOLD1; c.font = '800 40px ' + HS; c.fillText('— ' + d.title, W / 2, y + 40); y += 60; }
+    if(d.small){ c.fillStyle = 'rgba(255,255,255,.75)'; c.font = '600 32px ' + HS; c.fillText(d.small, W / 2, y + 40); }
+    mark(W, H);
+  };
+
+  /* ---------- drawing the picture and the small pictures of the templates ---------- */
+  const data = () => ({ title: $('ttl').value.trim(), line: $('txt').value.trim(), small: $('sm').value.trim(), photos: S.photos });
+  function paint(cv, W, H, d, tplKey, k){ const prev = c; c = cv.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, H); c.save(); c.textBaseline = 'alphabetic'; try{ T[tplKey](W, H, d, THEMES[S.theme] || THEMES.blue); }catch(e){ console.error(e); } c.restore(); c = prev; }
+  let raf = 0;
+  function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
+  async function render(){
+    const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; }
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
+    paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
+  }
+  /* the small pictures in the template row: sample words and two sample photos, in the current colour and size */
+  const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#DB2777'], ['#22D3EE', '#4F46E5']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.arc(400, 330, 130, 0, 7); x.fill(); x.fillRect(240, 480, 320, 320); SAMPLE.push(s); }); return SAMPLE; }
+  async function thumbs(){
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"')]); }catch(e){}
+    const sz = SIZES[S.size], k = 150 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: 'ছোট একটা লাইন এখানে', small: '২০১৮', photos: sm };
+    TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, d, t.k, k); });
   }
 
+  /* ---------- the form ---------- */
+  function paintTpls(){ $('tpls').innerHTML = TPLS.map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : '') + '</span></button>').join(''); }
+  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k][0] + '" aria-label="' + k + '"></button>').join(''); }
+  function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
+  function paintPos(){ const t = TP(), list = t.two ? POS.filter(p => p[0] !== 'mid') : POS; if(t.two && S.pos === 'mid') S.pos = 'bottom'; $('posWrap').hidden = !t.pos; $('pos').innerHTML = list.map(p => '<button type="button" role="radio" aria-checked="' + (S.pos === p[0]) + '" data-k="' + p[0] + '">' + p[1] + '</button>').join(''); }
+  function paintSlots(){
+    const t = TP(), n = t.ph; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : t.opt ? '(ঐচ্ছিক)' : '';
+    $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'then' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
+    S.photos.forEach((im, i) => { const el = $('slots').querySelector('img[data-i="' + i + '"]'); if(el && im){ const s = document.createElement('canvas'); s.width = 160; s.height = 160; const x = s.getContext('2d'), sc = Math.max(160 / im.width, 160 / im.height); x.drawImage(im, 80 - im.width * sc / 2, 80 - im.height * sc / 2, im.width * sc, im.height * sc); el.src = s.toDataURL('image/jpeg', .7); } });
+  }
+  function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; }
+  $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); paintPos(); draw(); track('memory_tpl', { t: S.tpl }); };
+  $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; paintThemes(); thumbs(); draw(); };
+  $('size').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.size = b.dataset.k; paintSize(); thumbs(); draw(); };
+  $('pos').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.pos = b.dataset.k; paintPos(); draw(); };
+  ['ttl', 'txt', 'sm'].forEach(id => $(id).addEventListener('input', () => { counters(); draw(); }));
+
+  /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the empty slots in order */
+  let target = 0;
+  $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
+  $('file').onchange = async () => {
+    const files = Array.from($('file').files || []).filter(f => /^image\//.test(f.type)); $('file').value = ''; if(!files.length) return;
+    let slot = target, put = 0;
+    for(const f of files){
+      if(slot >= TP().ph) break;
+      try{
+        let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
+        const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+        S.photos[slot] = cv; slot++; put++;
+      }catch(e){ toast('একটা ছবি পড়া যায়নি।'); }
+    }
+    if(put){ paintSlots(); draw(); }
+  };
+
+  /* what was written last time is kept in this browser (not the photos), so the next card starts faster */
+  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, pos: S.pos, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; if(['top', 'mid', 'bottom'].includes(d.pos)) S.pos = d.pos; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
+
   /* ---------- download, share, caption ---------- */
-  const capText = () => { const t = $('ttl').value.trim() || TY().t + 'র স্মৃতি', b = $('txt').value.trim(); return t + (b ? '\n' + b : '') + '\n\nআপনার একটা স্মৃতি নিয়ে মেমোরি কার্ড বানান 👇\nprotishthan.com/memory'; };
-  const fileOf = () => new Promise(res => $('cv').toBlob(b => res(b ? new File([b], 'memory-card.png', { type: 'image/png' }) : null), 'image/png'));
+  const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
+  const fileOf = () => new Promise(res => $('cv').toBlob(b => res(b ? new File([b], 'memory-card.jpg', { type: 'image/jpeg' }) : null), 'image/jpeg', .93));
   function count(){ let n = 0; try{ n = +localStorage.getItem('mem_n') || 0; }catch(e){} return n; }
-  function bump(){ let n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
-  function showCount(){ const n = count(); const p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা মেমোরি কার্ড বানিয়েছেন।'; p.hidden = false; } }
-  $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { type: S.type, photo: S.img ? 1 : 0 }); toast('কার্ড ডাউনলোড হয়েছে। এবার বন্ধুদের সাথে ভাগ করুন।'); };
-  $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { type: S.type }); }catch(e){} };
+  function bump(){ const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
+  function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
+  $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { t: S.tpl, size: S.size, photos: S.photos.filter(Boolean).length }); toast('কার্ড ডাউনলোড হয়েছে।'); };
+  $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { t: S.tpl }); }catch(e){} };
   $('cpCap').onclick = async () => { try{ await navigator.clipboard.writeText(capText()); }catch(e){ const t = document.createElement('textarea'); t.value = capText(); document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); }catch(_){} t.remove(); } toast('ক্যাপশন কপি হয়েছে।'); track('memory_caption', {}); };
-  $('again').onclick = () => { ['ttl', 'txt', 'yr', 'who'].forEach(id => { $(id).value = ''; }); S.img = null; $('pickT').textContent = 'ছবি বাছুন'; $('rm').hidden = true; counters(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); $('ttl').focus({ preventScroll: true }); };
+  $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  paintTypes(); paintThemes(); paintStarts(); counters(); showCount();
+  loadDraft(); paintTpls(); paintThemes(); paintSize(); paintPos(); paintSlots(); counters(); showCount();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
-  try{ if(window.Protishthan && Protishthan.member) Protishthan.member.ready().then(() => { const me = Protishthan.member.current && Protishthan.member.current(); if(me && me.display_name && !$('nm').value) $('nm').value = String(me.display_name).slice(0, 24); draw(); }).catch(() => {}); }catch(e){}
-  draw();
+  draw(); thumbs();
   track('memory_view', {});
 })();
 </script>
