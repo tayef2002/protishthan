@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=35">
+<link rel="stylesheet" href="/batch.css?v=36">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -488,12 +488,11 @@
     clearInterval(PH.timer); const sl = slidesOf(), url = p => PH.urls[p.path] || PH.urls[thumbOf(p.path)]; let cur = 0;
     el.className = 'bt-cover has';
     el.innerHTML = '<div class="bt-sl">' + sl.map((p, i) => (url(p) ? '<img class="' + (i === 0 ? 'on' : '') + '" src="' + esc(url(p)) + '" alt="ব্যাচের ছবি ' + bn(i + 1) + '" data-i="' + PH.list.indexOf(p) + '"' + (i === 0 ? '' : ' loading="lazy"') + '>' : '')).join('') + '</div>' +
-      '<div class="bt-cvb"><span>' + ic('image', 16) + bn(PH.list.length) + 'টা ছবি</span>' + (sl.length > 1 ? '<div class="bt-dots" role="tablist" aria-label="ছবি">' + sl.map((p, i) => '<button type="button" data-d="' + i + '" class="' + (i === 0 ? 'on' : '') + '" aria-label="' + bn(i + 1) + ' নম্বর ছবি"></button>').join('') + '</div>' : '') + '<button type="button" id="cvAll">সব ছবি দেখুন</button></div>';
+      (sl.length > 1 ? '<div class="bt-cvb"><div class="bt-dots" role="tablist" aria-label="ছবি">' + sl.map((p, i) => '<button type="button" data-d="' + i + '" class="' + (i === 0 ? 'on' : '') + '" aria-label="' + bn(i + 1) + ' নম্বর ছবি"></button>').join('') + '</div></div>' : '');
     const imgs = Array.from(el.querySelectorAll('.bt-sl img')), dots = Array.from(el.querySelectorAll('.bt-dots button'));
     const show = i => { cur = (i + imgs.length) % imgs.length; imgs.forEach((im, j) => im.classList.toggle('on', j === cur)); dots.forEach((d, j) => d.classList.toggle('on', j === cur)); };
     imgs.forEach(im => { im.onclick = () => openLightbox(+im.dataset.i); });
     dots.forEach((d, j) => { d.onclick = () => show(j); });
-    $('cvAll').onclick = () => { const c = $('photos'); if(c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     let hold = false; el.onmouseenter = () => { hold = true; }; el.onmouseleave = () => { hold = false; };
     const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(imgs.length > 1 && !still) PH.timer = setInterval(() => { if(document.hidden || hold || ($('phLb') && !$('phLb').hidden) || !$('cover')) return; show(cur + 1); }, 3000);
