@@ -555,12 +555,26 @@
     const base = mix(PAL.bg, '#FFFFFF', .62); c.fillStyle = base; c.fillRect(0, 0, W, H);
     c.fillStyle = radial(cx, cy, Math.max(W, H) * .85, [[0, rgba(base, 0)], [1, rgba(PAL.ac, .075)]]); c.fillRect(0, 0, W, H);
   }
+  /* the brand strip at the foot of every picture: one small frosted pill, the mark, a short invitation and the address, with an arrow. It is small enough not to fight the memory, and it is what a friend sees when the picture is shared, so it says what to do and where. */
+  function brandStrip(W, H){
+    const a1 = 'নিজের স্মৃতির কার্ড বানান', a2 = 'protishthan.com/memory', ph = 84, lg = 54, arrow = 46;
+    c.font = '800 27px ' + HS; const w1 = c.measureText(a1).width; c.font = '700 23px Inter, sans-serif'; const w2 = c.measureText(a2).width;
+    const tw = Math.max(w1, w2), pw = 18 + lg + 16 + tw + 18 + arrow + 18, x = (W - pw) / 2, y = H - 36 - ph;
+    rr(x, y, pw, ph, ph / 2); c.fillStyle = rgba('#FFFFFF', .88); c.fill(); c.lineWidth = 2; c.strokeStyle = rgba(PAL.ac, .28); c.stroke();
+    const ly = y + (ph - lg) / 2;
+    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(x + 18, ly, lg, lg, 15); c.clip(); c.drawImage(LOGO, x + 18, ly, lg, lg); c.restore(); }
+    c.textAlign = 'left'; c.fillStyle = PAL.dk; c.font = '800 27px ' + HS; c.fillText(a1, x + 18 + lg + 16, y + 38);
+    c.fillStyle = mix(PAL.ac, '#000000', .1); c.font = '700 23px Inter, sans-serif'; c.fillText(a2, x + 18 + lg + 16, y + 67);
+    const ax = x + pw - 18 - arrow / 2, ay = y + ph / 2; c.fillStyle = PAL.ac; c.beginPath(); c.arc(ax, ay, arrow / 2, 0, 7); c.fill();
+    c.strokeStyle = '#FFFFFF'; c.lineWidth = 4; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(ax - 8, ay); c.lineTo(ax + 8, ay); c.moveTo(ax + 2, ay - 7); c.lineTo(ax + 9, ay); c.lineTo(ax + 2, ay + 7); c.stroke();
+    c.textAlign = 'center';
+  }
   function render1(W, H, d, key){
     PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
     const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
     const title = d.title || 'আমাদের সেই দিন', own = !!t.own, tt = own ? { lines: [], size: 0 } : fit(title, mw, 2, 78, 44, '800', DISP), ll = !own && d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
     const LGAP = 18, capH = tt.lines.length * tt.size * 1.15 + (ll ? LGAP + ll.size * 1.25 + (ll.lines.length - 1) * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
-    const GAP = own ? 0 : 56, top = H * .06, bottom = H - 130, regionH = bottom - top - capH - GAP;
+    const GAP = own ? 0 : 56, top = H * .06, bottom = H - 150, regionH = bottom - top - capH - GAP;
     const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
     const ox = (W - ow) / 2, oy = g0;
     paper(W, H, W / 2, oy + oh / 2);
@@ -569,7 +583,7 @@
     c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .85;
     if(ll){ c.fillStyle = mix(PAL.dk, '#FFFFFF', .25); c.font = '500 ' + ll.size + 'px ' + HS; y += LGAP; ll.lines.forEach((s, q) => { y += q ? ll.size * 1.5 : ll.size * .95; c.fillText(s, W / 2, y); }); y += ll.size * .3; }
     if(d.small && !t.card){ c.font = '700 30px ' + HS; const sw = c.measureText(d.small).width + 48; y += 26; rr(W / 2 - sw / 2, y, sw, 54, 27); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .5); c.stroke(); c.fillStyle = PAL.ac; c.fillText(d.small, W / 2, y + 37); }
-    c.fillStyle = mix(PAL.dk, '#FFFFFF', .55); c.font = '800 22px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 46);
+    brandStrip(W, H);
   }
 
   /* ---------- drawing the picture and the small pictures of the shapes ---------- */
