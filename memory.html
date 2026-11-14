@@ -558,15 +558,15 @@
     PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
     const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
     const title = d.title || 'আমাদের সেই দিন', own = !!t.own, tt = own ? { lines: [], size: 0 } : fit(title, mw, 2, 78, 44, '800', DISP), ll = !own && d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
-    const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
-    const GAP = own ? 0 : 56, top = H * .06, bottom = H - 110, regionH = bottom - top - capH - GAP;
+    const LGAP = 18, capH = tt.lines.length * tt.size * 1.15 + (ll ? LGAP + ll.size * 1.25 + (ll.lines.length - 1) * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
+    const GAP = own ? 0 : 56, top = H * .06, bottom = H - 130, regionH = bottom - top - capH - GAP;
     const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
     const ox = (W - ow) / 2, oy = g0;
     paper(W, H, W / 2, oy + oh / 2);
     c.save(); SH[key](ox, oy, ow, oh); c.restore();
     let y = oy + oh + GAP; c.textAlign = 'center';
-    c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .2;
-    if(ll){ c.fillStyle = mix(PAL.dk, '#FFFFFF', .25); c.font = '500 ' + ll.size + 'px ' + HS; y += 22; ll.lines.forEach(s => { y += ll.size * 1.5; c.fillText(s, W / 2, y - ll.size * .45); }); }
+    c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .85;
+    if(ll){ c.fillStyle = mix(PAL.dk, '#FFFFFF', .25); c.font = '500 ' + ll.size + 'px ' + HS; y += LGAP; ll.lines.forEach((s, q) => { y += q ? ll.size * 1.5 : ll.size * .95; c.fillText(s, W / 2, y); }); y += ll.size * .3; }
     if(d.small && !t.card){ c.font = '700 30px ' + HS; const sw = c.measureText(d.small).width + 48; y += 26; rr(W / 2 - sw / 2, y, sw, 54, 27); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .5); c.stroke(); c.fillStyle = PAL.ac; c.fillText(d.small, W / 2, y + 37); }
     c.fillStyle = mix(PAL.dk, '#FFFFFF', .55); c.font = '800 22px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 46);
   }
