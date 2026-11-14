@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=22">
+<link rel="stylesheet" href="/batch.css?v=23">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -108,7 +108,7 @@
   const NOW = new Date().getFullYear();
   const GOALS = [10, 25, 50, 100, 250];
   const TPLS = [
-    '{i}-এর {y} সালের সেই দিনগুলো, কাছে থাকা সেই মুখগুলো। আবার এক জায়গায়।',
+    '{y} সালের সেই দিনগুলো, কাছে থাকা সেই মুখগুলো। আবার এক জায়গায়।',
     'একই গেট দিয়ে ঢুকেছিলাম, একই বেঞ্চে বসেছিলাম। সেই ব্যাচটা আবার এক জায়গায়।',
     'পরীক্ষার আগের রাত, ক্যান্টিনের চা, শেষ বেঞ্চের গল্প। আপনার ব্যাচ আপনার অপেক্ষায়।'
   ];
@@ -270,15 +270,15 @@
       if(i % 10 === 9 || i === shown - 1) h += '</div>';
     }
     return '<div class="bt-grid" aria-hidden="true">' + h + '</div>' +
-      (n === 0 ? '<p class="bt-count">এখনও কেউ নেই, আপনি প্রথম হতে পারেন</p>' : '<p class="bt-count"><b>' + bn(n) + ' জন</b> ' + (n === 1 ? 'আছেন' : 'যুক্ত') + '</p><p class="bt-goal">পরের লক্ষ্য ' + bn(goal) + ' জন</p>');
+      (n === 0 ? '<p class="bt-count">প্রথম সিটটা আপনার জন্য খালি আছে</p>' : '<p class="bt-count"><b>' + bn(n) + ' জন</b> ' + (n === 1 ? 'আছেন' : 'যুক্ত') + '</p><p class="bt-goal">পরের লক্ষ্য ' + bn(goal) + ' জন</p>');
   }
   function linkFor(k, ref){ return location.origin + batchPath(k) + (ref ? '?r=' + ref : ''); }
   function msgsFor(k, inst, link){
     const lv = LVT[k.lv] + ' ' + bn(k.year);
     return [
-      'আমরা ' + inst + '-এর ' + lv + ' ব্যাচ! আমাদের ব্যাচের জায়গায় যোগ দাও:\n' + link,
-      inst + ' ' + lv + ' ব্যাচের সবাই, এখানে যুক্ত হও:\n' + link,
-      'কে কে আছিস ' + inst + '-এর ' + bn(k.year) + ' ব্যাচে? এখানে নাম লিখে যুক্ত হ:\n' + link
+      inst + '\n' + lv + ' ব্যাচ, আমাদের গল্প আবার এক জায়গায়। যোগ দাও:\n' + link,
+      inst + ', ' + lv + ' ব্যাচের সবাই, এখানে যুক্ত হও:\n' + link,
+      'কে কে আছিস? ' + inst + ', ' + lv + ' ব্যাচ। এখানে নাম লিখে যুক্ত হ:\n' + link
     ];
   }
   function themeBtns(cur){ return THEMES.map(t => '<button type="button" data-t="' + t[0] + '" style="background:' + t[1] + '" aria-label="' + t[0] + '" aria-pressed="' + (cur === t[0]) + '"></button>').join(''); }
@@ -343,7 +343,7 @@
         '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div>';
       h += '<div class="bt-me">' + (fresh ? setup + invite : invite + setup) + '</div>';
     }
-    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">' + esc(inst) + '-এর পাতা</a></div>';
+    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a></div>';
     $('pg').innerHTML = h;
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
