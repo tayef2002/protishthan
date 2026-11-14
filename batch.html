@@ -8,11 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
-<title>আমার ব্যাচ: আপনার স্কুল-কলেজের ব্যাচ আবার এক জায়গায় | Protishthan</title>
-<meta name="description" content="আপনার প্রতিষ্ঠান, লেভেল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।">
+<title>আমার ব্যাচ: আপনার SSC ব্যাচ আবার এক জায়গায় | Protishthan</title>
+<meta name="description" content="আপনার SSC-র স্কুল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।">
 <link rel="canonical" href="https://protishthan.com/batch">
 <meta property="og:title" content="আমার ব্যাচ | Protishthan">
-<meta property="og:description" content="আপনার ব্যাচ আবার এক জায়গায়। প্রতিষ্ঠান আর সাল বাছুন, সহপাঠীদের ডাকুন।">
+<meta property="og:description" content="আপনার SSC ব্যাচ আবার এক জায়গায়। স্কুল আর সাল বাছুন, সহপাঠীদের ডাকুন।">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://protishthan.com/batch">
 <meta property="og:image" content="https://protishthan.com/og-image.png">
@@ -37,20 +37,19 @@
   <section id="viewHome" hidden>
     <header class="bt-hero">
       <span class="bt-kick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.9.8 3.1 2.6 3.5 5.2"/></svg>আমার ব্যাচ</span>
-      <h1>আপনার ব্যাচ, <span>আবার এক জায়গায়</span></h1>
-      <p class="bt-lead">প্রতিষ্ঠান, লেভেল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।</p>
+      <h1>আপনার SSC ব্যাচ, <span>আবার এক জায়গায়</span></h1>
+      <p class="bt-lead">যাদের সঙ্গে স্কুলের দিনগুলো কেটেছে, তারা এখন কোথায়? আপনার SSC-র স্কুল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।</p>
 
       <div class="bt-find" id="find">
         <div id="cardPick" hidden>
           <h2>আপনার কার্ড থেকে</h2>
           <div class="bt-card-pick" id="cardPickList"></div>
         </div>
-        <h2>কোন ব্যাচ?</h2>
-        <div class="bt-lv" id="lvChips" role="group" aria-label="লেভেল"></div>
+        <h2>আপনার SSC ব্যাচ</h2>
         <div class="bt-row">
           <div class="bt-field">
-            <label for="instQ">প্রতিষ্ঠানের নাম</label>
-            <input class="bt-inp" id="instQ" type="text" autocomplete="off" placeholder="যেমন: ঢাকা কলেজ" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="instList">
+            <label for="instQ">যে স্কুল বা মাদ্রাসা থেকে SSC / দাখিল দিয়েছেন</label>
+            <input class="bt-inp" id="instQ" type="text" autocomplete="off" placeholder="যেমন: ঢাকা রেসিডেনসিয়াল মডেল কলেজ" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="instList">
             <div class="bt-list" id="instList" role="listbox" hidden></div>
           </div>
           <div class="bt-field">
@@ -58,6 +57,7 @@
             <select class="bt-inp" id="yearSel"></select>
           </div>
         </div>
+        <p class="bt-note" style="margin-top:8px">সার্টিফিকেটে যে প্রতিষ্ঠানের নাম, সেটাই আপনার ব্যাচ। পরে অন্য কলেজ বা ইউনিভার্সিটিতে গেলেও আপনার SSC ব্যাচ বদলায় না।</p>
         <div class="bt-err" id="findErr" role="alert" hidden></div>
         <button type="button" class="bt-go" id="findGo">ব্যাচ খুঁজুন<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="bt-note">খুঁজে না পেলে প্রতিষ্ঠানটা এখনও তালিকায় নেই। <a href="/list-institution">বিনামূল্যে যোগ করুন</a>।</p>
@@ -70,7 +70,7 @@
     </section>
 
     <section class="bt-steps" aria-label="কীভাবে কাজ করে">
-      <div class="bt-step"><em>১</em><b>খুঁজুন</b><p>প্রতিষ্ঠান, লেভেল আর সাল বাছুন।</p></div>
+      <div class="bt-step"><em>১</em><b>খুঁজুন</b><p>যে স্কুল থেকে SSC দিয়েছেন সেটা আর সালটা বাছুন।</p></div>
       <div class="bt-step"><em>২</em><b>যোগ দিন বা খুলুন</b><p>ব্যাচ খোলা থাকলে Google দিয়ে এক চাপে যোগ দিন। না থাকলে আপনি আহ্বায়ক।</p></div>
       <div class="bt-step"><em>৩</em><b>সহপাঠীদের ডাকুন</b><p>ব্যাচের গ্রুপে লিংক পাঠান। কে কত নম্বর সদস্য, সেটাও দেখা যায়।</p></div>
     </section>
@@ -99,11 +99,8 @@
   const SB = () => MB() && MB().sb;
   const signedIn = () => !!(MB() && MB().current && MB().current());
 
-  /* the levels a batch can be for (the card's levels: general, Alia and the university ones) */
-  const LV = [
-    { k: 'hsc', t: 'HSC' }, { k: 'ssc', t: 'SSC' }, { k: 'bachelor', t: 'অনার্স / ডিগ্রি' }, { k: 'masters', t: 'মাস্টার্স' },
-    { k: 'alim', t: 'আলিম' }, { k: 'dakhil', t: 'দাখিল' }, { k: 'fazil', t: 'ফাজিল' }, { k: 'kamil', t: 'কামিল' }
-  ];
+  /* a batch is the SSC / Dakhil batch only: the school batch, the bond that lasts. The address and the database keep a level word so more levels can be opened later. */
+  const LV = [{ k: 'ssc', t: 'SSC' }];
   const LVT = {}; LV.forEach(l => { LVT[l.k] = l.t; });
   const THEMES = [['blue', '#1A56DB'], ['violet', '#6D28D9'], ['teal', '#0F766E'], ['amber', '#B45309'], ['rose', '#BE123C']];
   const NOW = new Date().getFullYear();
@@ -116,7 +113,7 @@
   const ERR = {
     NOT_SIGNED_IN: 'আগে Google দিয়ে সাইন-ইন করুন।',
     NO_INSTITUTION: 'এই প্রতিষ্ঠান তালিকায় নেই। আগে প্রতিষ্ঠানটা যোগ করুন।',
-    BAD_BATCH: 'লেভেল বা সাল ঠিক নেই।',
+    BAD_BATCH: 'সালটা ঠিক নেই। এখন শুধু SSC / দাখিল ব্যাচ আছে।',
     BAD_LINE: 'লাইনে লিংক, ইমেইল, নম্বর বা অশোভন শব্দ রাখা যাবে না। ১২০ অক্ষরের মধ্যে লিখুন।',
     BAD_THEME: 'রঙটা ঠিক নেই, আরেকটা বেছে নিন।',
     LOCKED: 'এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।',
@@ -125,7 +122,7 @@
   };
   const MISSING = /PGRST202|Could not find the function|schema cache/i;
 
-  let ST = { lv: 'hsc', inst: null, year: '' };
+  let ST = { lv: 'ssc', inst: null, year: '' };
   let CUR = null;      // the batch on screen: { slug, lv, year, data }
 
   function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800); }
@@ -154,9 +151,6 @@
   }
 
   /* ---------- home: find a batch ---------- */
-  function renderLv(){
-    $('lvChips').innerHTML = LV.map(l => '<button type="button" data-k="' + l.k + '" aria-pressed="' + (ST.lv === l.k) + '">' + esc(l.t) + '</button>').join('');
-  }
   function renderYears(){
     let h = '<option value="">সাল বাছুন</option>';
     for(let y = NOW + 1; y >= 1975; y--) h += '<option value="' + y + '"' + (String(ST.year) === String(y) ? ' selected' : '') + '>' + bn(y) + '</option>';
@@ -167,7 +161,7 @@
     try{
       const d = JSON.parse(localStorage.getItem('shikkhito_card_v1') || 'null');
       if(!d || !d.edu) return out;
-      const map = { school: { g: 'ssc', a: 'dakhil' }, college: { g: 'hsc', a: 'alim' }, bachelor: { g: 'bachelor', a: 'fazil' }, masters: { g: 'masters', a: 'kamil' } };
+      const map = { school: { g: 'ssc', a: 'ssc' } };       // the card's secondary row: SSC, or Dakhil on the Alia track (the Qawmi track has no SSC)
       Object.keys(map).forEach(k => {
         const e = d.edu[k]; if(!e || !e.slug || !e.year) return;
         const lv = map[k][e.track || 'g']; const y = +((String(en(e.year)).match(/\d{4}/) || [])[0]);
@@ -391,13 +385,12 @@
     const u = parseUrl();
     try{ if(MB()) await MB().ready(); }catch(e){}
     if(u.key){ await showBatch(u.key, u.ref); return; }
-    CUR = null; setRobots(false); document.title = 'আমার ব্যাচ: আপনার স্কুল-কলেজের ব্যাচ আবার এক জায়গায় | Protishthan';
+    CUR = null; setRobots(false); document.title = 'আমার ব্যাচ: আপনার SSC ব্যাচ আবার এক জায়গায় | Protishthan';
     $('viewBatch').hidden = true; $('viewHome').hidden = false;
     renderCardPicks(); renderMine();
   }
 
-  renderLv(); renderYears();
-  $('lvChips').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if(!b) return; ST.lv = b.dataset.k; renderLv(); });
+  renderYears();
   $('instQ').addEventListener('input', onType);
   $('instQ').addEventListener('keydown', e => {
     const items = $('instList').querySelectorAll('.bt-opt');

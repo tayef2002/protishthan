@@ -17,7 +17,7 @@ yes('a batch page is kept out of search (noindex), the home page is not', /setRo
 const sigs = {}; for (const m of sql.matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
 const calls = [...page.matchAll(/rpc\('(\w+)'(?:,\s*\{([^}]*)\})?/g)].map(m => [m[1], (m[2] || '').split(',').map(x => x.split(':')[0].trim()).filter(Boolean)]);
 const batchCalls = calls.filter(c => /^batch_/.test(c[0]));
-eq('the page calls exactly the six batch functions the SQL defines', [...new Set(batchCalls.map(c => c[0]))].sort(), Object.keys(sigs).filter(k => !['batch_first_name', 'batch_year_ok'].includes(k)).sort());
+eq('the page calls exactly the six batch functions the SQL defines', [...new Set(batchCalls.map(c => c[0]))].sort(), Object.keys(sigs).filter(k => !['batch_first_name', 'batch_year_ok', 'batch_level_ok'].includes(k)).sort());
 yes('every call uses the SQL parameter names', batchCalls.every(c => c[1].every(a => sigs[c[0]].includes(a))));
 yes('the page may also call directory_search (the institution search), nothing else', calls.every(c => /^batch_/.test(c[0]) || c[0] === 'directory_search'));
 yes('the search asks /api/dir first and falls back to the database when /api answers not found, never on a busy answer', /\/api\/dir\?f=search/.test(page) && /if\(r\.status === 404\) DIR_OFF = Date\.now\(\) \+ 600000; else throw new Error\('busy'\)/.test(page));
@@ -25,7 +25,10 @@ yes('the search asks /api/dir first and falls back to the database when /api ans
 // levels, themes and error codes agree with the SQL
 const sqlLv = (sql.match(/level in \(([^)]*)\)/) || ['', ''])[1].match(/'(\w+)'/g).map(x => x.replace(/'/g, ''));
 const pgLv = [...page.matchAll(/\{ k: '(\w+)', t: /g)].map(m => m[1]);
-eq('the level keys of the page are the SQL ones', pgLv.slice().sort(), sqlLv.slice().sort());
+eq('the page offers SSC only (the SSC / Dakhil school batch), and that level is one the table allows', pgLv, ['ssc']);
+yes('the SQL accepts SSC only through one small function', /batch_level_ok\(l text\)[^;]*select l = 'ssc'/.test(sql.replace(/\s+/g, ' ')) && sqlLv.includes('ssc') && (sql.match(/public\.batch_level_ok\(p_level\)/g) || []).length === 2);
+yes('there is no level picker on the page any more, and the card suggestions come from the card\'s secondary (SSC / Dakhil) row only', !/lvChips/.test(page) && /const map = \{ school: \{ g: 'ssc', a: 'ssc' \} \}/.test(page));
+yes('the page says it is the SSC batch (title, headline, search label, year label)', /<title>আমার ব্যাচ: আপনার SSC ব্যাচ/.test(page) && /আপনার SSC ব্যাচ, <span>/.test(page) && /SSC \/ দাখিল দিয়েছেন/.test(page) && /SSC \/ দাখিল/.test(read('privacy.html')));
 const sqlTh = (sql.match(/theme in \(([^)]*)\)/) || ['', ''])[1].match(/'(\w+)'/g).map(x => x.replace(/'/g, ''));
 const pgTh = [...page.matchAll(/\['(\w+)', '#[0-9A-Fa-f]{6}'\]/g)].map(m => m[1]);
 eq('the colours of the page are the SQL ones', pgTh.slice().sort(), sqlTh.slice().sort());

@@ -38,26 +38,27 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   const rows = async sql => (await db.query(sql)).rows;
 
   // ---- lookup
-  let r = await lookup(0, 'dhaka-college', 'hsc', 2018);
+  let r = await lookup(0, 'dhaka-college', 'ssc', 2018);
   ok('lookup of a listed institution with no batch: ok, batch null, institution named', r.ok && r.batch === null && r.inst.name === 'ঢাকা কলেজ' && r.me === null, JSON.stringify(r));
-  ok('lookup: unknown institution, pending institution and hidden institution are all NO_INSTITUTION', ['nope', 'pending-school', 'hidden-school'].every(async () => true) && (await lookup(0, 'nope', 'hsc', 2018)).error === 'NO_INSTITUTION' && (await lookup(0, 'pending-school', 'hsc', 2018)).error === 'NO_INSTITUTION' && (await lookup(0, 'hidden-school', 'hsc', 2018)).error === 'NO_INSTITUTION');
-  ok('lookup: a level that does not exist, a year in the far future and a year before 1970 are BAD_BATCH', (await lookup(0, 'dhaka-college', 'primary', 2018)).error === 'BAD_BATCH' && (await lookup(0, 'dhaka-college', 'hsc', 2999)).error === 'BAD_BATCH' && (await lookup(0, 'dhaka-college', 'hsc', 1950)).error === 'BAD_BATCH');
+  ok('lookup: unknown institution, pending institution and hidden institution are all NO_INSTITUTION', ['nope', 'pending-school', 'hidden-school'].every(async () => true) && (await lookup(0, 'nope', 'ssc', 2018)).error === 'NO_INSTITUTION' && (await lookup(0, 'pending-school', 'ssc', 2018)).error === 'NO_INSTITUTION' && (await lookup(0, 'hidden-school', 'ssc', 2018)).error === 'NO_INSTITUTION');
+  ok('lookup: a level that does not exist, HSC (not opened yet), a year in the far future and a year before 1970 are BAD_BATCH', (await lookup(0, 'dhaka-college', 'primary', 2018)).error === 'BAD_BATCH' && (await lookup(0, 'dhaka-college', 'hsc', 2018)).error === 'BAD_BATCH' && (await claim(1, 'dhaka-college', 'hsc', 2018)).error === 'BAD_BATCH' && (await claim(1, 'dhaka-college', 'bachelor', 2018)).error === 'BAD_BATCH' && (await lookup(0, 'dhaka-college', 'ssc', 2999)).error === 'BAD_BATCH' && (await lookup(0, 'dhaka-college', 'ssc', 1950)).error === 'BAD_BATCH');
 
+  ok('the level word is checked by one small function: only ssc passes for now (the table list stays wide so more levels can be opened by changing that function)', (await db.query("select public.batch_level_ok('ssc') as a").then(r => r.rows[0].a)) === true && (await db.query("select public.batch_level_ok('hsc') as a").then(r => r.rows[0].a)) === false && (await db.query("select public.batch_level_ok('dakhil') as a").then(r => r.rows[0].a)) === false);
   // ---- opening a batch
-  ok('claim needs a sign-in: NOT_SIGNED_IN', (await claim(0, 'dhaka-college', 'hsc', 2018)).error === 'NOT_SIGNED_IN');
-  r = await claim(1, 'dhaka-college', 'hsc', 2018, '  একই   গেট দিয়ে ঢুকেছিলাম  ', 'violet');
+  ok('claim needs a sign-in: NOT_SIGNED_IN', (await claim(0, 'dhaka-college', 'ssc', 2018)).error === 'NOT_SIGNED_IN');
+  r = await claim(1, 'dhaka-college', 'ssc', 2018, '  একই   গেট দিয়ে ঢুকেছিলাম  ', 'violet');
   ok('claim: the first member opens it, is the convener, number 1, and gets an invite code', r.ok && r.seq === 1 && r.role === 'convener' && /^[0-9a-f]{8}$/.test(r.ref), JSON.stringify(r));
   const BID = r.batch_id, REF1 = r.ref;
-  ok('claim again for the same batch: EXISTS (the second person must join, not open a copy)', (await claim(2, 'dhaka-college', 'hsc', 2018)).error === 'EXISTS');
-  r = await lookup(0, 'dhaka-college', 'hsc', 2018);
+  ok('claim again for the same batch: EXISTS (the second person must join, not open a copy)', (await claim(2, 'dhaka-college', 'ssc', 2018)).error === 'EXISTS');
+  r = await lookup(0, 'dhaka-college', 'ssc', 2018);
   ok('lookup now: 1 member, the convener first name only, the cleaned line, the theme', r.batch && r.batch.members === 1 && r.batch.convener === 'User' && r.batch.line === 'একই গেট দিয়ে ঢুকেছিলাম' && r.batch.theme === 'violet', JSON.stringify(r));
   ok('lookup leaks no user id, e-mail or code', !/00000000-0000|@x\.com|[0-9a-f]{8}/.test(JSON.stringify(r).replace(BID, '')) , JSON.stringify(r));
   const bad = { url: 'দেখুন www.example.com', mail: 'a@b.com', phone: 'ফোন ০১৭১১২২৩৩৪৪', word: 'this is badword', long: 'ক'.repeat(121), http: 'https://x.y' };
   for (const k of Object.keys(bad)) ok('claim refuses a bad line: ' + k, (await claim(3, 'dhaka-college', 'ssc', 2016, bad[k])).error === 'BAD_LINE');
   ok('claim refuses an unknown theme', (await claim(3, 'dhaka-college', 'ssc', 2016, null, 'neon')).error === 'BAD_THEME');
   ok('claim refuses a level or a year that is not allowed, and an institution that is not listed', (await claim(3, 'dhaka-college', 'x', 2016)).error === 'BAD_BATCH' && (await claim(3, 'nope', 'ssc', 2016)).error === 'NO_INSTITUTION' && (await claim(3, 'hidden-school', 'ssc', 2016)).error === 'NO_INSTITUTION');
-  for (const [i, y] of [2010, 2011, 2012].entries()) ok('one person can open three batches: ' + (i + 1), (await claim(4, 'dhaka-college', 'hsc', y)).ok === true);
-  ok('a fourth batch by the same person: TOO_MANY', (await claim(4, 'dhaka-college', 'hsc', 2013)).error === 'TOO_MANY');
+  for (const [i, y] of [2010, 2011, 2012].entries()) ok('one person can open three batches: ' + (i + 1), (await claim(4, 'dhaka-college', 'ssc', y)).ok === true);
+  ok('a fourth batch by the same person: TOO_MANY', (await claim(4, 'dhaka-college', 'ssc', 2013)).error === 'TOO_MANY');
 
   // ---- joining
   r = await join(2, BID, REF1);
@@ -76,11 +77,11 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
 
   // ---- my batches
   r = await call(2, 'select public.batch_me() as r');
-  ok('batch_me lists my batch with my number, the count and the institution name', Array.isArray(r) && r.length === 1 && r[0].seq === 2 && r[0].members === 3 && r[0].name === 'ঢাকা কলেজ' && r[0].level === 'hsc' && r[0].year === 2018, JSON.stringify(r));
+  ok('batch_me lists my batch with my number, the count and the institution name', Array.isArray(r) && r.length === 1 && r[0].seq === 2 && r[0].members === 3 && r[0].name === 'ঢাকা কলেজ' && r[0].level === 'ssc' && r[0].year === 2018, JSON.stringify(r));
   ok('batch_me is empty when not signed in', (await call(0, 'select public.batch_me() as r')).length === 0);
 
   // ---- the look
-  ok('the convener changes the line and the theme', (await call(1, `select public.batch_set_look($1, 'নতুন লাইন', 'teal') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'hsc', 2018)).batch.theme === 'teal');
+  ok('the convener changes the line and the theme', (await call(1, `select public.batch_set_look($1, 'নতুন লাইন', 'teal') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.theme === 'teal');
   ok('an ordinary member cannot: NOT_ALLOWED; a bad line is refused', (await call(2, `select public.batch_set_look($1, 'x', 'teal') as r`, [BID])).error === 'NOT_ALLOWED' && (await call(1, `select public.batch_set_look($1, 'www.x.com', 'teal') as r`, [BID])).error === 'BAD_LINE');
 
   // ---- leaving: numbers are never given twice
@@ -88,7 +89,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('leave by someone who is not in: NOT_MEMBER', (await call(9, 'select public.batch_leave($1) as r', [BID])).error === 'NOT_MEMBER');
   ok('the convener leaves: the earliest member (number 2) becomes the convener', (await call(1, 'select public.batch_leave($1) as r', [BID])).ok === true && (await rows(`select role from public.batch_members where user_id = '${U(2)}' and batch_id = '${BID}'`))[0].role === 'convener' && (await rows(`select convener_id from public.batches where id = '${BID}'`))[0].convener_id === U(2));
   await call(2, 'select public.batch_leave($1) as r', [BID]); await call(7, 'select public.batch_leave($1) as r', [BID]);
-  ok('the last member leaves: the batch is removed, and it can be opened again', (await rows(`select 1 from public.batches where id = '${BID}'`)).length === 0 && (await claim(8, 'dhaka-college', 'hsc', 2018)).ok === true);
+  ok('the last member leaves: the batch is removed, and it can be opened again', (await rows(`select 1 from public.batches where id = '${BID}'`)).length === 0 && (await claim(8, 'dhaka-college', 'ssc', 2018)).ok === true);
 
   // ---- a person can be in at most 12 batches
   await db.exec(`insert into public.listing_submissions values ('many-school', 'অনেক স্কুল', 'ঢাকা', 'x', 'স্কুল', 'approved', false)`);
@@ -103,7 +104,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('anon cannot read either table', (await guard('anon', 0, 'select * from public.batches')) === 'denied' && (await guard('anon', 0, 'select * from public.batch_members')) === 'denied');
   const own = await guard('authenticated', 8, 'select user_id from public.batch_members');
   ok('a signed-in member sees only their own membership rows, never the others', Array.isArray(own) && own.length === 1 && own.every(x => x.user_id === U(8)), JSON.stringify(own));
-  ok('nobody can write a table directly', (await guard('authenticated', 8, `insert into public.batches (institution_slug, level, exam_year) values ('x','hsc',2018)`)) === 'denied' && (await guard('authenticated', 8, `update public.batch_members set seq = 99`)) === 'denied');
+  ok('nobody can write a table directly', (await guard('authenticated', 8, `insert into public.batches (institution_slug, level, exam_year) values ('x','ssc',2018)`)) === 'denied' && (await guard('authenticated', 8, `update public.batch_members set seq = 99`)) === 'denied');
   await db.exec(`select set_config('test.admin', '1', false)`);
   ok('an admin can read every batch', Array.isArray(await guard('authenticated', 8, 'select * from public.batches')) && (await guard('authenticated', 8, 'select * from public.batches')).length >= 10);
   console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

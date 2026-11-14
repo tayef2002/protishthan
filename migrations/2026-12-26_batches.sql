@@ -1,4 +1,5 @@
--- আমার ব্যাচ (My batch): a batch = one institution + one level + one exam year, e.g. "Dhaka College, HSC 2018".
+-- আমার ব্যাচ (My batch): a batch = one institution + one exam year of SSC / Dakhil (the school batch, the bond that lasts), e.g. "Dhaka College, SSC 2016".
+-- Only the level 'ssc' is accepted for now (batch_level_ok); the column and its list stay wide so another level can be opened later by changing that one function.
 -- The first signed-in member to open it is its convener (আহ্বায়ক, member number 1); everybody else joins through the link and gets the next fixed number.
 -- Reads for the public page go through batch_lookup() (counts and the convener's first name only, never the member list); the tables themselves are closed.
 -- Needs: 2026-10-29_members.sql (members, ensure_member), 2026-10-26_admin_users.sql (is_admin), 2026-11-01_skill_profiles.sql (skill_text_ok), listing_submissions.
@@ -47,6 +48,11 @@ drop policy if exists bm_own on public.batch_members;
 create policy bm_own on public.batch_members for select to authenticated using (user_id = auth.uid());
 
 -- ---------- helpers ----------
+-- the levels that can have a batch right now (SSC and Dakhil are one batch: the class-10 exit)
+create or replace function public.batch_level_ok(l text) returns boolean language sql immutable as $$
+  select l = 'ssc'
+$$;
+
 create or replace function public.batch_year_ok(y int) returns boolean language sql stable as $$
   select y is not null and y between 1970 and extract(year from now())::int + 1
 $$;
@@ -62,7 +68,7 @@ returns jsonb language plpgsql stable security definer set search_path = public 
 declare
   inst record; b public.batches; n int; conv text; me public.batch_members; mine jsonb := null;
 begin
-  if p_level not in ('ssc', 'hsc', 'bachelor', 'masters', 'dakhil', 'alim', 'fazil', 'kamil') or not public.batch_year_ok(p_year) then
+  if not public.batch_level_ok(p_level) or not public.batch_year_ok(p_year) then
     return jsonb_build_object('ok', false, 'error', 'BAD_BATCH');
   end if;
   select l.institution_name, l.district, l.upazila, l.institution_type into inst
@@ -92,7 +98,7 @@ declare
 begin
   if uid is null then return jsonb_build_object('ok', false, 'error', 'NOT_SIGNED_IN'); end if;
   perform public.ensure_member();
-  if p_level not in ('ssc', 'hsc', 'bachelor', 'masters', 'dakhil', 'alim', 'fazil', 'kamil') or not public.batch_year_ok(p_year) then
+  if not public.batch_level_ok(p_level) or not public.batch_year_ok(p_year) then
     return jsonb_build_object('ok', false, 'error', 'BAD_BATCH');
   end if;
   if p_theme not in ('blue', 'violet', 'teal', 'amber', 'rose') then return jsonb_build_object('ok', false, 'error', 'BAD_THEME'); end if;
@@ -191,6 +197,7 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+revoke all on function public.batch_level_ok(text) from public;
 revoke all on function public.batch_lookup(text, text, int) from public;
 revoke all on function public.batch_claim(text, text, int, text, text) from public;
 revoke all on function public.batch_join(uuid, text) from public;
