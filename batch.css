@@ -303,3 +303,10 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;transition:width .25s,background .25s}.bt-dots button.on{width:22px;border-radius:8px;background:#fff}
 @media(prefers-reduced-motion:reduce){.bt-sl img{transition:none}}
 .bt-cvb{justify-content:center!important}
+
+/* the add tile: the last square of the picture grid; touching it opens the picker */
+.bt-pi.add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px;border:2px dashed var(--soft);background:linear-gradient(180deg,#fff,var(--tint));color:var(--ac);cursor:pointer;text-align:center;transition:border-color .15s,background .15s,transform .15s}
+.bt-pi.add:hover{border-color:var(--ac);transform:translateY(-1px)}
+.bt-addp{display:grid;place-items:center;width:42px;height:42px;margin-bottom:4px;border-radius:50%;background:var(--ac);color:#fff;box-shadow:0 10px 20px -10px var(--ac)}
+.bt-pi.add b{font-size:13.5px;line-height:1.3;color:var(--ink)}.bt-pi.add small{font-size:11.5px;color:var(--tx3)}
+@media(max-width:560px){.bt-pi.add small{display:none}.bt-addp{width:38px;height:38px}}

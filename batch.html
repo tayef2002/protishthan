@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=36">
+<link rel="stylesheet" href="/batch.css?v=37">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -321,6 +321,7 @@
   }
   /* ---------- the member's hub: icons, small builders and the getting-started steps ---------- */
   const ICO = {
+    plus: '<path d="M12 5v14M5 12h14"/>',
     users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
     seat: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6z"/>',
     crown: '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
@@ -413,7 +414,7 @@
           '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>';
       const soon = '<div class="bt-c bt-soonc">' + cardHead('clock', 'শীঘ্রই আসছে', 'ব্যাচটা আরও কাজের হচ্ছে') +
         [['chat', 'মনে আছে?', 'সপ্তাহে একটা স্মৃতির প্রশ্ন, সবাই উত্তর লেখে'], ['poll', 'ব্যাচের পোল', 'সবাই ভোট দেয়, ফল সাজানো থাকে'], ['cal', 'রিইউনিয়ন পরিকল্পনা', 'তারিখে ভোট, কে আসছে গোনা']].map(x => '<div class="bt-sn"><span class="bt-sni">' + ic(x[0], 18) + '</span><div><b>' + x[1] + '</b><small>' + x[2] + '</small></div><em>শীঘ্রই</em></div>').join('') + '</div>';
-      const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div><button type="button" class="bt-addph" id="phAdd">' + ic('image', 17) + 'ছবি যোগ করুন</button></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
+      const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
       const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
       h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
     }
@@ -501,13 +502,14 @@
     const cats = $('phCats'); if(!cats) return;
     cats.innerHTML = PH_CATS.map(c => { const n = c[0] === 'all' ? PH.list.length : PH.list.filter(p => p.category === c[0]).length; return '<button type="button" role="tab" aria-selected="' + (PH.cat === c[0]) + '" data-c="' + c[0] + '">' + c[1] + (n ? ' <em>' + bn(n) + '</em>' : '') + '</button>'; }).join('');
     const rows = PH.list.filter(p => PH.cat === 'all' || p.category === PH.cat), g = $('phGrid');
+    const ADD_TILE = '<button type="button" class="bt-pi add" data-add="1" aria-label="ছবি যোগ করুন"><span class="bt-addp">' + ic('plus', 22) + '</span><b>ছবি যোগ করুন</b><small>এখান থেকে বাছুন</small></button>';
     g.innerHTML = rows.length ? rows.map(p => '<button type="button" class="bt-pi" data-i="' + PH.list.indexOf(p) + '">' + (PH.urls[thumbOf(p.path)] ? '<img src="' + esc(PH.urls[thumbOf(p.path)]) + '" alt="" loading="lazy">' : '') + (p.id === PH.cover ? '<span class="bt-star" title="কভার ছবি">★</span>' : '') + '</button>').join('')
       : '<div class="bt-phe">' + ic('image', 26) + '<b>' + (PH.list.length ? 'এই অ্যালবামে এখনও ছবি নেই' : 'এখনও কোনো ছবি নেই') + '</b><span>প্রথম ছবিটা আপনিই দিন, পুরনো দিনের কোনো ছবি থাকলে সবাই খুশি হবে।</span></div>';
+    g.insertAdjacentHTML('beforeend', ADD_TILE);
   }
   function bindPhotos(){
     $('phCats').onclick = e => { const b = e.target.closest('button[data-c]'); if(!b) return; PH.cat = b.dataset.c; paintPhotos(); };
-    $('phGrid').onclick = e => { const b = e.target.closest('button[data-i]'); if(b) openLightbox(+b.dataset.i); };
-    $('phAdd').onclick = () => openUpload(PH.cat !== 'all' ? PH.cat : 'class');
+    $('phGrid').onclick = e => { if(e.target.closest('button[data-add]')){ openUpload(PH.cat !== 'all' ? PH.cat : 'class'); return; } const b = e.target.closest('button[data-i]'); if(b) openLightbox(+b.dataset.i); };
     $('phFile').onchange = () => { const f = Array.from($('phFile').files || []).filter(x => /^image\//.test(x.type)).slice(0, 5); if(f.length) showUploadDlg(f); $('phFile').value = ''; };
     $('phCancel').onclick = closeUploadDlg;
     $('phOk').onchange = () => { $('phGo').disabled = !$('phOk').checked || !PH.files.length; };
