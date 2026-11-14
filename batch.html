@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=7">
+<link rel="stylesheet" href="/batch.css?v=8">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -38,7 +38,7 @@
     <header class="bt-hero">
       <span class="bt-kick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.9.8 3.1 2.6 3.5 5.2"/></svg>SSC ব্যাচ</span>
       <h1>আমার ব্যাচ, <span>আমাদের গল্প</span></h1>
-      <figure class="bt-mem"><figcaption>Golden Time</figcaption><blockquote>কইরে তোরা? বিকেলে খেলতে যাবি না?</blockquote></figure>
+      <figure class="bt-mem"><figcaption>Golden Time</figcaption><blockquote>কইরে তোরা? বিকেলে খেলতে <span class="bt-nw">যাবি না?<i class="bt-ball" id="btBall" aria-hidden="true"></i></span></blockquote></figure>
       <p class="bt-lead">একই বেঞ্চ, একই স্মৃতি। আবার একসাথে।</p>
 
       <div class="bt-find" id="find">
@@ -401,6 +401,20 @@
     renderCardPicks(); renderMine();
   }
 
+  /* the little football beside the memory line: drawn here (a shaded sphere, patches that spin, a bounce with a squash and a shadow), no picture file, no outside service */
+  (function(){
+    const el = $('btBall'); if(!el) return;
+    const P = (cx, cy, r, rot) => { let p = ''; for(let k = 0; k < 5; k++){ const a = (rot + k * 72) * Math.PI / 180; p += (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1) + ' '; } return p.trim(); };
+    let spokes = '', outer = '';
+    for(let k = 0; k < 5; k++){
+      const a = (-90 + k * 72) * Math.PI / 180, b = (-54 + k * 72) * Math.PI / 180;
+      spokes += 'M' + (32 + 9 * Math.cos(a)).toFixed(1) + ' ' + (32 + 9 * Math.sin(a)).toFixed(1) + 'L' + (32 + 28 * Math.cos(a)).toFixed(1) + ' ' + (32 + 28 * Math.sin(a)).toFixed(1);
+      outer += '<polygon points="' + P(32 + 30 * Math.cos(b), 32 + 30 * Math.sin(b), 9.5, -54 + k * 72 + 180) + '"/>';
+    }
+    el.innerHTML = '<b class="sh"></b><svg viewBox="0 0 64 64" width="34" height="34" focusable="false"><defs><radialGradient id="bbG" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#EEF2F8"/><stop offset="1" stop-color="#B8C2D6"/></radialGradient><radialGradient id="bbS" cx="40%" cy="34%" r="70%"><stop offset=".55" stop-color="#0F172A" stop-opacity="0"/><stop offset="1" stop-color="#0F172A" stop-opacity=".38"/></radialGradient><clipPath id="bbC"><circle cx="32" cy="32" r="27"/></clipPath></defs>' +
+      '<circle cx="32" cy="32" r="27" fill="url(#bbG)"/><g class="sp" clip-path="url(#bbC)"><polygon points="' + P(32, 32, 9, -90) + '" fill="#1F2937"/><path d="' + spokes + '" stroke="#1F2937" stroke-width="1.6" fill="none"/><g fill="#1F2937">' + outer + '</g></g>' +
+      '<circle cx="32" cy="32" r="27" fill="url(#bbS)"/><ellipse cx="24" cy="20" rx="8" ry="5" fill="#fff" opacity=".55" transform="rotate(-30 24 20)"/></svg>';
+  })();
   renderYears();
   $('instQ').addEventListener('input', onType);
   $('instQ').addEventListener('keydown', e => {
