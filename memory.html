@@ -7,11 +7,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <title>মেমোরি কার্ড: ছবি আর দু-লাইন লিখুন, কার্ড তৈরি | Protishthan</title>
 <meta name="description" content="একটা টেমপ্লেট বাছুন, ছবি দিন, দু-লাইন লিখুন। এক মিনিটে সুন্দর মেমোরি কার্ড তৈরি, ডাউনলোড আর শেয়ার। বিনামূল্যে, সাইন-ইন ছাড়াই, প্রতিদিন যতবার ইচ্ছে।">
-<link rel="canonical" href="https://protishthan.com/memory">
+<meta name="robots" content="noindex, nofollow">
 <meta property="og:title" content="মেমোরি কার্ড | Protishthan">
 <meta property="og:description" content="টেমপ্লেট বাছুন, ছবি দিন, দু-লাইন লিখুন। এক মিনিটে মেমোরি কার্ড।">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://protishthan.com/memory">
 <meta property="og:image" content="https://protishthan.com/og-image.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js?v=2"></script>
@@ -33,7 +32,7 @@
   <section class="mc-hero">
     <span class="mc-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 7v3M12 7v3M15 7v3"/></svg>মেমোরি কার্ড</span>
     <h1>আপনার স্মৃতি, <span>একটা কার্ডে</span></h1>
-    <p>পুরনো টিভি, ক্যাসেট, ঘুড়ি, ডাকটিকিট, যেকোনো একটা আকার বাছুন, তার ভেতরে নিজের ছবি বসান, দু-লাইন লিখুন। ফেসবুকে দেওয়ার কার্ড তৈরি এক মিনিটে।</p>
+    <p>একটা আসল মেমোরি কার্ডের ভেতরে নিজের ছবি বসান, দু-লাইন লিখুন। ফেসবুকে দেওয়ার কার্ড তৈরি এক মিনিটে।</p>
   </section>
 
   <div class="mc-grid">
@@ -100,27 +99,20 @@
   const SIZES = { post: { w: 1080, h: 1350, n: 'পোস্ট (৪:৫)' }, story: { w: 1080, h: 1920, n: 'স্টোরি (৯:১৬)' } };
   /* the shapes: an object we all remember, with a window for the photo. a = width / height of the object, ph = how many photos. */
   const TPLS = [
-    { k: 'polaroid', n: 'পোলারয়েড', a: .84, ph: 1 },
-    { k: 'tv', n: 'পুরনো টিভি', a: 1.12, ph: 1 },
-    { k: 'cassette', n: 'ক্যাসেট', a: 1.55, ph: 1 },
-    { k: 'nokia', n: 'নোকিয়া ফোন', a: .5, ph: 1 },
-    { k: 'sd', n: 'মেমোরি কার্ড', a: .8, ph: 1 },
-    { k: 'stamp', n: 'ডাকটিকিট', a: .82, ph: 1 },
-    { k: 'shapla', n: 'শাপলা', a: 1, ph: 1 },
-    { k: 'kite', n: 'ঘুড়ি', a: .7, ph: 1 },
-    { k: 'slate', n: 'স্লেট', a: 1.22, ph: 1 },
-    { k: 'flag', n: 'পতাকা', a: 1.5, ph: 1 },
-    { k: 'heart', n: 'হৃদয়', a: 1.08, ph: 1 },
-    { k: 'arch', n: 'জানালা', a: .74, ph: 1 },
-    { k: 'polaroid2', n: 'দুই পোলারয়েড', a: 1.2, ph: 2 },
-    { k: 'thennow', n: 'তখন আর এখন', a: 1.45, ph: 2 }
+    { k: 'mem1', n: 'মেমোরি কার্ড', a: .79, ph: 1, card: 1 },
+    { k: 'mem2', n: 'দুটো মেমোরি কার্ড', a: 1.22, ph: 2, card: 1 },
+    { k: 'old1', n: 'পুরনো ছবি', a: .84, ph: 1, card: 1, off: 1 },
+    { k: 'old2', n: 'দুটো স্মৃতি', a: 1.22, ph: 2, card: 1, off: 1 },
+    { k: 'card1', n: 'ছবির কার্ড', a: .82, ph: 1, card: 1, off: 1 },
+    { k: 'card3', n: 'পোস্টকার্ড', a: 1.28, ph: 1, card: 1, off: 1 },
+    { k: 'card2', n: 'দুই ছবি', a: 1.2, ph: 2, card: 1, off: 1 }
   ];
-  const S = { tpl: 'polaroid', theme: 'sepia', size: 'post', photos: [null, null] };
+  const S = { tpl: 'mem1', theme: 'mint', size: 'post', photos: [null, null] };
   const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
-  const DRAFT = 'mem_draft_v4';
+  const DRAFT = 'mem_draft_v5';
 
   /* ---------- small helpers for drawing ---------- */
-  let c = null, PAL = THEMES.sepia;
+  let c = null, PAL = THEMES.mint;
   const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif';
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
@@ -137,160 +129,173 @@
   }
   /* put a photo into a shape: pathFn draws the shape's outline, the box says how big the photo should be */
   function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h); c.restore(); }
-  const dark = () => PAL.dk, acc = () => PAL.ac, lite = t => mix(PAL.ac, '#FFFFFF', t);
-  function scallop(x, y, w, h, r, n, m){ const sx = w / n, sy = h / m; c.beginPath(); c.moveTo(x, y);
-    for(let i = 0; i < n; i++){ c.lineTo(x + (i + .5) * sx - r, y); c.arc(x + (i + .5) * sx, y, r, Math.PI, 0, true); } c.lineTo(x + w, y);
-    for(let i = 0; i < m; i++){ c.lineTo(x + w, y + (i + .5) * sy - r); c.arc(x + w, y + (i + .5) * sy, r, -Math.PI / 2, Math.PI / 2, true); } c.lineTo(x + w, y + h);
-    for(let i = n - 1; i >= 0; i--){ c.lineTo(x + (i + .5) * sx + r, y + h); c.arc(x + (i + .5) * sx, y + h, r, 0, Math.PI, true); } c.lineTo(x, y + h);
-    for(let i = m - 1; i >= 0; i--){ c.lineTo(x, y + (i + .5) * sy + r); c.arc(x, y + (i + .5) * sy, r, Math.PI / 2, -Math.PI / 2, true); } c.closePath(); }
-  const tape = (x, y, ang, w) => { c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = 'rgba(255,230,150,.8)'; c.fillRect(-w / 2, -w * .14, w, w * .28); c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(-w / 2, -w * .14, w, w * .06); c.restore(); };
-
-  /* ---------- the shapes. Each draws the object inside the box (x, y, w, h) and puts the photo(s) in its window(s). ---------- */
+  /* ---------- the cards. A photo card lies on the paper like the card on the map pages of Unseen: a pale tint of the paper, a thin edge in the main colour, the photo inside it with soft corners, a short label under the photo, tilted a little. ---------- */
   const SH = {};
-  SH.polaroid = (x, y, w, h) => {
-    c.save(); c.translate(x + w / 2, y + h / 2); c.rotate(-.045); c.translate(-(x + w / 2), -(y + h / 2));
-    shadow('rgba(16,35,63,.28)', 36, 16); rr(x, y, w, h, 12); c.fillStyle = '#fff'; c.fill(); shadow();
-    const m = w * .07, ps = w - m * 2; put(0, () => rr(x + m, y + m, ps, ps * 1.02, 6), x + m, y + m, ps, ps * 1.02);
-    c.strokeStyle = 'rgba(16,35,63,.1)'; c.lineWidth = 2; rr(x + m, y + m, ps, ps * 1.02, 6); c.stroke();
-    c.fillStyle = lite(.6); c.fillRect(x + w * .3, y + h - w * .1, w * .4, 6);
-    tape(x + w / 2, y + 2, .04, w * .34); c.restore();
+  const rgba = (hex, a) => { const q = hexRgb(hex); return 'rgba(' + q[0] + ',' + q[1] + ',' + q[2] + ',' + a + ')'; };
+  /* one card: centre cx, cy, size w x h, tilt ang, the photo slot i, an optional label */
+  function card(cx, cy, w, h, ang, i, label){
+    c.save(); c.translate(cx, cy); c.rotate(ang); c.translate(-w / 2, -h / 2);
+    const m = w * .055, chin = label ? Math.max(h * .13, 64) : m * 1.9, r = w * .05;
+    shadow(rgba(PAL.ac, .085), 44, 10); rr(0, 0, w, h, r); c.fillStyle = mix(PAL.bg, '#FFFFFF', .88); c.fill(); shadow();
+    rr(0, 0, w, h, r); c.lineWidth = 4; c.strokeStyle = mix(PAL.bg2, '#FFFFFF', .35); c.stroke();
+    const px = m, py = m, pw = w - m * 2, ph = h - m - chin;
+    put(i, () => rr(px, py, pw, ph, r * .6), px, py, pw, ph);
+    if(label){ const f = fit(label, w - m * 2, 1, Math.round(chin * .42), 20, '800', HS); c.textAlign = 'center'; c.fillStyle = PAL.dk; c.font = '800 ' + f.size + 'px ' + HS; c.fillText(f.lines[0], w / 2, h - chin / 2 + f.size * .34); }
+    c.restore();
+  }
+  /* ---------- an old print: a real photograph from an old album. The photo is faded to a warm brown, grainy, darker at the corners, with a few scratches and specks; it sits in a cream border with a torn edge, a fold, a piece of tape or a paper clip, and a line of handwriting under it. ---------- */
+  const rng = seed => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const AGED = {};
+  /* the photo, aged: drawn into a small canvas, then every pixel is turned to a faded sepia with grain and a vignette */
+  function aged(i, w, h){
+    const im = S.cur.photos[i], key = i + '|' + Math.round(w) + '|' + Math.round(h) + '|' + (im ? '' : PAL.ac), hit = AGED[key];
+    if(hit && hit.src === im) return hit.cv;
+    const k = Math.min(1, 820 / Math.max(w, h)), W = Math.max(8, Math.round(w * k)), H = Math.max(8, Math.round(h * k));
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const prev = c; c = cv.getContext('2d'); fill(im, 0, 0, W, H);
+    const id = c.getImageData(0, 0, W, H), d = id.data, r = rng(7 + i * 31);
+    for(let y = 0; y < H; y++){
+      const dy = (y / H - .5) * 2;
+      for(let x = 0; x < W; x++){
+        const p = (y * W + x) * 4, dx = (x / W - .5) * 2, r2 = (dx * dx + dy * dy) / 2;
+        let l = (d[p] * .299 + d[p + 1] * .587 + d[p + 2] * .114) / 255;
+        l = Math.max(0, Math.min(1, l + (l - .5) * .22)); l = (.08 + Math.pow(l, .92) * .84) * (1 - .34 * r2 * r2 - .08 * r2);
+        const n = (r() - .5) * 30;
+        d[p] = Math.max(0, Math.min(255, (44 + 206 * l) * .9 + d[p] * .1 + n));
+        d[p + 1] = Math.max(0, Math.min(255, (31 + 196 * l) * .9 + d[p + 1] * .1 + n));
+        d[p + 2] = Math.max(0, Math.min(255, (20 + 168 * l) * .9 + d[p + 2] * .1 + n));
+      }
+    }
+    c.putImageData(id, 0, 0);
+    /* scratches and dust */
+    c.lineCap = 'round';
+    for(let j = 0; j < 7; j++){ const x0 = r() * W, y0 = r() * H, a = (r() - .5) * .5 + Math.PI / 2, len = H * (.12 + r() * .3); c.strokeStyle = 'rgba(255,248,232,' + (.12 + r() * .16) + ')'; c.lineWidth = .8 + r() * 1.2; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x0 + Math.cos(a) * len, y0 + Math.sin(a) * len); c.stroke(); }
+    for(let j = 0; j < 70; j++){ c.fillStyle = r() > .45 ? 'rgba(255,250,238,' + (.25 + r() * .4) + ')' : 'rgba(40,26,14,' + (.2 + r() * .35) + ')'; c.beginPath(); c.arc(r() * W, r() * H, .6 + r() * 1.9, 0, 7); c.fill(); }
+    c = prev; AGED[key] = { src: im, cv }; return cv;
+  }
+  /* the outline of an old print: straight, but the edge wavers a little, like a deckle cut */
+  function deckle(w, h, amp, seed){
+    const r = rng(seed), pts = [], st = 11;
+    const edge = (x0, y0, x1, y1) => { const n = Math.max(2, Math.round(Math.hypot(x1 - x0, y1 - y0) / st)); for(let q = 0; q < n; q++){ const t = q / n; pts.push([x0 + (x1 - x0) * t + (r() - .5) * amp, y0 + (y1 - y0) * t + (r() - .5) * amp]); } };
+    edge(0, 0, w, 0); edge(w, 0, w, h); edge(w, h, 0, h); edge(0, h, 0, 0);
+    c.beginPath(); const m0 = [(pts[pts.length - 1][0] + pts[0][0]) / 2, (pts[pts.length - 1][1] + pts[0][1]) / 2]; c.moveTo(m0[0], m0[1]);
+    for(let q = 0; q < pts.length; q++){ const a = pts[q], b = pts[(q + 1) % pts.length]; c.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); }
+    c.closePath();
+  }
+  function paperclip(x, y, ang){
+    c.save(); c.translate(x, y); c.rotate(ang); c.lineCap = 'round'; c.lineJoin = 'round';
+    const loop = () => { c.beginPath(); c.moveTo(14, 70); c.lineTo(14, 16); c.arc(2, 16, 12, 0, Math.PI, true); c.lineTo(-10, 78); c.arc(6, 78, 16, Math.PI, 0, true); c.lineTo(22, 28); c.arc(14, 28, 8, 0, Math.PI, true); c.lineTo(6, 58); };
+    c.strokeStyle = 'rgba(60,50,40,.22)'; c.lineWidth = 9; c.save(); c.translate(3, 4); loop(); c.stroke(); c.restore();
+    c.strokeStyle = '#A9B1B8'; c.lineWidth = 7; loop(); c.stroke(); c.strokeStyle = '#E4E8EB'; c.lineWidth = 2.5; loop(); c.stroke(); c.restore();
+  }
+  function tapeOn(x, y, ang, w){ c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = 'rgba(226,204,150,.74)'; c.beginPath(); const hh = w * .24; c.moveTo(-w / 2, -hh / 2); for(let q = 0; q <= 6; q++) c.lineTo(-w / 2 + (q % 2 ? -3 : 3), -hh / 2 + hh * q / 6); c.lineTo(w / 2, hh / 2); for(let q = 6; q >= 0; q--) c.lineTo(w / 2 + (q % 2 ? 3 : -3), -hh / 2 + hh * q / 6); c.closePath(); c.fill(); c.fillStyle = 'rgba(255,255,255,.28)'; c.fillRect(-w / 2 + 4, -hh / 2 + 3, w - 8, hh * .22); c.restore(); }
+  /* one print: centre cx, cy, size w x h, tilt ang, photo slot i, handwriting label, seed for the edge, fold = a crease across it */
+  function print(cx, cy, w, h, ang, i, label, seed, fold){
+    c.save(); c.translate(cx, cy); c.rotate(ang); c.translate(-w / 2, -h / 2);
+    deckle(w, h, 5, seed); shadow('rgba(70,48,22,.2)', 44, 12); c.fillStyle = '#F7F0DF'; c.fill(); shadow();
+    c.save(); deckle(w, h, 5, seed); c.clip();
+    c.fillStyle = radial(w / 2, h / 2, Math.max(w, h) * .72, [[.5, 'rgba(201,166,107,0)'], [1, 'rgba(190,150,90,.34)']]); c.fillRect(0, 0, w, h);
+    const m = w * .075, chin = label ? Math.max(h * .15, 70) : m * 1.7, px = m, py = m, pw = w - m * 2, ph = h - m - chin;
+    c.drawImage(aged(i, pw, ph), px, py, pw, ph);
+    c.lineWidth = 2; c.strokeStyle = 'rgba(70,48,22,.4)'; c.strokeRect(px, py, pw, ph);
+    if(label){ const f = fit(label, w - m * 2, 1, Math.round(chin * .46), 22, '700', HS); c.textAlign = 'center'; c.fillStyle = '#4F3A22'; c.font = '700 ' + f.size + 'px ' + HS; c.fillText(f.lines[0], w / 2, h - chin / 2 + f.size * .34); }
+    if(fold){ c.save(); c.translate(0, h * .52); c.rotate(-.012); c.fillStyle = 'rgba(70,48,22,.16)'; c.fillRect(0, -1.5, w, 3); c.fillStyle = 'rgba(255,252,240,.5)'; c.fillRect(0, 1.5, w, 2.5); c.restore(); }
+    c.fillStyle = linear(0, 0, w, h, [[0, 'rgba(255,255,255,.16)'], [.45, 'rgba(255,255,255,0)'], [1, 'rgba(120,90,40,.1)']]); c.fillRect(0, 0, w, h);
+    c.restore(); c.restore();
+  }
+  const linear = (x0, y0, x1, y1, stops) => { const g = c.createLinearGradient(x0, y0, x1, y1); stops.forEach(p => g.addColorStop(p[0], p[1])); return g; };
+  SH.old1 = (x, y, w, h) => { const k = .9, cx = x + w / 2, cy = y + h / 2; print(cx, cy, w * k, h * k, -.04, 0, S.cur.small, 3, true); c.save(); c.translate(cx, cy); c.rotate(-.04); tapeOn(w * .02, -h * k / 2 + 6, -.05, w * .26); c.restore(); };
+  SH.old2 = (x, y, w, h) => {
+    const ph = h * .82, pw = ph * .8;
+    print(x + w * .3, y + h * .46, pw, ph, -.1, 0, '', 5, false);
+    print(x + w * .7, y + h * .54, pw, ph, .07, 1, S.cur.small, 11, false);
+    c.save(); c.translate(x + w * .7, y + h * .54); c.rotate(.07); paperclip(-pw * .32, -ph / 2 - 26, .1); c.restore();
   };
-  SH.tv = (x, y, w, h) => {
-    c.strokeStyle = dark(); c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.moveTo(x + w * .5, y + h * .15); c.lineTo(x + w * .3, y + h * .01); c.moveTo(x + w * .5, y + h * .15); c.lineTo(x + w * .7, y + h * .01); c.stroke();
-    c.fillStyle = dark(); c.beginPath(); c.arc(x + w * .3, y + h * .01, 8, 0, 7); c.arc(x + w * .7, y + h * .01, 8, 0, 7); c.fill();
-    const by = y + h * .13, bh = h * .8; shadow('rgba(16,35,63,.25)', 30, 14); rr(x, by, w, bh, w * .07); c.fillStyle = acc(); c.fill(); shadow();
-    rr(x + w * .015, by + bh * .02, w * .97, bh * .96, w * .06); c.fillStyle = lite(.12); c.fill();
-    const sx = x + w * .055, sy = by + bh * .09, sw = w * .66, sh = bh * .82;
-    rr(sx - 8, sy - 8, sw + 16, sh + 16, w * .06); c.fillStyle = dark(); c.fill();
-    put(0, () => rr(sx, sy, sw, sh, w * .045), sx, sy, sw, sh);
-    c.save(); rr(sx, sy, sw, sh, w * .045); c.clip(); const gl = c.createLinearGradient(sx, sy, sx + sw * .7, sy + sh); gl.addColorStop(0, 'rgba(255,255,255,.28)'); gl.addColorStop(.35, 'rgba(255,255,255,.04)'); gl.addColorStop(.36, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(sx, sy, sw, sh); c.restore();
-    const px = x + w * .865; [.28, .46].forEach(f => { c.beginPath(); c.arc(px, by + bh * f, w * .05, 0, 7); c.fillStyle = lite(.75); c.fill(); c.lineWidth = 4; c.strokeStyle = dark(); c.stroke(); c.beginPath(); c.moveTo(px, by + bh * f); c.lineTo(px + w * .028, by + bh * f - w * .02); c.stroke(); });
-    c.strokeStyle = dark(); c.lineWidth = 5; for(let i = 0; i < 5; i++){ c.beginPath(); c.moveTo(px - w * .05, by + bh * (.62 + i * .05)); c.lineTo(px + w * .05, by + bh * (.62 + i * .05)); c.stroke(); }
-    rr(x + w * .1, by + bh - 2, w * .12, h * .06, 6); c.fillStyle = dark(); c.fill(); rr(x + w * .78, by + bh - 2, w * .12, h * .06, 6); c.fill();
+
+  /* ---------- a real memory card (an SD card): charcoal plastic, a printed swoosh in the chosen colour, silver print, a cut corner, a lock switch, gold contacts. The memory is a printed photo on the paper label, with a line of handwriting under it. ---------- */
+  const LOGO = new Image(); LOGO.onload = () => draw(); LOGO.src = 'icon-192.png';
+  let GRAIN = null;
+  const grain = () => { if(GRAIN) return GRAIN; const g = document.createElement('canvas'); g.width = g.height = 120; const gc = g.getContext('2d'), gi = gc.createImageData(120, 120), r = rng(41); for(let q = 0; q < gi.data.length; q += 4){ gi.data[q] = gi.data[q + 1] = gi.data[q + 2] = r() * 255; gi.data[q + 3] = 14; } gc.putImageData(gi, 0, 0); return (GRAIN = g); };
+  /* one card: centre cx, cy, width w (the height follows), tilt ang, photo slot i, the handwriting under the photo */
+  function memcard(cx, cy, w, ang, i, cap){
+    const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = '#FFE9A8';
+    const path = () => { c.beginPath(); c.moveTo(R, 0); c.lineTo(cw - cut, 0); c.lineTo(cw, cut); c.lineTo(cw, ch - R); c.arcTo(cw, ch, cw - R, ch, R); c.lineTo(R, ch); c.arcTo(0, ch, 0, ch - R, R); c.lineTo(0, R); c.arcTo(0, 0, R, 0, R); c.closePath(); };
+    c.save(); c.translate(cx, cy); c.rotate(ang); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
+    shadow('rgba(30,50,40,.24)', 60 * k, 24 * k); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
+    c.save(); path(); c.clip();
+    c.fillStyle = linear(0, 0, cw * .6, ch, [[0, '#3A3F4D'], [.45, '#1F222B'], [1, '#101218']]); c.fillRect(0, 0, cw, ch);
+    c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(0, 0, cw, ch);
+    /* the printed band: every print sits inside the green, on one grid. Left edge and right edge are the edges of the photo below; three rows (brand, name, kind). */
+    const L = 66, Rt = cw - 66;
+    const edgeY = [282, 300, 236, 262];   // the lower edge of the band: left, two bends, right
+    c.fillStyle = linear(0, 0, cw, 300, [[0, mix(ac, '#000000', .15)], [.6, ac], [1, mix(ac, '#FFFFFF', .25)]]);
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(cw, 0); c.lineTo(cw, edgeY[3]); c.bezierCurveTo(cw * .7, edgeY[2], cw * .3, edgeY[1], 0, edgeY[0]); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.1)'; c.beginPath(); c.moveTo(0, edgeY[0]); c.bezierCurveTo(cw * .3, edgeY[1], cw * .7, edgeY[2], cw, edgeY[3]); c.lineTo(cw, edgeY[3] + 7); c.bezierCurveTo(cw * .7, edgeY[2] + 7, cw * .3, edgeY[1] + 7, 0, edgeY[0] + 7); c.closePath(); c.fill();
+    /* row 1: the mark and the brand */
+    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(L, 54, 60, 60, 15); c.clip(); c.drawImage(LOGO, L, 54, 60, 60); c.restore(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.55)'; rr(L, 54, 60, 60, 15); c.stroke(); }
+    c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', L + 76, 96);
+    /* row 2: the big silver name, and the "capacity" (the year, or infinity) on the same baseline at the right edge */
+    c.fillStyle = linear(0, 118, 0, 184, [[0, '#FFFFFF'], [.55, '#D7DCE6'], [1, '#9AA3B5']]); c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8 * k, 4 * k); c.fillText('MEMORY', L - 2, 184); shadow();
+    const yr = (((S.cur.small || '').match(/[0-9০-৯]{4}/) || [])[0] || '∞').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)); c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '800 ' + (yr === '∞' ? 84 : 70) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.35)', 8 * k, 4 * k); c.fillText(yr, Rt, yr === '∞' ? 188 : 184); shadow();
+    /* row 3: what it is, with the speed class beside it */
+    c.textAlign = 'left'; c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.94)'; const kind = 'মেমোরি কার্ড'; c.fillText(kind, L, 236);
+    const bx = L + c.measureText(kind).width + 44; c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(bx, 224, 24, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '800 27px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', bx + 7, 234);
+    /* the photo fills the black body of the card, inside a black border of plastic; the gold contacts lie on top of the photo */
+    const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
+    put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
+    c.save(); rr(px, py, pw, ph, pr); c.clip();
+    c.fillStyle = linear(0, py + ph * .55, 0, py + ph, [[0, 'rgba(8,9,13,0)'], [1, 'rgba(8,9,13,.78)']]); c.fillRect(px, py, pw, ph);
+    c.fillStyle = linear(px, py, px + pw, py + ph, [[0, 'rgba(255,255,255,.18)'], [.35, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.1)']]); c.fillRect(px, py, pw, ph);
+    c.restore();
+    c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.55)'; rr(px, py, pw, ph, pr); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(255,255,255,.14)'; rr(px + 2, py + 2, pw - 4, ph - 4, pr - 2); c.stroke();
+    const sy = ch - 196, sh2 = 160;
+    if(cap){ const f = fit(cap, pw - 120, 1, 44, 24, '700', HS); c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '700 ' + f.size + 'px ' + HS; shadow('rgba(0,0,0,.6)', 10 * k, 3 * k); c.fillText(f.lines[0], cw / 2, sy - 24); shadow(); }
+    /* the gold contacts, on the photo */
+    const n = 15, gap = 6, gw = (cw - 124 - 36 - gap * (n - 1)) / n;
+    for(let q = 0; q < n; q++){ const gx = 62 + 18 + q * (gw + gap), gh = q % 2 ? sh2 - 38 : sh2 - 28; shadow('rgba(0,0,0,.55)', 7 * k, 3 * k); rr(gx, sy + 14, gw, gh, 4); c.fillStyle = linear(gx, 0, gx + gw, 0, [[0, '#B8860B'], [.3, '#FFE9A8'], [.6, '#F5B933'], [1, '#A87408']]); c.fill(); shadow(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(gx + 5, sy + 20, 4, gh - 14); }
+    c.fillStyle = linear(0, 0, cw * .9, ch * .5, [[0, 'rgba(255,255,255,.22)'], [.3, 'rgba(255,255,255,.05)'], [.31, 'rgba(255,255,255,0)']]); c.fillRect(0, 0, cw, ch);
+    c.restore();
+    path(); c.lineWidth = 4; c.strokeStyle = linear(0, 0, cw, ch, [[0, 'rgba(255,255,255,.55)'], [.5, 'rgba(255,255,255,.08)'], [1, 'rgba(255,255,255,.25)']]); c.stroke();
+    /* the lock switch on the left edge */
+    c.fillStyle = '#0B0C10'; rr(-4, 520, 26, 96, 8); c.fill(); rr(1, 530, 15, 44, 5); c.fillStyle = linear(0, 0, 20, 0, [[0, '#E7EAF0'], [1, '#9CA4B4']]); c.fill();
+    c.restore();
+  }
+  SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
+  SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); };
+
+  SH.card1 = (x, y, w, h) => { const k = .9; card(x + w / 2, y + h / 2, w * k, h * k, -.07, 0, S.cur.small); };
+  SH.card3 = (x, y, w, h) => {
+    const k = .92, cw = w * k, ch = h * k;
+    card(x + w / 2, y + h / 2, cw, ch, .035, 0, S.cur.small);
+    c.save(); c.translate(x + w / 2, y + h / 2 - ch / 2 + 4); c.rotate(.035 - .05); c.fillStyle = rgba(PAL.ac, .22); c.fillRect(-w * .09, -w * .026, w * .18, w * .052); c.restore();
   };
-  SH.cassette = (x, y, w, h) => {
-    shadow('rgba(16,35,63,.25)', 30, 14); rr(x, y, w, h, w * .04); c.fillStyle = lite(.78); c.fill(); shadow(); c.lineWidth = 6; c.strokeStyle = dark(); c.stroke();
-    const lx = x + w * .07, ly = y + h * .09, lw = w * .86, lh = h * .56; rr(lx, ly, lw, lh, 12); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 3; c.strokeStyle = lite(.4); c.stroke();
-    c.fillStyle = acc(); c.fillRect(lx, ly + lh * .06, lw, lh * .09);
-    const px = lx + lw * .05, py = ly + lh * .2, pw = lw * .9, ph = lh * .74; put(0, () => rr(px, py, pw, ph, 8), px, py, pw, ph);
-    c.fillStyle = dark(); c.textAlign = 'left'; c.font = '800 ' + Math.round(h * .07) + 'px Inter, sans-serif'; c.fillText('MEMORY', lx + lw * .05, ly + lh * .135 + 2);
-    c.textAlign = 'right'; c.fillText('A', lx + lw * .95, ly + lh * .135 + 2);
-    c.beginPath(); c.moveTo(x + w * .2, y + h); c.lineTo(x + w * .26, y + h * .74); c.lineTo(x + w * .74, y + h * .74); c.lineTo(x + w * .8, y + h); c.closePath(); c.fillStyle = dark(); c.fill();
-    [.38, .62].forEach(f => { const rx = x + w * f, ry = y + h * .86; c.beginPath(); c.arc(rx, ry, w * .055, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = dark(); c.lineWidth = 3; for(let a = 0; a < 6; a++){ c.beginPath(); c.moveTo(rx, ry); c.lineTo(rx + Math.cos(a * 1.047) * w * .05, ry + Math.sin(a * 1.047) * w * .05); c.stroke(); } });
-    [[.04, .06], [.96, .06], [.04, .94], [.96, .94]].forEach(p => { c.beginPath(); c.arc(x + w * p[0], y + h * p[1], 7, 0, 7); c.fillStyle = dark(); c.fill(); });
-  };
-  SH.nokia = (x, y, w, h) => {
-    shadow('rgba(16,35,63,.3)', 34, 16); rr(x, y, w, h, w * .2); const g = c.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, mix(PAL.dk, '#FFFFFF', .15)); g.addColorStop(1, PAL.dk); c.fillStyle = g; c.fill(); shadow();
-    rr(x + w * .36, y + h * .035, w * .28, h * .012, 4); c.fillStyle = 'rgba(255,255,255,.35)'; c.fill();
-    const sx = x + w * .12, sy = y + h * .075, sw = w * .76, sh = h * .33; rr(sx - 8, sy - 8, sw + 16, sh + 16, w * .06); c.fillStyle = lite(.5); c.fill();
-    put(0, () => rr(sx, sy, sw, sh, w * .04), sx, sy, sw, sh);
-    c.save(); rr(sx, sy, sw, sh, w * .04); c.clip(); c.fillStyle = 'rgba(255,255,255,.12)'; c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx + sw * .6, sy); c.lineTo(sx, sy + sh * .5); c.closePath(); c.fill(); c.restore();
-    const ny = y + h * .54; c.beginPath(); c.ellipse(x + w * .5, ny, w * .17, h * .04, 0, 0, 7); c.fillStyle = lite(.3); c.fill(); c.beginPath(); c.ellipse(x + w * .5, ny, w * .06, h * .02, 0, 0, 7); c.fillStyle = PAL.dk; c.fill();
-    [.22, .78].forEach(f => { rr(x + w * f - w * .09, ny - h * .035, w * .18, h * .035, 8); c.fillStyle = lite(.3); c.fill(); });
-    for(let r = 0; r < 4; r++) for(let k = 0; k < 3; k++){ const kx = x + w * (.14 + k * .27), ky = y + h * (.62 + r * .08); rr(kx, ky, w * .23, h * .06, 12); c.fillStyle = lite(.82); c.fill(); }
-  };
-  SH.sd = (x, y, w, h) => {
-    const cut = w * .17, R = w * .08; const path = () => { c.beginPath(); c.moveTo(x + R, y); c.lineTo(x + w - cut, y); c.lineTo(x + w, y + cut); c.lineTo(x + w, y + h - R); c.arcTo(x + w, y + h, x + w - R, y + h, R); c.lineTo(x + R, y + h); c.arcTo(x, y + h, x, y + h - R, R); c.lineTo(x, y + R); c.arcTo(x, y, x + R, y, R); c.closePath(); };
-    shadow('rgba(16,35,63,.3)', 36, 18); path(); const g = c.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, mix(PAL.dk, '#FFFFFF', .2)); g.addColorStop(1, PAL.dk); c.fillStyle = g; c.fill(); shadow();
-    c.save(); path(); c.clip(); c.fillStyle = acc(); c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w, y + h * .1); c.bezierCurveTo(x + w * .7, y + h * .2, x + w * .3, y + h * .04, x, y + h * .14); c.closePath(); c.fill(); c.restore();
-    c.fillStyle = '#fff'; c.beginPath(); c.arc(x + w * .12, y + h * .075, w * .05, 0, 7); c.fill(); c.fillStyle = acc(); c.font = '800 ' + Math.round(w * .06) + 'px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('P', x + w * .12, y + h * .075 + w * .02);
-    c.fillStyle = '#fff'; c.textAlign = 'left'; c.font = '900 ' + Math.round(w * .095) + 'px Inter, sans-serif'; c.fillText('MEMORY', x + w * .2, y + h * .09);
-    const lx = x + w * .09, ly = y + h * .19, lw = w * .82, lh = h * .5; rr(lx, ly, lw, lh, 10); c.fillStyle = '#FFFCF3'; c.fill(); put(0, () => rr(lx + 8, ly + 8, lw - 16, lh - 16, 6), lx + 8, ly + 8, lw - 16, lh - 16);
-    const sy = y + h * .75, sh = h * .2; rr(x + w * .1, sy, w * .8, sh, 8); c.fillStyle = '#0B0C10'; c.fill();
-    for(let i = 0; i < 8; i++){ const pw = w * .8 * .09, px = x + w * .1 + w * .8 * (.045 + i * .115); const gg = c.createLinearGradient(px, 0, px + pw, 0); gg.addColorStop(0, '#B8860B'); gg.addColorStop(.4, '#FFE9A8'); gg.addColorStop(1, '#C9921A'); rr(px, sy + sh * .12, pw, sh * (i % 2 ? .62 : .72), 4); c.fillStyle = gg; c.fill(); }
-    c.fillStyle = '#0B0C10'; rr(x - 3, y + h * .36, w * .035, h * .12, 4); c.fill();
-  };
-  SH.stamp = (x, y, w, h) => {
-    const r = w * .026, n = 9, m = Math.round(9 * h / w);
-    shadow('rgba(16,35,63,.25)', 30, 14); scallop(x, y, w, h, r, n, m); c.fillStyle = '#fff'; c.fill(); shadow();
-    const ix = x + w * .1, iy = y + h * .08, iw = w * .8, ih = h * .72; put(0, () => { c.beginPath(); c.rect(ix, iy, iw, ih); }, ix, iy, iw, ih);
-    c.lineWidth = 3; c.strokeStyle = dark(); c.strokeRect(ix - 8, iy - 8, iw + 16, ih + 16);
-    c.fillStyle = dark(); c.textAlign = 'left'; c.font = '800 ' + Math.round(w * .05) + 'px ' + HS; c.fillText('বাংলাদেশ', ix - 6, y + h * .91); c.textAlign = 'right'; c.font = '900 ' + Math.round(w * .08) + 'px ' + HS; c.fillText('৫.০০', ix + iw + 6, y + h * .92);
-    c.save(); c.globalAlpha = .45; c.strokeStyle = acc(); c.lineWidth = 5; const px = x + w * .83, py = y + h * .28; c.beginPath(); c.arc(px, py, w * .13, 0, 7); c.stroke(); c.beginPath(); c.arc(px, py, w * .09, 0, 7); c.stroke(); for(let i = 0; i < 4; i++){ c.beginPath(); c.moveTo(px - w * .3, py - w * .06 + i * w * .04); c.lineTo(px - w * .14, py - w * .06 + i * w * .04); c.stroke(); } c.restore();
-  };
-  SH.shapla = (x, y, w, h) => {
-    const cx = x + w / 2, by = y + h * .8, green = mix('#2E9E5B', PAL.ac, .15);
-    c.beginPath(); c.ellipse(cx, by + h * .06, w * .49, h * .13, 0, 0, 7); c.fillStyle = green; shadow('rgba(16,35,63,.2)', 24, 10); c.fill(); shadow();
-    c.beginPath(); c.ellipse(cx, by + h * .06, w * .49, h * .13, 0, 0, 7); c.lineWidth = 4; c.strokeStyle = mix(green, '#000000', .25); c.stroke();
-    c.beginPath(); c.moveTo(cx, by + h * .06); c.lineTo(cx + w * .49, by + h * .02); c.lineTo(cx + w * .3, by - h * .03); c.closePath(); c.fillStyle = PAL.bg; c.fill();
-    const petal = (ang, len, wid, col) => { c.save(); c.translate(cx, by); c.rotate(ang); c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(wid, -len * .25, wid * .7, -len * .8, 0, -len); c.bezierCurveTo(-wid * .7, -len * .8, -wid, -len * .25, 0, 0); c.fillStyle = col; c.fill(); c.lineWidth = 3; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .2); c.stroke(); c.restore(); };
-    petal(-1.2, h * .56, w * .2, lite(.62)); petal(1.2, h * .56, w * .2, lite(.62)); petal(-.75, h * .66, w * .22, lite(.74)); petal(.75, h * .66, w * .22, lite(.74));
-    const front = () => { c.beginPath(); [[-.42, .6], [.42, .6], [0, .74]].forEach(p => { const L = h * p[1], W2 = w * .21, A = p[0]; const cs = Math.cos(A), sn = Math.sin(A), T = (px, py) => [cx + px * cs - py * sn, by + px * sn + py * cs]; let q = T(0, 0); c.moveTo(q[0], q[1]); let a = T(W2, -L * .25), b = T(W2 * .7, -L * .8), d = T(0, -L); c.bezierCurveTo(a[0], a[1], b[0], b[1], d[0], d[1]); a = T(-W2 * .7, -L * .8); b = T(-W2, -L * .25); d = T(0, 0); c.bezierCurveTo(a[0], a[1], b[0], b[1], d[0], d[1]); }); };
-    put(0, front, x + w * .12, y + h * .02, w * .76, h * .8);
-    c.beginPath(); c.arc(cx, by - h * .02, w * .035, 0, 7); c.fillStyle = '#F5B933'; c.fill();
-  };
-  SH.kite = (x, y, w, h) => {
-    const cx = x + w / 2, top = y, mid = y + h * .3, bot = y + h * .62;
-    const dia = () => { c.beginPath(); c.moveTo(cx, top); c.lineTo(x + w, mid); c.lineTo(cx, bot); c.lineTo(x, mid); c.closePath(); };
-    shadow('rgba(16,35,63,.22)', 26, 12); dia(); c.fillStyle = '#fff'; c.fill(); shadow();
-    put(0, dia, x, y, w, h * .62); c.save(); dia(); c.clip(); c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 4; c.beginPath(); c.moveTo(cx, top); c.lineTo(cx, bot); c.moveTo(x, mid); c.lineTo(x + w, mid); c.stroke(); c.restore();
-    dia(); c.lineWidth = 10; c.lineJoin = 'round'; c.strokeStyle = acc(); c.stroke();
-    c.strokeStyle = dark(); c.lineWidth = 4; c.beginPath(); c.moveTo(cx, bot); for(let i = 1; i <= 8; i++){ c.quadraticCurveTo(cx + (i % 2 ? 1 : -1) * w * .16, y + h * (.62 + .046 * (i - .5)), cx, y + h * (.62 + .046 * i)); } c.stroke();
-    [.72, .82, .92].forEach((f, i) => { const by = y + h * f, bx = cx + (i % 2 ? 1 : -1) * w * .03; c.fillStyle = i % 2 ? acc() : lite(.35); c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + w * .1, by - h * .02); c.lineTo(bx + w * .1, by + h * .02); c.closePath(); c.fill(); c.beginPath(); c.moveTo(bx, by); c.lineTo(bx - w * .1, by - h * .02); c.lineTo(bx - w * .1, by + h * .02); c.closePath(); c.fill(); });
-  };
-  SH.slate = (x, y, w, h) => {
-    const wood = '#C28A55';
-    shadow('rgba(16,35,63,.28)', 30, 14); rr(x, y, w, h, w * .04); c.fillStyle = wood; c.fill(); shadow(); c.lineWidth = 5; c.strokeStyle = mix(wood, '#000000', .35); c.stroke();
-    const bx = x + w * .05, by = y + h * .06, bw = w * .9, bh = h * .76; rr(bx, by, bw, bh, 10); c.fillStyle = '#1E3A33'; c.fill();
-    put(0, () => rr(bx + 6, by + 6, bw - 12, bh - 12, 6), bx + 6, by + 6, bw - 12, bh - 12);
-    c.save(); rr(bx, by, bw, bh, 10); c.clip(); c.strokeStyle = 'rgba(255,255,255,.2)'; c.lineWidth = 8; c.beginPath(); c.moveTo(bx - 20, by + bh * .3); c.quadraticCurveTo(bx + bw * .4, by + bh * .2, bx + bw + 20, by + bh * .12); c.stroke(); c.restore();
-    rr(bx, by, bw, bh, 10); c.lineWidth = 4; c.strokeStyle = mix(wood, '#000000', .3); c.stroke();
-    const ty = y + h * .87; rr(x + w * .05, ty, w * .9, h * .07, 6); c.fillStyle = mix(wood, '#FFFFFF', .15); c.fill();
-    rr(x + w * .12, ty + h * .012, w * .12, h * .026, 6); c.fillStyle = '#fff'; c.fill(); rr(x + w * .27, ty + h * .012, w * .09, h * .026, 6); c.fillStyle = '#FFE9A8'; c.fill();
-    rr(x + w * .66, ty + h * .006, w * .2, h * .04, 6); c.fillStyle = '#7C5A3A'; c.fill();
-  };
-  SH.flag = (x, y, w, h) => {
-    const fx = x + w * .05, fy = y + h * .04, fw = w * .95, fh = h * .74;
-    c.fillStyle = dark(); rr(x, y, w * .022, h, 6); c.fill(); c.beginPath(); c.arc(x + w * .011, y, w * .02, 0, 7); c.fillStyle = '#F5B933'; c.fill();
-    shadow('rgba(16,35,63,.25)', 28, 12); c.beginPath(); c.moveTo(fx, fy); c.bezierCurveTo(fx + fw * .3, fy - fh * .06, fx + fw * .65, fy + fh * .06, fx + fw, fy); c.lineTo(fx + fw, fy + fh); c.bezierCurveTo(fx + fw * .65, fy + fh * 1.06, fx + fw * .3, fy + fh * .94, fx, fy + fh); c.closePath(); c.fillStyle = '#006A4E'; c.fill(); shadow();
-    const dx = fx + fw * .46, dy = fy + fh * .5, dr = fh * .38; put(0, () => { c.beginPath(); c.arc(dx, dy, dr, 0, 7); }, dx - dr, dy - dr, dr * 2, dr * 2);
-    c.beginPath(); c.arc(dx, dy, dr, 0, 7); c.lineWidth = 10; c.strokeStyle = '#F42A41'; c.stroke();
-  };
-  SH.heart = (x, y, w, h) => {
-    const P = () => { const sx = w / 100, sy = h / 100; c.beginPath(); c.moveTo(x + 50 * sx, y + 92 * sy); c.bezierCurveTo(x + 8 * sx, y + 62 * sy, x - 2 * sx, y + 30 * sy, x + 20 * sx, y + 14 * sy); c.bezierCurveTo(x + 36 * sx, y + 3 * sy, x + 50 * sx, y + 12 * sy, x + 50 * sx, y + 26 * sy); c.bezierCurveTo(x + 50 * sx, y + 12 * sy, x + 64 * sx, y + 3 * sy, x + 80 * sx, y + 14 * sy); c.bezierCurveTo(x + 102 * sx, y + 30 * sy, x + 92 * sx, y + 62 * sy, x + 50 * sx, y + 92 * sy); c.closePath(); };
-    shadow('rgba(16,35,63,.25)', 30, 14); P(); c.fillStyle = '#fff'; c.fill(); shadow(); put(0, P, x, y, w, h); P(); c.lineWidth = 14; c.lineJoin = 'round'; c.strokeStyle = '#fff'; c.stroke(); P(); c.lineWidth = 4; c.strokeStyle = acc(); c.stroke();
-  };
-  SH.arch = (x, y, w, h) => {
-    const A = (ix, iy, iw, ih) => { c.beginPath(); c.moveTo(ix, iy + ih); c.lineTo(ix, iy + iw / 2); c.arc(ix + iw / 2, iy + iw / 2, iw / 2, Math.PI, 0); c.lineTo(ix + iw, iy + ih); c.closePath(); };
-    shadow('rgba(16,35,63,.22)', 30, 14); A(x, y, w, h * .94); c.fillStyle = '#fff'; c.fill(); shadow();
-    const m = w * .06; put(0, () => A(x + m, y + m, w - m * 2, h * .94 - m * 2), x + m, y + m, w - m * 2, h * .94 - m * 2);
-    A(x, y, w, h * .94); c.lineWidth = 3; c.strokeStyle = acc(); c.stroke();
-    rr(x - w * .04, y + h * .93, w * 1.08, h * .035, 6); c.fillStyle = lite(.5); c.fill(); rr(x - w * .09, y + h * .96, w * 1.18, h * .04, 6); c.fillStyle = lite(.7); c.fill();
-  };
-  SH.polaroid2 = (x, y, w, h) => {
-    const pw = w * .5, ph = pw * 1.2;
-    const one = (px, py, ang, i) => { c.save(); c.translate(px + pw / 2, py + ph / 2); c.rotate(ang); c.translate(-(px + pw / 2), -(py + ph / 2)); shadow('rgba(16,35,63,.28)', 30, 14); rr(px, py, pw, ph, 10); c.fillStyle = '#fff'; c.fill(); shadow(); const m = pw * .07, ps = pw - m * 2; put(i, () => rr(px + m, py + m, ps, ps * 1.02, 5), px + m, py + m, ps, ps * 1.02); tape(px + pw / 2, py + 2, .05, pw * .32); c.restore(); };
-    one(x + w * .04, y + h * .05, -.1, 0); one(x + w * .44, y + h * .22, .08, 1);
-  };
-  SH.thennow = (x, y, w, h) => {
-    const aw = w * .45, ah = h * .86, A = (ix, iy, iw, ih) => { c.beginPath(); c.moveTo(ix, iy + ih); c.lineTo(ix, iy + iw / 2); c.arc(ix + iw / 2, iy + iw / 2, iw / 2, Math.PI, 0); c.lineTo(ix + iw, iy + ih); c.closePath(); };
-    [[x, 0, 'তখন'], [x + w - aw, 1, 'এখন']].forEach(p => { const ax = p[0], i = p[1]; shadow('rgba(16,35,63,.22)', 26, 12); A(ax, y, aw, ah); c.fillStyle = '#fff'; c.fill(); shadow(); const m = aw * .06; put(i, () => A(ax + m, y + m, aw - m * 2, ah - m * 2), ax + m, y + m, aw - m * 2, ah - m * 2); A(ax, y, aw, ah); c.lineWidth = 3; c.strokeStyle = acc(); c.stroke();
-      c.font = '800 ' + Math.round(h * .075) + 'px ' + HS; const tw = c.measureText(p[2]).width + 44; rr(ax + aw / 2 - tw / 2, y + ah + h * .03, tw, h * .1, h * .05); c.fillStyle = i ? acc() : dark(); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText(p[2], ax + aw / 2, y + ah + h * .03 + h * .073); });
-    c.beginPath(); c.arc(x + w / 2, y + ah * .5, h * .06, 0, 7); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = acc(); c.lineWidth = 6; c.lineCap = 'round'; c.lineJoin = 'round'; const mx = x + w / 2, my = y + ah * .5; c.beginPath(); c.moveTo(mx - h * .03, my); c.lineTo(mx + h * .03, my); c.moveTo(mx + h * .008, my - h * .025); c.lineTo(mx + h * .035, my); c.lineTo(mx + h * .008, my + h * .025); c.stroke();
+  SH.card2 = (x, y, w, h) => {
+    const ch = h * .8, cw = ch * .8;
+    card(x + w * .31, y + h * .47, cw, ch, -.1, 0, '');
+    card(x + w * .69, y + h * .55, cw, ch, .08, 1, S.cur.small);
   };
 
   /* ---------- the whole card: a soft paper, the object with the photo, a few words below ---------- */
-  function paper(W, H){
-    c.fillStyle = PAL.bg; c.fillRect(0, 0, W, H);
-    c.fillStyle = PAL.bg2; c.beginPath(); c.arc(W * .08, H * .1, W * .34, 0, 7); c.fill(); c.beginPath(); c.arc(W * .95, H * .92, W * .42, 0, 7); c.fill();
-    c.globalAlpha = .55; c.fillStyle = PAL.bg2; c.beginPath(); c.arc(W * .92, H * .12, W * .12, 0, 7); c.fill(); c.globalAlpha = 1;
-    c.fillStyle = mix(PAL.ac, '#FFFFFF', .7); let s = 11; const r = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-    for(let i = 0; i < 46; i++){ const px = r() * W, py = r() * H, rad = 3 + r() * 5; c.globalAlpha = .35 + r() * .35; c.beginPath(); c.arc(px, py, rad, 0, 7); c.fill(); } c.globalAlpha = 1;
-    c.strokeStyle = mix(PAL.ac, '#FFFFFF', .72); c.lineWidth = 4; c.globalAlpha = .6; [[.14, .22], [.86, .74], [.2, .86]].forEach(p => { const px = W * p[0], py = H * p[1]; c.beginPath(); c.moveTo(px - 16, py); c.lineTo(px + 16, py); c.moveTo(px, py - 16); c.lineTo(px, py + 16); c.stroke(); }); c.globalAlpha = 1;
+    const radial = (x, y, r, stops) => { const g = c.createRadialGradient(x, y, 0, x, y, r); stops.forEach(p => g.addColorStop(p[0], p[1])); return g; };
+  /* a very light paper of the chosen colour, with a hint of the main colour at the edges, nothing else: flat to the eye */
+  function paper(W, H, cx, cy){
+    const base = mix(PAL.bg, '#FFFFFF', .62); c.fillStyle = base; c.fillRect(0, 0, W, H);
+    c.fillStyle = radial(cx, cy, Math.max(W, H) * .85, [[0, rgba(base, 0)], [1, rgba(PAL.ac, .075)]]); c.fillRect(0, 0, W, H);
   }
   function render1(W, H, d, key){
-    PAL = THEMES[S.theme] || THEMES.sepia; S.cur = d; c.textBaseline = 'alphabetic';
-    paper(W, H); const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
+    PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
+    const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
     const title = d.title || 'আমাদের সেই দিন', tt = fit(title, mw, 2, 78, 44, '800', DISP), ll = d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
-    const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small ? 84 : 0);
+    const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
     const GAP = 56, top = H * .06, bottom = H - 110, regionH = bottom - top - capH - GAP;
     const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
     const ox = (W - ow) / 2, oy = g0;
+    paper(W, H, W / 2, oy + oh / 2);
     c.save(); SH[key](ox, oy, ow, oh); c.restore();
     let y = oy + oh + GAP; c.textAlign = 'center';
     c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .2;
     if(ll){ c.fillStyle = mix(PAL.dk, '#FFFFFF', .25); c.font = '500 ' + ll.size + 'px ' + HS; y += 22; ll.lines.forEach(s => { y += ll.size * 1.5; c.fillText(s, W / 2, y - ll.size * .45); }); }
-    if(d.small){ c.font = '700 30px ' + HS; const sw = c.measureText(d.small).width + 48; y += 26; rr(W / 2 - sw / 2, y, sw, 54, 27); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .5); c.stroke(); c.fillStyle = PAL.ac; c.fillText(d.small, W / 2, y + 37); }
+    if(d.small && !t.card){ c.font = '700 30px ' + HS; const sw = c.measureText(d.small).width + 48; y += 26; rr(W / 2 - sw / 2, y, sw, 54, 27); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = mix(PAL.ac, '#FFFFFF', .5); c.stroke(); c.fillStyle = PAL.ac; c.fillText(d.small, W / 2, y + 37); }
     c.fillStyle = mix(PAL.dk, '#FFFFFF', .55); c.font = '800 22px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 46);
   }
 
@@ -312,7 +317,7 @@
   }
 
   /* ---------- the form ---------- */
-  function paintTpls(){ $('tpls').innerHTML = TPLS.map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : '') + '</span></button>').join(''); }
+  function paintTpls(){ $('tpls').innerHTML = TPLS.filter(t => !t.off).map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : '') + '</span></button>').join(''); }
   function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
@@ -345,7 +350,7 @@
 
   /* what was written last time is kept in this browser (not the photos), so the next card starts faster */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl && !t.off)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
 
   /* ---------- download, share, caption ---------- */
   const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
@@ -359,7 +364,7 @@
   $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  loadDraft(); PAL = THEMES[S.theme] || THEMES.sepia; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
+  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
   draw(); thumbs();
   track('memory_view', {});
