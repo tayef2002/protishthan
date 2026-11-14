@@ -58,6 +58,9 @@ yes('the page is HIDDEN for now: no tab in the top bar (the line is kept as a co
 yes('production rewrites /b/* to the page, and the local server does the same', /\/b\/\*\s+\/batch\s+200/.test(read('_redirects')) && /\/\^\\\/b\\\/\[\^\\\/\]\+\\\/\[a-z\]\+-\\d\{4\}/.test(read('server.js')));
 yes('the css follows the theme from one place (.bt-page[data-theme]), is mobile-first friendly and respects reduced motion', /prefers-reduced-motion:reduce/.test(css) && /@media\(max-width:560px\)/.test(css) && /\.bt \[hidden\]\{display:none!important\}/.test(css));
 
+yes('a member can make a share picture of the batch: drawn in the browser (canvas, 1080x1350), downloaded or shared as a file, nothing uploaded, link uses the member\'s own code', /async function makeImage\(/.test(page) && /cv\.width = W; cv\.height = H/.test(page) && /const W = 1080, H = 1350/.test(page) && /toBlob\(r, 'image\/png'\)/.test(page) && /navigator\.canShare/.test(page) && /id="mkImg"/.test(page) && /makeImage\(k, inst, b, link\)/.test(page) && /const link = linkFor\(k, me\.ref\)/.test(page) && !/fetch\(|rpc\(/.test(page.slice(page.indexOf('async function makeImage'), page.indexOf('/* join or open'))));
+yes('the picture has a colour for every theme the page offers', ['blue', 'violet', 'teal', 'amber', 'rose'].every(t => new RegExp('\\b' + t + ': \\[\'#').test(page)));
+
 // the SQL file keeps its promises
 yes('the SQL closes both tables (RLS on, no grants to anon, only select to authenticated) and every function is security definer with a pinned search_path', /enable row level security/.test(sql) && /revoke all on public\.batches, public\.batch_members from anon, authenticated/.test(sql) && (sql.match(/security definer set search_path = public/g) || []).length === 6);
 yes('only batch_lookup is open to anon', /grant execute on function public\.batch_lookup\(text, text, int\) to anon, authenticated/.test(sql) && (sql.match(/to anon/g) || []).length === 1);

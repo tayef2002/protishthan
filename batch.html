@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=13">
+<link rel="stylesheet" href="/batch.css?v=14">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -319,7 +319,9 @@
         '<div class="bt-msgs" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
         '<div class="bt-msg" id="msgBox">' + esc(msgs[0]) + '</div>' +
         '<div class="bt-share"><a class="wa" id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a><a class="fb" id="shFb" target="_blank" rel="noopener" href="#">Facebook</a></div>' +
-        '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button></div>' +
+        '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button>' +
+        '<button type="button" class="bt-copy" style="margin-top:8px;width:100%;background:#fff;color:var(--ac);border:1.5px solid var(--ac)" id="mkImg">ব্যাচের ছবি বানান (গ্রুপে দিতে)</button>' +
+        '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div></div></div>' +
         '<div class="bt-panel">' + (isConv ? '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, লাইন আর রং বদলাতে পারেন।</p>' + lookHtml(k, inst, b.line, b.theme, false) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
         '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div></div>';
     }
@@ -336,6 +338,7 @@
       const copy = async (txt, what) => { try{ await navigator.clipboard.writeText(txt); }catch(e){ const t = $('lnk'); t.select(); try{ document.execCommand('copy'); }catch(_){} } toast(what + ' কপি হয়েছে।'); track('batch_copy', { w: what }); };
       $('cpLink').onclick = () => copy(link, 'লিংক');
       $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা');
+      $('mkImg').onclick = () => makeImage(k, inst, b, link);
       $('shWa').onclick = () => track('batch_share', { ch: 'wa' }); $('shFb').onclick = () => track('batch_share', { ch: 'fb' });
       if(isConv) bindLook(k, b.id, false);
       $('leave').onclick = async () => {
@@ -346,6 +349,61 @@
       };
     }
   }
+  /* ---------- the batch picture (drawn here in the browser, nothing is uploaded) ---------- */
+  const IMG_TH = { blue: ['#1A56DB', '#7C3AED', '#EAF1FF'], violet: ['#6D28D9', '#DB2777', '#F1EBFF'], teal: ['#0F766E', '#1A56DB', '#E3F6F2'], amber: ['#B45309', '#DB2777', '#FFF1D6'], rose: ['#BE123C', '#7C3AED', '#FFE9EE'] };
+  let IMG_URL = '', IMG_FILE = null;
+  async function makeImage(k, inst, b, link){
+    const btn = $('mkImg'); btn.disabled = true; btn.textContent = 'ছবি বানানো হচ্ছে…';
+    try{
+      try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('600 40px "Hind Siliguri"'), document.fonts.load('800 40px Inter')]); }catch(e){}
+      const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+      const th = IMG_TH[b.theme] || IMG_TH.blue, n = b.members, HS = '"Hind Siliguri", Inter, sans-serif';
+      const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#fff'); bg.addColorStop(1, th[2]); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+      let g = c.createRadialGradient(130, 120, 0, 130, 120, 560); g.addColorStop(0, th[2]); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      g = c.createRadialGradient(W - 90, H - 60, 0, W - 90, H - 60, 620); g.addColorStop(0, th[1] + '33'); g.addColorStop(1, th[1] + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+      const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = txt.split(/\s+/), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
+      // chip
+      c.font = '700 30px ' + HS; const chip = LVT[k.lv] + ' ব্যাচ', cw = c.measureText(chip).width + 64;
+      rr(W / 2 - cw / 2, 92, cw, 62, 31); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = th[0] + '44'; c.stroke();
+      c.fillStyle = th[0]; c.fillText(chip, W / 2, 134);
+      // institution name: shrinks to fit two lines
+      let size = 84, lines;
+      do{ lines = wrap(inst, W - 150, '700 ' + size + 'px ' + HS, 3); size -= 4; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 150)) && size > 52);
+      c.font = '700 ' + (size + 4) + 'px ' + HS; c.fillStyle = '#0B1B4D'; let y = 270; const lh = (size + 4) * 1.22;
+      lines.forEach(l => { c.fillText(l, W / 2, y); y += lh; });
+      c.font = '700 54px ' + HS; c.fillStyle = th[0]; c.fillText(LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ', W / 2, y + 6); y += 70;
+      // the line
+      const ln = wrap(lineFor(k, inst, b.line), W - 220, '600 40px ' + HS, 4); c.font = '600 40px ' + HS; c.fillStyle = '#334155';
+      y += 30; ln.forEach(l => { c.fillText(l, W / 2, y); y += 62; });
+      // seats
+      const goal = goalOf(n), shown = Math.min(goal, 50), filled = Math.min(n, shown), cols = Math.min(shown, 10), rows = Math.ceil(shown / cols), gap = 22, d = 36;
+      const gw = cols * d + (cols - 1) * gap, gx = (W - gw) / 2; y += 28;
+      for(let i = 0; i < shown; i++){ const cx = gx + (i % cols) * (d + gap) + d / 2, cy = y + Math.floor(i / cols) * (d + gap) + d / 2; c.beginPath(); c.arc(cx, cy, d / 2 - 2, 0, 7); if(i < filled){ c.fillStyle = th[0]; c.fill(); } else { c.lineWidth = 3; c.strokeStyle = th[0] + '55'; c.stroke(); } }
+      y += rows * (d + gap) + 22;
+      c.font = '800 46px ' + HS; c.fillStyle = '#0B1B4D'; c.fillText(bn(n) + ' জন যুক্ত হয়েছেন', W / 2, y + 30);
+      c.font = '600 30px ' + HS; c.fillStyle = '#64748B'; c.fillText('পরের লক্ষ্য ' + bn(goal) + ' জন', W / 2, y + 76);
+      // invite bar
+      const by = H - 250; rr(70, by, W - 140, 150, 34); c.fillStyle = th[0]; c.fill();
+      c.fillStyle = '#fff'; c.font = '700 34px ' + HS; c.fillText('আমাদের ব্যাচে যোগ দাও', W / 2, by + 56);
+      const shortLink = link.replace(/^https?:\/\//, ''); let fs = 38; c.font = '800 ' + fs + 'px Inter, sans-serif';
+      while(c.measureText(shortLink).width > W - 220 && fs > 22){ fs -= 2; c.font = '800 ' + fs + 'px Inter, sans-serif'; }
+      c.fillText(shortLink, W / 2, by + 112);
+      c.fillStyle = '#64748B'; c.font = '700 26px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM', W / 2, H - 56);
+      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+      if(!blob) throw new Error('png');
+      if(IMG_URL) URL.revokeObjectURL(IMG_URL);
+      IMG_URL = URL.createObjectURL(blob); IMG_FILE = new File([blob], 'amar-batch-' + k.lv + '-' + k.year + '.png', { type: 'image/png' });
+      $('imgPrev').src = IMG_URL; $('imgBox').hidden = false;
+      $('imgDl').onclick = () => { const a = document.createElement('a'); a.href = IMG_URL; a.download = IMG_FILE.name; document.body.appendChild(a); a.click(); a.remove(); track('batch_image', { a: 'download' }); };
+      $('imgSh').hidden = !(navigator.canShare && navigator.canShare({ files: [IMG_FILE] }));
+      $('imgSh').onclick = async () => { try{ await navigator.share({ files: [IMG_FILE], text: msgsFor(k, inst, link)[0] }); track('batch_image', { a: 'share' }); }catch(e){} };
+      track('batch_image', { a: 'make' });
+    }catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন।'); }
+    btn.disabled = false; btn.textContent = 'ছবিটা আবার বানান';
+  }
+
   /* join or open: if the visitor is not signed in, remember what they wanted and send them to Google; the page does it when they come back */
   const INTENT = 'bt_intent';
   function setIntent(a, k, ref){ try{ localStorage.setItem(INTENT, JSON.stringify({ a, k, ref: ref || '', t: Date.now() })); }catch(e){} }
