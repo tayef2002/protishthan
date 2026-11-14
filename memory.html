@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=23">
+<link rel="stylesheet" href="/memory.css?v=24">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -55,6 +55,8 @@
       <div class="mc-f" id="phWrap">
         <label>২. ছবি <small id="phHint"></small></label>
         <div class="mc-slots" id="slots"></div>
+        <div class="mc-zoom" id="zoomBox" hidden><label for="zoom">ছবি বড় করুন</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"></div>
+        <small class="mc-note" id="dragHint" hidden>ছবিটা কার্ডের ওপর টেনে সরিয়ে ঠিক জায়গাটা দেখান।</small>
         <small class="mc-note">ছবি আপনার এই ব্রাউজারেই থাকে, রিফ্রেশ করলেও হারায় না। আমরা সার্ভারে নিই না।</small>
         <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
@@ -118,7 +120,7 @@
     { k: 'card3', n: 'পোস্টকার্ড', a: 1.28, ph: 1, card: 1, off: 1 },
     { k: 'card2', n: 'দুই ছবি', a: 1.2, ph: 2, card: 1, off: 1 }
   ];
-  const S = { tpl: 'mem1', theme: 'mint', size: 'post', photos: [null, null] };
+  const S = { tpl: 'mem1', theme: 'mint', size: 'post', photos: [null, null], pos: [{ x: .5, y: .5, z: 1 }, { x: .5, y: .5, z: 1 }], rec: false, sel: 0 };
   const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
   const DRAFT = 'mem_draft_v5';
 
@@ -133,14 +135,14 @@
   const wrap = (txt, maxW, font, maxLines) => { c.font = font; const out = []; String(txt).replace(/\r/g, '').split('\n').forEach(par => { const words = par.split(/\s+/).filter(Boolean); if(!words.length){ out.push(''); return; } let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } out.push(cur); }); while(out.length && out[out.length - 1] === '') out.pop(); while(out.length && out[0] === '') out.shift(); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
   function fit(txt, maxW, maxLines, max, min, weight, fam){ let sz = max, lines; do{ lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines + 1); sz -= 2; }while((lines.length > maxLines || lines.some(l => c.measureText(l).width > maxW)) && sz >= min); sz += 2; lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines); return { size: sz, lines }; }
   /* a photo cropped to fill the current clip; with no photo, a soft box that says "add a photo" */
-  function fill(img, x, y, w, h){
-    if(img){ const sc = Math.max(w / img.width, h / img.height), dw = img.width * sc, dh = img.height * sc; c.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh); return; }
+  function fill(img, x, y, w, h, pos){
+    if(img){ const z = pos ? pos.z : 1, sc = Math.max(w / img.width, h / img.height) * z, dw = img.width * sc, dh = img.height * sc, ox = Math.max(0, dw - w), oy = Math.max(0, dh - h), fx = pos ? pos.x : .5, fy = pos ? pos.y : .5; if(pos && S.rec){ pos.ox = ox; pos.oy = oy; } c.drawImage(img, x - ox * fx, y - oy * fy, dw, dh); return; }
     c.fillStyle = mix(PAL.ac, '#FFFFFF', .82); c.fillRect(x, y, w, h); const m = Math.min(w, h);
     c.fillStyle = mix(PAL.ac, '#FFFFFF', .55); c.beginPath(); c.arc(x + w / 2, y + h / 2 - m * .06, m * .1, 0, 7); c.fill(); rr(x + w / 2 - m * .2, y + h / 2 + m * .06, m * .4, m * .16, m * .06); c.fill();
     c.textAlign = 'center'; c.fillStyle = mix(PAL.ac, '#FFFFFF', .2); c.font = '700 ' + Math.max(22, Math.round(m * .07)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .34);
   }
   /* put a photo into a shape: pathFn draws the shape's outline, the box says how big the photo should be */
-  function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h); c.restore(); }
+  function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h, S.rec ? S.pos[i] : null); c.restore(); }
   /* ---------- the cards. A photo card lies on the paper like the card on the map pages of Unseen: a pale tint of the paper, a thin edge in the main colour, the photo inside it with soft corners, a short label under the photo, tilted a little. ---------- */
   const SH = {};
   const rgba = (hex, a) => { const q = hexRgb(hex); return 'rgba(' + q[0] + ',' + q[1] + ',' + q[2] + ',' + a + ')'; };
@@ -255,6 +257,7 @@
     /* the photo fills the black body of the card, inside a black border of plastic; the gold contacts lie on top of the photo */
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
     const sy = ch - 196, sh2 = 160;
+    if(S.rec && !page){ const m = c.getTransform(), pts = [[px, py], [px + pw, py], [px, py + ph], [px + pw, py + ph]].map(q => [m.a * q[0] + m.c * q[1] + m.e, m.b * q[0] + m.d * q[1] + m.f]); S.pos[i].k = k; S.pos[i].rect = [Math.min(...pts.map(q => q[0])), Math.min(...pts.map(q => q[1])), Math.max(...pts.map(q => q[0])), Math.max(...pts.map(q => q[1]))]; }
     if(page) paintPage(px, py, pw, ph, pr, page, sy - 38); else put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
     const FS = page ? .45 : 1, fa = a => 'rgba(8,9,13,' + (a * FS).toFixed(3) + ')';
@@ -279,7 +282,7 @@
       shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = '#7A5410'; c.fill(); shadow();
       c.save(); rr(gx, gy, gw, gh, 4); c.clip();
       c.fillStyle = gold; c.fillRect(gx, gy, gw, gh);
-      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph);
+      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph, S.rec ? S.pos[i] : null);
       c.globalAlpha = .42; c.globalCompositeOperation = 'multiply'; c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(gx, gy, gw, gh);
       c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = linear(0, gy, 0, gy + gh, [[0, 'rgba(255,255,255,.34)'], [.22, 'rgba(255,255,255,.06)'], [1, 'rgba(0,0,0,.18)']]); c.fillRect(gx, gy, gw, gh);
       c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(gx + 5, gy + 6, 4, gh - 14);
@@ -568,7 +571,7 @@
   async function render(){
     const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
-    paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
+    S.rec = true; paint(cv, sz.w, sz.h, data(), S.tpl, 1); S.rec = false; saveDraft();
   }
   const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
@@ -582,6 +585,7 @@
   function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
+    setTimeout(() => { if(typeof syncZoom === 'function') syncZoom(); }, 0);
     const t = TP(), n = t.ph; $('phWrap').hidden = n === 0; $('stepW').textContent = n === 0 ? '২.' : '৩.'; $('txt').maxLength = t.own ? 320 : 160; $('txt').placeholder = t.own ? 'আপনার স্মৃতিটা লিখুন…' : TXT_PH; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
     $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'thennow' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
     S.photos.forEach((im, i) => { const el = $('slots').querySelector('img[data-i="' + i + '"]'); if(el && im){ const s = document.createElement('canvas'); s.width = 160; s.height = 160; const x = s.getContext('2d'), sc = Math.max(160 / im.width, 160 / im.height); x.drawImage(im, 80 - im.width * sc / 2, 80 - im.height * sc / 2, im.width * sc, im.height * sc); el.src = s.toDataURL('image/jpeg', .7); } });
@@ -608,9 +612,25 @@
     if(any){ paintSlots(); draw(); thumbs(); }
   }
 
+  /* drag the photo on the card to show the right part of it; the slider (or the mouse wheel) enlarges it */
+  const hasPhoto = () => !TP().own && S.photos.some(Boolean);
+  const which = (px0) => { const t = TP(); if(t.ph < 2) return 0; return px0 > $('cv').width * .5 && S.photos[1] ? 1 : (S.photos[0] ? 0 : 1); };
+  function syncZoom(){ const on = hasPhoto(), p = S.pos[S.sel] || S.pos[0]; $('zoomBox').hidden = !on; $('dragHint').hidden = !on; if(on) $('zoom').value = Math.round(p.z * 100); $('cv').style.cursor = on ? 'grab' : ''; $('cv').style.touchAction = on ? 'none' : ''; }
+  (function(){
+    const cv = $('cv'); let drag = null;
+    const pt = e => { const r = cv.getBoundingClientRect(), k = cv.width / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k, k]; };
+    const inside = (i, x, y) => { const p = S.pos[i], r = p && p.rect; return !!r && x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3]; };
+    cv.addEventListener('pointerdown', e => { if(!hasPhoto()) return; const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; drag = { i, id: e.pointerId, x: e.clientX, y: e.clientY }; S.sel = i; try{ cv.setPointerCapture(e.pointerId); }catch(_){} cv.style.cursor = 'grabbing'; $('zoom').value = Math.round(S.pos[i].z * 100); e.preventDefault(); });
+    cv.addEventListener('pointermove', e => { if(!drag || e.pointerId !== drag.id) return; const p = S.pos[drag.i], k = pt(e)[2], dx = (e.clientX - drag.x) * k / (p.k || 1), dy = (e.clientY - drag.y) * k / (p.k || 1); drag.x = e.clientX; drag.y = e.clientY; if(p.ox > 1) p.x = Math.min(1, Math.max(0, p.x - dx / p.ox)); if(p.oy > 1) p.y = Math.min(1, Math.max(0, p.y - dy / p.oy)); draw(); });
+    const end = e => { if(drag && e.pointerId === drag.id){ drag = null; cv.style.cursor = hasPhoto() ? 'grab' : ''; track('memory_move', { t: S.tpl }); } };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+    cv.addEventListener('wheel', e => { if(!hasPhoto()) return; const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; e.preventDefault(); S.sel = i; const p = S.pos[i]; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); $('zoom').value = Math.round(p.z * 100); draw(); }, { passive: false });
+    $('zoom').addEventListener('input', () => { const p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; p.z = Math.min(3, Math.max(1, $('zoom').value / 100)); draw(); });
+  })();
+
   /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the slots in order */
   let target = 0;
-  $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; delPhoto(+x.dataset.x); paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
+  $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; S.pos[+x.dataset.x] = { x: .5, y: .5, z: 1 }; delPhoto(+x.dataset.x); paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
   $('file').onchange = async () => {
     const files = Array.from($('file').files || []).filter(f => /^image\//.test(f.type)); $('file').value = ''; if(!files.length) return;
     let slot = target, put1 = 0;
@@ -619,15 +639,15 @@
       try{
         let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
         const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-        S.photos[slot] = cv; savePhoto(slot, cv); slot++; put1++;
+        S.photos[slot] = cv; S.pos[slot] = { x: .5, y: .5, z: 1 }; savePhoto(slot, cv); slot++; put1++;
       }catch(e){ toast('একটা ছবি পড়া যায়নি।'); }
     }
     if(put1){ paintSlots(); draw(); }
   };
 
   /* what was written last time is kept in this browser (not the photos), so the next card starts faster */
-  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl && !t.off)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 320); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
+  function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value, pos: S.pos.map(p => ({ x: +p.x.toFixed(4), y: +p.y.toFixed(4), z: +p.z.toFixed(3) })) })); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl && !t.off)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 320); $('sm').value = String(d.sm || '').slice(0, 40); if(Array.isArray(d.pos)) d.pos.slice(0, 2).forEach((p, i) => { if(p && isFinite(p.x) && isFinite(p.y) && isFinite(p.z)) S.pos[i] = { x: Math.min(1, Math.max(0, p.x)), y: Math.min(1, Math.max(0, p.y)), z: Math.min(3, Math.max(1, p.z)) }; }); }catch(e){} }
 
   /* ---------- download, share, caption ---------- */
   const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
@@ -637,7 +657,7 @@
   function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
   $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { t: S.tpl, size: S.size, photos: S.photos.filter(Boolean).length }); toast('কার্ড ডাউনলোড হয়েছে।'); };
   $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { t: S.tpl }); }catch(e){} };
-  $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; delPhoto(0); delPhoto(1); counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; S.pos = [{ x: .5, y: .5, z: 1 }, { x: .5, y: .5, z: 1 }]; delPhoto(0); delPhoto(1); counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
   loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount(); restorePhotos();
