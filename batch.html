@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=31">
+<link rel="stylesheet" href="/batch.css?v=32">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -400,7 +400,7 @@
         '<div class="bt-seg" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
         '<div class="bt-bub" id="msgBox">' + esc(msgs[0]) + '</div>' +
         '<div class="bt-sec"><span>পোস্টার</span><small>ছবি বানিয়ে ফেসবুকে বা গ্রুপে দিন</small></div>' +
-        '<div class="bt-pcs"><button type="button" class="bt-pc" id="mkImgFb">' + thumb('fb') + '<b>ফেসবুক পোস্ট</b><small>কমেন্টে লিংক দিন</small></button><button type="button" class="bt-pc" id="mkImgWa">' + thumb('wa') + '<b>WhatsApp</b><small>লিংকসহ ছবি</small></button></div>' +
+        '<div class="bt-pcs"><button type="button" class="bt-pc" id="mkImgFb">' + thumb('fb') + '<b>ফেসবুক পোস্ট</b><small>কমেন্টে লিংক দিন</small></button><button type="button" class="bt-pc" id="mkImgWa">' + thumb('wa') + '<b>WhatsApp</b><small>বার্তার সাথে পাঠান</small></button></div>' +
         '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><p class="bt-imgtip" id="imgTip"></p>' +
         '<div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div>' +
         '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></div>';
@@ -580,7 +580,7 @@
         }
       }
 
-      // 5) the one thing to do: a gold button. Facebook: join from the link in the comment (a printed link cannot be tapped). WhatsApp: the link is printed.
+      // 5) the one thing to do: a gold button. Facebook: join from the link in the comment (a printed link cannot be tapped). WhatsApp: no link on the picture, it travels in the message.
       { const bx = 70, bw = W - 140, bh = 148, by = CTA_Y; const g = c.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2);
         shadow('rgba(245,185,51,.5)', 46, 12); rr(bx, by, bw, bh, bh / 2); c.fillStyle = g; c.fill(); shadow();
         const ink = mixHex(th[0], NAVY, .7), tx = bx + 66, ax = bx + bw - 78, ay = by + bh / 2;
@@ -595,9 +595,8 @@
           c.fillStyle = mixHex(ink, '#FFFFFF', .12); c.font = '600 30px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', tx, by + 56);
           c.fillStyle = ink; c.font = '800 60px ' + DISP; c.fillText('ব্যাচে জয়েন করো', tx, by + 120);
         } else {
-          const sl2 = link.replace(/^https?:\/\//, ''); let fz = 33; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl2).width > bw - 66 - 160 && fz > 18){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
-          c.fillStyle = ink; c.font = '800 60px ' + DISP; c.fillText('ব্যাচে জয়েন করো', tx, by + 76);
-          c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillStyle = mixHex(ink, '#FFFFFF', .1); c.fillText(sl2, tx, by + 122);
+          // WhatsApp: no link on the picture (it goes in the message), just the one thing to do, centred in the button
+          c.fillStyle = ink; c.font = '800 66px ' + DISP; c.fillText('ব্যাচে জয়েন করো', tx, by + bh / 2 + 24);
         }
       }
       c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '700 25px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM  ·  আমার ব্যাচ', W / 2, H - 50);
@@ -606,7 +605,7 @@
       if(IMG_URL) URL.revokeObjectURL(IMG_URL);
       IMG_URL = URL.createObjectURL(blob); IMG_FILE = new File([blob], 'amar-batch-' + k.lv + '-' + k.year + '-' + mode + '.png', { type: 'image/png' });
       $('imgPrev').src = IMG_URL; $('imgBox').hidden = false;
-      $('imgTip').textContent = mode === 'fb' ? 'ফেসবুকে ছবিটা পোস্ট করুন, তারপর প্রথম কমেন্টে লিংকটা পেস্ট করুন। ছবিতে সেটাই বলা আছে।' : 'ছবির সাথে আপনার আমন্ত্রণ লিংকটাও পাঠান, ছবিতে লিংক ছাপা আছে।';
+      $('imgTip').textContent = mode === 'fb' ? 'ফেসবুকে ছবিটা পোস্ট করুন, তারপর প্রথম কমেন্টে লিংকটা পেস্ট করুন। ছবিতে সেটাই বলা আছে।' : 'ছবির সাথে আপনার আমন্ত্রণ লিংকটাও পাঠান। ছবিতে লিংক নেই, লিংক থাকে বার্তায়।';
       $('imgFbRow').hidden = mode !== 'fb';
       const copyTxt = async (t, w) => { try{ await navigator.clipboard.writeText(t); }catch(e){ const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(_){} ta.remove(); } toast(w + ' কপি হয়েছে।'); track('batch_copy', { w }); };
       $('imgCpLink').onclick = () => copyTxt(link, 'লিংক'); $('imgCpCap').onclick = () => copyTxt(fbCaption(k, inst, b), 'ক্যাপশন');
