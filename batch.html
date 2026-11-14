@@ -18,13 +18,13 @@
 <meta property="og:image" content="https://protishthan.com/og-image.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js?v=2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=26">
+<link rel="stylesheet" href="/batch.css?v=27">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -439,72 +439,103 @@
     mode = mode === 'wa' ? 'wa' : 'fb';
     const label = btn ? btn.textContent : ''; if(btn){ btn.disabled = true; btn.textContent = 'বানানো হচ্ছে…'; }
     try{
-      try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('600 40px "Hind Siliguri"'), document.fonts.load('800 40px Inter')]); }catch(e){}
+      try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('600 40px "Hind Siliguri"'), document.fonts.load('800 40px Inter'), document.fonts.load('800 100px "Baloo Da 2"'), document.fonts.load('700 100px "Baloo Da 2"')]); }catch(e){}
+      const logo = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = '/logo-sm.webp'; });
       const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
-      const th = IMG_TH[b.theme] || IMG_TH.blue, n = b.members, HS = '"Hind Siliguri", Inter, sans-serif', NAVY = '#050B1E';
-      const deep = mixHex(th[0], NAVY, .66), mid = mixHex(th[0], NAVY, .3), far = mixHex(th[1], NAVY, .45), GOLD = '#FDE68A';
-      // background: deep colour with soft light and a few rings, so it stands out in a white feed
-      const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, deep); bg.addColorStop(.5, mid); bg.addColorStop(1, far); c.fillStyle = bg; c.fillRect(0, 0, W, H);
-      let g = c.createRadialGradient(170, 150, 0, 170, 150, 700); g.addColorStop(0, 'rgba(255,255,255,.2)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      g = c.createRadialGradient(W - 80, H - 120, 0, W - 80, H - 120, 760); g.addColorStop(0, th[1] + '88'); g.addColorStop(1, th[1] + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.07)';
-      [[W - 40, 120, 190], [W - 40, 120, 290], [60, H - 330, 150], [60, H - 330, 250]].forEach(r => { c.beginPath(); c.arc(r[0], r[1], r[2], 0, 7); c.stroke(); });
-      let sd = 20261114; const rnd = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
-      for(let i = 0; i < 26; i++){ c.beginPath(); c.arc(rnd() * W, rnd() * H, 3 + rnd() * 9, 0, 7); c.fillStyle = 'rgba(255,255,255,' + (.05 + rnd() * .12).toFixed(2) + ')'; c.fill(); }
-      c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      const th = IMG_TH[b.theme] || IMG_TH.blue, n = b.members, HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif', NAVY = '#060B1F';
+      const base = mixHex(th[0], NAVY, .8), mid = mixHex(th[0], NAVY, .5), GOLD1 = '#FFE9A8', GOLD2 = '#F5B933';
       const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
       const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = txt.split(/\s+/), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
-      const shadow = (on) => { c.shadowColor = on ? 'rgba(0,0,0,.35)' : 'transparent'; c.shadowBlur = on ? 18 : 0; c.shadowOffsetY = on ? 6 : 0; };
-      // header: the brand, and the level chip
-      c.textAlign = 'left'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '800 34px Inter, sans-serif'; c.fillText('Protishthan', 70, 112);
-      c.textAlign = 'center'; c.font = '700 30px ' + HS; const chip = LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ', cw = c.measureText(chip).width + 56;
-      rr(W - 70 - cw, 70, cw, 60, 30); c.fillStyle = 'rgba(255,255,255,.16)'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.4)'; c.stroke();
-      c.fillStyle = '#fff'; c.fillText(chip, W - 70 - cw / 2, 111);
-      // the middle of the poster is laid out once to measure it, then drawn centred between the header and the button
-      const big = b.name || inst; let size = 128, lines;
-      do{ lines = wrap(big, W - 150, '800 ' + size + 'px ' + HS, 3); size -= 6; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 150)) && size > 62);
-      const fs0 = size + 6, sl = b.name ? wrap(inst, W - 180, '600 40px ' + HS, 2) : [], ln = wrap(lineFor(k, inst, b.line), W - 190, '600 38px ' + HS, 3);
-      const shown = Math.min(n, 7), more = n - shown, d = 96, step = 68, tot = d + step * (shown - 1 + (more > 0 ? 1 : 0)), x0 = (W - tot) / 2, goal = goalOf(n);
-      const person = (cx, cy, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(cx, cy - r * .22, r * .3, 0, 7); c.fill(); c.beginPath(); c.moveTo(cx - r * .62, cy + r * .62); c.quadraticCurveTo(cx - r * .62, cy + r * .12, cx, cy + r * .12); c.quadraticCurveTo(cx + r * .62, cy + r * .12, cx + r * .62, cy + r * .62); c.closePath(); c.fill(); };
+      const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
+      const glow = (x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + a); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H); };
+      const person = (cx, cy, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(cx, cy - r * .24, r * .3, 0, 7); c.fill(); c.beginPath(); c.moveTo(cx - r * .6, cy + r * .62); c.quadraticCurveTo(cx - r * .6, cy + r * .1, cx, cy + r * .1); c.quadraticCurveTo(cx + r * .6, cy + r * .1, cx + r * .6, cy + r * .62); c.closePath(); c.fill(); };
+      let sd = 20261114; const rnd = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+
+      // 1) the background: a deep base, two big soft lights in the batch colours, fine grain, a ghost of the year
+      c.fillStyle = base; c.fillRect(0, 0, W, H);
+      glow(90, 140, 820, th[1], '8C'); glow(W - 40, H - 260, 980, th[0], 'B0'); glow(W * .62, 520, 560, '#FFFFFF', '16');
+      { const nz = document.createElement('canvas'); nz.width = nz.height = 180; const nc = nz.getContext('2d'), im = nc.createImageData(180, 180); for(let i = 0; i < im.data.length; i += 4){ const v = rnd() * 255 | 0; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 20; } nc.putImageData(im, 0, 0); c.fillStyle = c.createPattern(nz, 'repeat'); c.fillRect(0, 0, W, H); }
+      c.textAlign = 'right'; c.font = '800 470px ' + DISP; c.fillStyle = 'rgba(255,255,255,.05)'; c.fillText(bn(k.year), W + 30, 700);
+      c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.07)'; [[W - 30, 90, 240], [W - 30, 90, 330]].forEach(r => { c.beginPath(); c.arc(r[0], r[1], r[2], 0, 7); c.stroke(); });
+
+      // 2) the header: the logo and name of the site, the level and year
+      if(logo){ c.save(); rr(80, 66, 62, 62, 18); c.clip(); c.drawImage(logo, 80, 66, 62, 62); c.restore(); }
+      c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 38px Inter, sans-serif'; c.fillText('Protishthan', logo ? 158 : 80, 109);
+      c.font = '700 30px ' + HS; const chip = LVT[k.lv] + ' · ' + bn(k.year), cw = c.measureText(chip).width + 56;
+      rr(W - 80 - cw, 68, cw, 58, 29); c.fillStyle = 'rgba(255,255,255,.12)'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.34)'; c.stroke();
+      c.textAlign = 'center'; c.fillStyle = '#fff'; c.fillText(chip, W - 80 - cw / 2, 107);
+
+      // 3) the seats panel is pinned above the button; the top block (the call, the name, the school) is centred in what is left
+      const goal = goalOf(n), shown = Math.min(goal, 20), cols = shown <= 10 ? 5 : 10, dd = cols === 5 ? 96 : 66, PH = 8 + 36 + 64 + 14 + (dd + 32 + dd) + 40, CTA_Y = H - 232, pTop = CTA_Y - 38 - PH;
+      const big = b.name || inst; let size = 136, lines;
+      do{ lines = wrap(big, W - 170, '800 ' + size + 'px ' + DISP, 3); size -= 6; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 170)) && size > 64);
+      const fs0 = size + 6, sl = b.name ? wrap(inst, W - 190, '600 38px ' + HS, 2) : [];
       const build = y0 => {
         const ops = []; let y = y0;
-        y += 44; { const yy = y; ops.push(() => { c.textAlign = 'center'; c.fillStyle = GOLD; c.font = '700 46px ' + HS; c.fillText('কইরে বন্ধু? বিকেলে খেলতে যাবি না?', W / 2, yy); }); }
-        y += 34 + fs0 * .86;
-        lines.forEach((l, i) => { const yy = y + i * fs0 * 1.14; ops.push(() => { c.textAlign = 'center'; c.font = '800 ' + fs0 + 'px ' + HS; c.fillStyle = '#fff'; shadow(true); c.fillText(l, W / 2, yy); shadow(false); }); });
-        y += (lines.length - 1) * fs0 * 1.14;
-        if(sl.length){ y += 78; sl.forEach((l, i) => { const yy = y + i * 50; ops.push(() => { c.textAlign = 'center'; c.font = '600 40px ' + HS; c.fillStyle = 'rgba(255,255,255,.86)'; c.fillText(l, W / 2, yy); }); }); y += (sl.length - 1) * 50; }
-        y += 74; ln.forEach((l, i) => { const yy = y + i * 54; ops.push(() => { c.textAlign = 'center'; c.font = '600 38px ' + HS; c.fillStyle = 'rgba(255,255,255,.82)'; c.fillText(l, W / 2, yy); }); });
-        y += (ln.length - 1) * 54 + 58;
-        const ay = y;
-        ops.push(() => {
-          for(let i = 0; i < shown + (more > 0 ? 1 : 0); i++){
-            const cx = x0 + d / 2 + i * step, cy = ay + d / 2, last = more > 0 && i === shown;
-            c.beginPath(); c.arc(cx, cy, d / 2 + 5, 0, 7); c.fillStyle = mid; c.fill();
-            c.beginPath(); c.arc(cx, cy, d / 2, 0, 7); c.fillStyle = last ? GOLD : '#fff'; c.fill();
-            if(last){ c.textAlign = 'center'; c.fillStyle = '#3B2A00'; c.font = '800 34px ' + HS; c.fillText('+' + bn(more), cx, cy + 12); }
-            else { c.save(); c.beginPath(); c.arc(cx, cy, d / 2, 0, 7); c.clip(); person(cx, cy + 2, d / 2, i % 2 ? th[1] : th[0]); c.restore(); }
-          }
-        });
-        y = ay + d + 64; { const yy = y; ops.push(() => { c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = '800 46px ' + HS; c.fillText(n === 1 ? 'আমি প্রথম এসেছি, এবার তোমার পালা' : bn(n) + ' জন যুক্ত হয়েছে, এবার তোমার পালা', W / 2, yy); }); }
-        const by = y + 32, bw = 520, bx = (W - bw) / 2;
-        ops.push(() => { rr(bx, by, bw, 14, 7); c.fillStyle = 'rgba(255,255,255,.22)'; c.fill(); rr(bx, by, Math.max(14, bw * Math.min(1, n / goal)), 14, 7); c.fillStyle = GOLD; c.fill(); c.textAlign = 'center'; c.font = '600 28px ' + HS; c.fillStyle = 'rgba(255,255,255,.75)'; c.fillText('লক্ষ্য ' + bn(goal) + ' জন', W / 2, by + 56); });
-        return { ops, end: by + 70 };
+        // the call, as a speech bubble (it is what someone would shout at the gate)
+        const bt = 'কইরে বন্ধু? বিকেলে খেলতে যাবি না?'; c.font = '700 40px ' + HS; const bw = c.measureText(bt).width + 76, bh = 88, bx = 80, by = y;
+        ops.push(() => { c.save(); c.translate(bx + bw / 2, by + bh / 2); c.rotate(-.022); c.translate(-(bx + bw / 2), -(by + bh / 2)); shadow('rgba(0,0,0,.28)', 26, 10); rr(bx, by, bw, bh, 44); c.fillStyle = '#fff'; c.fill(); c.beginPath(); c.moveTo(bx + 58, by + bh - 4); c.lineTo(bx + 40, by + bh + 30); c.lineTo(bx + 98, by + bh - 4); c.closePath(); c.fill(); shadow(); c.textAlign = 'center'; c.fillStyle = mixHex(th[0], NAVY, .55); c.font = '700 40px ' + HS; c.fillText(bt, bx + bw / 2, by + 58); c.restore(); });
+        y += bh + 76;
+        y += fs0 * .74;
+        lines.forEach((l, i) => { const yy = y + i * fs0 * 1.04; ops.push(() => { c.textAlign = 'left'; c.font = '800 ' + fs0 + 'px ' + DISP; c.fillStyle = '#fff'; shadow('rgba(0,0,0,.4)', 22, 8); c.fillText(l, 80, yy); shadow(); }); });
+        y += (lines.length - 1) * fs0 * 1.04;
+        if(sl.length){
+          y += 62; const sy = y;
+          ops.push(() => { c.fillStyle = GOLD2; c.beginPath(); c.moveTo(80, sy - 14); c.lineTo(99, sy - 30); c.lineTo(118, sy - 14); c.closePath(); c.fill(); c.fillRect(85, sy - 14, 28, 20); c.fillStyle = base; c.fillRect(96, sy - 5, 6, 11); });
+          sl.forEach((l, i) => { const yy = y + i * 50; ops.push(() => { c.textAlign = 'left'; c.font = '600 38px ' + HS; c.fillStyle = 'rgba(255,255,255,.88)'; c.fillText(l, 134, yy); }); });
+          y += (sl.length - 1) * 50;
+        }
+        return { ops, end: y + 8 };
       };
-      const AV_TOP = 168, AV_BOT = H - 232 - 36, used = build(0).end, top = Math.max(AV_TOP, AV_TOP + (AV_BOT - AV_TOP - used) / 2);
+      const AV_TOP = 168, used = build(0).end, top = Math.max(AV_TOP + 4, AV_TOP + (pTop - 34 - AV_TOP - used) / 2);
       build(top).ops.forEach(f => f());
-      // what to do: one big button-like block
-      const cy0 = H - 232, ch = 150; shadow(true); rr(70, cy0, W - 140, ch, 40); c.fillStyle = '#fff'; c.fill(); shadow(false);
-      if(mode === 'fb'){
-        c.beginPath(); c.arc(150, cy0 + ch / 2, 44, 0, 7); c.fillStyle = th[0]; c.fill();
-        c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(150, cy0 + ch / 2 - 18); c.lineTo(150, cy0 + ch / 2 + 16); c.moveTo(134, cy0 + ch / 2 + 2); c.lineTo(150, cy0 + ch / 2 + 18); c.lineTo(166, cy0 + ch / 2 + 2); c.stroke();
-        c.textAlign = 'center'; c.fillStyle = '#475569'; c.font = '600 32px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', 620, cy0 + 62);
-        c.fillStyle = th[0]; c.font = '800 56px ' + HS; c.fillText('ব্যাচে জয়েন করো', 620, cy0 + 124);
-      } else {
-        const sl = link.replace(/^https?:\/\//, ''); let fz = 36; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl).width > W - 220 && fz > 20){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
-        c.fillStyle = th[0]; c.font = '800 56px ' + HS; c.fillText('ব্যাচে জয়েন করো', W / 2, cy0 + 70);
-        c.fillStyle = '#334155'; c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillText(sl, W / 2, cy0 + 120);
+
+      // 4) the seats: taken seats show a face, the next free one is gold and says whose it is
+      { const px = 70, pw = W - 140;
+        shadow('rgba(0,0,0,.3)', 40, 14); rr(px, pTop, pw, PH, 46); c.fillStyle = 'rgba(255,255,255,.085)'; c.fill(); shadow();
+        c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.26)'; rr(px, pTop, pw, PH, 46); c.stroke();
+        const hy = pTop + 8 + 36 + 46;
+        c.textAlign = 'left'; c.font = '800 70px ' + DISP; c.fillStyle = '#fff'; c.fillText(bn(n), px + 42, hy + 6); const nw = c.measureText(bn(n)).width;
+        c.font = '600 32px ' + HS; c.fillStyle = 'rgba(255,255,255,.82)'; c.fillText(n === 1 ? 'জন আছে' : 'জন যুক্ত', px + 42 + nw + 14, hy + 4);
+        const bwid = 300, bxx = px + pw - 42 - bwid; c.textAlign = 'right'; c.font = '600 26px ' + HS; c.fillStyle = 'rgba(255,255,255,.7)'; c.fillText('লক্ষ্য ' + bn(goal) + ' জন', px + pw - 42, hy - 22);
+        rr(bxx, hy - 4, bwid, 14, 7); c.fillStyle = 'rgba(255,255,255,.2)'; c.fill(); rr(bxx, hy - 4, Math.max(14, bwid * Math.min(1, n / goal)), 14, 7); const pg = c.createLinearGradient(bxx, 0, bxx + bwid, 0); pg.addColorStop(0, GOLD1); pg.addColorStop(1, GOLD2); c.fillStyle = pg; c.fill();
+        const gy = pTop + 8 + 36 + 64 + 14, innerW = pw - 84, gapX = (innerW - cols * dd) / (cols - 1), taken = Math.min(n, shown);
+        for(let i = 0; i < shown; i++){
+          const col = i % cols, row = Math.floor(i / cols), cx = px + 42 + dd / 2 + col * (dd + gapX), cy = gy + dd / 2 + row * (dd + 32), r = dd / 2;
+          if(n > shown && i === shown - 1){
+            const g2 = c.createLinearGradient(cx, cy - r, cx, cy + r); g2.addColorStop(0, GOLD1); g2.addColorStop(1, GOLD2); shadow('rgba(245,185,51,.5)', 22, 0); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fillStyle = g2; c.fill(); shadow();
+            c.textAlign = 'center'; c.fillStyle = '#3B2A00'; c.font = '800 ' + (dd > 70 ? 36 : 28) + 'px ' + DISP; c.fillText('+' + bn(n - shown + 1), cx, cy + (dd > 70 ? 13 : 10));
+          } else if(i < taken){
+            const g2 = c.createLinearGradient(cx, cy - r, cx, cy + r); g2.addColorStop(0, '#FFFFFF'); g2.addColorStop(1, '#DCE6FF'); shadow('rgba(0,0,0,.25)', 12, 5); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fillStyle = g2; c.fill(); shadow();
+            c.save(); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.clip(); person(cx, cy + 3, r, mixHex(th[i % 2 ? 1 : 0], NAVY, .12)); c.restore();
+          } else if(i === n){
+            shadow('rgba(245,185,51,.55)', 26, 0); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fillStyle = 'rgba(255,233,168,.16)'; c.fill(); c.lineWidth = 4; c.strokeStyle = GOLD2; c.stroke(); shadow();
+            c.strokeStyle = GOLD1; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(cx - r * .3, cy); c.lineTo(cx + r * .3, cy); c.moveTo(cx, cy - r * .3); c.lineTo(cx, cy + r * .3); c.stroke();
+            c.font = '700 24px ' + HS; const tw = c.measureText('তোমার সিট').width + 34, ty = cy + r - 4, g3 = c.createLinearGradient(0, ty, 0, ty + 34); g3.addColorStop(0, GOLD1); g3.addColorStop(1, GOLD2);
+            shadow('rgba(0,0,0,.3)', 10, 4); rr(cx - tw / 2, ty, tw, 34, 17); c.fillStyle = g3; c.fill(); shadow(); c.textAlign = 'center'; c.fillStyle = '#3B2A00'; c.fillText('তোমার সিট', cx, ty + 25);
+          } else {
+            c.beginPath(); c.arc(cx, cy, r - 2, 0, 7); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.3)'; c.setLineDash([8, 9]); c.stroke(); c.setLineDash([]);
+            c.save(); c.beginPath(); c.arc(cx, cy, r - 3, 0, 7); c.clip(); person(cx, cy + 3, r, 'rgba(255,255,255,.12)'); c.restore();
+          }
+        }
       }
-      c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '700 26px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM  ·  আমার ব্যাচ', W / 2, H - 52);
+
+      // 5) the one thing to do: a gold button. Facebook: join from the link in the comment (a printed link cannot be tapped). WhatsApp: the link is printed.
+      { const bx = 70, bw = W - 140, bh = 132, by = CTA_Y; const g = c.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2);
+        shadow('rgba(245,185,51,.5)', 46, 12); rr(bx, by, bw, bh, bh / 2); c.fillStyle = g; c.fill(); shadow();
+        const ink = mixHex(th[0], NAVY, .7);
+        if(mode === 'fb'){
+          c.beginPath(); c.arc(bx + 70, by + bh / 2, 42, 0, 7); c.fillStyle = ink; c.fill();
+          c.strokeStyle = GOLD1; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(bx + 70, by + bh / 2 - 17); c.lineTo(bx + 70, by + bh / 2 + 15); c.moveTo(bx + 54, by + bh / 2 + 1); c.lineTo(bx + 70, by + bh / 2 + 17); c.lineTo(bx + 86, by + bh / 2 + 1); c.stroke();
+          c.textAlign = 'center'; c.fillStyle = mixHex(ink, '#FFFFFF', .12); c.font = '600 31px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', bx + 70 + (bw - 70) / 2 + 30, by + 52);
+          c.fillStyle = ink; c.font = '800 62px ' + DISP; c.fillText('ব্যাচে জয়েন করো', bx + 70 + (bw - 70) / 2 + 30, by + 112);
+        } else {
+          const sl2 = link.replace(/^https?:\/\//, ''); let fz = 34; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl2).width > bw - 120 && fz > 18){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
+          c.textAlign = 'center'; c.fillStyle = ink; c.font = '800 62px ' + DISP; c.fillText('ব্যাচে জয়েন করো', W / 2, by + 66);
+          c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillStyle = mixHex(ink, '#FFFFFF', .1); c.fillText(sl2, W / 2, by + 108);
+        }
+      }
+      c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '700 25px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM  ·  আমার ব্যাচ', W / 2, H - 50);
       const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
       if(!blob) throw new Error('png');
       if(IMG_URL) URL.revokeObjectURL(IMG_URL);
