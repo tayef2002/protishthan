@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=39">
+<link rel="stylesheet" href="/batch.css?v=41">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -361,10 +361,9 @@
     ];
   }
   function stepperHtml(){
-    const st = stepsOf(), cur = st.findIndex(x => !x.done), dn = st.filter(x => x.done).length;
-    return '<div class="bt-c bt-stp" id="steps"><div class="bt-stph"><div><h2>' + (cur < 0 ? 'সব ধাপ শেষ, দারুণ!' : 'শুরু করুন') + '</h2><p>' + (cur < 0 ? 'আপনার ব্যাচ ঠিকমতো চালু হয়ে গেছে।' : 'এই কয়েকটা কাজে ব্যাচ জমে ওঠে।') + '</p></div><span class="bt-stpn">' + bn(dn) + '/' + bn(st.length) + ' সম্পন্ন</span></div>' +
-      '<div class="bt-stpbar" aria-hidden="true"><i style="width:' + Math.round(dn / st.length * 100) + '%"></i></div><ol>' +
-      st.map((x, i) => '<li class="' + (x.done ? 'done' : i === cur ? 'cur' : '') + '"><span class="bt-dot">' + (x.done ? ic('check', 15) : bn(i + 1)) + '</span><div><b>' + x.t + '</b><small>' + x.s + '</small>' + (i === cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '') + '</div></li>').join('') + '</ol></div>';
+    const st = stepsOf(), cur = st.findIndex(x => !x.done), dn = st.filter(x => x.done).length, pct = Math.round(dn / st.length * 100);
+    return '<div class="bt-c bt-stp" id="steps"><div class="bt-stph"><div class="bt-ring" style="--p:' + pct + '" role="img" aria-label="' + bn(dn) + '/' + bn(st.length) + ' সম্পন্ন"><b>' + bn(dn) + '<small>/' + bn(st.length) + '</small></b></div><div class="bt-stpt"><h2>' + (cur < 0 ? 'সব ধাপ শেষ, দারুণ!' : 'শুরু করুন') + '</h2><p>' + (cur < 0 ? 'আপনার ব্যাচ ঠিকমতো চালু হয়ে গেছে।' : 'এই কয়েকটা কাজে ব্যাচ জমে ওঠে।') + '</p></div></div><ol>' +
+      st.map((x, i) => '<li class="' + (x.done ? 'done' : i === cur ? 'cur' : 'todo') + '"><span class="bt-dot">' + (x.done ? ic('check', 16) : bn(i + 1)) + '</span><b>' + x.t + '</b><small>' + x.s + '</small>' + (i === cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '') + '</li>').join('') + '</ol></div>';
   }
   function bindGo(){ document.querySelectorAll('#steps a[data-go]').forEach(a => { a.onclick = e => { e.preventDefault(); const el = $(a.dataset.go); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; }); }
   function bumpFlag(w){ if(!HUB || !HUB.b) return; flagSet(HUB.b.id, w); const el = $('steps'); if(el){ el.outerHTML = stepperHtml(); bindGo(); } }
