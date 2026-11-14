@@ -28,7 +28,7 @@ const pgLv = [...page.matchAll(/\{ k: '(\w+)', t: /g)].map(m => m[1]);
 eq('the page offers SSC only (the SSC / Dakhil school batch), and that level is one the table allows', pgLv, ['ssc']);
 yes('the SQL accepts SSC only through one small function', /batch_level_ok\(l text\)[^;]*select l = 'ssc'/.test(sql.replace(/\s+/g, ' ')) && sqlLv.includes('ssc') && (sql.match(/public\.batch_level_ok\(p_level\)/g) || []).length === 2);
 yes('there is no level picker on the page any more, and the card suggestions come from the card\'s secondary (SSC / Dakhil) row only', !/lvChips/.test(page) && /const map = \{ school: \{ g: 'ssc', a: 'ssc' \} \}/.test(page));
-yes('the page says it is the SSC batch (title, headline, search label, year label)', /<title>আমার ব্যাচ: আপনার SSC ব্যাচ/.test(page) && /আপনার SSC ব্যাচ, <span>/.test(page) && /SSC \/ দাখিল দিয়েছেন/.test(page) && /SSC \/ দাখিল/.test(read('privacy.html')));
+yes('the page says it is the SSC batch (title, headline, search label, year label)', /<title>আমার ব্যাচ: আপনার SSC ব্যাচ/.test(page) && /<h1>আমার ব্যাচ, <span>আমাদের গল্প<\/span><\/h1>/.test(page) && /<\/svg>SSC ব্যাচ<\/span>/.test(page) && /SSC \/ দাখিল দিয়েছেন/.test(page) && /SSC \/ দাখিল/.test(read('privacy.html')));
 const sqlTh = (sql.match(/theme in \(([^)]*)\)/) || ['', ''])[1].match(/'(\w+)'/g).map(x => x.replace(/'/g, ''));
 const pgTh = [...page.matchAll(/\['(\w+)', '#[0-9A-Fa-f]{6}'\]/g)].map(m => m[1]);
 eq('the colours of the page are the SQL ones', pgTh.slice().sort(), sqlTh.slice().sort());
