@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=28">
+<link rel="stylesheet" href="/batch.css?v=30">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -319,6 +319,56 @@
       await showBatch(k);
     };
   }
+  /* ---------- the member's hub: icons, small builders and the getting-started steps ---------- */
+  const ICO = {
+    users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
+    seat: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6z"/>',
+    crown: '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
+    send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
+    link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    pen: '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 7l3 3"/>',
+    lock: '<rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/>',
+    fb: '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v8h4v-8h3l1-4h-4V8z"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/>',
+    poll: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2.2 2.2L15 10"/>',
+    out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
+  };
+  const ic = (nm, sz) => '<svg class="bt-ic" width="' + (sz || 20) + '" height="' + (sz || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICO[nm] || '') + '</svg>';
+  const cardHead = (icon, t, sub) => '<div class="bt-ch"><span class="bt-ci">' + ic(icon, 22) + '</span><div><h2>' + t + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
+  /* small flags kept in this browser only (what the member has already done), so the steps can tick themselves */
+  const flagGet = (id, w) => { try{ return localStorage.getItem('bt_' + id + w) === '1'; }catch(e){ return false; } };
+  const flagSet = (id, w) => { try{ localStorage.setItem('bt_' + id + w, '1'); }catch(e){} };
+  let HUB = null, ON_POSTER = null;
+  function stepsOf(){
+    const { k, inst, b, me, isConv, n } = HUB, id = b.id;
+    return isConv ? [
+      { t: 'ব্যাচ খুলেছেন', s: 'আপনি আহ্বায়ক', done: true },
+      { t: 'ব্যাচের নাম দিন', s: 'যেমন ' + nameHint(inst, k), done: !!b.name, go: 'setup', cta: 'নাম দিন' },
+      { t: 'পোস্টার পোস্ট করুন', s: 'ফেসবুক বা WhatsApp-এ', done: flagGet(id, 'p'), go: 'invite', cta: 'পোস্টার বানান' },
+      { t: '১০ জন যোগ দিন', s: bn(Math.min(n, 10)) + '/১০ জন যুক্ত', done: n >= 10, go: 'invite', cta: 'আমন্ত্রণ পাঠান' }
+    ] : [
+      { t: 'যোগ দিয়েছেন', s: 'আপনি ' + bn(me.seq) + ' নম্বর সদস্য', done: true },
+      { t: 'সহপাঠীকে ডাকুন', s: 'ব্যাচের লিংক পাঠিয়ে', done: flagGet(id, 'i'), go: 'invite', cta: 'লিংক কপি করুন' },
+      { t: 'পোস্টার শেয়ার করুন', s: 'ফেসবুক বা WhatsApp-এ', done: flagGet(id, 'p'), go: 'invite', cta: 'পোস্টার বানান' },
+      { t: 'ব্যাচ ১০ জন হোক', s: bn(Math.min(n, 10)) + '/১০ জন যুক্ত', done: n >= 10, go: 'invite', cta: 'আমন্ত্রণ পাঠান' }
+    ];
+  }
+  function stepperHtml(){
+    const st = stepsOf(), cur = st.findIndex(x => !x.done), dn = st.filter(x => x.done).length;
+    return '<div class="bt-c bt-stp" id="steps"><div class="bt-stph"><div><h2>' + (cur < 0 ? 'সব ধাপ শেষ, দারুণ!' : 'শুরু করুন') + '</h2><p>' + (cur < 0 ? 'আপনার ব্যাচ ঠিকমতো চালু হয়ে গেছে।' : 'এই কয়েকটা কাজে ব্যাচ জমে ওঠে।') + '</p></div><span class="bt-stpn">' + bn(dn) + '/' + bn(st.length) + ' সম্পন্ন</span></div>' +
+      '<div class="bt-stpbar" aria-hidden="true"><i style="width:' + Math.round(dn / st.length * 100) + '%"></i></div><ol>' +
+      st.map((x, i) => '<li class="' + (x.done ? 'done' : i === cur ? 'cur' : '') + '"><span class="bt-dot">' + (x.done ? ic('check', 15) : bn(i + 1)) + '</span><div><b>' + x.t + '</b><small>' + x.s + '</small>' + (i === cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '') + '</div></li>').join('') + '</ol></div>';
+  }
+  function bindGo(){ document.querySelectorAll('#steps a[data-go]').forEach(a => { a.onclick = e => { e.preventDefault(); const el = $(a.dataset.go); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; }); }
+  function bumpFlag(w){ if(!HUB || !HUB.b) return; flagSet(HUB.b.id, w); const el = $('steps'); if(el){ el.outerHTML = stepperHtml(); bindGo(); } }
+  const flash = (btn, txt) => { if(!btn) return; const keep = btn.innerHTML; btn.classList.add('ok'); btn.innerHTML = ic('check', 18) + '<span>' + txt + '</span>'; clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = keep; }, 1600); };
+
   function renderBatch(k, d, ref){
     const b = d.batch, me = d.me, inst = d.inst.name, theme = (b && b.theme) || 'blue', n = b ? b.members : 0;
     const joined = !!(me && me.joined), isConv = joined && (me.role === 'convener' || me.role === 'co');
@@ -336,24 +386,34 @@
     h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
 
     if(joined){
-      const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n);
-      const invite = '<div class="bt-panel" id="invite"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
-        '<div class="bt-no"><b>' + bn(me.seq) + '</b><span><strong>আপনার সদস্য নম্বর</strong><br>এই ব্যাচে ' + bn(n) + ' জন, লক্ষ্য ' + bn(goal) + '</span></div>' +
-        '<div class="bt-prog" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(n / goal * 100)) + '%"></i></div>' +
-        '<div class="bt-link" style="margin-top:12px"><input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-copy" id="cpLink">কপি</button></div>' +
-        '<div class="bt-msgs" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
-        '<div class="bt-msg" id="msgBox">' + esc(msgs[0]) + '</div>' +
-        '<div class="bt-share"><a class="wa" id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a><a class="fb" id="shFb" target="_blank" rel="noopener" href="#">Facebook</a></div>' +
-        '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button>' +
-        '<div class="bt-mkrow"><button type="button" class="bt-mk" id="mkImgFb">ফেসবুক পোস্টের ছবি</button><button type="button" class="bt-mk" id="mkImgWa">WhatsApp-এর ছবি</button></div>' +
+      HUB = { k, inst, b, me, isConv, n };
+      const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n), pct = Math.min(100, Math.round(n / goal * 100));
+      const tiles = '<div class="bt-tiles">' +
+        '<div class="bt-tile"><span class="bt-ci">' + ic('users', 22) + '</span><div><b>' + bn(n) + '</b><span>জন যুক্ত</span><div class="bt-mp" aria-hidden="true"><i style="width:' + pct + '%"></i></div><small>লক্ষ্য ' + bn(goal) + ' জন</small></div></div>' +
+        '<div class="bt-tile"><span class="bt-ci">' + ic('seat', 22) + '</span><div><b>' + bn(me.seq) + '</b><span>আপনার সদস্য নম্বর</span><small>' + (isConv ? 'আপনি আহ্বায়ক' : 'ব্যাচের ' + bn(me.seq) + ' নম্বর সদস্য') + '</small></div></div>' +
+        '<div class="bt-tile"><span class="bt-ci">' + ic('crown', 22) + '</span><div><b class="sm">' + esc(b.convener || '—') + '</b><span>আহ্বায়ক</span><small>স্ব-ঘোষিত</small></div></div></div>';
+      const thumb = kind => '<span class="bt-pth ' + kind + '" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i></span>';
+      const invite = '<div class="bt-c" id="invite">' + cardHead('send', 'সহপাঠীদের ডাকুন', 'লিংকটা ব্যাচের গ্রুপে দিন। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।') +
+        '<div class="bt-lk">' + ic('link', 18) + '<input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-lkb" id="cpLink">' + ic('copy', 17) + '<span>কপি</span></button></div>' +
+        '<div class="bt-sbs"><a class="bt-sb wa" id="shWa" target="_blank" rel="noopener" href="#"><span class="bt-sbi">' + ic('chat', 20) + '</span><b>WhatsApp</b></a><a class="bt-sb fb" id="shFb" target="_blank" rel="noopener" href="#"><span class="bt-sbi">' + ic('fb', 20) + '</span><b>Facebook</b></a><button type="button" class="bt-sb" id="cpMsg"><span class="bt-sbi">' + ic('copy', 20) + '</span><b>বার্তা কপি</b></button></div>' +
+        '<div class="bt-sec"><span>বার্তা বেছে নিন</span></div>' +
+        '<div class="bt-seg" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
+        '<div class="bt-bub" id="msgBox">' + esc(msgs[0]) + '</div>' +
+        '<div class="bt-sec"><span>পোস্টার</span><small>ছবি বানিয়ে ফেসবুকে বা গ্রুপে দিন</small></div>' +
+        '<div class="bt-pcs"><button type="button" class="bt-pc" id="mkImgFb">' + thumb('fb') + '<b>ফেসবুক পোস্ট</b><small>কমেন্টে লিংক দিন</small></button><button type="button" class="bt-pc" id="mkImgWa">' + thumb('wa') + '<b>WhatsApp</b><small>লিংকসহ ছবি</small></button></div>' +
         '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><p class="bt-imgtip" id="imgTip"></p>' +
         '<div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div>' +
-        '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></div></div>';
+        '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></div>';
       const fresh = isConv && !b.name;
-      const setup = '<div class="bt-panel" id="setup">' + (isConv ? (fresh ? '<h2>ব্যাচ খোলা হয়েছে, এবার সাজান</h2><p class="s">ব্যাচের একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।</p>' : '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।</p>') + lookHtml(k, inst, b.name, b.line, b.theme) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
-        '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div>';
-      h += '<div class="bt-me">' + (fresh ? setup + invite : invite + setup) + '</div>';
-      h += '<div class="bt-panel bt-roster" id="roster"><h2>ব্যাচের সদস্যরা</h2><p class="s" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
+      const setup = isConv
+        ? '<div class="bt-c" id="setup">' + cardHead('pen', fresh ? 'ব্যাচ খোলা হয়েছে, এবার সাজান' : 'ব্যাচ সাজান', fresh ? 'একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।' : 'আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।') + lookHtml(k, inst, b.name, b.line, b.theme) + '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>'
+        : '<div class="bt-c" id="setup">' + cardHead('shield', 'আপনার সদস্যপদ', 'আপনার তথ্য কে দেখে, আর আপনি কী করতে পারেন') +
+          '<ul class="bt-facts"><li>' + ic('check', 16) + 'আপনার নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখেন।</li><li>' + ic('check', 16) + 'আপনার ' + bn(me.seq) + ' নম্বরটা আর কাউকে দেওয়া হবে না।</li><li>' + ic('check', 16) + 'যেকোনো সময় ব্যাচ ছেড়ে যেতে পারেন।</li></ul>' +
+          '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>';
+      const soon = '<div class="bt-c bt-soonc">' + cardHead('clock', 'শীঘ্রই আসছে', 'ব্যাচটা আরও কাজের হচ্ছে') +
+        [['chat', 'মনে আছে?', 'সপ্তাহে একটা স্মৃতির প্রশ্ন, সবাই উত্তর লেখে'], ['poll', 'ব্যাচের পোল', 'সবাই ভোট দেয়, ফল সাজানো থাকে'], ['cal', 'রিইউনিয়ন পরিকল্পনা', 'তারিখে ভোট, কে আসছে গোনা']].map(x => '<div class="bt-sn"><span class="bt-sni">' + ic(x[0], 18) + '</span><div><b>' + x[1] + '</b><small>' + x[2] + '</small></div><em>শীঘ্রই</em></div>').join('') + '</div>';
+      const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
+      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>';
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
@@ -366,14 +426,14 @@
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
-      paint();
+      paint(); bindGo(); ON_POSTER = () => bumpFlag('p');
       $('msgTabs').onclick = e => { const x = e.target.closest('button[data-i]'); if(!x) return; which = +x.dataset.i; $('msgTabs').querySelectorAll('button').forEach(bb => bb.setAttribute('aria-pressed', String(bb === x))); paint(); };
-      const copy = async (txt, what) => { try{ await navigator.clipboard.writeText(txt); }catch(e){ const t = $('lnk'); t.select(); try{ document.execCommand('copy'); }catch(_){} } toast(what + ' কপি হয়েছে।'); track('batch_copy', { w: what }); };
-      $('cpLink').onclick = () => copy(link, 'লিংক');
-      $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা');
+      const copy = async (txt, what, btn) => { try{ await navigator.clipboard.writeText(txt); }catch(e){ const t = $('lnk'); t.value = txt; t.select(); try{ document.execCommand('copy'); }catch(_){} t.value = link; } toast(what + ' কপি হয়েছে।'); flash(btn, 'কপি হয়েছে'); bumpFlag('i'); track('batch_copy', { w: what }); };
+      $('cpLink').onclick = () => copy(link, 'লিংক', $('cpLink'));
+      $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা', $('cpMsg'));
       $('mkImgFb').onclick = () => makeImage(k, inst, b, link, 'fb', $('mkImgFb'));
       $('mkImgWa').onclick = () => makeImage(k, inst, b, link, 'wa', $('mkImgWa'));
-      $('shWa').onclick = () => track('batch_share', { ch: 'wa' }); $('shFb').onclick = () => track('batch_share', { ch: 'fb' });
+      $('shWa').onclick = () => { bumpFlag('i'); track('batch_share', { ch: 'wa' }); }; $('shFb').onclick = () => { bumpFlag('i'); track('batch_share', { ch: 'fb' }); };
       if(isConv) bindLook(k, b.id);
       if(isConv && !b.name && JUST_OPENED){ JUST_OPENED = false; setTimeout(() => { const el = $('setup'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); }
       $('leave').onclick = async () => {
@@ -437,7 +497,7 @@
   /* a 1080x1350 poster for a feed: deep batch colour, the batch name big, faces and the count as proof, one clear thing to do. mode 'fb': a link inside a picture cannot be tapped, so it says "join from the link in the comment"; mode 'wa': the link is printed on it. */
   async function makeImage(k, inst, b, link, mode, btn){
     mode = mode === 'wa' ? 'wa' : 'fb';
-    const label = btn ? btn.textContent : ''; if(btn){ btn.disabled = true; btn.textContent = 'বানানো হচ্ছে…'; }
+    const label = btn ? btn.innerHTML : ''; if(btn){ btn.disabled = true; btn.innerHTML = '<span>বানানো হচ্ছে…</span>'; }
     try{
       try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('600 40px "Hind Siliguri"'), document.fonts.load('800 40px Inter'), document.fonts.load('800 100px "Baloo Da 2"'), document.fonts.load('700 100px "Baloo Da 2"')]); }catch(e){}
       const logo = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = '/logo-sm.webp'; });
@@ -548,9 +608,9 @@
       $('imgDl').onclick = () => { const a = document.createElement('a'); a.href = IMG_URL; a.download = IMG_FILE.name; document.body.appendChild(a); a.click(); a.remove(); track('batch_image', { a: 'download', m: mode }); };
       $('imgSh').hidden = !(navigator.canShare && navigator.canShare({ files: [IMG_FILE] }));
       $('imgSh').onclick = async () => { try{ await navigator.share({ files: [IMG_FILE], text: mode === 'fb' ? fbCaption(k, inst, b) : msgsFor(k, inst, link)[0] }); track('batch_image', { a: 'share', m: mode }); }catch(e){} };
-      track('batch_image', { a: 'make', m: mode });
+      track('batch_image', { a: 'make', m: mode }); if(ON_POSTER) ON_POSTER();
     }catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন।'); }
-    if(btn){ btn.disabled = false; btn.textContent = label; }
+    if(btn){ btn.disabled = false; btn.innerHTML = label; }
   }
 
   /* join or open: if the visitor is not signed in, remember what they wanted and send them to Google; the page does it when they come back */
