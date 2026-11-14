@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://protishthan.com/batch">
 <meta property="og:image" content="https://protishthan.com/og-image.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/member.js"></script>
+<script src="/member.js?v=2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -100,6 +100,14 @@
   const MB = () => window.Protishthan && Protishthan.member;
   const SB = () => MB() && MB().sb;
   const signedIn = () => !!(MB() && MB().current && MB().current());
+  /* the sign-in popup speaks about the batch: what you get for joining, for opening, for reporting (member.js takes { title, chip, perks, cta }) */
+  const POP = {
+    join: (chip) => ({ title: 'আপনার সিট অপেক্ষা করছে', chip, cta: 'Google দিয়ে ব্যাচে যোগ দিন', perks: [['seat', 'নিজের সদস্য নম্বর, একবার পেলে আর কেউ নিতে পারবে না'], ['users', 'সহপাঠীদের নাম ও ছবি দেখুন, শুধু ব্যাচের সদস্যরা পাবে'], ['share', 'ব্যাচের গ্রুপে পাঠানোর নিজের লিংক আর ছবি'], ['shield', 'ইচ্ছে হলে যেকোনো সময় ব্যাচ ছেড়ে যেতে পারবেন']] }),
+    claim: (chip) => ({ title: 'আপনিই হবেন ব্যাচের প্রথম মানুষ', chip, cta: 'Google দিয়ে ব্যাচ খুলুন', perks: [['seat', 'সদস্য নম্বর ১ আর আহ্বায়কের জায়গা'], ['pen', 'ব্যাচের নাম, লাইন আর রং আপনার পছন্দে'], ['share', 'সহপাঠীদের ডাকার লিংক আর শেয়ার-ছবি'], ['shield', 'নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে']] }),
+    report: (chip) => ({ title: 'রিপোর্ট পাঠাতে সাইন-ইন করুন', chip, cta: 'Google দিয়ে চালিয়ে যান', perks: [['eye', 'রিপোর্টটা শুধু আমরা দেখি, ব্যাচের কেউ জানে না কে পাঠিয়েছে'], ['flag', 'প্রতিটা রিপোর্ট আমরা নিজে দেখে ব্যবস্থা নিই'], ['shield', 'ভুয়া বা অশোভন ব্যাচ আটকাতে আপনার সাহায্য লাগে']] })
+  };
+  const popChip = () => { const c = typeof CUR !== 'undefined' && CUR && CUR.data; if(!c) return ''; const b = c.batch; return (b && b.name ? b.name : c.inst.name) + ' · ' + LVT[CUR.lv] + ' ' + bn(CUR.year); };
+  const askSignIn = (kind, reason) => MB().signIn(reason, POP[kind](popChip()));
 
   /* a batch is the SSC / Dakhil batch only: the school batch, the bond that lasts. The address and the database keep a level word so more levels can be opened later. */
   const LV = [{ k: 'ssc', t: 'SSC' }];
@@ -400,7 +408,7 @@
     const open = $('rpOpen'); if(!open) return;
     open.onclick = e => {
       e.preventDefault();
-      if(!signedIn()){ MB().signIn('রিপোর্ট করতে Google দিয়ে সাইন-ইন করুন'); return; }
+      if(!signedIn()){ askSignIn('report', 'রিপোর্ট করতে Google দিয়ে সাইন-ইন করুন'); return; }
       const bx = $('rpBox'); bx.hidden = !bx.hidden; if(!bx.hidden) bx.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
     $('rpSend').onclick = async () => {
@@ -480,7 +488,7 @@
     return null;
   }
   async function onAct(a, k, b, ref){
-    if(!signedIn()){ setIntent(a, k, ref); track('batch_signin', { a }); MB().signIn(a === 'claim' ? 'ব্যাচ খুলতে Google দিয়ে সাইন-ইন করুন' : 'ব্যাচে যোগ দিতে Google দিয়ে সাইন-ইন করুন'); return; }
+    if(!signedIn()){ setIntent(a, k, ref); track('batch_signin', { a }); askSignIn(a === 'claim' ? 'claim' : 'join', a === 'claim' ? 'ব্যাচ খুলতে Google দিয়ে সাইন-ইন করুন' : 'ব্যাচে যোগ দিতে Google দিয়ে সাইন-ইন করুন'); return; }
     if(a === 'claim'){ await doClaim(k); return; }
     await doJoin(k, b, ref);
   }

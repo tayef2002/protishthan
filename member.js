@@ -53,6 +53,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-logo{width:52px;height:52px;border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563EB,#7C3AED);box-shadow:0 10px 24px rgba(37,99,235,.35)}
 .mb-box h2{font-size:22px;line-height:1.25;margin:0 0 6px;font-weight:700;letter-spacing:-.2px}
 .mb-box p.sub{font-size:14px;color:#64748B;margin:0 0 18px}
+.mb-chip{display:inline-block;max-width:100%;margin:0 0 8px;padding:4px 14px;border-radius:100px;background:#EEF3FF;color:#1A56DB;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mb-why{font-size:13px;font-weight:600;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:8px 12px;margin-bottom:14px}
 .mb-perks{list-style:none;margin:0 0 20px;padding:14px 16px;background:#F8FAFC;border-radius:14px;text-align:left}
 .mb-perks li{display:flex;gap:11px;align-items:center;font-size:14px;color:#334155;margin-bottom:10px;line-height:1.4}
@@ -78,21 +79,33 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 
   /* ---------------- sign-in popup ---------------- */
   const GOOGLE_G = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+  /* the benefits list of the sign-in popup: [icon, text]. A page can pass its own list (see openModal) so the popup speaks about what the visitor came to do. */
+  const ICON_SVG = {
+    bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+    card: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/>',
+    adduser: '<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8v6M14 11h6"/>',
+    bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
+    seat: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6z"/>',
+    share: '<circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.3 10.8l7.4-3.6M8.3 13.2l7.4 3.6"/>',
+    shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2.2 2.2L15 10"/>',
+    pen: '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 7l3 3"/>',
+    flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+    eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>'
+  };
+  const DEFAULT_PERKS = [['bookmark', 'পছন্দের প্রতিষ্ঠান সেভ, সব ডিভাইসে'], ['card', 'শিক্ষিত কার্ড হারাবে না'], ['adduser', 'Partner হয়ে আয়ের সুযোগ'], ['bell', 'ভর্তি ও ফলাফলের খবর · শীঘ্রই']];
+  const perksHtml = list => list.map(p => '<li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + (ICON_SVG[p[0]] || ICON_SVG.bookmark) + '</svg></i>' + esc(p[1]) + '</li>').join('');
   let ov;
   function buildModal(){
     ov = document.createElement('div'); ov.className = 'mb-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
     ov.innerHTML = `<div class="mb-box">
       <button type="button" class="mb-x" aria-label="বন্ধ করুন">×</button>
       <div class="mb-logo" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v5"/></svg></div>
-      <h2>Protishthan-এ স্বাগতম</h2>
+      <h2 id="mbTitle">Protishthan-এ স্বাগতম</h2>
+      <div class="mb-chip" id="mbChip" hidden></div>
       <p class="sub" id="mbSub">৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।</p>
-      <ul class="mb-perks">
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></i>পছন্দের প্রতিষ্ঠান সেভ, সব ডিভাইসে</li>
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h7"/></svg></i>শিক্ষিত কার্ড হারাবে না</li>
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 8v6M14 11h6"/></svg></i>Partner হয়ে আয়ের সুযোগ</li>
-        <li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></i>ভর্তি ও ফলাফলের খবর · শীঘ্রই</li>
-      </ul>
-      <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span>Google দিয়ে চালিয়ে যান</span></button>
+      <ul class="mb-perks" id="mbPerks">${perksHtml(DEFAULT_PERKS)}</ul>
+      <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span id="mbCta">Google দিয়ে চালিয়ে যান</span></button>
       <div class="mb-err" id="mbErr"></div>
       <div class="mb-fine">চালিয়ে গেলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
     </div>`;
@@ -105,8 +118,13 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   /* the sign-in prompt says what this page is for, so it reads as the step to what you came to do */
   const PAGE_WHY = { card: 'কার্ডটা হারিয়ে যাওয়ার আগে সেভ করুন', results: 'ফলাফল আর প্রতিষ্ঠানের খবর পেতে যোগ দিন' };
   function pageWhy(){ const p = location.pathname.split('/').filter(Boolean).pop() || ''; return PAGE_WHY[p.split('.')[0]]; }
-  function openModal(reason){
+  function openModal(reason, opts){
     if(!ov) buildModal();
+    const o = opts && typeof opts === 'object' ? opts : {};
+    document.getElementById('mbTitle').textContent = o.title || 'Protishthan-এ স্বাগতম';
+    const chip = document.getElementById('mbChip'); chip.textContent = o.chip || ''; chip.hidden = !o.chip;
+    document.getElementById('mbPerks').innerHTML = perksHtml(Array.isArray(o.perks) && o.perks.length ? o.perks : DEFAULT_PERKS);
+    document.getElementById('mbCta').textContent = o.cta || 'Google দিয়ে চালিয়ে যান';
     document.getElementById('mbSub').textContent = reason || '৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।';
     document.getElementById('mbErr').style.display = 'none';
     document.getElementById('mbGoogle').disabled = false;
