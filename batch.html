@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=14">
+<link rel="stylesheet" href="/batch.css?v=16">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -251,8 +251,15 @@
   function goalOf(n){ for(const g of GOALS) if(n < g) return g; return GOALS[GOALS.length - 1]; }
   function seatsHtml(n, mySeq){
     const goal = goalOf(n), shown = Math.min(goal, 100), filled = Math.min(n, shown);
+    // the seat that is "you": your own number if you are in, otherwise the next free one (the seat you would take)
+    const you = mySeq ? Math.min(mySeq, filled) - 1 : (n < shown ? n : -1);
     let h = '';
-    for(let i = 0; i < shown; i++) h += '<i' + (i < filled ? ' class="on' + (mySeq && i === Math.min(mySeq, filled) - 1 ? ' me' : '') + '" style="animation-delay:' + Math.min(i * 28, 900) + 'ms"' : '') + '></i>';
+    for(let i = 0; i < shown; i++){
+      if(i % 10 === 0) h += '<div class="bt-srow' + (you >= i && you < i + 10 ? ' has' : '') + '">';
+      const tag = i === you ? '<b>আপনি</b>' : '';
+      h += '<i' + (i < filled ? ' class="on' + (i === you ? ' me' : '') + '" style="animation-delay:' + Math.min(i * 28, 900) + 'ms"' : (i === you ? ' class="nx"' : '')) + '>' + tag + '</i>';
+      if(i % 10 === 9 || i === shown - 1) h += '</div>';
+    }
     return '<div class="bt-grid" aria-hidden="true">' + h + '</div>' +
       (n === 0 ? '<p class="bt-count">এখনও কেউ নেই, আপনি প্রথম হতে পারেন</p>' : '<p class="bt-count"><b>' + bn(n) + ' জন</b> ' + (n === 1 ? 'আছেন' : 'যুক্ত') + '</p><p class="bt-goal">পরের লক্ষ্য ' + bn(goal) + ' জন</p>');
   }
