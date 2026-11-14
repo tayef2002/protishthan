@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=32">
+<link rel="stylesheet" href="/memory.css?v=33">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -55,7 +55,6 @@
       <div class="mc-f" id="phWrap">
         <label>২. ছবি <small id="phHint"></small></label>
         <div class="mc-slots" id="slots"></div>
-        <div class="mc-zoom" id="zoomBox" hidden><label for="zoom">ছবি বড় করুন</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"></div>
         <small class="mc-note">ছবি আপনার এই ব্রাউজারেই থাকে, রিফ্রেশ করলেও হারায় না। আমরা সার্ভারে নিই না।</small>
         <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
@@ -625,7 +624,7 @@
   const hasPhoto = () => !TP().own && S.photos.some(Boolean);
   const which = (px0) => { const t = TP(); if(t.ph < 2) return 0; return px0 > $('cv').width * .5 && S.photos[1] ? 1 : (S.photos[0] ? 0 : 1); };
   /* the photo window is covered by a see-through layer (one for each photo) that takes the finger: touching the photo moves it, touching anywhere else on the card scrolls the page as usual (touch-action is set on the layer only, never on the picture) */
-  function syncZoom(){ const on = hasPhoto(), p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; $('zoomBox').hidden = !on; if(on) $('zoom').value = Math.round(p.z * 100); placeHits(); }
+  function syncZoom(){ placeHits(); }
   function placeHits(){ const cv = $('cv'); document.querySelectorAll('.mc-hit').forEach(d => { const i = +d.dataset.i, p = S.pos[i], r = p && p.rect, show = hasPhoto() && !!S.photos[i] && i < TP().ph && !!r; d.hidden = !show; if(show){ d.style.left = (r[0] / cv.width * 100) + '%'; d.style.top = (r[1] / cv.height * 100) + '%'; d.style.width = ((r[2] - r[0]) / cv.width * 100) + '%'; d.style.height = ((r[3] - r[1]) / cv.height * 100) + '%'; } }); }
   (function(){
     const cvw = $('cvw'), cv = $('cv'), fingers = new Map(); let drag = null, pinch = null;
@@ -637,7 +636,7 @@
     const pan = (p, dx, dy) => { const k = kOf(); dx = dx * k / (p.k || 1); dy = dy * k / (p.k || 1); if(p.ox > 1) p.x = clamp01(p.x - dx / p.ox); if(p.oy > 1) p.y = clamp01(p.y - dy / p.oy); };
     cvw.addEventListener('pointerdown', e => {
       const h = e.target.closest && e.target.closest('.mc-hit'); if(!h || h.hidden) return; const i = +h.dataset.i;
-      if(fingers.size === 0){ drag = { i, id: e.pointerId }; S.sel = i; $('zoom').value = Math.round(S.pos[i].z * 100); h.style.cursor = 'grabbing'; }
+      if(fingers.size === 0){ drag = { i, id: e.pointerId }; S.sel = i; h.style.cursor = 'grabbing'; }
       else if(!(fingers.size === 1 && drag && drag.i === i)) return;
       fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); try{ h.setPointerCapture(e.pointerId); }catch(_){}
       if(fingers.size === 2){ const m = mid(); pinch = { d0: dist(), z0: S.pos[drag.i].z, mx: m.x, my: m.y }; }
@@ -647,7 +646,7 @@
       if(!fingers.has(e.pointerId) || !drag) return; const p = S.pos[drag.i], old = fingers.get(e.pointerId);
       if(pinch && fingers.size === 2){
         fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        p.z = Math.min(3, Math.max(1, pinch.z0 * dist() / pinch.d0)); $('zoom').value = Math.round(p.z * 100);
+        p.z = Math.min(3, Math.max(1, pinch.z0 * dist() / pinch.d0));
         const m = mid(); pan(p, m.x - pinch.mx, m.y - pinch.my); pinch.mx = m.x; pinch.my = m.y; draw();
       } else { pan(p, e.clientX - old.x, e.clientY - old.y); fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); draw(); }
     });
@@ -657,8 +656,7 @@
       else if(drag){ drag.id = [...fingers.keys()][0]; }   /* one finger left: it carries on moving the photo */
     };
     cvw.addEventListener('pointerup', end); cvw.addEventListener('pointercancel', end);
-    cvw.addEventListener('wheel', e => { const h = e.target.closest && e.target.closest('.mc-hit'); if(!h || h.hidden) return; e.preventDefault(); const i = +h.dataset.i, p = S.pos[i]; S.sel = i; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); $('zoom').value = Math.round(p.z * 100); draw(); }, { passive: false });
-    $('zoom').addEventListener('input', () => { const p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; p.z = Math.min(3, Math.max(1, $('zoom').value / 100)); draw(); });
+    cvw.addEventListener('wheel', e => { const h = e.target.closest && e.target.closest('.mc-hit'); if(!h || h.hidden) return; e.preventDefault(); const i = +h.dataset.i, p = S.pos[i]; S.sel = i; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); draw(); }, { passive: false });
   })();
 
   /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the slots in order */
