@@ -8,6 +8,7 @@ catch (e) { console.log('skipped: the PGlite engine is not installed (see the tw
 const SQL = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-26_batches.sql'), 'utf8');
 const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-27_batch_name.sql'), 'utf8');
 const SQL3 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-28_batch_roster_admin.sql'), 'utf8');
+const SQL4 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-29_batch_my_invites.sql'), 'utf8');
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 (async () => {
@@ -34,6 +35,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   await db.exec(SQL);                                       // a second run changes nothing
   await db.exec(SQL2); await db.exec(SQL2);                 // the name migration, also safe to run twice
   await db.exec(SQL3); await db.exec(SQL3);                 // the roster and admin migration, also safe to run twice
+  await db.exec(SQL4); await db.exec(SQL4);                 // the invite counts, also safe to run twice
   const as = async (n, fn) => { await db.exec(`select set_config('test.uid', '${n ? U(n) : ''}', false)`); return fn(); };
   const call = async (n, sql, params) => as(n, async () => { try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } });
   const lookup = (n, slug, lv, y) => call(n, 'select public.batch_lookup($1,$2,$3) as r', [slug, lv, y]);
@@ -150,6 +152,12 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('every admin action was written to the log', lg.length === 7 && lg.some(x => x.action === 'delete') && lg.some(x => x.action === 'clear_text'), JSON.stringify(lg.map(x => x.action)));
   await adm(false);
   ok('the new tables are closed to anon and to signed-in members', await (async () => { const g = async (role, tb) => { await db.exec(`set role ${role}`); try { await db.query('select * from public.' + tb); return 'open'; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } }; return (await g('anon', 'batch_reports')) === 'denied' && (await g('authenticated', 'batch_reports')) === 'denied' && (await g('authenticated', 'batch_admin_log')) === 'denied'; })());
+
+  // ---- how many each member brought (2026-12-29)
+  const inv0 = await claim(60, 'dhaka-college', 'ssc', 2001); const IB = inv0.batch_id; await join(61, IB, inv0.ref); await join(62, IB, inv0.ref); await join(63, IB);
+  r = await call(60, 'select public.batch_my_invites() as r');
+  ok('the convener brought two (the third joined without a code); the list has only their own batches', Array.isArray(r) && r.length === 1 && r[0].batch_id === IB && r[0].invited === 2, JSON.stringify(r));
+  ok('a member who came through a code and invited nobody has 0; a visitor gets an empty list; no names or codes come back', (await call(61, 'select public.batch_my_invites() as r'))[0].invited === 0 && (await call(0, 'select public.batch_my_invites() as r')).length === 0 && !/name|email|ref|user/.test(JSON.stringify(r)), JSON.stringify(r));
 
   // ---- the tables are closed
   const guard = async (role, uid, sql) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); await db.exec(`set role ${role}`); try { return (await db.query(sql)).rows; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };

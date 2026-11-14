@@ -493,20 +493,44 @@ main.container{margin-top:22px}
 @media(max-width:640px){.ar-hero{grid-template-columns:1fr;text-align:left}.ar-ring{width:96px;height:96px}.ar-pick{grid-template-columns:1fr}.ar-row{flex-wrap:wrap}.ar-row .btn{width:100%}}
 
 /* আমার ব্যাচ (the member's own batches, shown only once they are in one) */
-.bh-list{display:grid;gap:16px}
-.bh-card{--ac:#1A56DB;--tint:#EAF1FF;--soft:#D6E3FB;border:1px solid var(--soft);border-radius:22px;padding:20px;background:linear-gradient(180deg,#fff,var(--tint))}
-.bh-card[data-theme=violet]{--ac:#6D28D9;--tint:#F1EBFF;--soft:#DDD0FB}.bh-card[data-theme=teal]{--ac:#0F766E;--tint:#E3F6F2;--soft:#BFE6DE}
-.bh-card[data-theme=amber]{--ac:#B45309;--tint:#FFF1D6;--soft:#F7DBA6}.bh-card[data-theme=rose]{--ac:#BE123C;--tint:#FFE9EE;--soft:#F8C9D4}
-.bh-top{display:flex;gap:14px;align-items:center}
-.bh-mark{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--ac);color:#fff;font-size:19px;font-weight:800}
-.bh-nm{font-size:18px;font-weight:800;color:var(--text);line-height:1.3}.bh-sub{font-size:13.5px;color:var(--text-2);margin-top:2px}
-.bh-stats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-.bh-stats span{font-size:13px;font-weight:700;color:var(--ac);background:#fff;border:1px solid var(--soft);border-radius:100px;padding:3px 12px}
-.bh-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.bh-acts a,.bh-acts button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 12px;border:1.5px solid var(--soft);border-radius:12px;background:#fff;color:var(--ac);font:700 14px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer}
-.bh-acts a.pri{background:var(--ac);border-color:var(--ac);color:#fff}
-.bh-acts a:hover,.bh-acts button:hover{filter:brightness(.97)}
-.bh-empty{text-align:center;padding:30px 18px}.bh-empty b{display:block;font-size:17px;margin-bottom:6px}.bh-empty p{color:var(--text-2);margin:0 0 16px}
+.bh-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}
+.bh-s{display:flex;gap:12px;align-items:center;padding:15px 16px;border-radius:20px;background:#fff;border:1px solid rgba(15,23,42,.07);box-shadow:0 1px 2px rgba(15,23,42,.04),0 14px 30px -22px rgba(15,23,42,.25)}
+.bh-si{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#EEF3FF;color:var(--blue);border:1px solid #D6E3FB}
+.bh-s b{display:block;font-size:26px;font-weight:800;line-height:1.1;color:var(--text);font-variant-numeric:tabular-nums}.bh-s span{display:block;margin-top:2px;font-size:12.5px;color:var(--text-2)}
+.bh-list{display:grid;gap:20px}
+.bh-card{--ac:#1A56DB;--ac2:#7C3AED;--d:#0B1B4D;--tint:#EAF1FF;--soft:#D6E3FB;border-radius:28px;background:#fff;border:1px solid rgba(15,23,42,.07);box-shadow:0 1px 2px rgba(15,23,42,.04),0 22px 48px -26px rgba(15,23,42,.3);overflow:hidden}
+.bh-card[data-theme=violet]{--ac:#6D28D9;--ac2:#DB2777;--d:#2A0F5E;--tint:#F1EBFF;--soft:#DDD0FB}.bh-card[data-theme=teal]{--ac:#0F766E;--ac2:#1A56DB;--d:#06312D;--tint:#E3F6F2;--soft:#BFE6DE}
+.bh-card[data-theme=amber]{--ac:#B45309;--ac2:#DB2777;--d:#4A2105;--tint:#FFF1D6;--soft:#F7DBA6}.bh-card[data-theme=rose]{--ac:#BE123C;--ac2:#7C3AED;--d:#4A0A1E;--tint:#FFE9EE;--soft:#F8C9D4}
+.bh-ban{position:relative;display:flex;gap:16px;align-items:center;padding:24px 26px;color:#fff;background:radial-gradient(520px 220px at 12% -20%,rgba(255,255,255,.22),transparent 60%),linear-gradient(135deg,var(--d),var(--ac) 62%,var(--ac2));overflow:hidden}
+.bh-ban::after{content:attr(data-y);position:absolute;right:-6px;bottom:-40px;font:800 128px/1 'Hind Siliguri','Inter',sans-serif;color:rgba(255,255,255,.08);pointer-events:none}
+.bh-mark{position:relative;z-index:1;flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);font-size:23px;font-weight:800}
+.bh-tt{position:relative;z-index:1;min-width:0;flex:1}.bh-nm{font-size:22px;font-weight:800;line-height:1.3;letter-spacing:-.2px;overflow-wrap:anywhere}.bh-sub{margin-top:3px;font-size:13.5px;color:rgba(255,255,255,.82)}
+.bh-role{position:relative;z-index:1;flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);font-size:13px;font-weight:800}
+.bh-body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;padding:24px 26px 8px}
+.bh-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 10px;font-size:12.5px;font-weight:800;letter-spacing:.3px;color:var(--text-2)}.bh-h small{font-size:12.5px;font-weight:600;color:var(--text-3);letter-spacing:0}
+.bh-pg{height:10px;border-radius:10px;background:var(--tint);overflow:hidden}.bh-pg i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.bh-pgn{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px}.bh-pgn b{font-size:30px;font-weight:800;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}.bh-pgn b em{font-style:normal;font-size:16px;color:var(--text-3);font-weight:700}.bh-pgn span{font-size:13px;color:var(--text-2)}
+.bh-ms{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.bh-ms span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;padding:3px 11px;border-radius:100px;background:#F1F5F9;color:var(--text-3);border:1px solid transparent}
+.bh-ms span.on{background:var(--tint);color:var(--ac);border-color:var(--soft)}
+.bh-avs{display:flex;align-items:center;margin-top:18px}.bh-av{position:relative;flex:none;display:grid;place-items:center;width:38px;height:38px;margin-left:-10px;border-radius:50%;border:3px solid #fff;color:#fff;font-size:14px;font-weight:800;overflow:hidden;box-shadow:0 2px 6px rgba(15,23,42,.18)}
+.bh-av:first-child{margin-left:0}.bh-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.bh-av.more{background:#F1F5F9;color:var(--text-2);font-size:12.5px}
+.bh-avt{margin-left:12px;font-size:13px;color:var(--text-2)}
+.bh-next{display:grid;grid-template-columns:40px minmax(0,1fr);gap:2px 12px;align-items:center;padding:14px;border-radius:18px;background:linear-gradient(180deg,#fff,var(--tint));border:1px solid var(--soft)}
+.bh-ni{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--ac);color:#fff}.bh-next b{display:block;font-size:14.5px;line-height:1.4;color:var(--text)}.bh-next small{display:block;font-size:12.5px;color:var(--text-2)}
+.bh-next a{grid-column:2;justify-self:start;margin:8px 0 0;font-size:13px;font-weight:800;color:var(--ac);text-decoration:none;background:#fff;border:1px solid var(--soft);border-radius:100px;padding:6px 14px;white-space:nowrap}
+.bh-lk{display:flex;align-items:center;gap:6px;padding:5px 5px 5px 14px;border:1.5px solid var(--soft);border-radius:16px;background:linear-gradient(180deg,#fff,var(--tint))}.bh-lk input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:13px;color:var(--text-2)}.bh-lk button{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}.bh-lk button.ok{background:#16A34A}
+.bh-inv{display:flex;gap:12px;align-items:center;margin-top:12px;padding:12px 14px;border-radius:18px;background:#F8FAFF;border:1px solid rgba(15,23,42,.07)}.bh-inv .bh-ni{background:var(--tint);color:var(--ac)}.bh-inv b{font-size:22px;font-weight:800;color:var(--text);line-height:1.1}.bh-inv span{display:block;font-size:12.5px;color:var(--text-2)}
+.bh-act{list-style:none;margin:0;padding:0;display:grid;gap:8px}.bh-act li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-2)}.bh-act .bh-av{width:32px;height:32px;margin:0;border-width:2px;font-size:12.5px}
+.bh-act b{color:var(--text);font-weight:700}.bh-act time{margin-left:auto;flex:none;font-size:12px;color:var(--text-3)}.bh-none{font-size:13.5px;line-height:1.6;color:var(--text-3)}
+.bh-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:18px 26px 24px}
+.bh-acts a,.bh-acts button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 12px;border:1.5px solid var(--soft);border-radius:14px;background:#fff;color:var(--ac);font:700 14px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer;transition:filter .15s,box-shadow .15s}
+.bh-acts a.pri{background:var(--ac);border-color:var(--ac);color:#fff;box-shadow:0 10px 22px -12px var(--ac)}.bh-acts a:hover,.bh-acts button:hover{filter:brightness(.97)}.bh-acts button.ok{border-color:#16A34A;color:#16A34A}
+.bh-ic{flex:none;display:block}
+.bh-sg{display:flex;gap:16px;align-items:center;padding:20px 22px;margin-bottom:20px;border-radius:24px;background:linear-gradient(135deg,#FFF9E6,#fff);border:1px solid #F7DBA6}
+.bh-sg .bh-mark{background:#FDE68A;border-color:#F7DBA6;color:#92400E;width:52px;height:52px;border-radius:16px}.bh-sg b{display:block;font-size:16px;color:var(--text)}.bh-sg span{display:block;font-size:13.5px;color:var(--text-2);margin-top:2px}.bh-sg a{margin-left:auto;flex:none;padding:10px 18px;border-radius:14px;background:var(--blue);color:#fff;font-weight:800;font-size:14px;text-decoration:none;white-space:nowrap}
+.bh-empty{text-align:center;padding:38px 22px}.bh-empty .bh-mark{margin:0 auto 14px;background:#EEF3FF;border-color:#D6E3FB;color:var(--blue);width:64px;height:64px;border-radius:20px}.bh-empty b{display:block;font-size:19px;margin-bottom:6px}.bh-empty p{color:var(--text-2);margin:0 auto 18px;max-width:420px;line-height:1.7}
+@media(max-width:560px){.bh-sum{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.bh-s{padding:12px;gap:10px;border-radius:18px}.bh-si{width:36px;height:36px;border-radius:12px}.bh-s b{font-size:22px}.bh-s span{font-size:12px;line-height:1.35}.bh-nm{font-size:19px}}
+@media(max-width:820px){.bh-body{grid-template-columns:minmax(0,1fr);gap:20px}.bh-ban{padding:20px;flex-wrap:wrap}.bh-role{order:3}.bh-body{padding:20px 20px 4px}.bh-acts{padding:16px 20px 20px}.bh-sg{flex-wrap:wrap}}
 .ov-bh{margin-top:18px}.ov-bh a.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;text-decoration:none;color:var(--text);margin-top:8px}
 .ov-bh a.row b{display:block;font-size:15px}.ov-bh a.row span{font-size:12.5px;color:var(--text-2)}.ov-bh a.row i{margin-left:auto;font-style:normal;color:var(--blue);font-weight:700;font-size:13px}
 </style>
@@ -793,36 +817,100 @@ function renderAccount(me, since){
   $('rows').innerHTML = [['নাম', me.display_name || '—'], ['ইমেইল', me.email || '—'], ['যোগ দিয়েছেন', since || '—'], ['সর্বশেষ এসেছেন', last], ['লগইন', 'Google']].map(r => '<div><span>' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>').join('');
 }
 
-/* ---------- আমার ব্যাচ: the member's batches, each with its features (the batch page does the work; these are the doors to it) ---------- */
+/* ---------- আমার ব্যাচ: the member's batches; each card is a small home for that batch (the batch page does the work, these are the doors) ---------- */
+const BHI = {
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
+  seat: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6z"/>',
+  crown: '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
+  send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  pen: '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 7l3 3"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  open: '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/>'
+};
+const bhi = (n, z) => '<svg class="bh-ic" width="' + (z || 18) + '" height="' + (z || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (BHI[n] || '') + '</svg>';
+const BH_COL = ['#1A56DB', '#7C3AED', '#0F766E', '#B45309', '#BE123C', '#0891B2', '#4F46E5'];
+const BH_GOALS = [10, 25, 50, 100, 250];
+const batchUrl = r => '/b/' + encodeURIComponent(r.slug) + '/' + encodeURIComponent(r.level) + '-' + encodeURIComponent(r.year);
+const bhFlag = (id, w) => { try{ return localStorage.getItem('bt_' + id + w) === '1'; }catch(e){ return false; } };
+const bhAgo = iso => { const t = Date.parse(iso); if(!t) return ''; const m = Math.max(0, Math.round((Date.now() - t) / 60000)); if(m < 2) return 'এইমাত্র'; if(m < 60) return bn(m) + ' মিনিট আগে'; const h = Math.round(m / 60); if(h < 24) return bn(h) + ' ঘণ্টা আগে'; const d = Math.round(h / 24); if(d < 31) return bn(d) + ' দিন আগে'; return new Date(t).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }); };
+const bhFace = (m, i) => '<span class="bh-av" style="background:' + BH_COL[i % BH_COL.length] + '">' + esc(Array.from(String(m.name || '?').trim())[0] || '?') + (m.avatar && /^https:\/\//.test(m.avatar) ? '<img src="' + esc(m.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</span>';
+
 async function loadMyBatches(){
   const box = $('bhBox'); if(!box) return;
   const { data, error } = await M.sb.rpc('batch_me');
   const rows = !error && Array.isArray(data) ? data : null;
-  STATE.batches = rows || [];
+  STATE.bhRows = rows; STATE.bhInv = STATE.bhInv || {}; STATE.bhRost = STATE.bhRost || {};
   document.querySelectorAll('.sn-batch').forEach(a => { a.style.display = rows && rows.length ? '' : 'none'; });
   document.querySelectorAll('.cnt-batch').forEach(e => { e.textContent = bn(rows ? rows.length : 0); });
-  if(!rows){ box.innerHTML = '<div class="card bh-empty"><b>ব্যাচের সুবিধা শীঘ্রই চালু হচ্ছে</b><p>একটু পরে আবার দেখুন।</p></div>'; renderOvBatch([]); return; }
+  renderMyBatches();
+  if(!rows || !rows.length) return;
+  // the extras (who brought how many, who is in, who joined lately): the page is already drawn, these fill in when they arrive
+  const [inv, ...rost] = await Promise.all([M.sb.rpc('batch_my_invites'), ...rows.slice(0, 4).map(r => M.sb.rpc('batch_roster', { p_batch_id: r.batch_id }))]);
+  if(inv && Array.isArray(inv.data)) inv.data.forEach(x => { STATE.bhInv[x.batch_id] = x.invited; });
+  rows.slice(0, 4).forEach((r, i) => { const d = rost[i] && rost[i].data; if(d && d.ok) STATE.bhRost[r.batch_id] = d.members || []; });
+  renderMyBatches();
+}
+/* a school and year the member already wrote on the saved card, which has no batch of theirs yet */
+function bhSuggest(rows){
+  const d = STATE.card, e = d && d.edu && d.edu.school; if(!e || !e.slug || !e.year) return null;
+  const y = +((String(e.year).replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).match(/\d{4}/) || [])[0]); if(!(y >= 1970 && y <= new Date().getFullYear() + 1)) return null;
+  const lv = (e.track === 'a' || e.track === 'alia') ? 'ssc' : 'ssc';
+  if((rows || []).some(r => r.slug === e.slug && r.level === lv && r.year === y)) return null;
+  return { slug: e.slug, level: lv, year: y, name: e.name || e.slug };
+}
+function bhNext(r, lead, n){
+  const goal = BH_GOALS.find(g => n < g) || BH_GOALS[BH_GOALS.length - 1], url = batchUrl(r);
+  if(lead && !r.bname) return { i: 'pen', t: 'ব্যাচের একটা নাম দিন', s: 'নাম থাকলে সবাই ব্যাচটা সহজে চিনবে', a: 'নাম দিন', h: url + '#setup' };
+  if(!bhFlag(r.batch_id, 'p')) return { i: 'image', t: 'পোস্টার বানিয়ে ফেসবুকে দিন', s: 'পোস্টারে সবচেয়ে বেশি সহপাঠী আসে', a: 'পোস্টার বানান', h: url + '#invite' };
+  if(n < 10) return { i: 'send', t: bn(10 - n) + ' জন হলে ব্যাচ জমে উঠবে', s: 'লিংকটা ব্যাচের গ্রুপে আবার পাঠান', a: 'আমন্ত্রণ পাঠান', h: url + '#invite' };
+  return { i: 'target', t: 'পরের লক্ষ্য ' + bn(goal) + ' জন', s: bn(goal - n) + ' জন হলেই পূর্ণ', a: 'আমন্ত্রণ পাঠান', h: url + '#invite' };
+}
+function batchCardHtml(r){
+  const url = batchUrl(r), inv = location.origin + url + (r.ref ? '?r=' + encodeURIComponent(r.ref) : ''), lead = r.role === 'convener' || r.role === 'co', n = Number(r.members) || 0;
+  const title = r.bname || r.name || r.slug, goal = BH_GOALS.find(g => n < g) || BH_GOALS[BH_GOALS.length - 1], pct = Math.min(100, Math.round(n / goal * 100)), rost = STATE.bhRost && STATE.bhRost[r.batch_id], invited = STATE.bhInv && STATE.bhInv[r.batch_id];
+  const wa = 'https://wa.me/?text=' + encodeURIComponent((r.name || '') + '\n' + String(r.level).toUpperCase() + ' ' + bn(r.year) + ' ব্যাচ, আমাদের গল্প আবার এক জায়গায়। যোগ দাও:\n' + inv);
+  const nx = bhNext(r, lead, n);
+  const faces = rost ? '<div class="bh-avs">' + rost.slice(0, 7).map(bhFace).join('') + (rost.length > 7 ? '<span class="bh-av more">+' + bn(rost.length - 7) + '</span>' : '') + '<span class="bh-avt">' + bn(rost.length) + ' জন এখানে আছেন</span></div>' : '';
+  const recent = rost ? rost.filter(m => !m.me).sort((a, b) => Date.parse(b.joined_at) - Date.parse(a.joined_at)).slice(0, 3) : null;
+  const act = recent === null ? '<div class="skel" style="height:86px"></div>' : (recent.length ? '<ul class="bh-act">' + recent.map((m, i) => '<li>' + bhFace(m, i + 2) + '<span><b>' + esc(m.name) + '</b> যোগ দিয়েছেন</span><time>' + esc(bhAgo(m.joined_at)) + '</time></li>').join('') + '</ul>' : '<p class="bh-none">এখনও আর কেউ যোগ দেননি। পোস্টার আর লিংক পাঠিয়ে প্রথম সহপাঠীকে ডাকুন।</p>');
+  return '<div class="bh-card" data-theme="' + esc(r.theme || 'blue') + '">' +
+    '<div class="bh-ban" data-y="' + esc(bn(r.year)) + '"><span class="bh-mark">' + esc(Array.from(String(title).trim())[0] || 'B') + '</span><div class="bh-tt"><div class="bh-nm">' + esc(title) + '</div><div class="bh-sub">' + (r.bname ? esc(r.name || r.slug) + ' · ' : '') + esc(String(r.level).toUpperCase()) + ' ' + bn(r.year) + ' ব্যাচ</div></div>' +
+    '<span class="bh-role">' + bhi(lead ? 'crown' : 'seat', 16) + (lead ? 'আহ্বায়ক' : bn(r.seq) + ' নম্বর সদস্য') + '</span></div>' +
+    '<div class="bh-body"><div><div class="bh-h">অগ্রগতি<small>লক্ষ্য ' + bn(goal) + ' জন</small></div><div class="bh-pgn"><b>' + bn(n) + '<em> / ' + bn(goal) + '</em></b><span>' + (n >= goal ? 'লক্ষ্য পূর্ণ' : 'আর ' + bn(goal - n) + ' জন') + '</span></div><div class="bh-pg" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="bh-ms">' + BH_GOALS.slice(0, 4).map(g => '<span class="' + (n >= g ? 'on' : '') + '">' + (n >= g ? bhi('check', 13) : '') + bn(g) + ' জন</span>').join('') + '</div>' + faces +
+    '<div class="bh-h" style="margin-top:22px">সাম্প্রতিক</div>' + act + '</div>' +
+    '<div><div class="bh-h">পরের কাজ</div><div class="bh-next"><span class="bh-ni">' + bhi(nx.i, 20) + '</span><div><b>' + esc(nx.t) + '</b><small>' + esc(nx.s) + '</small></div><a href="' + nx.h + '">' + esc(nx.a) + '</a></div>' +
+    (invited != null ? '<div class="bh-inv"><span class="bh-ni">' + bhi('users', 20) + '</span><div><b>' + bn(invited) + ' জন</b><span>আপনার আমন্ত্রণে এসেছেন</span></div></div>' : '') +
+    '<div class="bh-h" style="margin-top:18px">আমন্ত্রণ লিংক</div><div class="bh-lk"><input readonly value="' + esc(inv) + '" aria-label="আমন্ত্রণ লিংক"><button type="button" data-copy="' + esc(inv) + '">' + bhi('copy', 17) + 'কপি</button></div></div></div>' +
+    '<div class="bh-acts"><a class="pri" href="' + url + '">' + bhi('open', 17) + 'ব্যাচের পেজ খুলুন</a>' +
+    '<a href="' + wa + '" target="_blank" rel="noopener">' + bhi('chat', 17) + 'WhatsApp-এ পাঠান</a>' +
+    '<a href="' + url + '#roster">' + bhi('users', 17) + 'সদস্য তালিকা</a>' +
+    '<a href="' + url + '#invite">' + bhi('image', 17) + 'শেয়ার-ছবি বানান</a>' +
+    (lead ? '<a href="' + url + '#setup">' + bhi('pen', 17) + 'ব্যাচ সাজান</a>' : '') + '</div></div>';
+}
+function renderMyBatches(){
+  const box = $('bhBox'); if(!box) return;
+  const rows = STATE.bhRows, sg = bhSuggest(rows);
+  const sgHtml = sg ? '<div class="bh-sg"><span class="bh-mark">' + bhi('spark', 24) + '</span><div><b>আপনার কার্ডে এই স্কুলটা আছে</b><span>' + esc(sg.name) + ' · SSC ' + bn(sg.year) + '। এই ব্যাচে যোগ দিন বা খুলুন।</span></div><a href="' + batchUrl({ slug: sg.slug, level: sg.level, year: sg.year }) + '">ব্যাচ দেখুন</a></div>' : '';
+  if(!rows){ box.innerHTML = '<div class="card bh-empty"><span class="bh-mark">' + bhi('users', 26) + '</span><b>ব্যাচের সুবিধা শীঘ্রই চালু হচ্ছে</b><p>একটু পরে আবার দেখুন।</p></div>'; renderOvBatch([]); return; }
   if(!rows.length){
-    box.innerHTML = '<div class="card bh-empty"><b>আপনি এখনও কোনো ব্যাচে নেই</b><p>আপনার স্কুল আর SSC-র সাল দিয়ে ব্যাচ খুঁজুন। না থাকলে আপনিই খুলুন, আপনি হবেন আহ্বায়ক।</p><a class="btn btn-blue" href="/batch">ব্যাচ খুঁজুন বা খুলুন</a></div>';
+    box.innerHTML = sgHtml + '<div class="card bh-empty"><span class="bh-mark">' + bhi('users', 26) + '</span><b>আপনি এখনও কোনো ব্যাচে নেই</b><p>আপনার স্কুল আর SSC-র সাল দিয়ে ব্যাচ খুঁজুন। না থাকলে আপনিই খুলুন, আপনি হবেন আহ্বায়ক।</p><a class="btn btn-blue" href="/batch">ব্যাচ খুঁজুন বা খুলুন</a></div>';
     renderOvBatch([]); return;
   }
   $('bhSub').textContent = bn(rows.length) + 'টি ব্যাচে আছেন';
-  box.innerHTML = '<div class="bh-list">' + rows.map(batchCardHtml).join('') + '</div>';
-  box.querySelectorAll('[data-copy]').forEach(b => { b.onclick = async () => { try{ await navigator.clipboard.writeText(b.dataset.copy); M.toast('আমন্ত্রণ লিংক কপি হয়েছে'); }catch(e){ prompt('লিংকটা কপি করুন', b.dataset.copy); } }; });
+  const total = rows.reduce((a, r) => a + (Number(r.members) || 0), 0), invs = Object.values(STATE.bhInv || {}).reduce((a, x) => a + (Number(x) || 0), 0), hasInv = Object.keys(STATE.bhInv || {}).length > 0;
+  const week = Object.values(STATE.bhRost || {}).reduce((a, l) => a + l.filter(m => !m.me && Date.now() - Date.parse(m.joined_at) < 7 * 864e5).length, 0), hasRost = Object.keys(STATE.bhRost || {}).length > 0;
+  const stat = (ic, v, t) => '<div class="bh-s"><span class="bh-si">' + bhi(ic, 22) + '</span><div><b>' + v + '</b><span>' + t + '</span></div></div>';
+  box.innerHTML = '<div class="bh-sum">' + stat('target', bn(rows.length), 'আপনার ব্যাচ') + stat('users', bn(total), 'সব ব্যাচ মিলিয়ে সদস্য') + (hasInv ? stat('send', bn(invs), 'আপনার আমন্ত্রণে এসেছেন') : '') + (hasRost ? stat('spark', bn(week), 'এই সপ্তাহে নতুন') : '') + '</div>' + sgHtml +
+    '<div class="bh-list">' + rows.map(batchCardHtml).join('') + '</div>';
+  box.querySelectorAll('[data-copy]').forEach(b => { b.onclick = async () => { try{ await navigator.clipboard.writeText(b.dataset.copy); M.toast('আমন্ত্রণ লিংক কপি হয়েছে'); }catch(e){ prompt('লিংকটা কপি করুন', b.dataset.copy); return; } const keep = b.innerHTML; b.classList.add('ok'); b.innerHTML = bhi('check', 17) + 'কপি হয়েছে'; setTimeout(() => { b.classList.remove('ok'); b.innerHTML = keep; }, 1600); }; });
   renderOvBatch(rows);
-}
-const batchUrl = r => '/b/' + encodeURIComponent(r.slug) + '/' + encodeURIComponent(r.level) + '-' + encodeURIComponent(r.year);
-function batchCardHtml(r){
-  const url = batchUrl(r), inv = location.origin + url + (r.ref ? '?r=' + encodeURIComponent(r.ref) : ''), lead = r.role === 'convener' || r.role === 'co';
-  const title = r.bname || r.name || r.slug, wa = 'https://wa.me/?text=' + encodeURIComponent((r.name || '') + '\n' + String(r.level).toUpperCase() + ' ' + bn(r.year) + ' ব্যাচ, আমাদের গল্প আবার এক জায়গায়। যোগ দাও:\n' + inv);
-  return '<div class="bh-card" data-theme="' + esc(r.theme || 'blue') + '"><div class="bh-top"><span class="bh-mark">' + esc(String(title).trim().charAt(0).toUpperCase() || 'B') + '</span><div><div class="bh-nm">' + esc(title) + '</div><div class="bh-sub">' + (r.bname ? esc(r.name || r.slug) + ' · ' : '') + esc(String(r.level).toUpperCase()) + ' ' + bn(r.year) + ' ব্যাচ</div></div></div>' +
-    '<div class="bh-stats"><span>' + bn(r.members) + ' জন যুক্ত</span><span>' + (lead ? 'আপনি আহ্বায়ক' : 'আপনি ' + bn(r.seq) + ' নম্বর সদস্য') + '</span>' + (lead && r.role === 'convener' ? '<span>নম্বর ' + bn(r.seq) + '</span>' : '') + '</div>' +
-    '<div class="bh-acts"><a class="pri" href="' + url + '">ব্যাচের পেজ খুলুন</a>' +
-    '<button type="button" data-copy="' + esc(inv) + '">আমন্ত্রণ লিংক কপি</button>' +
-    '<a href="' + wa + '" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a>' +
-    '<a href="' + url + '#roster">সদস্য তালিকা</a>' +
-    '<a href="' + url + '#invite">শেয়ার-ছবি বানান</a>' +
-    (lead ? '<a href="' + url + '#setup">ব্যাচ সাজান (নাম, লাইন, রং)</a>' : '') + '</div></div>';
 }
 function renderOvBatch(rows){
   const el = $('ovBatch'); if(!el) return;
@@ -1395,7 +1483,7 @@ async function loadCard(){
   const { data } = await M.sb.from('member_cards').select('data,updated_at').maybeSingle();
   const d = data && data.data;
   const has = !!(d && (d.name || d.photo));
-  STATE.card = has ? d : null; updateProgress();
+  STATE.card = has ? d : null; updateProgress(); if(STATE.bhRows) renderMyBatches();
   if(!has){
     $('cardSub').textContent = 'এখনো কার্ড বানাননি';
     box.innerHTML = '<div class="empty" style="padding:6px 0 4px"><div style="width:100%;max-width:340px;margin-bottom:16px">' + cardPreview({ name: 'আপনার নাম', theme: 'night', edu: { school: { name: 'আপনার স্কুল', year: '২০১৫' }, college: { name: 'আপনার কলেজ', year: '২০১৭' } } }, true) + '</div><b>নিজের শিক্ষিত কার্ড বানান</b><p>৩০ সেকেন্ডে নিজের শিক্ষাজীবন নিয়ে একটা মজার কার্ড বানান, তারপর সব ডিভাইসে পান আর বন্ধুদের সাথে শেয়ার করুন।</p><a class="btn btn-blue" href="card.html">কার্ড বানান ' + ico('arrow', 16) + '</a></div>';
