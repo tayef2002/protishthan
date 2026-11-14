@@ -244,12 +244,18 @@
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
     put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
-    c.fillStyle = linear(0, py + ph * .55, 0, py + ph, [[0, 'rgba(8,9,13,0)'], [1, 'rgba(8,9,13,.78)']]); c.fillRect(px, py, pw, ph);
     c.fillStyle = linear(px, py, px + pw, py + ph, [[0, 'rgba(255,255,255,.18)'], [.35, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.1)']]); c.fillRect(px, py, pw, ph);
     c.restore();
     c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.55)'; rr(px, py, pw, ph, pr); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(255,255,255,.14)'; rr(px + 2, py + 2, pw - 4, ph - 4, pr - 2); c.stroke();
     const sy = ch - 196, sh2 = 160;
-    if(cap){ const f = fit(cap, pw - 120, 1, 44, 24, '700', HS); c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '700 ' + f.size + 'px ' + HS; shadow('rgba(0,0,0,.6)', 10 * k, 3 * k); c.fillText(f.lines[0], cw / 2, sy - 24); shadow(); }
+    if(cap){
+      /* the small line sits in a pill; the pill is measured from the text itself (width from the text, height from the font), and the text is centred in it by the font's own ascent and descent, so the two are always aligned */
+      const f = fit(cap, pw - 150, 1, 44, 24, '700', HS); c.font = '700 ' + f.size + 'px ' + HS;
+      const m = c.measureText(f.lines[0]), asc = m.fontBoundingBoxAscent || f.size * .95, des = m.fontBoundingBoxDescent || f.size * .3;
+      const ph2 = Math.round(f.size * 1.5), pw2 = Math.round(m.width + f.size * 1.7), yc = sy - 4 - ph2 / 2;
+      rr(cw / 2 - pw2 / 2, yc - ph2 / 2, pw2, ph2, ph2 / 2); c.fillStyle = 'rgba(8,9,13,.58)'; c.fill();
+      c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.97)'; c.fillText(f.lines[0], cw / 2, yc + (asc - des) / 2);
+    }
     /* the gold contacts, on the photo */
     const n = 15, gap = 6, gw = (cw - 124 - 36 - gap * (n - 1)) / n;
     for(let q = 0; q < n; q++){ const gx = 62 + 18 + q * (gw + gap), gh = q % 2 ? sh2 - 38 : sh2 - 28; shadow('rgba(0,0,0,.55)', 7 * k, 3 * k); rr(gx, sy + 14, gw, gh, 4); c.fillStyle = linear(gx, 0, gx + gw, 0, [[0, '#B8860B'], [.3, '#FFE9A8'], [.6, '#F5B933'], [1, '#A87408']]); c.fill(); shadow(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(gx + 5, sy + 20, 4, gh - 14); }
