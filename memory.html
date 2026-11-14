@@ -89,6 +89,7 @@
 
   /* the colours: soft, light and friendly. bg is the paper, bg2 a deeper tint of it, ac the accent, dk the ink. */
   const THEMES = {
+    sepia: { n: 'পুরনো ছবি', bg: '#F8EEDD', bg2: '#EED8B4', ac: '#B06A2C', dk: '#4A2C12' },
     mint: { n: 'পুদিনা', bg: '#EAF7F0', bg2: '#CDEEDC', ac: '#2E9E74', dk: '#14433A' },
     sky: { n: 'আকাশি', bg: '#EAF3FD', bg2: '#CFE3FA', ac: '#2F7DE1', dk: '#16365E' },
     peach: { n: 'পীচ', bg: '#FFF0E6', bg2: '#FFDAC4', ac: '#E8743B', dk: '#5A2A12' },
@@ -114,12 +115,12 @@
     { k: 'polaroid2', n: 'দুই পোলারয়েড', a: 1.2, ph: 2 },
     { k: 'thennow', n: 'তখন আর এখন', a: 1.45, ph: 2 }
   ];
-  const S = { tpl: 'polaroid', theme: 'mint', size: 'post', photos: [null, null] };
+  const S = { tpl: 'polaroid', theme: 'sepia', size: 'post', photos: [null, null] };
   const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
-  const DRAFT = 'mem_draft_v3';
+  const DRAFT = 'mem_draft_v4';
 
   /* ---------- small helpers for drawing ---------- */
-  let c = null, PAL = THEMES.mint;
+  let c = null, PAL = THEMES.sepia;
   const HS = '"Hind Siliguri", Inter, sans-serif', DISP = '"Baloo Da 2", "Hind Siliguri", Inter, sans-serif';
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
@@ -278,7 +279,7 @@
     c.strokeStyle = mix(PAL.ac, '#FFFFFF', .72); c.lineWidth = 4; c.globalAlpha = .6; [[.14, .22], [.86, .74], [.2, .86]].forEach(p => { const px = W * p[0], py = H * p[1]; c.beginPath(); c.moveTo(px - 16, py); c.lineTo(px + 16, py); c.moveTo(px, py - 16); c.lineTo(px, py + 16); c.stroke(); }); c.globalAlpha = 1;
   }
   function render1(W, H, d, key){
-    PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
+    PAL = THEMES[S.theme] || THEMES.sepia; S.cur = d; c.textBaseline = 'alphabetic';
     paper(W, H); const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
     const title = d.title || 'আমাদের সেই দিন', tt = fit(title, mw, 2, 78, 44, '800', DISP), ll = d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
     const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small ? 84 : 0);
@@ -358,7 +359,7 @@
   $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
+  loadDraft(); PAL = THEMES[S.theme] || THEMES.sepia; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
   draw(); thumbs();
   track('memory_view', {});
