@@ -53,7 +53,7 @@
             <div class="bt-list" id="instList" role="listbox" hidden></div>
           </div>
           <div class="bt-field">
-            <label for="yearSel">পরীক্ষার সাল</label>
+            <label for="yearSel">ব্যাচ সাল</label>
             <select class="bt-inp" id="yearSel"></select>
           </div>
         </div>
@@ -218,7 +218,7 @@
     const err = $('findErr'); err.hidden = true;
     const y = +$('yearSel').value;
     if(!ST.inst){ err.textContent = 'তালিকা থেকে আপনার প্রতিষ্ঠানটা বেছে নিন।'; err.hidden = false; return; }
-    if(!y){ err.textContent = 'পরীক্ষার সালটা বেছে নিন।'; err.hidden = false; return; }
+    if(!y){ err.textContent = 'ব্যাচের সালটা বেছে নিন।'; err.hidden = false; return; }
     track('batch_find', { lv: ST.lv });
     go({ slug: ST.inst.slug, lv: ST.lv, year: y });
   }
