@@ -254,7 +254,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 @media(max-width:560px){.bt-tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bt-tile{flex-direction:column;gap:8px;padding:12px 10px;border-radius:18px}.bt-tile .bt-ci{width:34px;height:34px;border-radius:11px}.bt-tile b{font-size:24px}.bt-tile b.sm{font-size:15px}.bt-tile span:not(.bt-ci){font-size:11.5px;line-height:1.35}.bt-tile small{display:none}.bt-mp{margin:6px 0 0}}
 
 /* ===== group pictures and albums ===== */
-.bt-cover{position:relative;max-width:660px;margin:16px auto 18px;border-radius:28px;overflow:hidden;aspect-ratio:16/9;background:var(--tint);border:1px solid var(--soft);box-shadow:0 22px 48px -28px rgba(15,23,42,.45);text-align:left}
+.bt-cover{position:relative;max-width:660px;margin:16px auto 18px;border-radius:28px;overflow:hidden;aspect-ratio:16/9;background:var(--tint);border:1px solid var(--soft);box-shadow:none;text-align:left}
 .bt-cover img{display:block;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
 .bt-cvs{position:absolute;inset:0;background:linear-gradient(100deg,var(--tint) 30%,#fff 50%,var(--tint) 70%);background-size:200% 100%;animation:btShim 1.4s linear infinite}
 @keyframes btShim{from{background-position:200% 0}to{background-position:-200% 0}}
@@ -291,3 +291,14 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-lacts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:10px}.bt-lacts button{padding:8px 16px;border:0;border-radius:100px;background:rgba(255,255,255,.14);color:#fff;font:700 13px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}.bt-lacts button.red{background:rgba(220,38,38,.85)}.bt-rpq{color:rgba(255,255,255,.7);font-size:13px}
 @media(max-width:560px){.bt-cover{border-radius:22px}.bt-pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.bt-mdl{align-items:end;padding:0}.bt-mdb{border-radius:26px 26px 0 0}.bt-ln{display:none}}
 .bt-cvj{margin-top:8px;min-height:42px;padding:0 22px;border:0;border-radius:100px;background:var(--ac);color:#fff;font:800 14px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;box-shadow:0 12px 24px -12px var(--ac)}
+
+/* the picture frame: no shadow, no dark band; the slides cross-fade and the controls are small glass pills on the picture */
+.bt-cover{box-shadow:none!important}
+.bt-sl{position:absolute;inset:0}.bt-sl img{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}.bt-sl img.on{opacity:1}
+.bt-cvb{background:none!important;padding:0 14px 14px!important;pointer-events:none}
+.bt-cvb>*{pointer-events:auto}
+.bt-cvb span{padding:7px 13px;border-radius:100px;background:rgba(15,23,42,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff}
+.bt-cvb button#cvAll{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bt-dots{display:flex;gap:6px;padding:7px 10px;border-radius:100px;background:rgba(15,23,42,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bt-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;transition:width .25s,background .25s}.bt-dots button.on{width:22px;border-radius:8px;background:#fff}
+@media(prefers-reduced-motion:reduce){.bt-sl img{transition:none}}

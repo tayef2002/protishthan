@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=34">
+<link rel="stylesheet" href="/batch.css?v=35">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -474,18 +474,29 @@
     const r = await rpc('batch_photos', { p_batch_id: batch.id });
     if(r.error || !r.data || !r.data.ok){ const c = $('cover'); if(c) c.remove(); const p = $('photos'); if(p) p.remove(); return; }   // the database part is not there yet: no pictures UI at all
     PH.list = r.data.photos || []; PH.cover = r.data.cover; PH.lead = !!r.data.lead;
-    const cp = coverPhoto(), paths = PH.list.map(p => thumbOf(p.path)); if(cp) paths.push(cp.path);
+    const paths = signPaths();
     PH.urls = await signMany(paths);
     paintCover(); paintPhotos(); bindPhotos();
   }
   const coverPhoto = () => PH.list.find(p => p.id === PH.cover) || PH.list.find(p => p.category === 'group') || PH.list[0] || null;
+  const slidesOf = () => { const cp = coverPhoto(); return cp ? [cp].concat(PH.list.filter(p => p !== cp)).slice(0, 8) : []; };
+  const signPaths = () => PH.list.map(p => thumbOf(p.path)).concat(slidesOf().map(p => p.path));
   function paintCover(){
     const el = $('cover'); if(!el) return; const cp = coverPhoto();
     if(!cp){ el.className = 'bt-cover empty'; el.innerHTML = '<button type="button" id="cvAdd">' + ic('image', 28) + '<b>গ্রুপ ছবি যোগ করুন</b><span>ব্যাচের ছবি সবার সাথে ভাগ করুন, শুধু সদস্যরা দেখবেন</span></button>'; $('cvAdd').onclick = () => openUpload('group'); return; }
-    const url = PH.urls[cp.path] || PH.urls[thumbOf(cp.path)];
-    el.className = 'bt-cover has'; el.innerHTML = (url ? '<img src="' + esc(url) + '" alt="ব্যাচের গ্রুপ ছবি" loading="eager">' : '') + '<div class="bt-cvb"><span>' + ic('image', 16) + bn(PH.list.length) + 'টা ছবি</span><button type="button" id="cvAll">সব ছবি দেখুন</button></div>';
-    el.querySelector('img') && (el.querySelector('img').onclick = () => openLightbox(PH.list.indexOf(cp)));
+    // the frame: one picture still, or a slideshow that fades from one to the next every 3 seconds (it pauses on hover and in a hidden tab, and stays still for people who asked their device for less motion)
+    clearInterval(PH.timer); const sl = slidesOf(), url = p => PH.urls[p.path] || PH.urls[thumbOf(p.path)]; let cur = 0;
+    el.className = 'bt-cover has';
+    el.innerHTML = '<div class="bt-sl">' + sl.map((p, i) => (url(p) ? '<img class="' + (i === 0 ? 'on' : '') + '" src="' + esc(url(p)) + '" alt="ব্যাচের ছবি ' + bn(i + 1) + '" data-i="' + PH.list.indexOf(p) + '"' + (i === 0 ? '' : ' loading="lazy"') + '>' : '')).join('') + '</div>' +
+      '<div class="bt-cvb"><span>' + ic('image', 16) + bn(PH.list.length) + 'টা ছবি</span>' + (sl.length > 1 ? '<div class="bt-dots" role="tablist" aria-label="ছবি">' + sl.map((p, i) => '<button type="button" data-d="' + i + '" class="' + (i === 0 ? 'on' : '') + '" aria-label="' + bn(i + 1) + ' নম্বর ছবি"></button>').join('') + '</div>' : '') + '<button type="button" id="cvAll">সব ছবি দেখুন</button></div>';
+    const imgs = Array.from(el.querySelectorAll('.bt-sl img')), dots = Array.from(el.querySelectorAll('.bt-dots button'));
+    const show = i => { cur = (i + imgs.length) % imgs.length; imgs.forEach((im, j) => im.classList.toggle('on', j === cur)); dots.forEach((d, j) => d.classList.toggle('on', j === cur)); };
+    imgs.forEach(im => { im.onclick = () => openLightbox(+im.dataset.i); });
+    dots.forEach((d, j) => { d.onclick = () => show(j); });
     $('cvAll').onclick = () => { const c = $('photos'); if(c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    let hold = false; el.onmouseenter = () => { hold = true; }; el.onmouseleave = () => { hold = false; };
+    const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(imgs.length > 1 && !still) PH.timer = setInterval(() => { if(document.hidden || hold || ($('phLb') && !$('phLb').hidden) || !$('cover')) return; show(cur + 1); }, 3000);
   }
   function paintPhotos(){
     const cats = $('phCats'); if(!cats) return;
@@ -545,7 +556,7 @@
   async function reloadPhotos(){
     const r = await rpc('batch_photos', { p_batch_id: PH.batch.id }); if(r.error || !r.data || !r.data.ok) return;
     PH.list = r.data.photos || []; PH.cover = r.data.cover; PH.lead = !!r.data.lead;
-    const cp = coverPhoto(), paths = PH.list.map(p => thumbOf(p.path)); if(cp) paths.push(cp.path); PH.urls = await signMany(paths); paintCover(); paintPhotos();
+    const paths = signPaths(); PH.urls = await signMany(paths); paintCover(); paintPhotos();
   }
   async function openLightbox(i){
     const p = PH.list[i]; if(!p) return; PH.at = i; const lb = $('phLb'); lb.hidden = false; document.body.style.overflow = 'hidden';
