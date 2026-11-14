@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=2">
+<link rel="stylesheet" href="/batch.css?v=4">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -52,9 +52,10 @@
             <input class="bt-inp" id="instQ" type="text" autocomplete="off" placeholder="যেমন: ঢাকা রেসিডেনসিয়াল মডেল কলেজ" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="instList">
             <div class="bt-list" id="instList" role="listbox" hidden></div>
           </div>
-          <div class="bt-field">
-            <label for="yearSel">ব্যাচ সাল</label>
-            <select class="bt-inp" id="yearSel"></select>
+          <div class="bt-field bt-yrbox">
+            <label for="yearBtn" id="yearLbl">ব্যাচ সাল</label>
+            <button type="button" class="bt-inp bt-yrbtn" id="yearBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="yearList" aria-labelledby="yearLbl yearTxt"><span id="yearTxt">সাল বাছুন</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <div class="bt-list bt-ylist" id="yearList" role="listbox" aria-labelledby="yearLbl" hidden></div>
           </div>
         </div>
         <div class="bt-err" id="findErr" role="alert" hidden></div>
@@ -150,11 +151,21 @@
   }
 
   /* ---------- home: find a batch ---------- */
+  /* the batch year: a small panel of years (newest first) instead of the browser's own drop-down */
   function renderYears(){
-    let h = '<option value="">সাল বাছুন</option>';
-    for(let y = NOW + 1; y >= 1975; y--) h += '<option value="' + y + '"' + (String(ST.year) === String(y) ? ' selected' : '') + '>' + bn(y) + '</option>';
-    $('yearSel').innerHTML = h;
+    let h = '';
+    for(let y = NOW; y >= 1975; y--) h += '<button type="button" class="bt-yopt" role="option" data-y="' + y + '" aria-selected="' + (String(ST.year) === String(y)) + '" tabindex="-1">' + bn(y) + '</button>';
+    $('yearList').innerHTML = h;
+    $('yearTxt').textContent = ST.year ? bn(ST.year) : 'সাল বাছুন';
+    $('yearBtn').classList.toggle('has', !!ST.year);
   }
+  function openYears(){
+    const box = $('yearList'); box.hidden = false; $('yearBtn').setAttribute('aria-expanded', 'true');
+    const sel = box.querySelector('[aria-selected=true]') || box.firstElementChild;
+    if(sel){ sel.focus({ preventScroll: true }); box.scrollTop = Math.max(0, sel.offsetTop - 90); }
+  }
+  function closeYears(back){ $('yearList').hidden = true; $('yearBtn').setAttribute('aria-expanded', 'false'); if(back) $('yearBtn').focus(); }
+  function pickYear(y){ ST.year = String(y); renderYears(); closeYears(true); $('findErr').hidden = true; }
   function cardPicks(){
     const out = [];
     try{
@@ -215,7 +226,7 @@
   }
   function findGo(){
     const err = $('findErr'); err.hidden = true;
-    const y = +$('yearSel').value;
+    const y = +ST.year;
     if(!ST.inst){ err.textContent = 'তালিকা থেকে আপনার প্রতিষ্ঠানটা বেছে নিন।'; err.hidden = false; return; }
     if(!y){ err.textContent = 'ব্যাচের সালটা বেছে নিন।'; err.hidden = false; return; }
     track('batch_find', { lv: ST.lv });
@@ -403,7 +414,17 @@
   $('instList').addEventListener('mousedown', e => { const b = e.target.closest('.bt-opt'); if(b){ e.preventDefault(); pickInst(+b.dataset.i); } });
   document.addEventListener('click', e => { if(!e.target.closest('.bt-field')) closeList(); });
   $('findGo').addEventListener('click', findGo);
-  $('yearSel').addEventListener('change', () => { ST.year = $('yearSel').value; });
+  $('yearBtn').addEventListener('click', () => { if($('yearList').hidden) openYears(); else closeYears(false); });
+  $('yearBtn').addEventListener('keydown', e => { if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if($('yearList').hidden) openYears(); } });
+  $('yearList').addEventListener('click', e => { const b = e.target.closest('.bt-yopt'); if(b) pickYear(b.dataset.y); });
+  $('yearList').addEventListener('keydown', e => {
+    const items = [...$('yearList').querySelectorAll('.bt-yopt')], i = items.indexOf(document.activeElement);
+    const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4 }[e.key];
+    if(step){ e.preventDefault(); const j = Math.max(0, Math.min(items.length - 1, i + step)); items[j].focus(); }
+    else if(e.key === 'Escape'){ e.preventDefault(); closeYears(true); }
+    else if(e.key === 'Tab'){ closeYears(false); }
+  });
+  document.addEventListener('click', e => { if(!e.target.closest('.bt-yrbox') && !$('yearList').hidden) closeYears(false); });
   $('mineGrid').addEventListener('click', e => { const a = e.target.closest('a.bt-mini'); if(!a || e.metaKey || e.ctrlKey) return; e.preventDefault(); go({ slug: a.dataset.slug, lv: a.dataset.lv, year: +a.dataset.y }); });
   $('backHome').addEventListener('click', e => { e.preventDefault(); history.pushState({}, '', '/batch'); render(); window.scrollTo({ top: 0 }); });
   window.addEventListener('popstate', render);

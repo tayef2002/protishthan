@@ -38,6 +38,10 @@ const pgErr = [...(page.match(/const ERR = \{([^}]*)\}/) || ['', ''])[1].matchAl
 yes('every error code the SQL can return has a Bangla message or is handled in the page (EXISTS, TOO_MANY, NOT_MEMBER aside)', sqlErr.filter(c => !pgErr.includes(c)).every(c => ['EXISTS', 'TOO_MANY', 'NOT_MEMBER'].includes(c)), JSON.stringify(sqlErr.filter(c => !pgErr.includes(c))));
 yes('a database without the migration shows "coming soon", not a broken page', /MISSING = \/PGRST202/.test(page) && /শীঘ্রই চালু হচ্ছে/.test(page));
 
+// the year is picked in a small panel of our own (no browser drop-down), reachable by keyboard
+yes('the batch year is a custom picker: a button with a listbox of years (newest first), arrow keys, Escape gives the focus back, a click outside closes it, no <select> on the page', !/<select/.test(page) && /id="yearBtn"[^>]*aria-haspopup="listbox"/.test(page) && /role="listbox"/.test(page) && /ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4/.test(page) && /closeYears\(true\)/.test(page) && /\.bt-yrbox/.test(page));
+yes('no coloured ring on the two fields: the focus rule removes the outline and keeps the border', /\.bt \.bt-inp:focus,\.bt \.bt-inp:focus-visible\{outline:none;border-color:var\(--ln\);box-shadow:none\}/.test(css) && /\.bt-yopt\{[^}]*outline:none\}/.test(css));
+
 // privacy and honesty on the page
 yes('the page says names and photos are for members only, the convener first name only, and that a batch is self-declared', /নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে/.test(page) && /আহ্বায়কের নামের প্রথম অংশ/.test(page) && /স্ব-ঘোষিত, Protishthan যাচাই করে না/.test(page));
 yes('the address carries only the invite code (no name, no e-mail, no phone)', /replace\(\/\[\^a-z0-9\]\/g, ''\)\.slice\(0, 16\)/.test(page) && !/[?&](email|phone|name)=/.test(page));
