@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=25">
+<link rel="stylesheet" href="/memory.css?v=26">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -571,7 +571,7 @@
   async function render(){
     const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
-    S.rec = S.use = true; paint(cv, sz.w, sz.h, data(), S.tpl, 1); S.rec = S.use = false; saveDraft();
+    S.rec = S.use = true; paint(cv, sz.w, sz.h, data(), S.tpl, 1); S.rec = S.use = false; saveDraft(); if(typeof placeHits === 'function') placeHits();
   }
   const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
@@ -615,39 +615,40 @@
   /* drag the photo on the card to show the right part of it; the slider (or the mouse wheel) enlarges it */
   const hasPhoto = () => !TP().own && S.photos.some(Boolean);
   const which = (px0) => { const t = TP(); if(t.ph < 2) return 0; return px0 > $('cv').width * .5 && S.photos[1] ? 1 : (S.photos[0] ? 0 : 1); };
-  function syncZoom(){ const on = hasPhoto(), p = S.pos[S.sel] || S.pos[0]; $('zoomBox').hidden = !on; $('dragHint').hidden = !on; if(on) $('zoom').value = Math.round(p.z * 100); $('cv').style.cursor = on ? 'grab' : ''; $('cv').style.touchAction = on ? 'none' : ''; }
+  /* the photo window is covered by a see-through layer (one for each photo) that takes the finger: touching the photo moves it, touching anywhere else on the card scrolls the page as usual (touch-action is set on the layer only, never on the picture) */
+  function syncZoom(){ const on = hasPhoto(), p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; $('zoomBox').hidden = !on; $('dragHint').hidden = !on; if(on) $('zoom').value = Math.round(p.z * 100); placeHits(); }
+  function placeHits(){ const cv = $('cv'); document.querySelectorAll('.mc-hit').forEach(d => { const i = +d.dataset.i, p = S.pos[i], r = p && p.rect, show = hasPhoto() && !!S.photos[i] && i < TP().ph && !!r; d.hidden = !show; if(show){ d.style.left = (r[0] / cv.width * 100) + '%'; d.style.top = (r[1] / cv.height * 100) + '%'; d.style.width = ((r[2] - r[0]) / cv.width * 100) + '%'; d.style.height = ((r[3] - r[1]) / cv.height * 100) + '%'; } }); }
   (function(){
-    const cv = $('cv'), fingers = new Map(); let drag = null, pinch = null;
-    const pt = e => { const r = cv.getBoundingClientRect(), k = cv.width / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k, k]; };
-    const inside = (i, x, y) => { const p = S.pos[i], r = p && p.rect; return !!r && x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3]; };
+    const cvw = $('cvw'), cv = $('cv'), fingers = new Map(); let drag = null, pinch = null;
+    [0, 1].forEach(i => { const d = document.createElement('div'); d.className = 'mc-hit'; d.dataset.i = i; d.hidden = true; cvw.appendChild(d); });
+    const kOf = () => cv.width / cv.getBoundingClientRect().width;
     const dist = () => { const f = [...fingers.values()]; return Math.hypot(f[0].x - f[1].x, f[0].y - f[1].y) || 1; };
     const mid = () => { const f = [...fingers.values()]; return { x: (f[0].x + f[1].x) / 2, y: (f[0].y + f[1].y) / 2 }; };
     const clamp01 = v => Math.min(1, Math.max(0, v));
-    const pan = (p, dx, dy, k) => { dx = dx * k / (p.k || 1); dy = dy * k / (p.k || 1); if(p.ox > 1) p.x = clamp01(p.x - dx / p.ox); if(p.oy > 1) p.y = clamp01(p.y - dy / p.oy); };
-    cv.addEventListener('pointerdown', e => {
-      if(!hasPhoto()) return;
-      if(fingers.size === 0){ const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; drag = { i, id: e.pointerId }; S.sel = i; $('zoom').value = Math.round(S.pos[i].z * 100); cv.style.cursor = 'grabbing'; }
-      else if(fingers.size === 1 && drag){ /* a second finger: pinch to enlarge */ }
-      else return;
-      fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    const pan = (p, dx, dy) => { const k = kOf(); dx = dx * k / (p.k || 1); dy = dy * k / (p.k || 1); if(p.ox > 1) p.x = clamp01(p.x - dx / p.ox); if(p.oy > 1) p.y = clamp01(p.y - dy / p.oy); };
+    cvw.addEventListener('pointerdown', e => {
+      const h = e.target.closest && e.target.closest('.mc-hit'); if(!h || h.hidden) return; const i = +h.dataset.i;
+      if(fingers.size === 0){ drag = { i, id: e.pointerId }; S.sel = i; $('zoom').value = Math.round(S.pos[i].z * 100); h.style.cursor = 'grabbing'; }
+      else if(!(fingers.size === 1 && drag && drag.i === i)) return;
+      fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); try{ h.setPointerCapture(e.pointerId); }catch(_){}
       if(fingers.size === 2){ const m = mid(); pinch = { d0: dist(), z0: S.pos[drag.i].z, mx: m.x, my: m.y }; }
       e.preventDefault();
     });
-    cv.addEventListener('pointermove', e => {
-      if(!fingers.has(e.pointerId) || !drag) return; const p = S.pos[drag.i], k = pt(e)[2], old = fingers.get(e.pointerId);
+    cvw.addEventListener('pointermove', e => {
+      if(!fingers.has(e.pointerId) || !drag) return; const p = S.pos[drag.i], old = fingers.get(e.pointerId);
       if(pinch && fingers.size === 2){
         fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
         p.z = Math.min(3, Math.max(1, pinch.z0 * dist() / pinch.d0)); $('zoom').value = Math.round(p.z * 100);
-        const m = mid(); pan(p, m.x - pinch.mx, m.y - pinch.my, k); pinch.mx = m.x; pinch.my = m.y; draw();
-      } else { pan(p, e.clientX - old.x, e.clientY - old.y, k); fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); draw(); }
+        const m = mid(); pan(p, m.x - pinch.mx, m.y - pinch.my); pinch.mx = m.x; pinch.my = m.y; draw();
+      } else { pan(p, e.clientX - old.x, e.clientY - old.y); fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); draw(); }
     });
     const end = e => {
       if(!fingers.has(e.pointerId)) return; fingers.delete(e.pointerId); pinch = null;
-      if(fingers.size === 0){ drag = null; cv.style.cursor = hasPhoto() ? 'grab' : ''; track('memory_move', { t: S.tpl }); }
+      if(fingers.size === 0){ drag = null; document.querySelectorAll('.mc-hit').forEach(h => { h.style.cursor = ''; }); track('memory_move', { t: S.tpl }); }
       else if(drag){ drag.id = [...fingers.keys()][0]; }   /* one finger left: it carries on moving the photo */
     };
-    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
-    cv.addEventListener('wheel', e => { if(!hasPhoto()) return; const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; e.preventDefault(); S.sel = i; const p = S.pos[i]; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); $('zoom').value = Math.round(p.z * 100); draw(); }, { passive: false });
+    cvw.addEventListener('pointerup', end); cvw.addEventListener('pointercancel', end);
+    cvw.addEventListener('wheel', e => { const h = e.target.closest && e.target.closest('.mc-hit'); if(!h || h.hidden) return; e.preventDefault(); const i = +h.dataset.i, p = S.pos[i]; S.sel = i; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); $('zoom').value = Math.round(p.z * 100); draw(); }, { passive: false });
     $('zoom').addEventListener('input', () => { const p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; p.z = Math.min(3, Math.max(1, $('zoom').value / 100)); draw(); });
   })();
 
