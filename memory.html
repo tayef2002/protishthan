@@ -14,13 +14,13 @@
 <meta property="og:image" content="https://protishthan.com/og-image.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js?v=2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=19">
+<link rel="stylesheet" href="/memory.css?v=20">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -59,9 +59,10 @@
         <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
       <div class="mc-f">
-        <label for="ttl">৩. লেখা <small id="ttlN"></small></label>
+        <label for="ttl"><b id="stepW">৩.</b> লেখা <small id="ttlN"></small></label>
         <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off" placeholder="শিরোনাম, যেমন: আমাদের সেই দিন">
         <textarea id="txt" class="mc-inp mc-line" maxlength="160" rows="2" placeholder="ছোট একটা লাইন বা দুটো (ঐচ্ছিক)"></textarea>
+        <div class="mc-starts" id="starts" hidden></div>
         <input id="sm" class="mc-inp" maxlength="40" autocomplete="off" placeholder="তারিখ, জায়গা বা নাম (ঐচ্ছিক)">
       </div>
       <div class="mc-row">
@@ -101,6 +102,7 @@
   const TPLS = [
     { k: 'mem1', n: 'মেমোরি কার্ড', a: .79, ph: 1, card: 1 },
     { k: 'mem2', n: 'দুটো মেমোরি কার্ড', a: 1.22, ph: 2, card: 1 },
+    { k: 'text', n: 'লেখা স্মৃতি', a: .79, ph: 0, card: 1, own: 1 },
     { k: 'old1', n: 'পুরনো ছবি', a: .84, ph: 1, card: 1, off: 1 },
     { k: 'old2', n: 'দুটো স্মৃতি', a: 1.22, ph: 2, card: 1, off: 1 },
     { k: 'card1', n: 'ছবির কার্ড', a: .82, ph: 1, card: 1, off: 1 },
@@ -217,7 +219,7 @@
   let GRAIN = null;
   const grain = () => { if(GRAIN) return GRAIN; const g = document.createElement('canvas'); g.width = g.height = 120; const gc = g.getContext('2d'), gi = gc.createImageData(120, 120), r = rng(41); for(let q = 0; q < gi.data.length; q += 4){ gi.data[q] = gi.data[q + 1] = gi.data[q + 2] = r() * 255; gi.data[q + 3] = 14; } gc.putImageData(gi, 0, 0); return (GRAIN = g); };
   /* one card: centre cx, cy, width w (the height follows), tilt ang, photo slot i, the handwriting under the photo */
-  function memcard(cx, cy, w, ang, i, cap){
+  function memcard(cx, cy, w, ang, i, cap, page){
     const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = '#FFE9A8';
     const path = () => { c.beginPath(); c.moveTo(R, 0); c.lineTo(cw - cut, 0); c.lineTo(cw, cut); c.lineTo(cw, ch - R); c.arcTo(cw, ch, cw - R, ch, R); c.lineTo(R, ch); c.arcTo(0, ch, 0, ch - R, R); c.lineTo(0, R); c.arcTo(0, 0, R, 0, R); c.closePath(); };
     c.save(); c.translate(cx, cy); c.rotate(ang); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
@@ -242,15 +244,16 @@
     const bx = L + c.measureText(kind).width + 44; c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(bx, 224, 24, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '800 27px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', bx + 7, 234);
     /* the photo fills the black body of the card, inside a black border of plastic; the gold contacts lie on top of the photo */
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
-    put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
+    const sy = ch - 196, sh2 = 160;
+    if(page) paintPage(px, py, pw, ph, pr, page, sy - 38); else put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
-    const FADE = [[0, 'rgba(8,9,13,0)'], [.35, 'rgba(8,9,13,.14)'], [.7, 'rgba(8,9,13,.5)'], [1, 'rgba(8,9,13,.86)']];
+    const FS = page ? .45 : 1, fa = a => 'rgba(8,9,13,' + (a * FS).toFixed(3) + ')';
+    const FADE = [[0, fa(0)], [.35, fa(.14)], [.7, fa(.5)], [1, fa(.86)]];
     c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(px, py, pw, ph);
     c.fillStyle = linear(px, py, px + pw, py + ph, [[0, 'rgba(255,255,255,.18)'], [.35, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.1)']]); c.fillRect(px, py, pw, ph);
     c.restore();
     c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.55)'; rr(px, py, pw, ph, pr); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(255,255,255,.14)'; rr(px + 2, py + 2, pw - 4, ph - 4, pr - 2); c.stroke();
-    const sy = ch - 196, sh2 = 160;
-    if(cap){
+    if(cap && !page){
       /* the small line sits in a pill; the pill is measured from the text itself (width from the text, height from the font), and the text is centred in it by the font's own ascent and descent, so the two are always aligned */
       const f = fit(cap, pw - 150, 1, 44, 24, '700', HS); c.font = '700 ' + f.size + 'px ' + HS;
       const m = c.measureText(f.lines[0]), asc = m.fontBoundingBoxAscent || f.size * .95, des = m.fontBoundingBoxDescent || f.size * .3;
@@ -266,7 +269,7 @@
       shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = '#7A5410'; c.fill(); shadow();
       c.save(); rr(gx, gy, gw, gh, 4); c.clip();
       c.fillStyle = gold; c.fillRect(gx, gy, gw, gh);
-      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; fill(S.cur.photos[i], px, py, pw, ph);
+      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph);
       c.globalAlpha = .42; c.globalCompositeOperation = 'multiply'; c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(gx, gy, gw, gh);
       c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = linear(0, gy, 0, gy + gh, [[0, 'rgba(255,255,255,.34)'], [.22, 'rgba(255,255,255,.06)'], [1, 'rgba(0,0,0,.18)']]); c.fillRect(gx, gy, gw, gh);
       c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(gx + 5, gy + 6, 4, gh - 14);
@@ -280,6 +283,35 @@
     c.fillStyle = '#0B0C10'; rr(-4, 520, 26, 96, 8); c.fill(); rr(1, 530, 15, 44, 5); c.fillStyle = linear(0, 0, 20, 0, [[0, '#E7EAF0'], [1, '#9CA4B4']]); c.fill();
     c.restore();
   }
+  /* ---------- a written memory: the window of the card is an old school notebook page (ruled lines, a red margin line, punch holes, aged paper, grain), the words in a literary serif, a big quote mark behind them, the small line signed under the text ---------- */
+  const TIRO = '"Tiro Bangla", "Hind Siliguri", serif';
+  const DEFTXT = 'টিফিনের ঘণ্টা বাজলেই আমরা দৌড়ে মাঠে যেতাম। সেই দিনগুলো আর ফিরে আসবে না, কিন্তু মনে থাকবে সারাজীবন।';
+  function paintPage(px, py, pw, ph, pr, d, sigY){
+    c.save(); rr(px, py, pw, ph, pr); c.clip();
+    c.fillStyle = '#FBF5E5'; c.fillRect(px, py, pw, ph);
+    c.fillStyle = radial(px + pw / 2, py + ph * .45, Math.max(pw, ph) * .75, [[.5, 'rgba(190,150,90,0)'], [1, 'rgba(190,150,90,.34)']]); c.fillRect(px, py, pw, ph);
+    c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(px, py, pw, ph);
+    const mx = px + 84, left = mx + 32, right = px + pw - 50, width = right - left;
+    /* the words first, so the ruled lines can follow the lines of the text */
+    const tt = fit(d.title, width, 1, 50, 30, '800', DISP), ty = py + 96;
+    let sz = 40, LH, lines; const font = z => 'italic 400 ' + z + 'px ' + TIRO, top = ty + 22, avail = sigY - 34 - top;
+    for(; sz >= 24; sz -= 2){ lines = wrap(d.text, width, font(sz), 99); LH = sz * 1.58; if(lines.length * LH <= avail) break; }
+    if(sz < 24){ sz = 24; LH = sz * 1.58; lines = wrap(d.text, width, font(sz), Math.max(1, Math.floor(avail / LH))); }
+    const b0 = top + LH;
+    /* ruled lines, in the colour of the card, a red margin and three punch holes */
+    c.lineWidth = 2; c.strokeStyle = rgba(PAL.ac, .2);
+    for(let yy = b0 + 11 - Math.ceil((b0 + 11 - py - 16) / LH) * LH; yy < py + ph; yy += LH){ c.beginPath(); c.moveTo(px, yy); c.lineTo(px + pw, yy); c.stroke(); }
+    c.strokeStyle = 'rgba(214,84,96,.5)'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(mx, py); c.lineTo(mx, py + ph); c.stroke();
+    [.2, .5].forEach(f => { const hy = py + ph * f; c.fillStyle = 'rgba(21,23,30,.92)'; c.beginPath(); c.arc(px + 40, hy, 14, 0, 7); c.fill(); c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.beginPath(); c.arc(px + 40, hy, 14, .2, 2.4); c.stroke(); });
+    /* a big quote mark behind the words */
+    c.fillStyle = rgba(PAL.ac, .15); c.font = '800 280px ' + DISP; c.textAlign = 'left'; c.fillText('“', left - 12, py + 280);
+    c.fillStyle = mix(PAL.ac, '#000000', .55); c.font = '800 ' + tt.size + 'px ' + DISP; c.fillText(tt.lines[0], left, ty);
+    c.fillStyle = '#3B2F20'; c.font = font(sz); lines.forEach((l, q) => c.fillText(l, left, b0 + q * LH));
+    if(d.sign){ const f = fit('— ' + d.sign, width, 1, 32, 22, '700', HS); c.font = '700 ' + f.size + 'px ' + HS; c.fillStyle = mix(PAL.ac, '#000000', .35); c.textAlign = 'right'; c.fillText(f.lines[0], right, sigY); c.textAlign = 'left'; }
+    c.restore();
+    tapeOn(px + pw * .5, py + 4, .03, 150);
+  }
+  SH.text = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.02, 0, '', { title: S.cur.title || 'আমাদের সেই দিন', text: S.cur.line || DEFTXT, sign: S.cur.small }); };
   SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
   SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); };
 
@@ -305,9 +337,9 @@
   function render1(W, H, d, key){
     PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
     const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
-    const title = d.title || 'আমাদের সেই দিন', tt = fit(title, mw, 2, 78, 44, '800', DISP), ll = d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
+    const title = d.title || 'আমাদের সেই দিন', own = !!t.own, tt = own ? { lines: [], size: 0 } : fit(title, mw, 2, 78, 44, '800', DISP), ll = !own && d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
     const capH = tt.lines.length * tt.size * 1.15 + (ll ? 22 + ll.lines.length * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
-    const GAP = 56, top = H * .06, bottom = H - 110, regionH = bottom - top - capH - GAP;
+    const GAP = own ? 0 : 56, top = H * .06, bottom = H - 110, regionH = bottom - top - capH - GAP;
     const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
     const ox = (W - ow) / 2, oy = g0;
     paper(W, H, W / 2, oy + oh / 2);
@@ -326,25 +358,29 @@
   function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
   async function render(){
     const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
-    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter'), document.fonts.load('italic 400 40px "Tiro Bangla"')]); }catch(e){}
     paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
   }
   const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
-    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('italic 400 40px "Tiro Bangla"')]); }catch(e){}
     const sz = SIZES.post, k = 170 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: '', small: '', photos: sm };
     TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, d, t.k, k); });
   }
 
   /* ---------- the form ---------- */
-  function paintTpls(){ $('tpls').innerHTML = TPLS.filter(t => !t.off).map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : '') + '</span></button>').join(''); }
+  function paintTpls(){ $('tpls').innerHTML = TPLS.filter(t => !t.off).map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : t.ph === 0 ? '<i>শুধু লেখা</i>' : '') + '</span></button>').join(''); }
   function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
-    const t = TP(), n = t.ph; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
+    const t = TP(), n = t.ph; $('phWrap').hidden = n === 0; $('stepW').textContent = n === 0 ? '২.' : '৩.'; $('txt').maxLength = t.own ? 320 : 160; $('txt').placeholder = t.own ? 'আপনার স্মৃতিটা লিখুন…' : TXT_PH; paintStarts(); $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
     $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'thennow' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
     S.photos.forEach((im, i) => { const el = $('slots').querySelector('img[data-i="' + i + '"]'); if(el && im){ const s = document.createElement('canvas'); s.width = 160; s.height = 160; const x = s.getContext('2d'), sc = Math.max(160 / im.width, 160 / im.height); x.drawImage(im, 80 - im.width * sc / 2, 80 - im.height * sc / 2, im.width * sc, im.height * sc); el.src = s.toDataURL('image/jpeg', .7); } });
   }
+  const TXT_PH = $('txt').placeholder;
+  const STARTS = [['টিফিনের ঘণ্টা', 'ঘণ্টা বাজলেই দৌড়ে মাঠে যেতাম। পকেটে দু-টাকা থাকলে নিজেকে রাজা মনে হতো।'], ['বর্ষার দিন', 'বৃষ্টিতে ভিজে স্কুলে যাওয়া, ফেরার পথে কাদায় পা ডুবিয়ে হাঁটা। কী যে সুখ ছিল!'], ['শেষ বেঞ্চ', 'শেষ বেঞ্চে বসে স্যারের চোখ ফাঁকি দিয়ে গল্প করতাম। আজ সেই বেঞ্চটাই সবচেয়ে বেশি মনে পড়ে।'], ['বন্ধুরা কই?', 'সবাই এখন যে যার জীবনে ব্যস্ত। তবু ইচ্ছে করে, একটা দিন আবার সবাই একসাথে বসি।'], ['ঈদের সকাল', 'নতুন জামা, মায়ের হাতের সেমাই, সালামি গোনার সেই উত্তেজনা। ফিরে পেতে ইচ্ছে করে।'], ['প্রথম দিন', 'স্কুলের প্রথম দিনটা মনে আছে? মায়ের হাত শক্ত করে ধরে রেখেছিলাম, ছাড়তেই চাইনি।']];
+  function paintStarts(){ const el = $('starts'), on = !!TP().own; el.hidden = !on; if(on && !el.dataset.done){ el.dataset.done = 1; el.innerHTML = '<span>কীভাবে শুরু করবেন? একটা বেছে নিন, তারপর নিজের কথায় বদলান</span>' + STARTS.map((x, q) => '<button type="button" data-q="' + q + '">' + x[0] + '</button>').join(''); } }
+  $('starts').onclick = e => { const b = e.target.closest('button[data-q]'); if(!b) return; const x = STARTS[+b.dataset.q]; $('ttl').value = x[0]; $('txt').value = x[1]; counters(); draw(); track('memory_start', { q: +b.dataset.q }); };
   function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; }
   $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); draw(); track('memory_tpl', { t: S.tpl }); };
   $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; PAL = THEMES[S.theme]; paintThemes(); thumbs(); draw(); };
@@ -370,7 +406,7 @@
 
   /* what was written last time is kept in this browser (not the photos), so the next card starts faster */
   function saveDraft(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ tpl: S.tpl, theme: S.theme, size: S.size, ttl: $('ttl').value, txt: $('txt').value, sm: $('sm').value })); }catch(e){} }
-  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl && !t.off)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 160); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
+  function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT) || 'null'); if(!d) return; if(TPLS.some(t => t.k === d.tpl && !t.off)) S.tpl = d.tpl; if(THEMES[d.theme]) S.theme = d.theme; if(SIZES[d.size]) S.size = d.size; $('ttl').value = String(d.ttl || '').slice(0, 40); $('txt').value = String(d.txt || '').slice(0, 320); $('sm').value = String(d.sm || '').slice(0, 40); }catch(e){} }
 
   /* ---------- download, share, caption ---------- */
   const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
