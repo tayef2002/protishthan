@@ -106,6 +106,7 @@
     lemon: { n: 'লেবু', bg: '#FFF8DC', bg2: '#FBEAA0', ac: '#D4A60E', dk: '#4F3F06' },
     rose: { n: 'গোলাপি', bg: '#FFEEF2', bg2: '#FFD2DD', ac: '#E04870', dk: '#5C1630' }
   };
+  const PAIR = { sepia: 'peach', mint: 'sky', sky: 'lavender', peach: 'lemon', lavender: 'rose', lemon: 'mint', rose: 'peach' };
   const SIZES = { post: { w: 1080, h: 1350, n: 'পোস্ট (৪:৫)' }, story: { w: 1080, h: 1920, n: 'স্টোরি (৯:১৬)' } };
   /* the shapes: an object we all remember, with a window for the photo. a = width / height of the object, ph = how many photos. */
   const TPLS = [
@@ -533,7 +534,7 @@
   SH.tfile = screenOf('file'); SH.tquote = screenOf('quote'); SH.tbubble = screenOf('bubble'); SH.tvhs = screenOf('vhs'); SH.tdream = screenOf('dream'); SH.tstamp = screenOf('stamp');
 
   SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
-  SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); };
+  SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); const keep = PAL; PAL = THEMES[PAIR[S.theme]] || keep; try{ memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); }finally{ PAL = keep; } };
 
   SH.card1 = (x, y, w, h) => { const k = .9; card(x + w / 2, y + h / 2, w * k, h * k, -.07, 0, S.cur.small); };
   SH.card3 = (x, y, w, h) => {
@@ -590,7 +591,7 @@
 
   /* ---------- the form ---------- */
   function paintTpls(){ $('tpls').innerHTML = TPLS.filter(t => !t.off).map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : t.ph === 0 ? '<i>শুধু লেখা</i>' : '') + '</span></button>').join(''); }
-  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
+  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + (TP().ph === 2 ? 'linear-gradient(135deg,' + THEMES[k].ac + ' 50%,' + THEMES[PAIR[k]].ac + ' 50%)' : THEMES[k].ac) + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
     setTimeout(() => { if(typeof syncZoom === 'function') syncZoom(); }, 0);
@@ -600,7 +601,7 @@
   }
   const TXT_PH = $('txt').placeholder;
   function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; }
-  $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); draw(); track('memory_tpl', { t: S.tpl }); };
+  $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); paintThemes(); thumbs(); paintSlots(); draw(); track('memory_tpl', { t: S.tpl }); };
   $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; PAL = THEMES[S.theme]; paintThemes(); thumbs(); draw(); };
   $('size').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.size = b.dataset.k; paintSize(); draw(); };
   ['ttl', 'txt', 'sm'].forEach(id => $(id).addEventListener('input', () => { counters(); draw(); }));
