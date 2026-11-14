@@ -39,7 +39,7 @@ yes('every error code the SQL can return has a Bangla message or is handled in t
 yes('a database without the migration shows "coming soon", not a broken page', /MISSING = \/PGRST202/.test(page) && /শীঘ্রই চালু হচ্ছে/.test(page));
 
 // the year is picked in a small panel of our own (no browser drop-down), reachable by keyboard
-yes('the batch year is a custom picker: a button with a listbox of years (newest first), arrow keys, Escape gives the focus back, a click outside closes it, no <select> on the page', !/<select/.test(page) && /id="yearBtn"[^>]*aria-haspopup="listbox"/.test(page) && /role="listbox"/.test(page) && /ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols/.test(page) && /\.bt-ylist\{[^}]*repeat\(6,/.test(css) && /closeYears\(true\)/.test(page) && /\.bt-yrbox/.test(page));
+yes('the batch year is a custom picker: a button with a listbox of years (newest first), arrow keys, Escape gives the focus back, a click outside closes it, no <select> on the page', !/<select/.test(page) && /id="yearBtn"[^>]*aria-haspopup="listbox"/.test(page) && /role="listbox"/.test(page) && /ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1/.test(page) && !/\.bt-ylist\{[^}]*grid/.test(css) && /\.bt-yopt\{display:block;width:100%/.test(css) && /closeYears\(true\)/.test(page) && /\.bt-yrbox/.test(page));
 yes('no coloured ring on the two fields: the focus rule removes the outline and keeps the border', /\.bt \.bt-inp:focus,\.bt \.bt-inp:focus-visible\{outline:none;border-color:var\(--ln\);box-shadow:none\}/.test(css) && /\.bt-yopt\{[^}]*outline:none\}/.test(css));
 
 // privacy and honesty on the page

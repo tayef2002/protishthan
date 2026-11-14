@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=5">
+<link rel="stylesheet" href="/batch.css?v=6">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -419,8 +419,7 @@
   $('yearList').addEventListener('click', e => { const b = e.target.closest('.bt-yopt'); if(b) pickYear(b.dataset.y); });
   $('yearList').addEventListener('keydown', e => {
     const items = [...$('yearList').querySelectorAll('.bt-yopt')], i = items.indexOf(document.activeElement);
-    const cols = getComputedStyle($('yearList')).gridTemplateColumns.split(' ').length || 4;     // years in one row (6 on a computer, 5 on a phone)
-    const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols }[e.key];
+    const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];     // one year to a line, newest at the top
     if(step){ e.preventDefault(); const j = Math.max(0, Math.min(items.length - 1, i + step)); items[j].focus(); }
     else if(e.key === 'Escape'){ e.preventDefault(); closeYears(true); }
     else if(e.key === 'Tab'){ closeYears(false); }
