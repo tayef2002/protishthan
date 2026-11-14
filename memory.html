@@ -244,6 +244,7 @@
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
     put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
+    c.fillStyle = linear(0, py + ph * .45, 0, py + ph, [[0, 'rgba(8,9,13,0)'], [.35, 'rgba(8,9,13,.14)'], [.7, 'rgba(8,9,13,.5)'], [1, 'rgba(8,9,13,.86)']]); c.fillRect(px, py, pw, ph);
     c.fillStyle = linear(px, py, px + pw, py + ph, [[0, 'rgba(255,255,255,.18)'], [.35, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.1)']]); c.fillRect(px, py, pw, ph);
     c.restore();
     c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.55)'; rr(px, py, pw, ph, pr); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(255,255,255,.14)'; rr(px + 2, py + 2, pw - 4, ph - 4, pr - 2); c.stroke();
