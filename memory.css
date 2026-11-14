@@ -47,7 +47,6 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 .mc-th{display:flex;gap:10px;flex-wrap:wrap}.mc-th button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--ln);cursor:pointer}.mc-th button[aria-checked=true]{box-shadow:0 0 0 2.5px var(--tx)}
 .mc-again{width:100%;min-height:46px;margin-top:2px;border:1.5px solid var(--ln);border-radius:14px;background:#fff;color:var(--tx2);font-weight:800;cursor:pointer}.mc-again:hover{border-color:var(--ac);color:var(--ac)}
 .mc-f[hidden]{display:none}
-.mc-foot{margin:26px 0 0;text-align:center;font-size:14.5px;color:var(--tx3)}.mc-foot a{color:var(--ac);font-weight:700}
 .mc-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#10233F;color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:2100;max-width:92vw;text-align:center}.mc-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:1200px){.mc-grid{grid-template-columns:340px minmax(0,1fr)}}
 @media(max-width:1000px){.mc-grid{grid-template-columns:300px minmax(0,1fr);gap:18px}}
@@ -58,3 +57,24 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 .mc-f label b{font-weight:800}
 .mc-zoom{display:flex;align-items:center;gap:12px;margin-top:10px}.mc-zoom[hidden],.mc-note[hidden]{display:none}.mc-zoom label{margin:0!important;font-size:13px!important;white-space:nowrap}.mc-zoom input{flex:1;min-width:0;accent-color:var(--ac)}
 @media(max-width:560px){.mc-themebar{flex-direction:column;align-items:flex-start;gap:10px}.mc-th{flex-wrap:nowrap;gap:9px}.mc-th button{flex:0 0 auto}}
+
+/* the batch promo, in the style of the cards under the education card */
+.mp-wrap{margin:30px auto 0;max-width:860px}
+.mp-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:4px;padding:26px 14px 26px 28px;min-height:190px;border-radius:24px;color:#2A0F3D;background:linear-gradient(135deg,#FFF6FA,#F3E8FF);border:1px solid #EBD9F6}
+.mp-txt{flex:1;min-width:0;position:relative;z-index:1}
+.mp-k{display:block;margin-bottom:8px;font-size:12.5px;font-weight:700;color:#A21CAF}
+.mp-card h3{margin:0 0 8px;font-size:clamp(19px,1.9vw,23px);line-height:1.3;font-weight:800;color:#2A0F3D;text-wrap:balance}
+.mp-card p{margin:0 0 16px;max-width:30em;font-size:14.5px;line-height:1.7;color:#6B5A7B;text-wrap:pretty}
+.mp-act{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.mp-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:999px;border:1.5px solid #A21CAF;background:rgba(255,255,255,.7);color:#A21CAF;font-size:15px;font-weight:700;text-decoration:none;transition:background .15s,color .15s}
+.mp-btn i{font-style:normal;transition:transform .15s}.mp-btn:hover i{transform:translateX(3px)}.mp-btn:hover{background:#A21CAF;color:#fff}
+.mp-btn:focus-visible{outline:3px solid rgba(162,28,175,.35);outline-offset:2px}
+.mp-art{flex:none;position:relative;width:150px;height:140px}
+.mp-pc{position:absolute;right:2px;top:2px;width:126px;padding:14px;border-radius:18px;background:#fff;border:1px solid #EBD9F6;transform:rotate(3deg)}
+.mp-av{display:inline-grid;place-items:center;width:30px;height:30px;margin-right:-8px;margin-bottom:10px;border-radius:50%;border:2px solid #fff;color:#fff;overflow:hidden}
+.mp-av.a1{background:#A855F7}.mp-av.a2{background:#DB2777}.mp-av.a3{background:#6D28D9;margin-right:0}
+.mp-l1,.mp-l2{display:block;height:8px;border-radius:6px;background:#F0E4FA;margin-bottom:7px}.mp-l1{width:86%}.mp-l2{width:58%}
+.mp-pill{display:inline-block;margin-top:5px;padding:4px 12px;border-radius:999px;background:#A21CAF;color:#fff;font-size:11.5px;font-weight:700}
+.mp-badge{position:absolute;right:-4px;bottom:0;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:#DB2777;border:3px solid #fff}
+@media(max-width:520px){.mp-card{padding:22px 18px}.mp-art{display:none}}
+@media(prefers-reduced-motion:reduce){.mp-btn,.mp-btn i{transition:none}}
