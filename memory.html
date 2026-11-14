@@ -439,8 +439,6 @@
       c.fillStyle = linear(0, py, 0, py + ph, [[0, '#101A24'], [1, '#0A1118']]); c.fillRect(px, py, pw, ph);
       c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(px, py, pw, 64);
       [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]].forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
-      c.textAlign = 'center'; c.font = '600 24px ' + HS; c.fillStyle = '#8FA3B5'; c.fillText('স্মৃতি' + (yr ? '_' + yr : '') + '.txt', cx, py + 40);
-      c.textAlign = 'right'; c.fillStyle = mix(ac, '#FFFFFF', .35); c.font = '700 20px ' + HS; c.fillText('সংরক্ষিত ✓', px + pw - 28, py + 39);
       const gx = px + 66, left = px + 92, width = pw - 92 - 44, ty = py + 64 + 66, tf = fit('# ' + d.title, width, 1, 42, 26, '800', DISP);
       const fl = flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 56 - (ty + 20), 36, 24, 1.55);
       c.textAlign = 'left'; c.fillStyle = mix(ac, '#FFFFFF', .4); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], left, ty);
