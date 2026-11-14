@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=19">
+<link rel="stylesheet" href="/batch.css?v=20">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -116,6 +116,7 @@
     NOT_SIGNED_IN: 'আগে Google দিয়ে সাইন-ইন করুন।',
     NO_INSTITUTION: 'এই প্রতিষ্ঠান তালিকায় নেই। আগে প্রতিষ্ঠানটা যোগ করুন।',
     BAD_BATCH: 'সালটা ঠিক নেই। এখন শুধু SSC / দাখিল ব্যাচ আছে।',
+    BAD_NAME: 'নামে লিংক, ইমেইল, নম্বর বা অশোভন শব্দ রাখা যাবে না। ২ থেকে ৪০ অক্ষরের মধ্যে লিখুন।',
     BAD_LINE: 'লাইনে লিংক, ইমেইল, নম্বর বা অশোভন শব্দ রাখা যাবে না। ১২০ অক্ষরের মধ্যে লিখুন।',
     BAD_THEME: 'রঙটা ঠিক নেই, আরেকটা বেছে নিন।',
     LOCKED: 'এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।',
@@ -238,7 +239,7 @@
     if(!signedIn()){ $('mine').hidden = true; return; }
     const { data, error } = await rpc('batch_me');
     if(error || !Array.isArray(data) || !data.length){ $('mine').hidden = true; return; }
-    $('mineGrid').innerHTML = data.map(b => '<a class="bt-mini" href="' + esc(batchPath({ slug: b.slug, lv: b.level, year: b.year })) + '" data-slug="' + esc(b.slug) + '" data-lv="' + esc(b.level) + '" data-y="' + b.year + '"><b>' + esc(b.name || b.slug) + '</b><span>' + esc(LVT[b.level] || b.level) + ' ' + bn(b.year) + ' ব্যাচ · ' + bn(b.members) + ' জন</span><i>' + (b.role === 'convener' ? 'আহ্বায়ক' : bn(b.seq) + 'তম সদস্য') + '</i></a>').join('');
+    $('mineGrid').innerHTML = data.map(b => '<a class="bt-mini" href="' + esc(batchPath({ slug: b.slug, lv: b.level, year: b.year })) + '" data-slug="' + esc(b.slug) + '" data-lv="' + esc(b.level) + '" data-y="' + b.year + '"><b>' + esc(b.bname || b.name || b.slug) + '</b><span>' + (b.bname ? esc(b.name || b.slug) + ' · ' : '') + esc(LVT[b.level] || b.level) + ' ' + bn(b.year) + ' ব্যাচ · ' + bn(b.members) + ' জন</span><i>' + (b.role === 'convener' ? 'আহ্বায়ক' : bn(b.seq) + 'তম সদস্য') + '</i></a>').join('');
     $('mine').hidden = false;
   }
 
@@ -273,32 +274,32 @@
     ];
   }
   function themeBtns(cur){ return THEMES.map(t => '<button type="button" data-t="' + t[0] + '" style="background:' + t[1] + '" aria-label="' + t[0] + '" aria-pressed="' + (cur === t[0]) + '"></button>').join(''); }
-  function lookHtml(k, inst, line, theme, claim){
-    return '<div class="bt-look"><label for="lkLine">আবেগের লাইন (১২০ অক্ষর পর্যন্ত, ফাঁকা রাখলে আমরা একটা বেছে দেব)</label>' +
+  const nameHint = (inst, k) => (String(inst).split(/\s+/)[0] || 'Batch') + ' ' + k.year;
+  function lookHtml(k, inst, name, line, theme){
+    return '<div class="bt-look"><label for="lkName">ব্যাচের নাম (২ থেকে ৪০ অক্ষর)</label>' +
+      '<input class="bt-inp" id="lkName" maxlength="40" autocomplete="off" placeholder="যেমন: ' + esc(nameHint(inst, k)) + '" value="' + esc(name || '') + '">' +
+      '<label for="lkLine" style="margin-top:12px">আবেগের লাইন (১২০ অক্ষর পর্যন্ত, ফাঁকা রাখলে আমরা একটা বেছে দেব)</label>' +
       '<textarea id="lkLine" maxlength="120" placeholder="' + esc(lineFor(k, inst, '')) + '">' + esc(line || '') + '</textarea>' +
       '<div class="bt-tpls" id="lkTpls">' + TPLS.map((t, i) => '<button type="button" data-i="' + i + '">নমুনা ' + bn(i + 1) + '</button>').join('') + '</div>' +
       '<label>রঙ</label><div class="bt-themes" id="lkThemes">' + themeBtns(theme || 'blue') + '</div>' +
       '<div class="bt-err" id="lkErr" role="alert" hidden></div>' +
-      '<button type="button" class="bt-btn" style="margin-top:14px" id="lkSave">' + (claim ? 'ব্যাচ খুলুন, আমি আহ্বায়ক' : 'সেভ করুন') + '</button></div>';
+      '<button type="button" class="bt-btn" style="margin-top:14px" id="lkSave">সেভ করুন</button></div>';
   }
-  function bindLook(k, id, claim){
+  function bindLook(k, id){
     let theme = (CUR.data.batch && CUR.data.batch.theme) || 'blue';
     $('lkThemes').onclick = e => { const b = e.target.closest('button[data-t]'); if(!b) return; theme = b.dataset.t; $('lkThemes').innerHTML = themeBtns(theme); $('viewBatch').dataset.theme = theme; };
     $('lkTpls').onclick = e => { const b = e.target.closest('button[data-i]'); if(!b) return; $('lkLine').value = TPLS[+b.dataset.i].replace('{i}', CUR.data.inst.name).replace('{y}', bn(k.year)).slice(0, 120); };
     $('lkSave').onclick = async () => {
-      const line = $('lkLine').value.trim(), btn = $('lkSave'), er = $('lkErr'); er.hidden = true; btn.disabled = true;
-      let r;
-      if(claim) r = await rpc('batch_claim', { p_slug: k.slug, p_level: k.lv, p_year: k.year, p_line: line || null, p_theme: theme });
-      else r = await rpc('batch_set_look', { p_batch_id: id, p_line: line || null, p_theme: theme });
+      const name = $('lkName').value.trim(), line = $('lkLine').value.trim(), btn = $('lkSave'), er = $('lkErr'); er.hidden = true; btn.disabled = true;
+      const r = await rpc('batch_set_look', { p_batch_id: id, p_name: name || null, p_line: line || null, p_theme: theme });
       btn.disabled = false;
       const d = r.data;
       if(r.error || !d || !d.ok){
         const code = d && d.error;
-        if(code === 'EXISTS'){ toast('এই ব্যাচ এইমাত্র আরেকজন খুলে ফেলেছেন, আপনি যোগ দিন।'); await showBatch(k); return; }
-        er.textContent = code === 'TOO_MANY' ? 'আপনি সর্বোচ্চ ৩টা ব্যাচ খুলতে পারেন।' : (ERR[code] || 'এখন করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); er.hidden = false; return;
+        er.textContent = ERR[code] || (r.error && isMissing(r.error) ? 'নাম রাখার সুবিধাটা এখনও চালু হয়নি, একটু পরে চেষ্টা করুন।' : 'এখন করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); er.hidden = false; return;
       }
-      track(claim ? 'batch_claim' : 'batch_look', { lv: k.lv });
-      toast(claim ? 'ব্যাচ খোলা হয়েছে, আপনি আহ্বায়ক।' : 'সেভ হয়েছে।');
+      track('batch_look', { lv: k.lv, named: name ? 1 : 0 });
+      toast('সেভ হয়েছে।');
       await showBatch(k);
     };
   }
@@ -308,18 +309,18 @@
     document.title = inst + ' ' + LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ | আমার ব্যাচ';
     let h = '<section class="bt-top"><span class="bt-chip">' + (b ? 'ব্যাচ আমন্ত্রণ' : 'এই ব্যাচ এখনও খোলা হয়নি') + '</span>' +
       '<h1>' + esc(inst) + '</h1><div class="bt-batch">' + esc(LVT[k.lv]) + ' ' + bn(k.year) + ' ব্যাচ</div>' +
+      (b && b.name ? '<div class="bt-bname">' + esc(b.name) + '</div>' : '') +
       '<p class="bt-line">' + esc(lineFor(k, inst, b && b.line)) + '</p>' +
       (b && b.convener ? '<div class="bt-conv">আহ্বায়ক: ' + esc(b.convener) + ' (স্ব-ঘোষিত)</div>' : '') +
       '<div class="bt-seats">' + seatsHtml(n, joined ? me.seq : 0) + '</div><div class="bt-cta">';
     if(joined) h += '<p class="bt-sub" style="font-size:15px;color:var(--ac);font-weight:700;margin:0">আপনি এই ব্যাচে আছেন, ' + (me.seq === 1 ? 'প্রথম সদস্য ও আহ্বায়ক' : bn(me.seq) + 'তম সদস্য') + '</p>';
-    else if(!b) h += signedIn() ? '<p class="bt-sub" style="margin:0 0 4px">নিচে ব্যাচ সাজিয়ে খুলে ফেলুন, আপনি হবেন আহ্বায়ক (নম্বর ১)।</p>' : '<button type="button" class="bt-btn" id="act" data-a="claim">Google দিয়ে ব্যাচ খুলুন</button><p class="bt-sub">আপনি হবেন আহ্বায়ক, সদস্য নম্বর ১।</p>';
+    else if(!b) h += '<button type="button" class="bt-btn" id="act" data-a="claim">' + (signedIn() ? 'ব্যাচ খুলুন' : 'Google দিয়ে ব্যাচ খুলুন') + '</button><p class="bt-sub">আপনি হবেন আহ্বায়ক, সদস্য নম্বর ১।</p>';
     else h += '<button type="button" class="bt-btn" id="act" data-a="join">' + (signedIn() ? 'ব্যাচে যোগ দিন' : 'Google দিয়ে ব্যাচে যোগ দিন') + '</button><p class="bt-sub">আপনি হবেন ' + bn(n + 1) + 'তম সদস্য।</p>';
     h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
 
-    if(!b && signedIn()) h += '<div class="bt-panel" style="margin-top:18px"><h2>ব্যাচটা সাজান</h2><p class="s">৬০ সেকেন্ডের কাজ। পরে বদলাতেও পারবেন।</p>' + lookHtml(k, inst, '', 'blue', true) + '</div>';
     if(joined){
       const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n);
-      h += '<div class="bt-me"><div class="bt-panel"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
+      const invite = '<div class="bt-panel"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
         '<div class="bt-no"><b>' + bn(me.seq) + '</b><span><strong>আপনার সদস্য নম্বর</strong><br>এই ব্যাচে ' + bn(n) + ' জন, লক্ষ্য ' + bn(goal) + '</span></div>' +
         '<div class="bt-prog" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(n / goal * 100)) + '%"></i></div>' +
         '<div class="bt-link" style="margin-top:12px"><input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-copy" id="cpLink">কপি</button></div>' +
@@ -328,15 +329,16 @@
         '<div class="bt-share"><a class="wa" id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a><a class="fb" id="shFb" target="_blank" rel="noopener" href="#">Facebook</a></div>' +
         '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button>' +
         '<button type="button" class="bt-copy" style="margin-top:8px;width:100%;background:#fff;color:var(--ac);border:1.5px solid var(--ac)" id="mkImg">ব্যাচের ছবি বানান (গ্রুপে দিতে)</button>' +
-        '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div></div></div>' +
-        '<div class="bt-panel">' + (isConv ? '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, লাইন আর রং বদলাতে পারেন।</p>' + lookHtml(k, inst, b.line, b.theme, false) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
-        '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div></div>';
+        '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div></div></div>';
+      const fresh = isConv && !b.name;
+      const setup = '<div class="bt-panel" id="setup">' + (isConv ? (fresh ? '<h2>ব্যাচ খোলা হয়েছে, এবার সাজান</h2><p class="s">ব্যাচের একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।</p>' : '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।</p>') + lookHtml(k, inst, b.name, b.line, b.theme) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
+        '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div>';
+      h += '<div class="bt-me">' + (fresh ? setup + invite : invite + setup) + '</div>';
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">' + esc(inst) + '-এর পাতা</a></div>';
     $('pg').innerHTML = h;
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
-    if(!b && signedIn()) bindLook(k, null, true);
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
@@ -347,7 +349,8 @@
       $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা');
       $('mkImg').onclick = () => makeImage(k, inst, b, link);
       $('shWa').onclick = () => track('batch_share', { ch: 'wa' }); $('shFb').onclick = () => track('batch_share', { ch: 'fb' });
-      if(isConv) bindLook(k, b.id, false);
+      if(isConv) bindLook(k, b.id);
+      if(isConv && !b.name && JUST_OPENED){ JUST_OPENED = false; setTimeout(() => { const el = $('setup'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); }
       $('leave').onclick = async () => {
         if(!confirm('এই ব্যাচ ছেড়ে যাবেন? আপনার নম্বরটা আর কাউকে দেওয়া হবে না।')) return;
         const r = await rpc('batch_leave', { p_batch_id: b.id });
@@ -381,6 +384,7 @@
       c.font = '700 ' + (size + 4) + 'px ' + HS; c.fillStyle = '#0B1B4D'; let y = 270; const lh = (size + 4) * 1.22;
       lines.forEach(l => { c.fillText(l, W / 2, y); y += lh; });
       c.font = '700 54px ' + HS; c.fillStyle = th[0]; c.fillText(LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ', W / 2, y + 6); y += 70;
+      if(b.name){ let nf = 52; c.font = '800 ' + nf + 'px ' + HS; while(c.measureText(b.name).width > W - 200 && nf > 30){ nf -= 2; c.font = '800 ' + nf + 'px ' + HS; } c.fillStyle = '#0B1B4D'; c.fillText(b.name, W / 2, y + 4); y += 64; }
       // the line
       const ln = wrap(lineFor(k, inst, b.line), W - 220, '600 40px ' + HS, 4); c.font = '600 40px ' + HS; c.fillStyle = '#334155';
       y += 30; ln.forEach(l => { c.fillText(l, W / 2, y); y += 62; });
@@ -420,8 +424,23 @@
   }
   async function onAct(a, k, b, ref){
     if(!signedIn()){ setIntent(a, k, ref); track('batch_signin', { a }); MB().signIn(a === 'claim' ? 'ব্যাচ খুলতে Google দিয়ে সাইন-ইন করুন' : 'ব্যাচে যোগ দিতে Google দিয়ে সাইন-ইন করুন'); return; }
-    if(a === 'claim'){ await showBatch(k); return; }
+    if(a === 'claim'){ await doClaim(k); return; }
     await doJoin(k, b, ref);
+  }
+  let JUST_OPENED = false;
+  async function doClaim(k){
+    const btn = $('act'); if(btn) btn.disabled = true;
+    const r = await rpc('batch_claim', { p_slug: k.slug, p_level: k.lv, p_year: k.year, p_line: null, p_theme: 'blue' });
+    if(btn) btn.disabled = false;
+    const d = r.data;
+    if(r.error || !d || !d.ok){
+      const code = d && d.error;
+      if(code === 'EXISTS'){ toast('এই ব্যাচ এইমাত্র আরেকজন খুলে ফেলেছেন, আপনি যোগ দিন।'); await showBatch(k); return; }
+      toast(code === 'TOO_MANY' ? 'আপনি সর্বোচ্চ ৩টা ব্যাচ খুলতে পারেন।' : (ERR[code] || 'এখন ব্যাচ খোলা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।')); return;
+    }
+    track('batch_claim', { lv: k.lv });
+    JUST_OPENED = true; toast('ব্যাচ খোলা হয়েছে, আপনি আহ্বায়ক।');
+    await showBatch(k);
   }
   async function doJoin(k, b, ref){
     const btn = $('act'); if(btn) btn.disabled = true;
@@ -453,7 +472,7 @@
     const it = takeIntent(k);
     if(it && signedIn()){
       if(it.a === 'join' && data.batch && !(data.me && data.me.joined)) await doJoin(k, data.batch, it.ref || parseUrl().ref);
-      else if(it.a === 'claim' && !data.batch){ const lk = $('lkLine'); if(lk) lk.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      else if(it.a === 'claim' && !data.batch) await doClaim(k);
     }
   }
 

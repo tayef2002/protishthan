@@ -6,7 +6,7 @@ let pass = 0, fail = 0;
 const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.stringify(want); ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : '  got ' + JSON.stringify(got) + '  want ' + JSON.stringify(want))); };
 const yes = (name, v) => eq(name, !!v, true);
 
-const page = read('batch.html'), css = read('batch.css'), sql = read('migrations/2026-12-26_batches.sql'), nav = read('nav.js'), foot = read('footer.js');
+const page = read('batch.html'), css = read('batch.css'), sql = read('migrations/2026-12-26_batches.sql'), sql2 = read('migrations/2026-12-27_batch_name.sql'), nav = read('nav.js'), foot = read('footer.js');
 
 // the page loads on a nested address (/b/<slug>/<level>-<year>), so every file must be found from the site root
 yes('the page has <base href="/"> and loads its own files from the root', /<base href="\/">/.test(page) && /src="\/member\.js"/.test(page) && /href="\/batch\.css\?v=\d+"/.test(page) && /href="\/brand\.css/.test(page));
@@ -14,7 +14,7 @@ yes('it uses the shared top bar (the active entry is batch) and the shared foote
 yes('every page of this feature is kept out of search (noindex, set by the page; the batch pages always, the home page while the feature is hidden)', /setRobots\(true\)/.test(page) && !/setRobots\(false\)/.test(page) && !/<meta name="robots"/.test(page) && /rel="canonical" href="https:\/\/protishthan\.com\/batch"/.test(page));
 
 // the six batch functions and the search it calls: names and argument names are the SQL ones
-const sigs = {}; for (const m of sql.matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
+const sigs = {}; for (const m of (sql + ' ' + sql2).matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
 const calls = [...page.matchAll(/rpc\('(\w+)'(?:,\s*\{([^}]*)\})?/g)].map(m => [m[1], (m[2] || '').split(',').map(x => x.split(':')[0].trim()).filter(Boolean)]);
 const batchCalls = calls.filter(c => /^batch_/.test(c[0]));
 eq('the page calls exactly the six batch functions the SQL defines', [...new Set(batchCalls.map(c => c[0]))].sort(), Object.keys(sigs).filter(k => !['batch_first_name', 'batch_year_ok', 'batch_level_ok'].includes(k)).sort());
@@ -62,6 +62,13 @@ yes('a member can make a share picture of the batch: drawn in the browser (canva
 yes('the picture has a colour for every theme the page offers', ['blue', 'violet', 'teal', 'amber', 'rose'].every(t => new RegExp('\\b' + t + ': \\[\'#').test(page)));
 
 yes('the page never waits for the sign-in check without a limit (a slow check once left the page blank): the home shows at once, a batch page waits at most 3.5 s', /Promise\.race\(\[ MB\(\) \? MB\(\)\.ready\(\) : null, new Promise\(r => setTimeout\(r, ms\)\) \]\)/.test(page) && !/await MB\(\)\.ready\(\)/.test(page) && /renderCardPicks\(\); turf\(\);\s*await wait\(3500\); renderMine\(\)/.test(page));
+
+// open first, set up afterwards
+const pgBody = page.replace(/\s+/g, ' ');
+yes('an unopened batch shows only the open button under the banner (no setup form before the batch exists); the click opens it with the default line and colour', /data-a="claim">' \+ \(signedIn\(\) \? 'ব্যাচ খুলুন'/.test(page) && !/ব্যাচটা সাজান/.test(page) && /async function doClaim\(k\)/.test(page) && /rpc\('batch_claim', \{ p_slug: k\.slug, p_level: k\.lv, p_year: k\.year, p_line: null, p_theme: 'blue' \}\)/.test(page) && /if\(a === 'claim'\)\{ await doClaim\(k\); return; \}/.test(page) && /else if\(it\.a === 'claim' && !data\.batch\) await doClaim\(k\)/.test(page));
+yes('after opening, the convener gets the setup panel first (name, line, colour) and it is scrolled into view; the invite panel follows', /const fresh = isConv && !b\.name/.test(page) && /\(fresh \? setup \+ invite : invite \+ setup\)/.test(page) && /id="lkName" maxlength="40"/.test(page) && /p_name: name \|\| null/.test(page) && /ব্যাচ খোলা হয়েছে, এবার সাজান/.test(page));
+yes('the batch name shows in the banner (escaped), in the share picture and in my batches', /b && b\.name \? '<div class="bt-bname">' \+ esc\(b\.name\)/.test(page) && /if\(b\.name\)\{ let nf = 52/.test(page) && /esc\(b\.bname \|\| b\.name \|\| b\.slug\)/.test(page) && /\.bt-bname\{/.test(css) && /BAD_NAME:/.test(page));
+yes('the name migration replaces batch_set_look with the four-argument version, adds the name to lookup and my list, and refuses links, mail, numbers and bad words', /drop function if exists public\.batch_set_look\(uuid, text, text\)/.test(sql2) && /batch_set_look\(p_batch_id uuid, p_name text, p_line text, p_theme text\)/.test(sql2) && /'name', b\.name/.test(sql2) && /'bname', b\.name/.test(sql2) && /'BAD_NAME'/.test(sql2) && /grant execute on function public\.batch_set_look\(uuid, text, text, text\) to authenticated/.test(sql2) && !/to anon/.test(sql2.replace(/batch_lookup[^;]*to anon, authenticated;/, '')));
 
 // the SQL file keeps its promises
 yes('the SQL closes both tables (RLS on, no grants to anon, only select to authenticated) and every function is security definer with a pinned search_path', /enable row level security/.test(sql) && /revoke all on public\.batches, public\.batch_members from anon, authenticated/.test(sql) && (sql.match(/security definer set search_path = public/g) || []).length === 6);

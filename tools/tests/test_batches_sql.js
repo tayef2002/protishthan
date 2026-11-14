@@ -6,6 +6,7 @@ let PGlite;
 try { ({ PGlite } = require(process.env.PGLITE_DIR ? path.join(process.env.PGLITE_DIR, 'node_modules', '@electric-sql', 'pglite') : '@electric-sql/pglite')); }
 catch (e) { console.log('skipped: the PGlite engine is not installed (see the two lines at the top of this file).'); process.exit(0); }
 const SQL = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-26_batches.sql'), 'utf8');
+const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-27_batch_name.sql'), 'utf8');
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 (async () => {
@@ -30,6 +31,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   for (let i = 1; i <= 40; i++) await db.exec(`insert into auth.users (id) values ('${U(i)}')`);
   await db.exec(SQL);
   await db.exec(SQL);                                       // a second run changes nothing
+  await db.exec(SQL2); await db.exec(SQL2);                 // the name migration, also safe to run twice
   const as = async (n, fn) => { await db.exec(`select set_config('test.uid', '${n ? U(n) : ''}', false)`); return fn(); };
   const call = async (n, sql, params) => as(n, async () => { try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } });
   const lookup = (n, slug, lv, y) => call(n, 'select public.batch_lookup($1,$2,$3) as r', [slug, lv, y]);
@@ -81,8 +83,17 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('batch_me is empty when not signed in', (await call(0, 'select public.batch_me() as r')).length === 0);
 
   // ---- the look
-  ok('the convener changes the line and the theme', (await call(1, `select public.batch_set_look($1, 'নতুন লাইন', 'teal') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.theme === 'teal');
-  ok('an ordinary member cannot: NOT_ALLOWED; a bad line is refused', (await call(2, `select public.batch_set_look($1, 'x', 'teal') as r`, [BID])).error === 'NOT_ALLOWED' && (await call(1, `select public.batch_set_look($1, 'www.x.com', 'teal') as r`, [BID])).error === 'BAD_LINE');
+  ok('the convener changes the line and the theme', (await call(1, `select public.batch_set_look($1, null, 'নতুন লাইন', 'teal') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.theme === 'teal');
+  ok('an ordinary member cannot: NOT_ALLOWED; a bad line is refused', (await call(2, `select public.batch_set_look($1, null, 'x', 'teal') as r`, [BID])).error === 'NOT_ALLOWED' && (await call(1, `select public.batch_set_look($1, null, 'www.x.com', 'teal') as r`, [BID])).error === 'BAD_LINE');
+
+  // ---- the batch name (2026-12-27)
+  ok('a batch opened with no name has name null in lookup and in my list', (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.name === null && (await call(2, 'select public.batch_me() as r'))[0].bname === null);
+  ok('the convener sets the name; lookup and my list show it, with the line and colour', (await call(1, `select public.batch_set_look($1, '  Dhaka   Collegiyan 2018 ', 'লাইন', 'rose') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.name === 'Dhaka Collegiyan 2018' && (await call(2, 'select public.batch_me() as r'))[0].bname === 'Dhaka Collegiyan 2018' && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.theme === 'rose');
+  const badN = { url: 'www.x.com', mail: 'a@b.com', phone: '০১৭১১২২৩৩৪৪', word: 'badword club', one: 'ক', long: 'ক'.repeat(41) };
+  for (const k of Object.keys(badN)) ok('a bad name is refused: ' + k, (await call(1, `select public.batch_set_look($1, $2, null, 'blue') as r`, [BID, badN[k]])).error === 'BAD_NAME');
+  ok('an ordinary member cannot set the name; saving with an empty name clears it', (await call(2, `select public.batch_set_look($1, 'Hack', null, 'blue') as r`, [BID])).error === 'NOT_ALLOWED' && (await call(1, `select public.batch_set_look($1, '', null, 'blue') as r`, [BID])).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2018)).batch.name === null);
+  await call(1, `select public.batch_set_look($1, 'Dhaka Collegiyan 2018', null, 'blue') as r`, [BID]);
+  ok('the old three-argument batch_set_look is gone (no overload to confuse a call)', (await db.query("select count(*)::int as n from pg_proc where proname = 'batch_set_look'")).rows[0].n === 1);
 
   // ---- leaving: numbers are never given twice
   ok('a member leaves, then a new person joins: the new number is 4, the old 3 is not reused', (await call(3, 'select public.batch_leave($1) as r', [BID])).ok === true && (await join(7, BID)).seq === 4);
