@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=33">
+<link rel="stylesheet" href="/memory.css?v=34">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -45,6 +45,7 @@
         <button type="button" class="mc-btn alt" id="sh" hidden>শেয়ার করুন</button>
       </div>
       <p class="mc-cnt" id="cnt" hidden></p>
+      <p class="mc-tot" id="tot" hidden></p>
     </div></section>
 
     <section class="mc-form" aria-label="কার্ড বানান">
@@ -727,14 +728,39 @@
     return b ? new File([b], 'memory-card.jpg', { type: 'image/jpeg' }) : null;
   }
   function count(){ let n = 0; try{ n = +localStorage.getItem('mem_n') || 0; }catch(e){} return n; }
-  function bump(){ const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
+  /* ---------- counting a card: one design counts once, an edited or new design counts again ---------- */
+  const fnv = str => { let h = 2166136261; for(let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
+  /* a photo is told apart by a tiny 12x12 copy of it (so the same photo is the same, a different one is different), never sent anywhere */
+  function photoSig(cv){ try{ const t = document.createElement('canvas'); t.width = t.height = 12; const x = t.getContext('2d'); x.drawImage(cv, 0, 0, 12, 12); const d = x.getImageData(0, 0, 12, 12).data; let q = ''; for(let i = 0; i < d.length; i += 4) q += (d[i] >> 4).toString(16) + (d[i + 1] >> 4).toString(16) + (d[i + 2] >> 4).toString(16); return fnv(q) + cv.width + 'x' + cv.height; }catch(e){ return 'p'; } }
+  /* the fingerprint of the design: the template, the colour, the words, each photo and where it sits. The size (post or story) is not part of it: the same card in two sizes is one card. Empty cards have none. */
+  function designKey(){
+    const t = TP(), ph = t.ph ? S.photos.slice(0, t.ph) : [], tx = [$('ttl').value.trim(), $('txt').value.trim(), $('sm').value.trim()];
+    if(!ph.some(Boolean) && !tx.some(Boolean)) return '';
+    const parts = [S.tpl, S.theme].concat(tx);
+    ph.forEach((im, i) => { parts.push(im ? photoSig(im) : '-'); const p = S.pos[i]; parts.push(p ? [p.x, p.y, p.z].map(v => (+v).toFixed(2)).join(',') : ''); });
+    const j = parts.join('|'); return fnv(j) + fnv(j.split('').reverse().join(''));
+  }
+  const seenGet = () => { try{ const a = JSON.parse(localStorage.getItem('mem_seen') || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } };
+  const devId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
+  const sbc = () => { try{ return window.Protishthan && Protishthan.member && Protishthan.member.sb; }catch(e){ return null; } };
+  /* the public number is shown only once it is big enough to mean something (below MIN_SHOW a few cards would look like nobody uses it) */
+  const MIN_SHOW = 20;
+  function paintTotal(n){ const el = $('tot'); if(!(n >= MIN_SHOW)) return; el.textContent = 'এ পর্যন্ত ' + bn(Math.round(n).toLocaleString('en-US')) + 'টা মেমোরি কার্ড ডাউনলোড হয়েছে'; el.hidden = false; }
+  async function loadTotal(){ try{ const r = await fetch('/api/memory-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.n != null && Number.isFinite(Number(j.n))) paintTotal(Number(j.n)); } }catch(e){} }
+  function bump(){
+    const k = designKey(); if(!k) return;
+    const seen = seenGet(); if(seen.includes(k)) return;                       // this very design was already counted on this device
+    seen.push(k); try{ localStorage.setItem('mem_seen', JSON.stringify(seen.slice(-300))); }catch(e){}
+    const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount();
+    const x = sbc(); if(x) try{ x.rpc('bump_memory_downloads', { p_device: devId(), p_fp: k }).then(r => { if(r && !r.error && r.data != null) paintTotal(Number(r.data)); }, () => {}); }catch(e){}
+  }
   function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
   $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { t: S.tpl, size: S.size, photos: S.photos.filter(Boolean).length }); toast('কার্ড ডাউনলোড হয়েছে।'); };
   $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { t: S.tpl }); }catch(e){} };
   $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; S.pos = [{ x: .5, y: .5, z: 1 }, { x: .5, y: .5, z: 1 }]; delPhoto(0); delPhoto(1); counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount(); restorePhotos();
+  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount(); restorePhotos(); loadTotal();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
   draw(); thumbs();
   /* the form stays in view while the long preview scrolls: it sticks when its bottom reaches the bottom of the screen (or its top, 88 px down, when it is shorter), never higher than 64 px so the header does not cover it */
