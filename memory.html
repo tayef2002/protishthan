@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=3">
+<link rel="stylesheet" href="/memory.css?v=6">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
   </section>
 
   <div class="mc-grid">
-    <section class="mc-prev" aria-label="কার্ডের প্রিভিউ">
+    <section class="mc-prev" aria-label="কার্ডের প্রিভিউ"><div class="mc-pvc" id="pvc">
       <div class="mc-cvw" id="cvw"><canvas id="cv" width="1080" height="1350" aria-label="আপনার মেমোরি কার্ড"></canvas></div>
       <div class="mc-acts">
         <button type="button" class="mc-btn" id="dl">ডাউনলোড করুন</button>
@@ -44,7 +44,7 @@
       </div>
       <button type="button" class="mc-cap" id="cpCap">ক্যাপশন কপি করুন</button>
       <p class="mc-cnt" id="cnt" hidden></p>
-    </section>
+    </div></section>
 
     <section class="mc-form" aria-label="কার্ড বানান">
       <div class="mc-f">
@@ -311,7 +311,7 @@
   let raf = 0;
   function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
   async function render(){
-    const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; }
+    const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
     paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
   }
