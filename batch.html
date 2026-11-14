@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=25">
+<link rel="stylesheet" href="/batch.css?v=26">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -345,8 +345,10 @@
         '<div class="bt-msg" id="msgBox">' + esc(msgs[0]) + '</div>' +
         '<div class="bt-share"><a class="wa" id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a><a class="fb" id="shFb" target="_blank" rel="noopener" href="#">Facebook</a></div>' +
         '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button>' +
-        '<button type="button" class="bt-copy" style="margin-top:8px;width:100%;background:#fff;color:var(--ac);border:1.5px solid var(--ac)" id="mkImg">ব্যাচের ছবি বানান (গ্রুপে দিতে)</button>' +
-        '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div></div></div>';
+        '<div class="bt-mkrow"><button type="button" class="bt-mk" id="mkImgFb">ফেসবুক পোস্টের ছবি</button><button type="button" class="bt-mk" id="mkImgWa">WhatsApp-এর ছবি</button></div>' +
+        '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><p class="bt-imgtip" id="imgTip"></p>' +
+        '<div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div>' +
+        '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></div></div>';
       const fresh = isConv && !b.name;
       const setup = '<div class="bt-panel" id="setup">' + (isConv ? (fresh ? '<h2>ব্যাচ খোলা হয়েছে, এবার সাজান</h2><p class="s">ব্যাচের একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।</p>' : '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।</p>') + lookHtml(k, inst, b.name, b.line, b.theme) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
         '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div>';
@@ -369,7 +371,8 @@
       const copy = async (txt, what) => { try{ await navigator.clipboard.writeText(txt); }catch(e){ const t = $('lnk'); t.select(); try{ document.execCommand('copy'); }catch(_){} } toast(what + ' কপি হয়েছে।'); track('batch_copy', { w: what }); };
       $('cpLink').onclick = () => copy(link, 'লিংক');
       $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা');
-      $('mkImg').onclick = () => makeImage(k, inst, b, link);
+      $('mkImgFb').onclick = () => makeImage(k, inst, b, link, 'fb', $('mkImgFb'));
+      $('mkImgWa').onclick = () => makeImage(k, inst, b, link, 'wa', $('mkImgWa'));
       $('shWa').onclick = () => track('batch_share', { ch: 'wa' }); $('shFb').onclick = () => track('batch_share', { ch: 'fb' });
       if(isConv) bindLook(k, b.id);
       if(isConv && !b.name && JUST_OPENED){ JUST_OPENED = false; setTimeout(() => { const el = $('setup'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); }
@@ -426,59 +429,97 @@
   }
 
   /* ---------- the batch picture (drawn here in the browser, nothing is uploaded) ---------- */
-  const IMG_TH = { blue: ['#1A56DB', '#7C3AED', '#EAF1FF'], violet: ['#6D28D9', '#DB2777', '#F1EBFF'], teal: ['#0F766E', '#1A56DB', '#E3F6F2'], amber: ['#B45309', '#DB2777', '#FFF1D6'], rose: ['#BE123C', '#7C3AED', '#FFE9EE'] };
+  const IMG_TH = { blue: ['#1A56DB', '#7C3AED'], violet: ['#6D28D9', '#DB2777'], teal: ['#0F766E', '#1A56DB'], amber: ['#B45309', '#DB2777'], rose: ['#BE123C', '#7C3AED'] };
+  const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mixHex = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
   let IMG_URL = '', IMG_FILE = null;
-  async function makeImage(k, inst, b, link){
-    const btn = $('mkImg'); btn.disabled = true; btn.textContent = 'ছবি বানানো হচ্ছে…';
+  const fbCaption = (k, inst, b) => (b.name ? b.name + ' · ' : '') + inst + '\n' + LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচের সবাই, কমেন্টে দেওয়া লিংক থেকে জয়েন করো 👇';
+  /* a 1080x1350 poster for a feed: deep batch colour, the batch name big, faces and the count as proof, one clear thing to do. mode 'fb': a link inside a picture cannot be tapped, so it says "join from the link in the comment"; mode 'wa': the link is printed on it. */
+  async function makeImage(k, inst, b, link, mode, btn){
+    mode = mode === 'wa' ? 'wa' : 'fb';
+    const label = btn ? btn.textContent : ''; if(btn){ btn.disabled = true; btn.textContent = 'বানানো হচ্ছে…'; }
     try{
       try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('600 40px "Hind Siliguri"'), document.fonts.load('800 40px Inter')]); }catch(e){}
       const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
-      const th = IMG_TH[b.theme] || IMG_TH.blue, n = b.members, HS = '"Hind Siliguri", Inter, sans-serif';
-      const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#fff'); bg.addColorStop(1, th[2]); c.fillStyle = bg; c.fillRect(0, 0, W, H);
-      let g = c.createRadialGradient(130, 120, 0, 130, 120, 560); g.addColorStop(0, th[2]); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      g = c.createRadialGradient(W - 90, H - 60, 0, W - 90, H - 60, 620); g.addColorStop(0, th[1] + '33'); g.addColorStop(1, th[1] + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      const th = IMG_TH[b.theme] || IMG_TH.blue, n = b.members, HS = '"Hind Siliguri", Inter, sans-serif', NAVY = '#050B1E';
+      const deep = mixHex(th[0], NAVY, .66), mid = mixHex(th[0], NAVY, .3), far = mixHex(th[1], NAVY, .45), GOLD = '#FDE68A';
+      // background: deep colour with soft light and a few rings, so it stands out in a white feed
+      const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, deep); bg.addColorStop(.5, mid); bg.addColorStop(1, far); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+      let g = c.createRadialGradient(170, 150, 0, 170, 150, 700); g.addColorStop(0, 'rgba(255,255,255,.2)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      g = c.createRadialGradient(W - 80, H - 120, 0, W - 80, H - 120, 760); g.addColorStop(0, th[1] + '88'); g.addColorStop(1, th[1] + '00'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.07)';
+      [[W - 40, 120, 190], [W - 40, 120, 290], [60, H - 330, 150], [60, H - 330, 250]].forEach(r => { c.beginPath(); c.arc(r[0], r[1], r[2], 0, 7); c.stroke(); });
+      let sd = 20261114; const rnd = () => { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+      for(let i = 0; i < 26; i++){ c.beginPath(); c.arc(rnd() * W, rnd() * H, 3 + rnd() * 9, 0, 7); c.fillStyle = 'rgba(255,255,255,' + (.05 + rnd() * .12).toFixed(2) + ')'; c.fill(); }
       c.textAlign = 'center'; c.textBaseline = 'alphabetic';
       const rr = (x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
       const wrap = (txt, maxW, font, maxLines) => { c.font = font; const words = txt.split(/\s+/), out = []; let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } if(cur) out.push(cur); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
-      // chip
-      c.font = '700 30px ' + HS; const chip = LVT[k.lv] + ' ব্যাচ', cw = c.measureText(chip).width + 64;
-      rr(W / 2 - cw / 2, 92, cw, 62, 31); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2; c.strokeStyle = th[0] + '44'; c.stroke();
-      c.fillStyle = th[0]; c.fillText(chip, W / 2, 134);
-      // institution name: shrinks to fit two lines
-      let size = 84, lines;
-      do{ lines = wrap(inst, W - 150, '700 ' + size + 'px ' + HS, 3); size -= 4; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 150)) && size > 52);
-      c.font = '700 ' + (size + 4) + 'px ' + HS; c.fillStyle = '#0B1B4D'; let y = 270; const lh = (size + 4) * 1.22;
-      lines.forEach(l => { c.fillText(l, W / 2, y); y += lh; });
-      c.font = '700 54px ' + HS; c.fillStyle = th[0]; c.fillText(LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ', W / 2, y + 6); y += 70;
-      if(b.name){ let nf = 52; c.font = '800 ' + nf + 'px ' + HS; while(c.measureText(b.name).width > W - 200 && nf > 30){ nf -= 2; c.font = '800 ' + nf + 'px ' + HS; } c.fillStyle = '#0B1B4D'; c.fillText(b.name, W / 2, y + 4); y += 64; }
-      // the line
-      const ln = wrap(lineFor(k, inst, b.line), W - 220, '600 40px ' + HS, 4); c.font = '600 40px ' + HS; c.fillStyle = '#334155';
-      y += 30; ln.forEach(l => { c.fillText(l, W / 2, y); y += 62; });
-      // seats
-      const goal = goalOf(n), shown = Math.min(goal, 50), filled = Math.min(n, shown), cols = Math.min(shown, 10), rows = Math.ceil(shown / cols), gap = 22, d = 36;
-      const gw = cols * d + (cols - 1) * gap, gx = (W - gw) / 2; y += 28;
-      for(let i = 0; i < shown; i++){ const cx = gx + (i % cols) * (d + gap) + d / 2, cy = y + Math.floor(i / cols) * (d + gap) + d / 2; c.beginPath(); c.arc(cx, cy, d / 2 - 2, 0, 7); if(i < filled){ c.fillStyle = th[0]; c.fill(); } else { c.lineWidth = 3; c.strokeStyle = th[0] + '55'; c.stroke(); } }
-      y += rows * (d + gap) + 22;
-      c.font = '800 46px ' + HS; c.fillStyle = '#0B1B4D'; c.fillText(bn(n) + ' জন যুক্ত হয়েছেন', W / 2, y + 30);
-      c.font = '600 30px ' + HS; c.fillStyle = '#64748B'; c.fillText('পরের লক্ষ্য ' + bn(goal) + ' জন', W / 2, y + 76);
-      // invite bar
-      const by = H - 250; rr(70, by, W - 140, 150, 34); c.fillStyle = th[0]; c.fill();
-      c.fillStyle = '#fff'; c.font = '700 34px ' + HS; c.fillText('আমাদের ব্যাচে যোগ দাও', W / 2, by + 56);
-      const shortLink = link.replace(/^https?:\/\//, ''); let fs = 38; c.font = '800 ' + fs + 'px Inter, sans-serif';
-      while(c.measureText(shortLink).width > W - 220 && fs > 22){ fs -= 2; c.font = '800 ' + fs + 'px Inter, sans-serif'; }
-      c.fillText(shortLink, W / 2, by + 112);
-      c.fillStyle = '#64748B'; c.font = '700 26px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM', W / 2, H - 56);
+      const shadow = (on) => { c.shadowColor = on ? 'rgba(0,0,0,.35)' : 'transparent'; c.shadowBlur = on ? 18 : 0; c.shadowOffsetY = on ? 6 : 0; };
+      // header: the brand, and the level chip
+      c.textAlign = 'left'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '800 34px Inter, sans-serif'; c.fillText('Protishthan', 70, 112);
+      c.textAlign = 'center'; c.font = '700 30px ' + HS; const chip = LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ', cw = c.measureText(chip).width + 56;
+      rr(W - 70 - cw, 70, cw, 60, 30); c.fillStyle = 'rgba(255,255,255,.16)'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.4)'; c.stroke();
+      c.fillStyle = '#fff'; c.fillText(chip, W - 70 - cw / 2, 111);
+      // the middle of the poster is laid out once to measure it, then drawn centred between the header and the button
+      const big = b.name || inst; let size = 128, lines;
+      do{ lines = wrap(big, W - 150, '800 ' + size + 'px ' + HS, 3); size -= 6; }while((lines.length > 2 || lines.some(l => c.measureText(l).width > W - 150)) && size > 62);
+      const fs0 = size + 6, sl = b.name ? wrap(inst, W - 180, '600 40px ' + HS, 2) : [], ln = wrap(lineFor(k, inst, b.line), W - 190, '600 38px ' + HS, 3);
+      const shown = Math.min(n, 7), more = n - shown, d = 96, step = 68, tot = d + step * (shown - 1 + (more > 0 ? 1 : 0)), x0 = (W - tot) / 2, goal = goalOf(n);
+      const person = (cx, cy, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(cx, cy - r * .22, r * .3, 0, 7); c.fill(); c.beginPath(); c.moveTo(cx - r * .62, cy + r * .62); c.quadraticCurveTo(cx - r * .62, cy + r * .12, cx, cy + r * .12); c.quadraticCurveTo(cx + r * .62, cy + r * .12, cx + r * .62, cy + r * .62); c.closePath(); c.fill(); };
+      const build = y0 => {
+        const ops = []; let y = y0;
+        y += 44; { const yy = y; ops.push(() => { c.textAlign = 'center'; c.fillStyle = GOLD; c.font = '700 46px ' + HS; c.fillText('কইরে বন্ধু? বিকেলে খেলতে যাবি না?', W / 2, yy); }); }
+        y += 34 + fs0 * .86;
+        lines.forEach((l, i) => { const yy = y + i * fs0 * 1.14; ops.push(() => { c.textAlign = 'center'; c.font = '800 ' + fs0 + 'px ' + HS; c.fillStyle = '#fff'; shadow(true); c.fillText(l, W / 2, yy); shadow(false); }); });
+        y += (lines.length - 1) * fs0 * 1.14;
+        if(sl.length){ y += 78; sl.forEach((l, i) => { const yy = y + i * 50; ops.push(() => { c.textAlign = 'center'; c.font = '600 40px ' + HS; c.fillStyle = 'rgba(255,255,255,.86)'; c.fillText(l, W / 2, yy); }); }); y += (sl.length - 1) * 50; }
+        y += 74; ln.forEach((l, i) => { const yy = y + i * 54; ops.push(() => { c.textAlign = 'center'; c.font = '600 38px ' + HS; c.fillStyle = 'rgba(255,255,255,.82)'; c.fillText(l, W / 2, yy); }); });
+        y += (ln.length - 1) * 54 + 58;
+        const ay = y;
+        ops.push(() => {
+          for(let i = 0; i < shown + (more > 0 ? 1 : 0); i++){
+            const cx = x0 + d / 2 + i * step, cy = ay + d / 2, last = more > 0 && i === shown;
+            c.beginPath(); c.arc(cx, cy, d / 2 + 5, 0, 7); c.fillStyle = mid; c.fill();
+            c.beginPath(); c.arc(cx, cy, d / 2, 0, 7); c.fillStyle = last ? GOLD : '#fff'; c.fill();
+            if(last){ c.textAlign = 'center'; c.fillStyle = '#3B2A00'; c.font = '800 34px ' + HS; c.fillText('+' + bn(more), cx, cy + 12); }
+            else { c.save(); c.beginPath(); c.arc(cx, cy, d / 2, 0, 7); c.clip(); person(cx, cy + 2, d / 2, i % 2 ? th[1] : th[0]); c.restore(); }
+          }
+        });
+        y = ay + d + 64; { const yy = y; ops.push(() => { c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = '800 46px ' + HS; c.fillText(n === 1 ? 'আমি প্রথম এসেছি, এবার তোমার পালা' : bn(n) + ' জন যুক্ত হয়েছে, এবার তোমার পালা', W / 2, yy); }); }
+        const by = y + 32, bw = 520, bx = (W - bw) / 2;
+        ops.push(() => { rr(bx, by, bw, 14, 7); c.fillStyle = 'rgba(255,255,255,.22)'; c.fill(); rr(bx, by, Math.max(14, bw * Math.min(1, n / goal)), 14, 7); c.fillStyle = GOLD; c.fill(); c.textAlign = 'center'; c.font = '600 28px ' + HS; c.fillStyle = 'rgba(255,255,255,.75)'; c.fillText('লক্ষ্য ' + bn(goal) + ' জন', W / 2, by + 56); });
+        return { ops, end: by + 70 };
+      };
+      const AV_TOP = 168, AV_BOT = H - 232 - 36, used = build(0).end, top = Math.max(AV_TOP, AV_TOP + (AV_BOT - AV_TOP - used) / 2);
+      build(top).ops.forEach(f => f());
+      // what to do: one big button-like block
+      const cy0 = H - 232, ch = 150; shadow(true); rr(70, cy0, W - 140, ch, 40); c.fillStyle = '#fff'; c.fill(); shadow(false);
+      if(mode === 'fb'){
+        c.beginPath(); c.arc(150, cy0 + ch / 2, 44, 0, 7); c.fillStyle = th[0]; c.fill();
+        c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(150, cy0 + ch / 2 - 18); c.lineTo(150, cy0 + ch / 2 + 16); c.moveTo(134, cy0 + ch / 2 + 2); c.lineTo(150, cy0 + ch / 2 + 18); c.lineTo(166, cy0 + ch / 2 + 2); c.stroke();
+        c.textAlign = 'center'; c.fillStyle = '#475569'; c.font = '600 32px ' + HS; c.fillText('কমেন্টে দেওয়া লিংক থেকে', 620, cy0 + 62);
+        c.fillStyle = th[0]; c.font = '800 56px ' + HS; c.fillText('ব্যাচে জয়েন করো', 620, cy0 + 124);
+      } else {
+        const sl = link.replace(/^https?:\/\//, ''); let fz = 36; c.font = '800 ' + fz + 'px Inter, sans-serif'; while(c.measureText(sl).width > W - 220 && fz > 20){ fz -= 2; c.font = '800 ' + fz + 'px Inter, sans-serif'; }
+        c.fillStyle = th[0]; c.font = '800 56px ' + HS; c.fillText('ব্যাচে জয়েন করো', W / 2, cy0 + 70);
+        c.fillStyle = '#334155'; c.font = '800 ' + fz + 'px Inter, sans-serif'; c.fillText(sl, W / 2, cy0 + 120);
+      }
+      c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '700 26px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM  ·  আমার ব্যাচ', W / 2, H - 52);
       const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
       if(!blob) throw new Error('png');
       if(IMG_URL) URL.revokeObjectURL(IMG_URL);
-      IMG_URL = URL.createObjectURL(blob); IMG_FILE = new File([blob], 'amar-batch-' + k.lv + '-' + k.year + '.png', { type: 'image/png' });
+      IMG_URL = URL.createObjectURL(blob); IMG_FILE = new File([blob], 'amar-batch-' + k.lv + '-' + k.year + '-' + mode + '.png', { type: 'image/png' });
       $('imgPrev').src = IMG_URL; $('imgBox').hidden = false;
-      $('imgDl').onclick = () => { const a = document.createElement('a'); a.href = IMG_URL; a.download = IMG_FILE.name; document.body.appendChild(a); a.click(); a.remove(); track('batch_image', { a: 'download' }); };
+      $('imgTip').textContent = mode === 'fb' ? 'ফেসবুকে ছবিটা পোস্ট করুন, তারপর প্রথম কমেন্টে লিংকটা পেস্ট করুন। ছবিতে সেটাই বলা আছে।' : 'ছবির সাথে আপনার আমন্ত্রণ লিংকটাও পাঠান, ছবিতে লিংক ছাপা আছে।';
+      $('imgFbRow').hidden = mode !== 'fb';
+      const copyTxt = async (t, w) => { try{ await navigator.clipboard.writeText(t); }catch(e){ const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(_){} ta.remove(); } toast(w + ' কপি হয়েছে।'); track('batch_copy', { w }); };
+      $('imgCpLink').onclick = () => copyTxt(link, 'লিংক'); $('imgCpCap').onclick = () => copyTxt(fbCaption(k, inst, b), 'ক্যাপশন');
+      $('imgDl').onclick = () => { const a = document.createElement('a'); a.href = IMG_URL; a.download = IMG_FILE.name; document.body.appendChild(a); a.click(); a.remove(); track('batch_image', { a: 'download', m: mode }); };
       $('imgSh').hidden = !(navigator.canShare && navigator.canShare({ files: [IMG_FILE] }));
-      $('imgSh').onclick = async () => { try{ await navigator.share({ files: [IMG_FILE], text: msgsFor(k, inst, link)[0] }); track('batch_image', { a: 'share' }); }catch(e){} };
-      track('batch_image', { a: 'make' });
+      $('imgSh').onclick = async () => { try{ await navigator.share({ files: [IMG_FILE], text: mode === 'fb' ? fbCaption(k, inst, b) : msgsFor(k, inst, link)[0] }); track('batch_image', { a: 'share', m: mode }); }catch(e){} };
+      track('batch_image', { a: 'make', m: mode });
     }catch(e){ toast('ছবি বানানো যায়নি, আবার চেষ্টা করুন।'); }
-    btn.disabled = false; btn.textContent = 'ছবিটা আবার বানান';
+    if(btn){ btn.disabled = false; btn.textContent = label; }
   }
 
   /* join or open: if the visitor is not signed in, remember what they wanted and send them to Google; the page does it when they come back */
