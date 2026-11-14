@@ -244,7 +244,8 @@
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
     put(i, () => rr(px, py, pw, ph, pr), px, py, pw, ph);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
-    c.fillStyle = linear(0, py + ph * .45, 0, py + ph, [[0, 'rgba(8,9,13,0)'], [.35, 'rgba(8,9,13,.14)'], [.7, 'rgba(8,9,13,.5)'], [1, 'rgba(8,9,13,.86)']]); c.fillRect(px, py, pw, ph);
+    const FADE = [[0, 'rgba(8,9,13,0)'], [.35, 'rgba(8,9,13,.14)'], [.7, 'rgba(8,9,13,.5)'], [1, 'rgba(8,9,13,.86)']];
+    c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(px, py, pw, ph);
     c.fillStyle = linear(px, py, px + pw, py + ph, [[0, 'rgba(255,255,255,.18)'], [.35, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.1)']]); c.fillRect(px, py, pw, ph);
     c.restore();
     c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,.55)'; rr(px, py, pw, ph, pr); c.stroke(); c.lineWidth = 1.5; c.strokeStyle = 'rgba(255,255,255,.14)'; rr(px + 2, py + 2, pw - 4, ph - 4, pr - 2); c.stroke();
@@ -259,7 +260,19 @@
     }
     /* the gold contacts, on the photo */
     const n = 15, gap = 6, gw = (cw - 124 - 36 - gap * (n - 1)) / n;
-    for(let q = 0; q < n; q++){ const gx = 62 + 18 + q * (gw + gap), gh = q % 2 ? sh2 - 38 : sh2 - 28; shadow('rgba(0,0,0,.55)', 7 * k, 3 * k); rr(gx, sy + 14, gw, gh, 4); c.fillStyle = linear(gx, 0, gx + gw, 0, [[0, '#B8860B'], [.3, '#FFE9A8'], [.6, '#F5B933'], [1, '#A87408']]); c.fill(); shadow(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(gx + 5, sy + 20, 4, gh - 14); }
+    /* the contacts are blended into the photo like layers in an editor: a soft shadow on the photo, the gold, the photo itself laid over the gold in overlay (so its colours and light show in the metal), the same dark fade multiplied over it (so it sits in the same shadow), then a thin highlight and a dark edge */
+    for(let q = 0; q < n; q++){
+      const gx = 62 + 18 + q * (gw + gap), gy = sy + 14, gh = q % 2 ? sh2 - 38 : sh2 - 28, gold = linear(gx, 0, gx + gw, 0, [[0, '#D9A21A'], [.28, '#FFF3B8'], [.55, '#FAC93F'], [1, '#C58C10']]);
+      shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = '#7A5410'; c.fill(); shadow();
+      c.save(); rr(gx, gy, gw, gh, 4); c.clip();
+      c.fillStyle = gold; c.fillRect(gx, gy, gw, gh);
+      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; fill(S.cur.photos[i], px, py, pw, ph);
+      c.globalAlpha = .42; c.globalCompositeOperation = 'multiply'; c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(gx, gy, gw, gh);
+      c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = linear(0, gy, 0, gy + gh, [[0, 'rgba(255,255,255,.34)'], [.22, 'rgba(255,255,255,.06)'], [1, 'rgba(0,0,0,.18)']]); c.fillRect(gx, gy, gw, gh);
+      c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(gx + 5, gy + 6, 4, gh - 14);
+      c.restore();
+      c.lineWidth = 2; c.strokeStyle = 'rgba(60,38,4,.5)'; rr(gx, gy, gw, gh, 4); c.stroke();
+    }
     c.fillStyle = linear(0, 0, cw * .9, ch * .5, [[0, 'rgba(255,255,255,.22)'], [.3, 'rgba(255,255,255,.05)'], [.31, 'rgba(255,255,255,0)']]); c.fillRect(0, 0, cw, ch);
     c.restore();
     path(); c.lineWidth = 4; c.strokeStyle = linear(0, 0, cw, ch, [[0, 'rgba(255,255,255,.55)'], [.5, 'rgba(255,255,255,.08)'], [1, 'rgba(255,255,255,.25)']]); c.stroke();
