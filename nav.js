@@ -66,8 +66,9 @@
   var active = el.dataset.active || (here === 'index' || here === '' ? 'info' : here === 'software' ? 'service' : here);
   var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 
+  function hexOf(g){ var m = String(g).match(/#[0-9A-Fa-f]{6}/); return m ? m[0] : '#1A56DB'; }
   function item(x, cls){
-    return '<a class="sn-it' + (x.k === active ? ' on' : '') + '" href="' + esc(x.href) + '"' + (x.k === active ? ' aria-current="page"' : '') + '><i style="--g:' + x.g + '">' + IC[x.ic] + '</i><span><b>' + esc(x.t) + (x.tag ? '<em class="tag">' + esc(x.tag) + '</em>' : '') + '</b><em>' + esc(x.d) + '</em></span></a>';
+    return '<a class="sn-it' + (x.k === active ? ' on' : '') + '" href="' + esc(x.href) + '"' + (x.k === active ? ' aria-current="page"' : '') + '><i style="--g:' + x.g + ';--c:' + hexOf(x.g) + ';--t:' + hexOf(x.g) + '1F">' + IC[x.ic] + '</i><span><b>' + esc(x.t) + (x.tag ? '<em class="tag">' + esc(x.tag) + '</em>' : '') + '</b><em>' + esc(x.d) + '</em></span></a>';
   }
   var links = set.map(function(l, i){
     if(l.menu){
