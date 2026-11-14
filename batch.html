@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=23">
+<link rel="stylesheet" href="/batch.css?v=24">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -323,6 +323,7 @@
       '<div class="bt-seats">' + seatsHtml(n, joined ? me.seq : 0) + '</div><div class="bt-cta">';
     if(joined) h += '<p class="bt-sub" style="font-size:15px;color:var(--ac);font-weight:700;margin:0">আপনি এই ব্যাচে আছেন, ' + (me.seq === 1 ? 'প্রথম সদস্য ও আহ্বায়ক' : bn(me.seq) + 'তম সদস্য') + '</p>';
     else if(!b) h += '<button type="button" class="bt-btn" id="act" data-a="claim">' + (signedIn() ? 'ব্যাচ খুলুন' : 'Google দিয়ে ব্যাচ খুলুন') + '</button><p class="bt-sub">আপনি হবেন আহ্বায়ক, সদস্য নম্বর ১।</p>';
+    else if(b.status === 'locked') h += '<p class="bt-sub" style="font-size:15px;font-weight:700;color:var(--tx2);margin:0">এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।</p>';
     else h += '<button type="button" class="bt-btn" id="act" data-a="join">' + (signedIn() ? 'ব্যাচে যোগ দিন' : 'Google দিয়ে ব্যাচে যোগ দিন') + '</button><p class="bt-sub">আপনি হবেন ' + bn(n + 1) + 'তম সদস্য।</p>';
     h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
 
@@ -342,11 +343,15 @@
       const setup = '<div class="bt-panel" id="setup">' + (isConv ? (fresh ? '<h2>ব্যাচ খোলা হয়েছে, এবার সাজান</h2><p class="s">ব্যাচের একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।</p>' : '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।</p>') + lookHtml(k, inst, b.name, b.line, b.theme) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
         '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div>';
       h += '<div class="bt-me">' + (fresh ? setup + invite : invite + setup) + '</div>';
+      h += '<div class="bt-panel bt-roster" id="roster"><h2>ব্যাচের সদস্যরা</h2><p class="s" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
     }
-    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a></div>';
+    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
+    if(b) h += reportHtml();
     $('pg').innerHTML = h;
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
+    if(b) bindReport(b.id);
+    if(joined) loadRoster(b.id);
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
@@ -367,6 +372,50 @@
       };
     }
   }
+  /* ---------- the member list: only members get it (the database checks), names and photos come from the members' own profiles ---------- */
+  const initialOf = nm => (Array.from(String(nm || '').trim())[0] || '?').toUpperCase();
+  async function loadRoster(id){
+    const r = await rpc('batch_roster', { p_batch_id: id });
+    const box = $('roster'); if(!box) return;
+    if(r.error || !r.data || !r.data.ok){ $('rosterS').textContent = isMissing(r.error) ? 'সদস্য তালিকা শীঘ্রই চালু হচ্ছে।' : 'তালিকা এখন আনা যাচ্ছে না, একটু পরে আবার দেখুন।'; return; }
+    const list = r.data.members || [], SHOW = 24; let all = false;
+    $('rosterS').textContent = bn(list.length) + ' জন যুক্ত। নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখতে পায়।';
+    const paint = () => {
+      const rows = all ? list : list.slice(0, SHOW);
+      $('rList').innerHTML = rows.map(m => '<li' + (m.me ? ' class="me"' : '') + '><span class="bt-rav"><b>' + esc(initialOf(m.name)) + '</b>' + (m.avatar && /^https:\/\//.test(m.avatar) ? '<img src="' + esc(m.avatar) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</span>' +
+        '<span class="bt-rnm"><strong>' + esc(m.name) + (m.me ? ' <em>আপনি</em>' : '') + '</strong><small>' + (m.role === 'convener' ? 'আহ্বায়ক · ' : m.role === 'co' ? 'সহ-আহ্বায়ক · ' : '') + 'নম্বর ' + bn(m.seq) + '</small></span></li>').join('');
+      const more = $('rMore'); more.hidden = all || list.length <= SHOW; more.textContent = 'সবাইকে দেখুন (' + bn(list.length) + ' জন)';
+    };
+    $('rMore').onclick = () => { all = true; paint(); };
+    paint();
+  }
+
+  /* ---------- a visitor reports a batch (signed in; one report per person per batch) ---------- */
+  const RP = [['offensive', 'অশোভন নাম বা লাইন'], ['squatting', 'ব্যাচ দখল: আমি আসল সহপাঠী, কিন্তু অন্য কেউ আহ্বায়ক হয়ে বসেছেন'], ['fake', 'ভুয়া বা অন্য স্কুলের ব্যাচ'], ['other', 'অন্য কারণ']];
+  const reportHtml = () => '<div class="bt-panel" id="rpBox" hidden style="margin-top:14px"><h2>ব্যাচটা রিপোর্ট করুন</h2><p class="s">কারণটা বেছে নিন। আমরা দেখব, দরকার হলে লেখা মুছব বা ব্যাচ বন্ধ করব।</p>' +
+    '<div class="bt-rps" role="radiogroup" aria-label="কারণ">' + RP.map((x, i) => '<label><input type="radio" name="rpWhy" value="' + x[0] + '"' + (i === 0 ? ' checked' : '') + '><span>' + x[1] + '</span></label>').join('') + '</div>' +
+    '<textarea id="rpNote" maxlength="200" placeholder="চাইলে দু-এক লাইনে লিখুন (২০০ অক্ষর পর্যন্ত)"></textarea><div class="bt-err" id="rpErr" role="alert" hidden></div>' +
+    '<button type="button" class="bt-btn" style="margin-top:12px" id="rpSend">রিপোর্ট পাঠান</button></div>';
+  function bindReport(id){
+    const open = $('rpOpen'); if(!open) return;
+    open.onclick = e => {
+      e.preventDefault();
+      if(!signedIn()){ MB().signIn('রিপোর্ট করতে Google দিয়ে সাইন-ইন করুন'); return; }
+      const bx = $('rpBox'); bx.hidden = !bx.hidden; if(!bx.hidden) bx.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    $('rpSend').onclick = async () => {
+      const why = (document.querySelector('input[name=rpWhy]:checked') || {}).value, er = $('rpErr'), btn = $('rpSend'); er.hidden = true; btn.disabled = true;
+      const r = await rpc('batch_report', { p_batch_id: id, p_reason: why, p_note: $('rpNote').value.trim() || null });
+      btn.disabled = false;
+      if(r.error || !r.data || !r.data.ok){
+        const c = r.data && r.data.error;
+        er.textContent = c === 'TOO_MANY' ? 'আজ অনেক রিপোর্ট পাঠানো হয়েছে, কাল আবার চেষ্টা করুন।' : c === 'NOT_SIGNED_IN' ? 'আগে Google দিয়ে সাইন-ইন করুন।' : isMissing(r.error) ? 'রিপোর্টের সুবিধা শীঘ্রই চালু হচ্ছে।' : 'এখন পাঠানো যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'; er.hidden = false; return;
+      }
+      track('batch_report', { why });
+      $('rpBox').hidden = true; toast('ধন্যবাদ, রিপোর্ট পাঠানো হয়েছে। আমরা দেখব।');
+    };
+  }
+
   /* ---------- the batch picture (drawn here in the browser, nothing is uploaded) ---------- */
   const IMG_TH = { blue: ['#1A56DB', '#7C3AED', '#EAF1FF'], violet: ['#6D28D9', '#DB2777', '#F1EBFF'], teal: ['#0F766E', '#1A56DB', '#E3F6F2'], amber: ['#B45309', '#DB2777', '#FFF1D6'], rose: ['#BE123C', '#7C3AED', '#FFE9EE'] };
   let IMG_URL = '', IMG_FILE = null;

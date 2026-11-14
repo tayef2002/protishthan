@@ -7,6 +7,7 @@ try { ({ PGlite } = require(process.env.PGLITE_DIR ? path.join(process.env.PGLIT
 catch (e) { console.log('skipped: the PGlite engine is not installed (see the two lines at the top of this file).'); process.exit(0); }
 const SQL = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-26_batches.sql'), 'utf8');
 const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-27_batch_name.sql'), 'utf8');
+const SQL3 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-28_batch_roster_admin.sql'), 'utf8');
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 (async () => {
@@ -32,6 +33,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   await db.exec(SQL);
   await db.exec(SQL);                                       // a second run changes nothing
   await db.exec(SQL2); await db.exec(SQL2);                 // the name migration, also safe to run twice
+  await db.exec(SQL3); await db.exec(SQL3);                 // the roster and admin migration, also safe to run twice
   const as = async (n, fn) => { await db.exec(`select set_config('test.uid', '${n ? U(n) : ''}', false)`); return fn(); };
   const call = async (n, sql, params) => as(n, async () => { try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } });
   const lookup = (n, slug, lv, y) => call(n, 'select public.batch_lookup($1,$2,$3) as r', [slug, lv, y]);
@@ -109,6 +111,45 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   let last = null, joined = 0;
   for (const id of ids) { last = await join(30, id); if (last.ok) joined++; }
   ok('twelve joins work and the thirteenth is TOO_MANY', joined === 12 && last.error === 'TOO_MANY', joined + ' ' + JSON.stringify(last));
+
+
+  // ---- the member list, reports and the admin tools (2026-12-28)
+  const adm = async v => db.exec(`select set_config('test.admin', '${v ? 1 : 0}', false)`);
+  await adm(false);
+  await db.exec(`update public.members set avatar_url = 'https://img.example/a.png' where user_id = '${U(20)}'`).catch(() => {});
+  const nb = await claim(20, 'dhaka-college', 'ssc', 2005, 'লাইন', 'blue'); const NB = nb.batch_id;
+  await call(1 + 20, 'select 1 as r'); await join(21, NB, nb.ref); await join(22, NB);
+  r = await call(20, 'select public.batch_roster($1) as r', [NB]);
+  ok('a member sees the list in number order with names, roles and who is me', r.ok && r.members.length === 3 && r.members.map(m => m.seq).join() === '1,2,3' && r.members[0].role === 'convener' && r.members[0].me === true && r.members[1].me === false && r.members.every(m => m.name.startsWith('User')), JSON.stringify(r));
+  ok('the list leaks no e-mail, user id or invite code', !/email|user_id|ref_code|"ref"|@x\.com/.test(JSON.stringify(r)), JSON.stringify(r));
+  ok('someone who is not in the batch gets NOT_MEMBER, a visitor NOT_SIGNED_IN', (await call(30, 'select public.batch_roster($1) as r', [NB])).error === 'NOT_MEMBER' && (await call(0, 'select public.batch_roster($1) as r', [NB])).error === 'NOT_SIGNED_IN');
+  await adm(true); ok('an admin can read the list too', (await call(30, 'select public.batch_roster($1) as r', [NB])).ok === true); await adm(false);
+
+  ok('a report needs a sign-in, a known reason and a batch that exists', (await call(0, `select public.batch_report($1, 'fake') as r`, [NB])).error === 'NOT_SIGNED_IN' && (await call(30, `select public.batch_report($1, 'spam') as r`, [NB])).error === 'BAD_REASON' && (await call(30, `select public.batch_report('99999999-9999-9999-9999-999999999999', 'fake') as r`)).error === 'NO_BATCH' && (await call(30, `select public.batch_report($1, 'fake', $2) as r`, [NB, 'ক'.repeat(201)])).error === 'BAD_NOTE');
+  ok('a visitor can report once; reporting again replaces the first report (still one)', (await call(30, `select public.batch_report($1, 'fake', 'ভুয়া') as r`, [NB])).ok === true && (await call(30, `select public.batch_report($1, 'offensive') as r`, [NB])).ok === true && (await rows(`select count(*)::int n from public.batch_reports where batch_id = '${NB}'`))[0].n === 1);
+  ok('one person can send at most 20 reports a day', await (async () => { const ids = []; for (let i = 0; i < 21; i++) { const c = await claim(31 + Math.floor(i / 3), 'many-school', 'ssc', 1971 + i); if (c.ok) ids.push(c.batch_id); } let last = null, okn = 0; for (const id of ids) { last = await call(39, `select public.batch_report($1, 'other') as r`, [id]); if (last.ok) okn++; } return okn === 20 && last.error === 'TOO_MANY' ? true : (console.log("  [debug] ids", ids.length, "ok", okn, JSON.stringify(last)), false); })());
+
+  ok('the admin tools refuse everybody who is not an admin', (await call(20, 'select public.admin_batch_list() as r')).error === 'NOT_ALLOWED' && (await call(20, 'select public.admin_batch_detail($1) as r', [NB])).error === 'NOT_ALLOWED' && (await call(20, `select public.admin_batch_moderate($1, 'delete') as r`, [NB])).error === 'NOT_ALLOWED' && (await rows(`select 1 from public.batches where id = '${NB}'`)).length === 1);
+  await adm(true);
+  r = await call(30, 'select public.admin_batch_list($1, true) as r', ['Collegiyan']);
+  ok('admin list: search by batch name works; no match gives an empty list', r.ok === true && Array.isArray(r.rows) && (await call(30, 'select public.admin_batch_list($1) as r', ['zzzz-no-such'])).rows.length === 0);
+  r = await call(30, 'select public.admin_batch_list(null, true) as r');
+  ok('admin list: only-reported shows the reported batch first with its report count', r.rows.length >= 1 && r.rows.some(x => x.id === NB && x.reports_new === 1 && x.members === 3 && x.inst === 'ঢাকা কলেজ' && /User/.test(x.convener) && /@x\.com/.test(x.convener)), JSON.stringify(r.rows.slice(0, 2)));
+  r = await call(30, 'select public.admin_batch_detail($1) as r', [NB]);
+  ok('admin detail: every member with e-mail and the report with its reason and reporter', r.ok && r.members.length === 3 && /@x\.com/.test(r.members[0].email) && r.reports.length === 1 && r.reports[0].reason === 'offensive' && /User/.test(r.reports[0].by), JSON.stringify(r));
+  const mod = (a, s) => call(30, 'select public.admin_batch_moderate($1, $2, $3) as r', [NB, a, s === undefined ? null : s]);
+  await call(1, `select 1 as r`); await call(20, `select public.batch_set_look($1, 'নামটা', 'খারাপ লাইন', 'blue') as r`, [NB]);
+  ok('admin: clear_text removes the name and the line', (await mod('clear_text')).ok === true && (await lookup(0, 'dhaka-college', 'ssc', 2005)).batch.name === null && (await lookup(0, 'dhaka-college', 'ssc', 2005)).batch.line === null);
+  ok('admin: lock stops a new member (LOCKED) and unlock lets them in again', (await mod('lock')).ok === true && (await join(23, NB)).error === 'LOCKED' && (await mod('unlock')).ok === true && (await join(23, NB)).ok === true);
+  ok('admin: make_convener moves the role and the convener id; there is still exactly one convener', (await mod('make_convener', 2)).ok === true && (await rows(`select count(*)::int n from public.batch_members where batch_id = '${NB}' and role = 'convener'`))[0].n === 1 && (await rows(`select convener_id from public.batches where id = '${NB}'`))[0].convener_id === U(21) && (await mod('make_convener', 99)).error === 'NO_MEMBER');
+  ok('admin: the convener cannot be removed while others remain (IS_CONVENER); another member can, and the number is not reused', (await mod('remove_member', 2)).error === 'IS_CONVENER' && (await mod('remove_member', 3)).ok === true && (await join(24, NB)).seq === 5);
+  ok('admin: dismiss_reports marks them done (the count of new reports falls to 0)', (await mod('dismiss_reports')).ok === true && (await call(30, 'select public.admin_batch_list(null, true) as r')).rows.every(x => x.id !== NB));
+  ok('admin: an unknown action is BAD_ACTION and a batch that is gone is NO_BATCH', (await mod('explode')).error === 'BAD_ACTION' && (await call(30, `select public.admin_batch_moderate('99999999-9999-9999-9999-999999999999', 'lock') as r`)).error === 'NO_BATCH');
+  ok('admin: delete removes the batch with its members and reports, and the same batch can be opened again', (await mod('delete')).ok === true && (await rows(`select 1 from public.batches where id = '${NB}'`)).length === 0 && (await rows(`select 1 from public.batch_members where batch_id = '${NB}'`)).length === 0 && (await rows(`select 1 from public.batch_reports where batch_id = '${NB}'`)).length === 0 && (await claim(25, 'dhaka-college', 'ssc', 2005)).ok === true);
+  const lg = await rows('select action from public.batch_admin_log order by id');
+  ok('every admin action was written to the log', lg.length === 7 && lg.some(x => x.action === 'delete') && lg.some(x => x.action === 'clear_text'), JSON.stringify(lg.map(x => x.action)));
+  await adm(false);
+  ok('the new tables are closed to anon and to signed-in members', await (async () => { const g = async (role, tb) => { await db.exec(`set role ${role}`); try { await db.query('select * from public.' + tb); return 'open'; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } }; return (await g('anon', 'batch_reports')) === 'denied' && (await g('authenticated', 'batch_reports')) === 'denied' && (await g('authenticated', 'batch_admin_log')) === 'denied'; })());
 
   // ---- the tables are closed
   const guard = async (role, uid, sql) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); await db.exec(`set role ${role}`); try { return (await db.query(sql)).rows; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };

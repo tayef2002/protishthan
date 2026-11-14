@@ -441,6 +441,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
       <span class="nav-icon">🎓</span><span>ভাইয়া-আপু (টিউটর)</span>
       <span class="nav-badge" id="tutorsBadge" style="display:none">0</span>
     </button>
+    <button class="nav-item" id="nav-batches" onclick="showView('batches')">
+      <span class="nav-icon">🏫</span><span>আমার ব্যাচ</span>
+      <span class="nav-badge" id="batchesBadge" style="display:none">0</span>
+    </button>
     <button class="nav-item" id="nav-promo" onclick="showView('promo')">
       <span class="nav-icon">📣</span><span>হোম পপআপ</span>
       <span class="nav-badge" id="promoDot" style="display:none;background:var(--green)">চালু</span>
@@ -701,6 +705,15 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="pay-btn" type="button" id="ttT-req" onclick="ttTab('req')" style="width:auto;padding:8px 16px">অভিভাবকের অনুরোধ</button><button class="pay-btn" type="button" id="ttT-pro" onclick="ttTab('pro')" style="width:auto;padding:8px 16px;background:#E2E8F0;color:#334155;box-shadow:none">টিউটর প্রোফাইল</button></div>
         <div id="ttBoxReq"><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttRF-new" onclick="ttFilter('req','new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="ttRF-matching" onclick="ttFilter('req','matching')" style="width:auto;padding:8px 14px">মিলানো চলছে</button><button class="pay-btn" type="button" id="ttRF-all" onclick="ttFilter('req','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListReq"></div></div>
         <div id="ttBoxPro" hidden><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttPF-sub" onclick="ttFilter('pro','sub')" style="width:auto;padding:8px 14px">রিভিউয়ের অপেক্ষায়</button><button class="pay-btn" type="button" id="ttPF-approved" onclick="ttFilter('pro','approved')" style="width:auto;padding:8px 14px">অনুমোদিত</button><button class="pay-btn" type="button" id="ttPF-draft" onclick="ttFilter('pro','draft')" style="width:auto;padding:8px 14px">খসড়া</button><button class="pay-btn" type="button" id="ttPF-all" onclick="ttFilter('pro','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListPro"></div></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-batches">
+      <div class="section-card">
+        <div class="sec-h">আমার ব্যাচ <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="bhCount"></span></div>
+        <div class="bill-note" style="margin-top:0">যে কেউ যেকোনো স্কুলের SSC ব্যাচ খুলতে পারে, তাই এখানে রিপোর্ট হওয়া ব্যাচ আগে আসে। আপনি লেখা মুছতে, নতুন সদস্য বন্ধ (লক) করতে, আহ্বায়ক বদলাতে, সদস্য সরাতে বা পুরো ব্যাচ মুছতে পারেন। (migrations/2026-12-28_batch_roster_admin.sql চালানোর পর) প্রতিটা কাজ লগে লেখা থাকে।</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><input id="bhQ" type="search" placeholder="স্কুল, ব্যাচের নাম, আহ্বায়ক বা ইমেইল দিয়ে খুঁজুন" style="flex:1;min-width:220px;padding:9px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit" onkeydown="if(event.key==='Enter')loadBatches()"><button class="pay-btn" type="button" onclick="loadBatches()" style="width:auto;padding:8px 16px">খুঁজুন</button><button class="pay-btn" type="button" id="bhF-rep" onclick="bhFilter(true)" style="width:auto;padding:8px 14px">রিপোর্ট হওয়া</button><button class="pay-btn" type="button" id="bhF-all" onclick="bhFilter(false)" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button></div>
+        <div id="bhList"></div>
       </div>
     </div>
 
@@ -1904,6 +1917,70 @@ async function cbDone(id, done){
 ADMIN_READY.then(() => loadCollab());
 
 ADMIN_READY.then(() => loadTutors());
+/* ---- আমার ব্যাচ: list, reports and moderation (migrations/2026-12-28_batch_roster_admin.sql). Every call goes through a function that checks is_admin() itself. ---- */
+navTitles.batches = ['আমার ব্যাচ', 'ব্যাচের তালিকা, রিপোর্ট আর মডারেশন'];
+let BH_ROWS = [], BH_REP = true, BH_OPEN = null;
+const BH_WHY = { offensive: 'অশোভন নাম বা লাইন', squatting: 'ব্যাচ দখল', fake: 'ভুয়া বা অন্য স্কুল', other: 'অন্য কারণ' };
+const bhDate = t => { try{ return new Date(t).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }); }catch(e){ return ''; } };
+function bhFilter(rep){
+  BH_REP = rep; const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  document.getElementById('bhF-rep').style.cssText = 'width:auto;padding:8px 14px' + (rep ? '' : off); document.getElementById('bhF-all').style.cssText = 'width:auto;padding:8px 14px' + (rep ? off : '');
+  loadBatches();
+}
+async function loadBatches(){
+  const box = document.getElementById('bhList'); box.innerHTML = '<div class="bill-note">লোড হচ্ছে…</div>';
+  const { data, error } = await sbAdmin.rpc('admin_batch_list', { p_q: document.getElementById('bhQ').value.trim() || null, p_only_reported: BH_REP, p_limit: 100 });
+  if(error || !data || !data.ok){ box.innerHTML = '<div class="bill-note">লোড করা যায়নি: ' + ttEsc(error ? error.message : (data && data.error) || '') + ' — migrations/2026-12-28_batch_roster_admin.sql চালানো হয়েছে কি?</div>'; return; }
+  BH_ROWS = data.rows || [];
+  const n = BH_ROWS.filter(r => r.reports_new > 0).length, b = document.getElementById('batchesBadge');
+  if(BH_REP){ b.textContent = n; b.style.display = n ? '' : 'none'; }
+  document.getElementById('bhCount').textContent = BH_REP ? 'রিপোর্ট হওয়া ' + BH_ROWS.length + 'টি' : BH_ROWS.length + 'টি';
+  renderBatches();
+}
+function renderBatches(){
+  const box = document.getElementById('bhList');
+  if(!BH_ROWS.length){ box.innerHTML = '<div class="bill-note">' + (BH_REP ? 'রিপোর্ট হওয়া কোনো ব্যাচ নেই। "সব" চাপলে সব ব্যাচ দেখা যাবে।' : 'কোনো ব্যাচ পাওয়া যায়নি।') + '</div>'; return; }
+  box.innerHTML = BH_ROWS.map(r => {
+    const id = ttEsc(r.id), locked = r.status === 'locked', open = BH_OPEN === r.id;
+    return '<div style="border:1px solid #E2E8F0;border-radius:14px;padding:14px 16px;margin:0 0 12px;background:' + (r.reports_new ? '#FFF7F7' : '#fff') + '">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><b style="font-size:15.5px">' + ttEsc(r.inst || r.slug) + ' · ' + ttEsc((r.level || '').toUpperCase()) + ' ' + ttEsc(r.year) + '</b><span>' +
+      (r.reports_new ? ttChip(['#FEE2E2', '#B91C1C'], r.reports_new + 'টি নতুন রিপোর্ট') + ' ' : '') + (locked ? ttChip(['#FEF3C7', '#92400E'], 'লক করা') + ' ' : '') + ttChip(['#EEF3FF', '#1A56DB'], r.members + ' জন') + '</span></div>' +
+      '<div style="margin-top:6px;font-size:14px;color:#334155">ব্যাচের নাম: <b>' + (r.name ? ttEsc(r.name) : '<span style="color:#94A3B8">নেই</span>') + '</b></div>' +
+      '<div style="margin-top:4px;font-size:14px;color:#334155">লাইন: ' + (r.line ? ttEsc(r.line) : '<span style="color:#94A3B8">নেই</span>') + '</div>' +
+      '<div style="margin-top:4px;font-size:13px;color:#64748B">আহ্বায়ক: ' + ttEsc(r.convener || '') + ' · খোলা হয়েছে ' + ttEsc(bhDate(r.created_at)) + ' · <a href="/b/' + ttEsc(r.slug) + '/' + ttEsc(r.level) + '-' + ttEsc(r.year) + '" target="_blank" rel="noopener">পেজ দেখুন</a></div>' +
+      '<div>' +
+      '<button type="button" ' + TT_B + ' onclick="bhToggle(this.dataset.id)" data-id="' + id + '">' + (open ? 'বিস্তারিত বন্ধ করুন' : 'সদস্য ও রিপোর্ট দেখুন') + '</button>' +
+      ((r.name || r.line) ? '<button type="button" ' + TT_B_RED + ' data-id="' + id + '" onclick="bhAct(this.dataset.id, \'clear_text\')">নাম ও লাইন মুছুন</button>' : '') +
+      '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="bhAct(this.dataset.id, \'' + (locked ? 'unlock' : 'lock') + '\')">' + (locked ? 'আনলক করুন' : 'নতুন সদস্য বন্ধ (লক)') + '</button>' +
+      (r.reports_new ? '<button type="button" ' + TT_B_OK + ' data-id="' + id + '" onclick="bhAct(this.dataset.id, \'dismiss_reports\')">রিপোর্ট দেখা হয়েছে</button>' : '') +
+      '<button type="button" ' + TT_B_RED + ' data-id="' + id + '" onclick="bhAct(this.dataset.id, \'delete\')">ব্যাচ মুছুন</button></div>' +
+      (open ? '<div id="bhD-' + id + '" style="margin-top:12px;border-top:1px dashed #E2E8F0;padding-top:12px">লোড হচ্ছে…</div>' : '') + '</div>';
+  }).join('');
+  if(BH_OPEN) bhDetail(BH_OPEN);
+}
+function bhToggle(id){ BH_OPEN = BH_OPEN === id ? null : id; renderBatches(); }
+async function bhDetail(id){
+  const el = document.getElementById('bhD-' + id); if(!el) return;
+  const { data, error } = await sbAdmin.rpc('admin_batch_detail', { p_batch_id: id });
+  if(error || !data || !data.ok){ el.textContent = 'লোড করা যায়নি।'; return; }
+  const idE = ttEsc(id);
+  el.innerHTML = '<div style="font-weight:800;font-size:13.5px;margin-bottom:6px">রিপোর্ট (' + data.reports.length + ')</div>' +
+    (data.reports.length ? data.reports.map(x => '<div style="font-size:13.5px;margin:0 0 6px;padding:8px 10px;border-radius:10px;background:' + (x.status === 'new' ? '#FEF2F2' : '#F8FAFC') + '">' + ttChip(x.status === 'new' ? ['#FEE2E2', '#B91C1C'] : ['#F1F5F9', '#475569'], BH_WHY[x.reason] || x.reason) + ' ' + ttEsc(x.note || '') + '<br><span style="color:#64748B;font-size:12.5px">' + ttEsc(x.by) + ' · ' + ttEsc(bhDate(x.at)) + '</span></div>').join('') : '<div style="font-size:13.5px;color:#64748B">কোনো রিপোর্ট নেই।</div>') +
+    '<div style="font-weight:800;font-size:13.5px;margin:12px 0 6px">সদস্য (' + data.members.length + ')</div>' +
+    data.members.map(m => '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid #F1F5F9"><span><b>' + ttEsc(m.seq) + '</b> · ' + ttEsc(m.name) + ' <span style="color:#64748B">' + ttEsc(m.email) + '</span> ' + (m.role === 'convener' ? ttChip(['#DCFCE7', '#166534'], 'আহ্বায়ক') : '') + '</span><span>' +
+      (m.role !== 'convener' ? '<button type="button" ' + TT_B_OK + ' data-id="' + idE + '" data-seq="' + ttEsc(m.seq) + '" onclick="bhAct(this.dataset.id, \'make_convener\', +this.dataset.seq)">আহ্বায়ক বানান</button>' : '') +
+      '<button type="button" ' + TT_B_RED + ' data-id="' + idE + '" data-seq="' + ttEsc(m.seq) + '" onclick="bhAct(this.dataset.id, \'remove_member\', +this.dataset.seq)">সরান</button></span></div>').join('');
+}
+const BH_TXT = { clear_text: 'এই ব্যাচের নাম আর লাইন মুছে ফেলবেন?', lock: 'নতুন সদস্য নেওয়া বন্ধ করবেন? যারা আছে তারা থাকবে।', unlock: 'আবার নতুন সদস্য নেওয়া চালু করবেন?', dismiss_reports: 'রিপোর্টগুলো "দেখা হয়েছে" করবেন?',
+  make_convener: 'এই সদস্যকে আহ্বায়ক বানাবেন? আগের আহ্বায়ক সাধারণ সদস্য হবেন।', remove_member: 'এই সদস্যকে ব্যাচ থেকে সরাবেন? ওঁর নম্বরটা আর কাউকে দেওয়া হবে না।', 'delete': 'এই ব্যাচ আর তার সব সদস্য ও রিপোর্ট মুছে ফেলবেন? এটা ফেরানো যায় না।' };
+async function bhAct(id, action, seq){
+  if(!await adminConfirm(BH_TXT[action])) return;
+  const { data, error } = await sbAdmin.rpc('admin_batch_moderate', { p_batch_id: id, p_action: action, p_seq: seq === undefined ? null : seq });
+  if(error || !data || !data.ok){ alert('হয়নি: ' + (data && data.error === 'IS_CONVENER' ? 'আহ্বায়ককে সরানো যায় না। আগে অন্য কাউকে আহ্বায়ক বানান।' : (error ? error.message : (data && data.error) || ''))); return; }
+  if(action === 'delete') BH_OPEN = null;
+  await loadBatches();
+}
+ADMIN_READY.then(() => loadBatches());
 navTitles.skills = ['স্কিল প্রোফাইল', 'ব্যবহারকারীদের স্কিল আইডেন্টিটি পেজ ও রিপোর্ট'];
 let SK_ROWS = [], SK_REP = {}, SK_FILTER = 'rep';
 function skEsc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }

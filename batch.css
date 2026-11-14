@@ -171,3 +171,16 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-grid i::after{content:'';position:absolute;inset:0;background:center 55%/60% no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='15' r='6.5' fill='%23D5DEEE'/%3E%3Cpath d='M7 35c1.2-7.4 6.4-11 13-11s11.8 3.6 13 11z' fill='%23D5DEEE'/%3E%3C/svg%3E");pointer-events:none}
 .bt-grid i.on::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='15' r='6.5' fill='%23fff'/%3E%3Cpath d='M7 35c1.2-7.4 6.4-11 13-11s11.8 3.6 13 11z' fill='%23fff'/%3E%3C/svg%3E");opacity:.95}
 .bt-grid i.me::after,.bt-grid i.nx::after{display:none}
+.bt-roster{margin-top:18px}.bt-rlist{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bt-rlist li{display:flex;align-items:center;gap:11px;padding:9px 12px;border:1px solid var(--ln);border-radius:16px;background:#fff;min-width:0}
+.bt-rlist li.me{border-color:var(--ac);background:var(--tint)}
+.bt-rav{position:relative;flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--tint);color:var(--ac);font-weight:800;overflow:hidden}
+.bt-rav img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bt-rnm{display:flex;flex-direction:column;min-width:0}.bt-rnm strong{font-size:15px;line-height:1.35;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt-rnm em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--ac);background:#fff;border-radius:100px;padding:0 8px;margin-left:4px}
+.bt-rnm small{font-size:12.5px;color:var(--tx3)}
+.bt-more{display:block;width:100%;margin-top:12px;min-height:44px;border:1.5px solid var(--ln);border-radius:14px;background:#fff;color:var(--ac);font-weight:700;cursor:pointer}
+.bt-rps{display:grid;gap:8px;margin:12px 0}.bt-rps label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--ln);border-radius:14px;cursor:pointer;font-size:14.5px}
+.bt-rps input{margin-top:5px;accent-color:var(--ac)}
+#rpNote{width:100%;min-height:74px;padding:10px 12px;border:1.5px solid var(--ln);border-radius:14px;outline:none;resize:vertical}
+@media(max-width:560px){.bt-rlist{grid-template-columns:minmax(0,1fr)}}
