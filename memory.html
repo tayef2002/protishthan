@@ -330,6 +330,7 @@
     for(; sz >= min; sz -= 2){ lines = wrap(text, width, font(sz), 99); LH = sz * lhk; if(lines.length * LH <= availH) return { sz, lines, LH }; }
     sz = min; LH = sz * lhk; lines = wrap(text, width, font(sz), Math.max(1, Math.floor(availH / LH))); return { sz, lines, LH };
   }
+  const cdataF = () => ({ title: S.cur.title || '', text: S.cur.line || '', sign: S.cur.small || '' });
   const cdata = () => ({ title: S.cur.title || 'আমাদের সেই দিন', text: S.cur.line || DEFTXT, sign: S.cur.small || '' });
   const heart = (cx, cy, r) => { c.moveTo(cx, cy + r * .9); c.bezierCurveTo(cx - r * 1.5, cy - r * .1, cx - r * .7, cy - r * 1.2, cx, cy - r * .35); c.bezierCurveTo(cx + r * .7, cy - r * 1.2, cx + r * 1.5, cy - r * .1, cx, cy + r * .9); };
 
@@ -439,13 +440,16 @@
       c.fillStyle = linear(0, py, 0, py + ph, [[0, '#101A24'], [1, '#0A1118']]); c.fillRect(px, py, pw, ph);
       c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(px, py, pw, 64);
       [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]].forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
-      const gx = px + 66, left = px + 92, width = pw - 92 - 44, ty = py + 64 + 66, tf = fit('# ' + d.title, width, 1, 42, 26, '800', DISP);
-      const fl = flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 56 - (ty + 20), 36, 24, 1.55);
-      c.textAlign = 'left'; c.fillStyle = mix(ac, '#FFFFFF', .4); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], left, ty);
-      c.fillStyle = '#E8F1F7'; c.font = '500 ' + fl.sz + 'px ' + HS; const b0 = ty + 22 + fl.LH; fl.lines.forEach((l, q) => c.fillText(l, left, b0 + q * fl.LH));
-      const last = b0 + (fl.lines.length - 1) * fl.LH, lw2 = c.measureText(fl.lines[fl.lines.length - 1]).width; c.fillStyle = ac; c.fillRect(left + lw2 + 8, last - fl.sz * .8, 14, fl.sz);
+      const gx = px + 66, left = px + 92, width = pw - 92 - 44, ty = py + 64 + 66, hasT = !!d.title, hasB = !!d.text;
+      const tf = hasT ? fit('# ' + d.title, width, 1, 42, 26, '800', DISP) : null;
+      const fl = hasB ? flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 56 - (ty + 20), 36, 24, 1.55) : { sz: 36, LH: 36 * 1.55, lines: [] };
+      c.textAlign = 'left'; let cx2 = left, cy2 = ty, ch2 = 40;
+      if(hasT){ c.fillStyle = mix(ac, '#FFFFFF', .4); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], left, ty); cx2 = left + c.measureText(tf.lines[0]).width + 10; ch2 = tf.size; }
+      const b0 = ty + 22 + fl.LH; let last = ty;
+      if(hasB){ c.fillStyle = '#E8F1F7'; c.font = '500 ' + fl.sz + 'px ' + HS; fl.lines.forEach((l, q) => c.fillText(l, left, b0 + q * fl.LH)); last = b0 + (fl.lines.length - 1) * fl.LH; cx2 = left + c.measureText(fl.lines[fl.lines.length - 1]).width + 8; cy2 = last; ch2 = fl.sz; }
+      c.fillStyle = ac; c.fillRect(cx2, cy2 - ch2 * .8, 14, ch2);
       let ln = 1; c.textAlign = 'right'; c.font = '500 22px Inter, sans-serif'; c.fillStyle = '#4A5C6B'; c.fillText(String(ln++), gx, ty - 6); fl.lines.forEach((l, q) => c.fillText(String(ln++), gx, b0 + q * fl.LH - 4));
-      if(d.sign){ c.textAlign = 'left'; c.fillStyle = '#6F8396'; c.font = '600 28px ' + HS; const sy2 = last + fl.LH * 1.3; c.fillText('— ' + d.sign, left, Math.min(sy2, sigY - 8)); c.textAlign = 'right'; c.font = '500 22px Inter, sans-serif'; c.fillStyle = '#4A5C6B'; c.fillText(String(ln), gx, Math.min(sy2, sigY - 8) - 4); }
+      if(d.sign){ c.textAlign = 'left'; c.fillStyle = '#6F8396'; c.font = '600 28px ' + HS; const sy2 = Math.min(last + fl.LH * 1.3, sigY - 8); c.fillText('— ' + d.sign, left, sy2); c.textAlign = 'right'; c.font = '500 22px Inter, sans-serif'; c.fillStyle = '#4A5C6B'; c.fillText(String(ln), gx, sy2 - 4); }
     } else if(k === 'vhs'){
       /* a VHS tape on a TV: deep blue, scanlines, a tracking glitch, PLAY in the corner, the words in white with a colour fringe */
       c.fillStyle = linear(0, py, 0, py + ph, [[0, '#1B2686'], [1, '#0A0F4C']]); c.fillRect(px, py, pw, ph);
@@ -486,7 +490,7 @@
     }
     c.restore();
   }
-  const screenOf = kind => (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.02, 0, '', Object.assign(cdata(), { kind })); };
+  const screenOf = kind => (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.02, 0, '', Object.assign(kind === 'file' ? cdataF() : cdata(), { kind })); };
   SH.tfile = screenOf('file'); SH.tvhs = screenOf('vhs'); SH.tdream = screenOf('dream'); SH.tstamp = screenOf('stamp');
 
   SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
@@ -542,7 +546,7 @@
   async function thumbs(){
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"')]); }catch(e){}
     const sz = SIZES.post, k = 170 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: '', small: '', photos: sm };
-    TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, d, t.k, k); });
+    TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, t.own ? Object.assign({}, d, { line: DEFTXT }) : d, t.k, k); });
   }
 
   /* ---------- the form ---------- */
