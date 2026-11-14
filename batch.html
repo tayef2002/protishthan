@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=16">
+<link rel="stylesheet" href="/batch.css?v=17">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -460,11 +460,13 @@
   /* ---------- routing ---------- */
   async function render(){
     const u = parseUrl();
-    try{ if(MB()) await MB().ready(); }catch(e){}
-    if(u.key){ await showBatch(u.key, u.ref); return; }
+    // the sign-in check can be slow (it asks the database): never leave the page blank waiting for it
+    const wait = ms => Promise.race([ MB() ? MB().ready() : null, new Promise(r => setTimeout(r, ms)) ]).catch(() => {});
+    if(u.key){ await wait(3500); await showBatch(u.key, u.ref); return; }
     CUR = null; setRobots(true); document.title = 'আমার ব্যাচ: আপনার SSC ব্যাচ আবার এক জায়গায় | Protishthan';
     $('viewBatch').hidden = true; $('viewHome').hidden = false;
-    renderCardPicks(); renderMine(); turf();
+    renderCardPicks(); turf();
+    await wait(3500); renderMine();
   }
 
   /* the little football beside the memory line: drawn here (a shaded sphere, patches that spin, a bounce with a squash and a shadow), no picture file, no outside service */
