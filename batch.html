@@ -30,7 +30,7 @@
 <body>
 
 <div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="batch"></div>
-<script src="/nav.js?v=19"></script>
+<script src="/nav.js?v=20"></script>
 
 <main class="bt" id="bt">
 
@@ -86,7 +86,7 @@
 </main>
 
 <div id="pfoot" data-art="card"></div>
-<script src="/footer.js?v=19"></script>
+<script src="/footer.js?v=20"></script>
 <div class="bt-toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -397,7 +397,7 @@
     const u = parseUrl();
     try{ if(MB()) await MB().ready(); }catch(e){}
     if(u.key){ await showBatch(u.key, u.ref); return; }
-    CUR = null; setRobots(false); document.title = 'আমার ব্যাচ: আপনার SSC ব্যাচ আবার এক জায়গায় | Protishthan';
+    CUR = null; setRobots(true); document.title = 'আমার ব্যাচ: আপনার SSC ব্যাচ আবার এক জায়গায় | Protishthan';
     $('viewBatch').hidden = true; $('viewHome').hidden = false;
     renderCardPicks(); renderMine(); turf();
   }

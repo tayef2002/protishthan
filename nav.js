@@ -24,8 +24,9 @@
      The first entry of a group is the tab's own page. HOW TO ADD A PAGE: one line in the group it belongs to. */
   var CARD = [
     { k: 'card',  t: 'শিক্ষিত কার্ড',    d: '৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান',     href: 'card.html',  ic: 'card',  g: 'linear-gradient(135deg,#047857,#0F766E)' },
-    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
-    { k: 'batch', t: 'আমার ব্যাচ',        d: 'আপনার ব্যাচ খুঁজুন বা খুলুন, সহপাঠীদের ডাকুন', href: 'batch.html', ic: 'batch', g: 'linear-gradient(135deg,#6D28D9,#DB2777)', tag: 'নতুন' }
+    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' }
+    /* HIDDEN for now (the page /batch still works by its address). To show the tab again, add this line after the skill entry (with a comma before it):
+       { k: 'batch', t: 'আমার ব্যাচ', d: 'আপনার ব্যাচ খুঁজুন বা খুলুন, সহপাঠীদের ডাকুন', href: 'batch.html', ic: 'batch', g: 'linear-gradient(135deg,#6D28D9,#DB2777)', tag: 'নতুন' } */
   ];
 
   var ABOUT = [

@@ -11,7 +11,7 @@ const page = read('batch.html'), css = read('batch.css'), sql = read('migrations
 // the page loads on a nested address (/b/<slug>/<level>-<year>), so every file must be found from the site root
 yes('the page has <base href="/"> and loads its own files from the root', /<base href="\/">/.test(page) && /src="\/member\.js"/.test(page) && /href="\/batch\.css\?v=\d+"/.test(page) && /href="\/brand\.css/.test(page));
 yes('it uses the shared top bar (the active entry is batch) and the shared footer', /id="nav"[^>]*data-active="batch"/.test(page) && /id="pfoot"/.test(page) && /\/footer\.js\?v=\d+/.test(page) && /\/nav\.js\?v=\d+/.test(page));
-yes('a batch page is kept out of search (noindex), the home page is not', /setRobots\(true\)/.test(page) && /setRobots\(false\)/.test(page) && !/<meta name="robots"/.test(page) && /rel="canonical" href="https:\/\/protishthan\.com\/batch"/.test(page));
+yes('every page of this feature is kept out of search (noindex, set by the page; the batch pages always, the home page while the feature is hidden)', /setRobots\(true\)/.test(page) && !/setRobots\(false\)/.test(page) && !/<meta name="robots"/.test(page) && /rel="canonical" href="https:\/\/protishthan\.com\/batch"/.test(page));
 
 // the six batch functions and the search it calls: names and argument names are the SQL ones
 const sigs = {}; for (const m of sql.matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
@@ -54,8 +54,7 @@ yes('join and open both need a sign-in: a visitor is sent to the member sign-in,
 yes('the invite link carries the member\'s own code and the share buttons are WhatsApp and Facebook only', /\?r=' \+ ref/.test(page) && /wa\.me\/\?text=/.test(page) && /facebook\.com\/sharer/.test(page));
 
 // wiring
-yes('the top bar has the tile (CARD group, key batch) with its icon, and the footer links the page', /k: 'batch', t: 'আমার ব্যাচ'/.test(nav) && /batch: '<svg/.test(nav) && /\['আমার ব্যাচ', 'batch\.html'\]/.test(foot));
-yes('the sitemap lists /batch', /protishthan\.com\/batch</.test(read('sitemap-pages.xml')));
+yes('the page is HIDDEN for now: no tab in the top bar (the line is kept as a comment, with its icon, to put back), no footer link, not in the sitemap, and the page itself says noindex everywhere', !/\{ k: 'batch'/.test(nav.replace(/\/\*[^]*?\*\//g, '')) && /HIDDEN for now/.test(nav) && /batch: '<svg/.test(nav) && !/batch\.html/.test(foot.replace(/\/\*[^]*?\*\//g, '')) && !/protishthan\.com\/batch</.test(read('sitemap-pages.xml')) && !/setRobots\(false\)/.test(page) && (page.match(/setRobots\(true\)/g) || []).length >= 2);
 yes('production rewrites /b/* to the page, and the local server does the same', /\/b\/\*\s+\/batch\s+200/.test(read('_redirects')) && /\/\^\\\/b\\\/\[\^\\\/\]\+\\\/\[a-z\]\+-\\d\{4\}/.test(read('server.js')));
 yes('the css follows the theme from one place (.bt-page[data-theme]), is mobile-first friendly and respects reduced motion', /prefers-reduced-motion:reduce/.test(css) && /@media\(max-width:560px\)/.test(css) && /\.bt \[hidden\]\{display:none!important\}/.test(css));
 
