@@ -10,6 +10,7 @@ const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '202
 const SQL3 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-28_batch_roster_admin.sql'), 'utf8');
 const SQL4 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-29_batch_my_invites.sql'), 'utf8');
 const SQL5 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-30_batch_photos.sql'), 'utf8');
+const SQL6 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-31_batch_chat.sql'), 'utf8');
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 (async () => {
@@ -42,6 +43,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   await db.exec(SQL3); await db.exec(SQL3);                 // the roster and admin migration, also safe to run twice
   await db.exec(SQL4); await db.exec(SQL4);                 // the invite counts, also safe to run twice
   await db.exec(SQL5); await db.exec(SQL5);                 // the pictures, also safe to run twice
+  await db.exec(SQL6); await db.exec(SQL6);                 // the room, also safe to run twice
   const as = async (n, fn) => { await db.exec(`select set_config('test.uid', '${n ? U(n) : ''}', false)`); return fn(); };
   const call = async (n, sql, params) => as(n, async () => { try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } });
   const lookup = (n, slug, lv, y) => call(n, 'select public.batch_lookup($1,$2,$3) as r', [slug, lv, y]);
@@ -201,6 +203,43 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   await adm(false);
   ok('deleting a batch removes its picture rows too', await (async () => { await adm(true); const n0 = (await rows("select count(*)::int n from public.batch_photos where batch_id = '" + PBID + "'"))[0].n; const d = await call(80, "select public.admin_batch_moderate($1, 'delete') as r", [PBID]); await adm(false); return n0 > 0 && d.ok === true && (await rows("select count(*)::int n from public.batch_photos where batch_id = '" + PBID + "'"))[0].n === 0; })());
   ok('the picture tables are closed to anon and signed-in members', await (async () => { const g = async (role, tb) => { await db.exec('set role ' + role); try { await db.query('select * from public.' + tb); return 'open'; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } }; return (await g('anon', 'batch_photos')) === 'denied' && (await g('authenticated', 'batch_photos')) === 'denied' && (await g('authenticated', 'batch_photo_reports')) === 'denied'; })());
+
+  // ---- the batch room: text-only chat (2026-12-31)
+  const cb = await claim(90, 'dhaka-college', 'ssc', 1998, 'লাইন', 'blue'); const CB = cb.batch_id; await join(91, CB); await join(92, CB); await join(93, CB);
+  const send = (n, b, txt) => call(n, 'select public.batch_chat_send($1,$2) as r', [b, txt]);
+  const msgs = (n, b, after) => call(n, 'select public.batch_chat_messages($1,$2) as r', [b, after || 0]);
+  ok('only a member can write or read: a visitor NOT_SIGNED_IN, a stranger NOT_MEMBER', (await send(0, CB, 'হাই')).error === 'NOT_SIGNED_IN' && (await send(99, CB, 'হাই')).error === 'NOT_MEMBER' && (await msgs(99, CB)).error === 'NOT_MEMBER' && (await msgs(0, CB)).error === 'NOT_SIGNED_IN');
+  const m1 = await send(91, CB, '  কইরে   বন্ধু?  '); const m2 = await send(92, CB, 'আমি আছি');
+  ok('a member writes a message, spaces are tidied; the first call returns it with the writer name, number and who is me', m1.ok === true && m2.ok === true);
+  r = await msgs(92, CB);
+  ok('the list is in order with name, number, mine flag; no e-mail or user id leaks', r.ok && r.messages.length === 2 && r.messages[0].body === 'কইরে বন্ধু?' && r.messages[0].mine === false && r.messages[1].mine === true && r.messages[0].seq === 2 && r.messages[0].muted === null && /User/.test(r.messages[0].by) && !/email|user_id|sender/.test(JSON.stringify(r)), JSON.stringify(r).slice(0, 300));
+  ok('a later call returns only newer messages', (await msgs(92, CB, m1.id)).messages.length === 1 && (await msgs(92, CB, m2.id)).messages.length === 0);
+  const badT = { url: 'দেখো www.x.com', http: 'https://x.y', mail: 'a@b.com', phone: 'ফোন ০১৭১১২২৩৩৪৪', word: 'this is badword', empty: '   ', long: 'ক'.repeat(301) };
+  for (const k of Object.keys(badT)) ok('a bad message is refused: ' + k, ['BAD_TEXT', 'BAD_LENGTH'].includes((await send(91, CB, badT[k])).error));
+  ok('5 a minute then TOO_FAST', await (async () => { let last = null, oks = 0; for (let i = 0; i < 8; i++) { last = await send(93, CB, 'বার্তা ' + i); if (last.ok) oks++; } return oks === 5 && last.error === 'TOO_FAST'; })());
+  const unreadFor = async n => (await call(n, 'select public.batch_chat_rooms() as r')).find(x => x.batch_id === CB).unread;
+  ok('unread counts messages of others after what I have read; reading clears it; my own never count', await (async () => { const u1 = await unreadFor(90); await msgs(90, CB); const u2 = await unreadFor(90); return u1 >= 2 && u2 === 0 && (await unreadFor(93)) >= 0; })() && (await call(90, 'select public.batch_chat_unread() as r')) === 0);
+  await send(91, CB, 'নতুন কেউ আছে?');
+  ok('batch_chat_unread adds up the unread of all my rooms', (await call(90, 'select public.batch_chat_unread() as r')) === 1 && (await call(0, 'select public.batch_chat_unread() as r')) === 0);
+  r = await call(92, 'select public.batch_chat_rooms() as r');
+  ok('the rooms list has the batch with its last message, the mode and my role; a person with no batch has none', r.length === 1 && r[0].mode === 'open' && r[0].last === 'নতুন কেউ আছে?' && r[0].role === 'member' && (await call(99, 'select public.batch_chat_rooms() as r')).length === 0 && (await call(0, 'select public.batch_chat_rooms() as r')).length === 0, JSON.stringify(r).slice(0, 200));
+  ok('the writer deletes their own, the convener deletes any, a stranger and another member cannot; the text is hidden, not shown', (await call(92, 'select public.batch_chat_delete($1) as r', [m1.id])).error === 'NOT_ALLOWED' && (await call(91, 'select public.batch_chat_delete($1) as r', [m1.id])).ok === true && (await call(90, 'select public.batch_chat_delete($1) as r', [m2.id])).ok === true && (await call(99, 'select public.batch_chat_delete($1) as r', [m2.id])).error === 'NOT_ALLOWED');
+  r = await msgs(92, CB); const dm = r.messages.find(x => x.id === m1.id);
+  ok('a deleted message comes back as deleted with no body', dm.deleted === true && dm.body === null);
+  ok('a member reports a message (once, replaced), a stranger cannot, a bad reason is refused', (await call(92, "select public.batch_chat_report($1, 'private') as r", [m1.id])).ok === true && (await call(92, "select public.batch_chat_report($1, 'offensive') as r", [m1.id])).ok === true && (await rows('select count(*)::int n from public.batch_message_reports where message_id = ' + m1.id))[0].n === 1 && (await call(99, "select public.batch_chat_report($1, 'other') as r", [m1.id])).error === 'NOT_MEMBER' && (await call(92, "select public.batch_chat_report($1, 'spam') as r", [m1.id])).error === 'BAD_REASON');
+  ok('the convener mutes a member (by number): they cannot write, and read still works; unmute; a member cannot mute; the convener cannot be muted', (await call(92, 'select public.batch_chat_mute($1, 3, true) as r', [CB])).error === 'NOT_ALLOWED' && (await call(90, 'select public.batch_chat_mute($1, 3, true) as r', [CB])).ok === true && (await send(92, CB, 'চুপ?')).error === 'MUTED' && (await msgs(92, CB)).can_write === false && (await call(90, 'select public.batch_chat_mute($1, 3, false) as r', [CB])).ok === true && (await send(92, CB, 'আবার আছি')).ok === true && (await call(90, 'select public.batch_chat_mute($1, 1, true) as r', [CB])).error === 'IS_LEAD');
+  ok('announcements-only: members cannot write (ANNOUNCE_ONLY) but the convener can; open again', (await call(92, "select public.batch_chat_mode($1, 'announce') as r", [CB])).error === 'NOT_ALLOWED' && (await call(90, "select public.batch_chat_mode($1, 'announce') as r", [CB])).ok === true && (await send(92, CB, 'আমি?')).error === 'ANNOUNCE_ONLY' && (await send(90, CB, 'ঘোষণা')).ok === true && (await msgs(92, CB)).can_write === false && (await msgs(90, CB)).can_write === true && (await call(90, "select public.batch_chat_mode($1, 'open') as r", [CB])).ok === true);
+  ok('room off: nobody reads or writes (CHAT_OFF), the room leaves the list; a bad mode is refused', (await call(90, "select public.batch_chat_mode($1, 'off') as r", [CB])).ok === true && (await send(91, CB, 'x')).error === 'CHAT_OFF' && (await msgs(91, CB)).error === 'CHAT_OFF' && (await call(91, 'select public.batch_chat_rooms() as r')).length === 0 && (await call(90, "select public.batch_chat_mode($1, 'loud') as r", [CB])).error === 'BAD_MODE' && (await call(90, "select public.batch_chat_mode($1, 'open') as r", [CB])).ok === true);
+  await adm(true);
+  r = await call(99, 'select public.admin_batch_chat($1) as r', [CB]);
+  ok('admin: the messages with who wrote them and the report count; deleted ones still show their text to the admin', r.ok && r.messages.length >= 5 && r.messages.every(x => /User/.test(x.by)) && r.messages.some(x => x.id === m1.id && x.reports === 1 && x.deleted_by === 'writer' && x.body === 'কইরে বন্ধু?'));
+  r = await call(99, 'select public.admin_batch_list(null, true) as r');
+  ok('admin: the list counts message reports and shows the message count and the room mode', r.rows.some(x => x.id === CB && x.reports_new >= 1 && x.messages >= 5 && x.chat_mode === 'open'));
+  ok('admin can delete a message (admin) and "reports handled" closes the message reports', (await call(99, 'select public.batch_chat_delete($1) as r', [m2.id])).ok === true && (await call(99, "select public.admin_batch_moderate($1, 'dismiss_reports') as r", [CB])).ok === true && (await rows("select count(*)::int n from public.batch_message_reports where status = 'new'"))[0].n === 0);
+  await adm(false);
+  ok('the admin chat view is for admins only', (await call(90, 'select public.admin_batch_chat($1) as r', [CB])).error === 'NOT_ALLOWED');
+  ok('a member who leaves loses the room at once; deleting the batch removes its messages', await (async () => { await call(93, 'select public.batch_leave($1) as r', [CB]); const gone = (await msgs(93, CB)).error === 'NOT_MEMBER'; await adm(true); await call(99, "select public.admin_batch_moderate($1, 'delete') as r", [CB]); await adm(false); return gone && (await rows("select count(*)::int n from public.batch_messages where batch_id = '" + CB + "'"))[0].n === 0; })());
+  ok('the message tables are closed to anon and signed-in members', await (async () => { const g = async (role, tb) => { await db.exec('set role ' + role); try { await db.query('select * from public.' + tb); return 'open'; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } }; return (await g('anon', 'batch_messages')) === 'denied' && (await g('authenticated', 'batch_messages')) === 'denied' && (await g('authenticated', 'batch_message_reports')) === 'denied'; })());
 
   // ---- the tables are closed
   const guard = async (role, uid, sql) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); await db.exec(`set role ${role}`); try { return (await db.query(sql)).rows; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };

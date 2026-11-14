@@ -1966,12 +1966,26 @@ async function bhDetail(id){
   const idE = ttEsc(id);
   el.innerHTML = '<div style="font-weight:800;font-size:13.5px;margin-bottom:6px">রিপোর্ট (' + data.reports.length + ')</div>' +
     (data.reports.length ? data.reports.map(x => '<div style="font-size:13.5px;margin:0 0 6px;padding:8px 10px;border-radius:10px;background:' + (x.status === 'new' ? '#FEF2F2' : '#F8FAFC') + '">' + ttChip(x.status === 'new' ? ['#FEE2E2', '#B91C1C'] : ['#F1F5F9', '#475569'], BH_WHY[x.reason] || x.reason) + ' ' + ttEsc(x.note || '') + '<br><span style="color:#64748B;font-size:12.5px">' + ttEsc(x.by) + ' · ' + ttEsc(bhDate(x.at)) + '</span></div>').join('') : '<div style="font-size:13.5px;color:#64748B">কোনো রিপোর্ট নেই।</div>') +
+    '<div style="font-weight:800;font-size:13.5px;margin:12px 0 6px">ব্যাচ রুমের বার্তা <button type="button" ' + TT_B + ' data-id="' + idE + '" onclick="bhChat(this.dataset.id)">দেখুন (শেষ ১০০টা)</button></div><div id="bhChat-' + idE + '"></div>' +
     '<div style="font-weight:800;font-size:13.5px;margin:12px 0 6px">ছবি (' + (data.photos || []).length + ')</div>' + ((data.photos || []).length ? '<div id="bhPh-' + idE + '" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">' + data.photos.map(p => '<div style="position:relative;border-radius:12px;overflow:hidden;background:#EEF3FF;aspect-ratio:1" title="' + ttEsc(p.by) + '"><img data-p="' + ttEsc(p.path) + '" alt="" style="display:block;width:100%;height:100%;object-fit:cover">' + (p.reports ? '<span style="position:absolute;left:6px;top:6px;background:#DC2626;color:#fff;border-radius:100px;font-size:11px;font-weight:800;padding:1px 8px">' + p.reports + ' রিপোর্ট</span>' : '') + '<button type="button" data-b="' + idE + '" data-id="' + ttEsc(p.id) + '" data-p="' + ttEsc(p.path) + '" onclick="bhPhotoDel(this.dataset.b, this.dataset.id, this.dataset.p)" style="position:absolute;right:6px;bottom:6px;border:0;border-radius:100px;background:rgba(220,38,38,.92);color:#fff;font:700 12px inherit;padding:4px 10px;cursor:pointer">মুছুন</button></div>').join('') + '</div>' : '<div style="font-size:13.5px;color:#64748B">কোনো ছবি নেই।</div>') +
     '<div style="font-weight:800;font-size:13.5px;margin:12px 0 6px">সদস্য (' + data.members.length + ')</div>' +
     data.members.map(m => '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid #F1F5F9"><span><b>' + ttEsc(m.seq) + '</b> · ' + ttEsc(m.name) + ' <span style="color:#64748B">' + ttEsc(m.email) + '</span> ' + (m.role === 'convener' ? ttChip(['#DCFCE7', '#166534'], 'আহ্বায়ক') : '') + '</span><span>' +
       (m.role !== 'convener' ? '<button type="button" ' + TT_B_OK + ' data-id="' + idE + '" data-seq="' + ttEsc(m.seq) + '" onclick="bhAct(this.dataset.id, \'make_convener\', +this.dataset.seq)">আহ্বায়ক বানান</button>' : '') +
       '<button type="button" ' + TT_B_RED + ' data-id="' + idE + '" data-seq="' + ttEsc(m.seq) + '" onclick="bhAct(this.dataset.id, \'remove_member\', +this.dataset.seq)">সরান</button></span></div>').join('');
   bhThumbs(el);
+}
+async function bhChat(id){
+  const el = document.getElementById('bhChat-' + id); if(!el) return; el.textContent = 'লোড হচ্ছে…';
+  const { data, error } = await sbAdmin.rpc('admin_batch_chat', { p_batch_id: id });
+  if(error || !data || !data.ok){ el.textContent = 'লোড করা যায়নি।'; return; }
+  const mode = { open: 'সবাই লিখতে পারে', announce: 'শুধু আহ্বায়ক', off: 'বন্ধ' }[data.mode] || data.mode;
+  el.innerHTML = '<div style="font-size:12.5px;color:#64748B;margin-bottom:6px">রুম: ' + ttEsc(mode) + '</div>' + (data.messages.length ? data.messages.map(x => '<div style="font-size:13.5px;margin:0 0 5px;padding:7px 10px;border-radius:10px;background:' + (x.reports ? '#FEF2F2' : '#F8FAFC') + '"><b>' + ttEsc(x.by) + '</b>: ' + (x.deleted_by ? '<s style="color:#94A3B8">' + ttEsc(x.body) + '</s> <span style="color:#B91C1C;font-size:12px">(মোছা: ' + ttEsc(x.deleted_by) + ')</span>' : ttEsc(x.body)) + (x.reports ? ' <span style="color:#B91C1C;font-weight:800;font-size:12px">' + x.reports + ' রিপোর্ট</span>' : '') + ' <span style="color:#94A3B8;font-size:12px">' + ttEsc(bhDate(x.at)) + '</span>' + (x.deleted_by ? '' : ' <button type="button" ' + TT_B_RED + ' data-b="' + ttEsc(id) + '" data-m="' + ttEsc(x.id) + '" onclick="bhChatDel(this.dataset.b, +this.dataset.m)">মুছুন</button>') + '</div>').join('') : '<div style="font-size:13.5px;color:#64748B">কোনো বার্তা নেই।</div>');
+}
+async function bhChatDel(batchId, msgId){
+  if(!await adminConfirm('এই বার্তা মুছে ফেলবেন?')) return;
+  const { data, error } = await sbAdmin.rpc('batch_chat_delete', { p_message_id: msgId });
+  if(error || !data || !data.ok){ alert('হয়নি: ' + (error ? error.message : (data && data.error) || '')); return; }
+  bhChat(batchId);
 }
 const bhThumbPath = p => String(p).replace(/\.jpg$/, '_t.jpg');
 async function bhThumbs(el){

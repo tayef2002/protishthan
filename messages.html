@@ -103,6 +103,19 @@ a{color:inherit;text-decoration:none}
   .m{max-width:84%}
 }
 @media(prefers-reduced-motion:reduce){.cv{transition:none}.msg,.ptn{animation:none}}
+
+/* batch rooms */
+.av.grp{background:linear-gradient(135deg,#0F766E,#1A56DB)}
+.m .by{display:block;margin:0 0 1px;font-size:12px;font-weight:800;color:#4F46E5}.m .by i{font-style:normal;font-weight:700;color:var(--text-3);margin-left:5px}
+.m.del{background:transparent;border:1px dashed var(--border);color:var(--text-3);font-style:italic;font-size:13px}
+.m.th.sel,.m.me.sel{outline:2px solid rgba(37,99,235,.35)}
+.macts{align-self:flex-start;display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 4px}.macts.me{align-self:flex-end}
+.macts button{padding:4px 12px;border:1px solid var(--border);border-radius:100px;background:#fff;color:var(--text-2);font:700 12px 'Hind Siliguri',sans-serif;cursor:pointer}.macts button.red{color:#B91C1C;border-color:#FECACA}
+.rmenu{padding:12px 16px;background:#F8FAFF;border-bottom:1px solid var(--border);display:grid;gap:8px}.rmenu b{font-size:13px;color:var(--text-2)}
+.rmenu label{display:flex;gap:9px;align-items:flex-start;padding:9px 12px;border:1px solid var(--border);border-radius:14px;background:#fff;font-size:14px;cursor:pointer}.rmenu input{margin-top:4px;accent-color:#2563EB}
+.rmenu small{display:block;font-size:12px;color:var(--text-3)}
+.note{padding:12px 18px;background:#F1F5F9;color:var(--text-2);font-size:13.5px;text-align:center;border-top:1px solid var(--border)}
+.rtip{align-self:center;margin:4px 0 8px;max-width:420px;padding:8px 14px;border-radius:14px;background:#EEF3FF;color:#1E40AF;font-size:12.5px;text-align:center;line-height:1.6}
 </style>
 </head>
 <body>
@@ -131,15 +144,19 @@ a{color:inherit;text-decoration:none}
   const $ = id => document.getElementById(id), M = Protishthan.member;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
-  const S = { threads: [], cur: null, last: 0, busy: false, filter: 'all', q: '', blocked: false, lastDay: '', lastMine: null };
+  const S = { threads: [], cur: null, last: 0, busy: false, filter: 'all', q: '', blocked: false, lastDay: '', lastMine: null, lastBy: null, kind: 'skill', room: null, sel: null, pulledAt: 0 };
+  const isRoom = t => t && t.kind === 'batch';
+  const bid = id => String(id).replace(/^b:/, '');
+  const GRP = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/></svg>';
+  const bn2 = n => bn(n);
   const G = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
-  const err = e => { const m = String((e && (e.message || e.details)) || e || ''); return /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান, কিছুক্ষণ পরে আবার' : /TOO_MANY/.test(m) ? 'আজকের জন্য বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না' : /CHAT_OFF/.test(m) ? 'এই পেজে এখন চ্যাট বন্ধ আছে' : 'বার্তা পাঠানো যায়নি, আবার চেষ্টা করুন'; };
+  const err = e => { const m = String((e && (e.message || e.details)) || e || ''); return /BAD_TEXT/.test(m) ? 'বার্তায় খারাপ শব্দ আছে' : /TOO_FAST/.test(m) ? 'একটু ধীরে পাঠান, কিছুক্ষণ পরে আবার' : /TOO_MANY/.test(m) ? 'আজকের জন্য বার্তার সীমা শেষ' : /BLOCKED/.test(m) ? 'এই চ্যাটে আর বার্তা পাঠানো যাচ্ছে না' : /ROOM_TEXT/.test(m) ? 'বার্তায় লিংক, ফোন নম্বর, ইমেইল বা খারাপ শব্দ রাখা যাবে না' : /ROOM_LEN/.test(m) ? 'বার্তা ১ থেকে ৩০০ অক্ষরের মধ্যে হতে হবে' : /ROOM_MUTED/.test(m) ? 'আপনাকে এখন লিখতে দেওয়া হচ্ছে না' : /ROOM_ANNOUNCE/.test(m) ? 'এখন শুধু আহ্বায়ক লিখতে পারেন' : /ROOM_OFF/.test(m) ? 'এই রুম এখন বন্ধ' : /CHAT_OFF/.test(m) ? 'এই পেজে এখন চ্যাট বন্ধ আছে' : 'বার্তা পাঠানো যায়নি, আবার চেষ্টা করুন'; };
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   function dayLabel(d){ const n = new Date(), y = new Date(n.getTime() - 864e5); if(sameDay(d, n)) return 'আজ'; if(sameDay(d, y)) return 'গতকাল'; try{ return d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: d.getFullYear() === n.getFullYear() ? undefined : 'numeric' }); }catch(e){ return ''; } }
   function shortTime(at){ const d = new Date(at), n = new Date(); try{ if(sameDay(d, n)) return d.toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); if(sameDay(d, new Date(n.getTime() - 864e5))) return 'গতকাল'; return d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' }); }catch(e){ return ''; } }
   const clock = at => { try{ return new Date(at).toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); }catch(e){ return ''; } };
   const linkify = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-  const avatar = t => '<span class="av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').trim().charAt(0).toUpperCase())) + '</span>';
+  const avatar = t => isRoom(t) ? '<span class="av grp">' + GRP + '</span>' : '<span class="av">' + (t.avatar ? '<img src="' + esc(t.avatar) + '" alt="">' : esc(String(t.name || '?').trim().charAt(0).toUpperCase())) + '</span>';
   const isPhone = () => window.matchMedia('(max-width:800px)').matches;
 
   /* ---------- list ---------- */
@@ -149,10 +166,14 @@ a{color:inherit;text-decoration:none}
     $('list').innerHTML = ts.length ? ts.map(t => '<button type="button" class="it' + (S.cur === t.id ? ' on' : '') + (t.unread ? ' unr' : '') + '" data-t="' + esc(t.id) + '">' + avatar(t) +
       '<span class="tx"><span class="r1"><b>' + esc(t.name) + '</b><time>' + shortTime(t.last_at) + '</time></span><span class="r2"><span>' + esc(t.last || '') + '</span>' + (t.unread ? '<i class="n">' + bn(t.unread) + '</i>' : '') + '</span>' +
       '</span></button>').join('')
-      : '<div class="none"><b>' + (S.threads.length ? 'কিছু পাওয়া যায়নি' : 'এখনো কোনো বার্তা নেই') + '</b>' + (S.threads.length ? 'অন্য নামে খুঁজুন, অথবা "সব" ট্যাব দেখুন।' : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে। অন্য কারও পেজে বার্তা পাঠালে সেটাও এখানে দেখবেন।') + '</div>';
+      : '<div class="none"><b>' + (S.threads.length ? 'কিছু পাওয়া যায়নি' : 'এখনো কোনো বার্তা নেই') + '</b>' + (S.threads.length ? 'অন্য নামে খুঁজুন, অথবা "সব" ট্যাব দেখুন।' : 'আপনার স্কিল পেজে চ্যাট চালু করলে ভিজিটরদের বার্তা এখানে আসবে। ব্যাচে যোগ দিলে ব্যাচের রুমও এখানে পাবেন।') + '</div>';
   }
   async function loadThreads(){
-    try{ const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; S.threads = r.data || []; }catch(e){ if(!S.threads.length) S.threads = []; }
+    let a = null, rooms = [];
+    try{ const r = await M.sb.rpc('skill_chat_threads'); if(r.error) throw r.error; a = r.data || []; }catch(e){}
+    try{ const r = await M.sb.rpc('batch_chat_rooms'); if(!r.error && Array.isArray(r.data)) rooms = r.data.map(x => ({ id: 'b:' + x.batch_id, kind: 'batch', batch_id: x.batch_id, name: (x.bname || x.inst || x.slug) + (x.bname ? '' : ' ' + String(x.level).toUpperCase() + ' ' + bn(x.year)), sub: (x.inst || '') + ' · ' + String(x.level).toUpperCase() + ' ' + bn(x.year), last: x.last || 'ব্যাচ রুম খোলা হয়েছে, প্রথম বার্তা আপনিই লিখুন', last_at: x.last_at || x.joined_at, unread: x.unread || 0, mode: x.mode, role: x.role, slug: x.slug, level: x.level, year: x.year })); }catch(e){}
+    if(a === null && !S.threads.length && !rooms.length) a = [];
+    if(a !== null || rooms.length) S.threads = (a !== null ? a : S.threads.filter(t => !isRoom(t))).concat(rooms).sort((x, y) => Date.parse(y.last_at || 0) - Date.parse(x.last_at || 0));
     paintList();
   }
 
@@ -160,20 +181,21 @@ a{color:inherit;text-decoration:none}
   function openShell(t){
     $('cv').innerHTML =
       '<div class="cv-h"><button type="button" class="back" id="bk" aria-label="ফিরে যান"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' + avatar(t) +
-      '<div class="who"><b>' + esc(t.name) + '</b><small>' + (t.role === 'owner' ? 'আপনার স্কিল পেজে লিখেছেন' : 'আপনি লিখেছেন') + '</small></div>' +
-      (t.role === 'visitor' ? '<a class="hb" href="/s/' + esc(t.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a>' : '<button type="button" class="hb" id="blk">' + (t.blocked ? 'আনব্লক' : 'ব্লক করুন') + '</button>') + '</div>' +
+      '<div class="who"><b>' + esc(t.name) + '</b><small>' + (isRoom(t) ? 'ব্যাচ রুম · ' + esc(t.sub || '') : (t.role === 'owner' ? 'আপনার স্কিল পেজে লিখেছেন' : 'আপনি লিখেছেন')) + '</small></div>' +
+      (isRoom(t) ? (t.role === 'convener' || t.role === 'co' ? '<button type="button" class="hb" id="rset">রুম সেটিং</button>' : '') + '<a class="hb" href="/b/' + esc(t.slug) + '/' + esc(t.level) + '-' + esc(t.year) + '">ব্যাচের পেজ</a>' : t.role === 'visitor' ? '<a class="hb" href="/s/' + esc(t.username) + '" target="_blank" rel="noopener">পেজ দেখুন</a>' : '<button type="button" class="hb" id="blk">' + (t.blocked ? 'আনব্লক' : 'ব্লক করুন') + '</button>') + '</div>' +
       '<div class="ms" id="ms" aria-live="polite"></div><div class="er" id="er"></div><div id="blkMsg"></div>' +
-      '<div class="in" id="inb"><textarea id="tx" rows="1" maxlength="1000" placeholder="বার্তা লিখুন…"></textarea><button type="button" class="send idle" id="sd" aria-label="পাঠান"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-8a.5.5 0 000-.9L3.4 3.6a.5.5 0 00-.7.6L5 11l9 1-9 1-2.3 6.8a.5.5 0 00.7.6z"/></svg></button></div>';
+      '<div class="in" id="inb"><textarea id="tx" rows="1" maxlength="' + (isRoom(t) ? 300 : 1000) + '" placeholder="বার্তা লিখুন…"></textarea><button type="button" class="send idle" id="sd" aria-label="পাঠান"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4l17.5-8a.5.5 0 000-.9L3.4 3.6a.5.5 0 00-.7.6L5 11l9 1-9 1-2.3 6.8a.5.5 0 00.7.6z"/></svg></button></div>';
     const tx = $('tx');
     $('bk').onclick = closeChat;
     $('sd').onclick = send;
     tx.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey && !isPhone()){ e.preventDefault(); send(); } });
     tx.addEventListener('input', () => { tx.style.height = 'auto'; tx.style.height = Math.min(120, tx.scrollHeight) + 'px'; tx.style.overflowY = tx.scrollHeight > 120 ? 'auto' : 'hidden'; $('sd').classList.toggle('idle', !tx.value.trim()); });
+    if(isRoom(t) && $('rset')) $('rset').onclick = () => roomSettings(t);
     const bl = $('blk'); if(bl) bl.onclick = async () => { const block = !t.blocked; try{ await M.sb.rpc('skill_chat_block', { p_thread: t.id, p_block: block }); t.blocked = block; bl.textContent = block ? 'আনব্লক' : 'ব্লক করুন'; }catch(e){ $('er').textContent = 'এখন করা যায়নি, আবার চেষ্টা করুন'; } };
   }
   async function openChat(id, push){
     const t = S.threads.find(x => x.id === id); if(!t) return;
-    S.cur = id; S.last = 0; S.lastDay = ''; S.lastMine = null; S.blocked = false;
+    S.cur = id; S.last = 0; S.lastDay = ''; S.lastMine = null; S.lastBy = null; S.blocked = false; S.kind = isRoom(t) ? 'batch' : 'skill'; S.room = isRoom(t) ? t : null; S.sel = null; S.pulledAt = 0;
     openShell(t); $('msg').classList.add('open'); paintList();
     if(push !== false){ try{ if(history.state && history.state.t) history.replaceState({ t: id }, '', '#' + id); else history.pushState({ t: id }, '', '#' + id); }catch(e){} }
     await pull(true);
@@ -189,6 +211,7 @@ a{color:inherit;text-decoration:none}
   }
   async function pull(first){
     if(!S.cur) return; const box = $('ms'); if(!box) return; const id = S.cur;
+    if(S.kind === 'batch'){ return pullRoom(first, id, box); }
     try{
       const r = await M.sb.rpc('skill_chat_messages', { p_thread: id, p_after: S.last }); const d = r && r.data; if(!d || id !== S.cur) return;
       S.blocked = !!d.blocked;
@@ -207,23 +230,75 @@ a{color:inherit;text-decoration:none}
       const t = S.threads.find(x => x.id === id); if(t && t.unread){ t.unread = 0; paintList(); }
     }catch(e){}
   }
+  /* ---------- a batch room: text only, members only ---------- */
+  async function pullRoom(first, id, box){
+    S.pulledAt = Date.now();
+    try{
+      const r = await M.sb.rpc('batch_chat_messages', { p_batch_id: bid(id), p_after: S.last }); const d = r && r.data; if(!d || id !== S.cur) return;
+      if(!d.ok){ box.innerHTML = '<div class="empty">' + (d.error === 'CHAT_OFF' ? 'এই রুম এখন বন্ধ আছে।' : 'এই রুম দেখা যাচ্ছে না।') + '</div>'; if($('inb')) $('inb').style.display = 'none'; return; }
+      S.room.mode = d.mode; S.room.lead = !!d.lead; S.room.can = !!d.can_write; S.room.muted = !!d.muted;
+      const bm = $('blkMsg'); if(bm) bm.innerHTML = !d.can_write ? '<div class="note">' + (d.muted ? 'আপনাকে এখন লিখতে দেওয়া হচ্ছে না।' : 'এই রুমে এখন শুধু আহ্বায়ক লিখতে পারেন, আপনি পড়তে পারবেন।') + '</div>' : '';
+      if($('inb')) $('inb').style.display = d.can_write ? '' : 'none';
+      const near = first || box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+      if(first){ box.innerHTML = '<div class="rtip">এটা ' + esc(S.room.name) + ' ব্যাচের রুম। এখানে শুধু লেখা বার্তা, ছবি বা ভয়েস নয়। শুধু ব্যাচের সদস্যরা দেখতে পান। ভদ্রভাবে কথা বলুন।</div>'; if(!(d.messages || []).length) box.insertAdjacentHTML('beforeend', '<div class="empty">এখনো কোনো বার্তা নেই। প্রথম বার্তাটা লিখুন।</div>'); }
+      (d.messages || []).forEach(m => {
+        const em = box.querySelector('.empty'); if(em) em.remove();
+        if(box.querySelector('[data-id="' + m.id + '"]')) return;
+        const at = new Date(m.at), dl = at.toDateString();
+        if(dl !== S.lastDay){ S.lastDay = dl; const el = document.createElement('div'); el.className = 'day'; el.textContent = dayLabel(at); box.appendChild(el); S.lastMine = null; S.lastBy = null; }
+        const el = document.createElement('div'); el.dataset.id = m.id; el.dataset.mine = m.mine ? '1' : ''; el.dataset.seq = m.seq || ''; el.dataset.muted = m.muted ? '1' : ''; el.dataset.lead = (m.role === 'convener' || m.role === 'co') ? '1' : '';
+        const newGroup = S.lastBy !== m.seq || S.lastMine !== !!m.mine;
+        el.className = 'm ' + (m.mine ? 'me' : 'th') + (m.deleted ? ' del' : '') + (newGroup && S.lastBy !== null ? ' gap' : '');
+        el.innerHTML = m.deleted ? 'মেসেজ মুছে ফেলা হয়েছে' : ((!m.mine && newGroup ? '<span class="by">' + esc(m.by) + '<i>' + (m.role === 'convener' ? 'আহ্বায়ক' : 'নম্বর ' + bn(m.seq)) + '</i></span>' : '') + esc(m.body) + '<small>' + clock(m.at) + '</small>');
+        box.appendChild(el); S.lastMine = !!m.mine; S.lastBy = m.seq; S.last = Math.max(S.last, m.id);
+      });
+      if(near) box.scrollTop = box.scrollHeight;
+      const t = S.threads.find(x => x.id === id); if(t && t.unread){ t.unread = 0; paintList(); }
+    }catch(e){}
+  }
+  function clearSel(){ document.querySelectorAll('.macts').forEach(x => x.remove()); document.querySelectorAll('.m.sel').forEach(x => x.classList.remove('sel')); S.sel = null; }
+  function msgClick(e){
+    if(S.kind !== 'batch') return; const m = e.target.closest('.m'); if(!m || m.classList.contains('del')) return;
+    const was = S.sel === m.dataset.id; clearSel(); if(was) return;
+    S.sel = m.dataset.id; m.classList.add('sel'); const mine = !!m.dataset.mine, lead = !!(S.room && S.room.lead), btns = [];
+    if(mine || lead) btns.push('<button type="button" class="red" data-a="del">মুছুন</button>');
+    if(!mine) btns.push('<button type="button" data-a="rep">রিপোর্ট করুন</button>');
+    if(lead && !mine && !m.dataset.lead && m.dataset.seq) btns.push('<button type="button"' + (m.dataset.muted ? '' : ' class="red"') + ' data-a="mute">' + (m.dataset.muted ? 'আবার লিখতে দিন' : 'নীরব করুন') + '</button>');
+    if(!btns.length){ clearSel(); return; }
+    m.insertAdjacentHTML('afterend', '<div class="macts' + (mine ? ' me' : '') + '" data-for="' + m.dataset.id + '">' + btns.join('') + '</div>');
+  }
+  async function msgAct(e){
+    const b = e.target.closest('.macts button'); if(!b) return; const box = b.closest('.macts'), id = +box.dataset.for, m = document.querySelector('.m[data-id="' + id + '"]'), a = b.dataset.a;
+    if(a === 'del'){ if(!confirm('এই বার্তা মুছবেন?')) return; const r = await M.sb.rpc('batch_chat_delete', { p_message_id: id }); if(r.data && r.data.ok){ m.className = 'm del ' + (m.dataset.mine ? 'me' : 'th'); m.innerHTML = 'মেসেজ মুছে ফেলা হয়েছে'; } else $('er').textContent = 'এখন মোছা যায়নি'; clearSel(); }
+    else if(a === 'rep'){ box.innerHTML = '<span style="font-size:12px;color:var(--text-3);align-self:center">কেন?</span>' + [['offensive', 'অশোভন'], ['private', 'ব্যক্তিগত'], ['other', 'অন্য']].map(x => '<button type="button" data-w="' + x[0] + '">' + x[1] + '</button>').join(''); box.onclick = async ev => { const w = ev.target.closest('button[data-w]'); if(!w) return; ev.stopPropagation(); const r = await M.sb.rpc('batch_chat_report', { p_message_id: id, p_reason: w.dataset.w }); $('er').textContent = ''; clearSel(); if(!(r.data && r.data.ok)) $('er').textContent = 'এখন পাঠানো যায়নি'; else { $('er').style.color = '#166534'; $('er').textContent = 'ধন্যবাদ, রিপোর্ট পাঠানো হয়েছে'; setTimeout(() => { $('er').textContent = ''; $('er').style.color = ''; }, 2500); } }; return; }
+    else if(a === 'mute'){ const on = !m.dataset.muted; if(!confirm(on ? 'এই সদস্যকে নীরব করবেন? তিনি আর লিখতে পারবেন না, পড়তে পারবেন।' : 'এই সদস্যকে আবার লিখতে দেবেন?')) return; const r = await M.sb.rpc('batch_chat_mute', { p_batch_id: bid(S.cur), p_seq: +m.dataset.seq, p_mute: on }); if(r.data && r.data.ok) document.querySelectorAll('.m[data-seq="' + m.dataset.seq + '"]').forEach(x => { x.dataset.muted = on ? '1' : ''; }); $('er').style.color = r.data && r.data.ok ? '#166534' : ''; $('er').textContent = r.data && r.data.ok ? (on ? 'নীরব করা হয়েছে' : 'আবার লিখতে দেওয়া হয়েছে') : 'এখন করা যায়নি'; setTimeout(() => { $('er').textContent = ''; $('er').style.color = ''; }, 3500); clearSel(); }
+  }
+  function roomSettings(t){
+    const ex = $('rmenu'); if(ex){ ex.remove(); return; }
+    const cur = (S.room && S.room.mode) || 'open';
+    const h = $('cv').querySelector('.cv-h'); h.insertAdjacentHTML('afterend', '<div class="rmenu" id="rmenu"><b>রুম কীভাবে চলবে</b>' + [['open', 'সবাই লিখতে পারবেন', 'সব সদস্য বার্তা পাঠাতে পারবেন।'], ['announce', 'শুধু আহ্বায়ক লিখবেন', 'সদস্যরা পড়তে পারবেন, ঘোষণার জন্য ভালো।'], ['off', 'রুম বন্ধ', 'কেউ আর দেখবেন না, পরে আবার চালু করা যাবে।']].map(x => '<label><input type="radio" name="rmode" value="' + x[0] + '"' + (cur === x[0] ? ' checked' : '') + '><span>' + x[1] + '<small>' + x[2] + '</small></span></label>').join('') + '</div>');
+    $('rmenu').onchange = async e => { const v = e.target.value; const r = await M.sb.rpc('batch_chat_mode', { p_batch_id: bid(t.id), p_mode: v }); if(r.data && r.data.ok){ if(S.room) S.room.mode = v; t.mode = v; $('rmenu').remove(); if(v === 'off'){ S.threads = S.threads.filter(x => x.id !== t.id); shut(); paintList(); } else pull(false); } else $('er').textContent = 'এখন করা যায়নি'; };
+  }
   async function send(){
     if(S.busy || !S.cur || S.blocked) return; const tx = $('tx'), body = tx.value.trim(); if(!body) return;
     const t = S.threads.find(x => x.id === S.cur) || {}; S.busy = true; $('sd').disabled = true; $('er').textContent = '';
-    try{ const r = await M.sb.rpc('skill_chat_send', { p_username: t.username, p_thread: S.cur, p_body: body }); if(r.error) throw r.error; tx.value = ''; tx.style.height = ''; $('sd').classList.add('idle'); await pull(false); const box = $('ms'); box.scrollTop = box.scrollHeight; loadThreads(); }
+    try{
+      if(S.kind === 'batch'){ const r = await M.sb.rpc('batch_chat_send', { p_batch_id: bid(S.cur), p_body: body }); const d = r.data; if(r.error || !d || !d.ok) throw new Error({ BAD_TEXT: 'ROOM_TEXT', BAD_LENGTH: 'ROOM_LEN', MUTED: 'ROOM_MUTED', ANNOUNCE_ONLY: 'ROOM_ANNOUNCE', CHAT_OFF: 'ROOM_OFF', TOO_FAST: 'TOO_FAST', TOO_MANY: 'TOO_MANY' }[d && d.error] || 'ROOM_ERR'); }
+      else { const r = await M.sb.rpc('skill_chat_send', { p_username: t.username, p_thread: S.cur, p_body: body }); if(r.error) throw r.error; } tx.value = ''; tx.style.height = ''; $('sd').classList.add('idle'); await pull(false); const box = $('ms'); box.scrollTop = box.scrollHeight; loadThreads(); }
     catch(e){ $('er').textContent = err(e); }
     S.busy = false; $('sd').disabled = false; if(!isPhone()) tx.focus();
   }
 
   /* ---------- wiring ---------- */
   $('list').addEventListener('click', e => { const b = e.target.closest('.it'); if(b) openChat(b.dataset.t); });
+  $('cv').addEventListener('click', e => { if(e.target.closest('.macts')) msgAct(e); else msgClick(e); });
   $('goBack').addEventListener('click', () => { let same = false; try{ same = !!document.referrer && new URL(document.referrer).origin === location.origin; }catch(e){} if(same && history.length > 1) history.back(); else location.href = 'member.html'; });
   $('q').addEventListener('input', e => { S.q = e.target.value; paintList(); });
   document.querySelectorAll('.flt button').forEach(b => b.addEventListener('click', () => { S.filter = b.dataset.f; document.querySelectorAll('.flt button').forEach(x => x.classList.toggle('on', x === b)); paintList(); }));
   window.addEventListener('popstate', () => { const id = (location.hash || '').slice(1); if(id && S.threads.some(t => t.id === id)) openChat(id, false); else shut(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape' && S.cur) closeChat(); });
-  setInterval(() => { if(!document.hidden && S.cur) pull(false); }, 5000);
-  setInterval(() => { if(!document.hidden) loadThreads(); }, 20000);
+  setInterval(() => { if(!document.hidden && S.cur){ if(S.kind === 'batch' && Date.now() - S.pulledAt < 8000) return; pull(false); } }, 5000);   // a room is asked every 8 seconds, only while it is open and the tab is visible
+  setInterval(() => { if(!document.hidden) loadThreads(); }, 30000);
   document.addEventListener('visibilitychange', () => { if(!document.hidden){ loadThreads(); pull(false); } });
 
   (async function boot(){

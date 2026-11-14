@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=37">
+<link rel="stylesheet" href="/batch.css?v=38">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -416,7 +416,8 @@
         [['chat', 'মনে আছে?', 'সপ্তাহে একটা স্মৃতির প্রশ্ন, সবাই উত্তর লেখে'], ['poll', 'ব্যাচের পোল', 'সবাই ভোট দেয়, ফল সাজানো থাকে'], ['cal', 'রিইউনিয়ন পরিকল্পনা', 'তারিখে ভোট, কে আসছে গোনা']].map(x => '<div class="bt-sn"><span class="bt-sni">' + ic(x[0], 18) + '</span><div><b>' + x[1] + '</b><small>' + x[2] + '</small></div><em>শীঘ্রই</em></div>').join('') + '</div>';
       const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
       const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
-      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
+      const roomBar = '<a class="bt-room" id="roomBar" href="/messages#b:' + esc(b.id) + '" hidden><span class="bt-ci">' + ic('chat', 22) + '</span><div><b>ব্যাচ রুম</b><small id="roomSub">ব্যাচের সবার সাথে লেখায় কথা বলুন</small></div><em id="roomN" hidden></em><i>খুলুন →</i></a>';
+      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
@@ -428,6 +429,7 @@
     if(joined && /^#(roster|setup|invite)$/.test(location.hash)){ const hs = location.hash.slice(1); setTimeout(() => { const el = $(hs); if(el) el.scrollIntoView({ block: 'start' }); }, 350); }
     if(joined) loadRoster(b.id);
     if(joined) initPhotos(b, k);
+    if(joined) initRoomBar(b);
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
@@ -469,6 +471,13 @@
       '<div class="bt-err" id="phEr" role="alert" hidden></div><div class="bt-mact"><button type="button" class="bt-ghost" id="phCancel">বাতিল</button><button type="button" class="bt-btn" id="phGo" disabled>আপলোড করুন</button></div></div></div>' +
       '<div class="bt-lbx" id="phLb" hidden role="dialog" aria-modal="true" aria-label="ছবি"><button type="button" class="bt-lx" id="lbX" aria-label="বন্ধ করুন">×</button><button type="button" class="bt-ln p" id="lbP" aria-label="আগের ছবি">‹</button><button type="button" class="bt-ln n" id="lbN" aria-label="পরের ছবি">›</button>' +
       '<figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure><div class="bt-lacts" id="lbActs"></div></div>';
+  }
+  /* the room bar shows only when the database part is there and the room is on; the number is the unread messages */
+  async function initRoomBar(batch){
+    const r = await rpc('batch_chat_rooms'); const bar = $('roomBar'); if(!bar || r.error || !Array.isArray(r.data)) return;
+    const x = r.data.find(q => q.batch_id === batch.id); if(!x) return;
+    bar.hidden = false; if(x.unread){ const n = $('roomN'); n.textContent = bn(x.unread) + (x.unread >= 99 ? '+' : '') + ' নতুন'; n.hidden = false; }
+    if(x.last) $('roomSub').textContent = x.last;
   }
   async function initPhotos(batch, k){
     PH.batch = batch; PH.k = k;
