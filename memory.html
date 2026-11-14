@@ -55,7 +55,7 @@
       <div class="mc-f" id="phWrap">
         <label>২. ছবি <small id="phHint"></small></label>
         <div class="mc-slots" id="slots"></div>
-        <small class="mc-note">ছবি আপনার ফোনেই থাকে, আমরা সার্ভারে নিই না।</small>
+        <small class="mc-note">ছবি আপনার এই ব্রাউজারেই থাকে, রিফ্রেশ করলেও হারায় না। আমরা সার্ভারে নিই না।</small>
         <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
       <div class="mc-f">
@@ -593,9 +593,24 @@
   $('size').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.size = b.dataset.k; paintSize(); draw(); };
   ['ttl', 'txt', 'sm'].forEach(id => $(id).addEventListener('input', () => { counters(); draw(); }));
 
+  /* the photos are kept in this browser (IndexedDB), on this device only, so a refresh does not lose them; they never go to a server */
+  const PDB = { db: null };
+  const pdb = () => PDB.db || (PDB.db = new Promise(res => { try{ const r = indexedDB.open('mem_photos', 1); r.onupgradeneeded = () => r.result.createObjectStore('p'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); r.onblocked = () => res(null); }catch(e){ res(null); } }));
+  async function pdbDo(mode, fn){ try{ const db = await pdb(); if(!db) return null; return await new Promise(res => { const tx = db.transaction('p', mode), out = fn(tx.objectStore('p')); tx.oncomplete = () => res(out && out.result !== undefined ? out.result : true); tx.onerror = tx.onabort = () => res(null); }); }catch(e){ return null; } }
+  const savePhoto = (i, cv) => cv.toBlob(b => { if(b) pdbDo('readwrite', st => st.put(b, i)); }, 'image/jpeg', .92);
+  const delPhoto = i => pdbDo('readwrite', st => st.delete(i));
+  async function restorePhotos(){
+    let any = 0;
+    for(const i of [0, 1]){
+      const b = await pdbDo('readonly', st => st.get(i)); if(!(b instanceof Blob) || S.photos[i]) continue;
+      try{ const bmp = await createImageBitmap(b), cv = document.createElement('canvas'); cv.width = bmp.width; cv.height = bmp.height; cv.getContext('2d').drawImage(bmp, 0, 0); S.photos[i] = cv; any = 1; }catch(e){}
+    }
+    if(any){ paintSlots(); draw(); thumbs(); }
+  }
+
   /* photos: read in the browser, shrunk, kept in memory only; several picked at once fill the slots in order */
   let target = 0;
-  $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
+  $('slots').onclick = e => { const x = e.target.closest('button[data-x]'); if(x){ S.photos[+x.dataset.x] = null; delPhoto(+x.dataset.x); paintSlots(); draw(); return; } const a = e.target.closest('button[data-add]'); if(a){ target = +a.dataset.add; $('file').click(); return; } const has = e.target.closest('.mc-slot.has'); if(has){ target = +has.dataset.i; $('file').click(); } };
   $('file').onchange = async () => {
     const files = Array.from($('file').files || []).filter(f => /^image\//.test(f.type)); $('file').value = ''; if(!files.length) return;
     let slot = target, put1 = 0;
@@ -604,7 +619,7 @@
       try{
         let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
         const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-        S.photos[slot] = cv; slot++; put1++;
+        S.photos[slot] = cv; savePhoto(slot, cv); slot++; put1++;
       }catch(e){ toast('একটা ছবি পড়া যায়নি।'); }
     }
     if(put1){ paintSlots(); draw(); }
@@ -622,10 +637,10 @@
   function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
   $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { t: S.tpl, size: S.size, photos: S.photos.filter(Boolean).length }); toast('কার্ড ডাউনলোড হয়েছে।'); };
   $('sh').onclick = async () => { await render(); const f = await fileOf(); if(!f) return; try{ await navigator.share({ files: [f], text: capText() }); bump(); track('memory_share', { t: S.tpl }); }catch(e){} };
-  $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  $('again').onclick = () => { ['ttl', 'txt', 'sm'].forEach(id => { $(id).value = ''; }); S.photos = [null, null]; delPhoto(0); delPhoto(1); counters(); paintSlots(); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   /* start */
-  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount();
+  loadDraft(); PAL = THEMES[S.theme] || THEMES.mint; paintTpls(); paintThemes(); paintSize(); paintSlots(); counters(); showCount(); restorePhotos();
   try{ const f = new File([''], 'x.png', { type: 'image/png' }); if(navigator.canShare && navigator.canShare({ files: [f] })) $('sh').hidden = false; }catch(e){}
   draw(); thumbs();
   /* the form stays in view while the long preview scrolls: it sticks when its bottom reaches the bottom of the screen (or its top, 88 px down, when it is shorter), never higher than 64 px so the header does not cover it */
