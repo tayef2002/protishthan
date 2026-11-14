@@ -120,7 +120,7 @@
     { k: 'card3', n: 'পোস্টকার্ড', a: 1.28, ph: 1, card: 1, off: 1 },
     { k: 'card2', n: 'দুই ছবি', a: 1.2, ph: 2, card: 1, off: 1 }
   ];
-  const S = { tpl: 'mem1', theme: 'mint', size: 'post', photos: [null, null], pos: [{ x: .5, y: .5, z: 1 }, { x: .5, y: .5, z: 1 }], rec: false, sel: 0 };
+  const S = { tpl: 'mem1', theme: 'mint', size: 'post', photos: [null, null], pos: [{ x: .5, y: .5, z: 1 }, { x: .5, y: .5, z: 1 }], rec: false, use: false, px: 1, sel: 0 };
   const TP = () => TPLS.find(t => t.k === S.tpl) || TPLS[0];
   const DRAFT = 'mem_draft_v5';
 
@@ -130,7 +130,7 @@
   const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const mix = (x, y, t) => { const p = hexRgb(x), q = hexRgb(y); return '#' + p.map((v, i) => Math.round(v + (q[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
   const rr = (x, y, w, h, r) => { r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
-  const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = bl || 0; c.shadowOffsetY = dy || 0; };
+  const shadow = (col, bl, dy) => { c.shadowColor = col || 'transparent'; c.shadowBlur = (bl || 0) * S.px; c.shadowOffsetY = (dy || 0) * S.px; };
   /* the text is cut into lines that fit maxW; a new line typed with Enter starts a new line here too (a blank line stays blank) */
   const wrap = (txt, maxW, font, maxLines) => { c.font = font; const out = []; String(txt).replace(/\r/g, '').split('\n').forEach(par => { const words = par.split(/\s+/).filter(Boolean); if(!words.length){ out.push(''); return; } let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } out.push(cur); }); while(out.length && out[out.length - 1] === '') out.pop(); while(out.length && out[0] === '') out.shift(); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
   function fit(txt, maxW, maxLines, max, min, weight, fam){ let sz = max, lines; do{ lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines + 1); sz -= 2; }while((lines.length > maxLines || lines.some(l => c.measureText(l).width > maxW)) && sz >= min); sz += 2; lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines); return { size: sz, lines }; }
@@ -142,7 +142,7 @@
     c.textAlign = 'center'; c.fillStyle = mix(PAL.ac, '#FFFFFF', .2); c.font = '700 ' + Math.max(22, Math.round(m * .07)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .34);
   }
   /* put a photo into a shape: pathFn draws the shape's outline, the box says how big the photo should be */
-  function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h, S.rec ? S.pos[i] : null); c.restore(); }
+  function put(i, pathFn, x, y, w, h){ c.save(); pathFn(); c.clip(); fill(S.cur.photos[i], x, y, w, h, S.use ? S.pos[i] : null); c.restore(); }
   /* ---------- the cards. A photo card lies on the paper like the card on the map pages of Unseen: a pale tint of the paper, a thin edge in the main colour, the photo inside it with soft corners, a short label under the photo, tilted a little. ---------- */
   const SH = {};
   const rgba = (hex, a) => { const q = hexRgb(hex); return 'rgba(' + q[0] + ',' + q[1] + ',' + q[2] + ',' + a + ')'; };
@@ -282,7 +282,7 @@
       shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = '#7A5410'; c.fill(); shadow();
       c.save(); rr(gx, gy, gw, gh, 4); c.clip();
       c.fillStyle = gold; c.fillRect(gx, gy, gw, gh);
-      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph, S.rec ? S.pos[i] : null);
+      c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph, S.use ? S.pos[i] : null);
       c.globalAlpha = .42; c.globalCompositeOperation = 'multiply'; c.fillStyle = linear(0, py + ph * .45, 0, py + ph, FADE); c.fillRect(gx, gy, gw, gh);
       c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = linear(0, gy, 0, gy + gh, [[0, 'rgba(255,255,255,.34)'], [.22, 'rgba(255,255,255,.06)'], [1, 'rgba(0,0,0,.18)']]); c.fillRect(gx, gy, gw, gh);
       c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(gx + 5, gy + 6, 4, gh - 14);
@@ -565,13 +565,13 @@
 
   /* ---------- drawing the picture and the small pictures of the shapes ---------- */
   const data = () => ({ title: $('ttl').value.trim(), line: $('txt').value.trim(), small: $('sm').value.trim(), photos: S.photos });
-  function paint(cv, W, H, d, key, k){ const prev = c; c = cv.getContext('2d'); c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, H); c.save(); try{ render1(W, H, d, key); }catch(e){ console.error(e); } c.restore(); c = prev; }
+  function paint(cv, W, H, d, key, k){ const prev = c, pk = S.px; c = cv.getContext('2d'); S.px = k; c.setTransform(k, 0, 0, k, 0, 0); c.clearRect(0, 0, W, H); c.save(); try{ render1(W, H, d, key); }catch(e){ console.error(e); } c.restore(); c = prev; S.px = pk; }
   let raf = 0;
   function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
   async function render(){
     const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
     try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
-    S.rec = true; paint(cv, sz.w, sz.h, data(), S.tpl, 1); S.rec = false; saveDraft();
+    S.rec = S.use = true; paint(cv, sz.w, sz.h, data(), S.tpl, 1); S.rec = S.use = false; saveDraft();
   }
   const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
@@ -661,7 +661,7 @@
       if(slot >= TP().ph) break;
       try{
         let bmp; try{ bmp = await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(f); }); }
-        const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 1600 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+        const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight, sc = Math.min(1, 3000 / Math.max(w, h)), cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
         S.photos[slot] = cv; S.pos[slot] = { x: .5, y: .5, z: 1 }; savePhoto(slot, cv); slot++; put1++;
       }catch(e){ toast('একটা ছবি পড়া যায়নি।'); }
     }
@@ -674,7 +674,14 @@
 
   /* ---------- download, share, caption ---------- */
   const capText = () => { const t = $('ttl').value.trim(), l = $('txt').value.trim(); return (t || 'একটা স্মৃতি') + (l ? '\n' + l : '') + '\n\nনিজের স্মৃতির কার্ড বানান 👇\nprotishthan.com/memory'; };
-  const fileOf = () => new Promise(res => $('cv').toBlob(b => res(b ? new File([b], 'memory-card.jpg', { type: 'image/jpeg' }) : null), 'image/jpeg', .93));
+  const blobOf = cv => new Promise(res => { try{ cv.toBlob(b => res(b), 'image/jpeg', .93); }catch(e){ res(null); } });
+  /* the saved picture is drawn again at twice the size of the preview, so it stays sharp when it is zoomed in; if the phone cannot make a canvas that big, the preview-size picture is used */
+  async function fileOf(){
+    let b = null; const sz = SIZES[S.size], K = 2;
+    try{ const hc = document.createElement('canvas'); hc.width = sz.w * K; hc.height = sz.h * K; S.use = true; paint(hc, sz.w, sz.h, data(), S.tpl, K); S.use = false; b = await blobOf(hc); hc.width = hc.height = 1; }catch(e){ S.use = false; b = null; }
+    if(!b || b.size < 5000) b = await blobOf($('cv'));
+    return b ? new File([b], 'memory-card.jpg', { type: 'image/jpeg' }) : null;
+  }
   function count(){ let n = 0; try{ n = +localStorage.getItem('mem_n') || 0; }catch(e){} return n; }
   function bump(){ const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
   function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
