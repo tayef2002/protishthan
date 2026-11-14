@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=32">
+<link rel="stylesheet" href="/batch.css?v=34">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -375,6 +375,7 @@
     document.title = inst + ' ' + LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ | আমার ব্যাচ';
     let h = '<section class="bt-top"><span class="bt-chip">' + (b ? 'ব্যাচ আমন্ত্রণ' : 'এই ব্যাচ এখনও খোলা হয়নি') + '</span>' +
       '<h1>' + esc(inst) + '</h1><div class="bt-batch">' + esc(LVT[k.lv]) + ' ' + bn(k.year) + ' ব্যাচ</div>' +
+      coverHtml(b, joined) +
       (b && b.name ? '<div class="bt-bname">' + esc(b.name) + '</div>' : '') +
       '<p class="bt-line">' + esc(lineFor(k, inst, b && b.line)) + '</p>' +
       (b && b.convener ? '<div class="bt-conv">আহ্বায়ক: ' + esc(b.convener) + ' (স্ব-ঘোষিত)</div>' : '') +
@@ -412,8 +413,9 @@
           '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>';
       const soon = '<div class="bt-c bt-soonc">' + cardHead('clock', 'শীঘ্রই আসছে', 'ব্যাচটা আরও কাজের হচ্ছে') +
         [['chat', 'মনে আছে?', 'সপ্তাহে একটা স্মৃতির প্রশ্ন, সবাই উত্তর লেখে'], ['poll', 'ব্যাচের পোল', 'সবাই ভোট দেয়, ফল সাজানো থাকে'], ['cal', 'রিইউনিয়ন পরিকল্পনা', 'তারিখে ভোট, কে আসছে গোনা']].map(x => '<div class="bt-sn"><span class="bt-sni">' + ic(x[0], 18) + '</span><div><b>' + x[1] + '</b><small>' + x[2] + '</small></div><em>শীঘ্রই</em></div>').join('') + '</div>';
+      const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div><button type="button" class="bt-addph" id="phAdd">' + ic('image', 17) + 'ছবি যোগ করুন</button></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
       const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
-      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>';
+      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
@@ -421,8 +423,10 @@
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
     if(b) bindReport(b.id);
+    if($('cvJoin')) $('cvJoin').onclick = () => { const x = $('act'); if(x) x.click(); };
     if(joined && /^#(roster|setup|invite)$/.test(location.hash)){ const hs = location.hash.slice(1); setTimeout(() => { const el = $(hs); if(el) el.scrollIntoView({ block: 'start' }); }, 350); }
     if(joined) loadRoster(b.id);
+    if(joined) initPhotos(b, k);
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
@@ -444,6 +448,121 @@
       };
     }
   }
+  /* ---------- group pictures and albums: members only (the database and the storage rules both check it); a visitor sees only how many there are ---------- */
+  const PH_CATS = [['all', 'সব'], ['group', 'গ্রুপ ছবি'], ['class', 'ক্লাস'], ['trip', 'ভ্রমণ'], ['event', 'অনুষ্ঠান'], ['other', 'অন্যান্য']];
+  const PH_ERR = { TOO_MANY_MINE: 'আপনি এই ব্যাচে সর্বোচ্চ ১২টা ছবি দিতে পারেন।', FULL: 'ব্যাচের ছবির জায়গা ভরে গেছে (৮০টা)।', NOT_MEMBER: 'ছবি দিতে আগে ব্যাচে যোগ দিন।', BAD_SIZE: 'ছবিটা খুব ছোট বা খুব বড়।', NOT_ALLOWED: 'এটা আপনি করতে পারবেন না।' };
+  const PH = { batch: null, k: null, list: [], cover: null, lead: false, urls: {}, cat: 'all', files: [], pick: 'class', at: -1 };
+  const thumbOf = p => p.replace(/\.jpg$/, '_t.jpg');
+  const phStore = () => SB() && SB().storage.from('batch-photos');
+  async function signMany(paths){ if(!paths.length) return {}; try{ const r = await phStore().createSignedUrls(paths, 3600); const o = {}; (r.data || []).forEach(x => { if(x.signedUrl) o[x.path] = x.signedUrl; }); return o; }catch(e){ return {}; } }
+  function coverHtml(b, joined){
+    if(!b) return '';
+    if(!joined){ if(typeof b.photos !== 'number') return ''; const n = Number(b.photos) || 0; return '<div class="bt-cover lock"><i class="a"></i><i class="b"></i><i class="c"></i><div class="bt-cvl"><span class="bt-ci">' + ic('lock', 22) + '</span><b>ব্যাচের ছবি ও অ্যালবাম</b><small>' + (n ? bn(n) + 'টা ছবি আছে। ' : 'সদস্যরা এখানে ব্যাচের ছবি রাখেন। ') + 'দেখতে ব্যাচে যোগ দিন।</small>' + (b.status === 'locked' ? '' : '<button type="button" class="bt-cvj" id="cvJoin">ব্যাচে যোগ দিন</button>') + '</div></div>'; }
+    return '<div class="bt-cover" id="cover"><div class="bt-cvs"></div></div>';
+  }
+  function photoShell(){
+    return '<input type="file" id="phFile" accept="image/*" multiple hidden>' +
+      '<div class="bt-mdl" id="phDlg" hidden role="dialog" aria-modal="true" aria-labelledby="phDt"><div class="bt-mdb"><h2 id="phDt">ছবি যোগ করুন</h2><p class="s" id="phDs"></p><div class="bt-prevs" id="phPrevs"></div>' +
+      '<div class="bt-sec"><span>কোন অ্যালবামে</span></div><div class="bt-cats" id="phPick" role="radiogroup" aria-label="অ্যালবাম"></div>' +
+      '<label class="bt-agree"><input type="checkbox" id="phOk"><span>আমি এই ছবি দেওয়ার অধিকার রাখি। ছবিতে যাদের দেখা যায় তাদের আপত্তি নেই বলে জানি। ছবি শুধু ব্যাচের সদস্যরা দেখবেন।</span></label>' +
+      '<div class="bt-err" id="phEr" role="alert" hidden></div><div class="bt-mact"><button type="button" class="bt-ghost" id="phCancel">বাতিল</button><button type="button" class="bt-btn" id="phGo" disabled>আপলোড করুন</button></div></div></div>' +
+      '<div class="bt-lbx" id="phLb" hidden role="dialog" aria-modal="true" aria-label="ছবি"><button type="button" class="bt-lx" id="lbX" aria-label="বন্ধ করুন">×</button><button type="button" class="bt-ln p" id="lbP" aria-label="আগের ছবি">‹</button><button type="button" class="bt-ln n" id="lbN" aria-label="পরের ছবি">›</button>' +
+      '<figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure><div class="bt-lacts" id="lbActs"></div></div>';
+  }
+  async function initPhotos(batch, k){
+    PH.batch = batch; PH.k = k;
+    const r = await rpc('batch_photos', { p_batch_id: batch.id });
+    if(r.error || !r.data || !r.data.ok){ const c = $('cover'); if(c) c.remove(); const p = $('photos'); if(p) p.remove(); return; }   // the database part is not there yet: no pictures UI at all
+    PH.list = r.data.photos || []; PH.cover = r.data.cover; PH.lead = !!r.data.lead;
+    const cp = coverPhoto(), paths = PH.list.map(p => thumbOf(p.path)); if(cp) paths.push(cp.path);
+    PH.urls = await signMany(paths);
+    paintCover(); paintPhotos(); bindPhotos();
+  }
+  const coverPhoto = () => PH.list.find(p => p.id === PH.cover) || PH.list.find(p => p.category === 'group') || PH.list[0] || null;
+  function paintCover(){
+    const el = $('cover'); if(!el) return; const cp = coverPhoto();
+    if(!cp){ el.className = 'bt-cover empty'; el.innerHTML = '<button type="button" id="cvAdd">' + ic('image', 28) + '<b>গ্রুপ ছবি যোগ করুন</b><span>ব্যাচের ছবি সবার সাথে ভাগ করুন, শুধু সদস্যরা দেখবেন</span></button>'; $('cvAdd').onclick = () => openUpload('group'); return; }
+    const url = PH.urls[cp.path] || PH.urls[thumbOf(cp.path)];
+    el.className = 'bt-cover has'; el.innerHTML = (url ? '<img src="' + esc(url) + '" alt="ব্যাচের গ্রুপ ছবি" loading="eager">' : '') + '<div class="bt-cvb"><span>' + ic('image', 16) + bn(PH.list.length) + 'টা ছবি</span><button type="button" id="cvAll">সব ছবি দেখুন</button></div>';
+    el.querySelector('img') && (el.querySelector('img').onclick = () => openLightbox(PH.list.indexOf(cp)));
+    $('cvAll').onclick = () => { const c = $('photos'); if(c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  }
+  function paintPhotos(){
+    const cats = $('phCats'); if(!cats) return;
+    cats.innerHTML = PH_CATS.map(c => { const n = c[0] === 'all' ? PH.list.length : PH.list.filter(p => p.category === c[0]).length; return '<button type="button" role="tab" aria-selected="' + (PH.cat === c[0]) + '" data-c="' + c[0] + '">' + c[1] + (n ? ' <em>' + bn(n) + '</em>' : '') + '</button>'; }).join('');
+    const rows = PH.list.filter(p => PH.cat === 'all' || p.category === PH.cat), g = $('phGrid');
+    g.innerHTML = rows.length ? rows.map(p => '<button type="button" class="bt-pi" data-i="' + PH.list.indexOf(p) + '">' + (PH.urls[thumbOf(p.path)] ? '<img src="' + esc(PH.urls[thumbOf(p.path)]) + '" alt="" loading="lazy">' : '') + (p.id === PH.cover ? '<span class="bt-star" title="কভার ছবি">★</span>' : '') + '</button>').join('')
+      : '<div class="bt-phe">' + ic('image', 26) + '<b>' + (PH.list.length ? 'এই অ্যালবামে এখনও ছবি নেই' : 'এখনও কোনো ছবি নেই') + '</b><span>প্রথম ছবিটা আপনিই দিন, পুরনো দিনের কোনো ছবি থাকলে সবাই খুশি হবে।</span></div>';
+  }
+  function bindPhotos(){
+    $('phCats').onclick = e => { const b = e.target.closest('button[data-c]'); if(!b) return; PH.cat = b.dataset.c; paintPhotos(); };
+    $('phGrid').onclick = e => { const b = e.target.closest('button[data-i]'); if(b) openLightbox(+b.dataset.i); };
+    $('phAdd').onclick = () => openUpload(PH.cat !== 'all' ? PH.cat : 'class');
+    $('phFile').onchange = () => { const f = Array.from($('phFile').files || []).filter(x => /^image\//.test(x.type)).slice(0, 5); if(f.length) showUploadDlg(f); $('phFile').value = ''; };
+    $('phCancel').onclick = closeUploadDlg;
+    $('phOk').onchange = () => { $('phGo').disabled = !$('phOk').checked || !PH.files.length; };
+    $('phPick').onclick = e => { const b = e.target.closest('button[data-c]'); if(!b) return; PH.pick = b.dataset.c; paintPick(); };
+    $('phGo').onclick = doUpload;
+    $('lbX').onclick = closeLightbox; $('lbP').onclick = () => stepLightbox(-1); $('lbN').onclick = () => stepLightbox(1);
+    $('phLb').onclick = e => { if(e.target === $('phLb')) closeLightbox(); };
+    document.addEventListener('keydown', phKeys);
+  }
+  function phKeys(e){ if($('phLb') && !$('phLb').hidden){ if(e.key === 'Escape') closeLightbox(); else if(e.key === 'ArrowLeft') stepLightbox(-1); else if(e.key === 'ArrowRight') stepLightbox(1); } else if($('phDlg') && !$('phDlg').hidden && e.key === 'Escape') closeUploadDlg(); }
+  const paintPick = () => { $('phPick').innerHTML = PH_CATS.slice(1).map(c => '<button type="button" role="radio" aria-checked="' + (PH.pick === c[0]) + '" data-c="' + c[0] + '">' + c[1] + '</button>').join(''); };
+  function openUpload(cat){ PH.pick = cat || 'class'; $('phFile').click(); }
+  function showUploadDlg(files){
+    PH.files = files; $('phDs').textContent = bn(files.length) + 'টা ছবি বাছা হয়েছে। আপলোডের আগে ছবি ছোট করা হয়, তাই দ্রুত যাবে।'; $('phEr').hidden = true; $('phOk').checked = false; $('phGo').disabled = true; $('phGo').textContent = 'আপলোড করুন';
+    $('phPrevs').innerHTML = files.map((f, i) => '<span class="bt-pv"><img alt="" data-i="' + i + '"></span>').join(''); files.forEach((f, i) => { const im = $('phPrevs').querySelector('img[data-i="' + i + '"]'); if(im) im.src = URL.createObjectURL(f); });
+    paintPick(); $('phDlg').hidden = false; document.body.style.overflow = 'hidden';
+  }
+  function closeUploadDlg(){ $('phDlg').hidden = true; document.body.style.overflow = ''; PH.files = []; }
+  /* the picture is redrawn small in the browser (also drops where it was taken and by what): about 1600 px for viewing and 480 px for the grid, both JPEG */
+  async function shrink(file, max, q){
+    let bmp; try{ bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }catch(e){ bmp = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = URL.createObjectURL(file); }); }
+    const bw = bmp.width || bmp.naturalWidth, bh = bmp.height || bmp.naturalHeight; if(!bw || !bh) throw new Error('size');
+    const sc = Math.min(1, max / Math.max(bw, bh)), w = Math.max(100, Math.round(bw * sc)), h = Math.max(100, Math.round(bh * sc));
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, w, h); c.drawImage(bmp, 0, 0, w, h);
+    let blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', q)), qq = q; while(blob && blob.size > 1800000 && qq > .4){ qq -= .1; blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', qq)); }
+    if(!blob) throw new Error('jpeg'); return { blob, w, h };
+  }
+  async function doUpload(){
+    const btn = $('phGo'), er = $('phEr'); er.hidden = true; btn.disabled = true; let done = 0, fail = '';
+    for(let i = 0; i < PH.files.length; i++){
+      btn.textContent = 'আপলোড হচ্ছে ' + bn(i + 1) + '/' + bn(PH.files.length) + '…';
+      try{
+        const big = await shrink(PH.files[i], 1600, .82), sm = await shrink(PH.files[i], 480, .75), id = (crypto.randomUUID ? crypto.randomUUID() : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16))), path = PH.batch.id + '/' + id + '.jpg';
+        const u1 = await phStore().upload(path, big.blob, { contentType: 'image/jpeg', upsert: false }); if(u1.error) throw u1.error;
+        const u2 = await phStore().upload(thumbOf(path), sm.blob, { contentType: 'image/jpeg', upsert: false }); if(u2.error){ await phStore().remove([path]); throw u2.error; }
+        const r = await rpc('batch_photo_add', { p_batch_id: PH.batch.id, p_path: path, p_category: PH.pick, p_w: big.w, p_h: big.h });
+        if(r.error || !r.data || !r.data.ok){ await phStore().remove([path, thumbOf(path)]); fail = (r.data && PH_ERR[r.data.error]) || 'ছবিটা রাখা যায়নি, একটু পরে আবার চেষ্টা করুন।'; break; }
+        done++;
+      }catch(e){ fail = /size|jpeg/.test(String(e && e.message)) ? 'এই ছবিটা পড়া যায়নি। JPEG বা PNG ছবি দিন।' : 'আপলোড হয়নি, একটু পরে আবার চেষ্টা করুন।'; break; }
+    }
+    if(done){ track('batch_photo', { n: done, cat: PH.pick }); toast(bn(done) + 'টা ছবি যোগ হয়েছে।'); await reloadPhotos(); }
+    if(fail){ er.textContent = fail; er.hidden = false; btn.textContent = 'আবার চেষ্টা করুন'; btn.disabled = !$('phOk').checked; PH.files = PH.files.slice(done); return; }
+    closeUploadDlg();
+  }
+  async function reloadPhotos(){
+    const r = await rpc('batch_photos', { p_batch_id: PH.batch.id }); if(r.error || !r.data || !r.data.ok) return;
+    PH.list = r.data.photos || []; PH.cover = r.data.cover; PH.lead = !!r.data.lead;
+    const cp = coverPhoto(), paths = PH.list.map(p => thumbOf(p.path)); if(cp) paths.push(cp.path); PH.urls = await signMany(paths); paintCover(); paintPhotos();
+  }
+  async function openLightbox(i){
+    const p = PH.list[i]; if(!p) return; PH.at = i; const lb = $('phLb'); lb.hidden = false; document.body.style.overflow = 'hidden';
+    const catName = (PH_CATS.find(c => c[0] === p.category) || [])[1] || '';
+    $('lbCap').textContent = catName + ' · ' + p.by + ' · ' + new Date(p.at).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' });
+    $('lbP').hidden = $('lbN').hidden = PH.list.length < 2;
+    $('lbImg').src = PH.urls[thumbOf(p.path)] || ''; $('lbImg').classList.add('ld');
+    let acts = ''; if(PH.lead && p.id !== PH.cover) acts += '<button type="button" id="lbCover">কভার ছবি করুন</button>'; if(p.can_delete) acts += '<button type="button" class="red" id="lbDel">মুছুন</button>'; if(!p.mine) acts += '<button type="button" id="lbRep">রিপোর্ট করুন</button>';
+    $('lbActs').innerHTML = acts;
+    if($('lbCover')) $('lbCover').onclick = async () => { const r = await rpc('batch_photo_set_cover', { p_photo_id: p.id }); if(r.data && r.data.ok){ PH.cover = p.id; toast('কভার ছবি বদলেছে।'); paintCover(); paintPhotos(); openLightbox(i); } else toast('এখন করা যাচ্ছে না।'); };
+    if($('lbDel')) $('lbDel').onclick = async () => { if(!confirm('এই ছবি মুছবেন? এটা ফেরানো যায় না।')) return; const r = await rpc('batch_photo_delete', { p_photo_id: p.id }); if(!r.data || !r.data.ok){ toast('মোছা যায়নি।'); return; } try{ await phStore().remove([r.data.path, thumbOf(r.data.path)]); }catch(e){} toast('ছবি মুছে গেছে।'); closeLightbox(); await reloadPhotos(); };
+    if($('lbRep')) $('lbRep').onclick = () => { $('lbActs').innerHTML = '<span class="bt-rpq">কেন?</span>' + [['offensive', 'অশোভন'], ['private', 'ব্যক্তিগত বা আমার আপত্তি আছে'], ['other', 'অন্য কারণ']].map(x => '<button type="button" data-w="' + x[0] + '">' + x[1] + '</button>').join(''); $('lbActs').onclick = async e => { const b = e.target.closest('button[data-w]'); if(!b) return; const r = await rpc('batch_photo_report', { p_photo_id: p.id, p_reason: b.dataset.w }); toast(r.data && r.data.ok ? 'ধন্যবাদ, রিপোর্ট পাঠানো হয়েছে।' : 'এখন পাঠানো যাচ্ছে না।'); openLightbox(i); }; };
+    try{ const r = await phStore().createSignedUrl(p.path, 3600); if(r.data && r.data.signedUrl && PH.at === i){ const im = new Image(); im.onload = () => { if(PH.at === i){ $('lbImg').src = im.src; $('lbImg').classList.remove('ld'); } }; im.src = r.data.signedUrl; } }catch(e){ $('lbImg').classList.remove('ld'); }
+  }
+  const stepLightbox = d => { if(PH.list.length) openLightbox((PH.at + d + PH.list.length) % PH.list.length); };
+  function closeLightbox(){ const lb = $('phLb'); if(lb) lb.hidden = true; document.body.style.overflow = ''; PH.at = -1; }
+
   /* ---------- the member list: only members get it (the database checks), names and photos come from the members' own profiles ---------- */
   const initialOf = nm => (Array.from(String(nm || '').trim())[0] || '?').toUpperCase();
   async function loadRoster(id){

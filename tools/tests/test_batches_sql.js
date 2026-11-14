@@ -9,6 +9,7 @@ const SQL = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026
 const SQL2 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-27_batch_name.sql'), 'utf8');
 const SQL3 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-28_batch_roster_admin.sql'), 'utf8');
 const SQL4 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-29_batch_my_invites.sql'), 'utf8');
+const SQL5 = fs.readFileSync(path.join(__dirname, '..', '..', 'migrations', '2026-12-30_batch_photos.sql'), 'utf8');
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 (async () => {
@@ -25,6 +26,10 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
     create function public.skill_text_ok(t text) returns boolean language sql immutable as $$ select t is null or lower(t) !~ 'badword|খারাপশব্দ' $$;
     create table public.listing_submissions (desired_slug text, institution_name text, district text, upazila text, institution_type text, status text, is_hidden boolean);
     insert into public.listing_submissions values ('dhaka-college', 'ঢাকা কলেজ', 'ঢাকা', 'ধানমন্ডি', 'কলেজ', 'approved', false), ('hidden-school', 'গোপন স্কুল', 'ঢাকা', 'x', 'স্কুল', 'approved', true), ('pending-school', 'অপেক্ষার স্কুল', 'ঢাকা', 'x', 'স্কুল', 'pending', false);
+    create schema storage;
+    create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+    create table storage.objects (id uuid default gen_random_uuid() primary key, bucket_id text, name text, owner uuid);
+    create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
     create table public.members (user_id uuid primary key references auth.users(id) on delete cascade, display_name text, avatar_url text, email text, created_at timestamptz default now(), last_seen timestamptz default now());
     create function public.ensure_member() returns public.members language plpgsql security definer as $$ declare me public.members; begin
       insert into auth.users (id) values (auth.uid()) on conflict do nothing;
@@ -36,6 +41,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   await db.exec(SQL2); await db.exec(SQL2);                 // the name migration, also safe to run twice
   await db.exec(SQL3); await db.exec(SQL3);                 // the roster and admin migration, also safe to run twice
   await db.exec(SQL4); await db.exec(SQL4);                 // the invite counts, also safe to run twice
+  await db.exec(SQL5); await db.exec(SQL5);                 // the pictures, also safe to run twice
   const as = async (n, fn) => { await db.exec(`select set_config('test.uid', '${n ? U(n) : ''}', false)`); return fn(); };
   const call = async (n, sql, params) => as(n, async () => { try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } });
   const lookup = (n, slug, lv, y) => call(n, 'select public.batch_lookup($1,$2,$3) as r', [slug, lv, y]);
@@ -158,6 +164,43 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   r = await call(60, 'select public.batch_my_invites() as r');
   ok('the convener brought two (the third joined without a code); the list has only their own batches', Array.isArray(r) && r.length === 1 && r[0].batch_id === IB && r[0].invited === 2, JSON.stringify(r));
   ok('a member who came through a code and invited nobody has 0; a visitor gets an empty list; no names or codes come back', (await call(61, 'select public.batch_my_invites() as r'))[0].invited === 0 && (await call(0, 'select public.batch_my_invites() as r')).length === 0 && !/name|email|ref|user/.test(JSON.stringify(r)), JSON.stringify(r));
+
+  // ---- pictures and albums (2026-12-30)
+  const pb = await claim(70, 'dhaka-college', 'ssc', 1999, 'লাইন', 'blue'); const PBID = pb.batch_id; await join(71, PBID); await join(72, PBID);
+  const U2 = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
+  const pid = () => (Math.random().toString(16) + '00000000').slice(2, 10) + '-aaaa-bbbb-cccc-' + (Math.random().toString(16) + '000000000000').slice(2, 14);
+  const pPath = (b, id) => b + '/' + (id || pid()) + '.jpg';
+  const add = (n, b, path, cat, w, h) => call(n, 'select public.batch_photo_add($1,$2,$3,$4,$5) as r', [b, path, cat || 'class', w === undefined ? 1600 : w, h === undefined ? 1066 : h]);
+  const bk = (await rows("select * from storage.buckets where id = 'batch-photos'"))[0];
+  ok('the bucket is private, 2 MB, JPEG only', bk && bk.public === false && Number(bk.file_size_limit) === 2097152 && bk.allowed_mime_types.join() === 'image/jpeg', JSON.stringify(bk));
+  ok('three storage rules (read, write, remove), all for signed-in members', (await rows("select count(*)::int n from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname like 'batch_photos_%'"))[0].n === 3);
+  ok('adding needs a sign-in and a membership', (await add(0, PBID, pPath(PBID))).error === 'NOT_SIGNED_IN' && (await add(80, PBID, pPath(PBID))).error === 'NOT_MEMBER');
+  ok('a bad category, a path of another batch, a path that is not a UUID.jpg, and a silly size are refused', (await add(71, PBID, pPath(PBID), 'party')).error === 'BAD_CATEGORY' && (await add(71, PBID, pPath(BID))).error === 'BAD_PATH' && (await add(71, PBID, PBID + '/x.jpg')).error === 'BAD_PATH' && (await add(71, PBID, PBID + '/' + pid() + '.png')).error === 'BAD_PATH' && (await add(71, PBID, pPath(PBID), 'class', 50, 50)).error === 'BAD_SIZE' && (await add(71, PBID, pPath(PBID), 'class', null, 600)).error === 'BAD_SIZE');
+  const g1 = await add(71, PBID, pPath(PBID), 'group'); const g2 = await add(72, PBID, pPath(PBID), 'group');
+  ok('the first group picture becomes the cover; a second one does not replace it', g1.ok === true && g2.ok === true && (await rows("select cover_photo_id from public.batches where id = '" + PBID + "'"))[0].cover_photo_id === g1.id);
+  ok('the same path twice is BAD_PATH (it would be the same file)', await (async () => { const p = pPath(PBID); const a = await add(71, PBID, p); const b2 = await add(71, PBID, p); return a.ok === true && b2.error === 'BAD_PATH'; })());
+  r = await call(72, 'select public.batch_photos($1) as r', [PBID]);
+  ok('a member gets the list with the cover, who added each picture (first name only), and can_delete only for their own', r.ok && r.cover === g1.id && r.lead === false && r.photos.length === 3 && r.photos.every(p => p.by === 'User') && r.photos.find(p => p.id === g2.id).can_delete === true && r.photos.find(p => p.id === g1.id).can_delete === false && !/email|user_id/.test(JSON.stringify(r)), JSON.stringify(r).slice(0, 300));
+  ok('the convener can delete any; the list says so', (await call(70, 'select public.batch_photos($1) as r', [PBID])).lead === true && (await call(70, 'select public.batch_photos($1) as r', [PBID])).photos.every(p => p.can_delete === true));
+  ok('a visitor gets NOT_SIGNED_IN, a stranger NOT_MEMBER, an admin the list', (await call(0, 'select public.batch_photos($1) as r', [PBID])).error === 'NOT_SIGNED_IN' && (await call(80, 'select public.batch_photos($1) as r', [PBID])).error === 'NOT_MEMBER' && await (async () => { await adm(true); const x = await call(80, 'select public.batch_photos($1) as r', [PBID]); await adm(false); return x.ok === true; })());
+  r = await lookup(0, 'dhaka-college', 'ssc', 1999);
+  ok('the public page learns only the number of pictures, no path and no id', r.batch.photos === 3 && !/batch-photos|\.jpg|"cover"/.test(JSON.stringify(r)), JSON.stringify(r));
+  ok('a member can add 12 and not the 13th (TOO_MANY_MINE)', await (async () => { let last = null, oks = 0; for (let i = 0; i < 14; i++) { last = await add(72, PBID, pPath(PBID)); if (last.ok) oks++; } return oks === 11 && last.error === 'TOO_MANY_MINE'; })());
+  ok('a batch holds 80 pictures, then FULL', await (async () => { await db.exec("insert into public.batch_photos (batch_id, uploader_id, path, category, w, h) select '" + PBID + "', '" + U2(71) + "', '" + PBID + "/' || gen_random_uuid() || '.jpg', 'other', 800, 600 from generate_series(1, 80 - (select count(*) from public.batch_photos where batch_id = '" + PBID + "'))"); return (await add(70, PBID, pPath(PBID))).error === 'FULL'; })());
+  ok('a stranger cannot delete (NOT_ALLOWED); the one who added it can; the convener can; the path comes back so the page can remove the files', (await call(80, 'select public.batch_photo_delete($1) as r', [g2.id])).error === 'NOT_ALLOWED' && (await call(71, 'select public.batch_photo_delete($1) as r', [g2.id])).error === 'NOT_ALLOWED' && (await call(72, 'select public.batch_photo_delete($1) as r', [g2.id])).path.endsWith('.jpg') && (await call(70, 'select public.batch_photo_delete($1) as r', [g1.id])).ok === true && (await call(70, 'select public.batch_photo_delete($1) as r', [g1.id])).error === 'NO_PHOTO');
+  ok('deleting the cover clears it (it is not left pointing at nothing)', (await rows("select cover_photo_id from public.batches where id = '" + PBID + "'"))[0].cover_photo_id === null);
+  const g3 = await call(71, 'select public.batch_photos($1) as r', [PBID]); const keep = g3.photos[0].id;
+  ok('only a convener sets the cover', (await call(71, 'select public.batch_photo_set_cover($1) as r', [keep])).error === 'NOT_ALLOWED' && (await call(70, 'select public.batch_photo_set_cover($1) as r', [keep])).ok === true && (await rows("select cover_photo_id from public.batches where id = '" + PBID + "'"))[0].cover_photo_id === keep);
+  ok('a member reports a picture (once, a second report replaces it); a stranger and a bad reason are refused', (await call(71, "select public.batch_photo_report($1, 'private') as r", [keep])).ok === true && (await call(71, "select public.batch_photo_report($1, 'offensive') as r", [keep])).ok === true && (await rows("select count(*)::int n from public.batch_photo_reports where photo_id = '" + keep + "'"))[0].n === 1 && (await call(80, "select public.batch_photo_report($1, 'other') as r", [keep])).error === 'NOT_MEMBER' && (await call(71, "select public.batch_photo_report($1, 'spam') as r", [keep])).error === 'BAD_REASON');
+  await adm(true);
+  r = await call(80, 'select public.admin_batch_list(null, true) as r');
+  ok('admin: a picture report makes the batch show up under "reported", with the picture count', r.rows.some(x => x.id === PBID && x.reports_new >= 1 && x.photos >= 1), JSON.stringify(r.rows.slice(0, 1)));
+  r = await call(80, 'select public.admin_batch_detail($1) as r', [PBID]);
+  ok('admin detail lists the pictures with the uploader and the number of new reports', r.photos.length >= 1 && r.photos.some(p => p.id === keep && p.reports === 1) && r.photos.every(p => /User/.test(p.by) && p.path.startsWith(PBID + '/')));
+  ok('admin: "reports handled" also closes the picture reports; an admin can delete a picture', (await call(80, "select public.admin_batch_moderate($1, 'dismiss_reports') as r", [PBID])).ok === true && (await rows("select count(*)::int n from public.batch_photo_reports where status = 'new'"))[0].n === 0 && (await call(80, 'select public.batch_photo_delete($1) as r', [keep])).ok === true);
+  await adm(false);
+  ok('deleting a batch removes its picture rows too', await (async () => { await adm(true); const n0 = (await rows("select count(*)::int n from public.batch_photos where batch_id = '" + PBID + "'"))[0].n; const d = await call(80, "select public.admin_batch_moderate($1, 'delete') as r", [PBID]); await adm(false); return n0 > 0 && d.ok === true && (await rows("select count(*)::int n from public.batch_photos where batch_id = '" + PBID + "'"))[0].n === 0; })());
+  ok('the picture tables are closed to anon and signed-in members', await (async () => { const g = async (role, tb) => { await db.exec('set role ' + role); try { await db.query('select * from public.' + tb); return 'open'; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } }; return (await g('anon', 'batch_photos')) === 'denied' && (await g('authenticated', 'batch_photos')) === 'denied' && (await g('authenticated', 'batch_photo_reports')) === 'denied'; })());
 
   // ---- the tables are closed
   const guard = async (role, uid, sql) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); await db.exec(`set role ${role}`); try { return (await db.query(sql)).rows; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };
