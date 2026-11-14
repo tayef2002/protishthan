@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<base href="/">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>আমার ব্যাচ: আপনার স্কুল-কলেজের ব্যাচ আবার এক জায়গায় | Protishthan</title>
+<meta name="description" content="আপনার প্রতিষ্ঠান, লেভেল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।">
+<link rel="canonical" href="https://protishthan.com/batch">
+<meta property="og:title" content="আমার ব্যাচ | Protishthan">
+<meta property="og:description" content="আপনার ব্যাচ আবার এক জায়গায়। প্রতিষ্ঠান আর সাল বাছুন, সহপাঠীদের ডাকুন।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/batch">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/batch.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="batch"></div>
+<script src="/nav.js?v=19"></script>
+
+<main class="bt" id="bt">
+
+  <section id="viewHome" hidden>
+    <header class="bt-hero">
+      <span class="bt-kick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.9.8 3.1 2.6 3.5 5.2"/></svg>আমার ব্যাচ</span>
+      <h1>আপনার ব্যাচ, <span>আবার এক জায়গায়</span></h1>
+      <p class="bt-lead">প্রতিষ্ঠান, লেভেল আর সাল বাছুন। ব্যাচ খোলা থাকলে এক চাপে যোগ দিন, না থাকলে আপনি খুলুন আর সহপাঠীদের ডাকুন।</p>
+
+      <div class="bt-find" id="find">
+        <div id="cardPick" hidden>
+          <h2>আপনার কার্ড থেকে</h2>
+          <div class="bt-card-pick" id="cardPickList"></div>
+        </div>
+        <h2>কোন ব্যাচ?</h2>
+        <div class="bt-lv" id="lvChips" role="group" aria-label="লেভেল"></div>
+        <div class="bt-row">
+          <div class="bt-field">
+            <label for="instQ">প্রতিষ্ঠানের নাম</label>
+            <input class="bt-inp" id="instQ" type="text" autocomplete="off" placeholder="যেমন: ঢাকা কলেজ" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="instList">
+            <div class="bt-list" id="instList" role="listbox" hidden></div>
+          </div>
+          <div class="bt-field">
+            <label for="yearSel">পরীক্ষার সাল</label>
+            <select class="bt-inp" id="yearSel"></select>
+          </div>
+        </div>
+        <div class="bt-err" id="findErr" role="alert" hidden></div>
+        <button type="button" class="bt-go" id="findGo">ব্যাচ খুঁজুন<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="bt-note">খুঁজে না পেলে প্রতিষ্ঠানটা এখনও তালিকায় নেই। <a href="/list-institution">বিনামূল্যে যোগ করুন</a>।</p>
+      </div>
+    </header>
+
+    <section class="bt-mine" id="mine" hidden>
+      <h2>আমার ব্যাচগুলো</h2>
+      <div class="bt-mine-grid" id="mineGrid"></div>
+    </section>
+
+    <section class="bt-steps" aria-label="কীভাবে কাজ করে">
+      <div class="bt-step"><em>১</em><b>খুঁজুন</b><p>প্রতিষ্ঠান, লেভেল আর সাল বাছুন।</p></div>
+      <div class="bt-step"><em>২</em><b>যোগ দিন বা খুলুন</b><p>ব্যাচ খোলা থাকলে Google দিয়ে এক চাপে যোগ দিন। না থাকলে আপনি আহ্বায়ক।</p></div>
+      <div class="bt-step"><em>৩</em><b>সহপাঠীদের ডাকুন</b><p>ব্যাচের গ্রুপে লিংক পাঠান। কে কত নম্বর সদস্য, সেটাও দেখা যায়।</p></div>
+    </section>
+  </section>
+
+  <section id="viewBatch" class="bt-page" hidden>
+    <div id="pg" aria-live="polite"></div>
+    <div class="bt-links"><a href="/batch" id="backHome">অন্য ব্যাচ খুঁজুন</a><a href="/card">শিক্ষিত কার্ড বানান</a></div>
+  </section>
+
+</main>
+
+<div id="pfoot" data-art="card"></div>
+<script src="/footer.js?v=19"></script>
+<div class="bt-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const bn = n => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const en = s => String(s == null ? '' : s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  const track = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => window.Protishthan && Protishthan.member;
+  const SB = () => MB() && MB().sb;
+  const signedIn = () => !!(MB() && MB().current && MB().current());
+
+  /* the levels a batch can be for (the card's levels: general, Alia and the university ones) */
+  const LV = [
+    { k: 'hsc', t: 'HSC' }, { k: 'ssc', t: 'SSC' }, { k: 'bachelor', t: 'অনার্স / ডিগ্রি' }, { k: 'masters', t: 'মাস্টার্স' },
+    { k: 'alim', t: 'আলিম' }, { k: 'dakhil', t: 'দাখিল' }, { k: 'fazil', t: 'ফাজিল' }, { k: 'kamil', t: 'কামিল' }
+  ];
+  const LVT = {}; LV.forEach(l => { LVT[l.k] = l.t; });
+  const THEMES = [['blue', '#1A56DB'], ['violet', '#6D28D9'], ['teal', '#0F766E'], ['amber', '#B45309'], ['rose', '#BE123C']];
+  const NOW = new Date().getFullYear();
+  const GOALS = [10, 25, 50, 100, 250];
+  const TPLS = [
+    '{i}-এর {y} সালের সেই দিনগুলো, কাছে থাকা সেই মুখগুলো। আবার এক জায়গায়।',
+    'একই গেট দিয়ে ঢুকেছিলাম, একই বেঞ্চে বসেছিলাম। সেই ব্যাচটা আবার এক জায়গায়।',
+    'পরীক্ষার আগের রাত, ক্যান্টিনের চা, শেষ বেঞ্চের গল্প। আপনার ব্যাচ আপনার অপেক্ষায়।'
+  ];
+  const ERR = {
+    NOT_SIGNED_IN: 'আগে Google দিয়ে সাইন-ইন করুন।',
+    NO_INSTITUTION: 'এই প্রতিষ্ঠান তালিকায় নেই। আগে প্রতিষ্ঠানটা যোগ করুন।',
+    BAD_BATCH: 'লেভেল বা সাল ঠিক নেই।',
+    BAD_LINE: 'লাইনে লিংক, ইমেইল, নম্বর বা অশোভন শব্দ রাখা যাবে না। ১২০ অক্ষরের মধ্যে লিখুন।',
+    BAD_THEME: 'রঙটা ঠিক নেই, আরেকটা বেছে নিন।',
+    LOCKED: 'এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।',
+    NO_BATCH: 'ব্যাচটা আর পাওয়া যাচ্ছে না।',
+    NOT_ALLOWED: 'এটা শুধু আহ্বায়ক করতে পারেন।'
+  };
+  const MISSING = /PGRST202|Could not find the function|schema cache/i;
+
+  let ST = { lv: 'hsc', inst: null, year: '' };
+  let CUR = null;      // the batch on screen: { slug, lv, year, data }
+
+  function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2800); }
+  async function rpc(name, args){
+    const sb = SB(); if(!sb) return { error: { message: 'NO_CLIENT' } };
+    try{ const r = await sb.rpc(name, args || {}); return r; }catch(e){ return { error: { message: String(e && e.message || e) } }; }
+  }
+  const isMissing = e => !!(e && MISSING.test(String(e.code || '') + ' ' + String(e.message || '')));
+
+  /* ---------- the address: /b/<slug>/<level>-<year>?r=<code>, or ?i=&l=&y= ---------- */
+  function parseUrl(){
+    const m = location.pathname.match(/^\/b\/([^\/]+)\/([a-z]+)-(\d{4})\/?$/);
+    const q = new URLSearchParams(location.search);
+    let key = null;
+    if(m) key = { slug: decodeURIComponent(m[1]), lv: m[2], year: +m[3] };
+    else if(q.get('i') && q.get('l') && q.get('y')) key = { slug: q.get('i'), lv: q.get('l'), year: +q.get('y') };
+    if(key && (!LVT[key.lv] || !(key.year >= 1970 && key.year <= NOW + 1))) key = null;
+    return { key, ref: (q.get('r') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16) };
+  }
+  const batchPath = k => '/b/' + encodeURIComponent(k.slug) + '/' + k.lv + '-' + k.year;
+  function go(key){ history.pushState({}, '', batchPath(key)); render(); window.scrollTo({ top: 0 }); }
+  function setRobots(noindex){
+    let m = document.querySelector('meta[name=robots]');
+    if(noindex){ if(!m){ m = document.createElement('meta'); m.name = 'robots'; document.head.appendChild(m); } m.content = 'noindex'; }
+    else if(m) m.remove();
+  }
+
+  /* ---------- home: find a batch ---------- */
+  function renderLv(){
+    $('lvChips').innerHTML = LV.map(l => '<button type="button" data-k="' + l.k + '" aria-pressed="' + (ST.lv === l.k) + '">' + esc(l.t) + '</button>').join('');
+  }
+  function renderYears(){
+    let h = '<option value="">সাল বাছুন</option>';
+    for(let y = NOW + 1; y >= 1975; y--) h += '<option value="' + y + '"' + (String(ST.year) === String(y) ? ' selected' : '') + '>' + bn(y) + '</option>';
+    $('yearSel').innerHTML = h;
+  }
+  function cardPicks(){
+    const out = [];
+    try{
+      const d = JSON.parse(localStorage.getItem('shikkhito_card_v1') || 'null');
+      if(!d || !d.edu) return out;
+      const map = { school: { g: 'ssc', a: 'dakhil' }, college: { g: 'hsc', a: 'alim' }, bachelor: { g: 'bachelor', a: 'fazil' }, masters: { g: 'masters', a: 'kamil' } };
+      Object.keys(map).forEach(k => {
+        const e = d.edu[k]; if(!e || !e.slug || !e.year) return;
+        const lv = map[k][e.track || 'g']; const y = +((String(en(e.year)).match(/\d{4}/) || [])[0]);
+        if(lv && y >= 1970 && y <= NOW + 1) out.push({ lv, slug: e.slug, name: e.name || e.slug, year: y });
+      });
+    }catch(e){}
+    return out;
+  }
+  function renderCardPicks(){
+    const picks = cardPicks();
+    $('cardPick').hidden = !picks.length;
+    $('cardPickList').innerHTML = picks.map((p, i) => '<button type="button" data-i="' + i + '">' + esc(p.name) + ' <small>' + esc(LVT[p.lv]) + ' ' + bn(p.year) + '</small></button>').join('');
+    $('cardPickList').onclick = e => { const b = e.target.closest('button[data-i]'); if(!b) return; const p = picks[+b.dataset.i]; track('batch_pick_card', { lv: p.lv }); go({ slug: p.slug, lv: p.lv, year: p.year }); };
+  }
+  /* the institution search: our own /api/dir first (kept on the edge), the database directly when /api answers "not found" (the free daily limit) */
+  let DIR_OFF = 0;
+  async function searchInst(q){
+    const args = { p_q: q, p_limit: 8 };
+    if(Date.now() >= DIR_OFF){
+      try{
+        const r = await fetch('/api/dir?f=search&a=' + encodeURIComponent(JSON.stringify(args)));
+        if(r.ok) return await r.json();
+        if(r.status === 404) DIR_OFF = Date.now() + 600000; else throw new Error('busy');
+      }catch(e){ if(e && e.message === 'busy') throw e; }
+    }
+    const { data, error } = await rpc('directory_search', args);
+    if(error) throw new Error(error.message);
+    return data || [];
+  }
+  let qSeq = 0, qTimer = 0, listItems = [], active = -1;
+  function closeList(){ $('instList').hidden = true; $('instQ').setAttribute('aria-expanded', 'false'); active = -1; }
+  function paintList(rows, msg){
+    const box = $('instList'); rows = (rows || []).filter(r => r.desired_slug); listItems = rows;
+    box.innerHTML = msg ? '<div class="bt-empty">' + esc(msg) + '</div>' : listItems.map((r, i) =>
+      '<button type="button" class="bt-opt" role="option" data-i="' + i + '" aria-selected="false"><b>' + esc(r.institution_name) + '</b><span>' + esc([r.institution_type, r.upazila, r.district].filter(Boolean).join(' · ')) + '</span></button>').join('');
+    box.hidden = false; $('instQ').setAttribute('aria-expanded', 'true'); active = -1;
+  }
+  function pickInst(i){
+    const r = listItems[i]; if(!r) return;
+    ST.inst = { slug: r.desired_slug, name: r.institution_name };
+    $('instQ').value = r.institution_name; closeList(); $('findErr').hidden = true;
+  }
+  function onType(){
+    ST.inst = null;
+    const q = $('instQ').value.trim(); clearTimeout(qTimer);
+    if(q.length < 2){ closeList(); return; }
+    const my = ++qSeq;
+    qTimer = setTimeout(async () => {
+      try{ const rows = await searchInst(q); if(my !== qSeq) return; paintList(rows, rows.length ? '' : 'এই নামে কিছু পাওয়া যায়নি। অন্য বানানে লিখে দেখুন।'); }
+      catch(e){ if(my === qSeq) paintList([], 'এখন খোঁজা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); }
+    }, 220);
+  }
+  function findGo(){
+    const err = $('findErr'); err.hidden = true;
+    const y = +$('yearSel').value;
+    if(!ST.inst){ err.textContent = 'তালিকা থেকে আপনার প্রতিষ্ঠানটা বেছে নিন।'; err.hidden = false; return; }
+    if(!y){ err.textContent = 'পরীক্ষার সালটা বেছে নিন।'; err.hidden = false; return; }
+    track('batch_find', { lv: ST.lv });
+    go({ slug: ST.inst.slug, lv: ST.lv, year: y });
+  }
+  async function renderMine(){
+    if(!signedIn()){ $('mine').hidden = true; return; }
+    const { data, error } = await rpc('batch_me');
+    if(error || !Array.isArray(data) || !data.length){ $('mine').hidden = true; return; }
+    $('mineGrid').innerHTML = data.map(b => '<a class="bt-mini" href="' + esc(batchPath({ slug: b.slug, lv: b.level, year: b.year })) + '" data-slug="' + esc(b.slug) + '" data-lv="' + esc(b.level) + '" data-y="' + b.year + '"><b>' + esc(b.name || b.slug) + '</b><span>' + esc(LVT[b.level] || b.level) + ' ' + bn(b.year) + ' ব্যাচ · ' + bn(b.members) + ' জন</span><i>' + (b.role === 'convener' ? 'আহ্বায়ক' : bn(b.seq) + 'তম সদস্য') + '</i></a>').join('');
+    $('mine').hidden = false;
+  }
+
+  /* ---------- a batch page ---------- */
+  function lineFor(k, inst, line){
+    if(line) return line;
+    let h = 0; const s = k.slug + k.year; for(let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return TPLS[h % TPLS.length].replace('{i}', inst).replace('{y}', bn(k.year));
+  }
+  function goalOf(n){ for(const g of GOALS) if(n < g) return g; return GOALS[GOALS.length - 1]; }
+  function seatsHtml(n, mySeq){
+    const goal = goalOf(n), shown = Math.min(goal, 100), filled = Math.min(n, shown);
+    let h = '';
+    for(let i = 0; i < shown; i++) h += '<i' + (i < filled ? ' class="on' + (mySeq && i === Math.min(mySeq, filled) - 1 ? ' me' : '') + '" style="animation-delay:' + Math.min(i * 28, 900) + 'ms"' : '') + '></i>';
+    return '<div class="bt-grid" aria-hidden="true">' + h + '</div>' +
+      (n === 0 ? '<p class="bt-count">এখনও কেউ নেই, আপনি প্রথম হতে পারেন</p>' : '<p class="bt-count"><b>' + bn(n) + ' জন</b> ' + (n === 1 ? 'আছেন' : 'যুক্ত') + '</p><p class="bt-goal">পরের লক্ষ্য ' + bn(goal) + ' জন</p>');
+  }
+  function linkFor(k, ref){ return location.origin + batchPath(k) + (ref ? '?r=' + ref : ''); }
+  function msgsFor(k, inst, link){
+    const lv = LVT[k.lv] + ' ' + bn(k.year);
+    return [
+      'আমরা ' + inst + '-এর ' + lv + ' ব্যাচ! আমাদের ব্যাচের জায়গায় যোগ দাও:\n' + link,
+      inst + ' ' + lv + ' ব্যাচের সবাই, এখানে যুক্ত হও:\n' + link,
+      'কে কে আছিস ' + inst + '-এর ' + bn(k.year) + ' ব্যাচে? এখানে নাম লিখে যুক্ত হ:\n' + link
+    ];
+  }
+  function themeBtns(cur){ return THEMES.map(t => '<button type="button" data-t="' + t[0] + '" style="background:' + t[1] + '" aria-label="' + t[0] + '" aria-pressed="' + (cur === t[0]) + '"></button>').join(''); }
+  function lookHtml(k, inst, line, theme, claim){
+    return '<div class="bt-look"><label for="lkLine">আবেগের লাইন (১২০ অক্ষর পর্যন্ত, ফাঁকা রাখলে আমরা একটা বেছে দেব)</label>' +
+      '<textarea id="lkLine" maxlength="120" placeholder="' + esc(lineFor(k, inst, '')) + '">' + esc(line || '') + '</textarea>' +
+      '<div class="bt-tpls" id="lkTpls">' + TPLS.map((t, i) => '<button type="button" data-i="' + i + '">নমুনা ' + bn(i + 1) + '</button>').join('') + '</div>' +
+      '<label>রঙ</label><div class="bt-themes" id="lkThemes">' + themeBtns(theme || 'blue') + '</div>' +
+      '<div class="bt-err" id="lkErr" role="alert" hidden></div>' +
+      '<button type="button" class="bt-btn" style="margin-top:14px" id="lkSave">' + (claim ? 'ব্যাচ খুলুন, আমি আহ্বায়ক' : 'সেভ করুন') + '</button></div>';
+  }
+  function bindLook(k, id, claim){
+    let theme = (CUR.data.batch && CUR.data.batch.theme) || 'blue';
+    $('lkThemes').onclick = e => { const b = e.target.closest('button[data-t]'); if(!b) return; theme = b.dataset.t; $('lkThemes').innerHTML = themeBtns(theme); $('viewBatch').dataset.theme = theme; };
+    $('lkTpls').onclick = e => { const b = e.target.closest('button[data-i]'); if(!b) return; $('lkLine').value = TPLS[+b.dataset.i].replace('{i}', CUR.data.inst.name).replace('{y}', bn(k.year)).slice(0, 120); };
+    $('lkSave').onclick = async () => {
+      const line = $('lkLine').value.trim(), btn = $('lkSave'), er = $('lkErr'); er.hidden = true; btn.disabled = true;
+      let r;
+      if(claim) r = await rpc('batch_claim', { p_slug: k.slug, p_level: k.lv, p_year: k.year, p_line: line || null, p_theme: theme });
+      else r = await rpc('batch_set_look', { p_batch_id: id, p_line: line || null, p_theme: theme });
+      btn.disabled = false;
+      const d = r.data;
+      if(r.error || !d || !d.ok){
+        const code = d && d.error;
+        if(code === 'EXISTS'){ toast('এই ব্যাচ এইমাত্র আরেকজন খুলে ফেলেছেন, আপনি যোগ দিন।'); await showBatch(k); return; }
+        er.textContent = code === 'TOO_MANY' ? 'আপনি সর্বোচ্চ ৩টা ব্যাচ খুলতে পারেন।' : (ERR[code] || 'এখন করা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); er.hidden = false; return;
+      }
+      track(claim ? 'batch_claim' : 'batch_look', { lv: k.lv });
+      toast(claim ? 'ব্যাচ খোলা হয়েছে, আপনি আহ্বায়ক।' : 'সেভ হয়েছে।');
+      await showBatch(k);
+    };
+  }
+  function renderBatch(k, d, ref){
+    const b = d.batch, me = d.me, inst = d.inst.name, theme = (b && b.theme) || 'blue', n = b ? b.members : 0;
+    const joined = !!(me && me.joined), isConv = joined && (me.role === 'convener' || me.role === 'co');
+    document.title = inst + ' ' + LVT[k.lv] + ' ' + bn(k.year) + ' ব্যাচ | আমার ব্যাচ';
+    let h = '<section class="bt-top"><span class="bt-chip">' + (b ? 'ব্যাচ আমন্ত্রণ' : 'এই ব্যাচ এখনও খোলা হয়নি') + '</span>' +
+      '<h1>' + esc(inst) + '</h1><div class="bt-batch">' + esc(LVT[k.lv]) + ' ' + bn(k.year) + ' ব্যাচ</div>' +
+      '<p class="bt-line">' + esc(lineFor(k, inst, b && b.line)) + '</p>' +
+      (b && b.convener ? '<div class="bt-conv">আহ্বায়ক: ' + esc(b.convener) + ' (স্ব-ঘোষিত)</div>' : '') +
+      '<div class="bt-seats">' + seatsHtml(n, joined ? me.seq : 0) + '</div><div class="bt-cta">';
+    if(joined) h += '<p class="bt-sub" style="font-size:15px;color:var(--ac);font-weight:700;margin:0">আপনি এই ব্যাচে আছেন, ' + (me.seq === 1 ? 'প্রথম সদস্য ও আহ্বায়ক' : bn(me.seq) + 'তম সদস্য') + '</p>';
+    else if(!b) h += signedIn() ? '<p class="bt-sub" style="margin:0 0 4px">নিচে ব্যাচ সাজিয়ে খুলে ফেলুন, আপনি হবেন আহ্বায়ক (নম্বর ১)।</p>' : '<button type="button" class="bt-btn" id="act" data-a="claim">Google দিয়ে ব্যাচ খুলুন</button><p class="bt-sub">আপনি হবেন আহ্বায়ক, সদস্য নম্বর ১।</p>';
+    else h += '<button type="button" class="bt-btn" id="act" data-a="join">' + (signedIn() ? 'ব্যাচে যোগ দিন' : 'Google দিয়ে ব্যাচে যোগ দিন') + '</button><p class="bt-sub">আপনি হবেন ' + bn(n + 1) + 'তম সদস্য।</p>';
+    h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
+
+    if(!b && signedIn()) h += '<div class="bt-panel" style="margin-top:18px"><h2>ব্যাচটা সাজান</h2><p class="s">৬০ সেকেন্ডের কাজ। পরে বদলাতেও পারবেন।</p>' + lookHtml(k, inst, '', 'blue', true) + '</div>';
+    if(joined){
+      const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n);
+      h += '<div class="bt-me"><div class="bt-panel"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
+        '<div class="bt-no"><b>' + bn(me.seq) + '</b><span><strong>আপনার সদস্য নম্বর</strong><br>এই ব্যাচে ' + bn(n) + ' জন, লক্ষ্য ' + bn(goal) + '</span></div>' +
+        '<div class="bt-prog" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(n / goal * 100)) + '%"></i></div>' +
+        '<div class="bt-link" style="margin-top:12px"><input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-copy" id="cpLink">কপি</button></div>' +
+        '<div class="bt-msgs" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
+        '<div class="bt-msg" id="msgBox">' + esc(msgs[0]) + '</div>' +
+        '<div class="bt-share"><a class="wa" id="shWa" target="_blank" rel="noopener" href="#">WhatsApp</a><a class="fb" id="shFb" target="_blank" rel="noopener" href="#">Facebook</a></div>' +
+        '<button type="button" class="bt-copy" style="margin-top:10px;width:100%;background:var(--tint);color:var(--ac)" id="cpMsg">বার্তাটা কপি করুন</button></div>' +
+        '<div class="bt-panel">' + (isConv ? '<h2>ব্যাচ সাজান</h2><p class="s">আপনি আহ্বায়ক, লাইন আর রং বদলাতে পারেন।</p>' + lookHtml(k, inst, b.line, b.theme, false) : '<h2>আমার ব্যাচ</h2><p class="s">ব্যাচের জরিপ, স্মৃতি আর রিইউনিয়ন শীঘ্রই আসছে। আপাতত সহপাঠীদের ডাকুন।</p>') +
+        '<button type="button" class="bt-leave" id="leave">এই ব্যাচ ছেড়ে যান</button></div></div>';
+    }
+    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">' + esc(inst) + '-এর পাতা</a></div>';
+    $('pg').innerHTML = h;
+
+    if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
+    if(!b && signedIn()) bindLook(k, null, true);
+    if(joined){
+      let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
+      const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
+      paint();
+      $('msgTabs').onclick = e => { const x = e.target.closest('button[data-i]'); if(!x) return; which = +x.dataset.i; $('msgTabs').querySelectorAll('button').forEach(bb => bb.setAttribute('aria-pressed', String(bb === x))); paint(); };
+      const copy = async (txt, what) => { try{ await navigator.clipboard.writeText(txt); }catch(e){ const t = $('lnk'); t.select(); try{ document.execCommand('copy'); }catch(_){} } toast(what + ' কপি হয়েছে।'); track('batch_copy', { w: what }); };
+      $('cpLink').onclick = () => copy(link, 'লিংক');
+      $('cpMsg').onclick = () => copy(msgs[which], 'বার্তা');
+      $('shWa').onclick = () => track('batch_share', { ch: 'wa' }); $('shFb').onclick = () => track('batch_share', { ch: 'fb' });
+      if(isConv) bindLook(k, b.id, false);
+      $('leave').onclick = async () => {
+        if(!confirm('এই ব্যাচ ছেড়ে যাবেন? আপনার নম্বরটা আর কাউকে দেওয়া হবে না।')) return;
+        const r = await rpc('batch_leave', { p_batch_id: b.id });
+        if(r.error || !r.data || !r.data.ok){ toast('এখন ছাড়া যাচ্ছে না, একটু পরে চেষ্টা করুন।'); return; }
+        toast('ব্যাচ ছেড়ে এসেছেন।'); await showBatch(k);
+      };
+    }
+  }
+  /* join or open: if the visitor is not signed in, remember what they wanted and send them to Google; the page does it when they come back */
+  const INTENT = 'bt_intent';
+  function setIntent(a, k, ref){ try{ localStorage.setItem(INTENT, JSON.stringify({ a, k, ref: ref || '', t: Date.now() })); }catch(e){} }
+  function takeIntent(k){
+    try{ const v = JSON.parse(localStorage.getItem(INTENT) || 'null'); if(!v) return null; localStorage.removeItem(INTENT); if(Date.now() - v.t > 30 * 60000) return null; if(v.k.slug === k.slug && v.k.lv === k.lv && v.k.year === k.year) return v; }catch(e){}
+    return null;
+  }
+  async function onAct(a, k, b, ref){
+    if(!signedIn()){ setIntent(a, k, ref); track('batch_signin', { a }); MB().signIn(a === 'claim' ? 'ব্যাচ খুলতে Google দিয়ে সাইন-ইন করুন' : 'ব্যাচে যোগ দিতে Google দিয়ে সাইন-ইন করুন'); return; }
+    if(a === 'claim'){ await showBatch(k); return; }
+    await doJoin(k, b, ref);
+  }
+  async function doJoin(k, b, ref){
+    const btn = $('act'); if(btn) btn.disabled = true;
+    const r = await rpc('batch_join', { p_batch_id: b.id, p_ref: ref || null });
+    if(btn) btn.disabled = false;
+    const d = r.data;
+    if(r.error || !d || !d.ok){ toast(d && d.error === 'TOO_MANY' ? 'সর্বোচ্চ ১২টা ব্যাচে থাকা যায়।' : (ERR[d && d.error] || 'এখন যোগ দেওয়া যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।')); return; }
+    track('batch_join', { lv: k.lv, ref: ref ? 1 : 0 });
+    toast(d.again ? 'আপনি আগেই এই ব্যাচে আছেন।' : 'স্বাগতম, আপনি ' + bn(d.seq) + 'তম সদস্য।');
+    await showBatch(k);
+  }
+  function showSoon(){
+    $('viewHome').hidden = true; $('viewBatch').hidden = false;
+    $('pg').innerHTML = '<div class="bt-soon"><b>আমার ব্যাচ শীঘ্রই চালু হচ্ছে</b>আমরা এটা তৈরি করছি। কিছুদিন পর আবার এসে দেখুন।</div>';
+  }
+  async function showBatch(k, ref){
+    $('viewHome').hidden = true; $('viewBatch').hidden = false; setRobots(true);
+    if(!CUR || CUR.slug !== k.slug || CUR.lv !== k.lv || CUR.year !== k.year) $('pg').innerHTML = '<div class="bt-soon">লোড হচ্ছে…</div>';
+    const { data, error } = await rpc('batch_lookup', { p_slug: k.slug, p_level: k.lv, p_year: k.year });
+    if(error){ if(isMissing(error)) { showSoon(); return; } $('pg').innerHTML = '<div class="bt-soon"><b>এখন লোড করা যাচ্ছে না</b>একটু পরে আবার চেষ্টা করুন।</div>'; return; }
+    if(!data || !data.ok){
+      $('pg').innerHTML = '<div class="bt-soon"><b>' + esc(data && data.error === 'NO_INSTITUTION' ? 'এই প্রতিষ্ঠান তালিকায় নেই' : 'ব্যাচটা ঠিক নেই') + '</b>' + (data && data.error === 'NO_INSTITUTION' ? '<a href="/list-institution">প্রতিষ্ঠানটা বিনামূল্যে যোগ করুন</a>, তারপর ব্যাচ খুলুন।' : 'লিংকটা ঠিক আছে কিনা দেখুন।') + '</div>'; return;
+    }
+    CUR = { slug: k.slug, lv: k.lv, year: k.year, data };
+    track('batch_view', { lv: k.lv, open: data.batch ? 1 : 0 });
+    $('viewBatch').dataset.theme = (data.batch && data.batch.theme) || 'blue';
+    renderBatch(k, data, ref !== undefined ? ref : parseUrl().ref);
+    // came back from Google with something to do
+    const it = takeIntent(k);
+    if(it && signedIn()){
+      if(it.a === 'join' && data.batch && !(data.me && data.me.joined)) await doJoin(k, data.batch, it.ref || parseUrl().ref);
+      else if(it.a === 'claim' && !data.batch){ const lk = $('lkLine'); if(lk) lk.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    }
+  }
+
+  /* ---------- routing ---------- */
+  async function render(){
+    const u = parseUrl();
+    try{ if(MB()) await MB().ready(); }catch(e){}
+    if(u.key){ await showBatch(u.key, u.ref); return; }
+    CUR = null; setRobots(false); document.title = 'আমার ব্যাচ: আপনার স্কুল-কলেজের ব্যাচ আবার এক জায়গায় | Protishthan';
+    $('viewBatch').hidden = true; $('viewHome').hidden = false;
+    renderCardPicks(); renderMine();
+  }
+
+  renderLv(); renderYears();
+  $('lvChips').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if(!b) return; ST.lv = b.dataset.k; renderLv(); });
+  $('instQ').addEventListener('input', onType);
+  $('instQ').addEventListener('keydown', e => {
+    const items = $('instList').querySelectorAll('.bt-opt');
+    if(e.key === 'ArrowDown' && items.length){ e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
+    else if(e.key === 'ArrowUp' && items.length){ e.preventDefault(); active = Math.max(active - 1, 0); }
+    else if(e.key === 'Enter'){ if(!$('instList').hidden && active >= 0){ e.preventDefault(); pickInst(active); } else findGo(); return; }
+    else if(e.key === 'Escape'){ closeList(); return; }
+    else return;
+    items.forEach((it, i) => { it.setAttribute('aria-selected', String(i === active)); if(i === active) it.scrollIntoView({ block: 'nearest' }); });
+  });
+  $('instList').addEventListener('mousedown', e => { const b = e.target.closest('.bt-opt'); if(b){ e.preventDefault(); pickInst(+b.dataset.i); } });
+  document.addEventListener('click', e => { if(!e.target.closest('.bt-field')) closeList(); });
+  $('findGo').addEventListener('click', findGo);
+  $('yearSel').addEventListener('change', () => { ST.year = $('yearSel').value; });
+  $('mineGrid').addEventListener('click', e => { const a = e.target.closest('a.bt-mini'); if(!a || e.metaKey || e.ctrlKey) return; e.preventDefault(); go({ slug: a.dataset.slug, lv: a.dataset.lv, year: +a.dataset.y }); });
+  $('backHome').addEventListener('click', e => { e.preventDefault(); history.pushState({}, '', '/batch'); render(); window.scrollTo({ top: 0 }); });
+  window.addEventListener('popstate', render);
+  // when the member session arrives after the page (sign-in finished), refresh what depends on it
+  render().then(() => { if(MB() && MB().onChange) MB().onChange(() => { if(CUR) showBatch({ slug: CUR.slug, lv: CUR.lv, year: CUR.year }); else renderMine(); }); });
+})();
+</script>
+</body>
+</html>

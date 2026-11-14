@@ -19,7 +19,7 @@ for (const [slug, file] of Object.entries(PAGES)) {
   eq(file + ': canonical is its own clean address', (h.match(/<link rel="canonical" href="([^"]+)"/) || [])[1], 'https://protishthan.com/' + slug);
   eq(file + ': exactly one h1', (h.match(/<h1[ >]/g) || []).length, 1);
   yes(file + ': not noindex (it is in the sitemap)', !/name="robots"[^>]*noindex/.test(h));
-  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=18/.test(h));
+  yes(file + ': nav, footer and the shared stylesheet are there', /id="nav"/.test(h) && /id="pfoot"/.test(h) && /guide\.css/.test(h) && /footer\.js\?v=19/.test(h));
   yes(file + ': the date of the last update is written on the page', /১২ নভেম্বর ২০২৬/.test(h));
   if (slug !== 'guide') yes(file + ': a way to report a mistake', /teamprotishthan@gmail\.com/.test(h));
   // every internal link goes to a page that exists
@@ -69,7 +69,7 @@ const toc = [...pv.matchAll(/<a href="#([a-z]+)"><i>([০-৯])<\/i>/g)].map(m =
 const secs = [...pv.matchAll(/<section class="lg-sec" id="([a-z]+)"><h2><span class="n">([০-৯])<\/span>/g)].map(m => [m[1], m[2]]);
 eq('the privacy contents list and the sections agree, in the same order', toc, secs);
 eq('the sections are numbered ১ to ৯ in order', secs.map(s => s[1]), ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯']);
-yes('there is a section on the tutor service, before the last one (contact)', secs.map(s => s[0]).join() === 'who,what,google,use,ads,rights,safe,tutor,contact');
+yes('there is a section on the tutor service, then one on the batches (আমার ব্যাচ), then the last one (contact)', secs.map(s => s[0]).join() === 'who,what,google,use,ads,rights,safe,tutor,batch,contact');
 yes('there is a section on ads and cookies', secs.some(s => s[0] === 'ads'));
 yes('it names Google AdSense and links to the ad settings', /Google AdSense/.test(pv) && /adssettings\.google\.com/.test(pv) && /policies\.google\.com\/technologies\/partner-sites/.test(pv));
 yes('it keeps the promises that stay true: no selling, no personal data to advertisers', /বিক্রি করি না, বিজ্ঞাপনদাতাকে দিই না/.test(pv));

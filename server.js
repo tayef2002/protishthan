@@ -1,4 +1,4 @@
-﻿const http = require('http');
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -367,6 +367,7 @@ http.createServer((req, res) => {
 
   if (urlPath === '/') urlPath = '/index.html';
   if (/^\/s\/[^\/]+\/?$/.test(urlPath)) urlPath = '/s.html';   // public skill profile (production serves it through functions/s/[username].js)
+  if (/^\/b\/[^\/]+\/[a-z]+-\d{4}\/?$/.test(urlPath)) urlPath = '/batch.html';   // a batch page (production: _redirects)
   // pretty URLs like Cloudflare Pages: /card -> /card.html
   if (!path.extname(urlPath) && fs.existsSync(path.join(ROOT, urlPath.replace(/\/$/, '') + '.html'))) urlPath = urlPath.replace(/\/$/, '') + '.html';
 
