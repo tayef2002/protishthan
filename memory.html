@@ -157,56 +157,70 @@
     // the background: deep colour, two soft lights, fine grain
     c.fillStyle = base; c.fillRect(0, 0, W, H); glow(120, 120, 800, th[1], '8C'); glow(W - 60, H - 200, 980, th[0], 'B0');
     { const nz = document.createElement('canvas'); nz.width = nz.height = 160; const nc = nz.getContext('2d'), im = nc.createImageData(160, 160); let s = 77; for(let i = 0; i < im.data.length; i += 4){ s = (s * 1664525 + 1013904223) >>> 0; const v = (s >>> 24); im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 18; } nc.putImageData(im, 0, 0); c.fillStyle = c.createPattern(nz, 'repeat'); c.fillRect(0, 0, W, H); }
-    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.9)'; c.font = '700 36px ' + HS; c.fillText('একটা স্মৃতি, একটা কার্ড', W / 2, 108);
+    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.9)'; c.font = '700 36px ' + HS; c.fillText('একটা স্মৃতি, একটা কার্ড', W / 2, 88);
 
-    // the card itself: a memory-card shape (cut corner, notch, gold contacts), tilted a hair
-    const cx = 120, cy = 160, cw = 840, ch = 1010, cut = 120, R = 46;
-    c.save(); c.translate(W / 2, cy + ch / 2); c.rotate(-.012); c.translate(-W / 2, -(cy + ch / 2));
+    // the card itself, as a real memory card: black plastic, a printed colour swoosh, silver print, a cut corner, a lock switch, gold contacts; the memory is a paper label stuck on it
+    const cx = 120, cy = 128, cw = 840, ch = 1060, cut = 118, R = 44, up = c => c;
     const path = () => { c.beginPath(); c.moveTo(cx + R, cy); c.lineTo(cx + cw - cut, cy); c.lineTo(cx + cw, cy + cut); c.lineTo(cx + cw, cy + ch - R); c.arcTo(cx + cw, cy + ch, cx + cw - R, cy + ch, R); c.lineTo(cx + R, cy + ch); c.arcTo(cx, cy + ch, cx, cy + ch - R, R); c.lineTo(cx, cy + R); c.arcTo(cx, cy, cx + R, cy, R); c.closePath(); };
-    shadow('rgba(0,0,0,.5)', 60, 26); path(); c.fillStyle = '#fff'; c.fill(); shadow();
+    // a soft shadow on the table
+    c.save(); c.translate(W / 2, cy + ch / 2); c.rotate(-.01); c.translate(-W / 2, -(cy + ch / 2));
+    shadow('rgba(0,0,0,.62)', 70, 34); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
     c.save(); path(); c.clip();
-    const bg = c.createLinearGradient(cx, cy, cx + cw, cy + ch); bg.addColorStop(0, '#FFFFFF'); bg.addColorStop(1, mix(th[0], '#FFFFFF', .9)); c.fillStyle = bg; c.fillRect(cx, cy, cw, ch);
-    // the coloured head of the card
-    const hg = c.createLinearGradient(cx, cy, cx + cw, cy + 190); hg.addColorStop(0, mix(th[0], NAVY, .35)); hg.addColorStop(1, th[1]); c.fillStyle = hg; c.fillRect(cx, cy, cw, 190);
-    c.fillStyle = 'rgba(255,255,255,.1)'; c.beginPath(); c.arc(cx + 160, cy + 20, 240, 0, 7); c.fill();
-    c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 44px Inter, sans-serif'; c.fillText('MEMORY CARD', cx + 52, cy + 92);
-    c.font = '700 28px ' + HS; c.fillStyle = 'rgba(255,255,255,.85)'; c.fillText('মেমোরি কার্ড · ' + TY().t, cx + 52, cy + 138);
-    // a gloss across the head
-    const gl = c.createLinearGradient(cx, cy, cx + cw, cy + 190); gl.addColorStop(0, 'rgba(255,255,255,.18)'); gl.addColorStop(.5, 'rgba(255,255,255,0)'); c.fillStyle = gl; c.fillRect(cx, cy, cw, 190);
+    // the plastic: a charcoal gradient with a faint grain
+    const pb = c.createLinearGradient(cx, cy, cx + cw * .6, cy + ch); pb.addColorStop(0, '#3A3F4D'); pb.addColorStop(.45, '#1F222B'); pb.addColorStop(1, '#101218'); c.fillStyle = pb; c.fillRect(cx, cy, cw, ch);
+    { const gr = document.createElement('canvas'); gr.width = gr.height = 120; const gc = gr.getContext('2d'), gi = gc.createImageData(120, 120); let q = 41; for(let i = 0; i < gi.data.length; i += 4){ q = (q * 1664525 + 1013904223) >>> 0; const v = q >>> 24; gi.data[i] = gi.data[i + 1] = gi.data[i + 2] = v; gi.data[i + 3] = 14; } gc.putImageData(gi, 0, 0); c.fillStyle = c.createPattern(gr, 'repeat'); c.fillRect(cx, cy, cw, ch); }
+    // the printed colour swoosh across the top (in the colour the person picked)
+    const sw = c.createLinearGradient(cx, cy, cx + cw, cy + 340); sw.addColorStop(0, mix(th[0], '#000000', .15)); sw.addColorStop(.6, th[0]); sw.addColorStop(1, th[1]);
+    c.fillStyle = sw; c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + cw, cy); c.lineTo(cx + cw, cy + 190); c.bezierCurveTo(cx + cw * .72, cy + 300, cx + cw * .3, cy + 120, cx, cy + 250); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.09)'; c.beginPath(); c.moveTo(cx, cy + 250); c.bezierCurveTo(cx + cw * .3, cy + 120, cx + cw * .72, cy + 300, cx + cw, cy + 190); c.lineTo(cx + cw, cy + 206); c.bezierCurveTo(cx + cw * .72, cy + 318, cx + cw * .3, cy + 138, cx, cy + 268); c.closePath(); c.fill();
+    // the print: brand, big silver name, speed class and a "capacity" (the year, or infinity when there is none)
+    c.textAlign = 'left'; c.fillStyle = '#fff'; c.beginPath(); c.arc(cx + 78, cy + 78, 26, 0, 7); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill(); c.fillStyle = th[0]; c.font = '800 30px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('P', cx + 78, cy + 89);
+    c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', cx + 118, cy + 90);
+    const sg = c.createLinearGradient(cx, cy + 130, cx, cy + 215); sg.addColorStop(0, '#FFFFFF'); sg.addColorStop(.55, '#D7DCE6'); sg.addColorStop(1, '#9AA3B5'); c.fillStyle = sg; c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.45)', 8, 4); c.fillText('MEMORY', cx + 52, cy + 200); shadow();
+    c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.9)'; c.fillText('মেমোরি কার্ড · ' + TY().t, cx + 56, cy + 252);
+    c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 4; c.beginPath(); c.arc(cx + 450, cy + 247, 25, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.95)'; c.font = '800 28px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', cx + 458, cy + 257); c.textAlign = 'left';
+    const cap = yr || '∞'; c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '900 ' + (yr ? 74 : 92) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8, 4); c.fillText(cap, cx + cw - 54, cy + 262 + (yr ? 0 : 6)); shadow(); c.textAlign = 'left';
 
-    // the inside: measured first, then drawn centred between the head and the contacts
-    const innerTop = cy + 190, innerBot = cy + ch - 150, pad = 56, tw = cw - pad * 2;
-    const hasImg = !!S.img, avail = innerBot - innerTop - 40;
-    const tl = wrap(title, tw, '800 64px ' + DISP, 2), foot = [yr, who].filter(Boolean).join('  ·  ');
-    let maxL = hasImg ? 3 : 6, bl = wrap(body, tw, '500 38px ' + HS, maxL);
-    const textOf = b => tl.length * 74 + 14 + b.length * 56 + (foot ? 64 : 0) + (nm ? 56 : 0) + (hasImg ? 0 : 84);
-    while(textOf(bl) > avail - (hasImg ? 150 + 34 : 0) && maxL > 2){ maxL--; bl = wrap(body, tw, '500 38px ' + HS, maxL); }     // long words are cut with … so the card never runs into the contacts
-    const textH = textOf(bl);
-    const ph = hasImg ? Math.max(150, Math.min(380, avail - textH - 34)) : 0;     // the picture takes what the words leave, so nothing runs into the gold contacts
-    const total = (hasImg ? ph + 34 : 0) + textH;
-    let y = innerTop + Math.max(34, (innerBot - innerTop - total) / 2);
-    if(hasImg){
-      const iw = tw, ih = ph, ix = cx + pad, iy = y, im = S.img, sc = Math.max(iw / im.width, ih / im.height), dw = im.width * sc, dh = im.height * sc;
-      c.save(); rr(ix, iy, iw, ih, 30); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, iy + (ih - dh) / 2, dw, dh); c.restore();
-      c.lineWidth = 6; c.strokeStyle = '#fff'; rr(ix, iy, iw, ih, 30); c.stroke(); y += ph + 34;
-    } else {
-      c.fillStyle = mix(th[0], '#FFFFFF', .78); c.font = '800 190px ' + DISP; c.textAlign = 'left'; c.fillText('“', cx + pad - 6, y + 112); y += 74;
-    }
-    c.textAlign = 'left'; c.fillStyle = mix(th[0], NAVY, .55); c.font = '800 64px ' + DISP; y += 44; tl.forEach(l => { c.fillText(l, cx + pad, y); y += 74; }); y -= 10;
-    c.fillStyle = '#334155'; c.font = '500 38px ' + HS; y += 24; bl.forEach(l => { c.fillText(l, cx + pad, y); y += 56; });
-    if(foot){ y += 8; c.fillStyle = th[0]; c.font = '700 31px ' + HS; c.fillText(foot, cx + pad, y + 16); y += 64; }
-    if(nm){ c.fillStyle = '#64748B'; c.font = '600 30px ' + HS; c.fillText('— ' + nm, cx + pad, y + 10); }
-    // the lock notch on the left edge and the gold contacts at the bottom
-    c.fillStyle = mix(th[0], NAVY, .3); rr(cx - 10, cy + 330, 22, 74, 10); c.fill();
-    const py = cy + ch - 118, pw = 52, gap = 22, n = 8, px0 = cx + (cw - (n * pw + (n - 1) * gap)) / 2;
-    for(let i = 0; i < n; i++){ const g = c.createLinearGradient(0, py, 0, py + 96); g.addColorStop(0, GOLD1); g.addColorStop(1, GOLD2); rr(px0 + i * (pw + gap), py, pw, 96, 8); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(120,70,0,.18)'; c.fillRect(px0 + i * (pw + gap) + pw - 6, py + 6, 3, 84); }
+    // the paper label with the memory on it
+    const lx = cx + 44, ly = cy + 330, lw = cw - 88, lh = ch - 330 - 214, pad = 44, tw = lw - pad * 2;
+    c.save(); c.translate(lx + lw / 2, ly + lh / 2); c.rotate(-.011); c.translate(-(lx + lw / 2), -(ly + lh / 2));
+    shadow('rgba(0,0,0,.45)', 22, 10); rr(lx, ly, lw, lh, 18); c.fillStyle = '#FFFCF3'; c.fill(); shadow();
+    c.save(); rr(lx, ly, lw, lh, 18); c.clip();
+    c.fillStyle = mix(th[0], '#FFFFFF', .93); c.fillRect(lx, ly, lw, 14);
+    c.strokeStyle = mix(th[0], '#FFFFFF', .82); c.lineWidth = 2; for(let yy = ly + 70; yy < ly + lh; yy += 48){ c.beginPath(); c.moveTo(lx, yy); c.lineTo(lx + lw, yy); c.stroke(); }
+    c.strokeStyle = 'rgba(220,60,70,.35)'; c.lineWidth = 2; c.beginPath(); c.moveTo(lx + 22, ly); c.lineTo(lx + 22, ly + lh); c.stroke();
+    // the words, measured first and centred in the label
+    const avail = lh - 78, hasImg = !!S.img, lpad = pad + 6, ltw = tw - 10;
+    const tl = wrap(title, ltw, '800 54px ' + DISP, 2), foot = who;
+    let maxL = hasImg ? 3 : 6, bl = wrap(body, ltw, '500 33px ' + HS, maxL);
+    const LHT = 62, LHB = 48, textOf = b => tl.length * LHT + 12 + b.length * LHB + (foot ? 52 : 0) + (nm ? 48 : 0);
+    while(textOf(bl) > avail - (hasImg ? 150 + 26 : 0) && maxL > 2){ maxL--; bl = wrap(body, ltw, '500 33px ' + HS, maxL); }
+    const textH = textOf(bl), ph = hasImg ? Math.max(150, Math.min(300, avail - textH - 26)) : 0, total = (hasImg ? ph + 26 : 0) + textH;
+    let y = ly + Math.max(22, (lh - total) / 2);
+    if(hasImg){ const ix = lx + lpad, iw = ltw, im = S.img, sc = Math.max(iw / im.width, ph / im.height), dw = im.width * sc, dh = im.height * sc; c.save(); rr(ix, y, iw, ph, 16); c.clip(); c.drawImage(im, ix + (iw - dw) / 2, y + (ph - dh) / 2, dw, dh); c.restore(); c.lineWidth = 5; c.strokeStyle = '#fff'; rr(ix, y, iw, ph, 16); c.stroke(); y += ph + 26; }
+    c.textAlign = 'left'; c.fillStyle = mix(th[0], NAVY, .5); c.font = '800 54px ' + DISP; y += 44; tl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHT; }); y -= 14;
+    c.fillStyle = '#2B3445'; c.font = '500 33px ' + HS; y += 26; bl.forEach(l => { c.fillText(l, lx + lpad, y); y += LHB; });
+    if(foot){ c.fillStyle = th[0]; c.font = '700 29px ' + HS; c.fillText(foot, lx + lpad, y + 14); y += 52; }
+    if(nm){ c.fillStyle = '#64748B'; c.font = '600 28px ' + HS; c.fillText('— ' + nm, lx + lpad, y + 10); }
     c.restore();
-    // a soft shine over the whole card
-    c.save(); path(); c.clip(); const sh = c.createLinearGradient(cx, cy, cx + cw * .8, cy + ch * .6); sh.addColorStop(0, 'rgba(255,255,255,.22)'); sh.addColorStop(.35, 'rgba(255,255,255,0)'); c.fillStyle = sh; c.fillRect(cx, cy, cw, ch); c.restore();
+    // a piece of tape holding the label
+    c.save(); c.translate(lx + lw - 96, ly - 6); c.rotate(.12); c.fillStyle = 'rgba(255,238,170,.78)'; c.fillRect(-52, -20, 104, 40); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(-52, -20, 104, 8); c.restore();
+    c.restore();
+
+    // the lock switch on the left edge
+    c.fillStyle = '#0B0C10'; rr(cx - 4, cy + 520, 26, 96, 8); c.fill(); const lk = c.createLinearGradient(cx, 0, cx + 20, 0); lk.addColorStop(0, '#E7EAF0'); lk.addColorStop(1, '#9CA4B4'); rr(cx + 1, cy + 530, 15, 44, 5); c.fillStyle = lk; c.fill();
+    // the contacts: a recessed dark strip with nine gold pads, each with a little shine
+    const sy = cy + ch - 196, sh2 = 160; rr(cx + 62, sy, cw - 124, sh2, 18); c.fillStyle = '#08090D'; c.fill(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.1)'; c.stroke();
+    const n = 9, gap = 11, pw = (cw - 124 - 36 - gap * (n - 1)) / n, px0 = cx + 62 + 18;
+    for(let i = 0; i < n; i++){ const px = px0 + i * (pw + gap), pt = i === 0 || i === 4 || i === 8 ? sy + 14 : sy + 14, ph2 = i % 2 ? sh2 - 38 : sh2 - 28; const g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, '#B8860B'); g.addColorStop(.3, '#FFE9A8'); g.addColorStop(.6, '#F5B933'); g.addColorStop(1, '#A87408'); rr(px, pt, pw, ph2, 7); c.fillStyle = g; c.fill(); c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(px + 5, pt + 6, 4, ph2 - 14); }
+    // light on the plastic: a diagonal sheen and the bevelled edge
+    const sh = c.createLinearGradient(cx, cy, cx + cw * .9, cy + ch * .5); sh.addColorStop(0, 'rgba(255,255,255,.22)'); sh.addColorStop(.3, 'rgba(255,255,255,.05)'); sh.addColorStop(.31, 'rgba(255,255,255,0)'); c.fillStyle = sh; c.fillRect(cx, cy, cw, ch);
+    c.restore();
+    path(); const eg = c.createLinearGradient(cx, cy, cx + cw, cy + ch); eg.addColorStop(0, 'rgba(255,255,255,.55)'); eg.addColorStop(.5, 'rgba(255,255,255,.08)'); eg.addColorStop(1, 'rgba(255,255,255,.25)'); c.lineWidth = 4; c.strokeStyle = eg; c.stroke();
     c.restore();
     // the foot of the picture
-    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '700 34px ' + HS; c.fillText('আপনার স্মৃতিটাও কার্ডে রাখুন', W / 2, H - 112);
-    c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '800 28px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 62);
+    c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,.92)'; c.font = '700 34px ' + HS; c.fillText('আপনার স্মৃতিটাও কার্ডে রাখুন', W / 2, H - 100);
+    c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '800 28px Inter, sans-serif'; c.fillText('PROTISHTHAN.COM/MEMORY', W / 2, H - 52);
   }
 
   /* ---------- download, share, caption ---------- */
