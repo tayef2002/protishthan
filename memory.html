@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=21">
+<link rel="stylesheet" href="/memory.css?v=22">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -62,7 +62,6 @@
         <label for="ttl"><b id="stepW">৩.</b> লেখা <small id="ttlN"></small></label>
         <input id="ttl" class="mc-inp" maxlength="40" autocomplete="off" placeholder="শিরোনাম, যেমন: আমাদের সেই দিন">
         <textarea id="txt" class="mc-inp mc-line" maxlength="160" rows="2" placeholder="ছোট একটা লাইন বা দুটো (ঐচ্ছিক)"></textarea>
-        <div class="mc-starts" id="starts" hidden></div>
         <input id="sm" class="mc-inp" maxlength="40" autocomplete="off" placeholder="তারিখ, জায়গা বা নাম (ঐচ্ছিক)">
       </div>
       <div class="mc-row">
@@ -554,14 +553,11 @@
   function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + THEMES[k].ac + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
-    const t = TP(), n = t.ph; $('phWrap').hidden = n === 0; $('stepW').textContent = n === 0 ? '২.' : '৩.'; $('txt').maxLength = t.own ? 320 : 160; $('txt').placeholder = t.own ? 'আপনার স্মৃতিটা লিখুন…' : TXT_PH; paintStarts(); $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
+    const t = TP(), n = t.ph; $('phWrap').hidden = n === 0; $('stepW').textContent = n === 0 ? '২.' : '৩.'; $('txt').maxLength = t.own ? 320 : 160; $('txt').placeholder = t.own ? 'আপনার স্মৃতিটা লিখুন…' : TXT_PH; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
     $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'thennow' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
     S.photos.forEach((im, i) => { const el = $('slots').querySelector('img[data-i="' + i + '"]'); if(el && im){ const s = document.createElement('canvas'); s.width = 160; s.height = 160; const x = s.getContext('2d'), sc = Math.max(160 / im.width, 160 / im.height); x.drawImage(im, 80 - im.width * sc / 2, 80 - im.height * sc / 2, im.width * sc, im.height * sc); el.src = s.toDataURL('image/jpeg', .7); } });
   }
   const TXT_PH = $('txt').placeholder;
-  const STARTS = [['টিফিনের ঘণ্টা', 'ঘণ্টা বাজলেই দৌড়ে মাঠে যেতাম। পকেটে দু-টাকা থাকলে নিজেকে রাজা মনে হতো।'], ['বর্ষার দিন', 'বৃষ্টিতে ভিজে স্কুলে যাওয়া, ফেরার পথে কাদায় পা ডুবিয়ে হাঁটা। কী যে সুখ ছিল!'], ['শেষ বেঞ্চ', 'শেষ বেঞ্চে বসে স্যারের চোখ ফাঁকি দিয়ে গল্প করতাম। আজ সেই বেঞ্চটাই সবচেয়ে বেশি মনে পড়ে।'], ['বন্ধুরা কই?', 'সবাই এখন যে যার জীবনে ব্যস্ত। তবু ইচ্ছে করে, একটা দিন আবার সবাই একসাথে বসি।'], ['ঈদের সকাল', 'নতুন জামা, মায়ের হাতের সেমাই, সালামি গোনার সেই উত্তেজনা। ফিরে পেতে ইচ্ছে করে।'], ['প্রথম দিন', 'স্কুলের প্রথম দিনটা মনে আছে? মায়ের হাত শক্ত করে ধরে রেখেছিলাম, ছাড়তেই চাইনি।']];
-  function paintStarts(){ const el = $('starts'), on = !!TP().own; el.hidden = !on; if(on && !el.dataset.done){ el.dataset.done = 1; el.innerHTML = '<span>কীভাবে শুরু করবেন? একটা বেছে নিন, তারপর নিজের কথায় বদলান</span>' + STARTS.map((x, q) => '<button type="button" data-q="' + q + '">' + x[0] + '</button>').join(''); } }
-  $('starts').onclick = e => { const b = e.target.closest('button[data-q]'); if(!b) return; const x = STARTS[+b.dataset.q]; $('ttl').value = x[0]; $('txt').value = x[1]; counters(); draw(); track('memory_start', { q: +b.dataset.q }); };
   function counters(){ $('ttlN').textContent = bn($('ttl').value.length) + '/৪০'; }
   $('tpls').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.tpl = b.dataset.k; paintTpls(); thumbs(); paintSlots(); draw(); track('memory_tpl', { t: S.tpl }); };
   $('themes').onclick = e => { const b = e.target.closest('button[data-k]'); if(!b) return; S.theme = b.dataset.k; PAL = THEMES[S.theme]; paintThemes(); thumbs(); draw(); };
