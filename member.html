@@ -491,6 +491,24 @@ main.container{margin-top:22px}
 .ct-grid div{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px}
 .ct-grid b{display:block;font-size:22px;line-height:1.2}.ct-grid span{font-size:12px;color:var(--text-3)}
 @media(max-width:640px){.ar-hero{grid-template-columns:1fr;text-align:left}.ar-ring{width:96px;height:96px}.ar-pick{grid-template-columns:1fr}.ar-row{flex-wrap:wrap}.ar-row .btn{width:100%}}
+
+/* আমার ব্যাচ (the member's own batches, shown only once they are in one) */
+.bh-list{display:grid;gap:16px}
+.bh-card{--ac:#1A56DB;--tint:#EAF1FF;--soft:#D6E3FB;border:1px solid var(--soft);border-radius:22px;padding:20px;background:linear-gradient(180deg,#fff,var(--tint))}
+.bh-card[data-theme=violet]{--ac:#6D28D9;--tint:#F1EBFF;--soft:#DDD0FB}.bh-card[data-theme=teal]{--ac:#0F766E;--tint:#E3F6F2;--soft:#BFE6DE}
+.bh-card[data-theme=amber]{--ac:#B45309;--tint:#FFF1D6;--soft:#F7DBA6}.bh-card[data-theme=rose]{--ac:#BE123C;--tint:#FFE9EE;--soft:#F8C9D4}
+.bh-top{display:flex;gap:14px;align-items:center}
+.bh-mark{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--ac);color:#fff;font-size:19px;font-weight:800}
+.bh-nm{font-size:18px;font-weight:800;color:var(--text);line-height:1.3}.bh-sub{font-size:13.5px;color:var(--text-2);margin-top:2px}
+.bh-stats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.bh-stats span{font-size:13px;font-weight:700;color:var(--ac);background:#fff;border:1px solid var(--soft);border-radius:100px;padding:3px 12px}
+.bh-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.bh-acts a,.bh-acts button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 12px;border:1.5px solid var(--soft);border-radius:12px;background:#fff;color:var(--ac);font:700 14px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer}
+.bh-acts a.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.bh-acts a:hover,.bh-acts button:hover{filter:brightness(.97)}
+.bh-empty{text-align:center;padding:30px 18px}.bh-empty b{display:block;font-size:17px;margin-bottom:6px}.bh-empty p{color:var(--text-2);margin:0 0 16px}
+.ov-bh{margin-top:18px}.ov-bh a.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;text-decoration:none;color:var(--text);margin-top:8px}
+.ov-bh a.row b{display:block;font-size:15px}.ov-bh a.row span{font-size:12.5px;color:var(--text-2)}.ov-bh a.row i{margin-left:auto;font-style:normal;color:var(--blue);font-weight:700;font-size:13px}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
@@ -564,6 +582,7 @@ main.container{margin-top:22px}
           <ul class="steps" id="steps"></ul>
         </div>
       </div>
+      <div class="card ov-bh" id="ovBatch" hidden></div>
       <div class="card" style="margin-top:18px">
         <div class="sec-h" style="margin-bottom:12px"><div><h2>দ্রুত যান</h2></div></div>
         <div class="qa">
@@ -592,6 +611,10 @@ main.container{margin-top:22px}
         </section>
 <section class="sec view" id="chat">
           <div class="card msg-card"><span class="mc-ic"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg></span><div class="mc-tx"><b>Message <i class="cnt-chat" style="display:none"></i></b><span id="chatSub">আপনার স্কিল পেজে আসা চ্যাট আর আপনি যাদের লিখেছেন</span></div><a class="btn btn-blue" href="messages.html">Message খুলুন</a></div>
+        </section>
+<section class="sec view" id="batch">
+          <div class="sec-h"><div><h2>আমার ব্যাচ</h2><p id="bhSub">আপনার SSC ব্যাচ, সহপাঠী আর ব্যাচের সব সুবিধা এক জায়গায়</p></div><a class="btn btn-line btn-sm" href="/batch">আরেকটা ব্যাচ খুঁজুন</a></div>
+          <div id="bhBox"><div class="skel" style="height:170px"></div></div>
         </section>
 <section class="sec view" id="skill">
           <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
@@ -761,13 +784,52 @@ async function render(){
   renderShellUser(me);
   $('chips').innerHTML = '<span class="chip">' + ico('cap', 14) + (no ? 'সদস্য নং ' + esc(no) : 'Protishthan সদস্য') + '</span>' + (since ? '<span class="chip">' + ico('star', 14) + esc(since) + ' থেকে</span>' : '');
   renderAccount(me, since);
-  loadSaved(); loadCard(); loadSkill(); loadChat(); loadArea(); loadContrib();
+  loadSaved(); loadCard(); loadSkill(); loadChat(); loadArea(); loadContrib(); loadMyBatches();
   openAddFromUrl();
 }
 
 function renderAccount(me, since){
   const last = me.last_seen ? new Date(me.last_seen).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
   $('rows').innerHTML = [['নাম', me.display_name || '—'], ['ইমেইল', me.email || '—'], ['যোগ দিয়েছেন', since || '—'], ['সর্বশেষ এসেছেন', last], ['লগইন', 'Google']].map(r => '<div><span>' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>').join('');
+}
+
+/* ---------- আমার ব্যাচ: the member's batches, each with its features (the batch page does the work; these are the doors to it) ---------- */
+async function loadMyBatches(){
+  const box = $('bhBox'); if(!box) return;
+  const { data, error } = await M.sb.rpc('batch_me');
+  const rows = !error && Array.isArray(data) ? data : null;
+  STATE.batches = rows || [];
+  document.querySelectorAll('.sn-batch').forEach(a => { a.style.display = rows && rows.length ? '' : 'none'; });
+  document.querySelectorAll('.cnt-batch').forEach(e => { e.textContent = bn(rows ? rows.length : 0); });
+  if(!rows){ box.innerHTML = '<div class="card bh-empty"><b>ব্যাচের সুবিধা শীঘ্রই চালু হচ্ছে</b><p>একটু পরে আবার দেখুন।</p></div>'; renderOvBatch([]); return; }
+  if(!rows.length){
+    box.innerHTML = '<div class="card bh-empty"><b>আপনি এখনও কোনো ব্যাচে নেই</b><p>আপনার স্কুল আর SSC-র সাল দিয়ে ব্যাচ খুঁজুন। না থাকলে আপনিই খুলুন, আপনি হবেন আহ্বায়ক।</p><a class="btn btn-blue" href="/batch">ব্যাচ খুঁজুন বা খুলুন</a></div>';
+    renderOvBatch([]); return;
+  }
+  $('bhSub').textContent = bn(rows.length) + 'টি ব্যাচে আছেন';
+  box.innerHTML = '<div class="bh-list">' + rows.map(batchCardHtml).join('') + '</div>';
+  box.querySelectorAll('[data-copy]').forEach(b => { b.onclick = async () => { try{ await navigator.clipboard.writeText(b.dataset.copy); M.toast('আমন্ত্রণ লিংক কপি হয়েছে'); }catch(e){ prompt('লিংকটা কপি করুন', b.dataset.copy); } }; });
+  renderOvBatch(rows);
+}
+const batchUrl = r => '/b/' + encodeURIComponent(r.slug) + '/' + encodeURIComponent(r.level) + '-' + encodeURIComponent(r.year);
+function batchCardHtml(r){
+  const url = batchUrl(r), inv = location.origin + url + (r.ref ? '?r=' + encodeURIComponent(r.ref) : ''), lead = r.role === 'convener' || r.role === 'co';
+  const title = r.bname || r.name || r.slug, wa = 'https://wa.me/?text=' + encodeURIComponent((r.name || '') + '\n' + String(r.level).toUpperCase() + ' ' + bn(r.year) + ' ব্যাচ, আমাদের গল্প আবার এক জায়গায়। যোগ দাও:\n' + inv);
+  return '<div class="bh-card" data-theme="' + esc(r.theme || 'blue') + '"><div class="bh-top"><span class="bh-mark">' + esc(String(title).trim().charAt(0).toUpperCase() || 'B') + '</span><div><div class="bh-nm">' + esc(title) + '</div><div class="bh-sub">' + (r.bname ? esc(r.name || r.slug) + ' · ' : '') + esc(String(r.level).toUpperCase()) + ' ' + bn(r.year) + ' ব্যাচ</div></div></div>' +
+    '<div class="bh-stats"><span>' + bn(r.members) + ' জন যুক্ত</span><span>' + (lead ? 'আপনি আহ্বায়ক' : 'আপনি ' + bn(r.seq) + ' নম্বর সদস্য') + '</span>' + (lead && r.role === 'convener' ? '<span>নম্বর ' + bn(r.seq) + '</span>' : '') + '</div>' +
+    '<div class="bh-acts"><a class="pri" href="' + url + '">ব্যাচের পেজ খুলুন</a>' +
+    '<button type="button" data-copy="' + esc(inv) + '">আমন্ত্রণ লিংক কপি</button>' +
+    '<a href="' + wa + '" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a>' +
+    '<a href="' + url + '#roster">সদস্য তালিকা</a>' +
+    '<a href="' + url + '#invite">শেয়ার-ছবি বানান</a>' +
+    (lead ? '<a href="' + url + '#setup">ব্যাচ সাজান (নাম, লাইন, রং)</a>' : '') + '</div></div>';
+}
+function renderOvBatch(rows){
+  const el = $('ovBatch'); if(!el) return;
+  if(!rows || !rows.length){ el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = '<div class="sec-h" style="margin-bottom:4px"><div><h2>আমার ব্যাচ</h2></div><a class="btn btn-line btn-sm" href="#batch">সব দেখুন</a></div>' +
+    rows.slice(0, 3).map(r => '<a class="row" href="' + batchUrl(r) + '"><div><b>' + esc(r.bname || r.name || r.slug) + '</b><span>' + esc(String(r.level).toUpperCase()) + ' ' + bn(r.year) + ' · ' + bn(r.members) + ' জন</span></div><i>খুলুন →</i></a>').join('');
 }
 
 /* ---------- progress / checklist ---------- */
@@ -1481,6 +1543,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDelete()
 
 /* ---------- menu: one list drives the desktop sidebar and the phone sheet ---------- */
 const NAVI = {
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
   grid: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   bookmark: IC.bookmark, user: IC.user, pin: IC.pin, flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
   card: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 10h3M15 13h2"/>',
@@ -1501,6 +1564,7 @@ const NAV = [
     { href: '#saved', i: 'bookmark', l: 'সেভ করা প্রতিষ্ঠান', spy: 'saved', cnt: true },
     { href: '#card', i: 'card', l: 'আমার শিক্ষিত কার্ড', spy: 'card' },
     { href: 'messages.html', i: 'chat', l: 'Message', cc: true },
+    { href: '#batch', i: 'users', l: 'আমার ব্যাচ', spy: 'batch', cntb: true, hide: true },
     { href: '#skill', i: 'award', l: 'আমার স্কিল পেজ', spy: 'skill' },
     { href: '#account', i: 'user', l: 'অ্যাকাউন্ট ও প্রোফাইল', spy: 'account' } ] },
   { t: 'এক্সপ্লোর', items: [
@@ -1512,7 +1576,7 @@ const NAV = [
     { href: 'privacy.html', i: 'lock', l: 'গোপনীয়তা নীতি' } ] }
 ];
 function navHtml(){
-  return NAV.map(g => '<div><p class="sg">' + g.t + '</p>' + g.items.map(it => '<a class="sn" href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.cc ? '<i class="cht-n cnt-chat" style="display:none">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
+  return NAV.map(g => '<div><p class="sg">' + g.t + '</p>' + g.items.map(it => '<a class="sn' + (it.hide ? ' sn-batch' : '') + '"' + (it.hide ? ' style="display:none"' : '') + ' href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.cntb ? '<i class="cnt cnt-batch">০</i>' : '') + (it.cc ? '<i class="cht-n cnt-chat" style="display:none">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
 }
 $('sideNav').innerHTML = navHtml(); $('sheetNav').innerHTML = navHtml();
 function renderShellUser(me){
@@ -1527,7 +1591,7 @@ $('sheetNav').addEventListener('click', e => { if(e.target.closest('a')) closeSh
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
 /* ---------- each menu item is its own page (no endless scrolling) ---------- */
-const VIEWS = { overview: ['overview', 'chat'], area: ['area'], contrib: ['contrib'], saved: ['saved'], card: ['card'], skill: ['skill'], partner: ['partnerWrap'], account: ['account'] };
+const VIEWS = { overview: ['overview', 'chat'], area: ['area'], contrib: ['contrib'], saved: ['saved'], card: ['card'], batch: ['batch'], skill: ['skill'], partner: ['partnerWrap'], account: ['account'] };
 let routed = false;
 function route(){
   let h = (location.hash || '#overview').slice(1); if(h === 'chat') h = 'overview'; if(!VIEWS[h]) h = 'overview';

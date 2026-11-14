@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=24">
+<link rel="stylesheet" href="/batch.css?v=25">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -337,7 +337,7 @@
 
     if(joined){
       const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n);
-      const invite = '<div class="bt-panel"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
+      const invite = '<div class="bt-panel" id="invite"><h2>সহপাঠীদের ডাকুন</h2><p class="s">লিংকটা ব্যাচের গ্রুপে পাঠান। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।</p>' +
         '<div class="bt-no"><b>' + bn(me.seq) + '</b><span><strong>আপনার সদস্য নম্বর</strong><br>এই ব্যাচে ' + bn(n) + ' জন, লক্ষ্য ' + bn(goal) + '</span></div>' +
         '<div class="bt-prog" aria-hidden="true"><i style="width:' + Math.min(100, Math.round(n / goal * 100)) + '%"></i></div>' +
         '<div class="bt-link" style="margin-top:12px"><input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-copy" id="cpLink">কপি</button></div>' +
@@ -359,6 +359,7 @@
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
     if(b) bindReport(b.id);
+    if(joined && /^#(roster|setup|invite)$/.test(location.hash)){ const hs = location.hash.slice(1); setTimeout(() => { const el = $(hs); if(el) el.scrollIntoView({ block: 'start' }); }, 350); }
     if(joined) loadRoster(b.id);
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
