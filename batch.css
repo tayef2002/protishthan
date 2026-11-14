@@ -32,10 +32,14 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 @keyframes btTear{0%{transform:translateY(-2px) scale(.2);opacity:0}14%{transform:translateY(0) scale(1);opacity:1}66%{transform:translateY(0) scale(1);opacity:1}90%{transform:translateY(9px) scale(.95);opacity:0}100%{transform:translateY(9px) scale(.95);opacity:0}}
 /* the football plays on top of the form: the form's top edge is the ground (a strip of grass), the ball bounces on it and wanders along it */
 .bt-find{position:relative}
-.bt-find::before{content:"";position:absolute;left:26px;right:26px;top:-11px;height:14px;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='14' viewBox='0 0 22 14'%3E%3Cpath d='M1 14Q3.6 7 4 3 6.4 7.4 8 14Z' fill='%234ADE80'/%3E%3Cpath d='M8.6 14Q11 5 11.8 0.5 13.8 6 15.6 14Z' fill='%2322C55E'/%3E%3Cpath d='M15.8 14Q18.2 8.4 19.6 4.4 20.4 9 21.6 14Z' fill='%234ADE80'/%3E%3C/svg%3E") repeat-x left bottom/22px 14px}
-.bt-ball{position:absolute;left:8%;bottom:calc(100% - 3px);width:34px;height:38px;z-index:2;pointer-events:none;animation:btRoam 9s ease-in-out infinite alternate}
+/* the lawn: two drawn layers rooted on the form's top edge, the ball plays between them */
+.bt-tb,.bt-tf{position:absolute;left:0;top:-18px;pointer-events:none;overflow:visible;transform-origin:50% 40%}
+.bt-tb{z-index:1;animation:btWind 6.5s ease-in-out infinite}
+.bt-tf{z-index:3;animation:btWind 5.2s ease-in-out -2s infinite reverse}
+@keyframes btWind{0%,100%{transform:skewX(-.9deg)}50%{transform:skewX(.9deg)}}
+.bt-ball{position:absolute;left:8%;bottom:calc(100% - 4px);width:34px;height:38px;z-index:2;pointer-events:none;animation:btRoam 9s ease-in-out infinite alternate}
 .bt-ball svg{position:absolute;left:0;top:0;transform-origin:50% 100%;animation:btBounce 1.3s infinite}
-.bt-ball .sh{position:absolute;left:4px;bottom:0;width:26px;height:7px;border-radius:50%;background:rgba(15,23,42,.24);animation:btShadow 1.3s infinite}
+.bt-ball .sh{position:absolute;left:4px;bottom:0;width:26px;height:7px;border-radius:50%;background:rgba(8,50,20,.38);animation:btShadow 1.3s infinite}
 .bt-ball .sp{transform-box:view-box;transform-origin:50% 50%;animation:btSpin 2.4s linear infinite}
 @keyframes btRoam{from{left:7%}to{left:calc(93% - 34px)}}
 @keyframes btBounce{0%{transform:translateY(0) scale(1.14,.86);animation-timing-function:cubic-bezier(.2,.7,.4,1)}16%{transform:translateY(-6px) scale(.97,1.04);animation-timing-function:cubic-bezier(.3,.6,.5,1)}50%{transform:translateY(-14px) scale(1,1);animation-timing-function:cubic-bezier(.6,0,.9,.5)}92%{transform:translateY(-1px) scale(.98,1.03)}100%{transform:translateY(0) scale(1.14,.86)}}
@@ -158,4 +162,4 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 
 @media(max-width:820px){.bt-me{grid-template-columns:minmax(0,1fr)}.bt-steps{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:560px){.bt-hero,.bt-page{margin-top:84px}.bt-hero{padding:32px 18px 26px}.bt-top{padding:30px 16px 24px}.bt-row{grid-template-columns:minmax(0,1fr)}.bt-grid{gap:5px}}
-@media(prefers-reduced-motion:reduce){.bt-ball,.bt-ball svg,.bt-ball .sh,.bt-ball .sp,.bt-emo svg,.bt-emo .eyes{animation:none}.bt-emo .tear{animation:none;opacity:1}.bt-grid i.on{animation:none}.bt-go,.bt-btn,.bt-mini{transition:none}}
+@media(prefers-reduced-motion:reduce){.bt-tb,.bt-tf{animation:none}.bt-ball,.bt-ball svg,.bt-ball .sh,.bt-ball .sp,.bt-emo svg,.bt-emo .eyes{animation:none}.bt-emo .tear{animation:none;opacity:1}.bt-grid i.on{animation:none}.bt-go,.bt-btn,.bt-mini{transition:none}}
