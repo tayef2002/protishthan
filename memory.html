@@ -14,7 +14,7 @@
 <meta property="og:image" content="https://protishthan.com/og-image.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/member.js?v=2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=Baloo+Da+2:wght@700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/brand.css?v=3">
@@ -102,7 +102,15 @@
   const TPLS = [
     { k: 'mem1', n: 'মেমোরি কার্ড', a: .79, ph: 1, card: 1 },
     { k: 'mem2', n: 'দুটো মেমোরি কার্ড', a: 1.22, ph: 2, card: 1 },
-    { k: 'text', n: 'লেখা স্মৃতি', a: .79, ph: 0, card: 1, own: 1 },
+    { k: 'tfile', n: 'লেখা স্মৃতি', a: .79, ph: 0, card: 1, own: 1 },
+    { k: 'board', n: 'ব্ল্যাকবোর্ড', a: 1.12, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'autograph', n: 'অটোগ্রাফ খাতা', a: .8, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'postcard', n: 'পুরনো চিঠি', a: 1.42, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'sms', n: 'পুরনো ফোনের মেসেজ', a: .5, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'tvhs', n: 'ভিএইচএস টেপ', a: .79, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'tdream', n: 'স্বপ্নের আলো', a: .79, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'tstamp', n: 'পুরনো ছবির ক্যাপশন', a: .79, ph: 0, card: 1, own: 1, off: 1 },
+    { k: 'text', n: 'নোটবুকের পাতা', a: .79, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'old1', n: 'পুরনো ছবি', a: .84, ph: 1, card: 1, off: 1 },
     { k: 'old2', n: 'দুটো স্মৃতি', a: 1.22, ph: 2, card: 1, off: 1 },
     { k: 'card1', n: 'ছবির কার্ড', a: .82, ph: 1, card: 1, off: 1 },
@@ -283,10 +291,12 @@
     c.fillStyle = '#0B0C10'; rr(-4, 520, 26, 96, 8); c.fill(); rr(1, 530, 15, 44, 5); c.fillStyle = linear(0, 0, 20, 0, [[0, '#E7EAF0'], [1, '#9CA4B4']]); c.fill();
     c.restore();
   }
+  /* The written designs other than the file (notebook, VHS, dreamy light, old-print caption, blackboard, autograph, letter, old phone) are kept in reserve (off: 1). They use Tiro Bangla, Atma and Galada: add those fonts back to the Google Fonts link and to the font loads before switching one on. */
   /* ---------- a written memory: the window of the card is an old school notebook page (ruled lines, a red margin line, punch holes, aged paper, grain), the words in a literary serif, a big quote mark behind them, the small line signed under the text ---------- */
   const TIRO = '"Tiro Bangla", "Hind Siliguri", serif';
   const DEFTXT = 'টিফিনের ঘণ্টা বাজলেই আমরা দৌড়ে মাঠে যেতাম। সেই দিনগুলো আর ফিরে আসবে না, কিন্তু মনে থাকবে সারাজীবন।';
   function paintPage(px, py, pw, ph, pr, d, sigY){
+    if(d.kind) return paintScreen(px, py, pw, ph, pr, d, sigY);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
     c.fillStyle = '#FBF5E5'; c.fillRect(px, py, pw, ph);
     c.fillStyle = radial(px + pw / 2, py + ph * .45, Math.max(pw, ph) * .75, [[.5, 'rgba(190,150,90,0)'], [1, 'rgba(190,150,90,.34)']]); c.fillRect(px, py, pw, ph);
@@ -312,6 +322,175 @@
     tapeOn(px + pw * .5, py + 4, .03, 150);
   }
   SH.text = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.02, 0, '', { title: S.cur.title || 'আমাদের সেই দিন', text: S.cur.line || DEFTXT, sign: S.cur.small }); };
+  /* ---------- more written-memory designs ---------- */
+  const ATMA = '"Atma", "Hind Siliguri", cursive', GALADA = '"Galada", "Hind Siliguri", cursive';
+  /* lay a text out: the biggest size (from max down to min) at which it fits the height */
+  function flow(text, width, font, availH, max, min, lhk){
+    let lines, LH, sz = max;
+    for(; sz >= min; sz -= 2){ lines = wrap(text, width, font(sz), 99); LH = sz * lhk; if(lines.length * LH <= availH) return { sz, lines, LH }; }
+    sz = min; LH = sz * lhk; lines = wrap(text, width, font(sz), Math.max(1, Math.floor(availH / LH))); return { sz, lines, LH };
+  }
+  const cdata = () => ({ title: S.cur.title || 'আমাদের সেই দিন', text: S.cur.line || DEFTXT, sign: S.cur.small || '' });
+  const heart = (cx, cy, r) => { c.moveTo(cx, cy + r * .9); c.bezierCurveTo(cx - r * 1.5, cy - r * .1, cx - r * .7, cy - r * 1.2, cx, cy - r * .35); c.bezierCurveTo(cx + r * .7, cy - r * 1.2, cx + r * 1.5, cy - r * .1, cx, cy + r * .9); };
+
+  /* 1. the blackboard: a wooden frame, a green board with chalk dust, the words in chalk, a ledge with chalk and a duster */
+  SH.board = (x, y, w, h) => {
+    const d = cdata(), fh = h * .86, m = w * .04, bx = x + m, by = y + m, bw = w - 2 * m, bh = fh - 2 * m, rg = rng(9);
+    rr(x, y, w, fh, 22); c.fillStyle = linear(x, y, x, y + fh, [[0, '#C79257'], [1, '#8C5B2E']]); c.fill();
+    c.save(); rr(x, y, w, fh, 22); c.clip(); for(let q = 0; q < 70; q++){ c.strokeStyle = 'rgba(70,38,12,' + (.05 + rg() * .1).toFixed(2) + ')'; c.lineWidth = 1 + rg() * 2; const yy = y + rg() * fh; c.beginPath(); c.moveTo(x, yy); c.bezierCurveTo(x + w * .3, yy + rg() * 8 - 4, x + w * .7, yy + rg() * 8 - 4, x + w, yy + rg() * 6 - 3); c.stroke(); } c.restore();
+    rr(bx, by, bw, bh, 10); c.fillStyle = linear(bx, by, bx + bw * .5, by + bh, [[0, '#3C6152'], [1, '#26433A']]); c.fill();
+    c.save(); rr(bx, by, bw, bh, 10); c.clip(); for(let q = 0; q < 10; q++){ c.fillStyle = radial(bx + rg() * bw, by + rg() * bh, bw * (.12 + rg() * .18), [[0, 'rgba(255,255,255,.06)'], [1, 'rgba(255,255,255,0)']]); c.fillRect(bx, by, bw, bh); } c.restore();
+    c.lineWidth = 5; c.strokeStyle = 'rgba(0,0,0,.35)'; rr(bx, by, bw, bh, 10); c.stroke();
+    /* the chalk: drawn on its own layer, then eaten by speckles so it looks dusty */
+    const padX = bw * .08, tw = bw - padX * 2, padY = bh * .09;
+    const tf = fit(d.title, tw, 1, 66, 36, '700', ATMA), top = by + padY + tf.size;
+    const fl = flow(d.text, tw, z => '500 ' + z + 'px ' + ATMA, by + bh - padY - 70 - (top + 34), 48, 26, 1.45);
+    const oc = document.createElement('canvas'); oc.width = Math.ceil(bw); oc.height = Math.ceil(bh); const prev = c; c = oc.getContext('2d'); c.translate(-bx, -by);
+    c.textAlign = 'center'; c.fillStyle = '#F8F5EA'; c.font = '700 ' + tf.size + 'px ' + ATMA; c.fillText(tf.lines[0], bx + bw / 2, top);
+    const uw = Math.min(tw, c.measureText(tf.lines[0]).width + 40); c.strokeStyle = '#F8F5EA'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(bx + bw / 2 - uw / 2, top + 20); c.bezierCurveTo(bx + bw / 2 - uw / 4, top + 12, bx + bw / 2 + uw / 4, top + 28, bx + bw / 2 + uw / 2, top + 18); c.stroke();
+    c.fillStyle = '#EFEBDD'; c.font = '500 ' + fl.sz + 'px ' + ATMA; const b0 = top + 34 + fl.LH * .9; fl.lines.forEach((l, q) => c.fillText(l, bx + bw / 2, b0 + q * fl.LH));
+    if(d.sign){ c.fillStyle = '#F6E3A1'; c.textAlign = 'right'; const sf = fit('— ' + d.sign, tw, 1, 34, 22, '700', ATMA); c.font = '700 ' + sf.size + 'px ' + ATMA; c.fillText(sf.lines[0], bx + bw - padX, by + bh - padY); }
+    c.globalCompositeOperation = 'destination-out'; const r2 = rng(3), nn = Math.round(bw * bh / 70); for(let q = 0; q < nn; q++){ c.fillStyle = 'rgba(0,0,0,' + (.35 + r2() * .5).toFixed(2) + ')'; c.beginPath(); c.arc(bx + r2() * bw, by + r2() * bh, .5 + r2() * 1.6, 0, 7); c.fill(); }
+    c = prev; c.drawImage(oc, bx, by);
+    /* the ledge, with chalk and a duster */
+    const ly = y + fh - 6, lh = h * .1; rr(x + w * .03, ly, w * .94, lh, 10); c.fillStyle = linear(0, ly, 0, ly + lh, [[0, '#A8723F'], [1, '#6F4524']]); c.fill();
+    [['#FFFFFF', .12, .55], ['#F6B8C8', .2, .5], ['#F6E3A1', .27, .45]].forEach(q => { rr(x + w * q[1], ly - lh * .14, w * .06, lh * .3, 4); c.fillStyle = q[0]; c.fill(); });
+    rr(x + w * .72, ly - lh * .5, w * .18, lh * .8, 8); c.fillStyle = '#34333A'; c.fill(); rr(x + w * .72, ly - lh * .5, w * .18, lh * .3, 8); c.fillStyle = '#B07A45'; c.fill();
+  };
+
+  /* 2. the autograph book: a pastel page, a ribbon with the title, flowers in the corners, the words in blue ball-pen handwriting, hearts along the bottom */
+  SH.autograph = (x, y, w, h) => {
+    const d = cdata(), ac = PAL.ac, soft = mix(PAL.bg2, '#FFFFFF', .3), flower = (fx, fy, r) => { for(let q = 0; q < 5; q++){ const a = q / 5 * Math.PI * 2 - Math.PI / 2; c.fillStyle = mix(ac, '#FFFFFF', .45); c.beginPath(); c.arc(fx + Math.cos(a) * r, fy + Math.sin(a) * r, r * .75, 0, 7); c.fill(); } c.fillStyle = '#F7C948'; c.beginPath(); c.arc(fx, fy, r * .6, 0, 7); c.fill(); };
+    c.save(); c.translate(x + w / 2, y + h / 2); c.rotate(-.022); c.translate(-w / 2, -h / 2);
+    rr(0, 0, w, h, 20); c.fillStyle = soft; c.fill(); c.save(); rr(0, 0, w, h, 20); c.clip(); c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(0, 0, w, h); c.restore();
+    c.setLineDash([10, 9]); c.lineWidth = 3; c.strokeStyle = rgba(ac, .55); rr(22, 22, w - 44, h - 44, 14); c.stroke(); c.setLineDash([]); c.lineWidth = 2; c.strokeStyle = rgba(ac, .3); rr(34, 34, w - 68, h - 68, 10); c.stroke();
+    [[56, 56], [w - 56, 56], [56, h - 56], [w - 56, h - 56]].forEach(q => { c.fillStyle = '#7DBE8A'; c.beginPath(); c.ellipse(q[0] + (q[0] < w / 2 ? 22 : -22), q[1] + 6, 15, 7, q[0] < w / 2 ? .4 : -.4, 0, 7); c.fill(); flower(q[0], q[1], 13); });
+    const rw = w * .74, rx = (w - rw) / 2, ry = 70, rh = 74; c.fillStyle = mix(ac, '#000000', .1); c.beginPath(); c.moveTo(rx - 26, ry + 12); c.lineTo(rx + 16, ry + 12); c.lineTo(rx + 16, ry + rh + 12); c.lineTo(rx - 26, ry + rh + 12); c.lineTo(rx - 4, ry + rh / 2 + 12); c.closePath(); c.fill(); c.beginPath(); c.moveTo(rx + rw + 26, ry + 12); c.lineTo(rx + rw - 16, ry + 12); c.lineTo(rx + rw - 16, ry + rh + 12); c.lineTo(rx + rw + 26, ry + rh + 12); c.lineTo(rx + rw + 4, ry + rh / 2 + 12); c.closePath(); c.fill();
+    rr(rx, ry, rw, rh, 8); c.fillStyle = ac; c.fill();
+    const tf = fit(d.title, rw - 60, 1, 46, 26, '800', DISP); c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], w / 2, ry + rh / 2 + tf.size * .32);
+    const tw = w - 150, top = ry + rh + 34, fl = flow(d.text, tw, z => '500 ' + z + 'px ' + ATMA, h - 150 - top - 70, 44, 26, 1.5);
+    c.fillStyle = '#243B9C'; c.font = '500 ' + fl.sz + 'px ' + ATMA; const avail2 = h - 150 - top - 70, off = Math.max(0, (avail2 - fl.lines.length * fl.LH) / 2); fl.lines.forEach((l, q) => c.fillText(l, w / 2, top + off + fl.LH * .9 + q * fl.LH));
+    if(d.sign){ const sf = fit('ইতি, ' + d.sign, tw, 1, 34, 22, '500', ATMA); c.font = '500 ' + sf.size + 'px ' + ATMA; c.textAlign = 'right'; c.fillText(sf.lines[0], w - 76, h - 118); c.textAlign = 'center'; }
+    [0, 1, 2, 3, 4].forEach(q => { c.fillStyle = q % 2 ? mix(ac, '#FFFFFF', .35) : '#F28CA0'; c.beginPath(); heart(w / 2 + (q - 2) * 46, h - 84, 11); c.fill(); });
+    c.restore();
+    tapeOn(x + w * .22, y + 8, -.5, 120); tapeOn(x + w * .78, y + 8, .5, 120);
+  };
+
+  /* 3. an old letter: a postcard with an airmail border, a stamp with the Protishthan mark, a postmark, a message on the left and the address on the right */
+  SH.postcard = (x, y, w, h) => {
+    const d = cdata(), ac = PAL.ac, cream = '#FBF3DE';
+    c.save(); c.translate(x + w / 2, y + h / 2); c.rotate(.012); c.translate(-w / 2, -h / 2);
+    c.save(); rr(0, 0, w, h, 16); c.clip(); c.fillStyle = cream; c.fillRect(0, 0, w, h);
+    for(let q = -h, n = 0; q < w + h; q += 26, n++){ c.fillStyle = n % 2 ? '#2F5DA8' : '#D8504D'; c.beginPath(); c.moveTo(q, 0); c.lineTo(q + 26, 0); c.lineTo(q + 26 - h * .6, h); c.lineTo(q - h * .6, h); c.closePath(); c.fill(); }
+    rr(20, 20, w - 40, h - 40, 8); c.fillStyle = cream; c.fill(); c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(0, 0, w, h); c.restore();
+    const dx = w * .62; c.strokeStyle = 'rgba(60,40,20,.35)'; c.lineWidth = 2; c.beginPath(); c.moveTo(dx, 130); c.lineTo(dx, h - 60); c.stroke();
+    /* the message */
+    const mw = dx - 40 - 56, tf = fit(d.title, mw, 1, 52, 30, '800', DISP); c.textAlign = 'left'; c.fillStyle = mix(ac, '#000000', .45); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], 56, 100);
+    const fl = flow(d.text, mw, z => z + 'px ' + GALADA, h - 100 - 150, 40, 24, 1.5); c.fillStyle = '#2B2B44'; c.font = fl.sz + 'px ' + GALADA; fl.lines.forEach((l, q) => c.fillText(l, 56, 150 + fl.LH * .9 + q * fl.LH));
+    /* the stamp, with a perforated edge */
+    const sw = w * .15, sh = sw * 1.22, sx = w - 56 - sw, sy = 52;
+    c.fillStyle = '#FFFFFF'; c.fillRect(sx, sy, sw, sh); c.fillStyle = mix(ac, '#FFFFFF', .72); c.fillRect(sx + 9, sy + 9, sw - 18, sh - 18);
+    c.fillStyle = cream; for(let q = 0; q <= sw; q += 12){ c.beginPath(); c.arc(sx + q, sy, 4.5, 0, 7); c.arc(sx + q, sy + sh, 4.5, 0, 7); c.fill(); } for(let q = 0; q <= sh; q += 12){ c.beginPath(); c.arc(sx, sy + q, 4.5, 0, 7); c.arc(sx + sw, sy + q, 4.5, 0, 7); c.fill(); }
+    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(sx + sw / 2 - 28, sy + 22, 56, 56, 14); c.clip(); c.drawImage(LOGO, sx + sw / 2 - 28, sy + 22, 56, 56); c.restore(); }
+    c.textAlign = 'center'; c.fillStyle = mix(ac, '#000000', .45); c.font = '800 24px ' + DISP; c.fillText('৫ টাকা', sx + sw / 2, sy + sh - 22);
+    /* the postmark: a ring and wavy lines across the stamp */
+    const pcx = sx - 14, pcy = sy + sh * .62; c.strokeStyle = 'rgba(45,45,60,.55)'; c.lineWidth = 3; c.beginPath(); c.arc(pcx, pcy, 54, 0, 7); c.stroke(); c.beginPath(); c.arc(pcx, pcy, 46, 0, 7); c.lineWidth = 1.5; c.stroke();
+    c.fillStyle = 'rgba(45,45,60,.6)'; c.font = '800 17px Inter, sans-serif'; c.fillText('MEMORY', pcx, pcy - 4); c.font = '700 15px Inter, sans-serif'; c.fillText(((d.sign.match(/[0-9০-৯]{4}/) || ['2018'])[0]).replace(/[০-৯]/g, q => '০১২৩৪৫৬৭৮৯'.indexOf(q)), pcx, pcy + 18);
+    c.lineWidth = 2.5; for(let q = 0; q < 4; q++){ c.beginPath(); for(let t = 0; t <= 1; t += .05){ const px2 = pcx + 54 + t * (sw - 28), py2 = pcy - 24 + q * 16 + Math.sin(t * 12 + q) * 4; t ? c.lineTo(px2, py2) : c.moveTo(px2, py2); } c.stroke(); }
+    /* the address */
+    c.textAlign = 'left'; c.font = '26px ' + GALADA; c.fillStyle = '#2B2B44'; c.fillText('প্রতি: আমার পুরনো বন্ধুরা', dx + 30, h * .58); if(d.sign){ const sf = fit('প্রেরক: ' + d.sign, w - 56 - dx - 30, 1, 26, 18, '400', GALADA); c.font = sf.size + 'px ' + GALADA; c.fillText(sf.lines[0], dx + 30, h * .72); }
+    c.strokeStyle = 'rgba(60,40,20,.4)'; c.lineWidth = 2; [.6, .74, .88].forEach(f => { c.beginPath(); c.moveTo(dx + 30, h * f + 8); c.lineTo(w - 56, h * f + 8); c.stroke(); });
+    c.restore();
+  };
+
+  /* 4. an old phone's message: a Nokia-style phone, a green LCD with a pixel grid, the words as a text message, the keypad below */
+  SH.sms = (x, y, w, h) => {
+    const d = cdata(), rg = rng(5);
+    rr(x, y, w, h, w * .16); c.fillStyle = linear(x, y, x + w, y + h, [[0, '#3B4766'], [.5, '#252E47'], [1, '#161C2E']]); c.fill(); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.18)'; rr(x + 2, y + 2, w - 4, h - 4, w * .16 - 2); c.stroke();
+    c.fillStyle = 'rgba(0,0,0,.45)'; rr(x + w * .36, y + h * .035, w * .28, 10, 5); c.fill();
+    const bx = x + w * .1, by = y + h * .075, bw = w * .8, bh = h * .43; rr(bx, by, bw, bh, 24); c.fillStyle = '#0E1322'; c.fill();
+    const lx = bx + 16, ly = by + 16, lw = bw - 32, lh = bh - 32;
+    rr(lx, ly, lw, lh, 12); c.fillStyle = linear(lx, ly, lx + lw, ly + lh, [[0, '#B9D68F'], [1, '#98B66F']]); c.fill();
+    c.save(); rr(lx, ly, lw, lh, 12); c.clip(); c.strokeStyle = 'rgba(30,45,15,.07)'; c.lineWidth = 1; for(let q = ly; q < ly + lh; q += 4){ c.beginPath(); c.moveTo(lx, q); c.lineTo(lx + lw, q); c.stroke(); } for(let q = lx; q < lx + lw; q += 4){ c.beginPath(); c.moveTo(q, ly); c.lineTo(q, ly + lh); c.stroke(); }
+    const ink = '#1F2A12'; c.fillStyle = ink; c.strokeStyle = ink;
+    for(let q = 0; q < 4; q++) c.fillRect(lx + 14 + q * 8, ly + 26 - q * 5, 5, 6 + q * 5);
+    c.lineWidth = 2.5; c.strokeRect(lx + lw - 50, ly + 10, 32, 16); c.fillRect(lx + lw - 18, ly + 14, 4, 8); c.fillRect(lx + lw - 47, ly + 13, 20, 10);
+    c.lineWidth = 2; c.beginPath(); c.moveTo(lx + 8, ly + 40); c.lineTo(lx + lw - 8, ly + 40); c.stroke();
+    c.beginPath(); c.rect(lx + 14, ly + 52, 22, 15); c.stroke(); c.beginPath(); c.moveTo(lx + 14, ly + 52); c.lineTo(lx + 25, ly + 61); c.lineTo(lx + 36, ly + 52); c.stroke();
+    const hf = fit(d.title, lw - 80, 1, 26, 17, '800', HS); c.textAlign = 'left'; c.font = '800 ' + hf.size + 'px ' + HS; c.fillText(hf.lines[0], lx + 46, ly + 66);
+    const fl = flow(d.text, lw - 28, z => '600 ' + z + 'px ' + HS, lh - 92 - 64, 30, 18, 1.4); c.font = '600 ' + fl.sz + 'px ' + HS; fl.lines.forEach((l, q) => c.fillText(l, lx + 14, ly + 74 + fl.LH * 1.0 + q * fl.LH));
+    if(d.sign){ const sf = fit(d.sign, lw - 28, 1, 20, 14, '600', HS); c.font = '600 ' + sf.size + 'px ' + HS; c.textAlign = 'right'; c.fillText(sf.lines[0], lx + lw - 14, ly + lh - 40); c.textAlign = 'left'; }
+    c.beginPath(); c.moveTo(lx + 8, ly + lh - 32); c.lineTo(lx + lw - 8, ly + lh - 32); c.stroke(); c.font = '700 18px ' + HS; c.fillText('উত্তর', lx + 14, ly + lh - 9); c.textAlign = 'right'; c.fillText('বন্ধ', lx + lw - 14, ly + lh - 9); c.textAlign = 'left';
+    c.restore();
+    const ny = y + h * .6; c.fillStyle = '#10162A'; c.beginPath(); c.ellipse(x + w / 2, ny, w * .17, h * .03, 0, 0, 7); c.fill(); c.fillStyle = '#2C3656'; c.beginPath(); c.ellipse(x + w / 2, ny, w * .06, h * .013, 0, 0, 7); c.fill();
+    [.22, .78].forEach(f => { rr(x + w * f - w * .1, ny - h * .02, w * .2, h * .036, 12); c.fillStyle = '#334062'; c.fill(); });
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
+    keys.forEach((k, q) => { const kx = x + w * (.14 + (q % 3) * .27), ky = y + h * (.66 + Math.floor(q / 3) * .075); rr(kx, ky, w * .23, h * .06, 14); c.fillStyle = linear(0, ky, 0, ky + h * .06, [[0, '#46517A'], [1, '#2A3354']]); c.fill(); c.fillStyle = 'rgba(255,255,255,.85)'; c.font = '700 ' + Math.round(w * .06) + 'px Inter, sans-serif'; c.textAlign = 'center'; c.fillText(k, kx + w * .115, ky + h * .042); });
+  };
+
+  /* ---------- the window of the card as a screen of memories: four ways to show a written memory ---------- */
+  const yearOf = t => (((t || '').match(/[0-9০-৯]{4}/) || [])[0] || '').replace(/[০-৯]/g, q => '০১২৩৪৫৬৭৮৯'.indexOf(q));
+  function paintScreen(px, py, pw, ph, pr, d, sigY){
+    const k = d.kind, cx = px + pw / 2, ac = PAL.ac, rg = rng(11), yr = yearOf(d.sign);
+    c.save(); rr(px, py, pw, ph, pr); c.clip();
+    const specks = (n, col) => { for(let q = 0; q < n; q++){ c.fillStyle = col(rg); c.beginPath(); c.arc(px + rg() * pw, py + rg() * ph, .6 + rg() * 1.8, 0, 7); c.fill(); } };
+    if(k === 'file'){
+      /* a stored file: a dark editor window with line numbers, the title as a comment, a blinking cursor */
+      c.fillStyle = linear(0, py, 0, py + ph, [[0, '#101A24'], [1, '#0A1118']]); c.fillRect(px, py, pw, ph);
+      c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(px, py, pw, 64);
+      [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]].forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
+      c.textAlign = 'center'; c.font = '600 24px ' + HS; c.fillStyle = '#8FA3B5'; c.fillText('স্মৃতি' + (yr ? '_' + yr : '') + '.txt', cx, py + 40);
+      c.textAlign = 'right'; c.fillStyle = mix(ac, '#FFFFFF', .35); c.font = '700 20px ' + HS; c.fillText('সংরক্ষিত ✓', px + pw - 28, py + 39);
+      const gx = px + 66, left = px + 92, width = pw - 92 - 44, ty = py + 64 + 66, tf = fit('# ' + d.title, width, 1, 42, 26, '800', DISP);
+      const fl = flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 56 - (ty + 20), 36, 24, 1.55);
+      c.textAlign = 'left'; c.fillStyle = mix(ac, '#FFFFFF', .4); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], left, ty);
+      c.fillStyle = '#E8F1F7'; c.font = '500 ' + fl.sz + 'px ' + HS; const b0 = ty + 22 + fl.LH; fl.lines.forEach((l, q) => c.fillText(l, left, b0 + q * fl.LH));
+      const last = b0 + (fl.lines.length - 1) * fl.LH, lw2 = c.measureText(fl.lines[fl.lines.length - 1]).width; c.fillStyle = ac; c.fillRect(left + lw2 + 8, last - fl.sz * .8, 14, fl.sz);
+      let ln = 1; c.textAlign = 'right'; c.font = '500 22px Inter, sans-serif'; c.fillStyle = '#4A5C6B'; c.fillText(String(ln++), gx, ty - 6); fl.lines.forEach((l, q) => c.fillText(String(ln++), gx, b0 + q * fl.LH - 4));
+      if(d.sign){ c.textAlign = 'left'; c.fillStyle = '#6F8396'; c.font = '600 28px ' + HS; const sy2 = last + fl.LH * 1.3; c.fillText('— ' + d.sign, left, Math.min(sy2, sigY - 8)); c.textAlign = 'right'; c.font = '500 22px Inter, sans-serif'; c.fillStyle = '#4A5C6B'; c.fillText(String(ln), gx, Math.min(sy2, sigY - 8) - 4); }
+    } else if(k === 'vhs'){
+      /* a VHS tape on a TV: deep blue, scanlines, a tracking glitch, PLAY in the corner, the words in white with a colour fringe */
+      c.fillStyle = linear(0, py, 0, py + ph, [[0, '#1B2686'], [1, '#0A0F4C']]); c.fillRect(px, py, pw, ph);
+      c.fillStyle = c.createPattern(grain(), 'repeat'); c.globalAlpha = 1.6; c.fillRect(px, py, pw, ph); c.globalAlpha = 1;
+      const gy = py + ph * .66; c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(px, gy, pw, 22); c.fillStyle = 'rgba(120,200,255,.14)'; c.fillRect(px, gy + 22, pw, 6);
+      const chroma = (t, x, y) => { c.fillStyle = 'rgba(255,40,90,.75)'; c.fillText(t, x - 3, y); c.fillStyle = 'rgba(0,225,255,.75)'; c.fillText(t, x + 3, y); c.fillStyle = '#FFFFFF'; c.fillText(t, x, y); };
+      c.textAlign = 'left'; c.font = '900 34px Inter, sans-serif'; chroma('▶ PLAY', px + 44, py + 74); c.textAlign = 'right'; chroma('SP', px + pw - 44, py + 74);
+      c.textAlign = 'center'; const tf = fit(d.title, pw - 120, 1, 56, 32, '800', HS); c.font = '800 ' + tf.size + 'px ' + HS; chroma(tf.lines[0], cx, py + 190);
+      const fl = flow(d.text, pw - 130, z => '600 ' + z + 'px ' + HS, sigY - 60 - (py + 230), 40, 24, 1.5); c.font = '600 ' + fl.sz + 'px ' + HS; const off = Math.max(0, (sigY - 60 - (py + 230) - fl.lines.length * fl.LH) / 2); fl.lines.forEach((l, q) => chroma(l, cx, py + 230 + off + fl.LH * .9 + q * fl.LH));
+      if(d.sign){ c.textAlign = 'left'; c.font = '700 28px Inter, "Hind Siliguri", sans-serif'; chroma(d.sign, px + 44, sigY - 4); }
+      c.fillStyle = 'rgba(0,0,0,.2)'; for(let yy = py; yy < py + ph; yy += 4) c.fillRect(px, yy, pw, 2);
+      c.fillStyle = radial(cx, py + ph / 2, Math.max(pw, ph) * .7, [[.55, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,10,.5)']]); c.fillRect(px, py, pw, ph);
+    } else if(k === 'dream'){
+      /* soft warm light: a pastel gradient, round bokeh lights, grain, big quote marks, the words in dark ink with a white glow */
+      c.fillStyle = linear(0, py, px + pw * .4, py + ph, [[0, mix(ac, '#FFFFFF', .55)], [1, '#F8CFA6']]); c.fillRect(px, py, pw, ph);
+      c.globalCompositeOperation = 'screen'; for(let q = 0; q < 18; q++){ const r = 26 + rg() * 90; c.fillStyle = radial(px + rg() * pw, py + rg() * ph, r, [[0, 'rgba(255,248,230,' + (.35 + rg() * .35).toFixed(2) + ')'], [.7, 'rgba(255,230,200,.12)'], [1, 'rgba(255,230,200,0)']]); c.fillRect(px, py, pw, ph); } c.globalCompositeOperation = 'source-over';
+      c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(px, py, pw, ph);
+      c.fillStyle = radial(cx, py + ph * .45, Math.max(pw, ph) * .8, [[.5, 'rgba(120,70,40,0)'], [1, 'rgba(120,70,40,.28)']]); c.fillRect(px, py, pw, ph);
+      c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '800 230px ' + DISP; c.textAlign = 'left'; c.fillText('“', px + 26, py + 220); c.textAlign = 'right'; c.fillText('”', px + pw - 26, sigY + 60);
+      c.textAlign = 'center'; const tf = fit(d.title, pw - 150, 1, 46, 28, '800', DISP); c.fillStyle = '#5A3B2E'; shadow('rgba(255,255,255,.8)', 14, 0); c.font = '800 ' + tf.size + 'px ' + DISP; c.fillText(tf.lines[0], cx, py + 120);
+      c.strokeStyle = 'rgba(90,59,46,.45)'; c.lineWidth = 2; c.beginPath(); c.moveTo(cx - 50, py + 146); c.lineTo(cx + 50, py + 146); c.stroke();
+      const fl = flow(d.text, pw - 170, z => 'italic 400 ' + z + 'px ' + TIRO, sigY - 40 - (py + 170), 44, 26, 1.55), off = Math.max(0, (sigY - 40 - (py + 170) - fl.lines.length * fl.LH) / 2);
+      c.fillStyle = '#4A2F2A'; c.font = 'italic 400 ' + fl.sz + 'px ' + TIRO; fl.lines.forEach((l, q) => c.fillText(l, cx, py + 170 + off + fl.LH * .9 + q * fl.LH));
+      if(d.sign){ c.font = 'italic 700 28px ' + HS; c.fillStyle = '#7A4F3D'; c.fillText('— ' + d.sign, cx, sigY); } shadow();
+    } else {
+      /* an old print caption: a faded warm photograph (a light leak, dark hills, grain, dust), the words in white handwriting, the year in the orange date-stamp of old cameras */
+      c.fillStyle = linear(px, py, px + pw * .6, py + ph, [[0, '#DDB07D'], [.5, '#A8704A'], [1, '#573726']]); c.fillRect(px, py, pw, ph);
+      c.fillStyle = radial(px + pw * .1, py, 480, [[0, 'rgba(255,150,60,.6)'], [1, 'rgba(255,150,60,0)']]); c.fillRect(px, py, pw, ph);
+      c.fillStyle = 'rgba(40,22,14,.55)'; c.beginPath(); c.moveTo(px, py + ph); c.lineTo(px, py + ph * .72); c.quadraticCurveTo(px + pw * .22, py + ph * .58, px + pw * .45, py + ph * .72); c.quadraticCurveTo(px + pw * .7, py + ph * .56, px + pw, py + ph * .7); c.lineTo(px + pw, py + ph); c.closePath(); c.fill();
+      c.fillStyle = c.createPattern(grain(), 'repeat'); c.globalAlpha = 1.4; c.fillRect(px, py, pw, ph); c.globalAlpha = 1;
+      c.fillStyle = radial(cx, py + ph * .45, Math.max(pw, ph) * .75, [[.45, 'rgba(30,15,8,0)'], [1, 'rgba(30,15,8,.6)']]); c.fillRect(px, py, pw, ph);
+      specks(60, r => r() > .5 ? 'rgba(255,245,225,.45)' : 'rgba(30,18,10,.4)');
+      const left = px + 60, width = pw - 120, tf = fit(d.title, width, 1, 58, 32, '700', ATMA), fl = flow(d.text, width, z => '500 ' + z + 'px ' + ATMA, 330, 40, 26, 1.42);
+      const bh = tf.size * 1.5 + fl.lines.length * fl.LH, top = Math.max(py + 56, sigY - 76 - bh);
+      shadow('rgba(0,0,0,.55)', 10, 2); c.textAlign = 'left'; c.fillStyle = '#FFFFFF'; c.font = '700 ' + tf.size + 'px ' + ATMA; c.fillText(tf.lines[0], left, top + tf.size);
+      c.fillStyle = 'rgba(255,255,255,.95)'; c.font = '500 ' + fl.sz + 'px ' + ATMA; fl.lines.forEach((l, q) => c.fillText(l, left, top + tf.size * 1.5 + fl.LH * .9 + q * fl.LH)); shadow();
+      const stamp = yr ? '’' + yr.slice(2) : (d.sign || ''); if(stamp){ c.textAlign = 'right'; c.font = '700 46px "Courier New", monospace'; c.fillStyle = '#FF8A1F'; shadow('rgba(255,120,20,.8)', 14, 0); c.fillText(stamp, px + pw - 44, sigY + 4); shadow(); }
+    }
+    c.restore();
+  }
+  const screenOf = kind => (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.02, 0, '', Object.assign(cdata(), { kind })); };
+  SH.tfile = screenOf('file'); SH.tvhs = screenOf('vhs'); SH.tdream = screenOf('dream'); SH.tstamp = screenOf('stamp');
+
   SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
   SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); };
 
@@ -358,12 +537,12 @@
   function draw(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }
   async function render(){
     const sz = SIZES[S.size], cv = $('cv'); if(cv.width !== sz.w || cv.height !== sz.h){ cv.width = sz.w; cv.height = sz.h; } $('pvc').style.setProperty('--ar', (sz.w / sz.h).toFixed(4));
-    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter'), document.fonts.load('italic 400 40px "Tiro Bangla"')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('800 40px Inter')]); }catch(e){}
     paint(cv, sz.w, sz.h, data(), S.tpl, 1); saveDraft();
   }
   const SAMPLE = []; function samples(){ if(SAMPLE.length) return SAMPLE; [['#F59E0B', '#EF6C8B'], ['#34B6E8', '#6D6FE8']].forEach(cc => { const s = document.createElement('canvas'); s.width = 800; s.height = 800; const x = s.getContext('2d'); const g = x.createLinearGradient(0, 0, 800, 800); g.addColorStop(0, cc[0]); g.addColorStop(1, cc[1]); x.fillStyle = g; x.fillRect(0, 0, 800, 800); x.fillStyle = 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(560, 250, 110, 0, 7); x.fill(); x.beginPath(); x.moveTo(0, 800); x.lineTo(260, 430); x.lineTo(470, 640); x.lineTo(620, 480); x.lineTo(800, 620); x.lineTo(800, 800); x.closePath(); x.fill(); SAMPLE.push(s); }); return SAMPLE; }
   async function thumbs(){
-    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"'), document.fonts.load('italic 400 40px "Tiro Bangla"')]); }catch(e){}
+    try{ await Promise.all([document.fonts.load('700 40px "Hind Siliguri"'), document.fonts.load('800 40px "Baloo Da 2"')]); }catch(e){}
     const sz = SIZES.post, k = 170 / sz.w, sm = samples(), d = { title: 'আমাদের সেই দিন', line: '', small: '', photos: sm };
     TPLS.forEach(t => { const cv = document.querySelector('#tpls canvas[data-k="' + t.k + '"]'); if(!cv) return; cv.width = Math.round(sz.w * k); cv.height = Math.round(sz.h * k); paint(cv, sz.w, sz.h, d, t.k, k); });
   }
