@@ -24,7 +24,8 @@
      The first entry of a group is the tab's own page. HOW TO ADD A PAGE: one line in the group it belongs to. */
   var CARD = [
     { k: 'card',  t: 'শিক্ষিত কার্ড',    d: '৩০ সেকেন্ডে নিজের শিক্ষিত কার্ড বানান',     href: 'card.html',  ic: 'card',  g: 'linear-gradient(135deg,#047857,#0F766E)' },
-    { k: 'skill', t: 'স্কিল আইডেন্টিটি', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' }
+    { k: 'skill', t: 'স্কিল কার্ড', d: 'নিজের স্কিল পেজ, সনদ আর কভার',              href: 'skill.html', ic: 'skill', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
+    { k: 'memory', t: 'মেমোরি কার্ড', d: 'জমানো পুরনো ছবি বা স্মৃতি কার্ডে শেয়ার করুন', href: 'memory.html', ic: 'card', g: 'linear-gradient(135deg,#0F766E,#34D399)', tag: 'নতুন' }
     /* HIDDEN for now (the page /batch still works by its address). To show the tab again, add this line after the skill entry (with a comma before it):
        { k: 'batch', t: 'আমার ব্যাচ', d: 'আপনার ব্যাচ খুঁজুন বা খুলুন, সহপাঠীদের ডাকুন', href: 'batch.html', ic: 'batch', g: 'linear-gradient(135deg,#6D28D9,#DB2777)', tag: 'নতুন' } */
   ];
@@ -44,7 +45,7 @@
   var SETS = {
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
-      { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD, promo: { ic: 'card', lab: 'ফ্রি টুলস', t: 'নিজের শিক্ষাজীবন, এক কার্ডে', d: '৩০ সেকেন্ডে শিক্ষিত কার্ড বানান, আর স্কিল পেজে নিজের সব স্কিল সাজান।', btn: 'কার্ড বানান', href: 'card.html' } },
+      { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD, promo: { ic: 'card', lab: 'ফ্রি টুলস', t: 'নিজের শিক্ষাজীবন, এক কার্ডে', d: '৩০ সেকেন্ডে শিক্ষিত কার্ড বানান, আর স্কিল কার্ডে নিজের সব স্কিল সাজান।', btn: 'কার্ড বানান', href: 'card.html' } },
       { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR, promo: { ic: 'tutor', lab: 'টিউটর', t: 'যাচাই করা ভাইয়া-আপু, আপনার এলাকায়', d: 'নিজের সন্তানের জন্য টিউটর খুঁজুন, অথবা নিজেই টিউটর হয়ে যোগ দিন।', btn: 'টিউটর খুঁজুন', href: 'tutor.html' } },
       { k: 'about',   t: 'আমাদের কথা', menu: ABOUT, promo: { lab: 'আমাদের নিয়ে', t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }
     ],

@@ -30,7 +30,7 @@
 <body>
 
 <div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="batch"></div>
-<script src="/nav.js?v=20"></script>
+<script src="/nav.js?v=21"></script>
 
 <main class="bt" id="bt">
 
@@ -86,7 +86,7 @@
 </main>
 
 <div id="pfoot" data-art="card"></div>
-<script src="/footer.js?v=20"></script>
+<script src="/footer.js?v=21"></script>
 <div class="bt-toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -419,7 +419,7 @@
       const roomBar = '<a class="bt-room" id="roomBar" href="/messages#b:' + esc(b.id) + '" hidden><span class="bt-ci">' + ic('chat', 22) + '</span><div><b>ব্যাচ রুম</b><small id="roomSub">ব্যাচের সবার সাথে লেখায় কথা বলুন</small></div><em id="roomN" hidden></em><i>খুলুন →</i></a>';
       h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
     }
-    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
+    h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a><a href="/memory">মেমোরি কার্ড বানান</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
     $('pg').innerHTML = h;
 
