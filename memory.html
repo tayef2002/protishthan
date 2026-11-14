@@ -56,7 +56,7 @@
         <label>২. ছবি <small id="phHint"></small></label>
         <div class="mc-slots" id="slots"></div>
         <div class="mc-zoom" id="zoomBox" hidden><label for="zoom">ছবি বড় করুন</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"></div>
-        <small class="mc-note" id="dragHint" hidden>ছবিটা কার্ডের ওপর টেনে সরিয়ে ঠিক জায়গাটা দেখান।</small>
+        <small class="mc-note" id="dragHint" hidden>ছবিটা কার্ডের ওপর টেনে সরান, দুই আঙুলে চিমটি দিয়ে বড়-ছোট করুন।</small>
         <small class="mc-note">ছবি আপনার এই ব্রাউজারেই থাকে, রিফ্রেশ করলেও হারায় না। আমরা সার্ভারে নিই না।</small>
         <input type="file" id="file" accept="image/*" multiple hidden>
       </div>
@@ -617,12 +617,35 @@
   const which = (px0) => { const t = TP(); if(t.ph < 2) return 0; return px0 > $('cv').width * .5 && S.photos[1] ? 1 : (S.photos[0] ? 0 : 1); };
   function syncZoom(){ const on = hasPhoto(), p = S.pos[S.sel] || S.pos[0]; $('zoomBox').hidden = !on; $('dragHint').hidden = !on; if(on) $('zoom').value = Math.round(p.z * 100); $('cv').style.cursor = on ? 'grab' : ''; $('cv').style.touchAction = on ? 'none' : ''; }
   (function(){
-    const cv = $('cv'); let drag = null;
+    const cv = $('cv'), fingers = new Map(); let drag = null, pinch = null;
     const pt = e => { const r = cv.getBoundingClientRect(), k = cv.width / r.width; return [(e.clientX - r.left) * k, (e.clientY - r.top) * k, k]; };
     const inside = (i, x, y) => { const p = S.pos[i], r = p && p.rect; return !!r && x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3]; };
-    cv.addEventListener('pointerdown', e => { if(!hasPhoto()) return; const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; drag = { i, id: e.pointerId, x: e.clientX, y: e.clientY }; S.sel = i; try{ cv.setPointerCapture(e.pointerId); }catch(_){} cv.style.cursor = 'grabbing'; $('zoom').value = Math.round(S.pos[i].z * 100); e.preventDefault(); });
-    cv.addEventListener('pointermove', e => { if(!drag || e.pointerId !== drag.id) return; const p = S.pos[drag.i], k = pt(e)[2], dx = (e.clientX - drag.x) * k / (p.k || 1), dy = (e.clientY - drag.y) * k / (p.k || 1); drag.x = e.clientX; drag.y = e.clientY; if(p.ox > 1) p.x = Math.min(1, Math.max(0, p.x - dx / p.ox)); if(p.oy > 1) p.y = Math.min(1, Math.max(0, p.y - dy / p.oy)); draw(); });
-    const end = e => { if(drag && e.pointerId === drag.id){ drag = null; cv.style.cursor = hasPhoto() ? 'grab' : ''; track('memory_move', { t: S.tpl }); } };
+    const dist = () => { const f = [...fingers.values()]; return Math.hypot(f[0].x - f[1].x, f[0].y - f[1].y) || 1; };
+    const mid = () => { const f = [...fingers.values()]; return { x: (f[0].x + f[1].x) / 2, y: (f[0].y + f[1].y) / 2 }; };
+    const clamp01 = v => Math.min(1, Math.max(0, v));
+    const pan = (p, dx, dy, k) => { dx = dx * k / (p.k || 1); dy = dy * k / (p.k || 1); if(p.ox > 1) p.x = clamp01(p.x - dx / p.ox); if(p.oy > 1) p.y = clamp01(p.y - dy / p.oy); };
+    cv.addEventListener('pointerdown', e => {
+      if(!hasPhoto()) return;
+      if(fingers.size === 0){ const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; drag = { i, id: e.pointerId }; S.sel = i; $('zoom').value = Math.round(S.pos[i].z * 100); cv.style.cursor = 'grabbing'; }
+      else if(fingers.size === 1 && drag){ /* a second finger: pinch to enlarge */ }
+      else return;
+      fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+      if(fingers.size === 2){ const m = mid(); pinch = { d0: dist(), z0: S.pos[drag.i].z, mx: m.x, my: m.y }; }
+      e.preventDefault();
+    });
+    cv.addEventListener('pointermove', e => {
+      if(!fingers.has(e.pointerId) || !drag) return; const p = S.pos[drag.i], k = pt(e)[2], old = fingers.get(e.pointerId);
+      if(pinch && fingers.size === 2){
+        fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        p.z = Math.min(3, Math.max(1, pinch.z0 * dist() / pinch.d0)); $('zoom').value = Math.round(p.z * 100);
+        const m = mid(); pan(p, m.x - pinch.mx, m.y - pinch.my, k); pinch.mx = m.x; pinch.my = m.y; draw();
+      } else { pan(p, e.clientX - old.x, e.clientY - old.y, k); fingers.set(e.pointerId, { x: e.clientX, y: e.clientY }); draw(); }
+    });
+    const end = e => {
+      if(!fingers.has(e.pointerId)) return; fingers.delete(e.pointerId); pinch = null;
+      if(fingers.size === 0){ drag = null; cv.style.cursor = hasPhoto() ? 'grab' : ''; track('memory_move', { t: S.tpl }); }
+      else if(drag){ drag.id = [...fingers.keys()][0]; }   /* one finger left: it carries on moving the photo */
+    };
     cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
     cv.addEventListener('wheel', e => { if(!hasPhoto()) return; const q = pt(e), i = which(q[0]); if(!S.photos[i] || !inside(i, q[0], q[1])) return; e.preventDefault(); S.sel = i; const p = S.pos[i]; p.z = Math.min(3, Math.max(1, p.z * (e.deltaY < 0 ? 1.08 : 1 / 1.08))); $('zoom').value = Math.round(p.z * 100); draw(); }, { passive: false });
     $('zoom').addEventListener('input', () => { const p = S.pos[S.sel] && S.photos[S.sel] ? S.pos[S.sel] : S.pos[S.photos[0] ? 0 : 1]; p.z = Math.min(3, Math.max(1, $('zoom').value / 100)); draw(); });
