@@ -121,6 +121,7 @@
     { k: 'postcard', n: 'পুরনো চিঠি', a: 1.42, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'sms', n: 'পুরনো ফোনের মেসেজ', a: .5, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'tquote', n: 'লেখা স্মৃতি', a: .79, ph: 0, card: 1, own: 1 },
+    { k: 'bday', n: 'জন্মদিন', a: .79, ph: 1, card: 1, bday: 1 },
     { k: 'mono', n: 'সাদা-কালো স্মৃতি', a: .79, ph: 1, card: 1, mono: 1 },
     { k: 'tmono', n: 'সাদা-কালো লেখা', a: .79, ph: 0, card: 1, own: 1, mono: 1 },
     { k: 'tbubble', n: 'অতীতের বার্তা', a: .79, ph: 0, card: 1, own: 1, off: 1 },
@@ -276,6 +277,43 @@
   let GRAIN = null;
   const grain = () => { if(GRAIN) return GRAIN; const g = document.createElement('canvas'); g.width = g.height = 120; const gc = g.getContext('2d'), gi = gc.createImageData(120, 120), r = rng(41); for(let q = 0; q < gi.data.length; q += 4){ gi.data[q] = gi.data[q + 1] = gi.data[q + 2] = r() * 255; gi.data[q + 3] = 14; } gc.putImageData(gi, 0, 0); return (GRAIN = g); };
   /* one card: centre cx, cy, width w (the height follows), tilt ang, photo slot i, the handwriting under the photo */
+  /* ---------- the birthday template: the same card, dressed for a party. HAPPY BIRTHDAY on the band, a little cake with a candle where the year is, confetti on the band, and on the ground behind the card confetti and two bunches of balloons with strings. BD is true only while this template draws its card. ---------- */
+  let BD = false;
+  const PARTY = ['#F25C7A', '#FFC93C', '#4DB6E8', '#7BD389', '#B388F0', '#FF9A5C'];
+  function cakeIcon(cx, base){
+    c.save(); shadow('rgba(0,0,0,.25)', 8 * S.px, 4 * S.px);
+    c.fillStyle = 'rgba(255,255,255,.92)'; rr(cx - 64, base - 8, 128, 9, 4); c.fill();
+    c.fillStyle = '#FFD1DC'; rr(cx - 54, base - 48, 108, 42, 9); c.fill(); shadow();
+    c.fillStyle = '#FFFFFF'; c.beginPath(); c.moveTo(cx - 54, base - 40); for(let q = 0; q <= 6; q++){ c.quadraticCurveTo(cx - 54 + (q + .5) * 18, base - 24 - (q % 2 ? 10 : 0), cx - 54 + (q + 1) * 18, base - 40); } c.lineTo(cx + 54, base - 48); c.lineTo(cx - 54, base - 48); c.closePath(); c.fill();
+    c.fillStyle = '#FFE9A8'; rr(cx - 36, base - 84, 72, 38, 9); c.fill();
+    c.fillStyle = '#FFFFFF'; c.beginPath(); c.moveTo(cx - 36, base - 76); for(let q = 0; q <= 4; q++){ c.quadraticCurveTo(cx - 36 + (q + .5) * 18, base - 62 - (q % 2 ? 8 : 0), cx - 36 + (q + 1) * 18, base - 76); } c.lineTo(cx + 36, base - 84); c.lineTo(cx - 36, base - 84); c.closePath(); c.fill();
+    c.fillStyle = '#7BD389'; c.beginPath(); c.arc(cx - 18, base - 30, 5, 0, 7); c.arc(cx + 4, base - 28, 5, 0, 7); c.arc(cx + 26, base - 31, 5, 0, 7); c.fill();
+    c.fillStyle = '#F25C7A'; rr(cx - 4.5, base - 112, 9, 30, 3); c.fill(); c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(cx - 4.5, base - 104, 9, 4); c.fillRect(cx - 4.5, base - 94, 9, 4);
+    c.fillStyle = '#FFC93C'; c.beginPath(); c.moveTo(cx, base - 138); c.quadraticCurveTo(cx + 12, base - 124, cx, base - 114); c.quadraticCurveTo(cx - 12, base - 124, cx, base - 138); c.fill();
+    c.fillStyle = '#FF8A1F'; c.beginPath(); c.moveTo(cx, base - 130); c.quadraticCurveTo(cx + 6, base - 123, cx, base - 117); c.quadraticCurveTo(cx - 6, base - 123, cx, base - 130); c.fill();
+    c.restore();
+  }
+  function bdGround(W, H, ox, oy, ow, oh){
+    const rg = rng(21), lim = oy + oh * .98;
+    for(let q = 0; q < 64; q++){
+      const x = rg() * W, y = 24 + rg() * (lim - 24), sz = 9 + rg() * 10, a = rg() * Math.PI;
+      c.save(); c.translate(x, y); c.rotate(a); c.fillStyle = rgba(PARTY[q % PARTY.length], .78);
+      if(q % 3 === 0){ c.beginPath(); c.arc(0, 0, sz * .45, 0, 7); c.fill(); } else c.fillRect(-sz / 2, -sz * .18, sz, sz * .36);
+      c.restore();
+    }
+    const rad = Math.min(66, ox * .42);
+    const balloon = (bx, by, r, col, tx, ty) => {
+      c.strokeStyle = 'rgba(40,40,60,.32)'; c.lineWidth = 3; c.beginPath(); c.moveTo(bx, by + r + 12); c.bezierCurveTo(bx - 20, by + r + 60, bx + 20, by + r + 120, tx, ty); c.stroke();
+      c.save(); c.translate(bx, by); shadow('rgba(0,0,0,.14)', 16, 8);
+      c.fillStyle = linear(-r, -r, r, r, [[0, mix(col, '#FFFFFF', .4)], [1, col]]); c.beginPath(); c.ellipse(0, 0, r * .82, r, 0, 0, 7); c.fill(); shadow();
+      c.fillStyle = col; c.beginPath(); c.moveTo(0, r - 2); c.lineTo(-8, r + 13); c.lineTo(8, r + 13); c.closePath(); c.fill();
+      c.fillStyle = rgba('#FFFFFF', .55); c.beginPath(); c.ellipse(-r * .32, -r * .4, r * .14, r * .26, -.5, 0, 7); c.fill();
+      c.restore();
+    };
+    const lt = [ox * .5, oy + oh * .9], rt = [W - ox * .5, oy + oh * .62];
+    balloon(ox * .6, oy + oh * .34, rad * .9, PARTY[1], lt[0], lt[1]); balloon(ox * .4, oy + oh * .5, rad, PARTY[0], lt[0], lt[1]);
+    balloon(W - ox * .6, oy + oh * .2, rad, PARTY[2], rt[0], rt[1]); balloon(W - ox * .38, oy + oh * .34, rad * .85, PARTY[4], rt[0], rt[1]); balloon(W - ox * .62, oy + oh * .42, rad * .72, PARTY[3], rt[0], rt[1]);
+  }
   function memcard(cx, cy, w, ang, i, cap, page){
     const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = PAL.mono ? '#E8EAEE' : '#FFE9A8', METAL = PAL.mono ? [[0, '#7E838B'], [.28, '#F4F6F9'], [.55, '#BDC2C9'], [1, '#6E737B']] : [[0, '#D9A21A'], [.28, '#FFF3B8'], [.55, '#FAC93F'], [1, '#C58C10']];
     const path = () => { c.beginPath(); c.moveTo(R, 0); c.lineTo(cw - cut, 0); c.lineTo(cw, cut); c.lineTo(cw, ch - R); c.arcTo(cw, ch, cw - R, ch, R); c.lineTo(R, ch); c.arcTo(0, ch, 0, ch - R, R); c.lineTo(0, R); c.arcTo(0, 0, R, 0, R); c.closePath(); };
@@ -294,11 +332,12 @@
     if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(L, 54, 60, 60, 15); c.clip(); c.drawImage(logoImg(), L, 54, 60, 60); c.restore(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.55)'; rr(L, 54, 60, 60, 15); c.stroke(); }
     c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', L + 76, 96);
     /* row 2: the big silver name, and the "capacity" (the year, or infinity) on the same baseline at the right edge */
-    c.fillStyle = linear(0, 118, 0, 184, [[0, '#FFFFFF'], [.55, '#D7DCE6'], [1, '#9AA3B5']]); c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8 * k, 4 * k); c.fillText('MEMORY', L - 2, 184); shadow();
-    const yr = (((S.cur.small || '').match(/[0-9০-৯]{4}/) || [])[0] || '∞').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)); c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '800 ' + (yr === '∞' ? 84 : 70) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.35)', 8 * k, 4 * k); c.fillText(yr, Rt, yr === '∞' ? 188 : 184); shadow();
+    c.fillStyle = linear(0, 118, 0, 184, [[0, '#FFFFFF'], [.55, '#D7DCE6'], [1, '#9AA3B5']]); c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8 * k, 4 * k); { const big = BD ? 'HAPPY BIRTHDAY' : 'MEMORY'; let fz = BD ? 62 : 76; c.font = '900 ' + fz + 'px Inter, sans-serif'; if(BD){ const maxW = cw - L - 150 - 66; while(c.measureText(big).width > maxW && fz > 36){ fz -= 2; c.font = '900 ' + fz + 'px Inter, sans-serif'; } } c.fillText(big, L - 2, 184); } shadow();
+    const yr = (((S.cur.small || '').match(/[0-9০-৯]{4}/) || [])[0] || '∞').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)); c.textAlign = 'right'; c.fillStyle = GOLD1; c.font = '800 ' + (yr === '∞' ? 84 : 70) + 'px Inter, sans-serif'; shadow('rgba(0,0,0,.35)', 8 * k, 4 * k); if(BD) cakeIcon(Rt - 54, 224); else c.fillText(yr, Rt, yr === '∞' ? 188 : 184); shadow();
     /* row 3: what it is, with the speed class beside it */
-    c.textAlign = 'left'; c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.94)'; const kind = 'মেমোরি কার্ড'; c.fillText(kind, L, 236);
-    const bx = L + c.measureText(kind).width + 44; c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(bx, 224, 24, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '800 27px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', bx + 7, 234);
+    c.textAlign = 'left'; c.font = '700 30px ' + HS; c.fillStyle = 'rgba(255,255,255,.94)'; const kind = BD ? 'জন্মদিনের কার্ড' : 'মেমোরি কার্ড'; c.fillText(kind, L, 236);
+    if(BD){ const rb = rng(33); for(let q = 0; q < 18; q++){ c.fillStyle = rgba(PARTY[q % PARTY.length], .85); c.beginPath(); c.arc(430 + rb() * 380, 12 + rb() * 70, 3 + rb() * 4, 0, 7); c.fill(); } }
+    if(!BD){ const bx = L + c.measureText(kind).width + 44; c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 4; c.beginPath(); c.arc(bx, 224, 24, -2.6, 2.6); c.stroke(); c.fillStyle = 'rgba(255,255,255,.96)'; c.font = '800 27px Inter, sans-serif'; c.textAlign = 'center'; c.fillText('10', bx + 7, 234); }
     /* the photo fills the black body of the card, inside a black border of plastic; the gold contacts lie on top of the photo */
     const px = 22, py = 322, pw = cw - 44, ph = ch - 22 - py, pr = 28;
     const sy = ch - 196, sh2 = 160;
@@ -573,6 +612,7 @@
   SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); const keep = PAL; PAL = THEMES[PAIR[S.theme]] || keep; try{ memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); }finally{ PAL = keep; } };
 
   SH.mono = SH.mem1; SH.tmono = SH.tquote;
+  SH.bday = (x, y, w, h) => { BD = true; try{ SH.mem1(x, y, w, h); }finally{ BD = false; } };
   SH.card1 = (x, y, w, h) => { const k = .9; card(x + w / 2, y + h / 2, w * k, h * k, -.07, 0, S.cur.small); };
   SH.card3 = (x, y, w, h) => {
     const k = .92, cw = w * k, ch = h * k;
@@ -619,6 +659,7 @@
     const oh = Math.min(regionH, (W * .8) / t.a), ow = oh * t.a, group = oh + GAP + capH, g0 = top + Math.max(0, (bottom - top - group) / 2) - H * .01;
     const ox = (W - ow) / 2, oy = g0;
     paper(W, H, W / 2, oy + oh / 2);
+    if(tp0 && tp0.bday) bdGround(W, H, ox, oy, ow, oh);
     c.save(); SH[key](ox, oy, ow, oh); c.restore();
     let y = oy + oh + GAP; c.textAlign = 'center';
     c.fillStyle = PAL.dk; c.font = '800 ' + tt.size + 'px ' + DISP; y += tt.size * .85; tt.lines.forEach(s => { c.fillText(s, W / 2, y); y += tt.size * 1.15; }); y -= tt.size * .85;
