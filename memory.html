@@ -266,7 +266,7 @@
     const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = '#FFE9A8';
     const path = () => { c.beginPath(); c.moveTo(R, 0); c.lineTo(cw - cut, 0); c.lineTo(cw, cut); c.lineTo(cw, ch - R); c.arcTo(cw, ch, cw - R, ch, R); c.lineTo(R, ch); c.arcTo(0, ch, 0, ch - R, R); c.lineTo(0, R); c.arcTo(0, 0, R, 0, R); c.closePath(); };
     c.save(); c.translate(cx, cy); c.rotate(ang); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
-    shadow('rgba(30,50,40,.24)', 60 * k, 24 * k); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
+    shadow(rgba(PAL.dk, .38), 90 * k, 34 * k); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
     c.save(); path(); c.clip();
     c.fillStyle = linear(0, 0, cw * .6, ch, [[0, '#3A3F4D'], [.45, '#1F222B'], [1, '#101218']]); c.fillRect(0, 0, cw, ch);
     c.fillStyle = c.createPattern(grain(), 'repeat'); c.fillRect(0, 0, cw, ch);
@@ -572,12 +572,14 @@
 
   /* ---------- the whole card: a soft paper, the object with the photo, a few words below ---------- */
     const radial = (x, y, r, stops) => { const g = c.createRadialGradient(x, y, 0, x, y, r); stops.forEach(p => g.addColorStop(p[0], p[1])); return g; };
-  /* a very light paper of the chosen colour, with a hint of the main colour at the edges, nothing else: flat to the eye */
+  /* the ground the card lies on: a gradient in the chosen colour (lighter top left, deeper bottom right) with a bright halo right behind the card and a soft dark rim at the corners, so the card stands out from its ground (also on a small phone screen, and when the picture is posted on Facebook) instead of melting into a flat tint */
   function paper(W, H, cx, cy){
-    const base = mix(PAL.bg, '#FFFFFF', .62); c.fillStyle = base; c.fillRect(0, 0, W, H);
-    c.fillStyle = radial(cx, cy, Math.max(W, H) * .85, [[0, rgba(base, 0)], [1, rgba(PAL.ac, .075)]]); c.fillRect(0, 0, W, H);
+    const lo = mix(PAL.bg2, '#FFFFFF', .30), hi = mix(PAL.bg2, PAL.ac, .26);
+    c.fillStyle = linear(0, 0, W, H, [[0, lo], [1, hi]]); c.fillRect(0, 0, W, H);
+    c.fillStyle = radial(W * .12, H * .05, W * .75, [[0, rgba('#FFFFFF', .5)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
+    c.fillStyle = radial(cx, cy, Math.max(W, H) * .5, [[0, rgba('#FFFFFF', .92)], [.5, rgba('#FFFFFF', .34)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
+    c.fillStyle = radial(W / 2, H / 2, Math.max(W, H) * .82, [[.5, rgba(PAL.ac, 0)], [1, rgba(PAL.ac, .2)]]); c.fillRect(0, 0, W, H);
   }
-  /* the brand strip at the foot of every picture: one small frosted pill, the mark, a short invitation and the address, with an arrow. It is small enough not to fight the memory, and it is what a friend sees when the picture is shared, so it says what to do and where. */
   /* where Facebook cuts: a post (4:5) is shown a little shorter on a computer (about 4% off the top and the bottom) and a story has the name on top and the reply bar at the foot, so the words and the strip stay inside a safe zone: 84 px from the foot of a post, 230 px from the foot of a story */
   const safeFoot = H => H > 1500 ? 230 : 84, safeTop = H => H > 1500 ? H * .1 : H * .06;
   function brandStrip(W, H){
