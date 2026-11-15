@@ -223,7 +223,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-c.bt-roster{margin-top:0}.bt-rs{margin:-4px 0 0;font-size:13.5px;color:var(--tx3)}.bt-c .bt-rlist{margin-top:14px}
 .bt-rlist li{border-radius:18px;transition:border-color .15s,box-shadow .15s}.bt-rlist li:hover{border-color:var(--soft)}
 .bt-look .bt-inp{border-radius:14px}
-@media(max-width:900px){.bt-cols{grid-template-columns:minmax(0,1fr)}.bt-hub.fresh .bt-side{order:-1}.bt-stp ol{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:900px){.bt-cols{grid-template-columns:minmax(0,1fr)}.bt-hub.fresh .bt-side{order:-1}}
 @media(max-width:560px){.bt-c{padding:18px;border-radius:22px}.bt-sbs{grid-template-columns:minmax(0,1fr)}.bt-pcs{gap:10px}.bt-seg{display:grid;grid-auto-flow:column;width:100%}.bt-seg button{min-width:0}}
 
 /* ===== group pictures and albums ===== */
@@ -297,8 +297,9 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-ring::before{content:'';position:absolute;inset:7px;border-radius:50%;background:#fff}
 .bt-ring b{position:relative;font-size:19px;font-weight:800;color:var(--ink);line-height:1}.bt-ring b small{font-size:12px;font-weight:700;color:var(--tx3)}
 .bt-stpt h2{margin:0;font-size:20px;font-weight:800;color:var(--ink)}.bt-stpt p{margin:3px 0 0;font-size:14px;color:var(--tx3)}
-.bt-stp ol{list-style:none;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.bt-stp li{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:14px 14px 15px;border-radius:18px;border:1.5px solid var(--soft);background:#fff}
+.bt-stp ol{list-style:none;margin:18px 0 0;padding:0 0 8px;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--soft) transparent}
+.bt-stp ol::-webkit-scrollbar{height:6px}.bt-stp ol::-webkit-scrollbar-thumb{background:var(--soft);border-radius:6px}
+.bt-stp li{position:relative;display:flex;flex-direction:column;align-items:flex-start;flex:0 0 calc((100% - 36px) / 4);min-width:200px;scroll-snap-align:start;padding:14px 14px 15px;border-radius:18px;border:1.5px solid var(--soft);background:#fff}
 .bt-stp li.done{background:var(--tint);border-color:transparent}
 .bt-stp li.cur{border-color:var(--ac);background:#fff}
 .bt-stp li.todo{border-style:dashed;background:transparent}
@@ -310,7 +311,6 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-stp li small{display:block;margin-top:2px;font-size:12.5px;line-height:1.5;color:var(--tx3)}
 .bt-stp li a{display:inline-block;margin-top:10px;font-size:13px;font-weight:800;color:#fff;text-decoration:none;background:var(--ac);border-radius:100px;padding:6px 14px}
 .bt-stp li a:hover{filter:brightness(1.08)}
-@media(max-width:900px){.bt-stp ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* the member hub is short: one column, the steps are small rows on a phone, the share extras fold away, leaving is a small link at the foot */
 .bt-cols.one{grid-template-columns:minmax(0,1fr)}
@@ -321,10 +321,9 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .bt-leavep{margin:10px 0 0;text-align:center}
 @media(max-width:560px){
   .bt-stp{padding:16px}.bt-stph{gap:12px}.bt-ring{width:52px;height:52px}.bt-ring::before{inset:6px}.bt-ring b{font-size:16px}.bt-ring b small{font-size:10.5px}.bt-stpt h2{font-size:18px}.bt-stpt p{font-size:13px}
-  .bt-stp ol{gap:8px;margin-top:14px}
-  .bt-stp li{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;align-items:center;padding:10px 12px;border-radius:16px}
-  .bt-dot{grid-row:1 / span 3;margin:0}
-  .bt-stp li b{font-size:14.5px}.bt-stp li small{margin-top:0}
-  .bt-stp li a{justify-self:start;margin-top:8px;padding:5px 12px}.bt-stp li a.ghost{padding:0}
 }
-@media(max-width:560px){.bt-stp ol{grid-template-columns:minmax(0,1fr)}}
+
+/* the steps sit in one row that scrolls sideways: four are in view on a computer, the rest are a swipe away; on a phone about one and a half are in view */
+@media(max-width:900px){.bt-stp li{flex-basis:calc((100% - 12px) / 2.3)}}
+@media(max-width:560px){.bt-stp li{flex-basis:78%;min-width:0}}
+.bt-hub,.bt-hub>*{min-width:0;max-width:100%}.bt-stp{overflow:hidden}.bt-stp ol{max-width:100%}

@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=43">
+<link rel="stylesheet" href="/batch.css?v=45">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -357,7 +357,8 @@
       { t: 'যোগ দিয়েছেন', s: 'আপনি ' + bn(me.seq) + ' নম্বর সদস্য', done: true },
       { t: 'সহপাঠীকে ডাকুন', s: 'ব্যাচের লিংক পাঠিয়ে', done: flagGet(id, 'i'), go: 'invite', cta: 'লিংক কপি করুন' },
       { t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, ফ্রি', done: flagGet(id, 'c'), href: '/card', flag: 'c', cta: 'কার্ড বানান' },
-      { t: 'স্কিল কার্ড সাজান', s: 'আপনার কাজ আর দক্ষতার লিংক', done: flagGet(id, 's'), href: '/skill', flag: 's', cta: 'স্কিল কার্ড খুলুন' }
+      { t: 'স্কিল কার্ড সাজান', s: 'আপনার কাজ আর দক্ষতার লিংক', done: flagGet(id, 's'), href: '/skill', flag: 's', cta: 'স্কিল কার্ড খুলুন' },
+      { t: 'মেমোরি কার্ড বানান', s: 'পুরনো ছবি বা স্মৃতি, এক ক্লিকে', done: flagGet(id, 'm'), href: '/memory', flag: 'm', cta: 'মেমোরি কার্ড বানান' }
     ];
   }
   const stepAct = (x, cur) => x.done ? '' : x.href ? '<a class="' + (cur ? '' : 'ghost') + '" href="' + x.href + '" data-flag="' + x.flag + '">' + x.cta + ' →</a>' : cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '';
