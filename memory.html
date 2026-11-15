@@ -740,19 +740,21 @@
     ph.forEach((im, i) => { parts.push(im ? photoSig(im) : '-'); const p = S.pos[i]; parts.push(p ? [p.x, p.y, p.z].map(v => (+v).toFixed(2)).join(',') : ''); });
     const j = parts.join('|'); return fnv(j) + fnv(j.split('').reverse().join(''));
   }
-  const seenGet = () => { try{ const a = JSON.parse(localStorage.getItem('mem_seen') || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } };
   const devId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
   const sbc = () => { try{ return window.Protishthan && Protishthan.member && Protishthan.member.sb; }catch(e){ return null; } };
   /* the public number is the real count, shown from the first card (zero shows nothing) */
   const MIN_SHOW = 1;
   function paintTotal(n){ const el = $('tot'); if(!(n >= MIN_SHOW)) return; $('totN').textContent = bn(Math.round(n).toLocaleString('en-US')); el.hidden = false; }
   async function loadTotal(){ try{ const r = await fetch('/api/memory-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.n != null && Number.isFinite(Number(j.n))) paintTotal(Number(j.n)); } }catch(e){} }
+  /* two lists in this browser: mem_seen = the designs made here (for "you made N cards"), mem_sent = the designs the server has confirmed. A design is sent until the server says yes, so a call that failed (the network, a slow start) is tried again the next time the same design is downloaded; the server itself counts a design once per device, so sending again never counts twice. */
+  const listGet = k => { try{ const a = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } };
+  const listAdd = (k, v) => { const a = listGet(k); if(!a.includes(v)) a.push(v); try{ localStorage.setItem(k, JSON.stringify(a.slice(-300))); }catch(e){} };
   function bump(){
     const k = designKey(); if(!k) return;
-    const seen = seenGet(); if(seen.includes(k)) return;                       // this very design was already counted on this device
-    seen.push(k); try{ localStorage.setItem('mem_seen', JSON.stringify(seen.slice(-300))); }catch(e){}
-    const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount();
-    const x = sbc(); if(x) try{ x.rpc('bump_memory_downloads', { p_device: devId(), p_fp: k }).then(r => { if(r && !r.error && r.data != null) paintTotal(Number(r.data)); }, () => {}); }catch(e){}
+    if(!listGet('mem_seen').includes(k)){ listAdd('mem_seen', k); const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
+    if(listGet('mem_sent').includes(k)) return;                                // the server already has this design
+    const x = sbc(); if(!x) return;                                            // not ready yet: tried again next time
+    try{ x.rpc('bump_memory_downloads', { p_device: devId(), p_fp: k }).then(r => { if(r && !r.error && r.data != null){ listAdd('mem_sent', k); paintTotal(Number(r.data)); } else if(r && r.error) console.warn('memory counter:', r.error.message || r.error); }, e => console.warn('memory counter:', e)); }catch(e){}
   }
   function showCount(){ const n = count(), p = $('cnt'); if(n){ p.textContent = 'আপনি এ পর্যন্ত ' + bn(n) + 'টা কার্ড বানিয়েছেন।'; p.hidden = false; } }
   $('dl').onclick = async () => { await render(); const f = await fileOf(); if(!f){ toast('কার্ড বানানো যায়নি, আবার চেষ্টা করুন।'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = 'memory-card.jpg'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); bump(); track('memory_download', { t: S.tpl, size: S.size, photos: S.photos.filter(Boolean).length }); toast('কার্ড ডাউনলোড হয়েছে।'); };
