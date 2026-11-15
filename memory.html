@@ -302,17 +302,47 @@
       c.restore();
     }
     const rad = Math.min(66, ox * .42);
-    const balloon = (bx, by, r, col, tx, ty) => {
-      c.strokeStyle = 'rgba(40,40,60,.32)'; c.lineWidth = 3; c.beginPath(); c.moveTo(bx, by + r + 12); c.bezierCurveTo(bx - 20, by + r + 60, bx + 20, by + r + 120, tx, ty); c.stroke();
-      c.save(); c.translate(bx, by); shadow('rgba(0,0,0,.14)', 16, 8);
-      c.fillStyle = linear(-r, -r, r, r, [[0, mix(col, '#FFFFFF', .4)], [1, col]]); c.beginPath(); c.ellipse(0, 0, r * .82, r, 0, 0, 7); c.fill(); shadow();
-      c.fillStyle = col; c.beginPath(); c.moveTo(0, r - 2); c.lineTo(-8, r + 13); c.lineTo(8, r + 13); c.closePath(); c.fill();
-      c.fillStyle = rgba('#FFFFFF', .55); c.beginPath(); c.ellipse(-r * .32, -r * .4, r * .14, r * .26, -.5, 0, 7); c.fill();
+    /* a real party balloon: a teardrop with a small knot, a soft shaded body (light from the top left, a faint bounce light at the bottom right), a curved shine and a dot of shine; the strings are drawn first and gathered into one ribbon bow */
+    const bshape = r => { c.beginPath(); c.moveTo(0, r); c.bezierCurveTo(-r * .3, r * .8, -r * .88, r * .44, -r * .88, -r * .14); c.bezierCurveTo(-r * .88, -r * .72, -r * .48, -r, 0, -r); c.bezierCurveTo(r * .48, -r, r * .88, -r * .72, r * .88, -r * .14); c.bezierCurveTo(r * .88, r * .44, r * .3, r * .8, 0, r); c.closePath(); };
+    const bstring = (bx, by, r, tx, ty, wave) => {
+      const sx = bx, sy = by + r + 10, dy = ty - sy;
+      c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+      c.strokeStyle = 'rgba(70,70,92,.46)'; c.lineWidth = 2.4; c.beginPath(); c.moveTo(sx, sy);
+      c.bezierCurveTo(sx + wave * 26, sy + dy * .28, tx - wave * 24, sy + dy * .62, tx, ty); c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1; c.beginPath(); c.moveTo(sx - .8, sy);
+      c.bezierCurveTo(sx + wave * 26 - .8, sy + dy * .28, tx - wave * 24 - .8, sy + dy * .62, tx - .8, ty); c.stroke();
+      c.restore();
+    };
+    const balloon = (bx, by, r, col, tilt) => {
+      c.save(); c.translate(bx, by); c.rotate(tilt);
+      c.fillStyle = mix(col, '#000000', .2); c.beginPath(); c.moveTo(0, r - 3); c.quadraticCurveTo(-3, r + 5, -8.5, r + 12); c.lineTo(8.5, r + 12); c.quadraticCurveTo(3, r + 5, 0, r - 3); c.closePath(); c.fill();
+      shadow('rgba(30,20,50,.2)', 20, 10);
+      const g = c.createRadialGradient(-r * .3, -r * .4, r * .06, -r * .06, -r * .08, r * 1.1);
+      g.addColorStop(0, mix(col, '#FFFFFF', .62)); g.addColorStop(.3, mix(col, '#FFFFFF', .2)); g.addColorStop(.72, col); g.addColorStop(1, mix(col, '#000000', .26));
+      c.fillStyle = g; bshape(r); c.fill(); shadow();
+      c.save(); bshape(r); c.clip();
+      const bl = c.createRadialGradient(r * .42, r * .62, 0, r * .42, r * .62, r * .7); bl.addColorStop(0, rgba(mix(col, '#FFFFFF', .55), .5)); bl.addColorStop(1, rgba(col, 0));
+      c.fillStyle = bl; c.fillRect(-r, -r, r * 2, r * 2.2);
+      c.restore();
+      c.strokeStyle = rgba('#FFFFFF', .78); c.lineWidth = Math.max(4, r * .11); c.lineCap = 'round';
+      c.beginPath(); c.ellipse(0, -r * .06, r * .62, r * .8, 0, Math.PI * 1.08, Math.PI * 1.36); c.stroke();
+      c.fillStyle = rgba('#FFFFFF', .85); c.beginPath(); c.arc(-r * .5, r * .02, Math.max(2.4, r * .05), 0, 7); c.fill();
+      c.restore();
+    };
+    const bow = (x, y, col) => {
+      c.save(); c.translate(x, y); shadow('rgba(0,0,0,.18)', 6, 3);
+      c.fillStyle = col; [-1, 1].forEach(d => { c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(d * 10, -14, d * 26, -8, d * 24, 2); c.bezierCurveTo(d * 22, 11, d * 8, 6, 0, 0); c.fill(); });
+      [-1, 1].forEach(d => { c.beginPath(); c.moveTo(0, 2); c.quadraticCurveTo(d * 8, 18, d * 16, 28); c.lineTo(d * 9, 26); c.quadraticCurveTo(d * 4, 16, 0, 2); c.fill(); });
+      shadow(); c.fillStyle = mix(col, '#000000', .18); c.beginPath(); c.arc(0, 1, 5.2, 0, 7); c.fill();
+      c.fillStyle = rgba('#FFFFFF', .5); c.beginPath(); c.arc(-1.6, -.6, 1.8, 0, 7); c.fill();
       c.restore();
     };
     const lt = [ox * .5, oy + oh * .9], rt = [W - ox * .5, oy + oh * .62];
-    balloon(ox * .6, oy + oh * .34, rad * .9, PARTY[1], lt[0], lt[1]); balloon(ox * .4, oy + oh * .5, rad, PARTY[0], lt[0], lt[1]);
-    balloon(W - ox * .6, oy + oh * .2, rad, PARTY[2], rt[0], rt[1]); balloon(W - ox * .38, oy + oh * .34, rad * .85, PARTY[4], rt[0], rt[1]); balloon(W - ox * .62, oy + oh * .42, rad * .72, PARTY[3], rt[0], rt[1]);
+    const L = [[ox * .6, oy + oh * .34, rad * .9, PARTY[1], -.08], [ox * .4, oy + oh * .5, rad, PARTY[0], .06]];
+    const Rr = [[W - ox * .6, oy + oh * .2, rad, PARTY[2], .07], [W - ox * .38, oy + oh * .34, rad * .85, PARTY[4], -.06], [W - ox * .62, oy + oh * .42, rad * .72, PARTY[3], .1]];
+    L.forEach((q, n) => bstring(q[0], q[1], q[2], lt[0], lt[1], n ? 1 : -1)); Rr.forEach((q, n) => bstring(q[0], q[1], q[2], rt[0], rt[1], n === 1 ? 1 : -1));
+    L.forEach(q => balloon(...q)); Rr.forEach(q => balloon(...q));
+    bow(lt[0], lt[1], PARTY[5]); bow(rt[0], rt[1], PARTY[0]);
   }
   function memcard(cx, cy, w, ang, i, cap, page){
     const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = PAL.mono ? '#E8EAEE' : '#FFE9A8', METAL = PAL.mono ? [[0, '#7E838B'], [.28, '#F4F6F9'], [.55, '#BDC2C9'], [1, '#6E737B']] : [[0, '#D9A21A'], [.28, '#FFF3B8'], [.55, '#FAC93F'], [1, '#C58C10']];
