@@ -21,7 +21,7 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 .mc-acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
 .mc-btn{min-height:52px;border:0;border-radius:16px;background:var(--ac);color:#fff;font-size:16.5px;font-weight:800;cursor:pointer;transition:filter .15s,transform .15s}
 .mc-btn:hover{filter:brightness(1.05)}.mc-btn:active{transform:scale(.99)}.mc-btn.alt{background:#16A34A}
-.mc-cnt,.mc-tot{margin:10px 0 0;font-size:13.5px;color:var(--tx3)}.mc-tot{margin-top:6px;font-weight:700;color:var(--tx2)}.mc-cnt[hidden],.mc-tot[hidden]{display:none}
+.mc-cnt{margin:10px 0 0;font-size:13.5px;color:var(--tx3)}.mc-cnt[hidden]{display:none}
 .mc-form{background:#fff;border:1px solid var(--ln);border-radius:24px;padding:20px}
 .mc-f{margin-bottom:18px;min-width:0}.mc-f label{display:block;margin-bottom:8px;font-size:14px;font-weight:800;color:var(--tx2)}.mc-f label small{font-weight:600;color:var(--tx3);margin-left:6px}
 .mc-inp{width:100%;padding:12px 14px;border:1.5px solid var(--ln);border-radius:14px;background:#fff;outline:none;transition:border-color .15s;line-height:1.6}
@@ -79,3 +79,12 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 @media(prefers-reduced-motion:reduce){.mp-btn,.mp-btn i{transition:none}}
 /* on a phone the preview gets the whole width: no white wrapper card around it, the colour row is its own small card above it */
 @media(max-width:560px){.mc-pvc{background:transparent;border:0;padding:0;border-radius:0}.mc-themebar{background:#fff;border:1px solid var(--ln);border-radius:18px;padding:12px 14px;margin-bottom:10px}.mc-cvw{border-radius:18px}}
+
+/* the live download number, in the hero under the headline, like the one on the education card page: a white pill, a pulsing green dot, the number in the card colour */
+.mc-live{display:inline-flex;align-items:center;gap:9px;margin:14px 0 14px;padding:9px 18px;border-radius:100px;background:#fff;border:1px solid var(--soft);font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap;max-width:100%}
+.mc-live[hidden]{display:none}
+.mc-live b{color:var(--ac);font-weight:800;font-size:1.1em}
+.mc-live i{flex:none;width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:mcPulse 1.8s infinite}
+@keyframes mcPulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+@media(max-width:560px){.mc-live{font-size:12.5px;padding:8px 13px;gap:7px}}
+@media(prefers-reduced-motion:reduce){.mc-live i{animation:none}}

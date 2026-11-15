@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=34">
+<link rel="stylesheet" href="/memory.css?v=36">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -33,6 +33,7 @@
   <section class="mc-hero">
     <span class="mc-chip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 7v3M12 7v3M15 7v3"/></svg>মেমোরি কার্ড</span>
     <h1>পুরনো স্মৃতি, আজকের মুহূর্ত: <span>সবই মেমোরি কার্ডে</span></h1>
+    <div class="mc-live" id="tot" hidden aria-live="polite"><i></i><span>এ পর্যন্ত <b id="totN">০</b> টা মেমোরি কার্ড ডাউনলোড হয়েছে</span></div>
     <p>গ্যালারির পুরনো ছবি বা আজকের কোনো মুহূর্ত, এক ক্লিকে কার্ড বানিয়ে শেয়ার করুন। আজ যা ঘটছে, কাল সেটাই স্মৃতি।</p>
   </section>
 
@@ -45,7 +46,6 @@
         <button type="button" class="mc-btn alt" id="sh" hidden>শেয়ার করুন</button>
       </div>
       <p class="mc-cnt" id="cnt" hidden></p>
-      <p class="mc-tot" id="tot" hidden></p>
     </div></section>
 
     <section class="mc-form" aria-label="কার্ড বানান">
@@ -745,7 +745,7 @@
   const sbc = () => { try{ return window.Protishthan && Protishthan.member && Protishthan.member.sb; }catch(e){ return null; } };
   /* the public number is the real count, shown from the first card (zero shows nothing) */
   const MIN_SHOW = 1;
-  function paintTotal(n){ const el = $('tot'); if(!(n >= MIN_SHOW)) return; el.textContent = 'এ পর্যন্ত ' + bn(Math.round(n).toLocaleString('en-US')) + 'টা মেমোরি কার্ড ডাউনলোড হয়েছে'; el.hidden = false; }
+  function paintTotal(n){ const el = $('tot'); if(!(n >= MIN_SHOW)) return; $('totN').textContent = bn(Math.round(n).toLocaleString('en-US')); el.hidden = false; }
   async function loadTotal(){ try{ const r = await fetch('/api/memory-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.n != null && Number.isFinite(Number(j.n))) paintTotal(Number(j.n)); } }catch(e){} }
   function bump(){
     const k = designKey(); if(!k) return;
