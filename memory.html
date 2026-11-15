@@ -574,11 +574,11 @@
     const radial = (x, y, r, stops) => { const g = c.createRadialGradient(x, y, 0, x, y, r); stops.forEach(p => g.addColorStop(p[0], p[1])); return g; };
   /* the ground the card lies on: a gradient in the chosen colour (lighter top left, deeper bottom right) with a bright halo right behind the card and a soft dark rim at the corners, so the card stands out from its ground (also on a small phone screen, and when the picture is posted on Facebook) instead of melting into a flat tint */
   function paper(W, H, cx, cy){
-    const lo = mix(PAL.bg2, '#FFFFFF', .30), hi = mix(PAL.bg2, PAL.ac, .26);
+    const lo = mix(PAL.bg2, '#FFFFFF', .62), hi = mix(PAL.bg2, '#FFFFFF', .22);
     c.fillStyle = linear(0, 0, W, H, [[0, lo], [1, hi]]); c.fillRect(0, 0, W, H);
     c.fillStyle = radial(W * .12, H * .05, W * .75, [[0, rgba('#FFFFFF', .5)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
     c.fillStyle = radial(cx, cy, Math.max(W, H) * .5, [[0, rgba('#FFFFFF', .92)], [.5, rgba('#FFFFFF', .34)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
-    c.fillStyle = radial(W / 2, H / 2, Math.max(W, H) * .82, [[.5, rgba(PAL.ac, 0)], [1, rgba(PAL.ac, .2)]]); c.fillRect(0, 0, W, H);
+    c.fillStyle = radial(W / 2, H / 2, Math.max(W, H) * .82, [[.55, rgba(PAL.ac, 0)], [1, rgba(PAL.ac, .1)]]); c.fillRect(0, 0, W, H);
   }
   /* where Facebook cuts: a post (4:5) is shown a little shorter on a computer (about 4% off the top and the bottom) and a story has the name on top and the reply bar at the foot, so the words and the strip stay inside a safe zone: 84 px from the foot of a post, 230 px from the foot of a story */
   const safeFoot = H => H > 1500 ? 230 : 84, safeTop = H => H > 1500 ? H * .1 : H * .06;
