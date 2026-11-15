@@ -1,14 +1,15 @@
 /* মেমোরি কার্ড (/memory): a light, clean page. A card is a nostalgic object (a TV, a cassette, a kite...) with the person's photo inside it, drawn in the browser. */
-:root{--ink:#10233F;--tx:#1B2A3F;--tx2:#53627A;--tx3:#8191A8;--ln:#E5EAF1;--bg:#F7F9FB;--ac:#1A56DB;--tint:#EEF4FF;--soft:#D6E3FB}
+:root{--ink:#10233F;--tx:#1B2A3F;--tx2:#53627A;--tx3:#8191A8;--ln:#E5EAF1;--bg:#F4F6FB;--ac:#1A56DB;--tint:#EEF4FF;--soft:#D6E3FB}
 *{box-sizing:border-box}
 body{margin:0;font-family:'Hind Siliguri','Inter',sans-serif;color:var(--tx);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
 button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
-.mc{max-width:1200px;margin:0 auto;padding:128px 20px 64px}
-.mc-hero{text-align:center;max-width:860px;margin:0 auto 44px}
+.mc{max-width:1200px;margin:0 auto;padding:98px 20px 64px}
+/* the hero is the same soft blue-violet panel as the education card page: a rounded box, a violet light top right, a cyan light top left, an ice-blue base */
+.mc-hero{text-align:center;margin:0 auto 28px;padding:38px 44px 32px;border-radius:32px;color:#0B1B4D;border:1px solid #D9E4FB;background:radial-gradient(560px 320px at 94% 4%,rgba(124,92,255,.17),transparent 62%),radial-gradient(520px 300px at 3% 0,rgba(34,211,238,.16),transparent 62%),linear-gradient(180deg,#F4F8FF,#E8EFFF)}
 .mc-chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:var(--ac);background:#fff;border:1px solid var(--soft);border-radius:100px;padding:5px 14px}
-.mc-hero h1{margin:12px 0 8px;font-family:'Hind Siliguri',sans-serif;font-size:clamp(30px,4.6vw,46px);line-height:1.3;font-weight:700;color:var(--ink);letter-spacing:0}
-.mc-hero h1{text-wrap:balance}.mc-hero h1 span{color:var(--ac);white-space:nowrap}
-.mc-hero p{margin:0 auto;max-width:700px;text-wrap:balance;color:var(--tx2);font-size:16.5px}
+.mc-hero h1{margin:12px 0 8px;font-family:'Hind Siliguri',sans-serif;font-size:clamp(30px,4.6vw,46px);line-height:1.3;font-weight:700;color:#0B1B4D;letter-spacing:0}
+.mc-hero h1{text-wrap:balance}.mc-hero h1 span{white-space:nowrap;background:linear-gradient(120deg,#1A56DB,#7C3AED 58%,#0891B2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mc-hero p{margin:0 auto;max-width:700px;text-wrap:balance;color:#475569;font-size:16.5px}
 .mc-grid{display:grid;grid-template-columns:364px minmax(0,754px);justify-content:center;gap:24px;align-items:start}
 .mc-form{order:-1;position:sticky;top:88px}
 .mc-prev{text-align:center}
@@ -51,7 +52,7 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 @media(max-width:1200px){.mc-grid{grid-template-columns:340px minmax(0,1fr)}}
 @media(max-width:1000px){.mc-grid{grid-template-columns:300px minmax(0,1fr);gap:18px}}
 @media(max-width:900px){.mc-grid{grid-template-columns:minmax(0,1fr)}.mc-form{order:0;position:static}.mc-prev{position:static;max-width:460px;margin:0 auto;width:100%}.mc-pvc{width:100%}}
-@media(max-width:560px){.mc{padding:108px 14px 48px}.mc-form{padding:18px;border-radius:20px}.mc-row{grid-template-columns:minmax(0,1fr)}.mc-tpls{grid-template-columns:repeat(3,minmax(0,1fr))}.mc-slot{width:112px;height:112px}}
+@media(max-width:560px){.mc{padding:86px 12px 48px}.mc-hero{padding:26px 16px 22px;border-radius:24px;margin-bottom:18px}.mc-form{padding:18px;border-radius:20px}.mc-row{grid-template-columns:minmax(0,1fr)}.mc-tpls{grid-template-columns:repeat(3,minmax(0,1fr))}.mc-slot{width:112px;height:112px}}
 @media(prefers-reduced-motion:reduce){.mc-btn,.mc-toast,.mc-tpls button{transition:none}}
 
 .mc-f label b{font-weight:800}
@@ -81,7 +82,7 @@ button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
 @media(max-width:560px){.mc-pvc{background:transparent;border:0;padding:0;border-radius:0}.mc-themebar{background:#fff;border:1px solid var(--ln);border-radius:18px;padding:12px 14px;margin-bottom:10px}.mc-cvw{border-radius:18px}}
 
 /* the live download number, in the hero under the headline, like the one on the education card page: a white pill, a pulsing green dot, the number in the card colour */
-.mc-live{display:inline-flex;align-items:center;gap:9px;margin:14px 0 14px;padding:9px 18px;border-radius:100px;background:#fff;border:1px solid var(--soft);font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap;max-width:100%}
+.mc-live{display:inline-flex;align-items:center;gap:9px;margin:14px 0 14px;padding:9px 18px;border-radius:100px;background:#fff;border:1px solid #D9E4FB;font-size:14.5px;font-weight:600;color:var(--ink);white-space:nowrap;max-width:100%}
 .mc-live[hidden]{display:none}
 .mc-live b{color:var(--ac);font-weight:800;font-size:1.1em}
 .mc-live i{flex:none;width:9px;height:9px;border-radius:50%;background:#34D399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:mcPulse 1.8s infinite}
