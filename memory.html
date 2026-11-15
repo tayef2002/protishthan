@@ -580,7 +580,10 @@
         c.fillStyle = rgba(ac, .2); c.font = '800 260px ' + DISP; c.textAlign = 'right'; c.fillText('”', px + pw - 36, top0 + 250);
         c.textAlign = 'left';
         if(hasS){ c.fillStyle = accL; c.font = '700 26px ' + HS; c.fillText(d.sign, left, y); y += 20; }
-        if(hasT){ const tf = fit(d.title, width, 2, 50, 30, '800', DISP); c.fillStyle = '#FFFFFF'; c.font = '800 ' + tf.size + 'px ' + DISP; tf.lines.forEach(l => { y += tf.size * 1.12; c.fillText(l, left, y); }); y += 26; c.fillStyle = ac; c.fillRect(left, y, 72, 5); y += 46; }
+        if(hasT){ const tf = fit(d.title, width, 2, 50, 30, '800', DISP); c.fillStyle = '#FFFFFF'; c.font = '800 ' + tf.size + 'px ' + DISP; tf.lines.forEach(l => { y += tf.size * 1.12; c.fillText(l, left, y); }); /* under the title: a hand-drawn underline (two soft strokes, a little wavy) under the first two words of the last line of the title (the whole line when it is only one or two words) */
+          const lw = tf.lines[tf.lines.length - 1].split(/\s+/).filter(Boolean), uw = Math.min(width, c.measureText(lw.slice(0, 2).join(' ')).width); y += 26;
+          c.save(); c.strokeStyle = ac; c.lineCap = 'round'; c.lineWidth = 5; c.beginPath(); c.moveTo(left, y - 6); c.bezierCurveTo(left + uw * .28, y - 13, left + uw * .6, y - 1, left + uw, y - 10); c.stroke();
+          c.lineWidth = 3; c.globalAlpha = .7; c.beginPath(); c.moveTo(left + uw * .08, y + 1); c.bezierCurveTo(left + uw * .4, y - 4, left + uw * .7, y + 4, left + uw * .92, y - 3); c.stroke(); c.restore(); y += 46; }
         if(hasB){ const fl = flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 20 - y, 38, 24, 1.62); c.fillStyle = '#EEE9E0'; c.font = '500 ' + fl.sz + 'px ' + HS; fl.lines.forEach((l, q) => c.fillText(l, left, y + fl.LH * .8 + q * fl.LH)); c.fillStyle = rgba(ac, .85); rr(left - 30, y + 4, 5, fl.lines.length * fl.LH - 8, 3); c.fill(); }
       } else {
         /* a message from the past: the logo and the title as the sender, the date and place under it, the memory in a bubble */
