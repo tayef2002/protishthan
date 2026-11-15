@@ -19,7 +19,7 @@ const calls = [...page.matchAll(/rpc\('(\w+)'(?:,\s*\{([^}]*)\})?/g)].map(m => [
 const batchCalls = calls.filter(c => /^batch_/.test(c[0]));
 eq('the page calls exactly the batch functions the SQL defines (the admin_ ones are used by the admin page, not this one)', [...new Set(batchCalls.map(c => c[0]))].sort(), Object.keys(sigs).filter(k => !['batch_first_name', 'batch_year_ok', 'batch_level_ok'].includes(k) && !/^batch_chat_(messages|send|delete|mute|mode|report|unread)$/.test(k)).sort());   // the room's own calls are made by the Message page
 yes('every call uses the SQL parameter names', batchCalls.every(c => c[1].every(a => sigs[c[0]].includes(a))));
-yes('the page may also call directory_search (the institution search), nothing else', calls.every(c => /^batch_/.test(c[0]) || c[0] === 'directory_search'));
+yes('the page may also call directory_search (the institution search) and the two public, read-only card board numbers (card_institute_standing, card_institute_count), nothing else', calls.every(c => /^batch_/.test(c[0]) || ['directory_search', 'card_institute_standing', 'card_institute_count'].includes(c[0])));
 yes('the search asks /api/dir first and falls back to the database when /api answers not found, never on a busy answer', /\/api\/dir\?f=search/.test(page) && /if\(r\.status === 404\) DIR_OFF = Date\.now\(\) \+ 600000; else throw new Error\('busy'\)/.test(page));
 
 // levels, themes and error codes agree with the SQL

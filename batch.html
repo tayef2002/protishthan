@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=45">
+<link rel="stylesheet" href="/batch.css?v=46">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -338,7 +338,8 @@
     poll: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
     shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2.2 2.2L15 10"/>',
-    out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
+    out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+    trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'
   };
   const ic = (nm, sz) => '<svg class="bt-ic" width="' + (sz || 20) + '" height="' + (sz || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICO[nm] || '') + '</svg>';
   const cardHead = (icon, t, sub) => '<div class="bt-ch"><span class="bt-ci">' + ic(icon, 22) + '</span><div><h2>' + t + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div></div>';
@@ -346,6 +347,32 @@
   const flagGet = (id, w) => { try{ return localStorage.getItem('bt_' + id + w) === '1'; }catch(e){ return false; } };
   const flagSet = (id, w) => { try{ localStorage.setItem('bt_' + id + w, '1'); }catch(e){} };
   let HUB = null, ON_POSTER = null;
+  /* ---------- the institution's standing on the শিক্ষিত কার্ড board (public, institution-level numbers only) ---------- */
+  const ordBn = n => n <= 10 ? ['', '১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম', '৯ম', '১০ম'][n] : bn(n) + 'তম';
+  function standHtml(s){
+    const n = Number(s.n) || 0, cr = Number(s.country_rank) || 0, ct = Number(s.country_total) || 0, dr = Number(s.district_rank) || 0, dt = Number(s.district_total) || 0, wk = Number(s.week_n) || 0;
+    const ahead = s.ahead_n == null ? null : Number(s.ahead_n), gap = ahead == null ? 0 : Math.max(1, ahead - n + 1);
+    const acts = '<div class="bt-sda"><a class="bt-sdb" href="/card">' + ic('plus', 16) + 'কার্ড বানান</a><a class="bt-sdl" href="/card#lb">লিডারবোর্ড দেখুন →</a></div>';
+    let h = '<div class="bt-c bt-sd">' + cardHead('trophy', 'প্রতিষ্ঠানের অগ্রগতি', 'শিক্ষিত কার্ড লিডারবোর্ডে আপনাদের প্রতিষ্ঠান');
+    if(n === 0) return h + '<p class="bt-sdz">এই প্রতিষ্ঠানের নামে এখনও কোনো শিক্ষিত কার্ড বানানো হয়নি। আপনার ব্যাচ প্রথম হোক!</p>' + acts + '</div>';
+    h += '<div class="bt-sdn"><b>' + bn(n) + '</b><span>টি শিক্ষিত কার্ড বানানো হয়েছে</span></div>';
+    const chips = [];
+    if(cr) chips.push('সারা দেশে <b>' + ordBn(cr) + '</b>' + (ct > 1 ? ' <small>(' + bn(ct) + 'টির মধ্যে)</small>' : ''));
+    if(dr && s.district && dt > 1) chips.push(esc(s.district) + ' জেলায় <b>' + ordBn(dr) + '</b>');
+    if(wk > 0) chips.push('এই সপ্তাহে <b>+' + bn(wk) + '</b>');
+    if(chips.length) h += '<div class="bt-sdc">' + chips.map(c => '<span>' + c + '</span>').join('') + '</div>';
+    if(cr === 1) h += '<p class="bt-sdg top">সারা দেশে সবার আগে আছেন। জায়গাটা ধরে রাখুন!</p>';
+    else if(ahead != null) h += '<div class="bt-sdg"><div class="bt-sdbar" role="img" aria-label="পরের ধাপের পথে"><i style="width:' + Math.max(4, Math.min(100, Math.round(n / (ahead + 1) * 100))) + '%"></i></div><p>এক ধাপ ওপরে উঠতে আর <b>' + bn(gap) + 'টি</b> কার্ড দরকার।</p></div>';
+    return h + acts + '<p class="bt-sdn2">সংখ্যাটা পুরো প্রতিষ্ঠানের: ব্যাচের বাইরের কেউ কার্ড বানালেও বাড়ে। একটা ডিভাইস থেকে একবারই গোনা হয়।</p></div>';
+  }
+  async function loadStanding(k){
+    const box = $('stand'); if(!box) return;
+    let s = null;
+    const r = await rpc('card_institute_standing', { p_slug: k.slug });
+    if(!r.error && r.data && r.data[0]) s = r.data[0];
+    else { const c = await rpc('card_institute_count', { p_slug: k.slug }); if(!c.error && c.data != null) s = { n: c.data }; }   // the function is not run yet: show the plain total only
+    if(s && $('stand') === box) box.innerHTML = standHtml(s);
+  }
   function stepsOf(){
     const { k, inst, b, me, isConv, n } = HUB, id = b.id;
     return isConv ? [
@@ -387,6 +414,7 @@
     else if(b.status === 'locked') h += '<p class="bt-sub" style="font-size:15px;font-weight:700;color:var(--tx2);margin:0">এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।</p>';
     else h += '<button type="button" class="bt-btn" id="act" data-a="join">' + (signedIn() ? 'ব্যাচে যোগ দিন' : 'Google দিয়ে ব্যাচে যোগ দিন') + '</button><p class="bt-sub">আপনি হবেন ' + bn(n + 1) + 'তম সদস্য।</p>';
     h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
+    h += '<div id="stand" data-k="' + esc(k.slug) + '"></div>';
 
     if(joined){
       HUB = { k, inst, b, me, isConv, n };
@@ -419,6 +447,7 @@
 
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
     if(b) bindReport(b.id);
+    loadStanding(k);
     if($('cvJoin')) $('cvJoin').onclick = () => { const x = $('act'); if(x) x.click(); };
     if(joined && /^#(roster|setup|invite)$/.test(location.hash)){ const hs = location.hash.slice(1); setTimeout(() => { const el = $(hs); if(el) el.scrollIntoView({ block: 'start' }); }, 350); }
     if(joined) loadRoster(b.id);
