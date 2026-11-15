@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/memory.css?v=38">
+<link rel="stylesheet" href="/memory.css?v=39">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -108,6 +108,8 @@
     rose: { n: 'গোলাপি', bg: '#FFEEF2', bg2: '#FFD2DD', ac: '#E04870', dk: '#5C1630' }
   };
   const PAIR = { sepia: 'peach', mint: 'sky', sky: 'lavender', peach: 'lemon', lavender: 'rose', lemon: 'mint', rose: 'peach' };
+  /* the black-and-white palette of the two sad-memory templates (not one of the colour dots) */
+  const MONO = { mono: 1, n: 'সাদা-কালো', bg: '#EFEFF0', bg2: '#B4B5B8', ac: '#4B4F57', dk: '#0E0E10' };
   const SIZES = { post: { w: 1080, h: 1350, n: 'পোস্ট (৪:৫)' }, story: { w: 1080, h: 1920, n: 'স্টোরি (৯:১৬)' } };
   /* the shapes: an object we all remember, with a window for the photo. a = width / height of the object, ph = how many photos. */
   const TPLS = [
@@ -119,6 +121,8 @@
     { k: 'postcard', n: 'পুরনো চিঠি', a: 1.42, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'sms', n: 'পুরনো ফোনের মেসেজ', a: .5, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'tquote', n: 'লেখা স্মৃতি', a: .79, ph: 0, card: 1, own: 1 },
+    { k: 'mono', n: 'সাদা-কালো স্মৃতি', a: .79, ph: 1, card: 1, mono: 1 },
+    { k: 'tmono', n: 'সাদা-কালো লেখা', a: .79, ph: 0, card: 1, own: 1, mono: 1 },
     { k: 'tbubble', n: 'অতীতের বার্তা', a: .79, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'tvhs', n: 'ভিএইচএস টেপ', a: .79, ph: 0, card: 1, own: 1, off: 1 },
     { k: 'tdream', n: 'স্বপ্নের আলো', a: .79, ph: 0, card: 1, own: 1, off: 1 },
@@ -166,8 +170,18 @@
   const wrap = (txt, maxW, font, maxLines) => { c.font = font; const out = []; String(txt).replace(/\r/g, '').split('\n').forEach(par => { const words = par.split(/\s+/).filter(Boolean); if(!words.length){ out.push(''); return; } let cur = ''; for(const w of words){ const t = cur ? cur + ' ' + w : w; if(c.measureText(t).width > maxW && cur){ out.push(cur); cur = w; } else cur = t; } out.push(cur); }); while(out.length && out[out.length - 1] === '') out.pop(); while(out.length && out[0] === '') out.shift(); if(out.length > maxLines){ out.length = maxLines; out[maxLines - 1] = out[maxLines - 1].replace(/\s*\S*$/, '') + '…'; } return out; };
   function fit(txt, maxW, maxLines, max, min, weight, fam){ let sz = max, lines; do{ lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines + 1); sz -= 2; }while((lines.length > maxLines || lines.some(l => c.measureText(l).width > maxW)) && sz >= min); sz += 2; lines = wrap(txt, maxW, weight + ' ' + sz + 'px ' + fam, maxLines); return { size: sz, lines }; }
   /* a photo cropped to fill the current clip; with no photo, a soft box that says "add a photo" */
+  /* a black-and-white copy of a photo (kept, so it is made once): the grey of each pixel, a little more contrast and a touch darker, for a quiet, sad mood */
+  const GRAYS = new WeakMap();
+  function grayOf(im){
+    let g = GRAYS.get(im); if(g) return g;
+    const w = im.naturalWidth || im.width, h = im.naturalHeight || im.height; if(!w || !h) return im;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const x = cv.getContext('2d'); x.drawImage(im, 0, 0);
+    try{ const id = x.getImageData(0, 0, w, h), d = id.data; for(let i = 0; i < d.length; i += 4){ let l = d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114; l = (l - 128) * 1.1 + 122; d[i] = d[i + 1] = d[i + 2] = l < 0 ? 0 : l > 255 ? 255 : l; } x.putImageData(id, 0, 0); }catch(e){ return im; }
+    GRAYS.set(im, cv); return cv;
+  }
+  const logoImg = () => PAL.mono ? grayOf(LOGO) : LOGO;
   function fill(img, x, y, w, h, pos){
-    if(img){ const z = pos ? pos.z : 1, sc = Math.max(w / img.width, h / img.height) * z, dw = img.width * sc, dh = img.height * sc, ox = Math.max(0, dw - w), oy = Math.max(0, dh - h), fx = pos ? pos.x : .5, fy = pos ? pos.y : .5; if(pos && S.rec){ pos.ox = ox; pos.oy = oy; } c.drawImage(img, x - ox * fx, y - oy * fy, dw, dh); return; }
+    if(img){ if(PAL.mono) img = grayOf(img); const z = pos ? pos.z : 1, sc = Math.max(w / img.width, h / img.height) * z, dw = img.width * sc, dh = img.height * sc, ox = Math.max(0, dw - w), oy = Math.max(0, dh - h), fx = pos ? pos.x : .5, fy = pos ? pos.y : .5; if(pos && S.rec){ pos.ox = ox; pos.oy = oy; } c.drawImage(img, x - ox * fx, y - oy * fy, dw, dh); return; }
     c.fillStyle = mix(PAL.ac, '#FFFFFF', .82); c.fillRect(x, y, w, h); const m = Math.min(w, h);
     c.fillStyle = mix(PAL.ac, '#FFFFFF', .55); c.beginPath(); c.arc(x + w / 2, y + h / 2 - m * .06, m * .1, 0, 7); c.fill(); rr(x + w / 2 - m * .2, y + h / 2 + m * .06, m * .4, m * .16, m * .06); c.fill();
     c.textAlign = 'center'; c.fillStyle = mix(PAL.ac, '#FFFFFF', .2); c.font = '700 ' + Math.max(22, Math.round(m * .07)) + 'px ' + HS; c.fillText('ছবি দিন', x + w / 2, y + h / 2 + m * .34);
@@ -263,7 +277,7 @@
   const grain = () => { if(GRAIN) return GRAIN; const g = document.createElement('canvas'); g.width = g.height = 120; const gc = g.getContext('2d'), gi = gc.createImageData(120, 120), r = rng(41); for(let q = 0; q < gi.data.length; q += 4){ gi.data[q] = gi.data[q + 1] = gi.data[q + 2] = r() * 255; gi.data[q + 3] = 14; } gc.putImageData(gi, 0, 0); return (GRAIN = g); };
   /* one card: centre cx, cy, width w (the height follows), tilt ang, photo slot i, the handwriting under the photo */
   function memcard(cx, cy, w, ang, i, cap, page){
-    const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = '#FFE9A8';
+    const cw = 840, ch = 1060, cut = 118, R = 44, k = w / cw, ac = PAL.ac, GOLD1 = PAL.mono ? '#E8EAEE' : '#FFE9A8', METAL = PAL.mono ? [[0, '#7E838B'], [.28, '#F4F6F9'], [.55, '#BDC2C9'], [1, '#6E737B']] : [[0, '#D9A21A'], [.28, '#FFF3B8'], [.55, '#FAC93F'], [1, '#C58C10']];
     const path = () => { c.beginPath(); c.moveTo(R, 0); c.lineTo(cw - cut, 0); c.lineTo(cw, cut); c.lineTo(cw, ch - R); c.arcTo(cw, ch, cw - R, ch, R); c.lineTo(R, ch); c.arcTo(0, ch, 0, ch - R, R); c.lineTo(0, R); c.arcTo(0, 0, R, 0, R); c.closePath(); };
     c.save(); c.translate(cx, cy); c.rotate(ang); c.scale(k, k); c.translate(-cw / 2, -ch / 2);
     shadow(rgba(PAL.dk, .38), 90 * k, 34 * k); path(); c.fillStyle = '#15171E'; c.fill(); shadow();
@@ -277,7 +291,7 @@
     c.beginPath(); c.moveTo(0, 0); c.lineTo(cw, 0); c.lineTo(cw, edgeY[3]); c.bezierCurveTo(cw * .7, edgeY[2], cw * .3, edgeY[1], 0, edgeY[0]); c.closePath(); c.fill();
     c.fillStyle = 'rgba(255,255,255,.1)'; c.beginPath(); c.moveTo(0, edgeY[0]); c.bezierCurveTo(cw * .3, edgeY[1], cw * .7, edgeY[2], cw, edgeY[3]); c.lineTo(cw, edgeY[3] + 7); c.bezierCurveTo(cw * .7, edgeY[2] + 7, cw * .3, edgeY[1] + 7, 0, edgeY[0] + 7); c.closePath(); c.fill();
     /* row 1: the mark and the brand */
-    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(L, 54, 60, 60, 15); c.clip(); c.drawImage(LOGO, L, 54, 60, 60); c.restore(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.55)'; rr(L, 54, 60, 60, 15); c.stroke(); }
+    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(L, 54, 60, 60, 15); c.clip(); c.drawImage(logoImg(), L, 54, 60, 60); c.restore(); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.55)'; rr(L, 54, 60, 60, 15); c.stroke(); }
     c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '800 36px Inter, sans-serif'; c.fillText('Protishthan', L + 76, 96);
     /* row 2: the big silver name, and the "capacity" (the year, or infinity) on the same baseline at the right edge */
     c.fillStyle = linear(0, 118, 0, 184, [[0, '#FFFFFF'], [.55, '#D7DCE6'], [1, '#9AA3B5']]); c.font = '900 76px Inter, sans-serif'; shadow('rgba(0,0,0,.4)', 8 * k, 4 * k); c.fillText('MEMORY', L - 2, 184); shadow();
@@ -309,8 +323,8 @@
     const n = 15, gap = 6, gw = (cw - 124 - 36 - gap * (n - 1)) / n;
     /* the contacts are blended into the photo like layers in an editor: a soft shadow on the photo, the gold, the photo itself laid over the gold in overlay (so its colours and light show in the metal), the same dark fade multiplied over it (so it sits in the same shadow), then a thin highlight and a dark edge */
     for(let q = 0; q < n; q++){
-      const gx = 62 + 18 + q * (gw + gap), gy = sy + 14, gh = q % 2 ? sh2 - 38 : sh2 - 28, gold = linear(gx, 0, gx + gw, 0, [[0, '#D9A21A'], [.28, '#FFF3B8'], [.55, '#FAC93F'], [1, '#C58C10']]);
-      shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = '#7A5410'; c.fill(); shadow();
+      const gx = 62 + 18 + q * (gw + gap), gy = sy + 14, gh = q % 2 ? sh2 - 38 : sh2 - 28, gold = linear(gx, 0, gx + gw, 0, METAL);
+      shadow('rgba(0,0,0,.42)', 9 * k, 5 * k); rr(gx, gy, gw, gh, 4); c.fillStyle = PAL.mono ? '#3B3E43' : '#7A5410'; c.fill(); shadow();
       c.save(); rr(gx, gy, gw, gh, 4); c.clip();
       c.fillStyle = gold; c.fillRect(gx, gy, gw, gh);
       c.globalCompositeOperation = 'overlay'; c.globalAlpha = .3; if(!page) fill(S.cur.photos[i], px, py, pw, ph, S.use ? S.pos[i] : null);
@@ -318,7 +332,7 @@
       c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.fillStyle = linear(0, gy, 0, gy + gh, [[0, 'rgba(255,255,255,.34)'], [.22, 'rgba(255,255,255,.06)'], [1, 'rgba(0,0,0,.18)']]); c.fillRect(gx, gy, gw, gh);
       c.fillStyle = 'rgba(255,255,255,.3)'; c.fillRect(gx + 5, gy + 6, 4, gh - 14);
       c.restore();
-      c.lineWidth = 2; c.strokeStyle = 'rgba(60,38,4,.5)'; rr(gx, gy, gw, gh, 4); c.stroke();
+      c.lineWidth = 2; c.strokeStyle = PAL.mono ? 'rgba(20,20,22,.55)' : 'rgba(60,38,4,.5)'; rr(gx, gy, gw, gh, 4); c.stroke();
     }
     c.fillStyle = linear(0, 0, cw * .9, ch * .5, [[0, 'rgba(255,255,255,.22)'], [.3, 'rgba(255,255,255,.05)'], [.31, 'rgba(255,255,255,0)']]); c.fillRect(0, 0, cw, ch);
     c.restore();
@@ -468,14 +482,14 @@
   /* ---------- the window of the card as a screen of memories: four ways to show a written memory ---------- */
   const yearOf = t => (((t || '').match(/[0-9০-৯]{4}/) || [])[0] || '').replace(/[০-৯]/g, q => '০১২৩৪৫৬৭৮৯'.indexOf(q));
   function paintScreen(px, py, pw, ph, pr, d, sigY){
-    const k = d.kind, cx = px + pw / 2, ac = PAL.ac, rg = rng(11), yr = yearOf(d.sign);
+    const k = d.kind, cx = px + pw / 2, ac = PAL.mono ? '#C9CCD2' : PAL.ac, rg = rng(11), yr = yearOf(d.sign);
     c.save(); rr(px, py, pw, ph, pr); c.clip();
     const specks = (n, col) => { for(let q = 0; q < n; q++){ c.fillStyle = col(rg); c.beginPath(); c.arc(px + rg() * pw, py + rg() * ph, .6 + rg() * 1.8, 0, 7); c.fill(); } };
     if(k === 'file'){
       /* a stored file: a dark editor window with line numbers, the title as a comment, a blinking cursor */
       c.fillStyle = linear(0, py, 0, py + ph, [[0, '#101A24'], [1, '#0A1118']]); c.fillRect(px, py, pw, ph);
       c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(px, py, pw, 64);
-      [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]].forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
+      (PAL.mono ? [['#A3A7AE', 0], ['#868A91', 1], ['#6B6F76', 2]] : [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]]).forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
       const gx = px + 66, left = px + 92, width = pw - 92 - 44, ty = py + 64 + 66, hasT = !!d.title, hasB = !!d.text;
       const tf = hasT ? fit('# ' + d.title, width, 1, 42, 26, '800', DISP) : null;
       const fl = hasB ? flow(d.text, width, z => '500 ' + z + 'px ' + HS, sigY - 56 - (ty + 20), 36, 24, 1.55) : { sz: 36, LH: 36 * 1.55, lines: [] };
@@ -489,7 +503,7 @@
     } else if(k === 'quote' || k === 'bubble'){
       c.fillStyle = linear(0, py, 0, py + ph, [[0, '#101A24'], [1, '#0A1118']]); c.fillRect(px, py, pw, ph);
       c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(px, py, pw, 64);
-      [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]].forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
+      (PAL.mono ? [['#A3A7AE', 0], ['#868A91', 1], ['#6B6F76', 2]] : [['#FF5F57', 0], ['#FEBC2E', 1], ['#28C840', 2]]).forEach(q => { c.fillStyle = q[0]; c.beginPath(); c.arc(px + 40 + q[1] * 30, py + 32, 9, 0, 7); c.fill(); });
       const hasT = !!d.title, hasB = !!d.text, hasS = !!d.sign, top0 = py + 64, accL = mix(ac, '#FFFFFF', .45);
       if(k === 'quote'){
         /* a diary entry: the date and place on top, the title, a short rule, the memory with an accent bar down its left side */
@@ -558,6 +572,7 @@
   SH.mem1 = (x, y, w, h) => { const ch = h * .94; memcard(x + w / 2, y + h / 2, ch * 840 / 1060, -.025, 0, S.cur.small); };
   SH.mem2 = (x, y, w, h) => { const ch = h * .86, cw = ch * 840 / 1060; memcard(x + w * .29, y + h * .47, cw, -.09, 0, ''); const keep = PAL; PAL = THEMES[PAIR[S.theme]] || keep; try{ memcard(x + w * .71, y + h * .53, cw, .06, 1, S.cur.small); }finally{ PAL = keep; } };
 
+  SH.mono = SH.mem1; SH.tmono = SH.tquote;
   SH.card1 = (x, y, w, h) => { const k = .9; card(x + w / 2, y + h / 2, w * k, h * k, -.07, 0, S.cur.small); };
   SH.card3 = (x, y, w, h) => {
     const k = .92, cw = w * k, ch = h * k;
@@ -574,7 +589,7 @@
     const radial = (x, y, r, stops) => { const g = c.createRadialGradient(x, y, 0, x, y, r); stops.forEach(p => g.addColorStop(p[0], p[1])); return g; };
   /* the ground the card lies on: a gradient in the chosen colour (lighter top left, deeper bottom right) with a bright halo right behind the card and a soft dark rim at the corners, so the card stands out from its ground (also on a small phone screen, and when the picture is posted on Facebook) instead of melting into a flat tint */
   function paper(W, H, cx, cy){
-    const lo = mix(PAL.bg2, '#FFFFFF', .62), hi = mix(PAL.bg2, '#FFFFFF', .22);
+    const lo = mix(PAL.bg2, '#FFFFFF', PAL.mono ? .7 : .62), hi = mix(PAL.bg2, '#FFFFFF', PAL.mono ? 0 : .22);
     c.fillStyle = linear(0, 0, W, H, [[0, lo], [1, hi]]); c.fillRect(0, 0, W, H);
     c.fillStyle = radial(W * .12, H * .05, W * .75, [[0, rgba('#FFFFFF', .5)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
     c.fillStyle = radial(cx, cy, Math.max(W, H) * .5, [[0, rgba('#FFFFFF', .92)], [.5, rgba('#FFFFFF', .34)], [1, rgba('#FFFFFF', 0)]]); c.fillRect(0, 0, W, H);
@@ -588,7 +603,7 @@
     const tw = Math.max(w1, w2), pw = 18 + lg + 16 + tw + 18 + arrow + 18, x = (W - pw) / 2, y = H - safeFoot(H) - ph;
     rr(x, y, pw, ph, ph / 2); c.fillStyle = rgba('#FFFFFF', .88); c.fill(); c.lineWidth = 2; c.strokeStyle = rgba(PAL.ac, .28); c.stroke();
     const ly = y + (ph - lg) / 2;
-    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(x + 18, ly, lg, lg, 15); c.clip(); c.drawImage(LOGO, x + 18, ly, lg, lg); c.restore(); }
+    if(LOGO.complete && LOGO.naturalWidth){ c.save(); rr(x + 18, ly, lg, lg, 15); c.clip(); c.drawImage(logoImg(), x + 18, ly, lg, lg); c.restore(); }
     c.textAlign = 'left'; c.fillStyle = PAL.dk; c.font = '800 27px ' + HS; c.fillText(a1, x + 18 + lg + 16, y + 38);
     c.fillStyle = mix(PAL.ac, '#000000', .1); c.font = '700 23px Inter, sans-serif'; c.fillText(a2, x + 18 + lg + 16, y + 67);
     const ax = x + pw - 18 - arrow / 2, ay = y + ph / 2; c.fillStyle = PAL.ac; c.beginPath(); c.arc(ax, ay, arrow / 2, 0, 7); c.fill();
@@ -596,7 +611,7 @@
     c.textAlign = 'center';
   }
   function render1(W, H, d, key){
-    PAL = THEMES[S.theme] || THEMES.mint; S.cur = d; c.textBaseline = 'alphabetic';
+    const tp0 = TPLS.find(x => x.k === key); PAL = tp0 && tp0.mono ? MONO : (THEMES[S.theme] || THEMES.mint); S.cur = d; c.textBaseline = 'alphabetic';
     const t = TPLS.find(x => x.k === key) || TPLS[0], mw = W - 160;
     const title = d.title || 'আমাদের সেই দিন', own = !!t.own, tt = own ? { lines: [], size: 0 } : fit(title, mw, 2, 78, 44, '800', DISP), ll = !own && d.line ? fit(d.line, mw, 3, 36, 26, '500', HS) : null;
     const LGAP = 18, capH = tt.lines.length * tt.size * 1.15 + (ll ? LGAP + ll.size * 1.25 + (ll.lines.length - 1) * ll.size * 1.5 : 0) + (d.small && !t.card ? 84 : 0);
@@ -631,9 +646,10 @@
 
   /* ---------- the form ---------- */
   function paintTpls(){ $('tpls').innerHTML = TPLS.filter(t => !t.off).map(t => '<button type="button" role="radio" aria-checked="' + (S.tpl === t.k) + '" data-k="' + t.k + '"><canvas data-k="' + t.k + '"></canvas><span>' + t.n + (t.ph === 2 ? '<i>২ ছবি</i>' : t.ph === 0 ? '<i>শুধু লেখা</i>' : '') + '</span></button>').join(''); }
-  function paintThemes(){ $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + (TP().ph === 2 ? 'linear-gradient(135deg,' + THEMES[k].ac + ' 50%,' + THEMES[PAIR[k]].ac + ' 50%)' : THEMES[k].ac) + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
+  function paintThemes(){ { const tb = document.querySelector('.mc-themebar'); if(tb) tb.hidden = !!TP().mono; } $('themes').innerHTML = Object.keys(THEMES).map(k => '<button type="button" role="radio" aria-checked="' + (S.theme === k) + '" data-k="' + k + '" style="background:' + (TP().ph === 2 ? 'linear-gradient(135deg,' + THEMES[k].ac + ' 50%,' + THEMES[PAIR[k]].ac + ' 50%)' : THEMES[k].ac) + '" aria-label="' + THEMES[k].n + '" title="' + THEMES[k].n + '"></button>').join(''); }
   function paintSize(){ $('size').innerHTML = Object.keys(SIZES).map(k => '<button type="button" role="radio" aria-checked="' + (S.size === k) + '" data-k="' + k + '">' + SIZES[k].n + '</button>').join(''); }
   function paintSlots(){
+    $('slots').classList.toggle('mono', !!TP().mono);
     setTimeout(() => { if(typeof syncZoom === 'function') syncZoom(); }, 0);
     const t = TP(), n = t.ph; $('phWrap').hidden = n === 0; $('stepW').textContent = n === 0 ? '২.' : '৩.'; $('txt').maxLength = t.own ? 320 : 160; $('txt').placeholder = t.own ? 'আপনার স্মৃতিটা লিখুন…' : TXT_PH; $('phHint').textContent = n === 2 ? '(দুটো ছবি লাগবে)' : '';
     $('slots').innerHTML = Array.from({ length: n }, (_, i) => { const im = S.photos[i]; return '<div class="mc-slot' + (im ? ' has' : '') + '" data-i="' + i + '">' + (im ? '<img alt="" data-i="' + i + '"><button type="button" class="x" data-x="' + i + '" aria-label="ছবি সরান">×</button>' : '<button type="button" class="add" data-add="' + i + '"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b>' + (n === 2 ? (t.k === 'thennow' ? (i ? 'এখনকার ছবি' : 'তখনকার ছবি') : 'ছবি ' + bn(i + 1)) : 'ছবি দিন') + '</b></button>') + '</div>'; }).join('');
