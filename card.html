@@ -555,6 +555,10 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 .hero p{margin:0 auto;max-width:44em;font-size:clamp(15px,1.7vw,17px);line-height:1.75}
 .app{margin-top:26px}
 @media(max-width:760px){.hero{margin-top:84px;width:calc(100% - 32px);padding:10px 0 0}.hero h1{margin-bottom:12px}.app{margin-top:20px}}
+/* the same soft glow as the memory card page: violet light top right, cyan light top left, a faint blue one under the words, fading out on every side into the page colour (no box) */
+.hero{position:relative;isolation:isolate}
+.hero::before{content:'';position:absolute;z-index:-1;inset:-70px -110px -50px;pointer-events:none;background:radial-gradient(560px 320px at 88% 22%,rgba(124,92,255,.17),transparent 70%),radial-gradient(560px 320px at 12% 14%,rgba(34,211,238,.16),transparent 70%),radial-gradient(760px 280px at 50% 78%,rgba(26,86,219,.07),transparent 72%);-webkit-mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 52%,transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 50% 50%,#000 52%,transparent 100%)}
+@media(max-width:760px){.hero::before{inset:-50px -12px -40px}}
 @media(prefers-reduced-motion:reduce){.hero h1 span{animation:none}}
 
 /* ---- footer with the education-journey illustration ---- */
