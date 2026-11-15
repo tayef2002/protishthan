@@ -743,8 +743,8 @@
   const seenGet = () => { try{ const a = JSON.parse(localStorage.getItem('mem_seen') || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } };
   const devId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
   const sbc = () => { try{ return window.Protishthan && Protishthan.member && Protishthan.member.sb; }catch(e){ return null; } };
-  /* the public number is shown only once it is big enough to mean something (below MIN_SHOW a few cards would look like nobody uses it) */
-  const MIN_SHOW = 20;
+  /* the public number is the real count, shown from the first card (zero shows nothing) */
+  const MIN_SHOW = 1;
   function paintTotal(n){ const el = $('tot'); if(!(n >= MIN_SHOW)) return; el.textContent = 'এ পর্যন্ত ' + bn(Math.round(n).toLocaleString('en-US')) + 'টা মেমোরি কার্ড ডাউনলোড হয়েছে'; el.hidden = false; }
   async function loadTotal(){ try{ const r = await fetch('/api/memory-count', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.n != null && Number.isFinite(Number(j.n))) paintTotal(Number(j.n)); } }catch(e){} }
   function bump(){
