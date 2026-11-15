@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=41">
+<link rel="stylesheet" href="/batch.css?v=43">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -356,16 +356,17 @@
     ] : [
       { t: 'যোগ দিয়েছেন', s: 'আপনি ' + bn(me.seq) + ' নম্বর সদস্য', done: true },
       { t: 'সহপাঠীকে ডাকুন', s: 'ব্যাচের লিংক পাঠিয়ে', done: flagGet(id, 'i'), go: 'invite', cta: 'লিংক কপি করুন' },
-      { t: 'পোস্টার শেয়ার করুন', s: 'ফেসবুক বা WhatsApp-এ', done: flagGet(id, 'p'), go: 'invite', cta: 'পোস্টার বানান' },
-      { t: 'ব্যাচ ১০ জন হোক', s: bn(Math.min(n, 10)) + '/১০ জন যুক্ত', done: n >= 10, go: 'invite', cta: 'আমন্ত্রণ পাঠান' }
+      { t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, ফ্রি', done: flagGet(id, 'c'), href: '/card', flag: 'c', cta: 'কার্ড বানান' },
+      { t: 'স্কিল কার্ড সাজান', s: 'আপনার কাজ আর দক্ষতার লিংক', done: flagGet(id, 's'), href: '/skill', flag: 's', cta: 'স্কিল কার্ড খুলুন' }
     ];
   }
+  const stepAct = (x, cur) => x.done ? '' : x.href ? '<a class="' + (cur ? '' : 'ghost') + '" href="' + x.href + '" data-flag="' + x.flag + '">' + x.cta + ' →</a>' : cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '';
   function stepperHtml(){
     const st = stepsOf(), cur = st.findIndex(x => !x.done), dn = st.filter(x => x.done).length, pct = Math.round(dn / st.length * 100);
     return '<div class="bt-c bt-stp" id="steps"><div class="bt-stph"><div class="bt-ring" style="--p:' + pct + '" role="img" aria-label="' + bn(dn) + '/' + bn(st.length) + ' সম্পন্ন"><b>' + bn(dn) + '<small>/' + bn(st.length) + '</small></b></div><div class="bt-stpt"><h2>' + (cur < 0 ? 'সব ধাপ শেষ, দারুণ!' : 'শুরু করুন') + '</h2><p>' + (cur < 0 ? 'আপনার ব্যাচ ঠিকমতো চালু হয়ে গেছে।' : 'এই কয়েকটা কাজে ব্যাচ জমে ওঠে।') + '</p></div></div><ol>' +
-      st.map((x, i) => '<li class="' + (x.done ? 'done' : i === cur ? 'cur' : 'todo') + '"><span class="bt-dot">' + (x.done ? ic('check', 16) : bn(i + 1)) + '</span><b>' + x.t + '</b><small>' + x.s + '</small>' + (i === cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '') + '</li>').join('') + '</ol></div>';
+      st.map((x, i) => '<li class="' + (x.done ? 'done' : i === cur ? 'cur' : 'todo') + '"><span class="bt-dot">' + (x.done ? ic('check', 16) : bn(i + 1)) + '</span><b>' + x.t + '</b><small>' + x.s + '</small>' + stepAct(x, i === cur) + '</li>').join('') + '</ol></div>';
   }
-  function bindGo(){ document.querySelectorAll('#steps a[data-go]').forEach(a => { a.onclick = e => { e.preventDefault(); const el = $(a.dataset.go); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; }); }
+  function bindGo(){ document.querySelectorAll('#steps a[data-flag]').forEach(a => { a.onclick = () => { if(HUB && HUB.b) flagSet(HUB.b.id, a.dataset.flag); }; }); document.querySelectorAll('#steps a[data-go]').forEach(a => { a.onclick = e => { e.preventDefault(); const el = $(a.dataset.go); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; }); }
   function bumpFlag(w){ if(!HUB || !HUB.b) return; flagSet(HUB.b.id, w); const el = $('steps'); if(el){ el.outerHTML = stepperHtml(); bindGo(); } }
   const flash = (btn, txt) => { if(!btn) return; const keep = btn.innerHTML; btn.classList.add('ok'); btn.innerHTML = ic('check', 18) + '<span>' + txt + '</span>'; clearTimeout(btn._t); btn._t = setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = keep; }, 1600); };
 
@@ -388,15 +389,12 @@
 
     if(joined){
       HUB = { k, inst, b, me, isConv, n };
-      const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link), goal = goalOf(n), pct = Math.min(100, Math.round(n / goal * 100));
-      const tiles = '<div class="bt-tiles">' +
-        '<div class="bt-tile"><span class="bt-ci">' + ic('users', 22) + '</span><div><b>' + bn(n) + '</b><span>জন যুক্ত</span><div class="bt-mp" aria-hidden="true"><i style="width:' + pct + '%"></i></div><small>লক্ষ্য ' + bn(goal) + ' জন</small></div></div>' +
-        '<div class="bt-tile"><span class="bt-ci">' + ic('seat', 22) + '</span><div><b>' + bn(me.seq) + '</b><span>আপনার সদস্য নম্বর</span><small>' + (isConv ? 'আপনি আহ্বায়ক' : 'ব্যাচের ' + bn(me.seq) + ' নম্বর সদস্য') + '</small></div></div>' +
-        '<div class="bt-tile"><span class="bt-ci">' + ic('crown', 22) + '</span><div><b class="sm">' + esc(b.convener || '—') + '</b><span>আহ্বায়ক</span><small>স্ব-ঘোষিত</small></div></div></div>';
+      const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const thumb = kind => '<span class="bt-pth ' + kind + '" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i></span>';
       const invite = '<div class="bt-c" id="invite">' + cardHead('send', 'সহপাঠীদের ডাকুন', 'লিংকটা ব্যাচের গ্রুপে দিন। যে এই লিংকে ঢুকে যোগ দেবে, সে আপনার আমন্ত্রণে এসেছে বলে গোনা হবে।') +
         '<div class="bt-lk">' + ic('link', 18) + '<input id="lnk" readonly value="' + esc(link) + '" aria-label="আপনার আমন্ত্রণ লিংক"><button type="button" class="bt-lkb" id="cpLink">' + ic('copy', 17) + '<span>কপি</span></button></div>' +
         '<div class="bt-sbs"><a class="bt-sb wa" id="shWa" target="_blank" rel="noopener" href="#"><span class="bt-sbi">' + ic('chat', 20) + '</span><b>WhatsApp</b></a><a class="bt-sb fb" id="shFb" target="_blank" rel="noopener" href="#"><span class="bt-sbi">' + ic('fb', 20) + '</span><b>Facebook</b></a><button type="button" class="bt-sb" id="cpMsg"><span class="bt-sbi">' + ic('copy', 20) + '</span><b>বার্তা কপি</b></button></div>' +
+        '<details class="bt-dt" id="moreShare"><summary>আরও: বার্তা বেছে নিন, পোস্টার বানান</summary>' +
         '<div class="bt-sec"><span>বার্তা বেছে নিন</span></div>' +
         '<div class="bt-seg" id="msgTabs" role="group" aria-label="বার্তা">' + ['আবেগের', 'ছোট', 'মজার'].map((t, i) => '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + t + '</button>').join('') + '</div>' +
         '<div class="bt-bub" id="msgBox">' + esc(msgs[0]) + '</div>' +
@@ -404,19 +402,15 @@
         '<div class="bt-pcs"><button type="button" class="bt-pc" id="mkImgFb">' + thumb('fb') + '<b>ফেসবুক পোস্ট</b><small>কমেন্টে লিংক দিন</small></button><button type="button" class="bt-pc" id="mkImgWa">' + thumb('wa') + '<b>WhatsApp</b><small>বার্তার সাথে পাঠান</small></button></div>' +
         '<div class="bt-imgbox" id="imgBox" hidden><img id="imgPrev" alt="ব্যাচের ছবি"><p class="bt-imgtip" id="imgTip"></p>' +
         '<div class="bt-share"><button type="button" id="imgDl" style="background:var(--ac)">ডাউনলোড</button><button type="button" id="imgSh" style="background:#16A34A" hidden>শেয়ার</button></div>' +
-        '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></div>';
+        '<div class="bt-share" id="imgFbRow" hidden style="margin-top:8px"><button type="button" id="imgCpLink" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">কমেন্টের জন্য লিংক কপি</button><button type="button" id="imgCpCap" style="background:#fff;color:var(--ac);border:1.5px solid var(--ac)">ক্যাপশন কপি</button></div></div></details></div>';
       const fresh = isConv && !b.name;
       const setup = isConv
         ? '<div class="bt-c" id="setup">' + cardHead('pen', fresh ? 'ব্যাচ খোলা হয়েছে, এবার সাজান' : 'ব্যাচ সাজান', fresh ? 'একটা নাম দিন, একটা লাইন লিখুন, রং বেছে নিন। পরে বদলাতেও পারবেন।' : 'আপনি আহ্বায়ক, নাম, লাইন আর রং বদলাতে পারেন।') + lookHtml(k, inst, b.name, b.line, b.theme) + '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>'
-        : '<div class="bt-c" id="setup">' + cardHead('shield', 'আপনার সদস্যপদ', 'আপনার তথ্য কে দেখে, আর আপনি কী করতে পারেন') +
-          '<ul class="bt-facts"><li>' + ic('check', 16) + 'আপনার নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখেন।</li><li>' + ic('check', 16) + 'আপনার ' + bn(me.seq) + ' নম্বরটা আর কাউকে দেওয়া হবে না।</li><li>' + ic('check', 16) + 'যেকোনো সময় ব্যাচ ছেড়ে যেতে পারেন।</li></ul>' +
-          '<button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></div>';
-      const soon = '<div class="bt-c bt-soonc">' + cardHead('clock', 'শীঘ্রই আসছে', 'ব্যাচটা আরও কাজের হচ্ছে') +
-        [['chat', 'মনে আছে?', 'সপ্তাহে একটা স্মৃতির প্রশ্ন, সবাই উত্তর লেখে'], ['poll', 'ব্যাচের পোল', 'সবাই ভোট দেয়, ফল সাজানো থাকে'], ['cal', 'রিইউনিয়ন পরিকল্পনা', 'তারিখে ভোট, কে আসছে গোনা']].map(x => '<div class="bt-sn"><span class="bt-sni">' + ic(x[0], 18) + '</span><div><b>' + x[1] + '</b><small>' + x[2] + '</small></div><em>শীঘ্রই</em></div>').join('') + '</div>';
+        : '';
       const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
       const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
       const roomBar = '<a class="bt-room" id="roomBar" href="/messages#b:' + esc(b.id) + '" hidden><span class="bt-ci">' + ic('chat', 22) + '</span><div><b>ব্যাচ রুম</b><small id="roomSub">ব্যাচের সবার সাথে লেখায় কথা বলুন</small></div><em id="roomN" hidden></em><i>খুলুন →</i></a>';
-      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + tiles + stepperHtml() + '<div class="bt-cols"><div class="bt-main">' + invite + photosCard + rosterCard + '</div><div class="bt-side">' + setup + soon + '</div></div></div>' + photoShell();
+      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + stepperHtml() + '<div class="bt-cols' + (isConv ? '' : ' one') + '"><div class="bt-main">' + invite + photosCard + rosterCard + '</div>' + (isConv ? '<div class="bt-side">' + setup + '</div>' : '') + '</div>' + (isConv ? '' : '<p class="bt-leavep"><button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></p>') + '</div>' + photoShell();
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a><a href="/memory">মেমোরি কার্ড বানান</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
@@ -442,7 +436,7 @@
       $('shWa').onclick = () => { bumpFlag('i'); track('batch_share', { ch: 'wa' }); }; $('shFb').onclick = () => { bumpFlag('i'); track('batch_share', { ch: 'fb' }); };
       if(isConv) bindLook(k, b.id);
       if(isConv && !b.name && JUST_OPENED){ JUST_OPENED = false; setTimeout(() => { const el = $('setup'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250); }
-      $('leave').onclick = async () => {
+      if($('leave')) $('leave').onclick = async () => {
         if(!confirm('এই ব্যাচ ছেড়ে যাবেন? আপনার নম্বরটা আর কাউকে দেওয়া হবে না।')) return;
         const r = await rpc('batch_leave', { p_batch_id: b.id });
         if(r.error || !r.data || !r.data.ok){ toast('এখন ছাড়া যাচ্ছে না, একটু পরে চেষ্টা করুন।'); return; }
@@ -589,7 +583,7 @@
     const r = await rpc('batch_roster', { p_batch_id: id });
     const box = $('roster'); if(!box) return;
     if(r.error || !r.data || !r.data.ok){ $('rosterS').textContent = isMissing(r.error) ? 'সদস্য তালিকা শীঘ্রই চালু হচ্ছে।' : 'তালিকা এখন আনা যাচ্ছে না, একটু পরে আবার দেখুন।'; return; }
-    const list = r.data.members || [], SHOW = 24; let all = false;
+    const list = r.data.members || [], SHOW = (window.innerWidth < 600 ? 6 : 12); let all = false;
     $('rosterS').textContent = bn(list.length) + ' জন যুক্ত। নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখতে পায়।';
     const paint = () => {
       const rows = all ? list : list.slice(0, SHOW);
