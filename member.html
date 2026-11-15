@@ -748,7 +748,7 @@ const IC = {
 };
 const ico = (n, s = 20, extra = '') => '<svg class="ic" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' + extra + '>' + IC[n] + '</svg>';
 const THEMES = { night: ['#0A1628', '#1A3570', '#2563EB', '#7C3AED'], green: ['#03382B', '#047857', '#047857', '#10B981'], gold: ['#451A03', '#B45309', '#B45309', '#F59E0B'] };
-const LEVELS = [['school', 'মাধ্যমিক'], ['college', 'উচ্চ মাধ্যমিক'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
+const LEVELS = [['school', 'মাধ্যমিক'], ['college', 'উচ্চ মাধ্যমিক'], ['diploma', 'ডিপ্লোমা'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
 const STATE = { saved: null, card: null, skill: null };
 
 function typeKey(t){ return t === 'মাদ্রাসা' ? 'madrasa' : t === 'কলেজ' ? 'college' : t === 'কারিগরি' ? 'tech' : t === 'বিশ্ববিদ্যালয়' ? 'uni' : t === 'কোচিং সেন্টার' ? 'coach' : 'school'; }
@@ -1421,6 +1421,7 @@ function autoTitle(d){
   if(has('masters') && !e.masters.current) return 'ডাবল ডিগ্রিধারী নাগরিক';
   if(has('bachelor') && !e.bachelor.current) return 'সার্টিফায়েড শিক্ষিত নাগরিক';
   if(studying) return 'চিরছাত্র';
+  if(has('diploma') && !e.diploma.current) return 'সার্টিফায়েড শিক্ষিত নাগরিক';
   if(has('college')) return 'উচ্চ মাধ্যমিক পাস বীর';
   if(has('school')) return 'মাধ্যমিক পাস যোদ্ধা';
   return 'সার্টিফায়েড শিক্ষিত নাগরিক';

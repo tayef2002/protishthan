@@ -895,6 +895,7 @@ const LEVELS = [
   { key:'jsc',     title:'জুনিয়র',       sub:'JSC',                 names:{ g:'JSC', a:'JDC', q:'মুতাওয়াসসিতাহ' },              ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'school',  title:'মাধ্যমিক',      sub:'SSC',                 names:{ g:'SSC', a:'দাখিল', q:'সানাবিয়্যাহ আম্মাহ' },        ph:'স্কুল বা মাদ্রাসার নাম' },
   { key:'college', title:'উচ্চ মাধ্যমিক', sub:'HSC',                 except:'q', names:{ g:'HSC', a:'আলিম', q:'সানাবিয়্যাহ খাস্সাহ' },        ph:'কলেজ বা মাদ্রাসার নাম' },
+  { key:'diploma', title:'ডিপ্লোমা', cardTitle:'কারিগরি', sub:'পলিটেকনিক, ডিপ্লোমা ইন ইঞ্জিনিয়ারিং', except:'q', names:{ g:'ডিপ্লোমা', a:'ডিপ্লোমা' },                    ph:'পলিটেকনিক বা ইনস্টিটিউটের নাম' },
   { key:'bachelor',title:'স্নাতক',        sub:'অনার্স, ডিগ্রি',      names:{ g:'অনার্স / ডিগ্রি', a:'ফাজিল', q:'ফযীলত' },       ph:'বিশ্ববিদ্যালয় বা কলেজের নাম' },
   { key:'masters', title:'স্নাতকোত্তর',   sub:'মাস্টার্স',           names:{ g:'মাস্টার্স', a:'কামিল', q:'তাকমীল (দাওরা)' },       ph:'বিশ্ববিদ্যালয় বা মাদ্রাসার নাম' },
   { key:'ifta',    title:'ইফতা (মুফতি)',  cardTitle:'ইফতা', sub:'দাওরার পর',     only:'q', names:{ g:'ইফতা', a:'ইফতা', q:'মুফতি' },                  ph:'মাদ্রাসার নাম' }
@@ -1094,7 +1095,9 @@ const CUR_YEAR = new Date().getFullYear();
 const YEAR_GAP = { jsc: 3, school: 2, college: 2, bachelor: 4, masters: 1, ifta: 2 };   // years from the previous level (PSC→JSC 3, JSC→SSC 2, SSC→HSC 2, HSC→degree 4, degree→masters 1, Dawra→Ifta 2: usual length of the Ifta course, the visitor can change the year)
 const ALLK = LEVELS.filter(l => l.key !== 'hifz').map(l => l.key);
 const LV = () => LEVELS.filter(l => l.key !== 'hifz' && isVis(l)).map(l => l.key);
-const yg = (a, b) => { let t = 0; for(let x = ALLK.indexOf(a) + 1; x <= ALLK.indexOf(b); x++) t += YEAR_GAP[ALLK[x]]; return t; };   // years between two levels, counting any hidden level in between
+/* years from PSC to the end of each level; the diploma is not a step between HSC and the degree but a course beside HSC (4 years after SSC, the degree follows it by 2 as a lateral entry), so it has its own place on this line */
+const YEAR_OFF = (() => { let t = 0; const o = {}; ALLK.filter(k => k !== 'diploma').forEach(k => { t += YEAR_GAP[k] || 0; o[k] = t; }); o.diploma = o.school + 4; return o; })();
+const yg = (a, b) => Math.max(0, YEAR_OFF[b] - YEAR_OFF[a]);   // years between two levels, counting any hidden level in between
 function syncYearUI(k){
   const ed = S.edu[k], box = document.getElementById('yd-' + k); if(!box) return;
   const t = box.querySelector('.ydd-t'); t.textContent = ed.year ? bn(ed.year) : ((LEVELS.find(l => l.key === k) || {}).yearPh || 'পাসের সাল'); t.classList.toggle('ph', !ed.year);
@@ -1538,7 +1541,7 @@ function verifiedTick(x, y, r){          // blue tick: this institution is liste
   ctx.strokeStyle = '#fff'; ctx.lineWidth = r * .28; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(x - r * .42, y + r * .02); ctx.lineTo(x - r * .1, y + r * .34); ctx.lineTo(x + r * .46, y - r * .32); ctx.stroke(); ctx.restore();
 }
-const LEVEL_YEARS = { hifz: 0, psc: 5, jsc: 8, school: 10, college: 12, bachelor: 16, masters: 17, ifta: 19 };   // years of schooling up to the end of each level (Ifta = Dawra + 2; the visitor can type their own total)
+const LEVEL_YEARS = { hifz: 0, psc: 5, jsc: 8, school: 10, college: 12, diploma: 14, bachelor: 16, masters: 17, ifta: 19 };   // years of schooling up to the end of each level (Ifta = Dawra + 2; the visitor can type their own total)
 
 function syncNeedName(){
   const ok = !!String((typeof S !== 'undefined' && S.name) || '').trim();
