@@ -1,0 +1,55 @@
+/* আমার প্রতিষ্ঠান: the join pill on the directory cards, the block on an institution page and the join sheet (myinst.js) */
+.mi-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0 2px;border-top:1px dashed #E3E9F5;margin-top:2px;font-family:'Hind Siliguri','Inter',sans-serif}
+.mi-count{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#475569;min-height:20px}
+.mi-count svg{color:#1A56DB}
+.mi-join{display:inline-flex;align-items:center;gap:5px;flex:none;padding:5px 14px;border-radius:100px;border:1.5px solid #1A56DB;background:#fff;color:#1A56DB;font:700 12.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;transition:background .15s,color .15s}
+.mi-join:hover{background:#1A56DB;color:#fff}
+.mi-join.mi-in,.mi-btn.mi-in{border-color:#059669;color:#047857;background:#ECFDF5}
+.mi-join.mi-in:hover,.mi-btn.mi-in:hover{background:#D1FAE5;color:#047857}
+.mi-hero{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin-top:14px;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#EEF4FF,#F5F0FF);border:1px solid #DCE6FA;font-family:'Hind Siliguri','Inter',sans-serif}
+.mi-hero .mi-big{font-size:16px;color:#0B1B4D}
+.mi-hero small{flex-basis:100%;font-size:12.5px;color:#64748B}
+.mi-btn{border:0;border-radius:12px;padding:10px 20px;background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;font:800 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.mi-btn.mi-in{border:1.5px solid #059669}
+/* the sheet: a bottom sheet on a phone, a centred card on a computer */
+.mi-ov{position:fixed;inset:0;z-index:10050;display:none;align-items:flex-end;justify-content:center;background:rgba(10,18,48,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);font-family:'Hind Siliguri','Inter',sans-serif}
+.mi-ov.show{display:flex}
+.mi-sheet{position:relative;width:100%;max-width:520px;max-height:92vh;overflow:auto;background:#fff;border-radius:26px 26px 0 0;padding:26px 22px 24px;animation:mi-up .28s ease}
+@media(min-width:640px){.mi-ov{align-items:center}.mi-sheet{border-radius:26px;padding:30px 30px 26px}}
+@keyframes mi-up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.mi-x{position:absolute;right:14px;top:12px;width:34px;height:34px;border:0;border-radius:50%;background:#F1F5F9;color:#475569;font-size:22px;line-height:1;cursor:pointer}
+.mi-h{margin-bottom:14px;padding-right:34px}
+.mi-kick{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.3px;color:#1A56DB;background:#EEF3FF;border-radius:100px;padding:3px 11px;margin-bottom:8px}
+.mi-h h2{margin:0 0 4px;font-size:21px;font-weight:800;line-height:1.3;color:#0B1B4D;letter-spacing:-.3px}
+.mi-h p{margin:0;font-size:14px;line-height:1.6;color:#64748B}.mi-h p b{color:#1A56DB}
+.mi-bl{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:9px}
+.mi-b{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:11px 12px 11px 14px;border:1.5px solid #E5ECF8;border-radius:16px;background:#fff}
+.mi-b.me{background:#F0FDF7;border-color:#BBF7D0}
+.mi-bt b{display:block;font-size:15.5px;color:#0B1B4D}.mi-bt small{display:block;font-size:12px;color:#64748B;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mi-bn{text-align:center;font-size:18px;font-weight:800;color:#0B1B4D;line-height:1.05}.mi-bn small{display:block;font-size:10.5px;font-weight:600;color:#64748B}
+.mi-go{border:0;border-radius:12px;padding:9px 16px;background:#1A56DB;color:#fff;font:800 13.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.mi-go.in{background:#DCFCE7;color:#047857}
+.mi-new{width:100%;border:1.5px dashed #9DB6EE;border-radius:16px;background:#F7FAFF;color:#1A56DB;padding:13px;font:800 14.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
+.mi-new span{font-size:18px;margin-right:4px}
+.mi-l{display:block;margin:16px 0 8px;font-size:13.5px;font-weight:800;color:#0F172A}
+.mi-chips{display:flex;flex-wrap:wrap;gap:8px}
+.mi-chips button{border:1.5px solid #DCE5F6;background:#fff;border-radius:100px;padding:8px 15px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#475569;cursor:pointer}
+.mi-chips button.on{background:#1A56DB;border-color:#1A56DB;color:#fff}
+.mi-sel{width:100%;border:1.5px solid #DCE5F6;border-radius:13px;padding:11px 14px;font:600 15px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;background:#fff}
+.mi-hint{margin:10px 0 0;font-size:12.5px;line-height:1.55;color:#7A889F}
+.mi-pick{padding:12px 14px;border-radius:14px;background:#F4F7FE;border:1px solid #E3EAF8}.mi-pick b{display:block;font-size:16px;color:#0B1B4D}.mi-pick small{font-size:12.5px;color:#64748B}
+.mi-err{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;font-size:13.5px;line-height:1.55}.mi-err[hidden]{display:none}.mi-err a{color:#B91C1C}
+.mi-act{display:flex;gap:10px;margin-top:20px}.mi-act.col{flex-direction:column}
+.mi-pri,.mi-sec{flex:1;display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;font:800 15px 'Hind Siliguri','Inter',sans-serif;text-decoration:none;cursor:pointer;border:0}
+.mi-pri{background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff}.mi-pri:disabled{opacity:.45;cursor:default}
+.mi-sec{background:#EEF2FA;color:#334155}
+.mi-link{border:0;background:none;color:#64748B;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;padding:8px}
+.mi-done{text-align:center}
+.mi-tick{width:66px;height:66px;border-radius:50%;margin:4px auto 12px;display:grid;place-items:center;background:linear-gradient(135deg,#34D399,#059669);color:#fff}
+.mi-done h2{margin:0 0 4px;font-size:24px;font-weight:800;color:#0B1B4D}.mi-done p{margin:0 0 12px;font-size:14.5px;line-height:1.6;color:#475569}
+.mi-nums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 12px}.mi-nums div{padding:12px 8px;border-radius:14px;background:#F4F7FE}.mi-nums b{display:block;font-size:28px;font-weight:800;color:#1A56DB;line-height:1.1}.mi-nums small{font-size:12px;color:#64748B}
+.mi-note{padding:8px 12px;border-radius:12px;background:#FFFBEB;color:#92400E !important;font-size:13px !important}
+.mi-sk{display:grid;gap:10px}.mi-sk i{display:block;height:56px;border-radius:16px;background:linear-gradient(90deg,#EEF2FA 25%,#F8FAFE 50%,#EEF2FA 75%);background-size:200% 100%;animation:mi-sk 1.3s infinite}
+@keyframes mi-sk{to{background-position:-200% 0}}
+@media(max-width:420px){.mi-b{grid-template-columns:minmax(0,1fr) auto}.mi-bn{display:none}}
+@media(prefers-reduced-motion:reduce){.mi-sheet,.mi-sk i{animation:none}}

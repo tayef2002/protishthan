@@ -110,7 +110,7 @@
   const askSignIn = (kind, reason) => MB().signIn(reason, POP[kind](popChip()));
 
   /* a batch is the SSC / Dakhil batch only: the school batch, the bond that lasts. The address and the database keep a level word so more levels can be opened later. */
-  const LV = [{ k: 'ssc', t: 'SSC' }];
+  const LV = [{ k: 'psc', t: 'প্রাথমিক' }, { k: 'jsc', t: 'JSC' }, { k: 'ssc', t: 'SSC' }, { k: 'hsc', t: 'HSC' }, { k: 'bachelor', t: 'স্নাতক' }, { k: 'masters', t: 'স্নাতকোত্তর' }];
   const LVT = {}; LV.forEach(l => { LVT[l.k] = l.t; });
   const THEMES = [['blue', '#1A56DB'], ['violet', '#6D28D9'], ['teal', '#0F766E'], ['amber', '#B45309'], ['rose', '#BE123C']];
   const NOW = new Date().getFullYear();

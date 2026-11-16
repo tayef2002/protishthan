@@ -25,7 +25,7 @@ yes('the search asks /api/dir first and falls back to the database when /api ans
 // levels, themes and error codes agree with the SQL
 const sqlLv = (sql.match(/level in \(([^)]*)\)/) || ['', ''])[1].match(/'(\w+)'/g).map(x => x.replace(/'/g, ''));
 const pgLv = [...page.matchAll(/\{ k: '(\w+)', t: /g)].map(m => m[1]);
-eq('the page offers SSC only (the SSC / Dakhil school batch), and that level is one the table allows', pgLv, ['ssc']);
+eq('the page knows every level of the ladder (primary, JSC, SSC, HSC, degree, masters: the batch is the institution membership now, migrations/2027-01-06_my_institution.sql), and each is one the table allows', pgLv, ['psc', 'jsc', 'ssc', 'hsc', 'bachelor', 'masters']);
 yes('the SQL accepts SSC only through one small function', /batch_level_ok\(l text\)[^;]*select l = 'ssc'/.test(sql.replace(/\s+/g, ' ')) && sqlLv.includes('ssc') && (sql.match(/public\.batch_level_ok\(p_level\)/g) || []).length === 2);
 yes('there is no level picker on the page any more, and the card suggestions come from the card\'s secondary (SSC / Dakhil) row only', !/lvChips/.test(page) && /const map = \{ school: \{ g: 'ssc', a: 'ssc' \} \}/.test(page));
 yes('the page says it is the SSC batch (title, headline, search label, year label)', /<title>আমার ব্যাচ: আপনার SSC ব্যাচ/.test(page) && /<h1>আমার ব্যাচ, <span>আমাদের গল্প<\/span><\/h1>/.test(page) && /<\/svg>SSC ব্যাচ<\/span>/.test(page) && /SSC \/ দাখিল দিয়েছেন/.test(page) && /SSC \/ দাখিল/.test(read('privacy.html')));

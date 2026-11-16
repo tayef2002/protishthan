@@ -1,0 +1,237 @@
+/* আমার প্রতিষ্ঠান: "যুক্ত হোন" for every institution of the directory.
+   - on the directory cards (home page, search results): how many members are joined, and a join button
+   - on an institution page: the same, bigger
+   - the join sheet: the batches already opened at that institution ("your batchmates are already here") or a new batch of your own, then your status (private)
+   The data is the batch tables (migrations/2027-01-06_my_institution.sql): the batch membership IS the institution membership. Counts only, self-declared.
+   Needs member.js (the member sign-in) loaded first. */
+(function(){
+  'use strict';
+  if(window.MyInst) return;
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const track = (n, p) => { try{ window.track && window.track(n, p || {}); }catch(e){} };
+  const LEVELS = [['psc', 'প্রাথমিক (PSC)'], ['jsc', 'জুনিয়র (JSC)'], ['ssc', 'মাধ্যমিক (SSC)'], ['hsc', 'উচ্চ মাধ্যমিক (HSC)'], ['bachelor', 'স্নাতক'], ['masters', 'স্নাতকোত্তর']];
+  const LVN = {}; LEVELS.forEach(l => { LVN[l[0]] = l[1]; });
+  const STATUS = [['studied', 'পড়েছি'], ['studying', 'এখনও পড়ছি'], ['left_early', 'শেষ করতে পারিনি']];
+  const INTENT = 'mi_intent';
+  const NOW = new Date().getFullYear();
+  const ICON_USERS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/></svg>';
+  const ICON_CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  /* ---------- the numbers on the screen ---------- */
+  const COUNTS = new Map();          // slug -> members
+  const asked = new Set();
+  let MINE = new Set();              // the slugs the signed-in member is already in
+  const signedIn = () => { const m = MB(); return !!(m && m.current && m.current()); };
+  const rpc = async (name, args) => { const m = MB(); if(!m || !m.sb) return { error: { message: 'NO_CLIENT' } }; try{ return await m.sb.rpc(name, args || {}); }catch(e){ return { error: { message: String(e && e.message || e) } }; } };
+
+  async function fetchCounts(slugs){
+    const todo = [...new Set(slugs)].filter(s => s && !asked.has(s));
+    if(!todo.length) return;
+    todo.forEach(s => asked.add(s));
+    for(let i = 0; i < todo.length; i += 40){
+      const part = todo.slice(i, i + 40), r = await rpc('institution_members', { p_slugs: part });
+      if(r.error){ part.forEach(s => asked.delete(s)); return; }   // the SQL is not run yet or a slow moment: nothing is shown, and it is asked again next time
+      const got = new Map((r.data || []).map(x => [x.slug, Number(x.members)]));
+      part.forEach(s => COUNTS.set(s, got.get(s) || 0));
+    }
+    paint();
+  }
+  async function loadMine(){
+    if(!signedIn()){ MINE = new Set(); paint(); return; }
+    const r = await rpc('batch_me');
+    MINE = new Set(Array.isArray(r.data) ? r.data.map(x => x.slug) : []);
+    paint();
+  }
+  const countText = slug => { const n = COUNTS.get(slug); if(n == null) return ''; return n > 0 ? ICON_USERS + '<span>' + bn(n) + ' জন যুক্ত</span>' : '<span>প্রথম সদস্য হোন</span>'; };
+  function paint(){
+    document.querySelectorAll('[data-mi-count]').forEach(el => { el.innerHTML = countText(el.getAttribute('data-mi-count')); });
+    document.querySelectorAll('[data-mi-join]').forEach(el => {
+      const s = el.getAttribute('data-mi-join'), inn = MINE.has(s);
+      el.classList.toggle('mi-in', inn);
+      el.innerHTML = inn ? ICON_CHECK + ' যুক্ত আছেন' : 'যুক্ত হোন';
+    });
+  }
+
+  /* ---------- the directory cards ---------- */
+  const slugOf = a => { try{ return new URL(a.getAttribute('href'), location.href).searchParams.get('slug') || ''; }catch(e){ return ''; } };
+  function decorate(root){
+    const cards = (root || document).querySelectorAll('a.inst-card[href*="institution-detail"]:not([data-mi])');
+    if(!cards.length) return;
+    const slugs = [];
+    cards.forEach(a => {
+      const slug = slugOf(a); if(!slug) return;
+      a.setAttribute('data-mi', '1');
+      const nameEl = a.querySelector('.inst-name'), name = nameEl ? nameEl.textContent.trim() : '';
+      const row = document.createElement('div'); row.className = 'mi-row';
+      row.innerHTML = '<span class="mi-count" data-mi-count="' + esc(slug) + '">' + countText(slug) + '</span><span class="mi-join" role="button" tabindex="0" data-mi-join="' + esc(slug) + '">যুক্ত হোন</span>';
+      const foot = a.querySelector('.ic-foot'); if(foot) a.insertBefore(row, foot); else a.appendChild(row);
+      const go = e => { e.preventDefault(); e.stopPropagation(); open({ slug, name }); };
+      const j = row.querySelector('.mi-join'); j.addEventListener('click', go); j.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') go(e); });
+      slugs.push(slug);
+    });
+    paint();
+    fetchCounts(slugs);
+  }
+  let obsT = 0;
+  function watch(){
+    decorate(document);
+    new MutationObserver(() => { clearTimeout(obsT); obsT = setTimeout(() => decorate(document), 150); }).observe(document.body, { childList: true, subtree: true });
+  }
+
+  /* ---------- an institution page ---------- */
+  function mountHero(){
+    if(!/institution-detail/.test(location.pathname)) return;
+    const slug = new URLSearchParams(location.search).get('slug'); if(!slug) return;
+    let tries = 0;
+    const t = setInterval(() => {
+      const name = document.getElementById('heroName'), host = document.getElementById('heroBadges');
+      if(++tries > 60){ clearInterval(t); return; }
+      if(!name || !host || !name.textContent.trim() || name.textContent.trim() === '—') return;
+      clearInterval(t);
+      if(document.getElementById('miHero')) return;
+      const box = document.createElement('div'); box.id = 'miHero'; box.className = 'mi-hero';
+      box.innerHTML = '<span class="mi-count mi-big" data-mi-count="' + esc(slug) + '"></span><button type="button" class="mi-btn" data-mi-join="' + esc(slug) + '">যুক্ত হোন</button><small>আপনি এখানে পড়েছেন বা পড়ছেন? আপনার ব্যাচের সবাইকে খুঁজে নিন।</small>';
+      host.parentNode.insertBefore(box, host.nextSibling);
+      box.querySelector('.mi-btn').addEventListener('click', () => open({ slug, name: name.textContent.trim() }));
+      paint(); fetchCounts([slug]);
+    }, 250);
+  }
+
+  /* ---------- the sheet ---------- */
+  let ov = null, ST = null;
+  function build(){
+    ov = document.createElement('div'); ov.className = 'mi-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'আমার প্রতিষ্ঠানে যুক্ত হোন');
+    ov.innerHTML = '<div class="mi-sheet"><button type="button" class="mi-x" aria-label="বন্ধ করুন">×</button><div class="mi-body" id="miBody"></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if(e.target === ov) close(); });
+    ov.querySelector('.mi-x').addEventListener('click', close);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape' && ov.classList.contains('show')) close(); });
+  }
+  const body = html => { document.getElementById('miBody').innerHTML = html; const s = ov.querySelector('.mi-sheet'); if(s) s.scrollTop = 0; };
+  function close(){ if(ov){ ov.classList.remove('show'); document.body.style.overflow = ''; } }
+  const head = (sub) => '<div class="mi-h"><span class="mi-kick">আমার প্রতিষ্ঠান</span><h2>' + esc(ST.name || 'প্রতিষ্ঠান') + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>';
+
+  function ask(){
+    try{ localStorage.setItem(INTENT, JSON.stringify({ slug: ST.slug, name: ST.name, t: Date.now() })); }catch(e){}
+    const m = MB(); if(!m){ location.href = '/member'; return; }
+    track('mi_signin', {});
+    m.signIn('৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই। যুক্ত হওয়ার পর এই পাতাতেই ফিরে আসবেন।', {
+      title: 'আপনার প্রতিষ্ঠানে যুক্ত হোন', chip: ST.name, cta: 'Google দিয়ে যুক্ত হোন',
+      perks: [['seat', 'আপনার ব্যাচের সদস্য নম্বর, একবার পেলে বদলায় না'], ['users', 'ব্যাচের সহপাঠীরা আগে থেকেই এখানে থাকলে সঙ্গে সঙ্গে দেখবেন'], ['eye', 'নাম-ছবি শুধু ব্যাচের সদস্যরা দেখে, আর কেউ না']]
+    });
+  }
+
+  async function open(o){
+    if(!ov) build();
+    ST = { slug: o.slug, name: o.name || '', list: null };
+    track('mi_open', {});
+    if(!signedIn()){ const m = MB(); if(m && m.ready) await m.ready(); }
+    if(!signedIn()){ ask(); return; }
+    ov.classList.add('show'); document.body.style.overflow = 'hidden';
+    body(head('') + '<div class="mi-sk"><i></i><i></i><i></i></div>');
+    await showList();
+  }
+
+  async function showList(){
+    const r = await rpc('institution_batches', { p_slug: ST.slug });
+    if(r.error){ body(head('') + '<p class="mi-err">এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</p><div class="mi-act"><button type="button" class="mi-pri" id="miRetry">আবার চেষ্টা করুন</button></div>'); document.getElementById('miRetry').onclick = showList; return; }
+    ST.list = Array.isArray(r.data) ? r.data : [];
+    const total = COUNTS.get(ST.slug) || 0;
+    let h = head(ST.list.length ? 'আপনার ব্যাচের লোকজন কি আগে থেকেই এখানে? ' + (total ? '<b>' + bn(total) + ' জন</b> যুক্ত আছেন।' : '') : 'এই প্রতিষ্ঠানে এখনও কোনো ব্যাচ খোলা হয়নি। আপনিই প্রথম হোন।');
+    if(ST.list.length){
+      h += '<ul class="mi-bl">' + ST.list.map((b, i) => {
+        const sub = [LVN[b.level] || b.level, b.name || '', b.convener ? 'আহ্বায়ক: ' + b.convener : ''].filter(Boolean).join(' · ');
+        return '<li class="mi-b' + (b.mine ? ' me' : '') + '"><div class="mi-bt"><b>' + bn(b.year) + ' ব্যাচ</b><small>' + esc(sub) + '</small></div><div class="mi-bn">' + bn(b.members) + '<small>সদস্য</small></div>' +
+          (b.mine ? '<a class="mi-go in" href="' + bpath(b.level, b.year) + '">' + ICON_CHECK + ' আপনি আছেন</a>' : '<button type="button" class="mi-go" data-i="' + i + '">যোগ দিন</button>') + '</li>';
+      }).join('') + '</ul>';
+    }
+    h += '<button type="button" class="mi-new" id="miNew"><span>＋</span> আমার ব্যাচ এখানে নেই, নতুন ব্যাচ খুলি</button>';
+    body(h);
+    body_bind();
+  }
+  function body_bind(){
+    document.querySelectorAll('#miBody .mi-go[data-i]').forEach(b => { b.onclick = () => { const x = ST.list[+b.dataset.i]; showStatus({ level: x.level, year: x.year, label: bn(x.year) + ' ব্যাচ · ' + (LVN[x.level] || x.level), created: false }); }; });
+    const n = document.getElementById('miNew'); if(n) n.onclick = showNew;
+  }
+  const bpath = (level, year) => '/b/' + encodeURIComponent(ST.slug) + '/' + level + '-' + year;
+
+  function showNew(){
+    const yrs = []; for(let y = NOW + 1; y >= 1970; y--) yrs.push(y);
+    body(head('নতুন ব্যাচ খুলুন। আপনি এর আহ্বায়ক হবেন, সদস্য নম্বর ১।') +
+      '<label class="mi-l">কোন স্তর?</label><div class="mi-chips" id="miLv">' + LEVELS.map(l => '<button type="button" data-v="' + l[0] + '">' + l[1] + '</button>').join('') + '</div>' +
+      '<label class="mi-l" for="miYr">আপনার ক্লাসের বন্ধুরা কোন সালে এই স্তর শেষ করেছে বা করবে?</label>' +
+      '<select id="miYr" class="mi-sel"><option value="">সাল বাছুন</option>' + yrs.map(y => '<option value="' + y + '">' + bn(y) + '</option>').join('') + '</select>' +
+      '<p class="mi-hint">ঝরে পড়লেও আপনার বন্ধুদের সালটাই দিন, তাহলে সবাই এক ব্যাচে থাকবেন।</p>' +
+      '<div class="mi-act"><button type="button" class="mi-sec" id="miBack">← ফিরে যান</button><button type="button" class="mi-pri" id="miNext" disabled>এগিয়ে যান</button></div>');
+    let lv = '';
+    const sync = () => { document.getElementById('miNext').disabled = !(lv && document.getElementById('miYr').value); };
+    document.querySelectorAll('#miLv button').forEach(b => { b.onclick = () => { lv = b.dataset.v; document.querySelectorAll('#miLv button').forEach(x => x.classList.toggle('on', x === b)); sync(); }; });
+    document.getElementById('miYr').onchange = sync;
+    document.getElementById('miBack').onclick = showList;
+    document.getElementById('miNext').onclick = () => {
+      const y = +document.getElementById('miYr').value, exists = (ST.list || []).find(x => x.level === lv && x.year === y);
+      showStatus({ level: lv, year: y, label: bn(y) + ' ব্যাচ · ' + LVN[lv], created: !exists });
+    };
+  }
+
+  function showStatus(c){
+    body(head('') + '<div class="mi-pick"><b>' + esc(c.label) + '</b><small>' + (c.created ? 'নতুন ব্যাচ, আপনি আহ্বায়ক হবেন' : 'আগে থেকে খোলা ব্যাচ') + '</small></div>' +
+      '<label class="mi-l">আপনি এখানে…</label><div class="mi-chips" id="miSt">' + STATUS.map((s, i) => '<button type="button" data-v="' + s[0] + '"' + (i === 0 ? ' class="on"' : '') + '>' + s[1] + '</button>').join('') + '</div>' +
+      '<p class="mi-hint">এটা শুধু আপনি দেখবেন, ব্যাচের আর কেউ না।</p><div class="mi-err" id="miErr" hidden></div>' +
+      '<div class="mi-act"><button type="button" class="mi-sec" id="miBack">← ফিরে যান</button><button type="button" class="mi-pri" id="miGo">যুক্ত হোন</button></div>');
+    let st = 'studied';
+    document.querySelectorAll('#miSt button').forEach(b => { b.onclick = () => { st = b.dataset.v; document.querySelectorAll('#miSt button').forEach(x => x.classList.toggle('on', x === b)); }; });
+    document.getElementById('miBack').onclick = c.created ? showNew : showList;
+    document.getElementById('miGo').onclick = () => submit(c, st);
+  }
+
+  const ERR = {
+    RATE: 'অল্প সময়ে অনেকগুলো ব্যাচে যোগ দেওয়া হয়ে গেছে। একটু পরে আবার চেষ্টা করুন।',
+    TOO_MANY: 'আপনি আগেই সর্বোচ্চ সংখ্যক ব্যাচে আছেন (বা তিনটা ব্যাচ খুলেছেন)। কোনো একটা ছেড়ে আবার চেষ্টা করুন।',
+    LOCKED: 'এই ব্যাচ এখন নতুন সদস্য নিচ্ছে না।',
+    NO_INSTITUTION: 'এই প্রতিষ্ঠানটা এখন তালিকায় নেই।',
+    BAD_BATCH: 'স্তর বা সালটা ঠিক হয়নি, আবার বেছে নিন।'
+  };
+  async function submit(c, status){
+    const go = document.getElementById('miGo'), err = document.getElementById('miErr'); go.disabled = true; err.hidden = true;
+    const r = await rpc('member_join_batch', { p_slug: ST.slug, p_level: c.level, p_year: c.year, p_status: status, p_ref: refCode() });
+    go.disabled = false;
+    const d = r.data;
+    if(r.error || !d){ err.textContent = 'এখন যুক্ত করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false; return; }
+    if(d.ok === true){ track('mi_joined', { created: !!d.created }); return done(c, d); }
+    if(d.error === 'NOT_SIGNED_IN'){ ask(); return; }
+    if(d.error === 'ONE_PER_LEVEL'){
+      const mine = (ST.list || []).find(x => x.level === c.level && x.mine);
+      err.innerHTML = 'এই প্রতিষ্ঠানে ' + esc(LVN[c.level] || c.level) + ' স্তরে আপনি আগেই ' + (mine ? '<a href="' + bpath(mine.level, mine.year) + '"><b>' + bn(mine.year) + ' ব্যাচে</b></a> ' : 'অন্য একটা ব্যাচে ') + 'আছেন। একটা স্তরে একটাই ব্যাচ থাকা যায়। ভুল সাল বেছে থাকলে ওই ব্যাচ ছেড়ে এখানে আসুন।';
+      err.hidden = false; return;
+    }
+    err.textContent = ERR[d.error] || 'যুক্ত করা গেল না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false;
+  }
+  const refCode = () => { try{ return (new URLSearchParams(location.search).get('r') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16) || null; }catch(e){ return null; } };
+
+  function done(c, d){
+    const n = Number(d.institution_members) || 0;
+    COUNTS.set(ST.slug, n); MINE.add(ST.slug); paint();
+    const bp = bpath(c.level, c.year);
+    body('<div class="mi-done"><div class="mi-tick">' + ICON_CHECK.replace('width="13" height="13"', 'width="30" height="30"') + '</div><h2>যুক্ত হলেন!</h2>' +
+      '<p><b>' + esc(ST.name) + '</b><br>' + bn(c.year) + ' ব্যাচ · ' + esc(LVN[c.level] || c.level) + '</p>' +
+      '<div class="mi-nums"><div><b>' + bn(d.seq) + '</b><small>আপনি এই ব্যাচের</small></div><div><b>' + bn(n) + '</b><small>জন যুক্ত প্রতিষ্ঠানে</small></div></div>' +
+      (d.created ? '<p class="mi-note">আপনি এই ব্যাচের আহ্বায়ক। বন্ধুদের ডাকলে ব্যাচ বড় হবে।</p>' : '') +
+      '<div class="mi-act col"><a class="mi-pri" href="' + bp + '#invite">বন্ধুদের ডাকুন</a><a class="mi-sec" href="' + bp + '">ব্যাচের পাতা খুলুন</a><a class="mi-sec" href="/card">আপনার শিক্ষিত কার্ড বানান</a><button type="button" class="mi-link" id="miClose">এখনই না</button></div></div>');
+    document.getElementById('miClose').onclick = close;
+  }
+
+  /* ---------- after the sign-in: come back to the same place ---------- */
+  async function resume(){
+    const m = MB(); if(!m) return; await m.ready();
+    if(!signedIn()) return;
+    let it = null; try{ it = JSON.parse(localStorage.getItem(INTENT) || 'null'); localStorage.removeItem(INTENT); }catch(e){}
+    if(it && it.slug && Date.now() - it.t < 30 * 60 * 1000) open({ slug: it.slug, name: it.name });
+  }
+
+  window.MyInst = { open, decorate, fetchCounts };
+  const start = () => { watch(); mountHero(); const m = MB(); if(m){ m.ready().then(() => { loadMine(); resume(); }); m.onChange(() => loadMine()); } };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
