@@ -63,7 +63,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .lb-seg button{border:none;background:none;border-radius:10px;padding:8px 15px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer}
 .lb-seg button:hover{color:#0F172A}
 .lb-seg button.on{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(15,23,42,.14)}
-.lb-new{display:grid;gap:10px;margin-top:18px}.lb-new .lb-tools{margin:0}.lb-metric{justify-self:start}.lb-sels{display:flex;gap:10px;flex-wrap:wrap}.lb-sel[hidden],.lb-metric[hidden],.lb-new[hidden]{display:none}
+.lb-new{display:grid;gap:10px;margin-top:18px}.lb-new .lb-tools{margin:0}.lb-metric{justify-self:start}.lb-sels{display:flex;gap:10px;flex-wrap:wrap}.lb-sel[hidden],.lb-metric[hidden],.lb-new[hidden],.lb-seg[hidden]{display:none}.lb-retry{margin-left:8px;border:1.5px solid var(--blue);background:#fff;color:var(--blue);border-radius:10px;padding:6px 14px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
 .lb-sel{border:1px solid var(--border);border-radius:12px;padding:10px 14px;font:600 14px 'Hind Siliguri','Inter',sans-serif;color:#334155;background:#fff;min-width:170px;cursor:pointer}
 .lb-list{list-style:none;display:flex;flex-direction:column;gap:8px}
 .lb-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 16px;border:1px solid #E8EDF5;border-radius:16px;background:#fff;position:relative;overflow:hidden}
@@ -1737,6 +1737,7 @@ const LB_METRICS = { card: { t: 'শিক্ষিত কার্ডে সে
 const LB_SCOPES = [['institution', 'প্রতিষ্ঠান'], ['district', 'জেলা'], ['division', 'বিভাগ']], LB_PERIODS = [['all', 'সব সময়'], ['week', 'এই সপ্তাহ']];
 const LB_NOUN = { institution: 'প্রতিষ্ঠান', district: 'জেলা', division: 'বিভাগ' };
 const LB_MISSING = /PGRST202|Could not find the function|schema cache/i;
+let LB_REQ = 0, LB_SHOWN = '', lbTry = 0;   // the newest request wins; the view that is on screen; automatic retries of a failed one
 const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
 function lbRow(r, max){
   const w = Math.max(6, Math.round(Number(r.n) / Math.max(1, max) * 100));
@@ -1751,6 +1752,8 @@ const LB_SHOW = true;
 async function loadLeaderboard(){
   if(!LB_SHOW) return;
   const list = document.getElementById('lbList'); if(!list) return;
+  const my = ++LB_REQ, viewKey = [lbMetric, lbPeriod, lbScope, lbDivision, lbDistrict, lbType].join('|');
+  if(LB_READY && viewKey !== LB_SHOWN) list.innerHTML = '<li class="lb-empty">লোড হচ্ছে…</li>';
   try{
     let data, error;
     if(LB_NEW){
@@ -1759,17 +1762,26 @@ async function loadLeaderboard(){
       else { error = r.error; data = (r.data || []).map(x => ({ name: x.name, itype: lbScope === 'institution' ? x.itype : (x.inst_count ? bn(x.inst_count) + 'টি প্রতিষ্ঠান' : ''), upazila: x.upazila, district: lbScope === 'institution' ? x.district : '', n: x.n, rank: x.rank, unit: (LB_METRICS[lbMetric] || {}).unit })); }
     }
     if(!LB_NEW){ const r = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null }); data = r.data; error = r.error; }
+    if(my !== LB_REQ) return;
     if(error) throw error;
     if(!LB_READY && !lbDistrict && !lbType){   // the rule is about everything on the board, not only the 10 rows shown
       const all = await sb.rpc('card_leaderboard', { p_limit: 500, p_district: null, p_type: null }), rows = (all && all.data) || [];
       const tot = rows.reduce((a, r) => a + Number(r.n || 0), 0);
       if(rows.length >= LB_MIN_ROWS && tot >= LB_MIN_TOTAL){ LB_READY = true; document.getElementById('lb').hidden = false; }
     }
-    if(!LB_READY) return;
+    if(my !== LB_REQ || !LB_READY) return;
     if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">' + (lbPeriod === 'week' ? 'এই সপ্তাহে এখনো কেউ নেই। আপনার প্রতিষ্ঠানকে প্রথম করুন!' : 'এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!') + '</li>'; return; }
     const max = Math.max(...data.map(r => Number(r.n)));
-    list.innerHTML = data.map(r => lbRow(r, max)).join('');
-  }catch(e){ list.innerHTML = '<li class="lb-empty">লিডারবোর্ড এখন লোড করা যাচ্ছে না।</li>'; }
+    list.innerHTML = data.map(r => lbRow(r, max)).join(''); LB_SHOWN = viewKey; lbTry = 0;
+  }catch(e){
+    if(my !== LB_REQ) return;
+    console.warn('leaderboard:', e && (e.message || e));
+    if(lbTry < 2){ lbTry++; setTimeout(() => { if(my === LB_REQ) loadLeaderboard(); }, 1200 * lbTry); return; }   // a slow moment of the database: ask again, twice
+    lbTry = 0;
+    if(LB_SHOWN === viewKey && list.querySelector('.lb-row')) return;   // the right rows are already on screen: keep them
+    list.innerHTML = '<li class="lb-empty">লিডারবোর্ড এখন লোড করা যাচ্ছে না। <button type="button" class="lb-retry" id="lbRetry">আবার চেষ্টা করুন</button></li>';
+    const b = document.getElementById('lbRetry'); if(b) b.onclick = () => { lbTry = 0; loadLeaderboard(); };
+  }
 }
 (function initLeaderboard(){
   const seg = document.getElementById('lbType'); if(!seg) return;
