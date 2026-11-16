@@ -14,6 +14,7 @@
 <meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
+<script src="bd-locations.js?v=3"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="avatars.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -62,6 +63,7 @@ nav#nav.scrolled{background:rgba(15,23,42,.75);box-shadow:0 12px 40px rgba(0,0,0
 .lb-seg button{border:none;background:none;border-radius:10px;padding:8px 15px;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;color:#64748B;cursor:pointer}
 .lb-seg button:hover{color:#0F172A}
 .lb-seg button.on{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(15,23,42,.14)}
+.lb-new{display:grid;gap:10px;margin-top:18px}.lb-new .lb-tools{margin:0}.lb-metric{justify-self:start}.lb-sels{display:flex;gap:10px;flex-wrap:wrap}.lb-sel[hidden],.lb-metric[hidden],.lb-new[hidden]{display:none}
 .lb-sel{border:1px solid var(--border);border-radius:12px;padding:10px 14px;font:600 14px 'Hind Siliguri','Inter',sans-serif;color:#334155;background:#fff;min-width:170px;cursor:pointer}
 .lb-list{list-style:none;display:flex;flex-direction:column;gap:8px}
 .lb-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 16px;border:1px solid #E8EDF5;border-radius:16px;background:#fff;position:relative;overflow:hidden}
@@ -776,11 +778,19 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
 
   <section class="lb" id="lb" aria-labelledby="lbT" hidden>
     <div class="lb-head">
-      <div><span class="lb-kick">লিডারবোর্ড</span><h2 id="lbT">শিক্ষিত কার্ডে সেরা প্রতিষ্ঠান</h2><p>কোন প্রতিষ্ঠান থেকে কতজন শিক্ষিত কার্ড বানিয়েছেন।</p></div>
+      <div><span class="lb-kick">লিডারবোর্ড</span><h2 id="lbT">শিক্ষিত কার্ডে সেরা প্রতিষ্ঠান</h2><p id="lbP">কোন প্রতিষ্ঠান থেকে কতজন শিক্ষিত কার্ড বানিয়েছেন।</p></div>
+    </div>
+    <div class="lb-new" id="lbNew">
+      <div class="lb-seg lb-metric" id="lbMetric" role="group" aria-label="কোন কার্ড" hidden></div>
+      <div class="lb-tools lb-tools2">
+        <div class="lb-seg" id="lbScope" role="group" aria-label="কীসের তালিকা"></div>
+        <div class="lb-seg" id="lbPeriod" role="group" aria-label="সময়"></div>
+      </div>
     </div>
     <div class="lb-tools">
       <div class="lb-seg" id="lbType" role="group" aria-label="ধরন"></div>
-      <select class="lb-sel" id="lbDistrict" aria-label="জেলা"><option value="">সারা দেশ</option></select>
+      <div class="lb-sels"><select class="lb-sel" id="lbDivision" aria-label="বিভাগ" hidden><option value="">সব বিভাগ</option></select>
+      <select class="lb-sel" id="lbDistrict" aria-label="জেলা"><option value="">সারা দেশ</option></select></div>
     </div>
     <ol class="lb-list" id="lbList"><li class="lb-empty">লোড হচ্ছে…</li></ol>
     <div class="lb-find">
@@ -1722,11 +1732,15 @@ function draw(){
 /* ---------------- export / share ---------------- */
 /* ---------------- institution leaderboard ---------------- */
 const LB_TYPES = [['', 'সব'], ['স্কুল', 'স্কুল'], ['কলেজ', 'কলেজ'], ['মাদ্রাসা', 'মাদ্রাসা'], ['কোচিং সেন্টার', 'কোচিং']];
-let lbType = '', lbDistrict = '';
+let lbType = '', lbDistrict = '', lbMetric = 'card', lbPeriod = 'all', lbScope = 'institution', lbDivision = '', LB_NEW = true;
+const LB_METRICS = { card: { t: 'শিক্ষিত কার্ডে সেরা', p: 'কোন প্রতিষ্ঠান থেকে কতজন শিক্ষিত কার্ড বানিয়েছেন।', unit: 'শিক্ষিত কার্ড' }, memory: { t: 'মেমোরি কার্ডে সেরা', p: 'কোন প্রতিষ্ঠানের কতজন সদস্য মেমোরি কার্ড বানিয়েছেন (শুধু লগইন করা সদস্যদের গোনা হয়)।', unit: 'সদস্য · মেমোরি কার্ড' }, skill: { t: 'স্কিল কার্ডে সেরা', p: 'কোন প্রতিষ্ঠানের কতজন সদস্য নিজের স্কিল পেজ প্রকাশ করেছেন (শুধু লগইন করা সদস্যদের গোনা হয়)।', unit: 'সদস্য · স্কিল কার্ড' } };
+const LB_SCOPES = [['institution', 'প্রতিষ্ঠান'], ['district', 'জেলা'], ['division', 'বিভাগ']], LB_PERIODS = [['all', 'সব সময়'], ['week', 'এই সপ্তাহ']];
+const LB_NOUN = { institution: 'প্রতিষ্ঠান', district: 'জেলা', division: 'বিভাগ' };
+const LB_MISSING = /PGRST202|Could not find the function|schema cache/i;
 const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem('sk_dev', d); } }catch(e){ d = ''; } return d; };
 function lbRow(r, max){
   const w = Math.max(6, Math.round(Number(r.n) / Math.max(1, max) * 100));
-  return '<li class="lb-row r' + Math.min(Number(r.rank), 4) + '"><span class="bar" style="width:' + w + '%"></span><span class="lb-rank">' + bn(r.rank) + '</span><div style="min-width:0"><div class="lb-name">' + esc(r.name) + '</div><div class="lb-meta">' + esc([r.itype, r.upazila, r.district].filter(Boolean).join(' · ')) + '</div></div><div class="lb-n">' + bn(r.n) + '<small>শিক্ষিত কার্ড</small></div></li>';
+  return '<li class="lb-row r' + Math.min(Number(r.rank), 4) + '"><span class="bar" style="width:' + w + '%"></span><span class="lb-rank">' + bn(r.rank) + '</span><div style="min-width:0"><div class="lb-name">' + esc(r.name) + '</div><div class="lb-meta">' + esc([r.itype, r.upazila, r.district].filter(Boolean).join(' · ')) + '</div></div><div class="lb-n">' + bn(r.n) + '<small>' + (r.unit || 'শিক্ষিত কার্ড') + '</small></div></li>';
 }
 const LB_MIN_ROWS = 5, LB_MIN_TOTAL = 50;   // the board appears once at least 5 institutions and 50 cards are on it
 let LB_READY = false;
@@ -1738,7 +1752,13 @@ async function loadLeaderboard(){
   if(!LB_SHOW) return;
   const list = document.getElementById('lbList'); if(!list) return;
   try{
-    const { data, error } = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null });
+    let data, error;
+    if(LB_NEW){
+      const r = await sb.rpc('competition_board', { p_metric: lbMetric, p_period: lbPeriod, p_scope: lbScope, p_division: lbDivision || null, p_district: lbScope === 'division' ? null : (lbDistrict || null), p_type: lbScope === 'institution' ? (lbType || null) : null, p_limit: lbScope === 'division' ? 8 : 10 });
+      if(r.error && LB_MISSING.test(String(r.error.code || '') + ' ' + String(r.error.message || ''))){ LB_NEW = false; document.getElementById('lbNew').hidden = true; document.getElementById('lbDivision').hidden = true; }   // the new SQL is not run yet: the old board keeps working
+      else { error = r.error; data = (r.data || []).map(x => ({ name: x.name, itype: lbScope === 'institution' ? x.itype : (x.inst_count ? bn(x.inst_count) + 'টি প্রতিষ্ঠান' : ''), upazila: x.upazila, district: lbScope === 'institution' ? x.district : '', n: x.n, rank: x.rank, unit: (LB_METRICS[lbMetric] || {}).unit })); }
+    }
+    if(!LB_NEW){ const r = await sb.rpc('card_leaderboard', { p_limit: 10, p_district: lbDistrict || null, p_type: lbType || null }); data = r.data; error = r.error; }
     if(error) throw error;
     if(!LB_READY && !lbDistrict && !lbType){   // the rule is about everything on the board, not only the 10 rows shown
       const all = await sb.rpc('card_leaderboard', { p_limit: 500, p_district: null, p_type: null }), rows = (all && all.data) || [];
@@ -1746,7 +1766,7 @@ async function loadLeaderboard(){
       if(rows.length >= LB_MIN_ROWS && tot >= LB_MIN_TOTAL){ LB_READY = true; document.getElementById('lb').hidden = false; }
     }
     if(!LB_READY) return;
-    if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!</li>'; return; }
+    if(!data || !data.length){ list.innerHTML = '<li class="lb-empty">' + (lbPeriod === 'week' ? 'এই সপ্তাহে এখনো কেউ নেই। আপনার প্রতিষ্ঠানকে প্রথম করুন!' : 'এখনো কেউ কার্ড বানায়নি। আপনার প্রতিষ্ঠানকে প্রথম করুন!') + '</li>'; return; }
     const max = Math.max(...data.map(r => Number(r.n)));
     list.innerHTML = data.map(r => lbRow(r, max)).join('');
   }catch(e){ list.innerHTML = '<li class="lb-empty">লিডারবোর্ড এখন লোড করা যাচ্ছে না।</li>'; }
@@ -1758,6 +1778,21 @@ async function loadLeaderboard(){
   seg.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; lbType = b.dataset.t; paint(); loadLeaderboard(); });
   const sel = document.getElementById('lbDistrict');
   sel.addEventListener('change', () => { lbDistrict = sel.value; loadLeaderboard(); });
+  /* the new controls: which card, what to list (institutions / districts / divisions), the period, the division */
+  const bind = (id, list, get, set) => { const el = document.getElementById(id); if(!el) return; const paintX = () => { el.innerHTML = list.map(t => '<button type="button" class="' + (get() === t[0] ? 'on' : '') + '" data-v="' + esc(t[0]) + '">' + t[1] + '</button>').join(''); }; paintX(); el.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; set(b.dataset.v); paintX(); lbUi(); loadLeaderboard(); }); };
+  const lbUi = () => {
+    const m = LB_METRICS[lbMetric]; document.getElementById('lbT').textContent = m.t + ' ' + LB_NOUN[lbScope]; document.getElementById('lbP').textContent = m.p;
+    document.getElementById('lbType').hidden = lbScope !== 'institution'; document.getElementById('lbDistrict').hidden = lbScope === 'division'; document.getElementById('lbDivision').hidden = !LB_NEW;
+  };
+  bind('lbScope', LB_SCOPES, () => lbScope, v => { lbScope = v; });
+  bind('lbPeriod', LB_PERIODS, () => lbPeriod, v => { lbPeriod = v; });
+  const dv = document.getElementById('lbDivision');
+  const DIVS = [...new Set(Object.values(window.BD_DIVISIONS || {}))];
+  dv.innerHTML = '<option value="">সব বিভাগ</option>' + DIVS.map(d => '<option>' + esc(d) + '</option>').join('');
+  dv.addEventListener('change', () => { lbDivision = dv.value; if(lbDivision && lbDistrict && window.bdDivision(lbDistrict) !== lbDivision){ lbDistrict = ''; } fillLbDistricts(); loadLeaderboard(); });
+  /* the memory and skill boards appear as a tab only when they have at least 3 institutions on them (an empty board looks dead) */
+  (async () => { const have = [['card', 'শিক্ষিত কার্ড']]; for(const k of ['memory', 'skill']){ if(!LB_NEW) break; try{ const r = await sb.rpc('competition_board', { p_metric: k, p_period: 'all', p_scope: 'institution', p_limit: 3 }); if(r && !r.error && (r.data || []).length >= 3) have.push([k, k === 'memory' ? 'মেমোরি কার্ড' : 'স্কিল কার্ড']); }catch(e){} } if(have.length < 2) return; const box = document.getElementById('lbMetric'); box.hidden = false; const paintM = () => { box.innerHTML = have.map(t => '<button type="button" class="' + (lbMetric === t[0] ? 'on' : '') + '" data-v="' + t[0] + '">' + t[1] + '</button>').join(''); }; paintM(); box.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; lbMetric = b.dataset.v; paintM(); lbUi(); loadLeaderboard(); }); })();
+  lbUi();
   let t = 0; const q = document.getElementById('lbQ'), out = document.getElementById('lbFound');
   q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(async () => {
     const v = q.value.trim(); if(v.length < 2){ out.innerHTML = ''; return; }
@@ -1771,8 +1806,8 @@ async function loadLeaderboard(){
 /* the district list comes from the directory, once it has loaded */
 function fillLbDistricts(){
   const sel = document.getElementById('lbDistrict'); if(!sel || !INST.length) return;
-  const ds = [...new Set(INST.map(x => x.district).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'bn'));
-  sel.innerHTML = '<option value="">সারা দেশ</option>' + ds.map(d => '<option>' + esc(d) + '</option>').join('');
+  const ds = [...new Set(INST.map(x => x.district).filter(Boolean))].filter(d => !lbDivision || (window.bdDivision && window.bdDivision(d) === lbDivision)).sort((a, b) => a.localeCompare(b, 'bn'));
+  sel.innerHTML = '<option value="">' + (lbDivision ? 'পুরো বিভাগ' : 'সারা দেশ') + '</option>' + ds.map(d => '<option' + (d === lbDistrict ? ' selected' : '') + '>' + esc(d) + '</option>').join('');
 }
 /* each person counts once per listed institution (the server checks the listing and removes repeats) */
 /* RANK-START (tools/tests/test_card_rank.js runs this block as it is) */
