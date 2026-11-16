@@ -844,8 +844,12 @@
   /* two lists in this browser: mem_seen = the designs made here (for "you made N cards"), mem_sent = the designs the server has confirmed. A design is sent until the server says yes, so a call that failed (the network, a slow start) is tried again the next time the same design is downloaded; the server itself counts a design once per device, so sending again never counts twice. */
   const listGet = k => { try{ const a = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } };
   const listAdd = (k, v) => { const a = listGet(k); if(!a.includes(v)) a.push(v); try{ localStorage.setItem(k, JSON.stringify(a.slice(-300))); }catch(e){} };
+  /* a signed-in member's card is also logged for the competition (member_actions); once per page load, the server uses the institutions on the member's saved education card */
+  let memLogged = false;
+  async function logMember(){ if(memLogged) return; try{ const M = window.Protishthan && Protishthan.member; if(!M) return; await M.ready(); if(!M.current()) return; memLogged = true; await M.sb.rpc('log_member_action', { p_action: 'memory' }); }catch(e){ memLogged = false; } }
   function bump(){
     const k = designKey(); if(!k) return;
+    logMember();
     if(!listGet('mem_seen').includes(k)){ listAdd('mem_seen', k); const n = count() + 1; try{ localStorage.setItem('mem_n', String(n)); }catch(e){} showCount(); }
     if(listGet('mem_sent').includes(k)) return;                                // the server already has this design
     const x = sbc(); if(!x) return;                                            // not ready yet: tried again next time

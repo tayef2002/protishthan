@@ -1130,6 +1130,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     const r = await save({ published: true, consent_at: new Date().toISOString() });
     if(!r.ok){ paintPub(); return; }
     await pushOg(); S.published = true; paintPub(); progress();
+    try{ await M.sb.rpc('log_member_action', { p_action: 'skill' }); }catch(e){}   // for the competition: the institutions come from the member's saved education card
     setSt('', ''); toast('আপনার পেজ এখন লাইভ ✓'); $('okBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   async function unpublish(){
