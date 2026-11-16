@@ -6,7 +6,7 @@ let pass = 0, fail = 0;
 const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.stringify(want); ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : '  got ' + JSON.stringify(got) + '  want ' + JSON.stringify(want))); };
 const yes = (name, v) => eq(name, !!v, true);
 
-const page = read('batch.html'), css = read('batch.css'), sql = read('migrations/2026-12-26_batches.sql'), sql2 = read('migrations/2026-12-27_batch_name.sql'), sql3 = read('migrations/2026-12-28_batch_roster_admin.sql'), sql5 = read('migrations/2026-12-30_batch_photos.sql'), sql7 = read('migrations/2026-12-31_batch_chat.sql'), nav = read('nav.js'), foot = read('footer.js');
+const page = read('batch.html'), css = read('batch.css'), sql = read('migrations/2026-12-26_batches.sql'), sql2 = read('migrations/2026-12-27_batch_name.sql'), sql3 = read('migrations/2026-12-28_batch_roster_admin.sql'), sql5 = read('migrations/2026-12-30_batch_photos.sql'), sql7 = read('migrations/2026-12-31_batch_chat.sql'), sql8 = read('migrations/2027-01-05_batch_activity.sql'), nav = read('nav.js'), foot = read('footer.js');
 
 // the page loads on a nested address (/b/<slug>/<level>-<year>), so every file must be found from the site root
 yes('the page has <base href="/"> and loads its own files from the root', /<base href="\/">/.test(page) && /src="\/member\.js(\?v=\d+)?"/.test(page) && /href="\/batch\.css\?v=\d+"/.test(page) && /href="\/brand\.css/.test(page));
@@ -14,7 +14,7 @@ yes('it uses the shared top bar (the active entry is batch) and the shared foote
 yes('every page of this feature is kept out of search (noindex, set by the page; the batch pages always, the home page while the feature is hidden)', /setRobots\(true\)/.test(page) && !/setRobots\(false\)/.test(page) && !/<meta name="robots"/.test(page) && /rel="canonical" href="https:\/\/protishthan\.com\/batch"/.test(page));
 
 // the six batch functions and the search it calls: names and argument names are the SQL ones
-const sigs = {}; for (const m of (sql + ' ' + sql2 + ' ' + sql3 + ' ' + sql5 + ' ' + sql7).matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
+const sigs = {}; for (const m of (sql + ' ' + sql2 + ' ' + sql3 + ' ' + sql5 + ' ' + sql7 + ' ' + sql8).matchAll(/create or replace function public\.(batch_\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
 const calls = [...page.matchAll(/rpc\('(\w+)'(?:,\s*\{([^}]*)\})?/g)].map(m => [m[1], (m[2] || '').split(',').map(x => x.split(':')[0].trim()).filter(Boolean)]);
 const batchCalls = calls.filter(c => /^batch_/.test(c[0]));
 eq('the page calls exactly the batch functions the SQL defines (the admin_ ones are used by the admin page, not this one)', [...new Set(batchCalls.map(c => c[0]))].sort(), Object.keys(sigs).filter(k => !['batch_first_name', 'batch_year_ok', 'batch_level_ok'].includes(k) && !/^batch_chat_(messages|send|delete|mute|mode|report|unread)$/.test(k)).sort());   // the room's own calls are made by the Message page
@@ -116,4 +116,9 @@ yes('the batch page scrolls to the part the dashboard asked for (#roster, #setup
 // the SQL file keeps its promises
 yes('the SQL closes both tables (RLS on, no grants to anon, only select to authenticated) and every function is security definer with a pinned search_path', /enable row level security/.test(sql) && /revoke all on public\.batches, public\.batch_members from anon, authenticated/.test(sql) && (sql.match(/security definer set search_path = public/g) || []).length === 6);
 yes('only batch_lookup is open to anon', /grant execute on function public\.batch_lookup\(text, text, int\) to anon, authenticated/.test(sql) && (sql.match(/to anon/g) || []).length === 1);
+
+// the batch activity card (counts only, 5 members or more)
+yes('batch_activity: only a member of the batch or an admin can ask, only batches with at least 5 members are counted or listed, counts only (no user id comes out), granted to signed-in members only', /public\.batch_members m where m\.batch_id = p_batch_id and m\.user_id = uid\) or public\.is_admin\(\)/.test(sql8) && /having count\(\*\) >= 5/.test(sql8) && !/returns table[^;]*user_id/.test(sql8) && /grant execute on function public\.batch_activity\(uuid\) to authenticated;/.test(sql8) && !/batch_activity[^;]*to anon/.test(sql8) && /security definer set search_path = public/.test(sql8));
+yes('the batch page shows three bars (card, memory, skill makers out of the members), this week, the rank among the institution batches, and says nobody can see who did not make a card; under 5 members it only shows how far the batch is from 5', /async function loadBatchActivity\(b, n\)/.test(page) && /rpc\('batch_activity', \{ p_batch_id: b\.id \}\)/.test(page) && /if\(n < BA_MIN\)/.test(page) && /কে বানিয়েছেন আর কে বানাননি, তা কেউ দেখতে পায় না/.test(page) && /const BA_MIN = 5/.test(page));
+yes('the member own logged actions (their own rows in member_actions) make the card / skill / memory steps real, besides the old local ticks', /from\('member_actions'\)\.select\('action'\)/.test(page) && /flagGet\(id, 'c'\) \|\| OWN\.card/.test(page) && /flagGet\(id, 's'\) \|\| OWN\.skill/.test(page) && /flagGet\(id, 'm'\) \|\| OWN\.memory/.test(page));
 console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

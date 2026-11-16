@@ -344,3 +344,14 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 
 /* the page background: the same soft blue / violet / indigo glow as the education card page (fixed behind everything, so it never looks plain white) */
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(860px 540px at 4% -8%,rgba(59,130,246,.22),transparent 62%),radial-gradient(780px 520px at 100% 2%,rgba(139,92,246,.20),transparent 60%),radial-gradient(900px 560px at 50% 112%,rgba(99,102,241,.14),transparent 62%),linear-gradient(180deg,#F7FAFF,#F1F5FF 55%,#EEF1FD)}
+
+/* the batch activity card: three bars (card / memory / skill makers out of the members), this week, the rank among the institution's batches, the other batches as bars */
+#bact:empty{display:none}#bact{min-width:0}
+.bt-ba .bt-ch{margin-bottom:12px}
+.bt-bar{display:grid;grid-template-columns:110px minmax(0,1fr) auto;align-items:center;gap:12px;margin-top:10px}.bt-bar span{font-size:14px;font-weight:700;color:var(--tx2)}.bt-bar b{font-size:17px;font-weight:800;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}.bt-bar b small{font-size:12px;font-weight:600;color:var(--tx3)}
+.bt-bax{margin:14px 0 0;font-size:14.5px;line-height:1.6;color:var(--tx2)}.bt-bax b{color:var(--ac)}
+.bt-bal{list-style:none;margin:14px 0 0;padding:12px 0 0;border-top:1px dashed var(--soft);display:grid;gap:8px}
+.bt-bal li{display:grid;grid-template-columns:130px minmax(0,1fr) auto;align-items:center;gap:12px;padding:6px 8px;border-radius:12px}.bt-bal li.me{background:var(--tint)}
+.bt-bal .y{font-size:13.5px;font-weight:700;color:var(--ink)}.bt-bal b{font-size:14px;font-weight:800;color:var(--ink);text-align:right;white-space:nowrap}.bt-bal b small{font-size:11.5px;font-weight:600;color:var(--tx3)}
+.bt-bac{margin-top:14px}
+@media(max-width:560px){.bt-bar{grid-template-columns:90px minmax(0,1fr) auto;gap:8px}.bt-bal li{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}.bt-bal li .bt-sdbar{grid-column:1 / -1;order:3}}

@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=47">
+<link rel="stylesheet" href="/batch.css?v=48">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -346,7 +346,38 @@
   /* small flags kept in this browser only (what the member has already done), so the steps can tick themselves */
   const flagGet = (id, w) => { try{ return localStorage.getItem('bt_' + id + w) === '1'; }catch(e){ return false; } };
   const flagSet = (id, w) => { try{ localStorage.setItem('bt_' + id + w, '1'); }catch(e){} };
+  let OWN = { card: false, memory: false, skill: false };   // what this signed-in member really made (member_actions, their own rows)
+  async function loadOwnActions(){
+    const sb = SB(); if(!sb) return;
+    try{ const r = await sb.from('member_actions').select('action'); if(r.error || !r.data) return; const o = { card: false, memory: false, skill: false }; r.data.forEach(x => { if(x.action in o) o[x.action] = true; }); if(JSON.stringify(o) !== JSON.stringify(OWN)){ OWN = o; const el = $('steps'); if(el && HUB && HUB.b){ el.outerHTML = stepperHtml(); bindGo(); } } }catch(e){}
+  }
   let HUB = null, ON_POSTER = null;
+  /* ---------- how many members of this batch made a card, and how the batch stands among the institution's other batches (counts only, 5 members or more) ---------- */
+  const BA_MIN = 5;
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  function batchActHtml(rows, mine, n){
+    const bar = (lbl, v) => '<div class="bt-bar"><span>' + lbl + '</span><div class="bt-sdbar"><i style="width:' + Math.max(v ? 4 : 0, pct(v, mine.members)) + '%"></i></div><b>' + bn(v) + '<small>/' + bn(mine.members) + '</small></b></div>';
+    let h = '<div class="bt-c bt-ba">' + cardHead('trophy', 'ব্যাচের অগ্রগতি', 'লগইন করে কার্ড বানানো সদস্যদের গোনা হয়') +
+      bar('শিক্ষিত কার্ড', Number(mine.made_card)) + bar('মেমোরি কার্ড', Number(mine.made_memory)) + bar('স্কিল কার্ড', Number(mine.made_skill));
+    const parts = [];
+    if(Number(mine.new_week) > 0) parts.push('এই সপ্তাহে নতুন <b>+' + bn(mine.new_week) + ' জন</b>');
+    if(Number(mine.batch_count) > 1) parts.push('প্রতিষ্ঠানের ' + bn(mine.batch_count) + 'টি ব্যাচের মধ্যে <b>' + ordBn(Number(mine.rank)) + '</b>');
+    if(parts.length) h += '<p class="bt-bax">' + parts.join(' · ') + '</p>';
+    if(rows.length > 1){
+      const max = Math.max(1, ...rows.map(r => Number(r.made_any)));
+      h += '<ol class="bt-bal">' + rows.slice(0, 6).map(r => '<li class="' + (r.is_mine ? 'me' : '') + '"><span class="y">' + bn(r.exam_year) + ' ব্যাচ' + (r.is_mine ? ' · আপনারা' : '') + '</span><div class="bt-sdbar"><i style="width:' + Math.max(Number(r.made_any) ? 4 : 0, Math.round(Number(r.made_any) / max * 100)) + '%"></i></div><b>' + bn(r.made_any) + '<small> জন সক্রিয় · ' + bn(r.members) + ' সদস্য</small></b></li>').join('') + '</ol>';
+    }
+    if(!OWN.card) h += '<div class="bt-bac"><a class="bt-sdb" href="/card" data-flag="c">' + ic('plus', 16) + 'আপনার শিক্ষিত কার্ড বানান</a></div>';
+    return h + '<p class="bt-sdn2">কে বানিয়েছেন আর কে বানাননি, তা কেউ দেখতে পায় না। যাঁরা আগে বা লগইন ছাড়া বানিয়েছেন, তাঁরা এখানে গোনা হয় না। ' + bn(BA_MIN) + ' জনের কম সদস্যের ব্যাচ তালিকায় আসে না।</p></div>';
+  }
+  async function loadBatchActivity(b, n){
+    const box = $('bact'); if(!box) return;
+    if(n < BA_MIN){ box.innerHTML = '<div class="bt-c bt-ba">' + cardHead('trophy', 'ব্যাচের অগ্রগতি', bn(BA_MIN) + ' জন সদস্য হলে ব্যাচের কার্ড-গণনা আর অন্য ব্যাচের সাথে তুলনা দেখা যাবে') + '<div class="bt-bar"><span>সদস্য</span><div class="bt-sdbar"><i style="width:' + Math.max(4, pct(n, BA_MIN)) + '%"></i></div><b>' + bn(n) + '<small>/' + bn(BA_MIN) + '</small></b></div></div>'; return; }
+    const r = await rpc('batch_activity', { p_batch_id: b.id });
+    if(r.error || !Array.isArray(r.data) || !r.data.length) return;   // the SQL is not run yet, or nothing to show: no card
+    const mine = r.data.find(x => x.is_mine); if(!mine || $('bact') !== box) return;
+    box.innerHTML = batchActHtml(r.data, mine, n);
+  }
   /* ---------- the institution's standing on the শিক্ষিত কার্ড board (public, institution-level numbers only) ---------- */
   const ordBn = n => n <= 10 ? ['', '১ম', '২য়', '৩য়', '৪র্থ', '৫ম', '৬ষ্ঠ', '৭ম', '৮ম', '৯ম', '১০ম'][n] : bn(n) + 'তম';
   function standHtml(s){
@@ -383,9 +414,9 @@
     ] : [
       { t: 'যোগ দিয়েছেন', s: 'আপনি ' + bn(me.seq) + ' নম্বর সদস্য', done: true },
       { t: 'সহপাঠীকে ডাকুন', s: 'ব্যাচের লিংক পাঠিয়ে', done: flagGet(id, 'i'), go: 'invite', cta: 'লিংক কপি করুন' },
-      { t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, ফ্রি', done: flagGet(id, 'c'), href: '/card', flag: 'c', cta: 'কার্ড বানান' },
-      { t: 'স্কিল কার্ড সাজান', s: 'আপনার কাজ আর দক্ষতার লিংক', done: flagGet(id, 's'), href: '/skill', flag: 's', cta: 'স্কিল কার্ড খুলুন' },
-      { t: 'মেমোরি কার্ড বানান', s: 'পুরনো ছবি বা স্মৃতি, এক ক্লিকে', done: flagGet(id, 'm'), href: '/memory', flag: 'm', cta: 'মেমোরি কার্ড বানান' }
+      { t: 'শিক্ষিত কার্ড বানান', s: '৩০ সেকেন্ডে, ফ্রি', done: flagGet(id, 'c') || OWN.card, href: '/card', flag: 'c', cta: 'কার্ড বানান' },
+      { t: 'স্কিল কার্ড সাজান', s: 'আপনার কাজ আর দক্ষতার লিংক', done: flagGet(id, 's') || OWN.skill, href: '/skill', flag: 's', cta: 'স্কিল কার্ড খুলুন' },
+      { t: 'মেমোরি কার্ড বানান', s: 'পুরনো ছবি বা স্মৃতি, এক ক্লিকে', done: flagGet(id, 'm') || OWN.memory, href: '/memory', flag: 'm', cta: 'মেমোরি কার্ড বানান' }
     ];
   }
   const stepAct = (x, cur) => x.done ? '' : x.href ? '<a class="' + (cur ? '' : 'ghost') + '" href="' + x.href + '" data-flag="' + x.flag + '">' + x.cta + ' →</a>' : cur && x.go ? '<a href="#' + x.go + '" data-go="' + x.go + '">' + x.cta + ' →</a>' : '';
@@ -439,7 +470,7 @@
       const photosCard = '<div class="bt-c" id="photos">' + cardHead('image', 'ছবি ও অ্যালবাম', 'শুধু ব্যাচের সদস্যরা এই ছবিগুলো দেখতে পান।') + '<div class="bt-pt"><div class="bt-cats" id="phCats" role="tablist" aria-label="অ্যালবাম"></div></div><div class="bt-pgrid" id="phGrid"><div class="bt-phsk"></div><div class="bt-phsk"></div><div class="bt-phsk"></div></div></div>';
       const rosterCard = '<div class="bt-c bt-roster" id="roster">' + cardHead('users', 'ব্যাচের সদস্যরা', '') + '<p class="bt-rs" id="rosterS">লোড হচ্ছে…</p><ul class="bt-rlist" id="rList"></ul><button type="button" class="bt-more" id="rMore" hidden></button></div>';
       const roomBar = '<a class="bt-room" id="roomBar" href="/messages#b:' + esc(b.id) + '" hidden><span class="bt-ci">' + ic('chat', 22) + '</span><div><b>ব্যাচ রুম</b><small id="roomSub">ব্যাচের সবার সাথে লেখায় কথা বলুন</small></div><em id="roomN" hidden></em><i>খুলুন →</i></a>';
-      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + stepperHtml() + '<div class="bt-cols' + (isConv ? '' : ' one') + '"><div class="bt-main">' + invite + photosCard + rosterCard + '</div>' + (isConv ? '<div class="bt-side">' + setup + '</div>' : '') + '</div>' + (isConv ? '' : '<p class="bt-leavep"><button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></p>') + '</div>' + photoShell();
+      h += '<div class="bt-hub' + (fresh ? ' fresh' : '') + '">' + roomBar + stepperHtml() + '<div id="bact"></div><div class="bt-cols' + (isConv ? '' : ' one') + '"><div class="bt-main">' + invite + photosCard + rosterCard + '</div>' + (isConv ? '<div class="bt-side">' + setup + '</div>' : '') + '</div>' + (isConv ? '' : '<p class="bt-leavep"><button type="button" class="bt-leave" id="leave">' + ic('out', 15) + 'এই ব্যাচ ছেড়ে যান</button></p>') + '</div>' + photoShell();
     }
     h += '<div class="bt-links"><a href="/institution-detail?slug=' + encodeURIComponent(k.slug) + '">প্রতিষ্ঠানের পাতা দেখুন</a><a href="/memory">মেমোরি কার্ড বানান</a>' + (b ? '<a href="#" id="rpOpen">রিপোর্ট করুন</a>' : '') + '</div>';
     if(b) h += reportHtml();
@@ -453,6 +484,7 @@
     if(joined) loadRoster(b.id);
     if(joined) initPhotos(b, k);
     if(joined) initRoomBar(b);
+    if(joined){ loadOwnActions(); loadBatchActivity(b, n); }
     if(joined){
       let which = 0; const link = linkFor(k, me.ref), msgs = msgsFor(k, inst, link);
       const paint = () => { $('msgBox').textContent = msgs[which]; $('shWa').href = 'https://wa.me/?text=' + encodeURIComponent(msgs[which]); $('shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(link); };
