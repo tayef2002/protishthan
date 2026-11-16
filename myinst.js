@@ -43,6 +43,7 @@
     const r = await rpc('batch_me');
     MINE = new Set(Array.isArray(r.data) ? r.data.map(x => x.slug) : []);
     paint();
+    if(!r.error && Array.isArray(r.data)) nudge();      // only when the answer is real: a failed call must not look like "no institution"
   }
   const countText = slug => { const n = COUNTS.get(slug); if(n == null) return ''; return n > 0 ? ICON_USERS + '<span>' + bn(n) + ' জন যুক্ত</span>' : '<span>প্রথম সদস্য হোন</span>'; };
   function paint(){
@@ -114,24 +115,71 @@
   const head = (sub) => '<div class="mi-h"><span class="mi-kick">আমার প্রতিষ্ঠান</span><h2>' + esc(ST.name || 'প্রতিষ্ঠান') + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>';
 
   function ask(){
-    try{ localStorage.setItem(INTENT, JSON.stringify({ slug: ST.slug, name: ST.name, t: Date.now() })); }catch(e){}
+    try{ localStorage.setItem(INTENT, JSON.stringify({ slug: ST.slug, name: ST.name, pick: !ST.slug, t: Date.now() })); }catch(e){}
     const m = MB(); if(!m){ location.href = '/member'; return; }
     track('mi_signin', {});
     m.signIn('৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই। যুক্ত হওয়ার পর এই পাতাতেই ফিরে আসবেন।', {
-      title: 'আপনার প্রতিষ্ঠানে যুক্ত হোন', chip: ST.name, cta: 'Google দিয়ে যুক্ত হোন',
+      title: 'আপনার প্রতিষ্ঠানে যুক্ত হোন', chip: ST.name || 'আমার প্রতিষ্ঠান', cta: 'Google দিয়ে যুক্ত হোন',
       perks: [['seat', 'আপনার ব্যাচের সদস্য নম্বর, একবার পেলে বদলায় না'], ['users', 'ব্যাচের সহপাঠীরা আগে থেকেই এখানে থাকলে সঙ্গে সঙ্গে দেখবেন'], ['eye', 'নাম-ছবি শুধু ব্যাচের সদস্যরা দেখে, আর কেউ না']]
     });
   }
 
   async function open(o){
     if(!ov) build();
-    ST = { slug: o.slug, name: o.name || '', list: null };
+    ST = { slug: o.slug || '', name: o.name || '', list: null };
     track('mi_open', {});
     if(!signedIn()){ const m = MB(); if(m && m.ready) await m.ready(); }
     if(!signedIn()){ ask(); return; }
     ov.classList.add('show'); document.body.style.overflow = 'hidden';
+    if(!ST.slug){ showPick(); return; }
     body(head('') + '<div class="mi-sk"><i></i><i></i><i></i></div>');
     await showList();
+  }
+
+  /* the pick step: find your institution by name (the directory search), then the list of its batches */
+  function showPick(){
+    body('<div class="mi-h"><span class="mi-kick">আমার প্রতিষ্ঠান</span><h2>আপনার স্কুল, কলেজ বা মাদ্রাসা কোনটা?</h2><p>বেছে নিলে আপনার ব্যাচের সহপাঠীদের খুঁজে পাবেন। এটা না করলেও সাইটের সবকিছু আগের মতোই ব্যবহার করতে পারবেন।</p></div>' +
+      '<div class="mi-search"><input id="miQ" type="search" autocomplete="off" placeholder="প্রতিষ্ঠানের নাম লিখুন (বাংলা বা English)" aria-label="প্রতিষ্ঠানের নাম"></div>' +
+      '<ul class="mi-res" id="miRes"></ul><p class="mi-hint" id="miHint"></p>' +
+      '<div class="mi-act"><button type="button" class="mi-link" id="miSkip">এখন নয়, পরে করব</button></div>');
+    const q = document.getElementById('miQ'), res = document.getElementById('miRes'), hint = document.getElementById('miHint');
+    let t = 0, my = 0, rows = [];
+    q.focus();
+    q.addEventListener('input', () => {
+      clearTimeout(t); const v = q.value.trim();
+      if(v.length < 2){ res.innerHTML = ''; hint.textContent = ''; return; }
+      t = setTimeout(async () => {
+        const id = ++my, r = await rpc('directory_search', { p_q: v, p_limit: 8 });
+        if(id !== my) return;
+        if(r.error){ res.innerHTML = ''; hint.textContent = 'এখন খোঁজা যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।'; return; }
+        rows = Array.isArray(r.data) ? r.data : [];
+        hint.innerHTML = rows.length ? '' : 'এই নামে কিছু পাওয়া গেল না। <a href="/list-institution">প্রতিষ্ঠানটা তালিকায় যোগ করুন</a>।';
+        res.innerHTML = rows.map((x, i) => '<li><button type="button" data-i="' + i + '"><b>' + esc(x.institution_name) + '</b><small>' + esc([x.institution_type, x.upazila, x.district].filter(Boolean).join(' · ')) + '</small></button></li>').join('');
+      }, 280);
+    });
+    res.addEventListener('click', e => {
+      const b = e.target.closest('button[data-i]'); if(!b) return; const x = rows[+b.dataset.i]; if(!x) return;
+      ST.slug = x.desired_slug; ST.name = x.institution_name; fetchCounts([x.desired_slug]);
+      body(head('') + '<div class="mi-sk"><i></i><i></i><i></i></div>'); showList();
+    });
+    document.getElementById('miSkip').onclick = () => { noteSkip(); close(); };
+  }
+
+  /* the invitation after a sign-in: never a wall. "পরে" backs off (7 days, then 30 days, then it stops by itself). */
+  const NK = 'mi_nudge';
+  const nstate = () => { try{ return JSON.parse(localStorage.getItem(NK) || 'null') || { n: 0, t: 0 }; }catch(e){ return { n: 0, t: 0 }; } };
+  const nudgeDue = () => { const s = nstate(); return s.n < 3 && (s.n === 0 || Date.now() - s.t > (s.n === 1 ? 7 : 30) * 864e5); };
+  function noteSkip(){ const s = nstate(); try{ localStorage.setItem(NK, JSON.stringify({ n: s.n + 1, t: Date.now() })); }catch(e){} }
+  function nudge(){
+    if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge')) return;
+    setTimeout(() => {
+      if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge') || (ov && ov.classList.contains('show'))) return;
+      const n = document.createElement('div'); n.id = 'miNudge'; n.className = 'mi-nudge'; n.setAttribute('role', 'region'); n.setAttribute('aria-label', 'আপনার প্রতিষ্ঠান বেছে নিন');
+      n.innerHTML = '<div class="mi-nt"><b>আপনার স্কুল-কলেজ কোনটা?</b><small>বেছে নিলে ব্যাচের সহপাঠীদের খুঁজে পাবেন।</small></div><button type="button" class="mi-nb">বেছে নিন</button><button type="button" class="mi-nx" aria-label="পরে করব">×</button>';
+      document.body.appendChild(n);
+      n.querySelector('.mi-nb').onclick = () => { n.remove(); track('mi_nudge_go', {}); open({}); };
+      n.querySelector('.mi-nx').onclick = () => { noteSkip(); n.remove(); track('mi_nudge_skip', {}); };
+    }, 2500);
   }
 
   async function showList(){
@@ -228,10 +276,10 @@
     const m = MB(); if(!m) return; await m.ready();
     if(!signedIn()) return;
     let it = null; try{ it = JSON.parse(localStorage.getItem(INTENT) || 'null'); localStorage.removeItem(INTENT); }catch(e){}
-    if(it && it.slug && Date.now() - it.t < 30 * 60 * 1000) open({ slug: it.slug, name: it.name });
+    if(it && (it.slug || it.pick) && Date.now() - it.t < 30 * 60 * 1000) open({ slug: it.slug || '', name: it.name });
   }
 
-  window.MyInst = { open, decorate, fetchCounts };
+  window.MyInst = { open, pick: () => open({}), decorate, fetchCounts, check: loadMine };
   const start = () => { watch(); mountHero(); const m = MB(); if(m){ m.ready().then(() => { loadMine(); resume(); }); m.onChange(() => loadMine()); } };
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
