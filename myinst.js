@@ -45,13 +45,13 @@
     paint();
     if(!r.error && Array.isArray(r.data)) nudge();      // only when the answer is real: a failed call must not look like "no institution"
   }
-  const countText = slug => { const n = COUNTS.get(slug); if(n == null) return ''; return n > 0 ? ICON_USERS + '<span>' + bn(n) + ' জন যুক্ত</span>' : '<span>প্রথম সদস্য হোন</span>'; };
+  const countText = slug => { const n = COUNTS.get(slug); if(n == null) return ''; return n > 0 ? ICON_USERS + '<span>' + bn(n) + ' জন যুক্ত</span>' : '<span>এখনও কেউ নেই, প্রথম হোন</span>'; };
   function paint(){
     document.querySelectorAll('[data-mi-count]').forEach(el => { el.innerHTML = countText(el.getAttribute('data-mi-count')); });
     document.querySelectorAll('[data-mi-join]').forEach(el => {
       const s = el.getAttribute('data-mi-join'), inn = MINE.has(s);
       el.classList.toggle('mi-in', inn);
-      el.innerHTML = inn ? ICON_CHECK + ' যুক্ত আছেন' : 'যুক্ত হোন';
+      el.innerHTML = inn ? ICON_CHECK + ' যুক্ত আছেন' : 'ব্যাচ খুঁজুন';
     });
   }
 
@@ -66,7 +66,7 @@
       a.setAttribute('data-mi', '1');
       const nameEl = a.querySelector('.inst-name'), name = nameEl ? nameEl.textContent.trim() : '';
       const row = document.createElement('div'); row.className = 'mi-row';
-      row.innerHTML = '<span class="mi-count" data-mi-count="' + esc(slug) + '">' + countText(slug) + '</span><span class="mi-join" role="button" tabindex="0" data-mi-join="' + esc(slug) + '">যুক্ত হোন</span>';
+      row.innerHTML = '<span class="mi-count" data-mi-count="' + esc(slug) + '">' + countText(slug) + '</span><span class="mi-join" role="button" tabindex="0" data-mi-join="' + esc(slug) + '">ব্যাচ খুঁজুন</span>';
       const foot = a.querySelector('.ic-foot'); if(foot) a.insertBefore(row, foot); else a.appendChild(row);
       const go = e => { e.preventDefault(); e.stopPropagation(); open({ slug, name }); };
       const j = row.querySelector('.mi-join'); j.addEventListener('click', go); j.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') go(e); });
@@ -93,7 +93,7 @@
       clearInterval(t);
       if(document.getElementById('miHero')) return;
       const box = document.createElement('div'); box.id = 'miHero'; box.className = 'mi-hero';
-      box.innerHTML = '<span class="mi-count mi-big" data-mi-count="' + esc(slug) + '"></span><button type="button" class="mi-btn" data-mi-join="' + esc(slug) + '">যুক্ত হোন</button><small>আপনি এখানে পড়েছেন বা পড়ছেন? আপনার ব্যাচের সবাইকে খুঁজে নিন।</small>';
+      box.innerHTML = '<span class="mi-count mi-big" data-mi-count="' + esc(slug) + '"></span><button type="button" class="mi-btn" data-mi-join="' + esc(slug) + '">আমার ব্যাচ খুঁজুন</button><small>আপনি এখানে পড়েছেন বা পড়ছেন? আপনার ব্যাচের সহপাঠীরা আগে থেকেই এখানে থাকতে পারেন।</small>';
       host.parentNode.insertBefore(box, host.nextSibling);
       box.querySelector('.mi-btn').addEventListener('click', () => open({ slug, name: name.textContent.trim() }));
       paint(); fetchCounts([slug]);
@@ -112,14 +112,14 @@
   }
   const body = html => { document.getElementById('miBody').innerHTML = html; const s = ov.querySelector('.mi-sheet'); if(s) s.scrollTop = 0; };
   function close(){ if(ov){ ov.classList.remove('show'); document.body.style.overflow = ''; } }
-  const head = (sub) => '<div class="mi-h"><span class="mi-kick">আমার প্রতিষ্ঠান</span><h2>' + esc(ST.name || 'প্রতিষ্ঠান') + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>';
+  const head = (sub) => '<div class="mi-h"><span class="mi-kick">আমার ব্যাচ</span><h2>' + esc(ST.name || 'প্রতিষ্ঠান') + '</h2>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>';
 
   function ask(){
     try{ localStorage.setItem(INTENT, JSON.stringify({ slug: ST.slug, name: ST.name, pick: !ST.slug, t: Date.now() })); }catch(e){}
     const m = MB(); if(!m){ location.href = '/member'; return; }
     track('mi_signin', {});
     m.signIn('৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই। যুক্ত হওয়ার পর এই পাতাতেই ফিরে আসবেন।', {
-      title: 'আপনার প্রতিষ্ঠানে যুক্ত হোন', chip: ST.name || 'আমার প্রতিষ্ঠান', cta: 'Google দিয়ে যুক্ত হোন',
+      title: 'আপনার ব্যাচ খুঁজে নিন', chip: ST.name || 'আমার ব্যাচ', cta: 'Google দিয়ে চালিয়ে যান',
       perks: [['seat', 'আপনার ব্যাচের সদস্য নম্বর, একবার পেলে বদলায় না'], ['users', 'ব্যাচের সহপাঠীরা আগে থেকেই এখানে থাকলে সঙ্গে সঙ্গে দেখবেন'], ['eye', 'নাম-ছবি শুধু ব্যাচের সদস্যরা দেখে, আর কেউ না']]
     });
   }
@@ -138,7 +138,7 @@
 
   /* the pick step: find your institution by name (the directory search), then the list of its batches */
   function showPick(){
-    body('<div class="mi-h"><span class="mi-kick">আমার প্রতিষ্ঠান</span><h2>আপনার স্কুল, কলেজ বা মাদ্রাসা কোনটা?</h2><p>বেছে নিলে আপনার ব্যাচের সহপাঠীদের খুঁজে পাবেন। এটা না করলেও সাইটের সবকিছু আগের মতোই ব্যবহার করতে পারবেন।</p></div>' +
+    body('<div class="mi-h"><span class="mi-kick">আমার ব্যাচ</span><h2>আপনার ব্যাচ খুঁজে নিন</h2><p>আগে আপনার স্কুল, কলেজ বা মাদ্রাসা বেছে নিন, তারপর দেখবেন আপনার ব্যাচের কে কে আগে থেকেই আছে। এটা না করলেও সাইটের সবকিছু আগের মতোই ব্যবহার করতে পারবেন।</p></div>' +
       '<div class="mi-search"><input id="miQ" type="search" autocomplete="off" placeholder="প্রতিষ্ঠানের নাম লিখুন (বাংলা বা English)" aria-label="প্রতিষ্ঠানের নাম"></div>' +
       '<ul class="mi-res" id="miRes"></ul><p class="mi-hint" id="miHint"></p>' +
       '<div class="mi-act"><button type="button" class="mi-link" id="miSkip">এখন নয়, পরে করব</button></div>');
@@ -174,8 +174,8 @@
     if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge')) return;
     setTimeout(() => {
       if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge') || (ov && ov.classList.contains('show'))) return;
-      const n = document.createElement('div'); n.id = 'miNudge'; n.className = 'mi-nudge'; n.setAttribute('role', 'region'); n.setAttribute('aria-label', 'আপনার প্রতিষ্ঠান বেছে নিন');
-      n.innerHTML = '<div class="mi-nt"><b>আপনার স্কুল-কলেজ কোনটা?</b><small>বেছে নিলে ব্যাচের সহপাঠীদের খুঁজে পাবেন।</small></div><button type="button" class="mi-nb">বেছে নিন</button><button type="button" class="mi-nx" aria-label="পরে করব">×</button>';
+      const n = document.createElement('div'); n.id = 'miNudge'; n.className = 'mi-nudge'; n.setAttribute('role', 'region'); n.setAttribute('aria-label', 'আপনার ব্যাচ খুঁজে নিন');
+      n.innerHTML = '<div class="mi-nt"><b>আপনার ব্যাচের বন্ধুরা কি আগে থেকেই আছে?</b><small>স্কুল-কলেজ বেছে আপনার ব্যাচটা খুঁজে নিন।</small></div><button type="button" class="mi-nb">ব্যাচ খুঁজুন</button><button type="button" class="mi-nx" aria-label="পরে করব">×</button>';
       document.body.appendChild(n);
       n.querySelector('.mi-nb').onclick = () => { n.remove(); track('mi_nudge_go', {}); open({}); };
       n.querySelector('.mi-nx').onclick = () => { noteSkip(); n.remove(); track('mi_nudge_skip', {}); };
@@ -187,7 +187,7 @@
     if(r.error){ body(head('') + '<p class="mi-err">এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</p><div class="mi-act"><button type="button" class="mi-pri" id="miRetry">আবার চেষ্টা করুন</button></div>'); document.getElementById('miRetry').onclick = showList; return; }
     ST.list = Array.isArray(r.data) ? r.data : [];
     const total = COUNTS.get(ST.slug) || 0;
-    let h = head(ST.list.length ? 'আপনার ব্যাচের লোকজন কি আগে থেকেই এখানে? ' + (total ? '<b>' + bn(total) + ' জন</b> যুক্ত আছেন।' : '') : 'এই প্রতিষ্ঠানে এখনও কোনো ব্যাচ খোলা হয়নি। আপনিই প্রথম হোন।');
+    let h = head(ST.list.length ? 'আপনার ব্যাচের লোকজন কি আগে থেকেই এখানে? ' + (total ? '<b>' + bn(total) + ' জন</b> যুক্ত আছেন।' : '') : 'আপনার ব্যাচ এখানে এখনও খোলা হয়নি। আপনি খুললেই সহপাঠীরা আপনাকে খুঁজে পাবে।');
     if(ST.list.length){
       h += '<ul class="mi-bl">' + ST.list.map((b, i) => {
         const sub = [LVN[b.level] || b.level, b.name || '', b.convener ? 'আহ্বায়ক: ' + b.convener : ''].filter(Boolean).join(' · ');
@@ -195,7 +195,7 @@
           (b.mine ? '<a class="mi-go in" href="' + bpath(b.level, b.year) + '">' + ICON_CHECK + ' আপনি আছেন</a>' : '<button type="button" class="mi-go" data-i="' + i + '">যোগ দিন</button>') + '</li>';
       }).join('') + '</ul>';
     }
-    h += '<button type="button" class="mi-new" id="miNew"><span>＋</span> আমার ব্যাচ এখানে নেই, নতুন ব্যাচ খুলি</button>';
+    h += '<button type="button" class="mi-new' + (ST.list.length ? '' : ' first') + '" id="miNew"><span>＋</span> ' + (ST.list.length ? 'আমার ব্যাচ এখানে নেই, নতুন ব্যাচ খুলি' : 'আমার ব্যাচ খুলি') + '</button>';
     body(h);
     body_bind();
   }
