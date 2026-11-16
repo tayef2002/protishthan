@@ -205,22 +205,20 @@
   }
   const bpath = (level, year) => '/b/' + encodeURIComponent(ST.slug) + '/' + level + '-' + year;
 
+  /* a batch is the SSC (or Dakhil) batch only: no other level is offered (the data layer can hold more, we do not open them) */
   function showNew(){
     const yrs = []; for(let y = NOW + 1; y >= 1970; y--) yrs.push(y);
     body(head('নতুন ব্যাচ খুলুন। আপনি এর আহ্বায়ক হবেন, সদস্য নম্বর ১।') +
-      '<label class="mi-l">কোন স্তর?</label><div class="mi-chips" id="miLv">' + LEVELS.map(l => '<button type="button" data-v="' + l[0] + '">' + l[1] + '</button>').join('') + '</div>' +
-      '<label class="mi-l" for="miYr">আপনার ক্লাসের বন্ধুরা কোন সালে এই স্তর শেষ করেছে বা করবে?</label>' +
+      '<label class="mi-l" for="miYr">আপনার ক্লাসের বন্ধুরা কোন সালে SSC (বা দাখিল) দিয়েছে বা দেবে?</label>' +
       '<select id="miYr" class="mi-sel"><option value="">সাল বাছুন</option>' + yrs.map(y => '<option value="' + y + '">' + bn(y) + '</option>').join('') + '</select>' +
       '<p class="mi-hint">ঝরে পড়লেও আপনার বন্ধুদের সালটাই দিন, তাহলে সবাই এক ব্যাচে থাকবেন।</p>' +
       '<div class="mi-act"><button type="button" class="mi-sec" id="miBack">← ফিরে যান</button><button type="button" class="mi-pri" id="miNext" disabled>এগিয়ে যান</button></div>');
-    let lv = '';
-    const sync = () => { document.getElementById('miNext').disabled = !(lv && document.getElementById('miYr').value); };
-    document.querySelectorAll('#miLv button').forEach(b => { b.onclick = () => { lv = b.dataset.v; document.querySelectorAll('#miLv button').forEach(x => x.classList.toggle('on', x === b)); sync(); }; });
+    const sync = () => { document.getElementById('miNext').disabled = !document.getElementById('miYr').value; };
     document.getElementById('miYr').onchange = sync;
     document.getElementById('miBack').onclick = showList;
     document.getElementById('miNext').onclick = () => {
-      const y = +document.getElementById('miYr').value, exists = (ST.list || []).find(x => x.level === lv && x.year === y);
-      showStatus({ level: lv, year: y, label: bn(y) + ' ব্যাচ · ' + LVN[lv], created: !exists });
+      const y = +document.getElementById('miYr').value, exists = (ST.list || []).find(x => x.level === 'ssc' && x.year === y);
+      showStatus({ level: 'ssc', year: y, label: bn(y) + ' ব্যাচ · ' + LVN.ssc, created: !exists });
     };
   }
 
