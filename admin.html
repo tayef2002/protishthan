@@ -256,7 +256,7 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
     </form>
   </div>
 </div>
-<script src="/tutor-data.js?v=5"></script>
+<script src="/tutor-data.js?v=6"></script>
 <script>
 /* ADMINDLG-START (tools/tests/test_admin_dialog.js runs this block as it is) */
 // The admin's own pop-ups, in place of the browser's grey "protishthan.com says" boxes: adminConfirm (yes/no), adminPrompt (a line of text) and adminAlert (a notice).
@@ -702,7 +702,14 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         </label>
       </div>
       <div class="section-card" style="overflow-x:auto;margin-top:16px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="pay-btn" type="button" id="ttT-req" onclick="ttTab('req')" style="width:auto;padding:8px 16px">অভিভাবকের অনুরোধ</button><button class="pay-btn" type="button" id="ttT-pro" onclick="ttTab('pro')" style="width:auto;padding:8px 16px;background:#E2E8F0;color:#334155;box-shadow:none">টিউটর প্রোফাইল</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"><button class="pay-btn" type="button" id="ttT-alert" onclick="ttTab('alert')" style="width:auto;padding:8px 16px;background:#E2E8F0;color:#334155;box-shadow:none">🔔 Tutor Alert <span id="ttAlertN" style="display:none;margin-left:4px;background:#DC2626;color:#fff;border-radius:100px;padding:1px 8px;font-size:12px;font-weight:800">0</span></button><button class="pay-btn" type="button" id="ttT-req" onclick="ttTab('req')" style="width:auto;padding:8px 16px">অভিভাবকের অনুরোধ</button><button class="pay-btn" type="button" id="ttT-pro" onclick="ttTab('pro')" style="width:auto;padding:8px 16px;background:#E2E8F0;color:#334155;box-shadow:none">টিউটর প্রোফাইল</button></div>
+        <div id="ttBoxAlert" hidden>
+          <div class="bill-note" style="margin-top:0">কোনো অভিভাবক নির্দিষ্ট একজন টিউটরকে চাইলে এখানে সঙ্গে সঙ্গে আসে (আর টিউটর নিজেও তাঁর ড্যাশবোর্ডের "Tutor Alert"-এ দেখেন)। আপনি <b>"টিউটরকে WhatsApp করুন"</b> চাপলে মেসেজ তৈরি হয়ে WhatsApp খোলে, আর লেখা থাকে "WhatsApp হয়েছে"। মেসেজে অভিভাবকের নাম বা নম্বর যায় না। এই পাতা খোলা থাকলে প্রতি ৪৫ সেকেন্ডে নতুন অনুরোধ আর টিউটরের উত্তর খোঁজা হয়।</div>
+          <div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap;align-items:center"><button class="pay-btn" type="button" id="ttAF-todo" onclick="ttAlertFilter('todo')" style="width:auto;padding:8px 14px">WhatsApp বাকি</button><button class="pay-btn" type="button" id="ttAF-all" onclick="ttAlertFilter('all')" style="width:auto;padding:8px 14px;background:#E2E8F0;color:#334155;box-shadow:none">সব</button>
+            <label style="font-size:13.5px;font-weight:700;margin-left:auto;cursor:pointer"><input type="checkbox" id="ttSound" onchange="ttAlertSound(this.checked)"> 🔊 নতুন অ্যালার্টে শব্দ</label>
+            <button type="button" id="ttDesk" onclick="ttAlertDesk()" style="padding:7px 12px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">🖥 ডেস্কটপ নোটিফিকেশন</button></div>
+          <div id="ttListAlert"><div class="bill-note">লোড হচ্ছে…</div></div>
+        </div>
         <div id="ttBoxReq"><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttRF-new" onclick="ttFilter('req','new')" style="width:auto;padding:8px 14px">নতুন</button><button class="pay-btn" type="button" id="ttRF-matching" onclick="ttFilter('req','matching')" style="width:auto;padding:8px 14px">মিলানো চলছে</button><button class="pay-btn" type="button" id="ttRF-all" onclick="ttFilter('req','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListReq"></div></div>
         <div id="ttBoxPro" hidden><div style="display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="pay-btn" type="button" id="ttPF-sub" onclick="ttFilter('pro','sub')" style="width:auto;padding:8px 14px">রিভিউয়ের অপেক্ষায়</button><button class="pay-btn" type="button" id="ttPF-approved" onclick="ttFilter('pro','approved')" style="width:auto;padding:8px 14px">অনুমোদিত</button><button class="pay-btn" type="button" id="ttPF-draft" onclick="ttFilter('pro','draft')" style="width:auto;padding:8px 14px">খসড়া</button><button class="pay-btn" type="button" id="ttPF-all" onclick="ttFilter('pro','all')" style="width:auto;padding:8px 14px">সব</button></div><div id="ttListPro"></div></div>
       </div>
@@ -1726,8 +1733,8 @@ const ttName = p => p ? (p.display_name || p.full_name || 'নামহীন') 
 const ttAct = (p) => p.status === 'submitted' || (p.status === 'approved' && p.edited);
 function ttTab(t){
   TT_TAB = t; const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
-  document.getElementById('ttT-req').style.cssText = 'width:auto;padding:8px 16px' + (t === 'req' ? '' : off); document.getElementById('ttT-pro').style.cssText = 'width:auto;padding:8px 16px' + (t === 'pro' ? '' : off);
-  document.getElementById('ttBoxReq').hidden = t !== 'req'; document.getElementById('ttBoxPro').hidden = t !== 'pro';
+  ['alert', 'req', 'pro'].forEach(k => { const btn = document.getElementById('ttT-' + k), bx = document.getElementById('ttBox' + k.charAt(0).toUpperCase() + k.slice(1)); btn.style.cssText = 'width:auto;padding:8px 16px' + (t === k ? '' : off); bx.hidden = t !== k; });
+  if(t === 'alert') renderTtAlert();
 }
 function ttFilter(kind, f){
   const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
@@ -1747,6 +1754,7 @@ async function loadTutors(){
   ttCount(); renderTtReq(); renderTtPro();
 }
 function ttCount(){
+  const todo = ttTodo(), tb = document.getElementById('ttAlertN'); if(tb){ tb.textContent = todo; tb.style.display = todo ? '' : 'none'; }
   const n = TT_REQ.filter(r => r.status === 'new').length + TT_PRO.filter(ttAct).length, b = document.getElementById('tutorsBadge');
   b.textContent = n; b.style.display = n ? '' : 'none';
   document.getElementById('ttCount').textContent = 'অনুরোধ ' + TT_REQ.length + 'টি (নতুন ' + TT_REQ.filter(r => r.status === 'new').length + '), টিউটর ' + TT_PRO.length + ' জন (অনুমোদিত ' + TT_PRO.filter(p => p.status === 'approved').length + ', রিভিউয়ের অপেক্ষায় ' + TT_PRO.filter(ttAct).length + ')';
@@ -1835,9 +1843,12 @@ async function ttSendTutor(rid, tid){
   const r = TT_REQ.find(x => x.id === rid), p = TT_PRO.find(x => x.user_id === tid); if(!r || !p) return;
   const w = window.open('about:blank', '_blank');                                   // opened first, filled after the save, so the browser does not block it
   if(!TT_MAT.some(m => m.request_id === rid && m.tutor_id === tid)){
-    const { data, error } = await sbAdmin.from('tutor_matches').insert({ request_id: rid, tutor_id: tid }).select().single();
+    const { data, error } = await sbAdmin.from('tutor_matches').insert({ request_id: rid, tutor_id: tid, wa_at: new Date().toISOString() }).select().single();
     if(error){ if(w) w.close(); alert('হয়নি: ' + error.message); return; }
     TT_MAT.push(data);
+  } else {
+    const m0 = TT_MAT.find(m => m.request_id === rid && m.tutor_id === tid), t0 = new Date().toISOString();
+    const u0 = await sbAdmin.from('tutor_matches').update({ wa_at: t0 }).eq('id', m0.id); if(!u0.error) m0.wa_at = t0;   // already sent by the alert: this is "again"; if the column is not there yet, nothing is lost
   }
   if(r.status === 'new') await ttReqUpdate(rid, { status: 'matching', seen: true }); else renderTtReq();
   const url = TD.waLink(p.phone, TD.msgToTutor(r, p));
@@ -1916,7 +1927,108 @@ async function cbDone(id, done){
 }
 ADMIN_READY.then(() => loadCollab());
 
-ADMIN_READY.then(() => loadTutors());
+ADMIN_READY.then(() => loadTutors().then(() => { window.__TT_LOADED = true; ttCount(); renderTtAlert(); }));
+/* ---- Tutor Alert (admin side): who asked for which tutor, who still has to be told by WhatsApp, what the tutor answered (migrations/2027-01-08_tutor_alerts.sql + 2027-01-09_tutor_alert_admin.sql).
+   The list is the tutor_matches rows (a guardian chose the tutor = source guardian, or the admin sent it = source admin). The page asks for news every 45 seconds while it is open. ---- */
+let TT_AF = 'todo', TT_POLLT = 0, TT_BUSY = false, TT_TITLE = document.title, TT_FLASH = 0, TT_REPL = '';
+const ttTodo = () => TT_MAT.filter(m => !m.wa_at && TT_REQ.some(r => r.id === m.request_id && r.status !== 'spam')).length;
+function ttAlertFilter(f){
+  TT_AF = f; const off = ';background:#E2E8F0;color:#334155;box-shadow:none';
+  ['todo', 'all'].forEach(k => { document.getElementById('ttAF-' + k).style.cssText = 'width:auto;padding:8px 14px' + (f === k ? '' : off); });
+  renderTtAlert();
+}
+const ttWhen = iso => { const t = Date.parse(iso); if(!t) return ''; const m = Math.max(0, Math.round((Date.now() - t) / 60000)); const bnn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); return m < 2 ? 'এইমাত্র' : m < 60 ? bnn(m) + ' মিনিট আগে' : m < 1440 ? bnn(Math.round(m / 60)) + ' ঘণ্টা আগে' : bnn(Math.round(m / 1440)) + ' দিন আগে'; };
+function ttAlertCard(m){
+  const r = TT_REQ.find(x => x.id === m.request_id), p = TT_PRO.find(x => x.user_id === m.tutor_id), id = ttEsc(m.id); if(!r) return '';
+  const ms = { sent: ['#EEF3FF', '#1A56DB'], accepted: ['#DCFCE7', '#166534'], declined: ['#FEE2E2', '#B91C1C'], started: ['#DCFCE7', '#166534'] }[m.status] || ['#F1F5F9', '#475569'];
+  const todo = !m.wa_at, waOk = p && TD.waLink(p.phone, 'x');
+  let h = '<div style="border:1px solid ' + (todo ? '#FCA5A5' : '#E2E8F0') + ';border-left:5px solid ' + (todo ? '#DC2626' : '#CBD5E1') + ';border-radius:14px;padding:14px 16px;margin-bottom:12px;background:#fff">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' + ttChip(m.source === 'guardian' ? ['#EDE9FE', '#5B21B6'] : ['#F1F5F9', '#475569'], m.source === 'guardian' ? 'অভিভাবক টিউটরকে বেছে নিয়েছেন' : 'আমরা পাঠিয়েছি') +
+    ttChip(ms, 'টিউটরের উত্তর: ' + (TT_MS[m.status] || m.status)) + (m.seen_at ? ttChip(['#F0FDF4', '#166534'], 'টিউটর দেখেছেন') : ttChip(['#FEF3C7', '#92400E'], 'টিউটর এখনও দেখেননি')) +
+    ttChip(todo ? ['#FEE2E2', '#B91C1C'] : ['#DCFCE7', '#166534'], todo ? 'WhatsApp বাকি' : 'WhatsApp হয়েছে · ' + ttWhen(m.wa_at)) +
+    '<span style="font-size:12.5px;color:var(--text-3);margin-left:auto">' + new Date(m.created_at).toLocaleString('bn-BD') + ' · ' + ttEsc(ttWhen(m.created_at)) + '</span></div>' +
+    '<div style="margin:10px 0 6px;font-size:15px"><b>টিউটর:</b> ' + (p ? ttEsc(ttName(p)) + ' <span style="color:#475569">(' + ttEsc(p.full_name || '') + (p.institution ? ' · ' + ttEsc(p.institution) : '') + ')</span> ' + (p.phone ? '<a href="' + ttEsc(TD.waLink(p.phone, 'আসসালামু আলাইকুম ' + (p.full_name || '') + '।') || '#') + '" target="_blank" rel="noopener" style="font-weight:700;color:#047857;text-decoration:none">📱 ' + ttEsc(p.phone) + '</a>' : '<span style="color:#B91C1C">নম্বর নেই</span>') : 'প্রোফাইল পাওয়া যায়নি') + '</div>' +
+    '<div style="font-size:14.5px;line-height:1.6;padding:8px 12px;background:#F8FAFF;border:1px solid #E5ECF8;border-radius:10px"><b>' + ttEsc(TD.wantLine(r)) + '</b>' + (TD.prefLine(r) ? '<div style="font-size:13.5px;font-weight:600;color:#6D28D9">অভিভাবকের পছন্দ: ' + ttEsc(TD.prefLine(r)) + '</div>' : '') + (r.note ? '<div style="color:#475569;white-space:pre-wrap;overflow-wrap:anywhere">' + ttEsc(r.note) + '</div>' : '') +
+    '<div style="font-size:13px;color:#64748B;margin-top:4px">অভিভাবক: ' + ttEsc(r.name) + ' · ' + ttEsc(r.phone) + ' (শুধু আপনি দেখেন)</div></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px">' +
+    '<button type="button" ' + TT_B_OK + ' data-id="' + id + '" onclick="ttAlertWa(this.dataset.id)"' + (waOk ? '' : ' disabled title="টিউটরের নম্বর নেই বা ঠিক নেই"') + '>' + (todo ? '📱 টিউটরকে WhatsApp করুন' : 'আবার WhatsApp করুন') + '</button>' +
+    (todo ? '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttAlertMark(this.dataset.id, true)">WhatsApp হয়ে গেছে (অন্যভাবে জানিয়েছি)</button>' : '<button type="button" ' + TT_B + ' data-id="' + id + '" onclick="ttAlertMark(this.dataset.id, false)">আবার "বাকি" করুন</button>') +
+    (m.status === 'accepted' ? '<button type="button" ' + TT_B_OK + ' data-r="' + ttEsc(r.id) + '" data-t="' + ttEsc(m.tutor_id) + '" onclick="ttSendGuardian(this.dataset.r, this.dataset.t)">অভিভাবককে টিউটরের পরিচয় পাঠান (WhatsApp)</button>' : '') +
+    '<button type="button" ' + TT_B + ' data-r="' + ttEsc(r.id) + '" onclick="ttAlertOpenReq(this.dataset.r)">অনুরোধটা খুলুন</button>' +
+    '<select data-id="' + id + '" onchange="ttMatchStatus(this.dataset.id, this.value)" style="margin-top:6px;padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px">' + Object.keys(TT_MS).map(k => '<option value="' + k + '"' + (m.status === k ? ' selected' : '') + '>' + TT_MS[k] + '</option>').join('') + '</select></div></div>';
+  return h;
+}
+function renderTtAlert(){
+  const box = document.getElementById('ttListAlert'); if(!box) return;
+  const rows = TT_MAT.filter(m => TT_REQ.some(r => r.id === m.request_id && r.status !== 'spam') && (TT_AF === 'all' || !m.wa_at)).sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
+  box.innerHTML = rows.length ? rows.map(ttAlertCard).join('') : '<div class="bill-note">' + (TT_AF === 'todo' ? 'WhatsApp করার মতো বাকি কিছু নেই। ✓' : 'এখনও কোনো অ্যালার্ট নেই।') + '</div>';
+}
+async function ttAlertWa(mid){
+  const m = TT_MAT.find(x => x.id === mid), r = m && TT_REQ.find(x => x.id === m.request_id), p = m && TT_PRO.find(x => x.user_id === m.tutor_id); if(!m || !r || !p) return;
+  const url = TD.waLink(p.phone, TD.msgAlertTutor(r, p));
+  if(!url){ alert('এই টিউটরের নম্বর ঠিক নেই।'); return; }
+  const w = window.open('about:blank', '_blank');                                   // opened first, filled after the save, so the browser does not block it
+  const t0 = new Date().toISOString(), { error } = await sbAdmin.from('tutor_matches').update({ wa_at: t0 }).eq('id', mid);
+  if(error){ if(w) w.close(); alert('হয়নি: ' + error.message + ' — migrations/2027-01-09_tutor_alert_admin.sql চালানো হয়েছে কি?'); return; }
+  m.wa_at = t0; if(r.status === 'new') await ttReqUpdate(r.id, { status: 'matching', seen: true });
+  ttCount(); renderTtAlert();
+  if(w) w.location.href = url; else window.open(url, '_blank', 'noopener');
+}
+async function ttAlertMark(mid, on){
+  const m = TT_MAT.find(x => x.id === mid); if(!m) return;
+  const t0 = on ? new Date().toISOString() : null, { error } = await sbAdmin.from('tutor_matches').update({ wa_at: t0 }).eq('id', mid);
+  if(error){ alert('হয়নি: ' + error.message + ' — migrations/2027-01-09_tutor_alert_admin.sql চালানো হয়েছে কি?'); return; }
+  m.wa_at = t0; ttCount(); renderTtAlert();
+}
+function ttAlertOpenReq(rid){ TT_PIN[rid] = true; TT_RF = 'all'; ttFilter('req', 'all'); TT_PIN[rid] = true; ttTab('req'); renderTtReq(); const el = document.getElementById('ttN-' + rid); if(el) el.scrollIntoView({ block: 'center' }); }
+
+/* the news: new requests, new alerts, and answers of the tutors. Light questions (only what is newer), every 45 seconds, also when the tab is in the background (the browser slows it down, it still comes). */
+const ttMax = (rows, k) => rows.reduce((a, x) => (x[k] && x[k] > a ? x[k] : a), '');
+async function ttPoll(){
+  if(TT_BUSY || !sbAdmin || !document.getElementById('ttListAlert')) return;
+  if(!TT_REQ.length && !TT_PRO.length && !TT_MAT.length && !window.__TT_LOADED) return;      // the first load has not finished
+  TT_BUSY = true;
+  try{
+    const lastReq = ttMax(TT_REQ, 'created_at') || '1970-01-01T00:00:00Z', lastMat = ttMax(TT_MAT, 'created_at') || '1970-01-01T00:00:00Z', lastRep = TT_REPL || ttMax(TT_MAT, 'replied_at') || new Date().toISOString();
+    const [a, b, c] = await Promise.all([
+      sbAdmin.from('tutor_requests').select('*').gt('created_at', lastReq).order('created_at', { ascending: false }).limit(50),
+      sbAdmin.from('tutor_matches').select('*').gt('created_at', lastMat).limit(100),
+      sbAdmin.from('tutor_matches').select('*').gt('replied_at', lastRep).limit(100)]);
+    if(a.error || b.error) return;                                                  // a slow moment: try again in 45 seconds, nothing is lost
+    const news = [];
+    (a.data || []).forEach(r => { if(!TT_REQ.some(x => x.id === r.id)){ TT_REQ.unshift(r); if(!r.tutor_pid) news.push('নতুন টিউটর অনুরোধ: ' + TD.wantLine(r)); } });
+    (b.data || []).forEach(m => { if(!TT_MAT.some(x => x.id === m.id)){ TT_MAT.push(m); if(m.source === 'guardian'){ const p = TT_PRO.find(x => x.user_id === m.tutor_id), r = TT_REQ.find(x => x.id === m.request_id); news.push('একজন অভিভাবক ' + (p ? ttName(p) : 'একজন টিউটর') + 'কে চেয়েছেন' + (r ? ': ' + TD.wantLine(r) : '')); } } });
+    if(!c.error) (c.data || []).forEach(m => { const old = TT_MAT.find(x => x.id === m.id); if(old && old.status !== m.status && (m.status === 'accepted' || m.status === 'declined')){ const p = TT_PRO.find(x => x.user_id === m.tutor_id); news.push((p ? ttName(p) : 'টিউটর') + (m.status === 'accepted' ? ' আগ্রহ জানিয়েছেন ✓' : ' "পারব না" বলেছেন')); } if(old) Object.assign(old, m); if(m.replied_at && m.replied_at > TT_REPL) TT_REPL = m.replied_at; });
+    if(news.length){ ttCount(); renderTtReq(); renderTtAlert(); ttNotify(news); }
+  }catch(e){ /* the next round tries again */ }
+  finally{ TT_BUSY = false; }
+}
+function ttNotify(news){
+  // 1) a card on the screen (press to open the tab), 2) the page title, 3) a sound if switched on, 4) the desktop notification if allowed
+  let box = document.getElementById('ttToast');
+  if(!box){ box = document.createElement('div'); box.id = 'ttToast'; box.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:9999;display:grid;gap:8px;max-width:360px'; document.body.appendChild(box); }
+  news.slice(0, 4).forEach(t => { const d = document.createElement('div'); d.style.cssText = 'background:#0F172A;color:#fff;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5;box-shadow:0 14px 34px rgba(0,0,0,.35);cursor:pointer'; d.innerHTML = '<b>🔔 Tutor Alert</b><br>' + ttEsc(t); d.onclick = () => { d.remove(); showView('tutors'); ttTab('alert'); }; box.appendChild(d); setTimeout(() => d.remove(), 20000); });
+  const pend = ttTodo(); clearInterval(TT_FLASH); let on = false;
+  if(document.hidden){ TT_FLASH = setInterval(() => { on = !on; document.title = on ? '🔔 (' + news.length + ') নতুন Tutor Alert' : TT_TITLE; if(!document.hidden){ clearInterval(TT_FLASH); document.title = TT_TITLE; } }, 1200); }
+  try{ if(localStorage.getItem('adm_tt_sound') === '1') ttBeep(); }catch(e){}
+  try{ if(window.Notification && Notification.permission === 'granted') new Notification('Tutor Alert', { body: news[0] + (news.length > 1 ? ' (+' + (news.length - 1) + ')' : ''), tag: 'tt-alert' }); }catch(e){}
+}
+function ttBeep(){
+  try{ const A = window.AudioContext || window.webkitAudioContext, c = new A(), o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = 880; g.gain.setValueAtTime(.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(.25, c.currentTime + .02); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .6); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .65); }catch(e){}
+}
+function ttAlertSound(on){ try{ localStorage.setItem('adm_tt_sound', on ? '1' : '0'); }catch(e){} if(on) ttBeep(); }
+async function ttAlertDesk(){
+  if(!window.Notification){ alert('এই ব্রাউজারে ডেস্কটপ নোটিফিকেশন নেই।'); return; }
+  const p = await Notification.requestPermission(); const b = document.getElementById('ttDesk'); b.textContent = p === 'granted' ? '🖥 নোটিফিকেশন চালু ✓' : '🖥 অনুমতি দেওয়া হয়নি';
+}
+(function(){ try{ const c = document.getElementById('ttSound'); if(c) c.checked = localStorage.getItem('adm_tt_sound') === '1'; if(window.Notification && Notification.permission === 'granted'){ const b = document.getElementById('ttDesk'); if(b) b.textContent = '🖥 নোটিফিকেশন চালু ✓'; } }catch(e){} })();
+// the other lists refresh when a match changes or a request is removed
+const _ttMs = ttMatchStatus, _ttMd = ttMatchDel, _ttRd = ttReqDel;
+ttMatchStatus = async function(id, v){ await _ttMs(id, v); ttCount(); renderTtAlert(); };
+ttMatchDel = async function(id){ await _ttMd(id); ttCount(); renderTtAlert(); };
+ttReqDel = async function(id){ await _ttRd(id); ttCount(); renderTtAlert(); };
+ADMIN_READY.then(() => { setInterval(ttPoll, 45000); document.addEventListener('visibilitychange', () => { if(!document.hidden) ttPoll(); }); });
+
 /* ---- আমার ব্যাচ: list, reports and moderation (migrations/2026-12-28_batch_roster_admin.sql). Every call goes through a function that checks is_admin() itself. ---- */
 navTitles.batches = ['আমার ব্যাচ', 'ব্যাচের তালিকা, রিপোর্ট আর মডারেশন'];
 let BH_ROWS = [], BH_REP = true, BH_OPEN = null;

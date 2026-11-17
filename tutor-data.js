@@ -226,6 +226,13 @@
     return 'আসসালামু আলাইকুম ' + (tutor.display_name || tutor.full_name || '') + '। ভাইয়া-আপু (Protishthan) থেকে বলছি।\n' +
       'একটা টিউশনের অনুরোধ এসেছে: ' + wantLine(req) + '।' + (prefLine(req) ? '\nঅভিভাবকের পছন্দ: ' + prefLine(req) + '।' : '') + '\nআপনি কি আগ্রহী? আগ্রহী হলে এখানে উত্তর দিন, আমরা অভিভাবকের সাথে যোগাযোগ করিয়ে দেব।';
   }
+  /* the WhatsApp to a tutor when a guardian CHOSE this tutor (Tutor Alert): the request in words, the wishes, and where to see the details and answer. No guardian name, no number. */
+  function msgAlertTutor(req, tutor){
+    return 'আসসালামু আলাইকুম ' + (tutor.display_name || tutor.full_name || '') + '। ভাইয়া-আপু (Protishthan) থেকে বলছি।\n' +
+      'একজন অভিভাবক আপনাকে টিউটর হিসেবে চেয়েছেন: ' + wantLine(req) + '।' + (prefLine(req) ? '\nঅভিভাবকের পছন্দ: ' + prefLine(req) + '।' : '') +
+      '\nবিস্তারিত দেখে "আমি আগ্রহী" বা "পারব না" জানান: https://protishthan.com/member#tutoralert (Google দিয়ে ঢুকে "Tutor Alert" খুলুন)। চাইলে এই মেসেজেও উত্তর দিতে পারেন।' +
+      '\nআগ্রহী হলে অভিভাবকের সম্মতি নিয়ে আমরা যোগাযোগ করিয়ে দেব।';
+  }
   function msgToGuardian(req, tutor){
     var lv = labelOf(LEVELS, tutor.edu_level);
     return 'আসসালামু আলাইকুম ' + (req.name || '') + '। ভাইয়া-আপু (Protishthan) থেকে বলছি।\nআপনার অনুরোধ (' + wantLine(req) + ') অনুযায়ী একজনের পরিচয়:\n' +
@@ -275,7 +282,7 @@
     MEDIUMS: MEDIUMS, EXAMS: EXAMS, STYLES: STYLES, BATCHES: BATCHES, DAYS: DAYS, SESSIONS: SESSIONS, EXPS: EXPS, TAUGHTS: TAUGHTS, PLEDGES: PLEDGES, PREFS: PREFS, STUDENT_LEVELS: STUDENT_LEVELS, GOALS: GOALS,
     SUBJECTS: SUBJECTS, CLASSES: CLASSES, MODES: MODES, TIMES: TIMES, LEVELS: LEVELS, GENDERS: GENDERS, STATUS: STATUS, REQ_STATUS: REQ_STATUS, MSG: MSG, errText: errText,
     labelOf: labelOf, labels: labels, keysOf: keysOf, enDigits: enDigits, bn: bn, cleanText: cleanText, cleanBio: cleanBio, normalizePhone: normalizePhone, textProblem: textProblem,
-    validateRequest: validateRequest, validateProfile: validateProfile, searchArgs: searchArgs, wantLine: wantLine, waNumber: waNumber, waLink: waLink, msgToTutor: msgToTutor, msgToGuardian: msgToGuardian };
+    validateRequest: validateRequest, validateProfile: validateProfile, searchArgs: searchArgs, wantLine: wantLine, waNumber: waNumber, waLink: waLink, msgToTutor: msgToTutor, msgAlertTutor: msgAlertTutor, msgToGuardian: msgToGuardian };
   root.TutorData = api;
   if(typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -72,5 +72,24 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('anon cannot call any of the four functions, a signed-in member can', (await guard('anon', '', 'select public.tutor_alerts_me()')) === 'denied' && (await guard('anon', '', 'select public.tutor_alert_unread()')) === 'denied' && (await guard('anon', '', `select public.tutor_alert_reply('${aid}', 'accepted')`)) === 'denied' && (await guard('anon', '', `select public.tutor_alert_seen(array['${aid}']::uuid[])`)) === 'denied' && Array.isArray(await guard('authenticated', T1, 'select public.tutor_alerts_me()')));
   ok('the closed tables stay closed (a tutor cannot read the matches or the requests directly)', [await guard('authenticated', T1, 'select * from public.tutor_matches'), await guard('authenticated', T1, 'select * from public.tutor_requests')].every(x => x === 'denied' || (Array.isArray(x) && x.length === 0)));   // denied, or row security gives an ordinary member no rows
   ok('the older tutor calls still work next to the new ones', (await q('select public.tutor_state() as s'))[0].s.requests === true && (await call(T1, 'select public.tutor_my_profile() as r')).pid === 'pid-approved');
+  // ---- the admin side: wa_at (2027-01-09)
+  {
+    const before = await reqIns({ tutor_pid: 'pid-approved' });                          // a guardian alert made before the admin file is run
+    await db.query(`insert into public.tutor_matches (request_id, tutor_id, source) values ($1, $2, 'admin') on conflict do nothing`, [await reqIns(), T1]);
+    await db.exec(M('2027-01-09_tutor_alert_admin.sql')); await db.exec(M('2027-01-09_tutor_alert_admin.sql'));
+    const rows = await q(`select source, wa_at is not null as sent from public.tutor_matches`);
+    ok('wa_at: the matches the admin sent before are done, the guardian alerts are "to do" (null)', rows.filter(x => x.source === 'admin').every(x => x.sent) && rows.filter(x => x.source === 'guardian').every(x => !x.sent));
+    const fresh = await reqIns({ tutor_pid: 'pid-approved' });
+    await db.exec(M('2027-01-09_tutor_alert_admin.sql'));
+    ok('a second run does not mark a NEW guardian alert as sent', (await q(`select wa_at from public.tutor_matches where request_id = $1`, [fresh]))[0].wa_at === null);
+    await db.exec("select set_config('test.admin', '1', false)");
+    const asAdmin = async (sql, params) => { await db.exec("select set_config('test.uid', '" + G + "', false)"); await db.exec('set role authenticated'); try { return await db.query(sql, params); } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };
+    const up = await asAdmin(`update public.tutor_matches set wa_at = now() where request_id = $1`, [fresh]);
+    ok('the admin can mark it as sent (and read the matches)', up !== 'denied' && up.affectedRows === 1 && (await asAdmin('select count(*)::int n from public.tutor_matches')).rows[0].n > 0);
+    await db.exec("select set_config('test.admin', '0', false)");
+    const up2 = await asAdmin(`update public.tutor_matches set wa_at = null where request_id = $1`, [fresh]);
+    ok('an ordinary member cannot change it (row security)', up2 === 'denied' || up2.affectedRows === 0);
+    ok('the tutor alert page still answers the same after the admin file (and wa_at is not in the answer)', Array.isArray(await call(T1, 'select public.tutor_alerts_me() as r')) && !/wa_at/.test(JSON.stringify(await call(T1, 'select public.tutor_alerts_me() as r'))));
+  }
   console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
 })().catch(e => { console.error('crashed:', e.message); process.exit(1); });
