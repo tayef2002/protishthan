@@ -330,6 +330,7 @@
     const { data, error } = await sb.rpc('tutor_my_profile');
     if(error){ view('jDown'); return; }
     profile = data || null;
+    try{ if(profile && profile.status && profile.status !== 'draft') localStorage.setItem('prot_is_tutor', '1'); }catch(e){}   // the bell (member.js) asks for new Tutor Alerts only for tutors
     if(window.TTSelect){ TTSelect.enhance($('jDist'), { search: 'জেলা খুঁজুন… (যেমন: বরিশাল)' }); TTSelect.enhance($('jUp'), { search: 'উপজেলা খুঁজুন…' }); }
     makePick($('jMed'), D.MEDIUMS, true, 4); makePick($('jExam'), D.EXAMS, true, 8); makePick($('jStyle'), D.STYLES, true, 5); makePick($('jBatch'), D.BATCHES, false); makePick($('jDays'), D.DAYS, false); makePick($('jSess'), D.SESSIONS, false); makePick($('jExp'), D.EXPS, false); makePick($('jTaught'), D.TAUGHTS, false);
     $('jPledge').innerHTML = D.PLEDGES.map(x => '<label class="tt-check"><input type="checkbox" data-k="' + esc(x[0]) + '"><span>' + esc(x[1]) + '</span></label>').join('');

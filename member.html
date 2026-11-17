@@ -9,6 +9,8 @@
 <script src="member.js"></script>
 <script src="/myinst.js?v=6" defer></script>
 <script src="/edulife.js?v=2" defer></script>
+<script src="/tutor-data.js?v=1" defer></script>
+<script src="/tutoralert.js?v=1" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -541,6 +543,7 @@ main.container{margin-top:22px}
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/myinst.css?v=6">
 <link rel="stylesheet" href="/edulife.css?v=1">
+<link rel="stylesheet" href="/tutoralert.css?v=1">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/nav.css?v=19">
@@ -631,6 +634,10 @@ main.container{margin-top:22px}
 <section class="sec view" id="batch">
           <div class="sec-h"><div><h2>আমার ব্যাচ</h2><p id="bhSub">আপনার SSC ব্যাচ, সহপাঠী আর ব্যাচের সব সুবিধা এক জায়গায়</p></div><a class="btn btn-line btn-sm" href="/batch">আরেকটা ব্যাচ খুঁজুন</a></div>
           <div id="bhBox"><div class="skel" style="height:170px"></div></div>
+        </section>
+<section class="sec view" id="tutoralert">
+          <div class="sec-h"><div><h2>Tutor Alert</h2><p>কেউ আপনাকে টিউটর হিসেবে চাইলে এখানে বিস্তারিতসহ জানানো হবে</p></div></div>
+          <div id="taBox"><div class="ta-skel"><i></i><i></i></div></div>
         </section>
 <section class="sec view" id="skill">
           <div class="sec-h"><div><h2>আমার স্কিল পেজ</h2><p id="skillSub">নিজের স্কিল আইডেন্টিটি, সব ডিভাইসে একই</p></div></div>
@@ -1606,7 +1613,8 @@ const NAVI = {
   chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.4A8.4 8.4 0 1 1 21 11.5z"/>',
   award: '<circle cx="12" cy="9" r="6"/><path d="M8.5 14.2L7 22l5-3 5 3-1.5-7.8"/>',
   doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
-  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'
 };
 const NAV = [
   { t: '', items: [
@@ -1615,12 +1623,13 @@ const NAV = [
     { href: '#card', i: 'card', l: 'আমার কার্ড', spy: 'card' },
     { href: 'messages.html', i: 'chat', l: 'Message', cc: true },
     { href: '#batch', i: 'users', l: 'আমার ব্যাচ', spy: 'batch', cntb: true, hide: true },
+    { href: '#tutoralert', i: 'bell', l: 'Tutor Alert', spy: 'tutoralert', tutor: true },
     { href: '#skill', i: 'award', l: 'স্কিল পেজ', spy: 'skill' },
     { href: '#contrib', i: 'flag', l: 'অবদান ও এলাকা', spy: 'contrib' },
     { href: '#account', i: 'user', l: 'অ্যাকাউন্ট', spy: 'account' } ] }
 ];
 function navHtml(){
-  return NAV.map(g => '<div>' + (g.t ? '<p class="sg">' + g.t + '</p>' : '') + g.items.map(it => '<a class="sn' + (it.hide ? ' sn-batch' : '') + '"' + (it.hide ? ' style="display:none"' : '') + ' href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.cntb ? '<i class="cnt cnt-batch">০</i>' : '') + (it.cc ? '<i class="cht-n cnt-chat" style="display:none">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
+  return NAV.map(g => '<div>' + (g.t ? '<p class="sg">' + g.t + '</p>' : '') + g.items.map(it => '<a class="sn' + (it.hide ? ' sn-batch' : '') + (it.tutor ? ' sn-ta' : '') + '"' + (it.hide || it.tutor ? ' style="display:none"' : '') + ' href="' + it.href + '"' + (it.spy ? ' data-spy="' + it.spy + '"' : '') + '><span class="sni"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + NAVI[it.i] + '</svg></span><span class="snl">' + it.l + '</span>' + (it.cnt ? '<i class="cnt cnt-saved">০</i>' : '') + (it.cntb ? '<i class="cnt cnt-batch">০</i>' : '') + (it.cc ? '<i class="cht-n cnt-chat" style="display:none">০</i>' : '') + (it.tutor ? '<i class="cht-n cnt-ta" style="display:none">০</i>' : '') + (it.badge ? '<i class="nw">' + it.badge + '</i>' : '') + '</a>').join('') + '</div>').join('');
 }
 $('sideNav').innerHTML = navHtml(); $('sheetNav').innerHTML = navHtml();
 function renderShellUser(me){
@@ -1635,7 +1644,7 @@ $('sheetNav').addEventListener('click', e => { if(e.target.closest('a')) closeSh
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
 /* ---------- each menu item is its own page (no endless scrolling) ---------- */
-const VIEWS = { overview: ['overview'], life: ['life'], contrib: ['area', 'contrib', 'custom', 'partnerWrap'], card: ['card'], batch: ['batch'], skill: ['skill'], account: ['account'] };
+const VIEWS = { overview: ['overview'], life: ['life'], tutoralert: ['tutoralert'], contrib: ['area', 'contrib', 'custom', 'partnerWrap'], card: ['card'], batch: ['batch'], skill: ['skill'], account: ['account'] };
 const VALIAS = { area: 'contrib', saved: 'contrib', partner: 'contrib', chat: 'overview' };
 let routed = false;
 function route(){
