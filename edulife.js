@@ -2,7 +2,7 @@
    - one list, PSC to masters: institution (picked from the directory, or typed), year, "still studying"
    - the SAME data as the শিক্ষিত কার্ড: member_cards.data.edu (a card made before the sign-up is adopted by member.js, so it is already here)
      so a change here is on the card, and a change on the card is here
-   - "এখনকার প্রতিষ্ঠান" (member_institution) and the SSC batch (batch_me) are shown above the list, with one tap to set or join from what the list says
+   - "বর্তমান প্রতিষ্ঠান" (member_institution) and the SSC batch (batch_me) are shown above the list, with one tap to set or join from what the list says
    Needs member.js (Protishthan.member) and, for the two top blocks, myinst.js (window.MyInst). Everything is optional; nothing here is shown to anybody else. */
 (function(){
   'use strict';
@@ -86,13 +86,13 @@
   /* the current institution */
   function curBlock(){
     const c = ST.cur, sug = curFromList();
-    let h = '<div class="card el-cur"><div class="el-h"><span class="el-ic">' + ico('pin') + '</span><div><h3>এখনকার প্রতিষ্ঠান</h3><p>এখন যেখানে পড়ছেন (বা সবচেয়ে সম্প্রতি পড়েছেন)। একজনের একটাই।</p></div></div>';
+    let h = '<div class="card el-cur"><div class="el-h"><span class="el-ic">' + ico('pin') + '</span><div><h3>বর্তমান প্রতিষ্ঠান</h3><p>এখন যেখানে পড়ছেন (বা সবচেয়ে সম্প্রতি পড়েছেন)। একজনের একটাই।</p></div></div>';
     if(!ST.curKnown) return h + '<p class="el-mut">এখন পড়া যাচ্ছে না, একটু পরে আবার চেষ্টা করুন।</p></div>';
     if(c.slug){
       h += '<div class="el-now"><div><b><a href="institution-detail.html?slug=' + encodeURIComponent(c.slug) + '">' + esc(c.name || c.slug) + '</a></b><small>' + (c.status === 'studied' ? 'আগে পড়েছি' : 'এখন পড়ছি') + ' · শুধু আপনি দেখেন</small></div>' +
         '<div class="el-bt"><button type="button" class="btn btn-line btn-sm" data-a="cur-change">বদলান</button><button type="button" class="el-link" data-a="cur-clear">সরান</button></div></div>';
     } else if(sug){
-      h += '<div class="el-now sug"><div><b>' + esc(sug.name) + '</b><small>আপনার তালিকা অনুযায়ী আপনি এখানে পড়ছেন। এটাই কি এখনকার প্রতিষ্ঠান?</small></div>' +
+      h += '<div class="el-now sug"><div><b>' + esc(sug.name) + '</b><small>আপনার তালিকা অনুযায়ী আপনি এখানে পড়ছেন। এটাই কি বর্তমান প্রতিষ্ঠান?</small></div>' +
         '<div class="el-bt"><button type="button" class="btn btn-blue btn-sm" data-a="cur-yes">হ্যাঁ, এটাই</button><button type="button" class="el-link" data-a="cur-change">অন্যটা বেছে নিই</button></div></div>';
     } else {
       h += '<div class="el-now"><div><b>এখনও বেছে নেননি</b><small>চাইলে বেছে নিন, না চাইলে থাক।</small></div><div class="el-bt"><button type="button" class="btn btn-blue btn-sm" data-a="cur-change">বেছে নিন</button></div></div>';

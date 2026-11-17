@@ -203,7 +203,7 @@
     body(head(total ? '<b>' + bn(total) + ' জন</b> এখানে যুক্ত আছেন।' : 'এখনও কেউ যুক্ত হননি, আপনি প্রথম হতে পারেন।', 'আমার প্রতিষ্ঠান') +
       '<label class="mi-l">আপনি এখানে…</label><div class="mi-chips" id="miSt">' + CSTATUS.map((s, i) => '<button type="button" data-v="' + s[0] + '"' + ((mine ? CUR.status === s[0] : i === 0) ? ' class="on"' : '') + '>' + s[1] + '</button>').join('') + '</div>' +
       '<p class="mi-hint">এটা শুধু আপনি দেখবেন, আর কেউ না।</p>' +
-      (other ? '<p class="mi-note">আপনার এখনকার প্রতিষ্ঠান <b>' + esc(CUR.name || 'আরেকটা') + '</b>। এটা বেছে নিলে বদলে যাবে (একজনের একটাই)।</p>' : '') +
+      (other ? '<p class="mi-note">আপনার বর্তমান প্রতিষ্ঠান <b>' + esc(CUR.name || 'আরেকটা') + '</b>। এটা বেছে নিলে বদলে যাবে (একজনের একটাই)।</p>' : '') +
       '<div class="mi-err" id="miErr" hidden></div>' +
       '<div class="mi-act">' + (ST.fromPick ? '<button type="button" class="mi-sec" id="miBack">← ফিরে যান</button>' : '') + '<button type="button" class="mi-pri" id="miGo">' + (mine ? 'ঠিক করে রাখুন' : 'এটাই আমার প্রতিষ্ঠান') + '</button></div>' +
       (mine ? '<div class="mi-act"><button type="button" class="mi-link" id="miOut">এখান থেকে সরিয়ে দিন</button></div>' : ''));
@@ -385,7 +385,7 @@
         (inB ? '<a class="mi-cp-ok" href="/b/' + encodeURIComponent(b.slug) + '/ssc-' + b.year + '">' + ICON_CHECK + ' আপনি আছেন</a>'
              : '<button type="button" class="mi-cp-b" data-cp="batch">' + (signedIn() ? (found ? 'যোগ দিন' : 'ব্যাচ খুলি') : 'Google দিয়ে যোগ দিন') + '</button>') + '</div>');
     }
-    if(showC) rows.push('<div class="mi-cp-r"><div class="mi-cp-t"><b>এখনকার প্রতিষ্ঠান: ' + esc(c.name) + '</b><small>ঠিক থাকলে জানিয়ে রাখুন, শুধু আপনি দেখবেন</small></div><button type="button" class="mi-cp-b ghost" data-cp="cur">' + (signedIn() ? 'হ্যাঁ, ঠিক' : 'Google দিয়ে জানান') + '</button></div>');
+    if(showC) rows.push('<div class="mi-cp-r"><div class="mi-cp-t"><b>বর্তমান প্রতিষ্ঠান: ' + esc(c.name) + '</b><small>ঠিক থাকলে জানিয়ে রাখুন, শুধু আপনি দেখবেন</small></div><button type="button" class="mi-cp-b ghost" data-cp="cur">' + (signedIn() ? 'হ্যাঁ, ঠিক' : 'Google দিয়ে জানান') + '</button></div>');
     if(!rows.length) return;
     host.innerHTML = '<div class="mi-cp-h">' + (b ? 'আপনার ব্যাচের বন্ধুরা কি আগে থেকেই আছে?' : 'আপনার প্রতিষ্ঠান') + '</div>' + rows.join('');
     host.hidden = false;
