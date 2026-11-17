@@ -150,7 +150,7 @@
     let key = null;
     if(m) key = { slug: decodeURIComponent(m[1]), lv: m[2], year: +m[3] };
     else if(q.get('i') && q.get('l') && q.get('y')) key = { slug: q.get('i'), lv: q.get('l'), year: +q.get('y') };
-    if(key && (!LVT[key.lv] || !(key.year >= 1970 && key.year <= NOW + 1))) key = null;
+    if(key && (!LVT[key.lv] || !(key.year >= 1970 && key.year <= NOW + 6))) key = null;
     return { key, ref: (q.get('r') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16) };
   }
   const batchPath = k => '/b/' + encodeURIComponent(k.slug) + '/' + k.lv + '-' + k.year;
@@ -186,7 +186,7 @@
       Object.keys(map).forEach(k => {
         const e = d.edu[k]; if(!e || !e.slug || !e.year) return;
         const lv = map[k][e.track || 'g']; const y = +((String(en(e.year)).match(/\d{4}/) || [])[0]);
-        if(lv && y >= 1970 && y <= NOW + 1) out.push({ lv, slug: e.slug, name: e.name || e.slug, year: y });
+        if(lv && y >= 1970 && y <= NOW + 6) out.push({ lv, slug: e.slug, name: e.name || e.slug, year: y });
       });
     }catch(e){}
     return out;
