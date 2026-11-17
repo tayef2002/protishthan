@@ -8,6 +8,7 @@
   'use strict';
   if(window.MyInst) return;
   const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const QUIET = !!window.MYINST_QUIET;   // the card page: no invitation, nothing runs by itself, only the panel after a download (cardPanel)
   const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const track = (n, p) => { try{ window.track && window.track(n, p || {}); }catch(e){} };
@@ -247,7 +248,7 @@
   const nudgeDue = () => { const s = nstate(); return s.n < 3 && (s.n === 0 || Date.now() - s.t > (s.n === 1 ? 7 : 30) * 864e5); };
   function noteSkip(){ const s = nstate(); try{ localStorage.setItem(NK, JSON.stringify({ n: s.n + 1, t: Date.now() })); }catch(e){} }
   function nudge(){
-    if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge')) return;
+    if(QUIET || !signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge')) return;
     setTimeout(() => {
       if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge') || (ov && ov.classList.contains('show'))) return;
       const n = document.createElement('div'); n.id = 'miNudge'; n.className = 'mi-nudge'; n.setAttribute('role', 'region'); n.setAttribute('aria-label', 'আপনি এখন কোথায় পড়েন');
@@ -316,21 +317,24 @@
     NO_INSTITUTION: 'এই প্রতিষ্ঠানটা এখন তালিকায় নেই।',
     BAD_BATCH: 'স্তর বা সালটা ঠিক হয়নি, আবার বেছে নিন।'
   };
+  async function afterJoin(c, d, status){
+    track('mi_joined', { created: !!d.created });
+    // someone who says "I am still studying here" and has no current institution yet: this school is it (they said so themselves)
+    if(status === 'studying' && !CUR.slug){
+      const q = await rpc('member_set_institution', { p_slug: ST.slug, p_status: 'studying' });
+      if(q.data && q.data.ok === true){ CUR = { slug: ST.slug, status: 'studying', name: ST.name, type: ST.type }; if(q.data.institution_members != null) d.institution_members = q.data.institution_members; }
+    }
+    MINE.add(ST.slug);
+    done(c, d);
+    if(CARD && CARD.host) cardPanel(CARD.host, CARD.card);      // the panel on the card page shows the new state when the sheet is closed
+  }
   async function submit(c, status){
     const go = document.getElementById('miGo'), err = document.getElementById('miErr'); go.disabled = true; err.hidden = true;
     const r = await rpc('member_join_batch', { p_slug: ST.slug, p_level: c.level, p_year: c.year, p_status: status, p_ref: refCode() });
     go.disabled = false;
     const d = r.data;
     if(r.error || !d){ err.textContent = 'এখন যুক্ত করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false; return; }
-    if(d.ok === true){
-      track('mi_joined', { created: !!d.created });
-      // someone who says "I am still studying here" and has no current institution yet: this school is it (they said so themselves)
-      if(status === 'studying' && !CUR.slug){
-        const q = await rpc('member_set_institution', { p_slug: ST.slug, p_status: 'studying' });
-        if(q.data && q.data.ok === true){ CUR = { slug: ST.slug, status: 'studying', name: ST.name, type: ST.type }; if(q.data.institution_members != null) d.institution_members = q.data.institution_members; }
-      }
-      return done(c, d);
-    }
+    if(d.ok === true) return afterJoin(c, d, status);
     if(d.error === 'NOT_SIGNED_IN'){ ask(); return; }
     if(d.error === 'ONE_PER_LEVEL'){
       const mine = (ST.list || []).find(x => x.level === c.level && x.mine);
@@ -355,15 +359,101 @@
     const cur = document.getElementById('miCur'); if(cur) cur.onclick = () => { ST.slug = ''; ST.name = ''; ST.type = ''; ST.fromPick = false; showPick('current'); };
   }
 
+
+  /* ---------- the card page: after a download, the batch and the current institution the card itself implies ----------
+     card = { batch: { slug, name, year, status } | null, cur: { slug, name, type, status } | null }, built by card.html from the SSC row and the "still studying" tick.
+     One tap each: nothing to type, the year and the status come from the card. A signed-out person goes through the Google sign-in and the tapped action is done on the way back. */
+  let CARD = null;
+  const asciiDigits = x => String(x == null ? '' : x).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+  async function cardPanel(host, card){
+    if(!host) return;
+    CARD = { host, card };
+    host.hidden = true; host.innerHTML = '';
+    const b = card && card.batch, c = card && card.cur;
+    if(!b && !c) return;
+    if(!signedIn()){ CUR = {}; MINE = new Set(); }          // signed out: nothing is remembered from an earlier session
+    const out = signedIn() ? await loadMineQuiet() : true;
+    if(!out) return;                                   // a failed read: say nothing rather than something wrong
+    const [lst] = await Promise.all([b ? rpc('institution_batches', { p_slug: b.slug }) : Promise.resolve({ data: [] })]);
+    const found = !lst.error && Array.isArray(lst.data) ? lst.data.find(x => x.level === 'ssc' && x.year === b.year) : null;
+    const known = !lst.error;
+    const showC = !!c && CUR.slug !== c.slug && !CUR.slug;     // never overwrite a current institution the person already chose
+    const rows = [];
+    if(b){
+      const inB = !!(found && found.mine);
+      rows.push('<div class="mi-cp-r"><div class="mi-cp-t"><b>' + esc(b.name) + '</b><small>SSC · ' + bn(b.year) + ' ব্যাচ' + (known ? (found && found.members ? ' · <em>' + bn(found.members) + ' জন আগে থেকেই আছেন</em>' : ' · এখনও কেউ নেই') : '') + '</small></div>' +
+        (inB ? '<a class="mi-cp-ok" href="/b/' + encodeURIComponent(b.slug) + '/ssc-' + b.year + '">' + ICON_CHECK + ' আপনি আছেন</a>'
+             : '<button type="button" class="mi-cp-b" data-cp="batch">' + (signedIn() ? (found ? 'যোগ দিন' : 'ব্যাচ খুলি') : 'Google দিয়ে যোগ দিন') + '</button>') + '</div>');
+    }
+    if(showC) rows.push('<div class="mi-cp-r"><div class="mi-cp-t"><b>এখনকার প্রতিষ্ঠান: ' + esc(c.name) + '</b><small>ঠিক থাকলে জানিয়ে রাখুন, শুধু আপনি দেখবেন</small></div><button type="button" class="mi-cp-b ghost" data-cp="cur">' + (signedIn() ? 'হ্যাঁ, ঠিক' : 'Google দিয়ে জানান') + '</button></div>');
+    if(!rows.length) return;
+    host.innerHTML = '<div class="mi-cp-h">' + (b ? 'আপনার ব্যাচের বন্ধুরা কি আগে থেকেই আছে?' : 'আপনার প্রতিষ্ঠান') + '</div>' + rows.join('');
+    host.hidden = false;
+    track('mi_card_shown', { b: b ? 1 : 0, c: showC ? 1 : 0, found: found ? 1 : 0 });
+    host.querySelectorAll('[data-cp]').forEach(btn => { btn.onclick = () => cardAct(btn.getAttribute('data-cp'), btn); });
+  }
+  async function loadMineQuiet(){            // the same read as loadMine, without the invitation; false when either answer failed
+    const [r, c] = await Promise.all([rpc('batch_me'), rpc('member_institution_me')]);
+    if(r.error || !Array.isArray(r.data)) return false;
+    CUR = (!c.error && c.data && c.data.slug) ? c.data : {};
+    MINE = new Set(r.data.map(x => x.slug).concat(CUR.slug ? [CUR.slug] : []));
+    return true;
+  }
+  async function cardAct(kind, btn){
+    const card = CARD && CARD.card; if(!card) return;
+    track('mi_card_tap', { k: kind });
+    if(!signedIn()){
+      try{ localStorage.setItem(INTENT, JSON.stringify({ mode: 'card', act: kind, batch: card.batch || null, cur: card.cur || null, t: Date.now() })); }catch(e){}
+      const m = MB(); if(!m){ location.href = '/member'; return; }
+      track('mi_signin', {});
+      m.signIn('৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই। যুক্ত হওয়ার পর এই কার্ডের পাতাতেই ফিরে আসবেন, আপনার কার্ড তৈরিই থাকবে।', {
+        title: kind === 'batch' ? 'আপনার ব্যাচে যোগ দিন' : 'আপনার প্রতিষ্ঠান জানিয়ে রাখুন', chip: (kind === 'batch' ? card.batch : card.cur).name, cta: 'Google দিয়ে চালিয়ে যান',
+        perks: [['seat', 'ব্যাচের সদস্য নম্বর, একবার পেলে বদলায় না'], ['users', 'সহপাঠীরা আগে থেকেই থাকলে দেখবেন'], ['eye', 'কোথায় পড়েন, সেটা শুধু আপনি দেখেন']]
+      });
+      return;
+    }
+    if(btn) btn.disabled = true;
+    if(kind === 'cur') await cardSetCurrent(card.cur, btn); else await quickJoin(card.batch);
+    if(btn) btn.disabled = false;
+  }
+  async function cardSetCurrent(x, btn){
+    const r = await rpc('member_set_institution', { p_slug: x.slug, p_status: x.status || 'studying' });
+    if(r.error || !r.data || r.data.ok !== true){ if(btn){ btn.textContent = 'এখন হলো না, আবার চাপুন'; } return; }
+    track('mi_current_set', { status: x.status || 'studying', from: 'card' });
+    CUR = { slug: x.slug, status: x.status || 'studying', name: x.name, type: x.type || '' };
+    if(CARD && CARD.host) cardPanel(CARD.host, CARD.card);
+  }
+  /* one tap: join (or open) the SSC batch the card implies, then the same success screen as the sheet */
+  async function quickJoin(b){
+    if(!ov) build();
+    ST = { slug: b.slug, name: b.name || '', type: '', mode: 'current', list: null };
+    ov.classList.add('show'); document.body.style.overflow = 'hidden';
+    body(head('') + '<div class="mi-sk"><i></i><i></i><i></i></div>');
+    const c = { level: 'ssc', year: b.year, label: bn(b.year) + ' ব্যাচ · ' + LVN.ssc, created: false };
+    const status = b.status === 'studying' ? 'studying' : 'studied';
+    const r = await rpc('member_join_batch', { p_slug: b.slug, p_level: 'ssc', p_year: b.year, p_status: status, p_ref: refCode() });
+    const d = r.data;
+    const fail = msg => { body(head('') + '<p class="mi-err">' + msg + '</p><div class="mi-act"><button type="button" class="mi-sec" id="miX">বন্ধ করুন</button><button type="button" class="mi-pri" id="miRetry">আবার চেষ্টা করুন</button></div>'); document.getElementById('miX').onclick = close; document.getElementById('miRetry').onclick = () => quickJoin(b); };
+    if(r.error || !d){ fail('এখন যুক্ত করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'); return; }
+    if(d.ok === true){ c.created = !!d.created; return afterJoin(c, d, status); }
+    if(d.error === 'NOT_SIGNED_IN'){ close(); cardAct('batch'); return; }
+    if(d.error === 'ONE_PER_LEVEL'){ body(head('') + '<p class="mi-err">এই প্রতিষ্ঠানে SSC স্তরে আপনি আগেই অন্য একটা ব্যাচে আছেন। একটা স্তরে একটাই ব্যাচ থাকা যায়।</p><div class="mi-act col"><a class="mi-pri" href="/member">আমার ব্যাচগুলো দেখুন</a><button type="button" class="mi-link" id="miX">বন্ধ করুন</button></div>'); document.getElementById('miX').onclick = close; return; }
+    fail(ERR[d.error] || 'যুক্ত করা গেল না। একটু পরে আবার চেষ্টা করুন।');
+  }
+
   /* ---------- after the sign-in: come back to the same place ---------- */
   async function resume(){
     const m = MB(); if(!m) return; await m.ready();
     if(!signedIn()) return;
     let it = null; try{ it = JSON.parse(localStorage.getItem(INTENT) || 'null'); localStorage.removeItem(INTENT); }catch(e){}
+    if(it && it.mode === 'card' && Date.now() - it.t < 30 * 60 * 1000){
+      if(it.act === 'cur' && it.cur) await cardSetCurrent(it.cur); else if(it.batch) await quickJoin(it.batch);
+      return;
+    }
     if(it && (it.slug || it.pick) && Date.now() - it.t < 30 * 60 * 1000) open({ slug: it.slug || '', name: it.name, type: it.type, mode: it.mode });
   }
 
-  window.MyInst = { open, pick: () => open({ mode: 'current' }), decorate, fetchCounts, check: loadMine };
-  const start = () => { watch(); mountHero(); const m = MB(); if(m){ m.ready().then(() => { loadMine(); resume(); }); m.onChange(() => loadMine()); } };
+  window.MyInst = { open, pick: () => open({ mode: 'current' }), decorate, fetchCounts, check: loadMine, cardPanel, asciiDigits };
+  const start = () => { if(!QUIET){ watch(); mountHero(); } const m = MB(); if(m){ m.ready().then(() => { if(!QUIET) loadMine(); resume(); }); m.onChange(() => { if(!QUIET) loadMine(); }); } };
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

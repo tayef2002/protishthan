@@ -14,6 +14,9 @@
 <meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
+<link rel="stylesheet" href="/myinst.css?v=5">
+<script>window.MYINST_QUIET = true;</script>   <!-- the card page: myinst.js only offers the batch panel after a download, no invitation, nothing runs by itself -->
+<script src="/myinst.js?v=5" defer></script>
 <script src="bd-locations.js?v=3"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="avatars.js"></script>
@@ -920,6 +923,7 @@ nav#nav .mb-prof{color:#0B1B4D;background:#fff;border-color:#E2E8F0}nav#nav .mb-
     <button type="button" class="dl-share-fb" id="dlShareFb" onclick="dlShare('facebook')"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M14 9V7c0-.8.5-1.5 1.6-1.5H17V2.3C16.6 2.2 15.4 2 14 2c-3 0-4.6 1.8-4.6 4.7V9H7v3.6h2.4V22H14v-9.4h2.6L17 9z"/></svg>Facebook-এ শেয়ার করুন</button>
     <button type="button" class="dl-share-wa" id="dlShareWa" onclick="dlShare('whatsapp')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5z"/></svg>WhatsApp-এ পাঠান</button>
     <div class="dl-hint" id="dlHint" aria-live="polite"></div>
+    <div class="mi-cp" id="miCardPanel" hidden></div>
     <div class="dl-chips" id="dlChips" role="group" aria-label="ক্যাপশনের ধরন"></div>
     <textarea class="dl-ta" id="dlTa" aria-label="ক্যাপশন"></textarea>
     <button type="button" class="dl-copy" id="dlCopy" onclick="copyDlCaption()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span>ক্যাপশন কপি করুন</span></button>
@@ -2134,9 +2138,25 @@ document.addEventListener('click', e => {
   T('card_caption_variant', { v: DL_VARIANT });
   silentCopy(text).then(ok => { DL_COPIED = ok; if(ok) showDlHint('ক্যাপশন কপি হয়েছে ✓ Facebook-এ পোস্টের বক্সে চেপে ধরে পেস্ট করুন।'); });
 });
+/* what the card itself says about the person's batch and where they study now (for the panel in the download popup, see myinst.js cardPanel):
+   the SSC / Dakhil row with a listed institution and a year gives the batch ("still studying" tick = status studying, else studied); the highest row with the "still studying" tick gives the current institution.
+   Qawmi has no SSC batch. Nothing is guessed: a row without a listed institution or a year gives nothing. */
+function miCardData(){
+  const out = { batch: null, cur: null };
+  try{
+    const NOWY = new Date().getFullYear();
+    const sc = S.edu.school;
+    const y = parseInt(String(sc && sc.year || '').replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d)), 10);
+    if(S.track !== 'q' && sc && sc.slug && sc.name && y >= 1970 && y <= NOWY + 6) out.batch = { slug: sc.slug, name: sc.name, year: y, status: sc.current ? 'studying' : 'studied' };
+    const cl = filledLevels().slice().reverse().find(l => S.edu[l.key].current && S.edu[l.key].slug);
+    if(cl){ const e = S.edu[cl.key]; out.cur = { slug: e.slug, name: e.name, type: '', status: 'studying' }; }
+  }catch(e){}
+  return out;
+}
 function openDl(){
   const ov = document.getElementById('dlOv'); if(!ov) return;
   renderDlChips();
+  try{ if(window.MyInst && MyInst.cardPanel) MyInst.cardPanel(document.getElementById('miCardPanel'), miCardData()); }catch(e){}
   document.getElementById('dlTa').value = caption();
   const b = document.getElementById('dlCopy'); b.classList.remove('done'); b.querySelector('span').textContent = 'ক্যাপশন কপি করুন';
   const o = document.getElementById('dlOther'); if(o){ o.classList.remove('done'); o.querySelector('span').textContent = (DL_LAST === 'story' ? 'পোস্ট' : 'স্টোরি') + ' সাইজ ডাউনলোড'; }
