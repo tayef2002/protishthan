@@ -152,11 +152,28 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     else ME = data;
     return ME;
   }
+  /* a card made before the sign-up is adopted by the account (the same card the card page keeps for a signed-in member): the dashboard's শিক্ষাজীবন shows it at once.
+     Only when the account has no card or an older one, never over a newer one; not on the card page (it syncs by itself). */
+  async function adoptLocalCard(){
+    try{
+      if(!ME || /\/card(\.html)?$/.test(location.pathname)) return;
+      const raw = ls.get('shikkhito_card_v1'); if(!raw) return;
+      const d = JSON.parse(raw); if(!d || typeof d !== 'object') return;
+      if(!d.name && !d.photo && !(d.badges || []).length && !Object.values(d.edu || {}).some(e => e && e.name)) return;     // an empty card: nothing to keep
+      const lt = Number(d.savedAt) || 0, seen = ME.user_id + ':' + lt;
+      if(ls.get('el_adopt_seen') === seen) return;              // this very card was already looked at for this member: no database call on every page
+      const { data: row, error } = await sb.from('member_cards').select('saved_at').maybeSingle(); if(error) return;
+      if(row && Number(row.saved_at) >= lt){ ls.set('el_adopt_seen', seen); return; }
+      const { error: e2 } = await sb.from('member_cards').upsert({ user_id: ME.user_id, data: d, saved_at: lt || Date.now(), updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      if(!e2){ ls.set('el_adopted', '1'); ls.set('el_adopt_seen', seen); }
+    }catch(e){}
+  }
   async function refresh(session){
     await loadMember(session);
     SAVED = null;
     render();
     listeners.forEach(cb => { try{ cb(ME); }catch(e){ console.error(e); } });
+    if(ME) adoptLocalCard();
     return ME;
   }
   sb.auth.getSession().then(async ({ data: { session } }) => {

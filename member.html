@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="member.js"></script>
 <script src="/myinst.js?v=5" defer></script>
+<script src="/edulife.js?v=1" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -539,6 +540,7 @@ main.container{margin-top:22px}
 </style>
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/myinst.css?v=5">
+<link rel="stylesheet" href="/edulife.css?v=1">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="/nav.css?v=19">
@@ -617,6 +619,10 @@ main.container{margin-top:22px}
 <section class="sec view" id="custom">
           <div class="sec-h"><div><h2>আমার যোগ করা প্রতিষ্ঠান</h2><p>কার্ড বানানোর সময় যোগ করা প্রতিষ্ঠান, তথ্য পূরণ করে প্রকাশ করুন</p></div></div>
           <div class="saved" id="customList"></div>
+        </section>
+<section class="sec view" id="life">
+          <div class="sec-h"><div><h2>আমার শিক্ষাজীবন</h2><p>প্রাথমিক থেকে স্নাতকোত্তর, আপনার পড়াশোনার পুরো তালিকা এক জায়গায়। শিক্ষিত কার্ডের সঙ্গে একই তথ্য।</p></div></div>
+          <div id="lifeBox"><div class="el-skel"><i></i><i></i><i></i></div></div>
         </section>
 <section class="sec view" id="card">
           <div class="sec-h"><div><h2>আমার শিক্ষিত কার্ড</h2><p id="cardSub">সব ডিভাইসে একই কার্ড</p></div></div>
@@ -1591,6 +1597,7 @@ const NAVI = {
   users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.2 2.6-5.5 6-5.5s6 2.3 6 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.2c2.7.1 4.5 1.9 4.5 4.3"/>',
   grid: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   bookmark: IC.bookmark, user: IC.user, pin: IC.pin, flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+  cap: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/>',
   card: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M15 10h3M15 13h2"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
   chart: '<path d="M3 21h18"/><rect x="5" y="12" width="3" height="7" rx="1"/><rect x="10.5" y="8" width="3" height="11" rx="1"/><rect x="16" y="4" width="3" height="15" rx="1"/>',
@@ -1604,6 +1611,7 @@ const NAVI = {
 const NAV = [
   { t: '', items: [
     { href: '#overview', i: 'grid', l: 'ওভারভিউ', spy: 'overview' },
+    { href: '#life', i: 'cap', l: 'আমার শিক্ষাজীবন', spy: 'life' },
     { href: '#card', i: 'card', l: 'আমার কার্ড', spy: 'card' },
     { href: 'messages.html', i: 'chat', l: 'Message', cc: true },
     { href: '#batch', i: 'users', l: 'আমার ব্যাচ', spy: 'batch', cntb: true, hide: true },
@@ -1627,7 +1635,7 @@ $('sheetNav').addEventListener('click', e => { if(e.target.closest('a')) closeSh
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
 /* ---------- each menu item is its own page (no endless scrolling) ---------- */
-const VIEWS = { overview: ['overview'], contrib: ['area', 'contrib', 'custom', 'partnerWrap'], card: ['card'], batch: ['batch'], skill: ['skill'], account: ['account'] };
+const VIEWS = { overview: ['overview'], life: ['life'], contrib: ['area', 'contrib', 'custom', 'partnerWrap'], card: ['card'], batch: ['batch'], skill: ['skill'], account: ['account'] };
 const VALIAS = { area: 'contrib', saved: 'contrib', partner: 'contrib', chat: 'overview' };
 let routed = false;
 function route(){
@@ -1661,6 +1669,8 @@ window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', windo
 if(window.matchMedia('(max-width:700px)').matches){ const st = document.createElement('style'); st.textContent = '.cardgrid{grid-template-columns:1fr!important}'; document.head.appendChild(st); }
 M.onChange(render);
 render();
+// a change in the education life list is a change of the card: the card tab shows the new one
+document.addEventListener('edulife:saved', () => { try{ loadCard(); }catch(e){} });
 </script>
 <script src="bnname.js?v=5"></script>
 <script src="bd-locations.js?v=3"></script>

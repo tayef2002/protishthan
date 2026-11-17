@@ -219,7 +219,7 @@
     go.disabled = false;
     const d = r.data;
     if(r.error || !d){ err.textContent = 'এখন সংরক্ষণ করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false; return; }
-    if(d.ok === true){ track('mi_current_set', { status }); CUR = { slug: ST.slug, status, name: ST.name, type: ST.type }; MINE.add(ST.slug); if(d.institution_members != null) COUNTS.set(ST.slug, Number(d.institution_members)); paint(); return doneInst(d); }
+    if(d.ok === true){ track('mi_current_set', { status }); CUR = { slug: ST.slug, status, name: ST.name, type: ST.type }; MINE.add(ST.slug); changed(); if(d.institution_members != null) COUNTS.set(ST.slug, Number(d.institution_members)); paint(); return doneInst(d); }
     if(d.error === 'NOT_SIGNED_IN'){ ask(); return; }
     err.textContent = ERR[d.error] || 'সংরক্ষণ করা গেল না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false;
   }
@@ -227,7 +227,7 @@
     const out = document.getElementById('miOut'); if(out) out.disabled = true;
     const r = await rpc('member_clear_institution');
     if(r.error || !r.data || r.data.ok !== true){ if(out) out.disabled = false; const err = document.getElementById('miErr'); if(err){ err.textContent = 'এখন সরানো যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'; err.hidden = false; } return; }
-    CUR = {}; asked.delete(ST.slug); await loadMine(); fetchCounts([ST.slug]);
+    CUR = {}; asked.delete(ST.slug); await loadMine(); fetchCounts([ST.slug]); changed();
     body('<div class="mi-done"><h2>সরিয়ে দেওয়া হলো</h2><p>চাইলে যেকোনো সময় আবার বেছে নিতে পারবেন।</p><div class="mi-act col"><button type="button" class="mi-pri" id="miClose">ঠিক আছে</button></div></div>');
     document.getElementById('miClose').onclick = close;
   }
@@ -324,7 +324,7 @@
       const q = await rpc('member_set_institution', { p_slug: ST.slug, p_status: 'studying' });
       if(q.data && q.data.ok === true){ CUR = { slug: ST.slug, status: 'studying', name: ST.name, type: ST.type }; if(q.data.institution_members != null) d.institution_members = q.data.institution_members; }
     }
-    MINE.add(ST.slug);
+    MINE.add(ST.slug); changed();
     done(c, d);
     if(CARD && CARD.host) cardPanel(CARD.host, CARD.card);      // the panel on the card page shows the new state when the sheet is closed
   }
@@ -453,7 +453,8 @@
     if(it && (it.slug || it.pick) && Date.now() - it.t < 30 * 60 * 1000) open({ slug: it.slug || '', name: it.name, type: it.type, mode: it.mode });
   }
 
-  window.MyInst = { open, pick: () => open({ mode: 'current' }), decorate, fetchCounts, check: loadMine, cardPanel, asciiDigits };
+  const changed = () => { try{ document.dispatchEvent(new CustomEvent('myinst:change')); }catch(e){} };
+  window.MyInst = { open, pick: () => open({ mode: 'current' }), decorate, fetchCounts, check: loadMine, cardPanel, asciiDigits, joinSsc: b => quickJoin(b) };
   const start = () => { if(!QUIET){ watch(); mountHero(); } const m = MB(); if(m){ m.ready().then(() => { if(!QUIET) loadMine(); resume(); }); m.onChange(() => { if(!QUIET) loadMine(); }); } };
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
