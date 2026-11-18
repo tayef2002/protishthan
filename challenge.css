@@ -1,0 +1,88 @@
+/* /challenge: ব্যাচ চ্যালেঞ্জ (প্রতিষ্ঠান লিগ), the live game */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--tb:#1A56DB;--ink:#0B1B4D;--tx:#0F172A;--tx2:#475569;--tx3:#64748B;--ln:#E2E8F0;--bg:#F4F6FB;--card:#fff;--ok:#059669;--bad:#DC2626}
+html{scroll-behavior:smooth}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--tx);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--tb)}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+.ch{max-width:820px;width:calc(100% - 28px);margin:0 auto;padding:96px 0 72px}
+.ch :focus-visible{outline:3px solid rgba(26,86,219,.42);outline-offset:2px;border-radius:12px}
+.ch [hidden]{display:none!important}
+.ch-hero{text-align:center;margin-bottom:18px}
+.ch-kick{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#1D4ED8;background:#EAF1FF;border-radius:100px;padding:4px 14px}
+.ch-hero h1{margin:10px 0 4px;font-size:clamp(30px,6vw,44px);line-height:1.2;color:var(--ink);letter-spacing:-.5px}
+.ch-hero h1 span{background:linear-gradient(135deg,#1A56DB,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ch-hero p{color:var(--tx2);font-size:15.5px;max-width:560px;margin:0 auto}
+.ch-card{background:var(--card);border:1px solid var(--ln);border-radius:24px;padding:22px;box-shadow:0 18px 46px -26px rgba(15,32,72,.35)}
+.ch-skel{height:180px;border-radius:18px;background:linear-gradient(90deg,#EEF2FA 25%,#F8FAFE 50%,#EEF2FA 75%);background-size:200% 100%;animation:ch-sk 1.3s infinite}
+@keyframes ch-sk{to{background-position:-200% 0}}
+.ch-sec{margin-top:24px}
+.ch-sec>h2{font-size:21px;color:var(--ink);margin-bottom:2px}.ch-sec>p{color:var(--tx2);font-size:14.5px;margin-bottom:12px}
+/* hub list */
+.ch-list{list-style:none;display:grid;gap:10px}
+.ch-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;background:#fff;border:1.5px solid var(--ln);border-radius:18px;text-decoration:none;color:inherit}
+.ch-row:hover{border-color:#93B4F5}
+.ch-row.live{border-color:#34D399;background:#F0FDF7}
+.ch-row b{display:block;font-size:16.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-row small{display:block;font-size:13px;color:var(--tx3)}
+.ch-pill{font-size:12.5px;font-weight:800;border-radius:100px;padding:2px 12px;white-space:nowrap;background:#EEF3FF;color:#1E40AF}
+.ch-pill.live{background:#DCFCE7;color:#047857}.ch-pill.done{background:#F1F5F9;color:#475569}.ch-pill.lobby{background:#FEF3C7;color:#92400E}
+.ch-empty{padding:22px;text-align:center;background:#fff;border:1.5px dashed #CBD5E1;border-radius:16px;color:var(--tx2);font-size:15px}
+/* the form */
+.ch-form label{display:block;margin:12px 0 6px;font-weight:800;font-size:14px;color:var(--ink)}
+.ch-in{width:100%;border:1.5px solid #DCE5F6;border-radius:13px;padding:11px 14px;font:600 15.5px 'Hind Siliguri','Inter',sans-serif;background:#fff}
+.ch-targets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ch-t{border:2px solid #E2E8F0;border-radius:14px;background:#fff;padding:10px 6px;text-align:center;cursor:pointer;font:800 20px 'Hind Siliguri','Inter',sans-serif;color:var(--ink)}
+.ch-t small{display:block;font-size:12px;font-weight:600;color:var(--tx3)}.ch-t.on{border-color:var(--tb);background:#EEF4FF}
+.ch-hint{margin-top:8px;font-size:13px;color:var(--tx3);line-height:1.6}
+.ch-err{margin-top:10px;padding:9px 12px;border-radius:12px;background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;font-size:14px}
+.ch-go{display:inline-flex;align-items:center;justify-content:center;min-width:200px;min-height:52px;border:0;border-radius:15px;background:linear-gradient(135deg,#1A56DB,#4F46E5);color:#fff;font:800 18px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;box-shadow:0 14px 30px -12px rgba(37,99,235,.6)}
+.ch-go:disabled{opacity:.55;cursor:default}
+.ch-sec2{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:14px;border:1.5px solid #CBD5E1;background:#fff;font:800 15px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:none;color:var(--tx)}
+.ch-sec2.wa{background:#16A34A;border-color:#16A34A;color:#fff}.ch-sec2.fb{background:#1877F2;border-color:#1877F2;color:#fff}.ch-sec2.red{border-color:#FCA5A5;color:#B91C1C}
+.ch-how{margin-top:24px;padding:18px 20px;background:#fff;border:1px solid var(--ln);border-radius:20px}
+.ch-how h2{font-size:18px;color:var(--ink);margin-bottom:6px}.ch-how ol{padding-left:22px;font-size:14.5px;color:var(--tx2);line-height:1.85}
+/* the room */
+.ch-head{text-align:center;margin-bottom:14px}
+.ch-head h1{font-size:clamp(24px,5vw,34px);color:var(--ink);line-height:1.25}
+.ch-head p{color:var(--tx2);font-size:14.5px}
+.ch-bar{margin:14px 0 4px;height:26px;border-radius:100px;background:#E5EAF5;overflow:hidden;position:relative}
+.ch-bar i{display:block;height:100%;width:0;border-radius:100px;background:linear-gradient(90deg,#1A56DB,#7C3AED);transition:width .6s ease}
+.ch-bar.win i{background:linear-gradient(90deg,#059669,#34D399)}
+.ch-bar span{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:14px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.ch-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--tx2);margin-bottom:14px}
+.ch-big{font-size:clamp(46px,14vw,92px);font-weight:900;line-height:1.05;color:var(--ink);text-align:center;font-variant-numeric:tabular-nums}
+.ch-big.go{color:var(--ok)}
+.ch-cen{text-align:center}
+.ch-cen h2{font-size:21px;color:var(--ink);margin-bottom:4px}.ch-cen p{color:var(--tx2);font-size:15px;margin-bottom:12px}
+.ch-share{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+.ch-who{margin:14px auto 0;max-width:520px;padding:11px 14px;border-radius:14px;background:#F8FAFF;border:1px solid #E5ECF8;font-size:14px;line-height:1.6;color:var(--tx2);text-align:center}
+.ch-who.ok{background:#F0FDF7;border-color:#BBF7D0;color:#047857}
+.ch-linkbtn{border:0;background:none;color:var(--tb);font:800 14px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;text-decoration:underline}
+/* the question */
+.ch-qtop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.ch-qn{font-weight:800;color:var(--tx3);font-size:14px}
+.ch-sec3{min-width:54px;text-align:center;font-size:22px;font-weight:900;color:var(--ink);background:#F1F5F9;border-radius:12px;line-height:40px;padding:0 10px}
+.ch-sec3.hot{background:#FEF2F2;color:var(--bad)}
+.ch-tb{height:8px;border-radius:100px;background:#EEF2FA;overflow:hidden;margin-bottom:14px}.ch-tb i{display:block;height:100%;width:100%;border-radius:100px;background:linear-gradient(90deg,#1A56DB,#7C3AED);transition:width .12s linear}
+.ch-tb.hot i{background:linear-gradient(90deg,#F59E0B,#DC2626)}
+.ch-q{font-size:clamp(20px,4.6vw,26px);line-height:1.55;color:var(--ink);margin-bottom:14px}
+.ch-opts{display:grid;gap:10px}
+.ch-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;text-align:left;padding:10px 16px;border:2px solid #E2E8F0;border-radius:16px;background:#fff;font:700 17px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
+.ch-opt:hover:not(:disabled){border-color:#93B4F5;background:#F7FAFF}
+.ch-opt b{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#EEF2FA;color:#475569;font-size:14px}
+.ch-opt.pick{border-color:var(--tb);background:#EEF4FF}.ch-opt.right{border-color:var(--ok);background:#ECFDF5}.ch-opt.right b{background:var(--ok);color:#fff}.ch-opt.wrong{border-color:var(--bad);background:#FEF2F2}.ch-opt.wrong b{background:var(--bad);color:#fff}
+.ch-opt:disabled{cursor:default}
+.ch-fb{margin-top:14px;min-height:60px}
+.ch-fb .res{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px}.ch-fb .res.ok{color:var(--ok)}.ch-fb .res.no{color:var(--bad)}.ch-fb .res.late{color:#B45309}
+.ch-fb p{margin-top:4px;font-size:14.5px;color:var(--tx2)}
+.ch-mine{font-size:14px;color:var(--tx2);text-align:center;margin-top:12px}.ch-mine b{color:var(--ink)}
+/* the result */
+.ch-top{list-style:none;display:grid;gap:8px;margin:12px auto 0;max-width:420px;text-align:left}
+.ch-top li{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:14px;background:#F8FAFF;border:1px solid #E5ECF8;font-weight:700}
+.ch-top li.me{background:#F0FDF7;border-color:#BBF7D0}.ch-top li span{margin-left:auto;font-weight:900;color:var(--ink)}
+.ch-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.ch-stats div{padding:12px 8px;border-radius:16px;background:#F4F7FE;text-align:center}.ch-stats b{display:block;font-size:26px;color:#1A56DB;line-height:1.1}.ch-stats small{font-size:12.5px;color:var(--tx3)}
+.ch-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#fff;padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:9999}.ch-toast.show{opacity:1;transform:translateX(-50%)}
+@media(max-width:560px){.ch{padding-top:84px}.ch-card{padding:16px 14px;border-radius:20px}.ch-opt{font-size:16px;min-height:54px}.ch-go{width:100%}}
+@media(prefers-reduced-motion:reduce){.ch-skel{animation:none}.ch-bar i,.ch-tb i{transition:none}}
