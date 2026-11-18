@@ -122,7 +122,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
     eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>'
   };
-  const DEFAULT_PERKS = [['bookmark', 'পছন্দের প্রতিষ্ঠান সেভ, সব ডিভাইসে'], ['card', 'শিক্ষিত কার্ড হারাবে না'], ['adduser', 'Partner হয়ে আয়ের সুযোগ'], ['bell', 'ভর্তি ও ফলাফলের খবর · শীঘ্রই']];
+  const DEFAULT_PERKS = [['bookmark', 'পছন্দের প্রতিষ্ঠান সেভ, সব ডিভাইসে'], ['card', 'শিক্ষিত কার্ড হারাবে না'], ['users', 'নিজের ব্যাচের সহপাঠীদের খুঁজে নিন'], ['bell', 'ভর্তি ও ফলাফলের খবর · শীঘ্রই']];
   const perksHtml = list => list.map(p => '<li><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' + (ICON_SVG[p[0]] || ICON_SVG.bookmark) + '</svg></i>' + esc(p[1]) + '</li>').join('');
   let ov;
   function buildModal(){
