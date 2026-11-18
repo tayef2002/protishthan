@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>আজকের কুইজ: প্রতিদিন ৫টা প্রশ্ন, আপনার স্কুলের জন্য পয়েন্ট | Protishthan</title>
+<meta name="description" content="প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ডে। সাইন-ইন করে খেললে আপনার স্কুল আর ব্যাচের পয়েন্ট বাড়ে। দেখুন আজ কোন প্রতিষ্ঠান এগিয়ে।">
+<link rel="canonical" href="https://protishthan.com/quiz">
+<meta property="og:title" content="আজকের কুইজ | Protishthan">
+<meta property="og:description" content="৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ড। আপনার স্কুল আর ব্যাচের জন্য পয়েন্ট জমান।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/quiz">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/quiz.css?v=1">
+<link rel="stylesheet" href="/myinst.css?v=6">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="quiz"></div>
+<script src="/nav.js?v=21"></script>
+
+<main class="qz">
+  <header class="qz-hero">
+    <span class="qz-kick">🏆 প্রতিষ্ঠান লিগ</span>
+    <h1>আজকের <span>কুইজ</span></h1>
+    <p id="qzDate">৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ড, সবার জন্য একই</p>
+    <div class="qz-chips" id="qzChips"></div>
+  </header>
+
+  <section class="qz-card" id="qzGame" aria-live="polite"><div class="qz-skel"></div></section>
+
+  <section class="qz-sec2" id="boards">
+    <h2>কে এগিয়ে?</h2>
+    <p>প্রতিষ্ঠান আর ব্যাচের বোর্ড। শুধু সাইন-ইন করে খেলা সদস্যদের পয়েন্ট এখানে আসে।</p>
+    <div class="qz-tabs" role="tablist" aria-label="বোর্ডের ধরন">
+      <button type="button" class="qz-tab on" data-scope="institution" role="tab" aria-selected="true">প্রতিষ্ঠান</button>
+      <button type="button" class="qz-tab" data-scope="batch" role="tab" aria-selected="false">ব্যাচ</button>
+      <span class="sp"></span>
+      <button type="button" class="qz-tab on" data-period="today" role="tab" aria-selected="true">আজ</button>
+      <button type="button" class="qz-tab" data-period="week" role="tab" aria-selected="false">এই সপ্তাহ</button>
+    </div>
+    <ul class="qz-list" id="qzBoard"><li class="qz-empty">লোড হচ্ছে…</li></ul>
+    <p class="qz-rule">নিয়ম: একটা প্রতিষ্ঠান বা ব্যাচ বোর্ডে আসতে অন্তত ৩ জন সদস্য খেলতে হবে। স্কোর হলো তার <b>সেরা ১০ জনের গড়</b>, তাই ছোট স্কুলও বড় স্কুলকে হারাতে পারে। এখানে কারও নাম দেখানো হয় না।</p>
+  </section>
+
+  <section class="qz-how">
+    <h2>কীভাবে কাজ করে</h2>
+    <ul>
+      <li>প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন। রাত ১২টায় নতুন কুইজ।</li>
+      <li>প্রতিটা প্রশ্নের জন্য ১৫ সেকেন্ড। সঠিক উত্তরে ১০ পয়েন্ট, দ্রুত দিলে আরও ৫ পর্যন্ত। দিনে সর্বোচ্চ ৭৫।</li>
+      <li>একটা প্রশ্নের উত্তর একবারই দেওয়া যায়, আর সঠিক উত্তর জানা যায় উত্তর দেওয়ার পরে।</li>
+      <li>সাইন-ইন ছাড়াই খেলা যায়। আপনার প্রতিষ্ঠান আর SSC ব্যাচের বোর্ডে পয়েন্ট জমাতে সাইন-ইন করে খেলুন।</li>
+      <li>প্রতিদিন পুরো ৫টা শেষ করলে ধারাবাহিক দিনের হিসাব (🔥) বাড়ে।</li>
+    </ul>
+  </section>
+</main>
+
+<div class="qz-toast" id="qzToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=21"></script>
+<script src="/quiz-data.js?v=1"></script>
+<script>window.MYINST_QUIET = true;</script>   <!-- the institution sheet only opens when asked: no invitation in the middle of a quiz -->
+<script src="/myinst.js?v=6" defer></script>
+<script>
+(function(){
+  'use strict';
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10)); localStorage.setItem('sk_dev', d); } }catch(e){ d = d || ('t' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10)); } return d; };
+  const DEV = deviceId();
+  const SHARE_URL = 'https://protishthan.com/quiz';
+  const ST = { ready: false, answered: 0, points: 0, results: [], finished: false, streak: 0, signed: false, inst: null, q: null, deadline: 0, tick: 0, busy: false, down: false, scope: 'institution', period: 'today', board: null, boardReq: 0 };
+  const TOPIC = id => { const D = window.QuizData; return D ? D.labelOf(D.TOPICS, id) : ''; };
+  const toast = m => { const t = $('qzToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+  const rpc = async (n, a) => { const M = MB(); if(!M || !M.sb) return { error: { message: 'NO_CLIENT' } }; try{ return await M.sb.rpc(n, a || {}); }catch(e){ return { error: { message: String(e && e.message || e) } }; } };
+
+  /* ---------- the date and the chips ---------- */
+  function head(){
+    $('qzDate').textContent = new Date().toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }) + ' · ৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ড';
+    $('qzChips').innerHTML = (ST.streak > 0 ? '<span class="qz-chip fire">🔥 ' + bn(ST.streak) + ' দিন টানা</span>' : '') + (ST.ready ? '<span class="qz-chip">' + bn(ST.answered) + '/৫ শেষ</span>' : '');
+  }
+  const untilMidnight = () => { const now = Date.now() + 6 * 3600e3, next = (Math.floor(now / 864e5) + 1) * 864e5, ms = next - now, h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return (h ? bn(h) + ' ঘণ্টা ' : '') + bn(m) + ' মিনিট'; };
+
+  /* ---------- the state ---------- */
+  async function load(){
+    const M = MB(); if(M && M.ready) await M.ready();
+    const r = await rpc('quiz_today', { p_device: DEV });
+    if(r.error || !r.data){ ST.down = true; paint(); return; }
+    const d = r.data; ST.down = false; ST.ready = !!d.ready; ST.answered = d.answered || 0; ST.points = d.points || 0; ST.results = d.results || []; ST.finished = !!d.finished; ST.streak = d.streak || 0; ST.signed = !!d.signed_in; ST.inst = d.inst || null;
+    paint(); T('quiz_view', { ready: ST.ready ? 1 : 0, signed: ST.signed ? 1 : 0, answered: ST.answered });
+  }
+
+  /* ---------- the card ---------- */
+  function paint(){
+    head(); const box = $('qzGame');
+    clearInterval(ST.tick);
+    if(ST.down){ box.innerHTML = '<div class="qz-intro"><h2>এখন লোড করা যাচ্ছে না</h2><p>একটু পরে আবার চেষ্টা করুন।</p><button type="button" class="qz-go" id="qzRetry">আবার চেষ্টা করুন</button></div>'; $('qzRetry').onclick = load; return; }
+    if(!ST.ready){ box.innerHTML = '<div class="qz-intro"><h2>আজকের কুইজ এখনও তৈরি হয়নি</h2><p>একটু পরে আবার আসুন। প্রতিদিন নতুন ৫টা প্রশ্ন আসে।</p></div>'; return; }
+    if(ST.finished) return paintDone();
+    paintIntro();
+  }
+  function who(){
+    if(ST.signed && ST.inst) return '<div class="qz-who ok">✓ আপনার পয়েন্ট জমবে <b>' + esc(ST.inst.name) + '</b>-এর বোর্ডে।</div>';
+    if(ST.signed) return '<div class="qz-who">আপনার প্রতিষ্ঠান বেছে নিলে পয়েন্ট স্কুলের বোর্ডে জমবে।<br><button type="button" class="qz-link" id="qzPick">প্রতিষ্ঠান বেছে নিন</button></div>';
+    return '<div class="qz-who">সাইন-ইন ছাড়াই খেলতে পারেন। স্কুল আর ব্যাচের বোর্ডে পয়েন্ট জমাতে সাইন-ইন করে খেলুন।<br><button type="button" class="qz-link" id="qzSign">Google দিয়ে সাইন-ইন করুন</button></div>';
+  }
+  function bindWho(){
+    const s = $('qzSign'); if(s) s.onclick = () => { T('quiz_signin_click', {}); const M = MB(); if(M) M.signIn('আপনার স্কুল আর ব্যাচের জন্য পয়েন্ট জমাতে', { title: 'কুইজে স্কুলের জন্য খেলুন', cta: 'Google দিয়ে চালিয়ে যান', perks: [['seat', 'পয়েন্ট আপনার প্রতিষ্ঠান আর ব্যাচের বোর্ডে জমে'], ['users', 'ধারাবাহিক দিনের হিসাব আপনার নামে থাকে'], ['eye', 'বোর্ডে কারও নাম দেখানো হয় না']] }); };
+    const p = $('qzPick'); if(p) p.onclick = () => { if(window.MyInst && MyInst.open) MyInst.open({ mode: 'current' }); else location.href = 'member.html#life'; };
+  }
+  function paintIntro(){
+    const cont = ST.answered > 0;
+    $('qzGame').innerHTML = '<div class="qz-intro"><h2>' + (cont ? 'চালিয়ে যান' : 'প্রস্তুত?') + '</h2><p>' + (cont ? 'আপনি ' + bn(ST.answered) + 'টা শেষ করেছেন, বাকি ' + bn(5 - ST.answered) + 'টা।' : 'আজকের ৫টা প্রশ্ন সবার জন্য একই। প্রতিটার জন্য ১৫ সেকেন্ড।') + '</p>' +
+      '<div class="qz-badges"><span>৫টা প্রশ্ন</span><span>প্রতিটা ১৫ সেকেন্ড</span><span>সর্বোচ্চ ৭৫ পয়েন্ট</span></div>' +
+      '<button type="button" class="qz-go" id="qzStart">' + (cont ? 'পরের প্রশ্ন' : 'শুরু করুন') + '</button>' + who() + '</div>';
+    $('qzStart').onclick = () => { T('quiz_start', { signed: ST.signed ? 1 : 0, resume: cont ? 1 : 0 }); next(); };
+    bindWho();
+  }
+  async function next(){
+    if(ST.busy) return; ST.busy = true;
+    const b = $('qzStart') || $('qzNext'); if(b) b.disabled = true;
+    const r = await rpc('quiz_next', { p_device: DEV }); ST.busy = false;
+    const d = r.data;
+    if(r.error || !d){ toast('এখন লোড হয়নি, আবার চাপুন'); if(b) b.disabled = false; return; }
+    if(d.ok !== true){ if(d.error === 'NOT_READY'){ ST.ready = false; paint(); } else toast('এখন হলো না, একটু পরে আবার চেষ্টা করুন'); if(b) b.disabled = false; return; }
+    if(d.finished){ await load(); return; }
+    ST.q = d; ST.deadline = performance.now() + d.remaining_ms; paintQuestion();
+  }
+  function dots(idx){ let h = ''; for(let i = 0; i < 5; i++){ const r = ST.results[i]; h += '<i class="' + (r ? (r.correct ? 'ok' : 'no') : (i === idx ? 'on' : '')) + '"></i>'; } return h; }
+  function paintQuestion(){
+    const q = ST.q, L = ['ক', 'খ', 'গ', 'ঘ'];
+    $('qzGame').innerHTML = '<div class="qz-top"><div class="qz-dots" aria-label="' + bn(q.idx + 1) + ' নম্বর প্রশ্ন, মোট ৫টা">' + dots(q.idx) + '</div><div class="qz-sec" id="qzSec">' + bn(Math.ceil(q.remaining_ms / 1000)) + '</div></div>' +
+      '<div class="qz-bar" id="qzBarBox"><i id="qzBar"></i></div>' +
+      '<span class="qz-topic">' + esc(TOPIC(q.question.topic)) + '</span><h2 class="qz-q">' + esc(q.question.text) + '</h2>' +
+      '<div class="qz-opts" id="qzOpts">' + q.question.options.map((o, i) => '<button type="button" class="qz-opt" data-i="' + i + '"><b>' + L[i] + '</b><span>' + esc(o) + '</span></button>').join('') + '</div><div class="qz-fb" id="qzFb"></div>';
+    $('qzOpts').addEventListener('click', e => { const b = e.target.closest('.qz-opt'); if(b && !ST.busy) submit(+b.dataset.i); });
+    clearInterval(ST.tick);
+    ST.tick = setInterval(() => {
+      const left = Math.max(0, ST.deadline - performance.now()), s = $('qzSec'), bar = $('qzBar'); if(!s){ clearInterval(ST.tick); return; }
+      s.textContent = bn(Math.ceil(left / 1000)); bar.style.width = Math.min(100, left / 15000 * 100) + '%';
+      const hot = left < 5000; s.classList.toggle('hot', hot); $('qzBarBox').classList.toggle('hot', hot);
+      if(left <= 0){ clearInterval(ST.tick); submit(null); }
+    }, 100);
+  }
+  async function submit(choice){
+    if(ST.busy || !ST.q) return; ST.busy = true; clearInterval(ST.tick);
+    const idx = ST.q.idx; document.querySelectorAll('#qzOpts .qz-opt').forEach(b => { b.disabled = true; if(choice != null && +b.dataset.i === choice) b.classList.add('pick'); });
+    const r = await rpc('quiz_answer', { p_device: DEV, p_idx: idx, p_choice: choice == null ? null : choice }); ST.busy = false;
+    const d = r.data;
+    if(r.error || !d){ $('qzFb').innerHTML = '<div class="qz-net">নেটওয়ার্কে সমস্যা হয়েছে। আবার চেষ্টা করুন।</div><button type="button" class="qz-go" id="qzAgain" style="margin-top:10px">আবার চেষ্টা করুন</button>'; $('qzAgain').onclick = () => { document.querySelectorAll('#qzOpts .qz-opt').forEach(b => { b.disabled = false; }); submit(choice); }; return; }
+    if(d.ok !== true){ await load(); return; }          // not open any more (answered on another screen): the state decides
+    ST.results[idx] = { correct: d.correct, points: d.points }; ST.answered = idx + 1; ST.points = d.total_points; T('quiz_answer', { i: idx, c: d.correct ? 1 : 0, t: d.timeout ? 1 : 0 });
+    document.querySelectorAll('#qzOpts .qz-opt').forEach(b => { const i = +b.dataset.i; b.classList.remove('pick'); if(i === d.answer_idx) b.classList.add('right'); else if(choice != null && i === choice) b.classList.add('wrong'); });
+    document.querySelector('.qz-dots').innerHTML = dots(-1);
+    $('qzFb').innerHTML = '<div class="res ' + (d.timeout ? 'late' : d.correct ? 'ok' : 'no') + '">' + (d.timeout ? '⏰ সময় শেষ' : d.correct ? '✓ সঠিক' : '✗ ভুল') + (d.points ? '<span class="pts">+' + bn(d.points) + '</span>' : '') + '</div>' + (d.explanation ? '<p>' + esc(d.explanation) + '</p>' : '<p></p>') +
+      '<button type="button" class="qz-go" id="qzNext">' + (d.finished ? 'ফল দেখুন' : 'পরের প্রশ্ন') + '</button>';
+    $('qzNext').onclick = () => { if(d.finished) load(); else next(); }; $('qzNext').focus(); head();
+  }
+
+  /* ---------- the end ---------- */
+  function emojiRow(){ return ST.results.map(r => r && r.correct ? '✅' : '❌').join(''); }
+  function shareText(){ return '🏆 আজকের কুইজ ' + emojiRow() + ' ' + bn(ST.points) + ' পয়েন্ট' + (ST.streak > 1 ? ' 🔥' + bn(ST.streak) + ' দিন' : '') + '\nআপনি কত পারেন? ' + SHARE_URL + '?ref=share'; }
+  function paintDone(){
+    const t = ST.points >= 60 ? 'দারুণ!' : ST.points >= 35 ? 'ভালো খেলেছেন!' : 'আরেকটু চেষ্টায় আরও ভালো হবে!';
+    $('qzGame').innerHTML = '<div class="qz-done"><h2>' + t + '</h2><div class="qz-score">' + bn(ST.points) + '<small> / ৭৫</small></div><div class="qz-emoji" aria-label="ফলাফল">' + emojiRow() + '</div>' +
+      (ST.streak > 0 ? '<p>🔥 টানা ' + bn(ST.streak) + ' দিন খেলেছেন</p>' : '<p>আজকের কুইজ শেষ।</p>') +
+      (ST.signed && ST.inst ? '<div class="qz-who ok">✓ আপনার পয়েন্ট <b>' + esc(ST.inst.name) + '</b>-এর বোর্ডে জমা হয়েছে।</div>' : ST.signed ? '<div class="qz-who">আজকের পয়েন্ট কোনো প্রতিষ্ঠানে জমেনি, কারণ প্রতিষ্ঠান বেছে নেওয়া ছিল না। কাল থেকে জমবে।<br><button type="button" class="qz-link" id="qzPick">প্রতিষ্ঠান বেছে নিন</button></div>' : '<div class="qz-who">এই ফল শুধু আপনার। <b>কাল থেকে সাইন-ইন করে খেললে</b> আপনার স্কুল আর ব্যাচের বোর্ডে পয়েন্ট জমবে।<br><button type="button" class="qz-link" id="qzSign">Google দিয়ে সাইন-ইন করুন</button></div>') +
+      '<div class="qz-share"><a class="qz-sbtn wa" id="qzWa" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a><a class="qz-sbtn fb" id="qzFbk" target="_blank" rel="noopener">Facebook</a><button type="button" class="qz-sbtn" id="qzCopy">কপি করুন</button></div>' +
+      '<div class="qz-next">পরের কুইজ <b>' + untilMidnight() + '</b> পরে। বন্ধুদেরও ডাকুন, প্রতিষ্ঠানের বোর্ডে ৩ জন লাগে।</div></div>';
+    const txt = shareText();
+    $('qzWa').href = 'https://wa.me/?text=' + encodeURIComponent(txt); $('qzFbk').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=share') + '&quote=' + encodeURIComponent(txt);
+    $('qzWa').onclick = () => T('quiz_share', { ch: 'wa' }); $('qzFbk').onclick = () => T('quiz_share', { ch: 'fb' });
+    $('qzCopy').onclick = async () => { T('quiz_share', { ch: 'copy' }); try{ if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){ await navigator.share({ text: txt }); return; } await navigator.clipboard.writeText(txt); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    bindWho(); T('quiz_done', { pts: ST.points, signed: ST.signed ? 1 : 0, inst: ST.inst ? 1 : 0 }); loadBoard();
+  }
+
+  /* ---------- the boards ---------- */
+  async function loadBoard(){
+    const my = ++ST.boardReq, list = $('qzBoard');
+    const r = await rpc('quiz_board', { p_scope: ST.scope, p_period: ST.period, p_district: null, p_limit: 20 });
+    if(my !== ST.boardReq) return;
+    if(r.error || !Array.isArray(r.data)){ list.innerHTML = '<li class="qz-empty">বোর্ড এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</li>'; return; }
+    ST.board = r.data;
+    if(!r.data.length){ list.innerHTML = '<li class="qz-empty">' + (ST.period === 'today' ? 'আজ এখনও কোনো ' + (ST.scope === 'batch' ? 'ব্যাচের' : 'প্রতিষ্ঠানের') + ' ৩ জন খেলেননি।<br>আপনার স্কুলের বন্ধুদের ডাকুন, আপনার স্কুলই প্রথম হতে পারে!' : 'এই সপ্তাহে এখনও কেউ বোর্ডে আসেনি।') + '</li>'; return; }
+    list.innerHTML = r.data.map(x => {
+      const me = ST.inst && x.slug === ST.inst.slug, href = ST.scope === 'batch' ? '/b/' + encodeURIComponent(x.slug) + '/ssc-' + x.year : 'institution-detail.html?slug=' + encodeURIComponent(x.slug);
+      return '<li class="qz-row' + (me ? ' me' : '') + '"><span class="qz-rk">' + bn(x.rank) + '</span><div class="qz-nm"><a href="' + href + '">' + esc(x.name) + (ST.scope === 'batch' ? ' · ' + bn(x.year) + ' ব্যাচ' : '') + '</a><small>' + esc(x.district || '') + ' · ' + bn(x.players) + ' জন খেলেছেন' + (me ? ' · আপনার' : '') + '</small></div><div class="qz-sc">' + bn(String(x.score).replace(/\.0$/, '')) + '<small>গড় পয়েন্ট</small></div></li>';
+    }).join('');
+  }
+  document.querySelector('.qz-tabs').addEventListener('click', e => {
+    const b = e.target.closest('.qz-tab'); if(!b) return;
+    if(b.dataset.scope) ST.scope = b.dataset.scope; if(b.dataset.period) ST.period = b.dataset.period;
+    document.querySelectorAll('.qz-tab').forEach(x => { const on = (x.dataset.scope && x.dataset.scope === ST.scope) || (x.dataset.period && x.dataset.period === ST.period); x.classList.toggle('on', !!on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    $('qzBoard').innerHTML = '<li class="qz-empty">লোড হচ্ছে…</li>'; T('quiz_board', { s: ST.scope, p: ST.period }); loadBoard();
+  });
+
+  load(); setTimeout(loadBoard, 600);
+  window.__quiz = { ST, load, loadBoard };
+})();
+</script>
+</body>
+</html>

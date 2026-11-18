@@ -8,7 +8,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
   const bn = Q.bn;
-  const ST = { rows: [], checks: [], reviewers: [], status: 'draft', topic: 'all', text: '', edit: null, panel: null, loaded: false, error: '', uid: null, preview: null, msg: '' };
+  const ST = { rows: [], checks: [], reviewers: [], status: 'draft', topic: 'all', text: '', edit: null, panel: null, daily: null, loaded: false, error: '', uid: null, preview: null, msg: '' };
   const B = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
   const B_OK = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #86EFAC;border-radius:8px;background:#F0FDF4;color:#166534;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
   const B_BLUE = 'style="padding:8px 14px;margin:6px 8px 0 0;border:0;border-radius:8px;background:#1A56DB;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer"';
@@ -51,11 +51,11 @@
       '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px">' + stats + '</div>' +
       '<div style="font-size:13px;color:#475569;margin-bottom:10px">যাচাই হওয়া: <b>' + bn(vv) + '</b>টি' + (vv ? ' (' + esc(byTopic) + ')' : '') + '</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">' +
-        '<button type="button" ' + B_BLUE + ' data-qz="new">＋ নতুন প্রশ্ন</button><button type="button" ' + B + ' data-qz="panel" data-v="import">📥 অনেক প্রশ্ন একসঙ্গে (ইমপোর্ট)</button><button type="button" ' + B + ' data-qz="panel" data-v="reviewers">👥 যাচাইকারী (' + bn(ST.reviewers.length) + ')</button>' +
+        '<button type="button" ' + B_BLUE + ' data-qz="new">＋ নতুন প্রশ্ন</button><button type="button" ' + B + ' data-qz="panel" data-v="import">📥 অনেক প্রশ্ন একসঙ্গে (ইমপোর্ট)</button><button type="button" ' + B + ' data-qz="panel" data-v="reviewers">👥 যাচাইকারী (' + bn(ST.reviewers.length) + ')</button><button type="button" ' + B + ' data-qz="panel" data-v="daily">📅 আজকের কুইজ</button>' +
         '<select id="qzTopic" style="padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px;margin-top:6px"><option value="all">সব বিষয়</option>' + Q.TOPICS.map(t => '<option value="' + t[0] + '"' + (ST.topic === t[0] ? ' selected' : '') + '>' + t[1] + '</option>').join('') + '</select>' +
         '<input id="qzText" type="search" placeholder="প্রশ্নে খুঁজুন…" value="' + esc(ST.text) + '" style="padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px;margin-top:6px;min-width:180px"><button type="button" ' + B + ' data-qz="status" data-v="all">সব দেখুন</button></div>' +
       (ST.msg ? '<div class="bill-note" style="background:#F0FDF4;border-color:#86EFAC;color:#166534">' + esc(ST.msg) + '</div>' : '') +
-      (ST.panel === 'import' ? importPanel() : '') + (ST.panel === 'reviewers' ? reviewersPanel() : '') + (ST.edit ? formPanel() : '') +
+      (ST.panel === 'import' ? importPanel() : '') + (ST.panel === 'reviewers' ? reviewersPanel() : '') + (ST.panel === 'daily' ? dailyPanel() : '') + (ST.edit ? formPanel() : '') +
       '<div id="qzList">' + list() + '</div>';
   }
   function filtered(){
@@ -193,12 +193,51 @@
     ST.reviewers = ST.reviewers.filter(x => x.user_id !== uid); paint();
   }
 
+
+  /* ---------- the daily quiz (migrations/2027-01-11_daily_quiz.sql) ---------- */
+  const bdToday = () => new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);
+  const qText = id => { const q = ST.rows.find(x => x.id === id); return q ? q.question : '(মুছে ফেলা প্রশ্ন)'; };
+  async function loadDaily(){
+    const d = bdToday();
+    const [a, b, c] = await Promise.all([
+      sbAdmin.from('quiz_daily').select('*').gte('day', d).order('day', { ascending: true }).limit(31),
+      sbAdmin.from('quiz_plays').select('player', { count: 'exact', head: true }).eq('day', d).eq('idx', 0),
+      sbAdmin.from('quiz_plays').select('player', { count: 'exact', head: true }).eq('day', d).eq('idx', 0).not('user_id', 'is', null)]);
+    ST.daily = { err: a.error ? a.error.message : '', rows: (a.data || []), today: d, players: (b && b.count) || 0, members: (c && c.count) || 0 };
+    paint();
+  }
+  function dailyPanel(){
+    const D = ST.daily, verified = count('verified');
+    if(!D) return '<div class="bill-note">লোড হচ্ছে…</div>';
+    return '<div style="border:2px solid #F59E0B;border-radius:14px;padding:16px;margin:0 0 14px;background:#FFFBEB"><b style="font-size:15px">আজকের কুইজ (প্রতিদিন ৫টা, বাংলাদেশের সময়)</b>' +
+      '<div style="font-size:13.5px;color:#475569;margin:6px 0">যাচাই হওয়া প্রশ্ন থেকেই বাছা হয়: আগে প্রতিটা বিষয় থেকে একটা, যেটা সবচেয়ে আগে ব্যবহার হয়েছিল (বা কখনো হয়নি) সেটা আগে। কোনো দিনের সেট না থাকলে প্রথম খেলোয়াড় এলে নিজে নিজে তৈরি হয়। আগে থেকে তৈরি করে দেখে নিতে পারেন।</div>' +
+      '<div style="margin:8px 0;font-size:14px">যাচাই হওয়া প্রশ্ন: <b>' + bn(verified) + 'টি</b>' + (verified < 5 ? ' <b style="color:#B91C1C">(আজকের কুইজ চালু করতে অন্তত ৫টা লাগবে, আলাদা আলাদা বিষয়ে হলে ভালো)</b>' : ' · প্রায় <b>' + bn(Math.floor(verified / 5)) + ' দিনের</b> নতুন প্রশ্ন আছে (এরপর আগেরগুলো আবার আসবে)') + '</div>' +
+      '<div style="margin:8px 0;font-size:14px">আজ এখন পর্যন্ত শুরু করেছেন <b>' + bn(D.players) + '</b> জন, এর মধ্যে সাইন-ইন করা সদস্য <b>' + bn(D.members) + '</b> জন (শুধু এঁরাই বোর্ডে আসেন)।</div>' +
+      (D.err ? '<div style="color:#B91C1C;margin:6px 0">লোড করা যায়নি: ' + esc(D.err) + ' — migrations/2027-01-11_daily_quiz.sql চালানো হয়েছে কি?</div>' : '') +
+      '<button type="button" ' + B_BLUE + ' data-qz="plan">আগামী ৭ দিনের কুইজ তৈরি করুন</button><button type="button" ' + B + ' data-qz="cancel">বন্ধ করুন</button>' +
+      (D.rows.length ? D.rows.map(r => '<div style="margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + new Date(r.day + 'T00:00:00').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }) + (r.day === D.today ? ' (আজ)' : '') + '</b>' + chip(r.source === 'admin' ? ['#F5F3FF', '#5B21B6'] : ['#F1F5F9', '#475569'], r.source === 'admin' ? 'আপনি বেছেছেন' : 'নিজে তৈরি') +
+        (r.day > D.today ? '<button type="button" ' + B + ' data-qz="reroll" data-day="' + esc(r.day) + '" style="margin:0 0 0 auto;padding:4px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">নতুন করে বাছুন</button>' : '') + '</div><ol style="margin:6px 0 0;padding-left:22px;font-size:13.5px;color:#334155;line-height:1.7">' + r.qids.map(id => '<li>' + esc(qText(id)) + '</li>').join('') + '</ol></div>').join('') : '<div style="margin-top:10px;color:#64748B">এখনও কোনো দিনের সেট তৈরি হয়নি।</div>') + '</div>';
+  }
+  async function planDays(){
+    const r = await sbAdmin.rpc('quiz_plan', { p_days: 7 });
+    if(r.error){ alert(errText(r.error)); return; }
+    ST.msg = Array.isArray(r.data) && r.data.length ? bn(r.data.length) + ' দিনের কুইজ তৈরি আছে ✓' : 'তৈরি করা গেল না: যাচাই হওয়া প্রশ্ন অন্তত ৫টা লাগবে।'; await loadDaily();
+  }
+  async function rerollDay(day){
+    if(!await adminConfirm('এই দিনের ৫টা প্রশ্ন বদলে নতুন করে বাছবেন?')) return;
+    const r = await sbAdmin.rpc('quiz_reroll', { p_day: day });
+    if(r.error){ alert(errText(r.error)); return; }
+    const d = r.data || {}; ST.msg = d.ok ? 'নতুন করে বাছা হয়েছে ✓' : d.error === 'ALREADY_PLAYED' ? 'এই দিনে কেউ খেলে ফেলেছে, বদলানো যাবে না।' : d.error === 'PAST' ? 'আগের দিন বদলানো যায় না।' : 'যথেষ্ট যাচাই হওয়া প্রশ্ন নেই।'; await loadDaily();
+  }
+
   /* ---------- events ---------- */
   function onClick(e){
     const b = e.target.closest('[data-qz]'); if(!b) return; const k = b.dataset.qz;
     if(k === 'status'){ ST.status = b.dataset.v; ST.msg = ''; paint(); }
     else if(k === 'new'){ ST.edit = { id: null, status: 'draft', data: blank() }; ST.panel = null; paint(); const f = $('qfQ'); if(f) f.focus(); }
-    else if(k === 'panel'){ ST.panel = ST.panel === b.dataset.v ? null : b.dataset.v; ST.edit = null; ST.msg = ''; paint(); }
+    else if(k === 'panel'){ ST.panel = ST.panel === b.dataset.v ? null : b.dataset.v; ST.edit = null; ST.msg = ''; paint(); if(ST.panel === 'daily') loadDaily(); }
+    else if(k === 'plan') planDays();
+    else if(k === 'reroll') rerollDay(b.dataset.day);
     else if(k === 'cancel'){ ST.edit = null; ST.panel = null; ST.preview = null; paint(); }
     else if(k === 'save') save(b.dataset.v);
     else if(k === 'act') act(b.dataset.a, b.dataset.id);
