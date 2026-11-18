@@ -67,6 +67,14 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-err{display:none;background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:10px;padding:8px 12px;font-size:12.5px;margin-top:10px}
 .mb-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#fff;padding:11px 18px;border-radius:12px;font:600 13.5px 'Hind Siliguri','Inter',sans-serif;opacity:0;pointer-events:none;transition:all .25s;z-index:2100;max-width:92vw;text-align:center}
 .mb-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mb-iab{display:none;text-align:left;margin:0 0 16px}
+.mb-ov.iab .mb-iab{display:block}.mb-ov.iab .mb-perks{display:none}.mb-ov.iab .mb-copy{display:block}
+.mb-ov.iab .mb-google{background:#1A56DB;border-color:#1A56DB;color:#fff}.mb-ov.iab .mb-google:hover{background:#1647B8}.mb-ov.iab .mb-google svg{display:none}
+.mb-iab p{margin:0 0 10px;font-size:14px;line-height:1.7;color:#334155}
+.mb-iab ol{margin:0 0 12px;padding:12px 14px 12px 32px;background:#F8FAFC;border-radius:14px;font-size:14px;line-height:1.8;color:#334155}
+.mb-iab ol[hidden]{display:none}
+.mb-iab .mb-hint{font-size:13px;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:8px 12px}.mb-iab .mb-hint[hidden]{display:none}
+.mb-copy{display:none;width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1.5px solid #D5E0F5;background:#fff;color:#1A56DB;font:700 14px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
 `;
   document.head.appendChild(css);
 
@@ -76,6 +84,27 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     if(!toastEl){ toastEl = document.createElement('div'); toastEl.className = 'mb-toast'; document.body.appendChild(toastEl); }
     toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2800);
   }
+
+  /* ---------------- Facebook / Messenger / Instagram's own browser ----------------
+     Google refuses its sign-in inside an app's embedded browser (the visitor gets an error page), and most of our visitors arrive from Facebook. So inside such a browser
+     the popup does not send anyone to Google: it says so in one line and hands the page to the phone's real browser, with ?signin=1 on the address, so the sign-in popup
+     opens by itself there. Android: the intent:// hand-over (the same one iab.js uses on the card page); iPhone: three steps and a copy-link button.
+     The same recognition as iab.js (named apps, plus any plain app web view). Preview anywhere: ?iabtest=android or ?iabtest=ios (nothing is left, the address is only recorded). */
+  const trk = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const IAB = (() => {
+    const ua = navigator.userAgent || '', test = /[?&]iabtest=(android|ios)\b/.exec(location.search);
+    const named = /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Instagram|Messenger/i.test(ua);
+    const plain = (/Android/i.test(ua) && /;\s*wv\)/.test(ua)) || (/iPhone|iPad|iPod/i.test(ua) && !/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua));
+    const android = test ? test[1] === 'android' : /Android/i.test(ua);
+    const inApp = named || plain || !!test;
+    // this page's address for the real browser: without Facebook's tracking tag and the test switch, with ?signin=1
+    const target = href => { try{ const u = new URL(href || location.href); u.searchParams.delete('fbclid'); u.searchParams.delete('iabtest'); u.searchParams.set('signin', '1'); return u.href; }catch(e){ return href || location.href; } };
+    const intent = href => { try{ const u = new URL(href); return 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=' + encodeURIComponent(u.href) + ';end'; }catch(e){ return href; } };
+    return { inApp, android, ios: !android, test: !!test, target, intent };
+  })();
+  // arriving in the real browser by that hand-over: the popup opens by itself (once), and the address is cleaned
+  const ARRIVED = !IAB.inApp && /[?&]signin=1(&|$)/.test(location.search);
+  if(ARRIVED){ try{ const u = new URL(location.href); u.searchParams.delete('signin'); history.replaceState(null, '', u.pathname + u.search + u.hash); }catch(e){} }
 
   /* ---------------- sign-in popup ---------------- */
   const GOOGLE_G = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.5 7l7.3 5.7c4.3-4 6.9-9.9 6.9-17.2z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
@@ -105,7 +134,13 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
       <div class="mb-chip" id="mbChip" hidden></div>
       <p class="sub" id="mbSub">৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।</p>
       <ul class="mb-perks" id="mbPerks">${perksHtml(DEFAULT_PERKS)}</ul>
+      <div class="mb-iab" id="mbIab">
+        <p>আপনি এখন Facebook-এর নিজস্ব ব্রাউজারে আছেন। এখানে <b>Google দিয়ে সাইন-ইন চলে না</b> (Google এটা বন্ধ রেখেছে)। আপনার ফোনের আসল ব্রাউজারে খুললেই হয়ে যাবে, ঠিক এই পাতাতেই।</p>
+        <div class="mb-hint" id="mbIabHint" hidden>Facebook একটা প্রশ্ন করবে (<i>You’re leaving our app</i>), তখন <b>CONTINUE</b> চাপুন।</div>
+        <ol id="mbIabSteps" hidden><li>ওপরে ডানদিকের <b>⋮</b> বা <b>⋯</b> (তিন ফোঁটা) চাপুন।</li><li><b>ব্রাউজারে খুলুন</b> (iPhone-এ <b>Safari-তে খুলুন</b>) বেছে নিন।</li><li>সেখানে সাইন-ইনের পপআপ নিজেই খুলবে।</li></ol>
+      </div>
       <button type="button" class="mb-google" id="mbGoogle">${GOOGLE_G}<span id="mbCta">Google দিয়ে চালিয়ে যান</span></button>
+      <button type="button" class="mb-copy" id="mbIabCopy">লিংক কপি করুন (ব্রাউজারে পেস্ট করুন)</button>
       <div class="mb-err" id="mbErr"></div>
       <div class="mb-fine">চালিয়ে গেলে <a href="privacy.html">গোপনীয়তা নীতি</a> ও <a href="terms.html">শর্ত</a> মানা হয়।</div>
     </div>`;
@@ -113,6 +148,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     ov.addEventListener('click', e => { if(e.target === ov) closeModal(); });
     ov.querySelector('.mb-x').addEventListener('click', closeModal);
     document.getElementById('mbGoogle').addEventListener('click', google);
+    document.getElementById('mbIabCopy').addEventListener('click', async () => { const ok = await copyLink(); trk('signin_iab_copy', { ok: ok ? 1 : 0 }); document.getElementById('mbIabCopy').textContent = ok ? 'লিংক কপি হয়েছে ✓ (ব্রাউজারে পেস্ট করুন)' : 'কপি হয়নি, ঠিকানা চেপে ধরে কপি করুন'; });
     document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
   }
   /* the sign-in prompt says what this page is for, so it reads as the step to what you came to do */
@@ -128,12 +164,39 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     document.getElementById('mbSub').textContent = reason || '৫ সেকেন্ড, পাসওয়ার্ড ছাড়াই।';
     document.getElementById('mbErr').style.display = 'none';
     document.getElementById('mbGoogle').disabled = false;
+    // inside Facebook's own browser the button does not go to Google (it would fail there): it opens the real browser
+    ov.classList.toggle('iab', IAB.inApp);
+    if(IAB.inApp){
+      document.getElementById('mbCta').textContent = IAB.android ? 'ব্রাউজারে খুলে সাইন-ইন করুন' : 'ব্রাউজারে খোলার উপায় দেখুন';
+      document.getElementById('mbIabSteps').hidden = true; document.getElementById('mbIabHint').hidden = true;
+      document.getElementById('mbIabCopy').textContent = 'লিংক কপি করুন (ব্রাউজারে পেস্ট করুন)';
+    }
+    trk('signin_open', { iab: IAB.inApp ? 1 : 0 });
     ov.classList.add('show'); document.body.style.overflow = 'hidden';
+  }
+  /* the hand-over to the real browser (Android: tries it at once; if the phone did not take it, or on an iPhone, the steps are shown) */
+  async function copyLink(){
+    const url = IAB.target(); let ok = false;
+    try{ await navigator.clipboard.writeText(url); ok = true; }catch(e){ try{ const t = document.createElement('textarea'); t.value = url; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove(); }catch(_){} }
+    return ok;
+  }
+  async function handOver(){
+    trk('signin_iab_open', { os: IAB.android ? 'android' : 'ios' });
+    const steps = document.getElementById('mbIabSteps'), hint = document.getElementById('mbIabHint'), cp = document.getElementById('mbIabCopy');
+    const showSteps = async () => { steps.hidden = false; const ok = await copyLink(); cp.textContent = ok ? 'লিংক কপি হয়েছে ✓ (ব্রাউজারে পেস্ট করুন)' : 'কপি হয়নি, ঠিকানা চেপে ধরে কপি করুন'; };
+    if(IAB.android){
+      const href = IAB.intent(IAB.target());
+      if(IAB.test){ window.__mbHandoff = href; hint.hidden = false; return; }          // the preview records the address, it does not leave
+      hint.hidden = false; location.href = href;
+      setTimeout(() => { if(!document.hidden) showSteps(); }, 1600);               // the app does not say whether it worked: if this page is still in front, show the other way
+    } else { if(IAB.test) window.__mbHandoff = IAB.target(); await showSteps(); }
   }
   function closeModal(){ if(ov){ ov.classList.remove('show'); document.body.style.overflow = ''; } }
 
   async function google(){
+    if(IAB.inApp){ handOver(); return; }                                             // never send an app browser to Google: it ends in an error page
     const btn = document.getElementById('mbGoogle'), err = document.getElementById('mbErr');
+    trk('signin_google', {});
     btn.disabled = true; err.style.display = 'none';
     // if the Google provider isn't switched on yet, say so nicely instead of sending the visitor to a raw error page
     try{
@@ -179,6 +242,8 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   sb.auth.getSession().then(async ({ data: { session } }) => {
     await refresh(session);
     resolveReady(ME);
+    // came here from the Facebook browser's hand-over: the sign-in popup opens by itself (nothing if already signed in)
+    if(ARRIVED){ trk('signin_return', { signed: ME ? 1 : 0 }); if(!ME){ const go = () => openModal(pageWhy()); if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go(); } }
     // finish a "save" the visitor started before being sent to Google
     const pend = ls.get('prot_pending_save');
     if(ME && pend){ ls.del('prot_pending_save'); try{ const p = JSON.parse(pend); if(p.path === location.pathname){ await toggleSaved(p.id, true); toast('সেভ করা হয়েছে ★'); } }catch(e){} }
@@ -278,7 +343,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   P.member = {
     sb, ready: () => READY, current: () => ME,
     onChange(cb){ listeners.push(cb); },
-    signIn: openModal, signOut, toast, esc, updateProfile,
+    signIn: openModal, signOut, toast, esc, updateProfile, iab: { inApp: IAB.inApp, android: IAB.android, target: IAB.target, intent: IAB.intent },
     saved: { has: isSaved, toggle: toggleSaved, list: loadSaved }
   };
 })();

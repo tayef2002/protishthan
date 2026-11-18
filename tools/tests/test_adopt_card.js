@@ -5,7 +5,7 @@ const src = fs.readFileSync(path.join(__dirname, '..', '..', 'member.js'), 'utf8
 let pass = 0, fail = 0;
 const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 'ok   ' : 'FAIL ') + name + (cond ? '' : '  ' + (extra || ''))); };
 
-async function run({ local, server, pathname, store: prev }) {
+async function run({ local, server, pathname, store: prev, ua, search }) {
   const store = Object.assign({}, prev || {}); if (local !== undefined) store.shikkhito_card_v1 = JSON.stringify(local);
   const upserts = []; let selects = 0;
   const q = {
@@ -20,7 +20,7 @@ async function run({ local, server, pathname, store: prev }) {
   const el = () => ({ style: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, appendChild() {}, addEventListener() {}, querySelector: () => null, querySelectorAll: () => [], setAttribute() {}, remove() {} });
   const document = { readyState: 'complete', createElement: el, head: el(), body: el(), addEventListener() {}, querySelectorAll: () => [], querySelector: () => null, getElementById: () => null };
   const window = { Protishthan: undefined, addEventListener() {}, matchMedia: () => ({ matches: false }) };
-  const ctx = { window, document, supabase: { createClient: () => sb }, localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } }, location: { pathname: pathname || '/', href: 'http://x/', search: '' }, console, setTimeout, clearTimeout, URLSearchParams, Promise, JSON, Date, Math, Number, Object, Array, String, Set, Map };
+  const ctx = { window, document, supabase: { createClient: () => sb }, localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } }, location: { pathname: pathname || '/', href: 'http://x/', search: '' }, navigator: { userAgent: ua || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }, URL, history: { replaceState() {} }, console, setTimeout, clearTimeout, URLSearchParams, Promise, JSON, Date, Math, Number, Object, Array, String, Set, Map };
   ctx.window.localStorage = ctx.localStorage; ctx.window.location = ctx.location; ctx.window.document = document;
   vm.createContext(ctx);
   vm.runInContext(src, ctx);
