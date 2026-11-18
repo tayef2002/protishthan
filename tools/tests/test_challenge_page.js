@@ -3,13 +3,13 @@ const fs = require('fs'), path = require('path');
 const read = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 let pass = 0, fail = 0;
 const yes = (name, v) => { const ok = !!v; ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name); };
-const html = read('challenge.html'), css = read('challenge.css'), sql = read('migrations/2027-01-12_batch_challenge.sql');
+const html = read('challenge.html'), css = read('challenge.css'), sql = read('migrations/2027-01-12_batch_challenge.sql'), sql13 = read('migrations/2027-01-13_rope_pull.sql');
 
 // the calls
-const sigs = {}; for (const m of sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
+const sigs = {}; for (const m of (sql + '\n' + sql13).matchAll(/create or replace function public\.(\w+)\(([^)]*)\)/g)) sigs[m[1]] = m[2].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x));
 const calls = [...html.matchAll(/rpc\('(\w+)'(?:,\s*\{([^}]*)\})?/g)].map(m => [m[1], (m[2] || '').split(',').map(x => x.split(':')[0].trim()).filter(Boolean)]);
-const mine = calls.filter(c => /^challenge_/.test(c[0]));
-yes('the page calls challenge_state, _list, _me, _join, _questions, _answer, _result, _cancel and _create, with the argument names of the SQL', ['challenge_state', 'challenge_list', 'challenge_me', 'challenge_join', 'challenge_questions', 'challenge_answer', 'challenge_result', 'challenge_cancel', 'challenge_create'].every(n => mine.some(c => c[0] === n)) && mine.every(c => !!sigs[c[0]] && c[1].every(a => sigs[c[0]].includes(a))));
+const mine = calls.filter(c => /^(challenge|rope)_/.test(c[0]));
+yes('the page calls challenge_state, _list, _me, _join, _questions, _answer, _result, _cancel and _create, with the argument names of the SQL', ['challenge_state', 'challenge_list', 'challenge_me', 'challenge_join', 'challenge_questions', 'challenge_answer', 'challenge_result', 'challenge_cancel', 'challenge_create', 'rope_create', 'rope_accept', 'challenge_batch_info'].every(n => mine.some(c => c[0] === n)) && mine.every(c => !!sigs[c[0]] && c[1].every(a => sigs[c[0]].includes(a))));
 yes('it never calls anything that is closed to the browser (the helpers, the tables)', !/rpc\('challenge_(pick|ms|is_member|batch|status)'/.test(html) && !/from\('(batch_challenges|challenge_answers|challenge_players)'/.test(html));
 
 // the error words: every refusal of challenge_create has words on the page
@@ -36,4 +36,20 @@ yes('the page is a normal page of the site (title, description, canonical, share
 yes('it is tracked: hub view, created, room view, join, each answer, done, share, cancel, sign-in click', ['ch_hub_view', 'ch_created', 'ch_room_view', 'ch_join', 'ch_answer', 'ch_done', 'ch_share', 'ch_cancel', 'ch_signin_click'].every(e => html.includes("'" + e + "'")));
 yes('options are real buttons, the phone layout is one column with a full-width button, motion is reduced when asked, an id that is not a UUID shows the hub (no call is made with it)', /<button type="button" class="ch-opt/.test(html) && /@media\(max-width:560px\)/.test(css) && /prefers-reduced-motion/.test(css) && /const ROOM = UUID\.test\(ID\)/.test(html));
 yes('the numbers of the SQL and of the page agree: 12 questions of 14 seconds with a 12 second window, the lobby 5 minutes, the questions from 4 seconds before, 1.5 seconds of grace', /slots int not null default 12/.test(sql) && /slot_s int not null default 14/.test(sql) && /window_s int not null default 12/.test(sql) && /300 seconds/.test(sql) && /interval '4 seconds'/.test(sql) && /1500 milliseconds/.test(sql) && /t < st - 300000/.test(html) && /t >= st - 3800/.test(html));
+// step 4: the rope
+const rbody = (sql13.match(/create or replace function public\.rope_create\([\s\S]*?end \$\$;/) || [''])[0];
+const rcodes = [...new Set([...rbody.matchAll(/'error', '(\w+)'/g)].map(m => m[1]))];
+yes('every refusal of rope_create (' + rcodes.join(', ') + ') has a sentence in Bangla on the page', rcodes.length >= 11 && rcodes.every(c => new RegExp('\\b' + c + ':').test(html)));
+const abody = (sql13.match(/create or replace function public\.rope_accept\([\s\S]*?end \$\$;/) || [''])[0];
+const acodes = [...new Set([...abody.matchAll(/'error', '(\w+)'/g)].map(m => m[1]))].filter(c => c !== 'NOT_SIGNED_IN' && c !== 'NOT_ROPE' && c !== 'NOT_FOUND');
+yes('every refusal of rope_accept the screen can meet (' + acodes.join(', ') + ') has a sentence in Bangla', acodes.length >= 6 && acodes.every(c => new RegExp('\\b' + c + ':').test(html)));
+yes('the form has two modes (clock or rope); the rope asks for no target, names no opponent unless the link says ?vs= (then the batch is looked up), and "any batch" can be chosen again', /data-m="clock"/.test(html) && /data-m="rope"/.test(html) && /rpc\('rope_create', \{ p_batch_id: \$\('chBatch'\)\.value, p_start: at\.toISOString\(\), p_opp_batch: HUB\.vs \|\| null \}\)/.test(html) && /get\('vs'\)/.test(html) && /rpc\('challenge_batch_info', \{ p_batch: VS \}\)/.test(html) && /chVsAny/.test(html) && /যেকোনো ব্যাচ/.test(html));
+yes('the hub list shows a rope challenge as "A বনাম B" or "বিপক্ষ খোঁজা হচ্ছে" and says that any batch can take an open one', /বিপক্ষ খোঁজা হচ্ছে/.test(html) && /যেকোনো ব্যাচ চ্যালেঞ্জ নিতে পারে/.test(html) && /ch-row \' \+ c\.status \+ \(rp \? \' rope\'/.test(html.replace(/"/g, "'")) || /rp \? ' rope'/.test(html));
+yes('the rope is drawn from the SERVER numbers: the knot moves with the lead (average of A minus average of B) and stays inside the two win lines, at a win line only when the match counts and is over; no rope without two sides', /\(S\.lead \|\| 0\) \/ 4/.test(html) && /\* 38/.test(html) && /done && S\.valid\) pos = S\.winner === 'a' \? 12/.test(html) && /!S\.opp \|\| \(!pa && !pb\)\) pos = 50/.test(html) && /rp-line l/.test(html) && /rp-line r/.test(html));
+yes('the screen says when a match does not count yet (a side under 5) and when nobody took an open challenge (it becomes a game against the clock)', /অন্তত ৫ জন আসবেন/.test(html) && /ঘড়ির বিপক্ষে খেলা হিসেবে ধরা হবে/.test(html) && /এই খেলা গোনা হয়নি/.test(html));
+yes('an open challenge shows the batches of the signed-in member that could take it, each with its own button; the first that is accepted wins and the others are told; polling notices a new opponent and asks for "my side" again', /accept_batches/.test(html) && /data-acc=/.test(html) && /rpc\('rope_accept', \{ p_id: ID, p_batch_id: batchId \}\)/.test(html) && /ALREADY_TAKEN: /.test(html) && /was !== !!s\.opp/.test(html));
+yes('the rope result: two columns (average, players, points), the winner by the SERVER (never worked out on the phone), a draw, the own side only in the best five, share without names', /r\.winner === 'a'/.test(html) && /r\.points_a/.test(html) && /r\.points_b/.test(html) && /🤝 ড্র/.test(html) && /আপনাদের ব্যাচের সেরা/.test(html) && !/Math\.max\(r\.avg_a/.test(html));
+yes('the rope numbers on the page and the SQL agree: a side needs 5 players, the winner has 50 points on top, a draw 25', /pa >= 5 and pb >= 5/.test(sql13) && /when 'a' then 50 when 'draw' then 25/.test(sql13) && /অন্তত ৫ জন/.test(html));
+yes('the rope has its CSS (track, knot, win lines, figures, result) and respects reduced motion', /\.rp-knot\{/.test(css) && /\.rp-line/.test(css) && /\.rp-res/.test(css) && /\.rp-knot\{transition:none\}/.test(css));
+yes('the rope is tracked: created (mode rope), accepted', /ch_created', rp \? \{ mode: 'rope'/.test(html) && /'ch_accept'/.test(html));
 console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

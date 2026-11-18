@@ -24,7 +24,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   `);
   const U = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
   for (let i = 1; i <= 12; i++) { await db.exec(`insert into auth.users (id) values ('${U(i)}')`); await db.exec(`insert into public.members values ('${U(i)}', 'নাম${i} পদবি')`); }
-  await db.exec(M('2027-01-10_quiz_bank.sql')); await db.exec(M('2027-01-12_batch_challenge.sql')); await db.exec(M('2027-01-12_batch_challenge.sql'));     // twice: safe
+  await db.exec(M('2027-01-10_quiz_bank.sql')); await db.exec(M('2027-01-12_batch_challenge.sql')); await db.exec(M('2027-01-12_batch_challenge.sql')); if (process.env.WITH_ROPE) await db.exec(M('2027-01-13_rope_pull.sql'));     // twice: safe; WITH_ROPE=1 also runs step 4 on top (the clock mode must be unchanged)
   await db.exec("select set_config('test.admin', '0', false)");
   const q = async (sql, params) => (await db.query(sql, params)).rows;
   const as = async (uid, fn) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); return fn(); };

@@ -86,3 +86,31 @@ button,input,select{font-family:inherit;font-size:inherit;color:inherit}
 .ch-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#fff;padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:9999}.ch-toast.show{opacity:1;transform:translateX(-50%)}
 @media(max-width:560px){.ch{padding-top:84px}.ch-card{padding:16px 14px;border-radius:20px}.ch-opt{font-size:16px;min-height:54px}.ch-go{width:100%}}
 @media(prefers-reduced-motion:reduce){.ch-skel{animation:none}.ch-bar i,.ch-tb i{transition:none}}
+/* রশি টানাটানি: the mode choice, the opponent, the rope, the result */
+.ch-modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ch-mode{border:2px solid #E2E8F0;border-radius:14px;background:#fff;padding:10px 8px;text-align:center;cursor:pointer;color:var(--ink)}
+.ch-mode b{display:block;font:800 16px 'Hind Siliguri','Inter',sans-serif}.ch-mode small{display:block;font-size:12.5px;font-weight:600;color:var(--tx3)}.ch-mode.on{border-color:var(--tb);background:#EEF4FF}
+.ch-vsrow{padding:10px 14px;border:2px solid var(--tb);background:#EEF4FF;border-radius:14px}.ch-vsrow b{display:block;color:var(--ink);font-size:16px}.ch-vsrow small{display:block;color:var(--tx2);font-size:13px}
+.ch-vs{display:grid;gap:6px;justify-items:start}
+.ch-row.rope{border-left:5px solid #F59E0B}.ch-row em{font-style:normal;color:var(--tx3);font-weight:600;font-size:14px}.ch-row i{font-style:normal;color:#B45309}
+.ch-how h3{font-size:16.5px;color:var(--ink);margin:16px 0 4px}
+.ch-head h1 em.vs{font-style:normal;font-size:.62em;color:var(--tx3);font-weight:700}.ch-head h1 i{font-style:normal;color:#B45309}
+.ch-go.sm{min-width:0;min-height:46px;font-size:16px;padding:0 16px;margin-top:8px;width:100%}.ch-acc{display:grid;gap:4px;margin-top:6px}
+.ch-sm{font-size:13px;color:var(--tx3);margin:8px 0 0!important}
+.rp-me{text-align:center;font-size:13.5px;font-weight:800;color:#1D4ED8;background:#EEF4FF;border-radius:100px;padding:3px 12px;margin:0 auto 10px;width:fit-content;max-width:100%}
+.rp{margin:14px 0 14px;padding:14px 12px 10px;background:#fff;border:1px solid var(--ln);border-radius:22px;box-shadow:0 14px 36px -26px rgba(15,32,72,.4)}
+.rp-names{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--ink)}.rp-names b{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rp-names .a{color:#1D4ED8}.rp-names .b{color:#C2410C;text-align:right}
+.rp-field{display:grid;grid-template-columns:minmax(52px,.9fr) minmax(0,2.4fr) minmax(52px,.9fr);align-items:center;gap:6px;margin:8px 0 4px}
+.rp-side{display:flex;flex-wrap:wrap;gap:1px;font-size:22px;line-height:1.1;min-height:34px;align-content:center}.rp-side.b{justify-content:flex-end}
+.rp-fig{display:inline-block}.rp-side.b .rp-fig{transform:scaleX(-1)}.rp-more{font-size:13px;font-weight:800;color:var(--tx3);align-self:center;margin:0 3px}
+.rp-track{position:relative;height:54px}
+.rp-rope{position:absolute;left:0;right:0;top:50%;height:8px;margin-top:-4px;border-radius:100px;background:repeating-linear-gradient(115deg,#A16207 0 6px,#CA8A04 6px 12px)}
+.rp-line{position:absolute;top:6px;bottom:6px;width:3px;border-radius:3px;background:#CBD5E1}.rp-line.l{left:12%;background:#93B4F5}.rp-line.r{left:88%;background:#FDBA74}
+.rp-knot{position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-19px 0 0 -17px;font-size:26px;line-height:34px;text-align:center;transition:left .7s cubic-bezier(.4,1.4,.5,1);filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.rp-nums{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--tx2)}.rp-nums b{font-size:20px;color:var(--ink)}.rp-nums .b{text-align:right}
+.rp.lead-a .rp-nums .a b{color:#1D4ED8}.rp.lead-b .rp-nums .b b{color:#C2410C}
+.rp-note{min-height:20px;margin-top:4px;text-align:center;font-size:13.5px;font-weight:700;color:#B45309}
+.rp-res{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.rp-res>div{padding:12px 8px;border-radius:16px;background:#F4F7FE;border:2px solid transparent}.rp-res>div.w{background:#ECFDF5;border-color:#34D399}
+.rp-res small{display:block;font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rp-res b{display:block;font-size:30px;line-height:1.15;color:#1A56DB}.rp-res span{display:block;font-size:12.5px;color:var(--tx3)}.rp-res em{display:block;font-style:normal;font-weight:800;font-size:13px;color:var(--ok)}
+@media(prefers-reduced-motion:reduce){.rp-knot{transition:none}}
