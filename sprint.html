@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>অঙ্ক স্প্রিন্ট: ৬০ সেকেন্ডে যত পারেন | Protishthan</title>
+<meta name="description" content="৬০ সেকেন্ডে মাথায় মাথায় যত অঙ্ক পারেন করুন। যোগ, নামতা, বর্গ, শতকরা, বর্গমূল। শ্রেণি বেছে নিন, নিজের স্কোর হারানোর চেষ্টা করুন।">
+<link rel="canonical" href="https://protishthan.com/sprint">
+<meta property="og:title" content="অঙ্ক স্প্রিন্ট | Protishthan">
+<meta property="og:description" content="৬০ সেকেন্ডে কয়টা অঙ্ক পারেন? বন্ধুকে চ্যালেঞ্জ করুন।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/sprint">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/sprint.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="sprint"></div>
+<script src="/nav.js?v=23"></script>
+
+<main class="sp">
+  <header class="sp-hero">
+    <span class="sp-kick">➗ প্রতিষ্ঠান লিগ · খেলা</span>
+    <h1>অঙ্ক <span>স্প্রিন্ট</span></h1>
+    <p>৬০ সেকেন্ডে মাথায় মাথায় যত অঙ্ক পারেন। কাগজ-কলম লাগবে না।</p>
+  </header>
+  <section class="sp-card" id="spBox" aria-live="polite"><div class="sp-skel"></div></section>
+  <section class="sp-how">
+    <h2>কীভাবে কাজ করে</h2>
+    <ul>
+      <li>প্রশ্ন আসবে একটার পর একটা। চারটা উত্তর থেকে ঠিকটা চাপুন, সঙ্গে সঙ্গে পরের প্রশ্ন। কিবোর্ডে ১, ২, ৩, ৪ চেপেও উত্তর দেওয়া যায়।</li>
+      <li>সঠিক উত্তরে ১০ পয়েন্ট। টানা ৫টা ঠিক হলে পরের উত্তরগুলোতে ৫ পয়েন্ট করে বাড়তি (সর্বোচ্চ ১৫ বাড়তি)।</li>
+      <li>ভুল হলে পয়েন্ট কাটা যায় না, শুধু টানা ঠিকের ধারা ভাঙে।</li>
+      <li><b>আজকের স্প্রিন্ট:</b> প্রতিদিন সবার জন্য একই প্রশ্ন, একই ক্রমে, রাত ১২টায় বদলায়। বন্ধুর সঙ্গে স্কোর মেলান। <b>যত খুশি:</b> প্রতিবার নতুন প্রশ্ন।</li>
+      <li>স্কোর আর সেরা রেকর্ড শুধু আপনার ফোনে থাকে, লিগের বোর্ডে যোগ হয় না।</li>
+    </ul>
+  </section>
+</main>
+
+<div class="sp-toast" id="spToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=23"></script>
+<script src="/sprint-data.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const S = window.SprintData, bn = S.bn;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
+  const toast = m => { const t = $('spToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+  const SHARE = 'https://protishthan.com/sprint', TODAY = S.dayKey();
+  const lvName = k => (S.LEVELS.find(l => l[0] === k) || [])[1] || '';
+  const G = { level: ls.get('sp_level') || 'c6', kind: '', seed: '', n: 0, q: null, score: 0, right: 0, total: 0, streak: 0, best: 0, deadline: 0, timer: 0, locked: false, over: false, results: [] };
+  if(!S.levelKeys().includes(G.level)) G.level = 'c6';
+
+  const rec = () => { try{ return JSON.parse(ls.get('sp_rec') || '{}') || {}; }catch(e){ return {}; } };
+  const saveRec = r => ls.set('sp_rec', JSON.stringify(r));
+
+  /* ---------- the start screen: a level, then the daily sprint or a free one ---------- */
+  function start(){
+    const r = rec(), best = (r.best || {})[G.level], done = ((r.today || {})[G.level] || {}).day === TODAY ? r.today[G.level] : null;
+    $('spBox').innerHTML = '<div class="sp-cen"><h2>কোন শ্রেণির অঙ্ক?</h2><div class="sp-lv" id="spLv" role="group" aria-label="শ্রেণি">' + S.LEVELS.map(l => '<button type="button" class="sp-l' + (l[0] === G.level ? ' on' : '') + '" data-l="' + l[0] + '" aria-pressed="' + (l[0] === G.level) + '"><b>' + esc(l[1]) + '</b><small>' + esc(l[2]) + '</small></button>').join('') + '</div>' +
+      '<div class="sp-chips">' + (best ? '<span class="sp-chip">সেরা: ' + bn(best) + ' পয়েন্ট</span>' : '') + (done ? '<span class="sp-chip ok">আজ খেলেছেন: ' + bn(done.points) + '</span>' : '') + '</div>' +
+      '<div class="sp-btns"><button type="button" class="sp-go" id="spDaily">' + (done ? 'আজকের ফল দেখুন' : 'আজকের স্প্রিন্ট') + '</button><button type="button" class="sp-sec" id="spFree">যত খুশি খেলুন</button></div><p class="sp-sm">৬০ সেকেন্ড। শুরুর আগে ৩ সেকেন্ডের গোনা।</p></div>';
+    $('spLv').onclick = e => { const b = e.target.closest('.sp-l'); if(!b) return; G.level = b.dataset.l; ls.set('sp_level', G.level); start(); };
+    $('spDaily').onclick = () => begin('daily'); $('spFree').onclick = () => begin('free');
+  }
+  function begin(kind){
+    const r = rec(), done = ((r.today || {})[G.level] || {}).day === TODAY ? r.today[G.level] : null;
+    if(kind === 'daily' && done){ Object.assign(G, { kind, score: done.points, right: done.right, total: done.total, results: [] }); return finish(true); }
+    Object.assign(G, { kind, seed: kind === 'daily' ? TODAY : String(Date.now()) + Math.random(), n: 0, score: 0, right: 0, total: 0, streak: 0, best: 0, over: false, locked: true, results: [] });
+    T('sprint_start', { l: G.level, k: kind });
+    let c = 3; const box = $('spBox'); box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    box.innerHTML = '<div class="sp-cen sp-ready"><p>' + esc(lvName(G.level)) + (kind === 'daily' ? ' · আজকের স্প্রিন্ট' : '') + '</p><div class="sp-count" id="spCount">' + bn(c) + '</div><p>তৈরি হোন…</p></div>';
+    const t = setInterval(() => { c--; if(c <= 0){ clearInterval(t); play(); } else $('spCount').textContent = bn(c); }, 1000);
+  }
+
+  /* ---------- the 60 seconds ---------- */
+  function play(){
+    $('spBox').innerHTML = '<div class="sp-top"><div class="sp-time" id="spTime">' + bn(S.SECONDS) + '</div><div class="sp-sc"><b id="spScore">০</b><small>পয়েন্ট</small></div><div class="sp-combo" id="spCombo"></div></div><div class="sp-tb"><i id="spTbi"></i></div>' +
+      '<div class="sp-q" id="spQ"></div><div class="sp-opts" id="spOpts"></div>';
+    $('spOpts').onclick = e => { const b = e.target.closest('.sp-opt'); if(b) answer(+b.dataset.v, b); };
+    document.addEventListener('keydown', onKey);
+    G.deadline = performance.now() + S.SECONDS * 1000; G.over = false; nextQ();
+    G.timer = setInterval(tick, 100); tick();
+  }
+  function onKey(e){ if(G.over || G.locked) return; const i = '1234'.indexOf(e.key); if(i < 0) return; const b = document.querySelectorAll('.sp-opt')[i]; if(b) b.click(); }
+  function tick(){
+    const left = Math.max(0, G.deadline - performance.now()), t = $('spTime'); if(!t) return;
+    t.textContent = bn(Math.ceil(left / 1000)); $('spTbi').style.width = left / (S.SECONDS * 1000) * 100 + '%'; const hot = left < 10000; t.classList.toggle('hot', hot); $('spTbi').classList.toggle('hot', hot);
+    if(left <= 0) finish(false);
+  }
+  function nextQ(){
+    G.q = S.question(G.level, G.seed, G.n++); G.locked = false;
+    $('spQ').textContent = G.q.text;
+    $('spOpts').innerHTML = G.q.options.map((o, i) => '<button type="button" class="sp-opt" data-v="' + o + '"><kbd>' + bn(i + 1) + '</kbd><span>' + bn(o) + '</span></button>').join('');
+  }
+  function answer(v, btn){
+    if(G.locked || G.over) return; G.locked = true;
+    const good = v === G.q.answer; G.total++;
+    if(good){ const p = S.points(G.streak); G.score += p; G.right++; G.streak++; } else G.streak = 0;
+    G.results.push(good);
+    $('spScore').textContent = bn(G.score); const cb = $('spCombo'); cb.textContent = G.streak >= 5 ? '🔥 ' + bn(G.streak) + ' টানা' : (G.streak >= 2 ? bn(G.streak) + ' টানা' : ''); cb.classList.toggle('fire', G.streak >= 5);
+    btn.classList.add(good ? 'right' : 'wrong'); if(!good){ const r = [...document.querySelectorAll('.sp-opt')].find(b => +b.dataset.v === G.q.answer); if(r) r.classList.add('right'); }
+    setTimeout(() => { if(!G.over) nextQ(); }, good ? 140 : 420);
+  }
+
+  /* ---------- the end ---------- */
+  function finish(again){
+    clearInterval(G.timer); G.over = true; document.removeEventListener('keydown', onKey);
+    const r = rec(); r.best = r.best || {}; r.today = r.today || {};
+    if(!again){
+      if(G.score > (r.best[G.level] || 0)){ G.best = G.score; r.best[G.level] = G.score; }
+      if(G.kind === 'daily') r.today[G.level] = { day: TODAY, points: G.score, right: G.right, total: G.total };
+      saveRec(r); T('sprint_done', { l: G.level, k: G.kind, right: G.right, pts: G.score });
+    }
+    const acc = G.total ? Math.round(G.right / G.total * 100) : 0, daily = G.kind === 'daily', newBest = !again && G.best === G.score && G.score > 0;
+    const text = '➗ অঙ্ক স্প্রিন্ট (' + lvName(G.level) + (daily ? ', আজকের' : '') + '): ৬০ সেকেন্ডে ' + bn(G.right) + 'টা ঠিক, ' + bn(G.score) + ' পয়েন্ট' + (G.right >= 20 ? ' 🔥' : '') + '\nআপনি কয়টা পারেন? ' + SHARE;
+    $('spBox').innerHTML = '<div class="sp-cen"><div class="sp-score"><b>' + bn(G.right) + '</b><span>টা ঠিক' + (G.total ? ' (' + bn(G.total) + 'টার মধ্যে, ' + bn(acc) + '%)' : '') + '</span></div><h2>' + bn(G.score) + ' পয়েন্ট</h2>' + (newBest ? '<div class="sp-newbest">🏆 নতুন সেরা রেকর্ড!</div>' : '') + '<p>' + esc(S.verdict(G.right)) + '</p>' +
+      '<div class="sp-share"><a class="sp-sec2 wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(text) + '" data-sh="wa">WhatsApp-এ পাঠান</a><a class="sp-sec2 fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE) + '&quote=' + encodeURIComponent(text) + '" data-sh="fb">Facebook</a><button type="button" class="sp-sec2" id="spCopy">কপি</button></div>' +
+      '<div class="sp-btns"><button type="button" class="sp-go" id="spAgain">আবার খেলুন</button><button type="button" class="sp-sec" id="spHome">শ্রেণি বদলান</button></div></div>';
+    $('spAgain').onclick = () => begin('free'); $('spHome').onclick = start;
+    $('spCopy').onclick = async () => { T('sprint_share', { ch: 'copy' }); try{ if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){ await navigator.share({ text }); return; } await navigator.clipboard.writeText(text); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    document.querySelectorAll('[data-sh]').forEach(a => { a.onclick = () => T('sprint_share', { ch: a.dataset.sh }); });
+  }
+
+  start(); T('sprint_view', {});
+  window.__sprint = { G, start, begin, play, finish, answer };
+})();
+</script>
+</body>
+</html>
