@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>কোন জেলায়? প্রতিষ্ঠানের নাম দেখে জেলা চিনুন | Protishthan</title>
+<meta name="description" content="একটা কলেজ, মাদ্রাসা বা স্কুলের নাম দেখে বলুন, সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড। আপনার জেলা-জ্ঞান কেমন, দেখে নিন।">
+<link rel="canonical" href="https://protishthan.com/guess">
+<meta property="og:title" content="কোন জেলায়? | Protishthan">
+<meta property="og:description" content="প্রতিষ্ঠানের নাম দেখে জেলা চিনুন। ১০টার মধ্যে কয়টা পারেন?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/guess">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/guess.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="guess"></div>
+<script src="/nav.js?v=23"></script>
+
+<main class="gs">
+  <header class="gs-hero">
+    <span class="gs-kick">🗺️ প্রতিষ্ঠান লিগ · খেলা</span>
+    <h1>কোন <span>জেলায়?</span></h1>
+    <p>একটা প্রতিষ্ঠানের নাম দেখুন, বলুন সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড।</p>
+  </header>
+  <section class="gs-card" id="gsBox" aria-live="polite"><div class="gs-skel"></div></section>
+  <section class="gs-how">
+    <h2>কীভাবে কাজ করে</h2>
+    <ul>
+      <li><b>আজকের ১০টা:</b> প্রতিদিন সবার জন্য একই ১০টা প্রশ্ন, রাত ১২টায় বদলায়। বন্ধুর সঙ্গে স্কোর মেলান।</li>
+      <li><b>যত খুশি খেলুন:</b> প্রতিবার নতুন ১০টা। যতবার ইচ্ছা।</li>
+      <li>সঠিক উত্তরে ১০ পয়েন্ট, তাড়াতাড়ি দিলে আরও ৫ পর্যন্ত। সর্বোচ্চ ১৫০।</li>
+      <li>প্রতিষ্ঠান আসে Protishthan-এর তালিকা থেকে, যা সরকারি তালিকা আর যাচাই করা তথ্য দিয়ে বানানো। কোনো তথ্য ভুল মনে হলে প্রতিষ্ঠানের পাতা থেকে জানাতে পারেন।</li>
+      <li>এই খেলার পয়েন্ট আপাতত লিগের বোর্ডে যোগ হয় না, শুধু আপনার নিজের রেকর্ডে থাকে।</li>
+    </ul>
+  </section>
+</main>
+
+<div class="gs-toast" id="gsToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=23"></script>
+<script src="/bd-locations.js?v=3"></script>
+<script src="/guess-data.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const G = window.GuessData;
+  G.setDivisions(window.BD_DIVISIONS || {});
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
+  const toast = m => { const t = $('gsToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+  const SHARE = 'https://protishthan.com/guess';
+  const TODAY = G.dayKey();
+  const ST = { pool: null, kind: '', qs: [], i: 0, results: [], points: 0, locked: false, t0: 0, timer: 0, deadline: 0 };
+
+  /* the saved record of this phone: the best score, the days played in a row, and today's finished game */
+  const rec = () => { try{ return JSON.parse(ls.get('gs_rec') || '{}') || {}; }catch(e){ return {}; } };
+  const saveRec = r => ls.set('gs_rec', JSON.stringify(r));
+  const prevDay = k => G.dayKey(new Date(k + 'T12:00:00+06:00').getTime() - 864e5);
+
+  /* the pool: from the edge (the same answer all day for everybody), or straight from the database where the edge is not there */
+  async function loadPool(){
+    if(ST.pool) return ST.pool;
+    try{ const r = await fetch('/api/dir?f=guess', { cache: 'default' }); if(r.ok){ const j = await r.json(); if(Array.isArray(j) && j.length >= 30) return (ST.pool = j); } }catch(e){}
+    const M = MB(); if(M && M.ready) await M.ready();
+    if(M && M.sb){ try{ const r = await M.sb.rpc('guess_pool', { p_day: TODAY, p_n: 150 }); if(!r.error && Array.isArray(r.data) && r.data.length >= 30) return (ST.pool = r.data); }catch(e){} }
+    return null;
+  }
+
+  /* ---------- the start screen ---------- */
+  function start(msg){
+    const r = rec(), done = r.today && r.today.day === TODAY ? r.today : null, box = $('gsBox');
+    const chips = (r.streak > 0 && (r.last === TODAY || r.last === prevDay(TODAY)) ? '<span class="gs-chip fire">🔥 ' + bn(r.streak) + ' দিন টানা</span>' : '') + (r.best ? '<span class="gs-chip">সেরা: ' + bn(r.best) + ' পয়েন্ট</span>' : '');
+    box.innerHTML = '<div class="gs-cen"><div class="gs-chips">' + chips + '</div><h2>তৈরি?</h2><p>কলেজ, মাদ্রাসা বা স্কুলের নাম দেখে জেলাটা বলুন।</p>' + (msg ? '<div class="gs-err">' + esc(msg) + '</div>' : '') +
+      '<div class="gs-btns"><button type="button" class="gs-go" id="gsDaily">' + (done ? 'আজকের ফল দেখুন' : 'আজকের ১০টা খেলুন') + '</button><button type="button" class="gs-sec" id="gsFree">যত খুশি খেলুন</button></div>' +
+      (done ? '<p class="gs-sm">আজকের স্কোর: ' + bn(done.points) + ' · ' + bn(done.right) + '/' + bn(G.ROUNDS) + ' ঠিক</p>' : '') + '</div>';
+    $('gsDaily').onclick = () => begin('daily'); $('gsFree').onclick = () => begin('free');
+  }
+  async function begin(kind){
+    const box = $('gsBox'); box.innerHTML = '<div class="gs-skel"></div>';
+    const r = rec();
+    if(kind === 'daily' && r.today && r.today.day === TODAY){ ST.kind = 'daily'; ST.results = r.today.results; ST.points = r.today.points; return finish(true); }
+    const pool = await loadPool();
+    if(!pool){ start('প্রশ্ন এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।'); return; }
+    const qs = G.build(pool, kind, kind === 'daily' ? TODAY : String(Date.now()) + Math.random());
+    if(qs.length < 5){ start('এখন খেলার মতো যথেষ্ট প্রশ্ন নেই।'); return; }
+    Object.assign(ST, { kind, qs, i: 0, results: [], points: 0, locked: false });
+    T('guess_start', { k: kind }); ask();
+  }
+
+  /* ---------- a question ---------- */
+  function ask(){
+    const q = ST.qs[ST.i], box = $('gsBox'); ST.locked = false; clearInterval(ST.timer);
+    box.innerHTML = '<div class="gs-qtop"><span class="gs-qn">প্রশ্ন ' + bn(ST.i + 1) + ' / ' + bn(ST.qs.length) + '</span><span class="gs-sec3" id="gsSec">' + bn(G.SECONDS) + '</span></div><div class="gs-tb" id="gsTb"><i id="gsTbi"></i></div>' +
+      '<div class="gs-type">' + esc(q.type || 'প্রতিষ্ঠান') + '</div><h2 class="gs-q">' + esc(q.name) + '</h2><p class="gs-ask">এটা কোন জেলায়?</p>' +
+      '<div class="gs-opts" id="gsOpts">' + q.options.map((o, i) => '<button type="button" class="gs-opt" data-d="' + esc(o) + '"><b>' + ['ক', 'খ', 'গ', 'ঘ'][i] + '</b><span>' + esc(o) + '</span></button>').join('') + '</div><div class="gs-fb" id="gsFb"></div>';
+    $('gsOpts').onclick = e => { const b = e.target.closest('.gs-opt'); if(b && !ST.locked) pick(b.dataset.d, b); };
+    ST.deadline = Date.now() + G.SECONDS * 1000;
+    ST.timer = setInterval(() => {
+      const left = Math.max(0, ST.deadline - Date.now()), s = $('gsSec'), tb = $('gsTbi'); if(!s) return;
+      s.textContent = bn(Math.ceil(left / 1000)); tb.style.width = left / (G.SECONDS * 1000) * 100 + '%'; const hot = left < 3000; s.classList.toggle('hot', hot); $('gsTb').classList.toggle('hot', hot);
+      if(left <= 0) pick(null, null);
+    }, 100);
+  }
+  function pick(choice, btn){
+    if(ST.locked) return; ST.locked = true; clearInterval(ST.timer);
+    const q = ST.qs[ST.i], left = Math.max(0, ST.deadline - Date.now()), good = choice === q.district, pts = G.score(good, left);
+    ST.results.push(good); ST.points += pts;
+    document.querySelectorAll('.gs-opt').forEach(b => { b.disabled = true; if(b.dataset.d === q.district) b.classList.add('right'); else if(b === btn) b.classList.add('wrong'); });
+    $('gsFb').innerHTML = '<div class="res ' + (good ? 'ok' : choice === null ? 'late' : 'no') + '">' + (good ? '✓ ঠিক, +' + bn(pts) : choice === null ? '⏰ সময় শেষ' : '✗ ভুল') + '</div><p>' + esc(q.name) + ' ' + (q.upazila ? esc(q.upazila) + ' উপজেলা, ' : '') + '<b>' + esc(q.district) + '</b> জেলায়। <a href="institution-detail.html?slug=' + encodeURIComponent(q.slug) + '" target="_blank" rel="noopener">প্রতিষ্ঠানের পাতা ↗</a></p><button type="button" class="gs-go sm" id="gsNext">' + (ST.i + 1 >= ST.qs.length ? 'ফল দেখুন' : 'পরের প্রশ্ন →') + '</button>';
+    T('guess_answer', { k: ST.kind, i: ST.i, c: good ? 1 : 0 });
+    $('gsNext').onclick = next; $('gsNext').focus({ preventScroll: true });
+  }
+  function next(){ if(ST.i + 1 >= ST.qs.length) return finish(false); ST.i++; ask(); }
+
+  /* ---------- the end ---------- */
+  function finish(again){
+    clearInterval(ST.timer);
+    const right = ST.results.filter(Boolean).length, r = rec(), total = ST.results.length;
+    if(!again){
+      if(ST.points > (r.best || 0)) r.best = ST.points;
+      if(ST.kind === 'daily'){ r.today = { day: TODAY, points: ST.points, right, results: ST.results }; if(r.last !== TODAY){ r.streak = r.last === prevDay(TODAY) ? (r.streak || 0) + 1 : 1; r.last = TODAY; } }
+      saveRec(r); T('guess_done', { k: ST.kind, right, pts: ST.points });
+    }
+    const row = G.emojiRow(ST.results), daily = ST.kind === 'daily', title = daily ? 'কোন জেলায়? আজকের ১০টা' : 'কোন জেলায়?';
+    const text = '🗺️ ' + title + ' ' + bn(right) + '/' + bn(total) + ' ঠিক, ' + bn(ST.points) + ' পয়েন্ট\n' + row + '\nআপনি কয়টা পারেন? ' + SHARE;
+    const verdict = right >= 9 ? 'দারুণ! আপনি সত্যিকারের জেলা-বিশেষজ্ঞ 🏆' : right >= 7 ? 'খুব ভালো! বাংলাদেশ আপনার ভালোই চেনা' : right >= 4 ? 'মোটামুটি। আরেকবার খেলে দেখুন' : 'আরও জানার আছে, আরেকবার চেষ্টা করুন';
+    $('gsBox').innerHTML = '<div class="gs-cen"><div class="gs-score"><b>' + bn(right) + '</b><span>/ ' + bn(total) + ' ঠিক</span></div><div class="gs-emo" aria-label="ফলের সারি">' + esc(row) + '</div><h2>' + bn(ST.points) + ' পয়েন্ট</h2><p>' + verdict + '</p>' +
+      '<div class="gs-share"><a class="gs-sec2 wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(text) + '" data-sh="wa">WhatsApp-এ পাঠান</a><a class="gs-sec2 fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE) + '&quote=' + encodeURIComponent(text) + '" data-sh="fb">Facebook</a><button type="button" class="gs-sec2" id="gsCopy">কপি</button></div>' +
+      '<div class="gs-btns"><button type="button" class="gs-go" id="gsAgain">যত খুশি আবার খেলুন</button>' + (daily ? '' : '<button type="button" class="gs-sec" id="gsDaily2">আজকের ১০টা</button>') + '</div><p class="gs-sm">নিজের <a href="/card">শিক্ষিত কার্ড</a> বানিয়েছেন? ৩০ সেকেন্ডে, ফ্রি।</p></div>';
+    $('gsAgain').onclick = () => begin('free'); if($('gsDaily2')) $('gsDaily2').onclick = () => begin('daily');
+    $('gsCopy').onclick = async () => { T('guess_share', { ch: 'copy' }); try{ if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){ await navigator.share({ text }); return; } await navigator.clipboard.writeText(text); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    document.querySelectorAll('[data-sh]').forEach(a => { a.onclick = () => T('guess_share', { ch: a.dataset.sh }); });
+  }
+
+  start(); T('guess_view', {});
+  window.__guess = { ST, begin, start, finish, loadPool };
+})();
+</script>
+</body>
+</html>

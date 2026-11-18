@@ -16,6 +16,7 @@
 //   GET /api/dir?f=tutors&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_class":"c6-8","p_subject":"math","p_mode":"home","p_limit":12,"p_offset":0}   (/tutor: approved tutors, only when the admin switched the list on; every part is optional)
 //   GET /api/dir?f=tutors&a={...,"p_gender":"female","p_medium":"bangla","p_exam":"ssc","p_trial":true,"p_verified":true,"p_pledge":true,"p_sort":"new"}   (the filters and sorts of the results system; each is optional and sent on only when used)
 //   GET /api/dir?f=tutorfacets&a={"p_district":"বরিশাল","p_upazila":"বরিশাল সদর","p_mode":"home"}   (/tutor: how many tutors per filter option for that area and mode: only counts)
+//   GET /api/dir?f=guess                                       (/guess, the game "কোন জেলায়?": the pool of 150 institutions of the Bangladesh day, the same for everybody; kept an hour; no argument is taken from the visitor)
 //   GET /api/dir?f=tutorstate                                  (/tutor: is the list on, are new requests open)
 
 import { rest } from '../_lib/seo.js';
@@ -44,6 +45,7 @@ const strList = (v, maxItems, maxLen) => {
 
 // every question: how to build it from the visitor's arguments (null = refused) and how long an answer is reused (seconds)
 const QUESTIONS = {
+  guess:    { ttl: 3600, build: () => ({ path: 'rpc/guess_pool', rpc: { p_day: new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10), p_n: 150 } }) },
   counts:   { ttl: 600, build: () => ({ path: 'rpc/directory_counts', rpc: {} }) },
   verified: { ttl: 180, build: () => ({ path: VERIFIED }) },
   verifiedlite: { ttl: 180, build: () => ({ path: VERIFIED_LITE }) },

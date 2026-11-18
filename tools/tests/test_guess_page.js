@@ -1,0 +1,40 @@
+// The game "কোন জেলায়?": its rules (guess-data.js), its page (guess.html, guess.css), the edge answer (functions/api/dir.js) and the SQL it calls.   node tools/tests/test_guess_page.js
+const fs = require('fs'), path = require('path'), vm = require('vm');
+const read = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
+let pass = 0, fail = 0;
+const yes = (name, v, extra) => { const ok = !!v; ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : '  ' + (extra || ''))); };
+const html = read('guess.html'), css = read('guess.css'), sql = read('migrations/2027-01-15_guess_pool.sql'), dir = read('functions/api/dir.js');
+const G = require('../../guess-data.js');
+const sandbox = { window: {} }; vm.createContext(sandbox); vm.runInContext(read('bd-locations.js'), sandbox);
+G.setDivisions(sandbox.window.BD_DIVISIONS);
+const D = G.districts();
+
+yes('the 64 districts and 8 divisions come from the site\'s own list', D.length === 64 && new Set(D.map(G.divisionOf)).size === 8);
+// a pool like the directory gives: 150 rows, some unusable
+const pool = []; for (let i = 0; i < 150; i++) pool.push({ slug: 's' + i, name: 'নমুনা কলেজ ' + i, type: 'কলেজ', district: D[(i * 7) % 64], upazila: 'উপজেলা ' + i });
+pool.push({ slug: 'bad1', name: 'ঢাকা কলেজ', type: 'কলেজ', district: 'ঢাকা' }, { slug: 'bad2', name: 'ভুল জেলা কলেজ', type: 'কলেজ', district: 'নেই এমন জেলা' }, { slug: 's3', name: 'দ্বিতীয় বার', type: 'কলেজ', district: 'ঢাকা' }, { slug: '', name: 'নাম', district: 'ঢাকা' });
+yes('unusable rows are dropped: a district in the name, a district that is not one of the 64, no slug, a repeated slug', G.clean(pool).length === 150 && !G.clean(pool).some(r => /^bad|^$/.test(r.slug)) && G.clean(null).length === 0);
+const day1 = G.build(pool, 'daily', '2026-11-18'), day1b = G.build(pool, 'daily', '2026-11-18');
+yes('the daily set is 10 questions, the SAME on every phone (same pool, same day), and it is the first 10 usable rows of the pool in its order', day1.length === 10 && JSON.stringify(day1) === JSON.stringify(day1b) && day1.map(q => q.slug).join() === G.clean(pool).slice(0, 10).map(r => r.slug).join());
+yes('every question has 4 different options, exactly one of them is the right district, and the options are real districts', day1.every(q => q.options.length === 4 && new Set(q.options).size === 4 && q.options.filter(o => o === q.district).length === 1 && q.options.every(o => D.includes(o))));
+yes('two of the three wrong options are from the same division as the right one (the game is a little hard, not a lottery), where the division has enough districts', day1.every(q => q.options.filter(o => o !== q.district && G.divisionOf(o) === G.divisionOf(q.district)).length >= 2));
+yes('the order of the options is shuffled: the right one is not always in the same place', new Set(G.build(pool, 'daily', 'x').concat(G.build(pool, 'free', 'y')).map(q => q.options.indexOf(q.district))).size >= 3);
+const f1 = G.build(pool, 'free', 'a'), f2 = G.build(pool, 'free', 'b'), f1b = G.build(pool, 'free', 'a');
+yes('free play: 10 questions, another seed another ten, the same seed the same ten, never a row twice', f1.length === 10 && JSON.stringify(f1) === JSON.stringify(f1b) && JSON.stringify(f1.map(q => q.slug)) !== JSON.stringify(f2.map(q => q.slug)) && new Set(f1.map(q => q.slug)).size === 10);
+yes('a thin pool gives fewer questions (the page then says there are not enough), an empty one none', G.build(pool.slice(0, 4), 'daily', 'd').length === 4 && G.build([], 'free', 'x').length === 0 && G.build(undefined, 'free', 'x').length === 0);
+yes('the points: 0 for a wrong or no answer, 10 to 15 for a right one by speed (15 at once, 10 at the last moment, 12 or 13 halfway)', G.score(false, 9000) === 0 && G.score(true, 10000) === 15 && G.score(true, 0) === 10 && [12, 13].includes(G.score(true, 5000)) && G.score(true, 99999) === 15 && G.score(true, -5) === 10);
+yes('the Bangladesh day: 2026-11-18 at 23:30 Dhaka time (17:30 UTC) is still the 18th, 18:00 UTC is already the 19th', G.dayKey(Date.UTC(2026, 10, 18, 17, 30)) === '2026-11-18' && G.dayKey(Date.UTC(2026, 10, 18, 18, 0)) === '2026-11-19');
+yes('the emoji row of a result has one square per answer', G.emojiRow([true, false, true]) === '🟩🟥🟩');
+
+// the page
+yes('the page calls the edge pool first and then the database function with the argument names of the SQL', /fetch\('\/api\/dir\?f=guess'/.test(html) && /rpc\('guess_pool', \{ p_day: TODAY, p_n: 150 \}\)/.test(html) && /create or replace function public\.guess_pool\(p_day date default null, p_n int default 150\)/.test(sql));
+yes('the edge answers the pool of the Bangladesh day, kept an hour, and takes nothing from the visitor (no argument)', /guess:\s+\{ ttl: 3600, build: \(\) => \(\{ path: 'rpc\/guess_pool', rpc: \{ p_day: new Date\(Date\.now\(\) \+ 6 \* 3600e3\)\.toISOString\(\)\.slice\(0, 10\), p_n: 150 \}/.test(dir));
+yes('it is a normal page of the site (title, canonical, share tags, nav, footer, analytics, the data files in the right order), kept out of search while the league is hidden', /<title>কোন জেলায়\?/.test(html) && /rel="canonical" href="https:\/\/protishthan\.com\/guess"/.test(html) && /og:title/.test(html) && /<meta name="robots" content="noindex, follow">/.test(html) && /nav\.js/.test(html) && /footer\.js/.test(html) && /analytics\.js/.test(html) && html.indexOf('bd-locations.js') < html.indexOf('guess-data.js') && html.indexOf('guess-data.js') < html.indexOf('G.setDivisions'));
+yes('two modes: the daily ten (finished once a day, then its result is shown again) and free play', /id="gsDaily"/.test(html) && /id="gsFree"/.test(html) && /r\.today && r\.today\.day === TODAY/.test(html) && /G\.build\(pool, kind, kind === 'daily' \? TODAY/.test(html));
+yes('10 seconds a question: the options lock at once, the right district is shown after the answer with the upazila and a link to the institution page, a timeout counts as wrong', /G\.SECONDS \* 1000/.test(html) && /b\.disabled = true/.test(html) && /institution-detail\.html\?slug=/.test(html) && /if\(left <= 0\) pick\(null, null\)/.test(html) && /সময় শেষ/.test(html));
+yes('the record of the phone: the best score, the days in a row (a day is counted once; a missed day starts again), kept in the browser only', /ls\.set\('gs_rec'/.test(html) && /r\.streak = r\.last === prevDay\(TODAY\) \? \(r\.streak \|\| 0\) \+ 1 : 1/.test(html) && /if\(r\.last !== TODAY\)/.test(html));
+yes('it shares a spoiler-free emoji row (WhatsApp, Facebook, copy), tracks start, answer, done and share, and says honestly that the points are not on the league boards', /wa\.me\/\?text=/.test(html) && /facebook\.com\/sharer/.test(html) && /G\.emojiRow/.test(html) && ['guess_view', 'guess_start', 'guess_answer', 'guess_done', 'guess_share'].every(e => html.includes("'" + e + "'")) && /লিগের বোর্ডে যোগ হয় না/.test(html));
+yes('nothing is sent anywhere with a person (no sign-in, no write call) and the page reads only the pool', !/rpc\('(?!guess_pool)/.test(html) && !/\.from\(/.test(html) && !/signIn/.test(html));
+yes('buttons are real buttons, the phone layout is one column, motion is reduced when asked', /<button type="button" class="gs-opt/.test(html) && /@media\(max-width:520px\)\{\.gs\{padding-top:84px\}[^}]*\}[^}]*\.gs-opts\{grid-template-columns:1fr\}/.test(css) && /prefers-reduced-motion/.test(css));
+yes('the SQL gives the pool to everybody and filters the way the page expects (no district in the name, secondary schools only, visible and approved)', /grant execute on function public\.guess_pool\(date, int\) to anon, authenticated/.test(sql) && /position\(btrim\(l\.district\) in l\.institution_name\) = 0/.test(sql) && /coalesce\(l\.is_hidden, false\) = false/.test(sql) && /l\.status = 'approved'/.test(sql));
+console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
