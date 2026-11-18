@@ -250,7 +250,7 @@
   function nudge(){
     if(QUIET || !signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge')) return;
     setTimeout(() => {
-      if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge') || (ov && ov.classList.contains('show'))) return;
+      if(!signedIn() || MINE.size > 0 || !nudgeDue() || document.getElementById('miNudge') || document.getElementById('mbWelcome') || (ov && ov.classList.contains('show'))) return;
       const n = document.createElement('div'); n.id = 'miNudge'; n.className = 'mi-nudge'; n.setAttribute('role', 'region'); n.setAttribute('aria-label', 'আপনি এখন কোথায় পড়েন');
       n.innerHTML = '<div class="mi-nt"><b>আপনি এখন কোথায় পড়েন?</b><small>প্রতিষ্ঠান বেছে নিলে আপনার ব্যাচের বন্ধুদেরও খুঁজে পাবেন।</small></div><button type="button" class="mi-nb">বেছে নিন</button><button type="button" class="mi-nx" aria-label="পরে করব">×</button>';
       document.body.appendChild(n);

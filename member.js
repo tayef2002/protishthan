@@ -70,6 +70,14 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
 .mb-iab{display:none;text-align:left;margin:0 0 16px}
 .mb-ov.iab .mb-iab{display:block}.mb-ov.iab .mb-perks{display:none}.mb-ov.iab .mb-copy{display:block}
 .mb-ov.iab .mb-google{background:#1A56DB;border-color:#1A56DB;color:#fff}.mb-ov.iab .mb-google:hover{background:#1647B8}.mb-ov.iab .mb-google svg{display:none}
+.mb-wtick{width:60px;height:60px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:linear-gradient(135deg,#34D399,#059669);color:#fff}
+.mb-wok{margin:0 0 12px;padding:9px 12px;border-radius:12px;background:#ECFDF5;border:1px solid #BBF7D0;color:#047857;font-size:13.5px;font-weight:700;line-height:1.5;text-align:left}
+.mb-wh{margin:2px 0 10px;font-size:13.5px;color:#64748B}
+.mb-wgo{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;margin:0 0 8px;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:14px;background:#fff;text-align:left;font:700 14.5px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;text-decoration:none;cursor:pointer}
+.mb-wgo:hover{border-color:#1A56DB;background:#F7FAFF}
+.mb-wgo i{flex:none;width:34px;height:34px;border-radius:10px;background:#EEF3FF;color:#1A56DB;display:grid;place-items:center;font-style:normal}
+.mb-wgo small{display:block;font-size:12px;font-weight:500;color:#64748B;line-height:1.4}
+.mb-wlater{margin-top:6px;border:0;background:none;color:#64748B;font:700 13.5px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;padding:8px}
 .mb-iab p{margin:0 0 10px;font-size:14px;line-height:1.7;color:#334155}
 .mb-iab ol{margin:0 0 12px;padding:12px 14px 12px 32px;background:#F8FAFC;border-radius:14px;font-size:14px;line-height:1.8;color:#334155}
 .mb-iab ol[hidden]{display:none}
@@ -174,6 +182,63 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
     trk('signin_open', { iab: IAB.inApp ? 1 : 0 });
     ov.classList.add('show'); document.body.style.overflow = 'hidden';
   }
+  /* ---------------- the welcome, once, for a person who has just become a member ----------------
+     Shown only to a NEW member (the member row was made in the last 6 hours) and only once per browser. It says what happened (the account, the member number, the card that came along),
+     and offers three OPTIONAL next steps. If the person was in the middle of something that sign-in was for (a save, the batch sheet, the card panel), nothing covers it:
+     a one-line toast is shown instead and the action goes on. The member number is an identity number, not a count: it is never said to be "the Nth member". */
+  const bnum = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const WK = uid => 'prot_wel_' + uid;
+  const isNewMember = me => { if(!me || !me.user_id || ls.get(WK(me.user_id))) return false; const t = Date.parse(me.created_at); return !!t && Date.now() - t < 6 * 3600e3 && t < Date.now() + 5 * 60e3; };
+  const hasPending = () => { if(ls.get('prot_pending_save')) return true; try{ const it = JSON.parse(ls.get('mi_intent') || 'null'); return !!(it && Date.now() - it.t < 30 * 60 * 1000); }catch(e){ return false; } };
+  const firstName = me => { const n = String((me && me.display_name) || '').trim().split(/\s+/)[0]; return n && !/@/.test(n) ? n : ''; };
+  const hasLocalCard = () => { try{ const d = JSON.parse(ls.get('shikkhito_card_v1') || 'null'); return !!(d && (d.name || d.photo || Object.values(d.edu || {}).some(e => e && e.name))); }catch(e){ return false; } };
+  function showWelcome(me, o){
+    o = o || {};
+    if(document.getElementById('mbWelcome')) return;
+    const fn = firstName(me), onCard = /\/card(\.html)?$/.test(location.pathname), cardCame = ls.get('el_adopted') === '1' || o.card === true, hasCard = cardCame || hasLocalCard();
+    const MI = window.MyInst, no = me && me.member_no ? bnum(me.member_no) : '';
+    const w = document.createElement('div'); w.id = 'mbWelcome'; w.className = 'mb-ov show'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-modal', 'true'); w.setAttribute('aria-label', 'স্বাগতম');
+    const I = d => '<i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg></i>';
+    const items = [];
+    items.push('<button type="button" class="mb-wgo" data-k="where">' + I('<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>') + '<span>আমি এখন কোথায় পড়ি<small>স্কুল, কলেজ বা ভার্সিটি বেছে রাখুন</small></span></button>');
+    if(!onCard) items.push(hasCard
+      ? '<a class="mb-wgo" data-k="life" href="member.html#life">' + I(ICON_SVG.card) + '<span>আমার শিক্ষাজীবন সাজাই<small>প্রাথমিক থেকে স্নাতকোত্তর, এক তালিকায়</small></span></a>'
+      : '<a class="mb-wgo" data-k="card" href="card.html">' + I(ICON_SVG.card) + '<span>আমার শিক্ষিত কার্ড বানাই<small>৩০ সেকেন্ডে, নিজের পড়াশোনা দিয়ে</small></span></a>');
+    items.push('<button type="button" class="mb-wgo" data-k="batch">' + I(ICON_SVG.users) + '<span>ব্যাচের বন্ধুদের খুঁজি<small>SSC কোন স্কুলে, কোন সালে</small></span></button>');
+    w.innerHTML = '<div class="mb-box"><button type="button" class="mb-x" aria-label="বন্ধ করুন">×</button>' +
+      '<div class="mb-wtick" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>' +
+      '<h2>স্বাগতম' + (fn ? ', ' + esc(fn) : '') + '!</h2><p class="sub">আপনার অ্যাকাউন্ট তৈরি হয়ে গেছে।' + (no ? ' আপনার সদস্য নম্বর <b>' + no + '</b>।' : '') + '</p>' +
+      (cardCame ? '<div class="mb-wok">✓ আপনার বানানো শিক্ষিত কার্ড অ্যাকাউন্টে সেভ হয়ে গেছে, এখন যেকোনো ফোনে পাবেন।</div>' : '') +
+      '<p class="mb-wh">চাইলে এখন এক-দুটো কাজ সেরে নিন। সবটাই ঐচ্ছিক।</p>' + items.join('') +
+      '<button type="button" class="mb-wlater" data-k="later">পরে দেখব</button>' +
+      '<div class="mb-fine">আমরা শুধু আপনার নাম আর ইমেইল রাখি। আপনার তথ্য শুধু আপনি দেখেন। <a href="privacy.html">গোপনীয়তা নীতি</a></div></div>';
+    document.body.appendChild(w); document.body.style.overflow = 'hidden';
+    const close = k => { if(w.parentNode) w.parentNode.removeChild(w); document.body.style.overflow = ''; if(k) trk('welcome_go', { k }); };
+    w.addEventListener('click', e => { if(e.target === w) close('outside'); });
+    w.querySelector('.mb-x').addEventListener('click', () => close('x'));
+    document.addEventListener('keydown', function esc2(e){ if(e.key === 'Escape' && w.parentNode){ close('esc'); document.removeEventListener('keydown', esc2); } });
+    w.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', e => {
+      const k = b.getAttribute('data-k');
+      if(k === 'later'){ close('later'); return; }
+      if(k === 'where' || k === 'batch'){
+        if(MI && MI.open){ e.preventDefault(); close(k); MI.open({ mode: k === 'batch' ? 'batch' : 'current' }); }
+        else { close(k); location.href = 'member.html#life'; }
+        return;
+      }
+      trk('welcome_go', { k });                // the two links go on by themselves
+    }));
+    trk('welcome_shown', { card: cardCame ? 1 : 0, onCard: onCard ? 1 : 0 });
+  }
+  // called after the sign-in came back; "pending" = the visitor came to do something that goes on by itself
+  function maybeWelcome(me, pending){
+    if(!isNewMember(me)) return;
+    ls.set(WK(me.user_id), '1');                                    // once per browser, whatever happens next
+    const go = () => {
+      if(pending){ toast('স্বাগতম' + (firstName(me) ? ', ' + firstName(me) : '') + '! আপনি এখন সদস্য ✓'); trk('welcome_toast', {}); return; }
+      showWelcome(me);
+    };
+    setTimeout(() => { if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go(); }, 900);
+  }
   /* the hand-over to the real browser (Android: tries it at once; if the phone did not take it, or on an iPhone, the steps are shown) */
   async function copyLink(){
     const url = IAB.target(); let ok = false;
@@ -242,6 +307,8 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   sb.auth.getSession().then(async ({ data: { session } }) => {
     await refresh(session);
     resolveReady(ME);
+    const pendingAtReturn = hasPending();                              // read now: the pages' own listeners (the batch sheet, the save) clear their keys a moment later
+    maybeWelcome(ME, pendingAtReturn);
     // came here from the Facebook browser's hand-over: the sign-in popup opens by itself (nothing if already signed in)
     if(ARRIVED){ trk('signin_return', { signed: ME ? 1 : 0 }); if(!ME){ const go = () => openModal(pageWhy()); if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go(); } }
     // finish a "save" the visitor started before being sent to Google
@@ -343,7 +410,7 @@ button.btn-primary-nav{background:linear-gradient(135deg,#1A56DB,#3B6FE0)}
   P.member = {
     sb, ready: () => READY, current: () => ME,
     onChange(cb){ listeners.push(cb); },
-    signIn: openModal, signOut, toast, esc, updateProfile, iab: { inApp: IAB.inApp, android: IAB.android, target: IAB.target, intent: IAB.intent },
+    signIn: openModal, signOut, toast, esc, updateProfile, welcome: showWelcome, iab: { inApp: IAB.inApp, android: IAB.android, target: IAB.target, intent: IAB.intent },
     saved: { has: isSaved, toggle: toggleSaved, list: loadSaved }
   };
 })();
