@@ -45,7 +45,7 @@ const strList = (v, maxItems, maxLen) => {
 
 // every question: how to build it from the visitor's arguments (null = refused) and how long an answer is reused (seconds)
 const QUESTIONS = {
-  guess:    { ttl: 3600, build: () => ({ path: 'rpc/guess_pool', rpc: { p_day: new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10), p_n: 150 } }) },
+  guess:    { ttl: 3600, build: () => ({ path: 'rpc/guess_pool', rpc: { p_day: new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10), p_n: 160 } }) },     // 160, not 150: the empty answer of the first (broken) version of the function was kept for an hour under the old question; a new size is a new question
   counts:   { ttl: 600, build: () => ({ path: 'rpc/directory_counts', rpc: {} }) },
   verified: { ttl: 180, build: () => ({ path: VERIFIED }) },
   verifiedlite: { ttl: 180, build: () => ({ path: VERIFIED_LITE }) },
@@ -122,6 +122,7 @@ export async function onRequestGet(context) {
   const r = await rest(q.path, q.rpc === undefined ? { timeout: 4000 } : { rpc: q.rpc, timeout: 4000 });     // a plain table read keeps the limit written in its own address
   if (r && r.data !== undefined && r.data !== null) {
     const body = JSON.stringify(r.data);
+    if (f === 'guess' && body === '[]') return json(body, 200, 'no-store', { 'X-Dir': 'db-empty' });     // an empty pool is never kept (it would block the game for an hour)
     write('fresh', body, spec.ttl); write('last', body, LAST_GOOD);
     return json(body, 200, 'public, max-age=' + browserTtl, { 'X-Dir': 'db' });
   }
