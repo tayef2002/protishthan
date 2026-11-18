@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>ব্যাচ ডুয়েল: আজকের কুইজে ব্যাচ বনাম ব্যাচ | Protishthan</title>
+<meta name="description" content="একটা দিন ঠিক করুন, আরেকটা ব্যাচকে ডাকুন। সেদিন দুই ব্যাচের সবাই আজকের কুইজ খেলে। যে ব্যাচের সেরা ১০ জনের গড় বেশি, তারাই জেতে।">
+<link rel="canonical" href="https://protishthan.com/duel">
+<meta property="og:title" content="ব্যাচ ডুয়েল | Protishthan">
+<meta property="og:description" content="আমাদের ব্যাচ বনাম ওদের ব্যাচ, আজকের কুইজে। আপনি খেলবেন তো?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/duel">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/challenge.css?v=2">
+<link rel="stylesheet" href="/duel.css?v=1">
+<link rel="stylesheet" href="/myinst.css?v=6">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="duel"></div>
+<script src="/nav.js?v=23"></script>
+
+<main class="ch" id="dlRoot"><div class="ch-skel"></div></main>
+
+<div class="ch-toast" id="dlToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=23"></script>
+<script>window.MYINST_QUIET = true;</script>
+<script src="/myinst.js?v=6" defer></script>
+<script>
+(function(){
+  'use strict';
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const QS = new URLSearchParams(location.search), ID = (QS.get('d') || '').toLowerCase(), ROOM = UUID.test(ID), VS = (QS.get('vs') || '').toLowerCase();
+  const toast = m => { const t = $('dlToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2800); };
+  const rpc = async (n, a) => { const M = MB(); if(!M || !M.sb) return { error: { message: 'NO_CLIENT' } }; try{ return await M.sb.rpc(n, a || {}); }catch(e){ return { error: { message: String(e && e.message || e) } }; } };
+  const signedIn = () => { const M = MB(); return !!(M && M.current && M.current()); };
+  const name = b => b ? (b.name || 'ব্যাচ') + ' · ' + bn(b.year || '') + ' ব্যাচ' : 'ব্যাচ';
+  const sign = why => { T('duel_signin_click', {}); const M = MB(); if(M) M.signIn(why || 'ব্যাচ ডুয়েলে যোগ দিতে', { title: 'ব্যাচ ডুয়েলে যোগ দিন', cta: 'Google দিয়ে চালিয়ে যান', perks: [['users', 'আপনার ব্যাচের হয়ে আজকের কুইজ খেলুন'], ['seat', 'আপনার পয়েন্ট ব্যাচের গড়ে যোগ হয়'], ['eye', 'শুধু ব্যাচের নাম আর সংখ্যা দেখা যায়, কে কত পেয়েছে নয়']] }); };
+  // "বৃহস্পতিবার, ১৯ নভেম্বর" from a Bangladesh date "2026-11-19"
+  const fmtDay = d => new Date(d + 'T12:00:00+06:00').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Dhaka' });
+  let EDGE_DOWN = 0; const edgeUp = () => Date.now() > EDGE_DOWN, edgeFail = () => { EDGE_DOWN = Date.now() + 60000; };
+  const state = async id => {
+    if(edgeUp()){ try{ const r = await fetch('/api/duel?f=state&id=' + encodeURIComponent(id), { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.found !== undefined) return j; } else if(r.status === 404 || r.status >= 500) edgeFail(); }catch(e){ edgeFail(); } }
+    const d = await rpc('duel_state', { p_id: id }); return d.data || null;
+  };
+  const list = async () => {
+    if(edgeUp()){ try{ const r = await fetch('/api/duel?f=list', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) return j; } else if(r.status === 404 || r.status >= 500) edgeFail(); }catch(e){ edgeFail(); } }
+    const d = await rpc('duel_list', { p_limit: 30 }); return Array.isArray(d.data) ? d.data : null;
+  };
+  const shareText = S => '⚔️ ব্যাচ ডুয়েল! ' + name(S.a) + (S.b ? ' বনাম ' + name(S.b) : ' একটা বিপক্ষ ব্যাচ খুঁজছে') + ', ' + fmtDay(S.day) + '। সেদিন দুই ব্যাচ আজকের কুইজ খেলবে, সেরা ১০ জনের গড় যার বেশি, সে জিতবে।' + (S.b ? '' : ' আপনার ব্যাচ চ্যালেঞ্জ নিতে পারে।') + '\nদেখুন ও খেলুন: https://protishthan.com/duel?d=' + S.id;
+  const MSG = { NOT_SIGNED_IN: 'আগে সাইন-ইন করুন।', NOT_MEMBER: 'এই ব্যাচের সদস্য না হলে ডুয়েল দেওয়া যায় না।', BAD_DAY: 'কাল থেকে ৭ দিনের মধ্যে একটা দিন বাছুন।', BATCH_TOO_SMALL: 'ব্যাচে অন্তত ৫ জন সদস্য না হলে ডুয়েল দেওয়া যায় না।', LIMIT_USER: 'আপনি আজ একটা ডুয়েল দিয়েছেন। ২৪ ঘণ্টায় একটাই দেওয়া যায়।', BUSY: 'ঐ দিন এই ব্যাচের আরেকটা ডুয়েল আছে, বা তিনটা ডুয়েল আগেই অপেক্ষায় আছে। অন্য দিন বাছুন।', SAME_BATCH: 'নিজের ব্যাচের বিপক্ষে নিজেরাই খেলা যায় না।', OPP_NOT_FOUND: 'ঐ ব্যাচটা পাওয়া যায়নি। "যেকোনো ব্যাচ" বেছে চেষ্টা করুন।', OPP_TOO_SMALL: 'ঐ ব্যাচে এখনও ৫ জন সদস্য নেই। "যেকোনো ব্যাচ" বেছে দেখুন।', OPP_BUSY: 'ঐ ব্যাচের ঐ দিন আরেকটা ডুয়েল আছে। অন্য দিন বাছুন।' };
+  const ACCMSG = { ALREADY_TAKEN: 'অন্য একটা ব্যাচ আগেই ডুয়েলটা নিয়ে ফেলেছে।', BUSY: 'আপনাদের ব্যাচের ঐ দিন আরেকটা ডুয়েল আছে।', TOO_LATE: 'দিনটা এসে গেছে, এখন আর নেওয়া যায় না।', BATCH_TOO_SMALL: 'আপনাদের ব্যাচে অন্তত ৫ জন সদস্য লাগে।', SAME_BATCH: 'নিজের ব্যাচের বিপক্ষে খেলা যায় না।', NOT_MEMBER: 'আপনি ঐ ব্যাচের সদস্য নন।', CANCELLED: 'ডুয়েলটা বাতিল হয়েছে।' };
+  const LAB = { live: 'আজ', upcoming: 'আসছে', open: 'বিপক্ষ খোঁজা হচ্ছে', done: 'শেষ' };
+
+  /* =====================================================  THE HUB  ===================================================== */
+  const HUB = { batches: null, vs: null, vsInfo: null };
+  async function hub(){
+    $('dlRoot').innerHTML = '<header class="ch-hero"><a class="ch-kick" href="/league" style="text-decoration:none">🏆 প্রতিষ্ঠান লিগ</a><h1>ব্যাচ <span>ডুয়েল</span></h1><p>একটা দিন ঠিক করুন, আরেকটা ব্যাচকে ডাকুন। সেদিন দুই ব্যাচের সবাই আজকের কুইজ খেলে। সেরা ১০ জনের গড় যার বেশি, জয় তার।</p></header>' +
+      '<section class="ch-sec"><h2>আসছে ও চলছে</h2><p>চাপলে দেখতে পাবেন। অংশ নিতে হলে আপনাকে ঐ ব্যাচের সদস্য হতে হবে।</p><ul class="ch-list" id="dlList"><li class="ch-empty">লোড হচ্ছে…</li></ul></section>' +
+      '<section class="ch-sec"><h2>ডুয়েল দিন</h2><p>ব্যাচের একজন সদস্য দিন ঠিক করলেই হয়। তারপর ব্যাচের গ্রুপে লিংক পাঠান।</p><div class="ch-card" id="dlFormBox"><div class="ch-skel" style="height:120px"></div></div></section>' +
+      '<section class="ch-how"><h2>কীভাবে খেলা হয়</h2><ol><li>ব্যাচের একজন সদস্য কাল থেকে ৭ দিনের মধ্যে একটা দিন বাছে, আর বিপক্ষ ঠিক করে: যেকোনো ব্যাচ, বা নির্দিষ্ট একটা ব্যাচ।</li><li>সেদিন দুই ব্যাচের সদস্যরা সাধারণ <a href="/quiz">আজকের কুইজ</a> খেলে। আলাদা কিছু খেলতে হয় না।</li><li>প্রতিটা ব্যাচের স্কোর হলো তার সেরা ১০ জনের গড় পয়েন্ট, তাই বড় ব্যাচ বলে বাড়তি সুবিধা নেই।</li><li>দুই পক্ষেই অন্তত ৩ জন না খেললে ডুয়েল গোনা হয় না। যার গড় বেশি সে জেতে, সমান হলে ড্র।</li><li>জয়ে লিগে ৫০ পয়েন্ট, ড্রয়ে ২৫। শুধু ব্যাচের নাম আর সংখ্যা দেখা যায়, কে কত পেয়েছে নয়।</li></ol></section>';
+    T('duel_hub_view', { signed: signedIn() ? 1 : 0 });
+    const M = MB(); if(M && M.ready) await M.ready();
+    paintForm(); loadList(); setInterval(loadList, 60000); if(M && M.onChange) M.onChange(() => paintForm());
+  }
+  async function loadList(){
+    const ul = $('dlList'); if(!ul) return; const r = await list();
+    if(!r){ ul.innerHTML = '<li class="ch-empty">এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</li>'; return; }
+    if(!r.length){ ul.innerHTML = '<li class="ch-empty">এখন কোনো ডুয়েল নেই।<br>আপনার ব্যাচই প্রথম ডুয়েল দিতে পারে, নিচে দিন ঠিক করুন।</li>'; return; }
+    const rank = { live: 0, upcoming: 1, open: 2, done: 3 }, rows = r.slice().sort((a, b) => (rank[a.status] - rank[b.status]) || (a.status === 'done' ? b.day.localeCompare(a.day) : a.day.localeCompare(b.day)));
+    ul.innerHTML = rows.map(c => '<li><a class="ch-row rope ' + (c.status === 'live' ? 'live' : '') + '" href="/duel?d=' + c.id + '"><div><b>⚔️ ' + esc(name(c.a)) + ' <em>বনাম</em> ' + (c.b ? esc(name(c.b)) : '<i>বিপক্ষ খোঁজা হচ্ছে</i>') + '</b><small>' + esc(fmtDay(c.day)) + (c.open ? ' · যেকোনো ব্যাচ নিতে পারে' : '') + '</small></div><span class="ch-pill ' + (c.status === 'live' ? 'live' : c.status === 'done' ? 'done' : '') + '">' + (LAB[c.status] || '') + '</span></a></li>').join('');
+  }
+  async function paintForm(){
+    const box = $('dlFormBox'); if(!box) return;
+    if(!signedIn()){ box.innerHTML = '<div class="ch-cen"><h2>আগে সাইন-ইন করুন</h2><p>ডুয়েল দিতে আপনার নিজের ব্যাচের সদস্য হতে হবে।</p><button type="button" class="ch-go" id="dlSign">Google দিয়ে সাইন-ইন করুন</button></div>'; $('dlSign').onclick = () => sign('ডুয়েল দিতে সাইন-ইন করুন'); return; }
+    const r = await rpc('batch_me');
+    if(r.error || !Array.isArray(r.data)){ box.innerHTML = '<div class="ch-empty">এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</div>'; return; }
+    HUB.batches = r.data.filter(b => b.level === 'ssc');
+    if(!HUB.batches.length){ box.innerHTML = '<div class="ch-cen"><h2>আপনি এখনও কোনো ব্যাচে নেই</h2><p>আগে আপনার SSC ব্যাচে যোগ দিন, তারপর ডুয়েল দেওয়া যাবে।</p><a class="ch-go" href="member.html#life">ব্যাচ খুঁজুন</a></div>'; return; }
+    if(UUID.test(VS) && !HUB.vs){ const v = await rpc('challenge_batch_info', { p_batch: VS }); if(v.data && v.data.id){ HUB.vs = v.data.id; HUB.vsInfo = v.data; } }
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(Date.now() + 6 * 3600e3 + (i + 1) * 864e5); return d.toISOString().slice(0, 10); });
+    box.innerHTML = '<form class="ch-form" id="dlForm"><label for="dlBatch">কোন ব্যাচ?</label><select class="ch-in" id="dlBatch">' + HUB.batches.map(b => '<option value="' + esc(b.batch_id) + '">' + esc((b.name || b.slug) + ' · ' + bn(b.year) + ' ব্যাচ (' + bn(b.members || 0) + ' জন)') + '</option>').join('') + '</select>' +
+      '<label for="dlDay">কোন দিন? (কাল থেকে ৭ দিনের মধ্যে)</label><select class="ch-in" id="dlDay">' + days.map(d => '<option value="' + d + '">' + esc(fmtDay(d)) + '</option>').join('') + '</select>' +
+      '<label>কার বিপক্ষে?</label><div class="ch-vs">' + (HUB.vs && HUB.vsInfo ? '<div class="ch-vsrow on"><b>' + esc(name(HUB.vsInfo)) + '</b><small>' + bn(HUB.vsInfo.members || 0) + ' জন সদস্য · আপনি নাম ধরে ডাকছেন</small></div><button type="button" class="ch-linkbtn" id="dlAny">না, যেকোনো ব্যাচ হোক</button>' : '<div class="ch-vsrow on"><b>যেকোনো ব্যাচ</b><small>যে ব্যাচ আগে "ডুয়েল নিলাম" চাপবে, তারাই আপনাদের বিপক্ষ</small></div>') + '</div>' +
+      '<div class="ch-hint">ঐদিন দুই ব্যাচের সদস্যরা আজকের কুইজ খেলবে। প্রতি পক্ষে অন্তত ৩ জন খেললে ডুয়েল গোনা হয়। সেরা ১০ জনের গড় পয়েন্ট দেখা হয়।</div><div class="ch-err" id="dlErr" hidden></div><div style="margin-top:16px"><button type="submit" class="ch-go" id="dlCreate">ডুয়েল দিন</button></div></form>';
+    if($('dlAny')) $('dlAny').onclick = () => { HUB.vs = null; HUB.vsInfo = null; paintForm(); };
+    $('dlForm').onsubmit = async e => {
+      e.preventDefault(); const err = $('dlErr'), btn = $('dlCreate'); err.hidden = true; btn.disabled = true;
+      const r2 = await rpc('duel_create', { p_batch: $('dlBatch').value, p_day: $('dlDay').value, p_opp: HUB.vs || null }); btn.disabled = false; const x = r2.data;
+      if(r2.error || !x){ err.textContent = 'এখন হলো না, একটু পরে আবার চেষ্টা করুন।'; err.hidden = false; return; }
+      if(x.ok){ T('duel_created', { named: HUB.vs ? 1 : 0 }); location.href = '/duel?d=' + x.id + '&new=1'; return; }
+      err.textContent = MSG[x.error] || 'ডুয়েল দেওয়া গেল না।'; err.hidden = false;
+    };
+  }
+
+  /* =====================================================  THE ROOM  ===================================================== */
+  const R = { S: null, me: null, polling: false };
+  async function room(){
+    const root = $('dlRoot'); root.innerHTML = '<div class="ch-skel"></div>';
+    const M = MB(); if(M && M.ready) await M.ready();
+    R.S = await state(ID);
+    if(!R.S || R.S.found === false){ root.innerHTML = '<div class="ch-card ch-cen"><h2>এই ডুয়েল পাওয়া যায়নি</h2><p>লিংকটা ঠিক আছে কিনা দেখুন, বা ডুয়েলটা বাতিল হয়ে থাকতে পারে।</p><a class="ch-go" href="/duel">সব ডুয়েল দেখুন</a></div>'; return; }
+    await loadMe(); T('duel_room_view', { signed: signedIn() ? 1 : 0, member: R.me && R.me.member ? 1 : 0, st: R.S.status });
+    paint(); pollLoop(); if(M && M.onChange) M.onChange(async () => { await loadMe(); paint(); });
+  }
+  async function loadMe(){ const r = await rpc('duel_me', { p_id: ID }); R.me = (!r.error && r.data) ? r.data : { signed_in: signedIn(), member: false, side: null, creator: false, accept_batches: [] }; }
+  async function pollLoop(){
+    if(R.polling) return; R.polling = true;
+    while(true){
+      await sleep(R.S.status === 'live' ? 30000 + Math.random() * 6000 : 90000 + Math.random() * 20000);
+      const s = await state(ID); if(s && s.found !== false){ const was = !!R.S.b; R.S = s; if(!!s.b !== was) await loadMe(); paint(); }
+    }
+  }
+  const barW = v => Math.max(3, Math.min(100, Number(v) / 75 * 100));
+  function paint(){
+    const S = R.S, me = R.me || {}, st = S.status, root = $('dlRoot'); let body;
+    const head = '<header class="ch-head"><a class="ch-kick" href="/league" style="text-decoration:none">⚔️ ব্যাচ ডুয়েল</a><h1>' + esc(name(S.a)) + ' <em class="vs">বনাম</em> ' + (S.b ? esc(name(S.b)) : '<i>বিপক্ষ খোঁজা হচ্ছে</i>') + '</h1><p>' + esc(fmtDay(S.day)) + ' · আজকের কুইজে, সেরা ১০ জনের গড়</p></header>';
+    if(st === 'cancelled' || st === 'expired') body = '<div class="ch-card ch-cen"><h2>' + (st === 'cancelled' ? 'ডুয়েলটা বাতিল হয়েছে' : 'কোনো ব্যাচ ডুয়েলটা নেয়নি') + '</h2><p>' + (st === 'cancelled' ? 'যিনি দিয়েছিলেন, তিনি বাতিল করেছেন।' : 'দিন এসে গেছে, তাই এটা আর হবে না।') + '</p><a class="ch-go" href="/duel">সব ডুয়েল</a></div>';
+    else body = head + versus() + actions();
+    root.innerHTML = body; bind();
+  }
+  function versus(){
+    const S = R.S, st = S.status, done = st === 'done', pa = S.players_a || 0, pb = S.players_b || 0, aw = done && S.winner === 'a', bw = done && S.winner === 'b';
+    let note = '';
+    if(!S.b) note = 'এখনও কোনো ব্যাচ ডুয়েল নেয়নি। দিন আসার আগে কেউ না নিলে ডুয়েলটা হবে না।';
+    else if(st === 'upcoming') note = 'ডুয়েল শুরু হবে ' + fmtDay(S.day) + ' সকাল থেকে। সেদিন আজকের কুইজ খেলুন, আপনার ব্যাচের জন্য।';
+    else if(!S.valid) note = 'জয়-পরাজয় গোনা হবে যখন দুই পক্ষেই অন্তত ৩ জন খেলবেন (এখন ' + bn(pa) + ' আর ' + bn(pb) + ' জন)।';
+    else if(st === 'live') note = (S.lead || 0) > 0 ? esc(name(S.a)) + ' এগিয়ে' : (S.lead || 0) < 0 ? esc(name(S.b)) + ' এগিয়ে' : 'সমান সমান';
+    const bar = (cls, b, avg, p, win) => '<div class="dl-side ' + cls + (win ? ' win' : '') + '"><b>' + (b ? esc(name(b)) : 'বিপক্ষ খোঁজা হচ্ছে…') + '</b><div class="dl-bar"><i style="width:' + (b ? barW(avg) : 0) + '%"></i></div><div class="dl-num"><strong>' + (b ? String(Math.round(Number(avg) * 10) / 10).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]) : '—') + '</strong> গড় পয়েন্ট · ' + bn(p) + ' জন খেলেছেন' + (win ? ' · 🏆' : '') + '</div></div>';
+    return '<div class="dl-vs" id="dlVs">' + bar('a', S.a, S.avg_a, pa, aw) + bar('b', S.b, S.avg_b, pb, bw) + (done && S.valid ? '<div class="dl-res ' + (S.winner === 'draw' ? 'draw' : '') + '">' + (S.winner === 'draw' ? '🤝 ড্র! দুই ব্যাচের গড় সমান' : '🏆 ' + esc(name(S.winner === 'a' ? S.a : S.b)) + ' জিতেছে') + '</div><p class="dl-pts">লিগে ' + (S.winner === 'draw' ? 'দুই ব্যাচ ২৫ করে পয়েন্ট পেয়েছে' : 'জয়ী ব্যাচ ৫০ পয়েন্ট পেয়েছে') + '</p>' : '') + (done && !S.valid ? '<div class="dl-res draw">ডুয়েল গোনা হয়নি</div>' : '') + '<div class="dl-note">' + (done && !S.valid ? 'দুই পক্ষেই অন্তত ৩ জন খেলেননি, তাই জয়-পরাজয় ধরা হয়নি।' : note) + '</div></div>';
+  }
+  function actions(){
+    const S = R.S, me = R.me || {}, st = S.status; let h = '<div class="ch-card ch-cen">';
+    if(st === 'live') h += '<h2>আজ ডুয়েলের দিন</h2><p>আজকের কুইজ খেলুন, সাইন-ইন করে। আপনার পয়েন্ট আপনার ব্যাচের গড়ে যোগ হবে।</p><a class="ch-go" id="dlPlay" href="/quiz">আজকের কুইজ খেলুন →</a>';
+    else if(st === 'done') h += '<h2>ডুয়েল শেষ</h2><p>নতুন ডুয়েল দিয়ে আবার মুখোমুখি হোন।</p><a class="ch-go" href="/duel">নতুন ডুয়েল দিন</a>';
+    else h += '<h2>' + (st === 'open' ? 'বিপক্ষ চাই' : 'ডুয়েল আসছে') + '</h2><p>দিন: ' + esc(fmtDay(S.day)) + '। সেদিন আজকের কুইজ খেললেই আপনার ব্যাচের হয়ে গোনা হবে।</p>';
+    if(st === 'open') h += acceptBlock();
+    h += shareBlock();
+    if(me.creator && (st === 'open' || st === 'upcoming')) h += '<div class="ch-share"><button type="button" class="ch-sec2 red" id="dlCancel">ডুয়েল বাতিল করুন</button></div>';
+    if(st !== 'done' && !signedIn()) h += '<div class="ch-who">খেলতে সাইন-ইন করুন। শুধু এই ব্যাচগুলোর সদস্যদের পয়েন্ট গোনা হয়।<br><button type="button" class="ch-linkbtn" id="dlSign">Google দিয়ে সাইন-ইন করুন</button></div>';
+    else if(signedIn() && !me.member && !(st === 'open' && (me.accept_batches || []).length)) h += '<div class="ch-who">আপনি এই দুই ব্যাচের কোনোটারই সদস্য নন, তাই দর্শক হিসেবে দেখছেন।</div>';
+    else if(me.member && st !== 'done') h += '<div class="ch-who ok">আপনি ' + esc(name(me.side === 'a' ? S.a : S.b)) + '-এর পক্ষে</div>';
+    return h + '</div>';
+  }
+  function acceptBlock(){
+    const S = R.S, me = R.me || {}; if(!signedIn()) return '<div class="ch-who ok"><b>এটা খোলা ডুয়েল: যেকোনো ব্যাচ বিপক্ষ হতে পারে।</b><br>আপনার ব্যাচ নিতে চাইলে আগে সাইন-ইন করুন।</div>';
+    const bs = me.accept_batches || [];
+    if(!bs.length) return me.member ? '' : '<div class="ch-who"><b>এটা খোলা ডুয়েল।</b> আপনার ব্যাচে অন্তত ৫ জন সদস্য থাকলে আপনার ব্যাচ এই ডুয়েল নিতে পারে। প্রথম যে ব্যাচ নেবে, সেই বিপক্ষ।</div>';
+    return '<div class="ch-who ok"><b>' + esc(name(S.a)) + ' বিপক্ষ চাইছে। আপনার ব্যাচ নেবে?</b><br>যে ব্যাচ আগে চাপবে, সেই বিপক্ষ।<div class="ch-acc">' + bs.map(b => '<button type="button" class="ch-go sm" data-acc="' + esc(b.id) + '">' + esc(name(b)) + ' · ডুয়েল নিলাম</button>').join('') + '</div></div>';
+  }
+  function shareBlock(){
+    const S = R.S, t = shareText(S);
+    return '<div class="ch-share"><a class="ch-sec2 wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(t) + '" data-sh="wa">WhatsApp-এ পাঠান</a><a class="ch-sec2 fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://protishthan.com/duel?d=' + S.id) + '&quote=' + encodeURIComponent(t) + '" data-sh="fb">Facebook</a><button type="button" class="ch-sec2" id="dlCopy">লিংক কপি</button></div>';
+  }
+  function bind(){
+    if($('dlSign')) $('dlSign').onclick = () => sign();
+    if($('dlCancel')) $('dlCancel').onclick = cancel;
+    if($('dlCopy')) $('dlCopy').onclick = async () => { T('duel_share', { ch: 'copy' }); try{ await navigator.clipboard.writeText(shareText(R.S)); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    document.querySelectorAll('[data-sh]').forEach(a => { a.onclick = () => T('duel_share', { ch: a.dataset.sh }); });
+    document.querySelectorAll('[data-acc]').forEach(b => { b.onclick = () => accept(b.dataset.acc, b); });
+    if($('dlPlay')) $('dlPlay').onclick = () => T('duel_play_click', {});
+  }
+  async function accept(batchId, btn){
+    if(btn) btn.disabled = true; const r = await rpc('duel_accept', { p_id: ID, p_batch: batchId }), d = r.data;
+    if(d && d.ok){ T('duel_accept', {}); const s = await state(ID); if(s && s.found !== false) R.S = s; await loadMe(); paint(); toast('আপনাদের ব্যাচ ডুয়েল নিয়েছে ✓'); return; }
+    if(btn) btn.disabled = false; toast(d && ACCMSG[d.error] || 'এখন হলো না, আবার চাপুন');
+    if(d && (d.error === 'ALREADY_TAKEN' || d.error === 'TOO_LATE')){ const s = await state(ID); if(s && s.found !== false) R.S = s; await loadMe(); paint(); }
+  }
+  async function cancel(){
+    if(!confirm('ডুয়েলটা বাতিল করবেন?')) return; const r = await rpc('duel_cancel', { p_id: ID }), d = r.data;
+    if(d && d.ok){ T('duel_cancel', {}); R.S.status = 'cancelled'; paint(); } else toast(d && d.error === 'ALREADY_STARTED' ? 'দিন শুরু হয়ে গেছে, বাতিল করা যায় না' : 'এখন হলো না');
+  }
+
+  window.__duel = { R, HUB, hub, room, paint, state };
+  (async () => { if(ROOM) await room(); else await hub(); })();
+})();
+</script>
+</body>
+</html>
