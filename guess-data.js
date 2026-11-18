@@ -31,9 +31,9 @@
     return shuffle([row.district].concat(pick.slice(0, 3)), rand);
   }
   // the ten questions: kind 'daily' (the first usable ones of the pool, in its order) or 'free' (random, the seed is anything)
-  function build(pool, kind, seed){
+  function build(pool, kind, seed, count){
     var rows = clean(pool); if(kind !== 'daily') rows = shuffle(rows, rng('free|' + seed));
-    return rows.slice(0, ROUNDS).map(function(r){ return { slug: r.slug, name: r.name, type: r.type, district: r.district, upazila: r.upazila, options: optionsFor(r, kind === 'daily' ? seed : 'free|' + seed) }; });
+    return rows.slice(0, count || ROUNDS).map(function(r){ return { slug: r.slug, name: r.name, type: r.type, district: r.district, upazila: r.upazila, options: optionsFor(r, kind === 'daily' ? seed : 'free|' + seed) }; });
   }
   // the points of an answer: 10 for a right one and up to 5 more for speed; a wrong one or none scores nothing
   function score(correct, msLeft){ if(!correct) return 0; var f = Math.max(0, Math.min(1, msLeft / (SECONDS * 1000))); return 10 + Math.round(5 * f); }

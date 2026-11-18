@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>ক্রিকেট কুইজ: প্রতিটা বল একটা প্রশ্ন | Protishthan</title>
+<meta name="description" content="ব্যাট করুন প্রশ্নের উত্তর দিয়ে: ঠিক উত্তরে রান (দ্রুত দিলে ছক্কা), ভুলে আউট। ১২ বলে লক্ষ্যে পৌঁছাতে পারেন?">
+<link rel="canonical" href="https://protishthan.com/cricket">
+<meta property="og:title" content="ক্রিকেট কুইজ | Protishthan">
+<meta property="og:description" content="প্রতিটা বল একটা প্রশ্ন। ১২ বলে লক্ষ্যে পৌঁছাতে পারেন?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/cricket">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/cricket.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="cricket"></div>
+<script src="/nav.js?v=23"></script>
+
+<main class="cr">
+  <header class="cr-hero">
+    <span class="cr-kick">🏏 প্রতিষ্ঠান লিগ · খেলা</span>
+    <h1>ক্রিকেট <span>কুইজ</span></h1>
+    <p>প্রতিটা বল একটা প্রশ্ন। ঠিক উত্তরে রান, ভুলে আউট।</p>
+  </header>
+  <section class="cr-card" id="crBox" aria-live="polite"><div class="cr-skel"></div></section>
+  <section class="cr-how">
+    <h2>কীভাবে কাজ করে</h2>
+    <ul>
+      <li>আপনি ব্যাট করছেন। ১২ বল, ৩ উইকেট, আর একটা লক্ষ্য (৩০, ৪০ বা ৫০ রান)। লক্ষ্যে পৌঁছালেই জয়।</li>
+      <li>প্রতিটা বলে একটা প্রশ্ন। <b>ঠিক উত্তর:</b> খুব তাড়াতাড়ি দিলে ছক্কা (৬), মাঝামাঝি সময়ে চার (৪), দেরিতে ২ বা ১ রান।</li>
+      <li><b>ভুল উত্তর:</b> আউট! তিনটা আউট হলে অল আউট। <b>উত্তর না দিলে:</b> ডট বল, উইকেট যায় না।</li>
+      <li><b>আজকের ম্যাচ:</b> প্রতিদিন সবার জন্য একই প্রশ্ন, রাত ১২টায় বদলায়। বন্ধুর সঙ্গে মেলান। <b>যত খুশি:</b> প্রতিবার নতুন প্রশ্ন।</li>
+      <li>প্রশ্ন আসে অঙ্ক স্প্রিন্ট আর "কোন জেলায়?" থেকে। রেকর্ড শুধু আপনার ফোনে থাকে, লিগের বোর্ডে যোগ হয় না।</li>
+    </ul>
+  </section>
+</main>
+
+<div class="cr-toast" id="crToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=23"></script>
+<script src="/bd-locations.js?v=3"></script>
+<script src="/sprint-data.js?v=1"></script>
+<script src="/guess-data.js?v=3"></script>
+<script src="/cricket-data.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const C = window.CricketData, S = window.SprintData, GD = window.GuessData, bn = C.bn;
+  GD.setDivisions(window.BD_DIVISIONS || {});
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const ls = { get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} } };
+  const toast = m => { const t = $('crToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+  const SHARE = 'https://protishthan.com/cricket', TODAY = S.dayKey();
+  const G = { topic: ls.get('cr_topic') || 'math-c6', target: +ls.get('cr_target') || 40, kind: '', seed: '', m: null, n: 0, q: null, qs: null, t0: 0, secs: 10, timer: 0, locked: true, pool: null };
+  if(!C.topic(G.topic)) G.topic = 'math-c6'; if(!C.TARGETS.some(t => t[0] === G.target)) G.target = 40;
+  const rec = () => { try{ return JSON.parse(ls.get('cr_rec') || '{}') || {}; }catch(e){ return {}; } };
+  const saveRec = r => ls.set('cr_rec', JSON.stringify(r));
+  const dkey = () => G.topic + '|' + G.target;
+  const tName = k => (C.topic(k) || [])[1] || '';
+
+  /* the district questions need the pool of the day (the same answer from the edge for everybody) */
+  async function loadPool(){
+    if(G.pool) return G.pool;
+    try{ const r = await fetch('/api/dir?f=guess', { cache: 'default' }); if(r.ok){ const j = await r.json(); if(Array.isArray(j) && j.length >= 30) return (G.pool = j); } }catch(e){}
+    const M = MB(); if(M && M.ready) await M.ready();
+    if(M && M.sb){ try{ const r = await M.sb.rpc('guess_pool', { p_day: TODAY, p_n: 150 }); if(!r.error && Array.isArray(r.data) && r.data.length >= 30) return (G.pool = r.data); }catch(e){} }
+    return null;
+  }
+  /* the Nth question as one shape: { text, sub, options: [{ label, value }], answer } */
+  function questionAt(n){
+    if(G.topic === 'district'){ const q = G.qs[n]; return q ? { text: q.name, sub: '📍 ' + q.upazila + ' উপজেলা · এই উপজেলা কোন জেলায়?', options: q.options.map(o => ({ label: o, value: o })), answer: q.district } : null; }
+    const q = S.question(G.topic.slice(5), G.seed, n); return { text: q.text, sub: '', options: q.options.map(o => ({ label: bn(o).replace(/-/g, '−'), value: o })), answer: q.answer };
+  }
+
+  /* ---------- the start screen ---------- */
+  function start(msg){
+    const r = rec(), done = (r.today || {})[dkey()], d = done && done.day === TODAY ? done : null;
+    $('crBox').innerHTML = '<div class="cr-cen"><h2>কোন বিষয়ে ব্যাট করবেন?</h2><div class="cr-tp" id="crTp" role="group" aria-label="বিষয়">' + C.TOPICS.map(t => '<button type="button" class="cr-t' + (t[0] === G.topic ? ' on' : '') + '" data-t="' + t[0] + '" aria-pressed="' + (t[0] === G.topic) + '">' + esc(t[1]) + '</button>').join('') + '</div>' +
+      '<h3>লক্ষ্য কত রান?</h3><div class="cr-tg" id="crTg" role="group" aria-label="লক্ষ্য">' + C.TARGETS.map(t => '<button type="button" class="cr-g' + (t[0] === G.target ? ' on' : '') + '" data-g="' + t[0] + '" aria-pressed="' + (t[0] === G.target) + '"><b>' + bn(t[0]) + '</b><small>' + t[1] + '</small></button>').join('') + '</div>' +
+      '<div class="cr-chips">' + (r.best ? '<span class="cr-chip">সেরা: ' + bn(r.best) + ' রান</span>' : '') + (r.wins ? '<span class="cr-chip ok">' + bn(r.wins) + 'টা জয়</span>' : '') + (d ? '<span class="cr-chip">আজ: ' + bn(d.runs) + ' রান</span>' : '') + '</div>' + (msg ? '<div class="cr-err">' + esc(msg) + '</div>' : '') +
+      '<div class="cr-btns"><button type="button" class="cr-go" id="crDaily">' + (d ? 'আজকের ফল দেখুন' : 'আজকের ম্যাচ') + '</button><button type="button" class="cr-sec" id="crFree">যত খুশি খেলুন</button></div><p class="cr-sm">১২ বল, ৩ উইকেট। প্রতিটা বল একটা প্রশ্ন।</p></div>';
+    $('crTp').onclick = e => { const b = e.target.closest('.cr-t'); if(!b) return; G.topic = b.dataset.t; ls.set('cr_topic', G.topic); start(); };
+    $('crTg').onclick = e => { const b = e.target.closest('.cr-g'); if(!b) return; G.target = +b.dataset.g; ls.set('cr_target', String(G.target)); start(); };
+    $('crDaily').onclick = () => begin('daily'); $('crFree').onclick = () => begin('free');
+  }
+  async function begin(kind){
+    const r = rec(), done = (r.today || {})[dkey()];
+    if(kind === 'daily' && done && done.day === TODAY){ G.kind = kind; G.m = { target: G.target, balls: done.balls, runs: done.runs, wickets: done.wickets, log: done.log, over: true, result: done.result }; return finish(true); }
+    $('crBox').innerHTML = '<div class="cr-skel"></div>';
+    G.kind = kind; G.seed = kind === 'daily' ? TODAY + '|' + G.topic : String(Date.now()) + Math.random(); G.secs = C.secondsFor(G.topic);
+    if(G.topic === 'district'){
+      const pool = await loadPool(); if(!pool){ start('প্রশ্ন এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন, বা অঙ্ক বেছে নিন।'); return; }
+      G.qs = GD.build(pool, kind, kind === 'daily' ? TODAY : G.seed, C.BALLS); if(G.qs.length < C.BALLS){ start('এখন খেলার মতো যথেষ্ট প্রশ্ন নেই।'); return; }
+    }
+    G.m = C.newMatch(G.target); G.n = 0; T('cricket_start', { t: G.topic, g: G.target, k: kind });
+    ball();
+  }
+
+  /* ---------- a ball ---------- */
+  function scoreboard(banner){
+    const m = G.m, left = C.WICKETS - m.wickets;
+    return '<div class="cr-sb"><div class="cr-runs"><b>' + bn(m.runs) + '</b><small>লক্ষ্য ' + bn(m.target) + '</small></div><div class="cr-mid"><div class="cr-wk" aria-label="' + bn(left) + 'টা উইকেট বাকি">' + Array.from({ length: C.WICKETS }, (_, i) => '<i class="' + (i < left ? 'in' : 'out') + '"></i>').join('') + '</div><small>বল ' + bn(m.balls) + '/' + bn(C.BALLS) + '</small></div><div class="cr-need">' + (m.target - m.runs > 0 ? '<b>' + bn(m.target - m.runs) + '</b><small>রান বাকি</small>' : '') + '</div></div>' +
+      '<div class="cr-log" aria-label="এ পর্যন্ত">' + Array.from({ length: C.BALLS }, (_, i) => { const x = m.log[i]; return '<span class="' + (x === undefined ? 'nx' : x === 'W' ? 'w' : x === 0 ? 'd' : x >= 4 ? 'b' : 'r') + '">' + (x === undefined ? '' : x === 'W' ? 'W' : x === 0 ? '•' : bn(x)) + '</span>'; }).join('') + '</div>';
+  }
+  function ball(){
+    const q = questionAt(G.n); if(!q){ finishNow(); return; } G.q = q; G.locked = false;
+    $('crBox').innerHTML = scoreboard() + '<div class="cr-tb"><i id="crTbi"></i></div><div class="cr-q">' + esc(q.text) + '</div>' + (q.sub ? '<div class="cr-sub">' + esc(q.sub) + '</div>' : '') +
+      '<div class="cr-opts" id="crOpts">' + q.options.map((o, i) => '<button type="button" class="cr-opt" data-i="' + i + '"><kbd>' + bn(i + 1) + '</kbd><span>' + esc(o.label) + '</span></button>').join('') + '</div><div class="cr-say" id="crSay"></div>';
+    $('crOpts').onclick = e => { const b = e.target.closest('.cr-opt'); if(b) answer(+b.dataset.i, b); };
+    document.addEventListener('keydown', onKey); G.t0 = performance.now(); clearInterval(G.timer); G.timer = setInterval(tick, 80);
+  }
+  function onKey(e){ if(G.locked) return; const i = '1234'.indexOf(e.key); if(i < 0) return; const b = document.querySelectorAll('.cr-opt')[i]; if(b) b.click(); }
+  function tick(){ const used = (performance.now() - G.t0) / (G.secs * 1000), tb = $('crTbi'); if(!tb || G.locked) return; tb.style.width = Math.max(0, 100 - used * 100) + '%'; tb.classList.toggle('hot', used > 0.7); if(used >= 1) answer(-1, null); }
+  function answer(i, btn){
+    if(G.locked) return; G.locked = true; clearInterval(G.timer); document.removeEventListener('keydown', onKey);
+    const used = (performance.now() - G.t0) / (G.secs * 1000), q = G.q, good = i >= 0 && q.options[i].value === q.answer;
+    let kind, val; if(i < 0){ kind = 'dot'; } else if(good){ kind = 'run'; val = C.runsFor(used); } else kind = 'out';
+    document.querySelectorAll('.cr-opt').forEach((b, k) => { b.disabled = true; if(q.options[k].value === q.answer) b.classList.add('right'); else if(b === btn) b.classList.add('wrong'); });
+    G.m = C.play(G.m, kind, val); G.n++;
+    const x = kind === 'run' ? val : kind === 'out' ? 'W' : 0, say = $('crSay'); say.className = 'cr-say show ' + (kind === 'run' ? (val >= 4 ? 'big' : 'ok') : kind === 'out' ? 'out' : 'dot'); say.textContent = C.say(x);
+    T('cricket_ball', { t: G.topic, r: x });
+    setTimeout(() => { if(G.m.over) finish(false); else ball(); }, kind === 'run' && val >= 4 ? 1100 : 1300);
+  }
+  function finishNow(){ G.m = Object.assign({}, G.m, { over: true, result: G.m.runs >= G.m.target ? 'win' : 'lose' }); finish(false); }
+
+  /* ---------- the end ---------- */
+  function finish(again){
+    clearInterval(G.timer); document.removeEventListener('keydown', onKey);
+    const m = G.m, win = m.result === 'win', r = rec(); r.today = r.today || {};
+    if(!again){
+      r.played = (r.played || 0) + 1; if(win) r.wins = (r.wins || 0) + 1; if(m.runs > (r.best || 0)) r.best = m.runs;
+      if(G.kind === 'daily') r.today[dkey()] = { day: TODAY, runs: m.runs, balls: m.balls, wickets: m.wickets, log: m.log, result: m.result };
+      saveRec(r); T('cricket_done', { t: G.topic, g: m.target, win: win ? 1 : 0, runs: m.runs, b: m.balls, k: G.kind });
+    }
+    const row = C.emojiRow(m.log), daily = G.kind === 'daily';
+    const text = '🏏 ক্রিকেট কুইজ (' + tName(G.topic) + ', লক্ষ্য ' + bn(m.target) + (daily ? ', আজকের' : '') + '): ' + bn(m.runs) + ' রান, ' + bn(m.balls) + ' বলে, ' + bn(m.wickets) + ' উইকেট ' + (win ? '— জিতেছি! 🏆' : '— হারলাম') + '\n' + row + '\nআপনি পারবেন? ' + SHARE;
+    $('crBox').innerHTML = '<div class="cr-cen"><div class="cr-res ' + (win ? 'win' : 'lose') + '">' + (win ? '🏆 জয়!' : 'এবার হলো না') + '</div><div class="cr-score"><b>' + bn(m.runs) + '</b><span>রান · ' + bn(m.balls) + ' বলে · ' + bn(m.wickets) + ' উইকেট</span></div>' +
+      '<div class="cr-emo" aria-label="বলে বলে">' + esc(row) + '</div><p>' + esc(C.verdict(m)) + '</p>' +
+      '<div class="cr-share"><a class="cr-sec2 wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(text) + '" data-sh="wa">WhatsApp-এ পাঠান</a><a class="cr-sec2 fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE) + '&quote=' + encodeURIComponent(text) + '" data-sh="fb">Facebook</a><button type="button" class="cr-sec2" id="crCopy">কপি</button></div>' +
+      '<div class="cr-btns"><button type="button" class="cr-go" id="crAgain">আরেকটা ম্যাচ</button><button type="button" class="cr-sec" id="crHome">বিষয় বা লক্ষ্য বদলান</button></div></div>';
+    $('crAgain').onclick = () => begin('free'); $('crHome').onclick = () => start();
+    $('crCopy').onclick = async () => { T('cricket_share', { ch: 'copy' }); try{ if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){ await navigator.share({ text }); return; } await navigator.clipboard.writeText(text); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    document.querySelectorAll('[data-sh]').forEach(a => { a.onclick = () => T('cricket_share', { ch: a.dataset.sh }); });
+  }
+
+  start(); T('cricket_view', {});
+  window.__cricket = { G, start, begin, answer, ball, finish };
+})();
+</script>
+</body>
+</html>
