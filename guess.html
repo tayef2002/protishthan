@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
-<title>কোন জেলায়? প্রতিষ্ঠানের নাম দেখে জেলা চিনুন | Protishthan</title>
-<meta name="description" content="একটা কলেজ, মাদ্রাসা বা স্কুলের নাম দেখে বলুন, সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড। আপনার জেলা-জ্ঞান কেমন, দেখে নিন।">
+<title>কোন জেলায়? উপজেলা দেখে জেলা চিনুন | Protishthan</title>
+<meta name="description" content="একটা কলেজ, মাদ্রাসা বা স্কুলের উপজেলা দেখে বলুন, সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড। আপনার জেলা-জ্ঞান কেমন, দেখে নিন।">
 <link rel="canonical" href="https://protishthan.com/guess">
 <meta property="og:title" content="কোন জেলায়? | Protishthan">
 <meta property="og:description" content="প্রতিষ্ঠানের নাম দেখে জেলা চিনুন। ১০টার মধ্যে কয়টা পারেন?">
@@ -36,12 +36,13 @@
   <header class="gs-hero">
     <span class="gs-kick">🗺️ প্রতিষ্ঠান লিগ · খেলা</span>
     <h1>কোন <span>জেলায়?</span></h1>
-    <p>একটা প্রতিষ্ঠানের নাম দেখুন, বলুন সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড।</p>
+    <p>প্রতিষ্ঠানের নাম আর উপজেলা দেখুন, বলুন সেটা কোন জেলায়। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড।</p>
   </header>
   <section class="gs-card" id="gsBox" aria-live="polite"><div class="gs-skel"></div></section>
   <section class="gs-how">
     <h2>কীভাবে কাজ করে</h2>
     <ul>
+      <li>প্রতিষ্ঠানের নামের নিচে উপজেলা দেওয়া থাকে। উপজেলাটা কোন জেলায়, সেটাই আপনার চেনার বিষয়। উত্তরের পর প্রতিষ্ঠানের পাতাও দেখতে পারেন।</li>
       <li><b>আজকের ১০টা:</b> প্রতিদিন সবার জন্য একই ১০টা প্রশ্ন, রাত ১২টায় বদলায়। বন্ধুর সঙ্গে স্কোর মেলান।</li>
       <li><b>যত খুশি খেলুন:</b> প্রতিবার নতুন ১০টা। যতবার ইচ্ছা।</li>
       <li>সঠিক উত্তরে ১০ পয়েন্ট, তাড়াতাড়ি দিলে আরও ৫ পর্যন্ত। সর্বোচ্চ ১৫০।</li>
@@ -90,7 +91,7 @@
   function start(msg){
     const r = rec(), done = r.today && r.today.day === TODAY ? r.today : null, box = $('gsBox');
     const chips = (r.streak > 0 && (r.last === TODAY || r.last === prevDay(TODAY)) ? '<span class="gs-chip fire">🔥 ' + bn(r.streak) + ' দিন টানা</span>' : '') + (r.best ? '<span class="gs-chip">সেরা: ' + bn(r.best) + ' পয়েন্ট</span>' : '');
-    box.innerHTML = '<div class="gs-cen"><div class="gs-chips">' + chips + '</div><h2>তৈরি?</h2><p>কলেজ, মাদ্রাসা বা স্কুলের নাম দেখে জেলাটা বলুন।</p>' + (msg ? '<div class="gs-err">' + esc(msg) + '</div>' : '') +
+    box.innerHTML = '<div class="gs-cen"><div class="gs-chips">' + chips + '</div><h2>তৈরি?</h2><p>কলেজ, মাদ্রাসা বা স্কুলের উপজেলা দেখে জেলাটা বলুন।</p>' + (msg ? '<div class="gs-err">' + esc(msg) + '</div>' : '') +
       '<div class="gs-btns"><button type="button" class="gs-go" id="gsDaily">' + (done ? 'আজকের ফল দেখুন' : 'আজকের ১০টা খেলুন') + '</button><button type="button" class="gs-sec" id="gsFree">যত খুশি খেলুন</button></div>' +
       (done ? '<p class="gs-sm">আজকের স্কোর: ' + bn(done.points) + ' · ' + bn(done.right) + '/' + bn(G.ROUNDS) + ' ঠিক</p>' : '') + '</div>';
     $('gsDaily').onclick = () => begin('daily'); $('gsFree').onclick = () => begin('free');
@@ -111,7 +112,7 @@
   function ask(){
     const q = ST.qs[ST.i], box = $('gsBox'); ST.locked = false; clearInterval(ST.timer);
     box.innerHTML = '<div class="gs-qtop"><span class="gs-qn">প্রশ্ন ' + bn(ST.i + 1) + ' / ' + bn(ST.qs.length) + '</span><span class="gs-sec3" id="gsSec">' + bn(G.SECONDS) + '</span></div><div class="gs-tb" id="gsTb"><i id="gsTbi"></i></div>' +
-      '<div class="gs-type">' + esc(q.type || 'প্রতিষ্ঠান') + '</div><h2 class="gs-q">' + esc(q.name) + '</h2><p class="gs-ask">এটা কোন জেলায়?</p>' +
+      '<div class="gs-type">' + esc(q.type || 'প্রতিষ্ঠান') + '</div><h2 class="gs-q">' + esc(q.name) + '</h2><div class="gs-up">📍 ' + esc(q.upazila) + ' উপজেলা</div><p class="gs-ask">এই উপজেলা কোন জেলায়?</p>' +
       '<div class="gs-opts" id="gsOpts">' + q.options.map((o, i) => '<button type="button" class="gs-opt" data-d="' + esc(o) + '"><b>' + ['ক', 'খ', 'গ', 'ঘ'][i] + '</b><span>' + esc(o) + '</span></button>').join('') + '</div><div class="gs-fb" id="gsFb"></div>';
     $('gsOpts').onclick = e => { const b = e.target.closest('.gs-opt'); if(b && !ST.locked) pick(b.dataset.d, b); };
     ST.deadline = Date.now() + G.SECONDS * 1000;
@@ -126,7 +127,7 @@
     const q = ST.qs[ST.i], left = Math.max(0, ST.deadline - Date.now()), good = choice === q.district, pts = G.score(good, left);
     ST.results.push(good); ST.points += pts;
     document.querySelectorAll('.gs-opt').forEach(b => { b.disabled = true; if(b.dataset.d === q.district) b.classList.add('right'); else if(b === btn) b.classList.add('wrong'); });
-    $('gsFb').innerHTML = '<div class="res ' + (good ? 'ok' : choice === null ? 'late' : 'no') + '">' + (good ? '✓ ঠিক, +' + bn(pts) : choice === null ? '⏰ সময় শেষ' : '✗ ভুল') + '</div><p>' + esc(q.name) + ' ' + (q.upazila ? esc(q.upazila) + ' উপজেলা, ' : '') + '<b>' + esc(q.district) + '</b> জেলায়। <a href="institution-detail.html?slug=' + encodeURIComponent(q.slug) + '" target="_blank" rel="noopener">প্রতিষ্ঠানের পাতা ↗</a></p><button type="button" class="gs-go sm" id="gsNext">' + (ST.i + 1 >= ST.qs.length ? 'ফল দেখুন' : 'পরের প্রশ্ন →') + '</button>';
+    $('gsFb').innerHTML = '<div class="res ' + (good ? 'ok' : choice === null ? 'late' : 'no') + '">' + (good ? '✓ ঠিক, +' + bn(pts) : choice === null ? '⏰ সময় শেষ' : '✗ ভুল') + '</div><p>' + esc(q.name) + ': ' + esc(q.upazila) + ' উপজেলা, <b>' + esc(q.district) + '</b> জেলায়। <a href="institution-detail.html?slug=' + encodeURIComponent(q.slug) + '" target="_blank" rel="noopener">প্রতিষ্ঠানের পাতা ↗</a></p><button type="button" class="gs-go sm" id="gsNext">' + (ST.i + 1 >= ST.qs.length ? 'ফল দেখুন' : 'পরের প্রশ্ন →') + '</button>';
     T('guess_answer', { k: ST.kind, i: ST.i, c: good ? 1 : 0 });
     $('gsNext').onclick = next; $('gsNext').focus({ preventScroll: true });
   }
