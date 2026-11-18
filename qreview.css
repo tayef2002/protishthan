@@ -1,0 +1,27 @@
+/* প্রশ্ন যাচাই (qreview.js), inside the member dashboard */
+#qrBox{display:grid;gap:16px}
+.qr-skel{display:grid;gap:12px}.qr-skel i{display:block;height:120px;border-radius:18px;background:linear-gradient(90deg,#EEF2FA 25%,#F8FAFE 50%,#EEF2FA 75%);background-size:200% 100%;animation:qr-sk 1.3s infinite}
+@keyframes qr-sk{to{background-position:-200% 0}}
+.qr-top h3{margin:0 0 4px;font-size:17px;color:#0B1B4D}.qr-top p{margin:0;font-size:13.5px;line-height:1.6;color:#64748B}
+.qr-flash{padding:10px 14px;border-radius:12px;background:#ECFDF5;border:1px solid #BBF7D0;color:#047857;font-weight:700;font-size:14px}
+.qr-card{display:grid;gap:10px}
+.qr-meta{display:flex;flex-wrap:wrap;gap:8px}.qr-meta span{font-size:12.5px;font-weight:700;color:#1E40AF;background:#EEF3FF;border-radius:100px;padding:2px 11px}
+.qr-card h4{margin:2px 0 0;font-size:19px;line-height:1.55;color:#0B1B4D}
+.qr-opts{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:o}
+.qr-opts li{counter-increment:o;display:flex;flex-direction:column;gap:2px;padding:10px 14px 10px 44px;border:1.5px solid #E5ECF8;border-radius:14px;position:relative;font-size:15.5px;color:#0F172A}
+.qr-opts li::before{content:counter(o,bengali);position:absolute;left:12px;top:10px;width:24px;height:24px;border-radius:50%;background:#EEF2FA;color:#475569;display:grid;place-items:center;font-size:13px;font-weight:800}
+.qr-opts li.right{border-color:#34D399;background:#F0FDF7}.qr-opts li.right::before{background:#059669;color:#fff}
+.qr-opts em{font-style:normal;font-size:12.5px;font-weight:800;color:#047857}
+.qr-x{margin:0;font-size:13.5px;line-height:1.6;color:#475569}
+.qr-ask{margin-top:4px;font-weight:800;font-size:15px;color:#0B1B4D}
+.qr-l{display:block;font-size:13.5px;font-weight:800;color:#0F172A}
+.qr-card textarea{width:100%;box-sizing:border-box;border:1.5px solid #DCE5F6;border-radius:12px;padding:10px 12px;font:600 15px 'Hind Siliguri','Inter',sans-serif;color:#0F172A;resize:vertical}
+.qr-act{display:flex;gap:10px;flex-wrap:wrap}
+.qr-btn{flex:1;min-width:120px;min-height:46px;border-radius:14px;border:1.5px solid #CBD5E1;background:#fff;color:#334155;font:800 15px 'Hind Siliguri','Inter',sans-serif;cursor:pointer}
+.qr-btn.ok{background:#059669;border-color:#059669;color:#fff}.qr-btn.bad{background:#fff;border-color:#FCA5A5;color:#B91C1C}
+.qr-btn:disabled{opacity:.5}
+.qr-err,.qr-bad{color:#B91C1C;font-size:13.5px}.qr-err{padding:8px 12px;border-radius:12px;background:#FEF2F2;border:1px solid #FECACA}.qr-err[hidden]{display:none}
+.qr-priv{margin:0;font-size:12.5px;line-height:1.6;color:#7A889F}
+.qr-empty{text-align:center;padding:30px 18px}.qr-empty h3{margin:0 0 6px;font-size:18px;color:#0B1B4D}.qr-empty p{margin:0 auto;max-width:440px;font-size:14px;line-height:1.65;color:#64748B}
+@media(max-width:560px){.qr-card h4{font-size:17px}.qr-btn{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.qr-skel i{animation:none}}

@@ -257,6 +257,7 @@ input[type=datetime-local]{width:100%;min-width:0;max-width:100%;box-sizing:bord
   </div>
 </div>
 <script src="/tutor-data.js?v=6"></script>
+<script src="/quiz-data.js?v=1"></script>
 <script>
 /* ADMINDLG-START (tools/tests/test_admin_dialog.js runs this block as it is) */
 // The admin's own pop-ups, in place of the browser's grey "protishthan.com says" boxes: adminConfirm (yes/no), adminPrompt (a line of text) and adminAlert (a notice).
@@ -440,6 +441,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
     <button class="nav-item" id="nav-tutors" onclick="showView('tutors')">
       <span class="nav-icon">🎓</span><span>ভাইয়া-আপু (টিউটর)</span>
       <span class="nav-badge" id="tutorsBadge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" id="nav-quiz" onclick="showView('quiz')">
+      <span class="nav-icon">🏆</span><span>প্রতিষ্ঠান লিগ (প্রশ্ন)</span>
+      <span class="nav-badge" id="quizBadge" style="display:none">0</span>
     </button>
     <button class="nav-item" id="nav-batches" onclick="showView('batches')">
       <span class="nav-icon">🏫</span><span>আমার ব্যাচ</span>
@@ -688,6 +693,10 @@ sbAdmin.auth.getSession().then(async ({ data: { session } }) => {
         <div id="cbList"></div>
       </div>
     </div>
+    <div class="view" id="view-quiz">
+      <div class="section-card" id="quizRoot" style="overflow-x:auto"><div class="bill-note">লোড হচ্ছে…</div></div>
+    </div>
+
     <div class="view" id="view-tutors">
       <div class="section-card">
         <div class="sec-h">ভাইয়া-আপু: সেটিং <span style="font-size:12.5px;font-weight:500;color:var(--text-3)" id="ttCount"></span></div>
@@ -2217,5 +2226,6 @@ async function savePromo(e){
 function testPromo(){ const p = promoFromForm(); const bad = promoError(p); if(bad){ const err = $pm('pmErr'); err.textContent = bad; err.style.display = 'block'; return; } Protishthan.promo.open(p); }
 ADMIN_READY.then(()=>loadPromo());
 </script>
+<script src="/admin-quiz.js?v=1"></script>
 </body>
 </html>
