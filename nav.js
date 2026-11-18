@@ -17,6 +17,7 @@
     partner: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 3.2-5.4 6.5-5.4s5.9 2 6.5 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.4M18.5 14.8c1.6.8 2.7 2.4 3 5.2"/></svg>',
     heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.2-4.4-9.2-9C1.4 8.2 3.4 5 6.5 5c1.9 0 3.3 1 4.1 2.3h2.8C14.2 6 15.6 5 17.5 5c3.1 0 5.1 3.2 3.7 6.5-2 4.6-9.2 9-9.2 9z"/></svg>',
     about: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/></svg>',
+    league:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H4.5v1.5A3.5 3.5 0 0 0 8 11M16 6h3.5v1.5A3.5 3.5 0 0 1 16 11M12 13v4M8.5 20h7M10 17h4"/></svg>',
     chev:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
@@ -36,6 +37,11 @@
     { k: 'collaborate', t: 'পাশে দাঁড়ান', d: 'ব্র্যান্ড, সংগঠন বা ব্যক্তি, সঙ্গী হোন', href: 'collaborate.html', ic: 'heart', g: 'linear-gradient(135deg,#BE123C,#F97316)' },
     { k: 'partner',  t: 'Partner প্রোগ্রাম',   d: 'এলাকার প্রতিষ্ঠান যাচাইয়ে আমাদের সঙ্গী হোন', href: 'partner.html', ic: 'partner', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
   ];
+  var LEAGUE = [
+    { k: 'league',    t: 'প্রতিষ্ঠান লিগ',  d: 'কোন স্কুল আর ব্যাচ এগিয়ে, এক পাতায়', href: 'league.html', ic: 'league', g: 'linear-gradient(135deg,#6D28D9,#DB2777)', tag: 'নতুন' },
+    { k: 'quiz',      t: 'আজকের কুইজ',      d: 'প্রতিদিন ৫টা প্রশ্ন, স্কুলের জন্য পয়েন্ট', href: 'quiz.html', ic: 'card', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
+    { k: 'challenge', t: 'ব্যাচ চ্যালেঞ্জ',  d: 'ব্যাচ একসঙ্গে লাইভ, বা রশি টানাটানি', href: 'challenge.html', ic: 'batch', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
+  ];
   var TUTOR = [
     { k: 'tutor',      t: 'টিউটর খুঁজুন',          d: 'যাচাই করা ভাইয়া-আপু টিউটর খুঁজে নিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' },
     { k: 'tutor-join', t: 'টিউটর হিসেবে যোগ দিন', d: 'নিজের প্রোফাইল বানান, যোগ দেওয়া ফ্রি', href: 'tutor-join.html', ic: 'partner', g: 'linear-gradient(135deg,#047857,#10B981)' }
@@ -46,6 +52,7 @@
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
       { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD, promo: { ic: 'card', lab: 'ফ্রি টুলস', t: 'নিজের শিক্ষাজীবন, এক কার্ডে', d: '৩০ সেকেন্ডে শিক্ষিত কার্ড বানান, আর স্কিল কার্ডে নিজের সব স্কিল সাজান।', btn: 'কার্ড বানান', href: 'card.html' } },
+      { k: 'league',  t: 'লিগ', menu: LEAGUE, promo: { ic: 'league', lab: 'খেলা ও লিগ', t: 'আপনার স্কুল আর ব্যাচ, কে এগিয়ে?', d: 'কুইজ খেলুন, ব্যাচ নিয়ে চ্যালেঞ্জে নামুন, আর প্রতিষ্ঠানের জন্য পয়েন্ট জমান।', btn: 'লিগ দেখুন', href: 'league.html' } },
       { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR, promo: { ic: 'tutor', lab: 'টিউটর', t: 'যাচাই করা ভাইয়া-আপু, আপনার এলাকায়', d: 'নিজের সন্তানের জন্য টিউটর খুঁজুন, অথবা নিজেই টিউটর হয়ে যোগ দিন।', btn: 'টিউটর খুঁজুন', href: 'tutor.html' } },
       { k: 'about',   t: 'আমাদের কথা', menu: ABOUT, promo: { lab: 'আমাদের নিয়ে', t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }
     ],

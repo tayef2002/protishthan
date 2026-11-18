@@ -30,13 +30,13 @@
 <body>
 
 <div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="challenge"></div>
-<script src="/nav.js?v=21"></script>
+<script src="/nav.js?v=22"></script>
 
 <main class="ch" id="chRoot"><div class="ch-skel"></div></main>
 
 <div class="ch-toast" id="chToast" role="status" aria-live="polite"></div>
 <div id="pfoot" data-art="info"></div>
-<script src="/footer.js?v=21"></script>
+<script src="/footer.js?v=22"></script>
 <script>window.MYINST_QUIET = true;</script>
 <script src="/myinst.js?v=6" defer></script>
 <script>
@@ -96,7 +96,7 @@
   const VS = (new URLSearchParams(location.search).get('vs') || '').toLowerCase();
   async function hub(){
     const root = $('chRoot');
-    root.innerHTML = '<header class="ch-hero"><span class="ch-kick">🏆 প্রতিষ্ঠান লিগ</span><h1>ব্যাচ <span>চ্যালেঞ্জ</span></h1><p>আপনার ব্যাচের সবাই ঠিক একই সময়ে একই ১২টা প্রশ্নের উত্তর দেয়। সবার সঠিক উত্তর মিলে বার ভরে। লক্ষ্য ছুঁলে জয়।</p></header>' +
+    root.innerHTML = '<header class="ch-hero"><a class="ch-kick" href="/league" style="text-decoration:none">🏆 প্রতিষ্ঠান লিগ</a><h1>ব্যাচ <span>চ্যালেঞ্জ</span></h1><p>আপনার ব্যাচের সবাই ঠিক একই সময়ে একই ১২টা প্রশ্নের উত্তর দেয়। সবার সঠিক উত্তর মিলে বার ভরে। লক্ষ্য ছুঁলে জয়।</p></header>' +
       '<section class="ch-sec"><h2>আসছে ও চলছে</h2><p>যেকোনো চ্যালেঞ্জে চাপলে দেখতে পারবেন। অংশ নিতে হলে আপনাকে ঐ ব্যাচের সদস্য হতে হবে।</p><ul class="ch-list" id="chList"><li class="ch-empty">লোড হচ্ছে…</li></ul></section>' +
       '<section class="ch-sec" id="chMake"><h2>চ্যালেঞ্জ দিন</h2><p>ব্যাচের একজন সদস্য সময় ঠিক করলেই হয়। তারপর ব্যাচের গ্রুপে লিংক পাঠান।</p><div class="ch-card" id="chFormBox"><div class="ch-skel" style="height:120px"></div></div></section>' +
       '<section class="ch-how"><h2>কীভাবে খেলা হয়</h2><ol><li>ব্যাচের একজন সময় আর লক্ষ্য ঠিক করে চ্যালেঞ্জ দেয়, তারপর ব্যাচের গ্রুপে লিংক পাঠায়।</li><li>শুরুর ৫ মিনিট আগে "লবি" খোলে। "আমি আছি" চেপে যোগ দিন, কতজন এসেছেন দেখা যায়।</li><li>ঘড়ি ০ হলেই সবার ফোনে একসঙ্গে প্রথম প্রশ্ন। প্রতিটা প্রশ্নের জন্য ১২ সেকেন্ড, মোট ১২টা প্রশ্ন।</li><li>ব্যাচের সবার সঠিক উত্তর যোগ হয়ে একটা বার ভরে। লক্ষ্য ছুঁলে ব্যাচ জেতে।</li><li>শেষে ফল, আর সেরা ৫ জনের প্রথম নাম। শুধু যাঁরা খেলেছেন তাঁরাই নাম দেখেন।</li></ol><h3>🪢 রশি টানাটানি: ব্যাচ বনাম ব্যাচ</h3><ol><li>একই ১২টা প্রশ্ন, একই সময়ে। দুই ব্যাচ রশির দুই মাথায়।</li><li>প্রতি ব্যাচের খেলোয়াড়পিছু গড় সঠিক উত্তর মেলানো হয়, তাই বড় ব্যাচ বলে বাড়তি সুবিধা নেই।</li><li>যার গড় বেশি, রশির গিঁট তার দিকে সরে। শেষে যার গড় বেশি, সে জেতে (সমান হলে ড্র)।</li><li>বিপক্ষ ঠিক না করলে যেকোনো ব্যাচ "চ্যালেঞ্জ নিলাম" চেপে বিপক্ষ হতে পারে। দুই পক্ষেই অন্তত ৫ জন না থাকলে খেলা গোনা হয় না।</li></ol></section>';

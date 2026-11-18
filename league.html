@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>প্রতিষ্ঠান লিগ: কুইজ, ব্যাচ চ্যালেঞ্জ আর কে এগিয়ে | Protishthan</title>
+<meta name="description" content="আপনার স্কুল আর ব্যাচের জন্য খেলুন: প্রতিদিনের কুইজ, ব্যাচ বনাম ব্যাচ রশি টানাটানি, ব্যাচের লাইভ চ্যালেঞ্জ। কোন প্রতিষ্ঠান আর ব্যাচ এই সপ্তাহে এগিয়ে, এক পাতায় দেখুন।">
+<link rel="canonical" href="https://protishthan.com/league">
+<meta property="og:title" content="প্রতিষ্ঠান লিগ | Protishthan">
+<meta property="og:description" content="কোন স্কুল আর কোন ব্যাচ এগিয়ে? আপনার প্রতিষ্ঠানের জন্য খেলুন।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/league">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/league.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="league"></div>
+<script src="/nav.js?v=22"></script>
+
+<main class="lg">
+  <header class="lg-hero">
+    <span class="lg-kick">🏆 প্রতিষ্ঠান লিগ</span>
+    <h1>আপনার স্কুল আর ব্যাচ, <span>কে এগিয়ে?</span></h1>
+    <p>খেলুন, পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে সবার আগে নিন। সব খেলা ফ্রি, সাইন-ইন করে খেললে আপনার প্রতিষ্ঠান আর ব্যাচের নামে পয়েন্ট জমে।</p>
+  </header>
+
+  <section class="lg-games" aria-label="খেলাগুলো">
+    <a class="lg-g quiz" href="/quiz" data-g="quiz"><i>📝</i><b>আজকের কুইজ</b><span>প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ডে।</span><u>খেলুন →</u></a>
+    <a class="lg-g chal" href="/challenge" data-g="challenge"><i>⏱️</i><b>ব্যাচ চ্যালেঞ্জ</b><span>আপনার ব্যাচ একই সময়ে একসঙ্গে খেলে লক্ষ্য ছোঁয়ার চেষ্টা করে।</span><u id="lgLive">চ্যালেঞ্জ দেখুন →</u></a>
+    <a class="lg-g rope" href="/challenge" data-g="rope"><i>🪢</i><b>রশি টানাটানি</b><span>ব্যাচ বনাম ব্যাচ। একই প্রশ্ন, যার গড় বেশি, রশি তার দিকে।</span><u>মুখোমুখি হোন →</u></a>
+  </section>
+
+  <section class="lg-sec" id="boards">
+    <h2>এই সপ্তাহে কে এগিয়ে?</h2>
+    <div class="lg-tabs" role="tablist" aria-label="কোন খেলার বোর্ড">
+      <button type="button" class="lg-tab on" data-game="chal" role="tab" aria-selected="true">ব্যাচ চ্যালেঞ্জ</button>
+      <button type="button" class="lg-tab" data-game="quiz" role="tab" aria-selected="false">আজকের কুইজ</button>
+    </div>
+    <div class="lg-tabs" role="tablist" aria-label="বোর্ডের ধরন">
+      <button type="button" class="lg-tab sm on" data-scope="institution" role="tab" aria-selected="true">প্রতিষ্ঠান</button>
+      <button type="button" class="lg-tab sm" data-scope="batch" role="tab" aria-selected="false">ব্যাচ</button>
+      <span class="sp"></span>
+      <button type="button" class="lg-tab sm on" data-period="week" role="tab" aria-selected="true">এই সপ্তাহ</button>
+      <button type="button" class="lg-tab sm" data-period="all" id="lgP2" role="tab" aria-selected="false">সব সময়</button>
+    </div>
+    <ul class="lg-list" id="lgBoard"><li class="lg-empty">লোড হচ্ছে…</li></ul>
+    <p class="lg-rule" id="lgRule"></p>
+    <div class="lg-poster" id="lgPoster" hidden>
+      <button type="button" class="lg-btn" id="lgMake">পোস্টার বানান</button>
+      <span>এই বোর্ডের সেরা ৫ নিয়ে ফেসবুক আর WhatsApp-এর জন্য একটা ছবি</span>
+    </div>
+    <div class="lg-prev" id="lgPrev" hidden><img id="lgImg" alt="লিগের পোস্টার"><div class="lg-share"><a class="lg-btn" id="lgDl" download="protishthan-league.png">ছবি নামান</a><a class="lg-btn wa" id="lgWa" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a></div></div>
+  </section>
+
+  <section class="lg-how">
+    <h2>পয়েন্ট কীভাবে হয়</h2>
+    <ul>
+      <li><b>আজকের কুইজ:</b> প্রতিটা সঠিক উত্তরে ১০ পয়েন্ট, তাড়াতাড়ি দিলে আরও ৫ পর্যন্ত। প্রতিষ্ঠান বা ব্যাচের স্কোর হলো তার <b>সেরা ১০ জনের গড়</b>। বোর্ডে আসতে অন্তত ৩ জন খেলতে হবে।</li>
+      <li><b>ব্যাচ চ্যালেঞ্জ:</b> ব্যাচের সবার সঠিক উত্তর যোগ হয়। লক্ষ্য ছুঁলে বা রশি টানাটানিতে জিতলে ৫০ পয়েন্ট বাড়তি, ড্র হলে ২৫। লিগে গোনা হতে সেই খেলায় ব্যাচের অন্তত ৫ জন খেলতে হবে।</li>
+      <li><b>প্রতিষ্ঠানের চ্যালেঞ্জ পয়েন্ট</b> হলো তার ব্যাচগুলোর পয়েন্টের যোগফল।</li>
+      <li>বোর্ডে শুধু প্রতিষ্ঠান আর ব্যাচের নাম আর সংখ্যা থাকে। কে কত পেয়েছেন, তা কেউ দেখতে পায় না। খেলা শেষে শুধু যাঁরা খেলেছেন, তাঁরা নিজের ব্যাচের সেরা ৫ জনের প্রথম নাম দেখেন।</li>
+    </ul>
+    <p class="lg-note">পয়েন্ট হিসাব হয় সার্ভারে, ফোনে নয়। তবু একজন ভিন্ন ভিন্ন অ্যাকাউন্ট দিয়ে ব্যাচ বাড়ানোর চেষ্টা করতে পারে। সন্দেহজনক হলে আমরা সেই ব্যাচকে বোর্ড থেকে সরিয়ে দিই।</p>
+  </section>
+</main>
+
+<div class="lg-toast" id="lgToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=22"></script>
+<script>
+(function(){
+  'use strict';
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const MB = () => (window.Protishthan && window.Protishthan.member) || null;
+  const toast = m => { const t = $('lgToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2800); };
+  const rpc = async (n, a) => { const M = MB(); if(!M || !M.sb) return { error: { message: 'NO_CLIENT' } }; try{ return await M.sb.rpc(n, a || {}); }catch(e){ return { error: { message: String(e && e.message || e) } }; } };
+  const ST = { game: 'chal', scope: 'institution', period: 'week', rows: [], req: 0 };
+  const bHref = x => '/b/' + encodeURIComponent(x.slug) + '/ssc-' + x.year;
+  const iHref = x => 'institution-detail.html?slug=' + encodeURIComponent(x.slug);
+
+  /* the live count on the challenge card: one cheap cached call through the edge */
+  async function liveCount(){
+    try{
+      const r = await fetch('/api/challenge?f=list', { cache: 'no-store' }); if(!r.ok) return; const j = await r.json(); if(!Array.isArray(j)) return;
+      const live = j.filter(c => c.status === 'live').length, soon = j.filter(c => c.status === 'lobby' || c.status === 'scheduled').length;
+      const bits = []; if(live) bits.push(bn(live) + 'টা চলছে'); if(soon) bits.push(bn(soon) + 'টা আসছে');
+      if(bits.length) $('lgLive').textContent = bits.join(', ') + ' →';
+    }catch(e){}
+  }
+
+  /* the boards: the challenge league (league_board) and the daily quiz (quiz_board) */
+  function rule(){
+    $('lgRule').innerHTML = ST.game === 'chal'
+      ? 'ব্যাচের অন্তত ৫ জন খেলা খেলাগুলোই গোনা হয়। সব ব্যাচের সঙ্গে সমান নিয়মে: সঠিক উত্তর, আর লক্ষ্য ছোঁয়া বা জয়ের বাড়তি ৫০। <a href="/challenge">নিজের ব্যাচের চ্যালেঞ্জ দিন →</a>'
+      : 'বোর্ডে আসতে অন্তত ৩ জন সাইন-ইন করে খেলতে হবে। স্কোর হলো <b>সেরা ১০ জনের গড়</b>, তাই ছোট স্কুলও বড় স্কুলকে হারাতে পারে। <a href="/quiz">আজকের কুইজ খেলুন →</a>';
+    $('lgP2').hidden = ST.game === 'quiz'; $('lgP2').style.display = ST.game === 'quiz' ? 'none' : '';
+    if(ST.game === 'quiz' && ST.period === 'all') ST.period = 'week';
+  }
+  const paintTabs = () => document.querySelectorAll('.lg-tab').forEach(x => { const on = (x.dataset.game && x.dataset.game === ST.game) || (x.dataset.scope && x.dataset.scope === ST.scope) || (x.dataset.period && x.dataset.period === ST.period); x.classList.toggle('on', !!on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  async function loadBoard(){
+    const my = ++ST.req, list = $('lgBoard'); rule(); paintTabs(); $('lgPrev').hidden = true;
+    const chal = ST.game === 'chal';
+    const r = chal ? await rpc('league_board', { p_scope: ST.scope, p_period: ST.period, p_limit: 20 }) : await rpc('quiz_board', { p_scope: ST.scope, p_period: ST.period, p_district: null, p_limit: 20 });
+    if(my !== ST.req) return;
+    if(r.error || !Array.isArray(r.data)){ list.innerHTML = '<li class="lg-empty">বোর্ড এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</li>'; $('lgPoster').hidden = true; return; }
+    ST.rows = r.data;
+    $('lgPoster').hidden = !r.data.length;
+    if(!r.data.length){
+      list.innerHTML = '<li class="lg-empty">' + (chal ? 'এই সময়ে কোনো ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান') + ' বোর্ডে আসেনি।<br>আপনার ব্যাচ একটা চ্যালেঞ্জ দিলেই প্রথম হতে পারে!' : 'এই সময়ে কোনো ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান') + ' বোর্ডে আসেনি।<br>আপনার স্কুলের বন্ধুদের ডাকুন, আপনার স্কুলই প্রথম হতে পারে!') + '</li>'; return;
+    }
+    const mx = Math.max(1, ...r.data.map(x => Number(chal ? x.points : x.score)));
+    list.innerHTML = r.data.map(x => {
+      const href = ST.scope === 'batch' ? bHref(x) : iHref(x), val = chal ? x.points : String(x.score).replace(/\.0$/, ''), w = Math.max(4, Math.round(Number(chal ? x.points : x.score) / mx * 100));
+      const sub = chal ? bn(x.matches) + 'টা খেলা' + (x.wins ? ' · ' + bn(x.wins) + 'টা জয়' : '') + (ST.scope === 'institution' && x.batches > 1 ? ' · ' + bn(x.batches) + 'টা ব্যাচ' : '') : bn(x.players) + ' জন খেলেছেন';
+      return '<li class="lg-row' + (x.rank <= 3 ? ' top' + x.rank : '') + '"><span class="lg-rk">' + bn(x.rank) + '</span><div class="lg-nm"><a href="' + href + '">' + esc(x.name) + (ST.scope === 'batch' ? ' · ' + bn(x.year) + ' ব্যাচ' : '') + '</a><small>' + esc(x.district || '') + (x.district ? ' · ' : '') + sub + '</small><i class="lg-bar"><u style="width:' + w + '%"></u></i></div><div class="lg-sc">' + bn(val) + '<small>' + (chal ? 'পয়েন্ট' : 'গড় পয়েন্ট') + '</small></div></li>';
+    }).join('');
+  }
+  document.querySelector('#boards').addEventListener('click', e => {
+    const b = e.target.closest('.lg-tab'); if(!b) return;
+    if(b.dataset.game) ST.game = b.dataset.game; if(b.dataset.scope) ST.scope = b.dataset.scope; if(b.dataset.period) ST.period = b.dataset.period;
+    $('lgBoard').innerHTML = '<li class="lg-empty">লোড হচ্ছে…</li>'; T('league_board', { g: ST.game, s: ST.scope, p: ST.period }); loadBoard();
+  });
+  document.querySelectorAll('.lg-g').forEach(a => a.addEventListener('click', () => T('league_go', { g: a.dataset.g })));
+
+  /* the poster: the best five of the board that is on the screen, drawn in the browser (nothing is sent anywhere) */
+  const rr = (c, x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
+  const fit = (c, text, max) => { let t = String(text); while(t.length > 4 && c.measureText(t).width > max) t = t.slice(0, -2); return t === String(text) ? t : t.replace(/\s+$/, '') + '…'; };
+  async function makePoster(){
+    try{ await document.fonts.load('800 40px "Hind Siliguri"'); await document.fonts.load('600 30px "Hind Siliguri"'); }catch(e){}
+    const rows = ST.rows.slice(0, 5), chal = ST.game === 'chal', W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0B1B4D'); g.addColorStop(1, '#4C1D95'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = 'rgba(255,255,255,.06)'; c.beginPath(); c.arc(W - 120, 140, 260, 0, 7); c.fill(); c.beginPath(); c.arc(80, H - 160, 220, 0, 7); c.fill();
+    const F = (w, s) => w + ' ' + s + 'px "Hind Siliguri", "Inter", sans-serif';
+    c.textAlign = 'center'; c.fillStyle = '#FDE68A'; c.font = F(800, 40); c.fillText('🏆 প্রতিষ্ঠান লিগ', W / 2, 120);
+    c.fillStyle = '#fff'; c.font = F(800, 78); c.fillText(ST.period === 'week' ? 'এই সপ্তাহে কে এগিয়ে?' : 'এখন পর্যন্ত কে এগিয়ে?', W / 2, 225);
+    c.fillStyle = '#C7D2FE'; c.font = F(600, 34); c.fillText((chal ? 'ব্যাচ চ্যালেঞ্জ' : 'আজকের কুইজ') + ' · ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান'), W / 2, 285);
+    const medal = ['#F59E0B', '#94A3B8', '#B45309', '#6366F1', '#6366F1'];
+    rows.forEach((x, i) => {
+      const y = 350 + i * 163; rr(c, 70, y, W - 140, 140, 28); c.fillStyle = i === 0 ? 'rgba(253,230,138,.20)' : 'rgba(255,255,255,.10)'; c.fill();
+      c.beginPath(); c.arc(150, y + 70, 42, 0, 7); c.fillStyle = medal[i]; c.fill(); c.fillStyle = '#fff'; c.font = F(800, 46); c.textAlign = 'center'; c.fillText(bn(x.rank), 150, y + 87);
+      c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = F(800, 42); c.fillText(fit(c, x.name + (ST.scope === 'batch' ? ' · ' + bn(x.year) + ' ব্যাচ' : ''), 560), 220, y + 68);
+      c.fillStyle = '#C7D2FE'; c.font = F(600, 30); c.fillText(fit(c, (x.district || '') + (chal ? (x.district ? ' · ' : '') + bn(x.matches) + 'টা খেলা' : (x.district ? ' · ' : '') + bn(x.players) + ' জন খেলেছেন'), 560), 220, y + 112);
+      c.textAlign = 'right'; c.fillStyle = '#FDE68A'; c.font = F(800, 60); c.fillText(bn(chal ? x.points : String(x.score).replace(/\.0$/, '')), W - 100, y + 82);
+      c.fillStyle = '#C7D2FE'; c.font = F(600, 26); c.fillText(chal ? 'পয়েন্ট' : 'গড় পয়েন্ট', W - 100, y + 118);
+    });
+    c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = F(800, 46); c.fillText('আপনার স্কুল আর ব্যাচ কোথায়?', W / 2, 1220);
+    c.fillStyle = '#FDE68A'; c.font = F(800, 44); c.fillText('protishthan.com/league', W / 2, 1285);
+    return cv.toDataURL('image/png');
+  }
+  $('lgMake').onclick = async () => {
+    const b = $('lgMake'); b.disabled = true; T('league_poster', { g: ST.game, s: ST.scope });
+    try{
+      const url = await makePoster(); $('lgImg').src = url; $('lgDl').href = url; $('lgPrev').hidden = false;
+      const top = ST.rows[0], who = top ? top.name + (ST.scope === 'batch' ? ' · ' + bn(top.year) + ' ব্যাচ' : '') : '';
+      $('lgWa').href = 'https://wa.me/?text=' + encodeURIComponent('🏆 প্রতিষ্ঠান লিগ: ' + (ST.period === 'week' ? 'এই সপ্তাহে' : 'এখন পর্যন্ত') + ' এগিয়ে ' + who + '। আপনার ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'স্কুল') + ' কোথায়? https://protishthan.com/league');
+      $('lgPrev').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }catch(e){ toast('ছবি বানানো গেল না, আবার চেষ্টা করুন'); }
+    b.disabled = false;
+  };
+  $('lgDl').addEventListener('click', () => T('league_poster_dl', {}));
+
+  loadBoard(); liveCount(); setTimeout(() => { const M = MB(); if(M && M.ready) M.ready().then(() => { if(!ST.rows.length) loadBoard(); }); }, 900);
+  window.__lg = { ST, loadBoard, makePoster };
+})();
+</script>
+</body>
+</html>

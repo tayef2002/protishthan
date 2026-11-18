@@ -24,13 +24,13 @@
 <link rel="stylesheet" href="/brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/batch.css?v=48">
+<link rel="stylesheet" href="/batch.css?v=49">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
 
 <div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="batch"></div>
-<script src="/nav.js?v=21"></script>
+<script src="/nav.js?v=22"></script>
 
 <main class="bt" id="bt">
 
@@ -86,7 +86,7 @@
 </main>
 
 <div id="pfoot" data-art="card"></div>
-<script src="/footer.js?v=21"></script>
+<script src="/footer.js?v=22"></script>
 <div class="bt-toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -396,6 +396,31 @@
     else if(ahead != null) h += '<div class="bt-sdg"><div class="bt-sdbar" role="img" aria-label="পরের ধাপের পথে"><i style="width:' + Math.max(4, Math.min(100, Math.round(n / (ahead + 1) * 100))) + '%"></i></div><p>এক ধাপ ওপরে উঠতে আর <b>' + bn(gap) + 'টি</b> কার্ড দরকার।</p></div>';
     return h + acts + '<p class="bt-sdn2">সংখ্যাটা পুরো প্রতিষ্ঠানের: ব্যাচের বাইরের কেউ কার্ড বানালেও বাড়ে। একটা ডিভাইস থেকে একবারই গোনা হয়।</p></div>';
   }
+  /* ---------- the batch's own league numbers and challenges (public, counts only; no card until the league SQL is run) ---------- */
+  const LG_PILL = { live: ['চলছে', 'live'], lobby: ['লবি খোলা', 'lobby'], scheduled: ['আসছে', ''], done: ['শেষ', 'done'] };
+  const lgWhen = ms => { const d = new Date(ms); return d.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long' }) + ', ' + d.toLocaleTimeString('bn-BD', { hour: 'numeric', minute: '2-digit' }); };
+  function leagueHtml(L, b, n, joined){
+    const wp = Number(L.week_points) || 0, wm = Number(L.week_matches) || 0, ww = Number(L.week_wins) || 0, ap = Number(L.all_points) || 0, rk = Number(L.week_rank) || 0, tot = Number(L.week_total) || 0, items = Array.isArray(L.challenges) ? L.challenges : [];
+    let h = '<div class="bt-c bt-lg">' + cardHead('trophy', 'প্রতিষ্ঠান লিগ', 'ব্যাচ চ্যালেঞ্জে এই ব্যাচের পয়েন্ট');
+    if(ap > 0){
+      h += '<div class="bt-lgn"><div><b>' + bn(wp) + '</b><span>এই সপ্তাহে পয়েন্ট</span></div><div><b>' + bn(wm) + '</b><span>এই সপ্তাহে খেলা</span></div><div><b>' + bn(ap) + '</b><span>মোট পয়েন্ট</span></div></div>';
+      const bits = []; if(rk && tot > 1) bits.push('এই সপ্তাহে ' + bn(tot) + 'টি ব্যাচের মধ্যে <b>' + ordBn(rk) + '</b>'); if(ww) bits.push(bn(ww) + 'টা জয়');
+      if(bits.length) h += '<p class="bt-lgx">' + bits.join(' · ') + '</p>';
+    } else h += '<p class="bt-lgx">এই ব্যাচ এখনও কোনো চ্যালেঞ্জ খেলেনি। প্রথম চ্যালেঞ্জেই বোর্ডে নাম উঠতে পারে।</p>';
+    if(items.length) h += '<ul class="bt-lgl">' + items.map(c => { const p = LG_PILL[c.status] || LG_PILL.scheduled, rope = c.mode === 'rope', other = c.other ? (c.other.name || 'ব্যাচ') + ' · ' + bn(c.other.year || '') + ' ব্যাচ' : null;
+      const t = rope ? '🪢 ' + (other ? (c.hosting ? 'বিপক্ষ: ' : 'চ্যালেঞ্জ দিয়েছে: ') + esc(other) : 'রশি টানাটানি, বিপক্ষ খোঁজা হচ্ছে') : '⏱️ ব্যাচ বনাম ঘড়ি';
+      return '<li><a href="/challenge?c=' + esc(c.id) + '"><div><b>' + t + '</b><small>' + esc(lgWhen(c.start_ms)) + '</small></div><span class="bt-lgp ' + p[1] + '">' + p[0] + '</span></a></li>'; }).join('') + '</ul>';
+    if(n < 5) h += '<p class="bt-lgx">ব্যাচে ৫ জন সদস্য হলে চ্যালেঞ্জ দেওয়া ও খেলা যাবে (এখন ' + bn(n) + ' জন)।</p>';
+    else if(joined) h += '<div class="bt-sda"><a class="bt-sdb" href="/challenge">' + ic('plus', 16) + 'আপনার ব্যাচের চ্যালেঞ্জ দিন</a><a class="bt-sdl" href="/league">লিগের বোর্ড দেখুন →</a></div>';
+    else h += '<div class="bt-sda"><a class="bt-sdb" href="/challenge?vs=' + encodeURIComponent(b.id) + '">' + ic('plus', 16) + 'এই ব্যাচকে রশি টানাটানিতে ডাকুন</a><a class="bt-sdl" href="/league">লিগের বোর্ড দেখুন →</a></div>';
+    return h + '<p class="bt-sdn2">শুধু ব্যাচের নাম আর সংখ্যা এখানে দেখায়, কে কত পেয়েছেন তা নয়।</p></div>';
+  }
+  async function loadLeague(b, n, joined){
+    const box = $('league'); if(!box) return;
+    const r = await rpc('league_batch', { p_batch: b.id });
+    if(r.error || !r.data || typeof r.data !== 'object') return;      // the SQL is not run yet: no card
+    if($('league') === box) box.innerHTML = leagueHtml(r.data, b, n, joined);
+  }
   async function loadStanding(k){
     const box = $('stand'); if(!box) return;
     let s = null;
@@ -446,6 +471,7 @@
     else h += '<button type="button" class="bt-btn" id="act" data-a="join">' + (signedIn() ? 'ব্যাচে যোগ দিন' : 'Google দিয়ে ব্যাচে যোগ দিন') + '</button><p class="bt-sub">আপনি হবেন ' + bn(n + 1) + 'তম সদস্য।</p>';
     h += '</div><p class="bt-who">নাম ও ছবি শুধু ব্যাচের সদস্যরা দেখবে। আহ্বায়কের নামের প্রথম অংশ এই পেজে দেখায়। ব্যাচ স্ব-ঘোষিত, Protishthan যাচাই করে না।</p></section>';
     h += '<div id="stand" data-k="' + esc(k.slug) + '"></div>';
+    if(b) h += '<div id="league"></div>';
 
     if(joined){
       HUB = { k, inst, b, me, isConv, n };
@@ -479,6 +505,7 @@
     if($('act')) $('act').onclick = () => onAct($('act').dataset.a, k, b, ref);
     if(b) bindReport(b.id);
     loadStanding(k);
+    if(b) loadLeague(b, n, joined);
     if($('cvJoin')) $('cvJoin').onclick = () => { const x = $('act'); if(x) x.click(); };
     if(joined && /^#(roster|setup|invite)$/.test(location.hash)){ const hs = location.hash.slice(1); setTimeout(() => { const el = $(hs); if(el) el.scrollIntoView({ block: 'start' }); }, 350); }
     if(joined) loadRoster(b.id);
