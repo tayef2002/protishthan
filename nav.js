@@ -52,7 +52,8 @@
     main: [
       { k: 'info',    t: 'প্রতিষ্ঠান খুঁজুন', href: 'index.html' },
       { k: 'card',    t: 'শিক্ষিত কার্ড', menu: CARD, promo: { ic: 'card', lab: 'ফ্রি টুলস', t: 'নিজের শিক্ষাজীবন, এক কার্ডে', d: '৩০ সেকেন্ডে শিক্ষিত কার্ড বানান, আর স্কিল কার্ডে নিজের সব স্কিল সাজান।', btn: 'কার্ড বানান', href: 'card.html' } },
-      { k: 'league',  t: 'লিগ', menu: LEAGUE, promo: { ic: 'league', lab: 'খেলা ও লিগ', t: 'আপনার স্কুল আর ব্যাচ, কে এগিয়ে?', d: 'কুইজ খেলুন, ব্যাচ নিয়ে চ্যালেঞ্জে নামুন, আর প্রতিষ্ঠানের জন্য পয়েন্ট জমান।', btn: 'লিগ দেখুন', href: 'league.html' } },
+      /* HIDDEN until the league games are finished and made public (the pages still work by their address). To show the tab again, put this line back after the card tab:
+         { k: 'league',  t: 'লিগ', menu: LEAGUE, promo: { ic: 'league', lab: 'খেলা ও লিগ', t: 'আপনার স্কুল আর ব্যাচ, কে এগিয়ে?', d: 'কুইজ খেলুন, ব্যাচ নিয়ে চ্যালেঞ্জে নামুন, আর প্রতিষ্ঠানের জন্য পয়েন্ট জমান।', btn: 'লিগ দেখুন', href: 'league.html' } }, */
       { k: 'tutor',   t: 'ভাইয়া-আপু', menu: TUTOR, promo: { ic: 'tutor', lab: 'টিউটর', t: 'যাচাই করা ভাইয়া-আপু, আপনার এলাকায়', d: 'নিজের সন্তানের জন্য টিউটর খুঁজুন, অথবা নিজেই টিউটর হয়ে যোগ দিন।', btn: 'টিউটর খুঁজুন', href: 'tutor.html' } },
       { k: 'about',   t: 'আমাদের কথা', menu: ABOUT, promo: { lab: 'আমাদের নিয়ে', t: 'আপনার কথায় এগোয় Protishthan', d: 'আইডিয়া, মতামত বা সমস্যা, যা-ই হোক, লিখুন। আমরা পড়ি আর উত্তর দিই।', btn: 'কথা লিখুন', href: 'feedback.html' } }
     ],
