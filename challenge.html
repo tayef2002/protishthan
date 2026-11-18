@@ -77,12 +77,15 @@
     if(best) OFF = best.off;
     return !!best;
   }
+  let EDGE_DOWN = 0;          // until when the edge is not asked (it did not answer: the free daily limit, a 404 or a 5xx): the database answers directly
+  const edgeUp = () => Date.now() > EDGE_DOWN;
+  const edgeFail = () => { EDGE_DOWN = Date.now() + 60000; };
   const state = async id => {
-    try{ const r = await fetch('/api/challenge?f=state&id=' + encodeURIComponent(id), { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.found !== undefined) return j; } }catch(e){}
+    if(edgeUp()){ try{ const r = await fetch('/api/challenge?f=state&id=' + encodeURIComponent(id), { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(j && j.found !== undefined) return j; } else if(r.status === 404 || r.status >= 500) edgeFail(); }catch(e){ edgeFail(); } }
     const d = await rpc('challenge_state', { p_id: id }); return d.data || null;
   };
   const list = async () => {
-    try{ const r = await fetch('/api/challenge?f=list', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) return j; } }catch(e){}
+    if(edgeUp()){ try{ const r = await fetch('/api/challenge?f=list', { cache: 'no-store' }); if(r.ok){ const j = await r.json(); if(Array.isArray(j)) return j; } else if(r.status === 404 || r.status >= 500) edgeFail(); }catch(e){ edgeFail(); } }
     const d = await rpc('challenge_list', { p_limit: 30 }); return Array.isArray(d.data) ? d.data : null;
   };
   const name = b => b ? (b.name || 'ব্যাচ') + ' · ' + bn(b.year || '') + ' ব্যাচ' : 'ব্যাচ';
@@ -182,7 +185,7 @@
     if(!R.S || R.S.found === false){ root.innerHTML = '<div class="ch-card ch-cen"><h2>এই চ্যালেঞ্জ পাওয়া যায়নি</h2><p>লিংকটা ঠিক আছে কিনা দেখুন, বা চ্যালেঞ্জটা বাতিল হয়ে থাকতে পারে।</p><a class="ch-go" href="/challenge">সব চ্যালেঞ্জ দেখুন</a></div>'; return; }
     await loadMe();
     T('ch_room_view', { signed: signedIn() ? 1 : 0, member: R.me && R.me.member ? 1 : 0, phase: phaseOf() });
-    paintRoom(true); setInterval(tick, 200); pollLoop(); setInterval(() => syncClock(), 60000);
+    paintRoom(true); setInterval(tick, 200); pollLoop(); setInterval(() => syncClock(), 300000);
     if(M && M.onChange) M.onChange(async () => { await loadMe(); paintRoom(true); });
     document.addEventListener('visibilitychange', () => { if(!document.hidden){ tick(); } });
   }
@@ -197,7 +200,8 @@
       const ph = phaseOf();
       if(ph === 'done' && R.result){ break; }
       const s = await state(ID); if(s && s.found !== false){ const was = !!(R.S && R.S.opp); R.S = s; if(isRope(s) && was !== !!s.opp){ await loadMe(); R.lastPaint = ''; } paintBar(); }
-      await sleep(ph === 'live' || ph === 'lobby' ? 1500 + Math.random() * 400 : ph === 'done' ? 4000 : 15000);
+      const toStart = R.S.start_ms - now();
+      await sleep(ph === 'live' || (ph === 'lobby' && toStart <= 20000) ? 2500 + Math.random() * 500 : ph === 'lobby' ? 5000 + Math.random() * 1500 : ph === 'done' ? 4000 : 40000 + Math.random() * 10000);
     }
   }
 
@@ -218,7 +222,7 @@
   }
   async function fetchQuestions(){
     R.qFetching = true;
-    const S = R.S, ph = phaseOf(); if(ph === 'lobby') await sleep(Math.random() * 600);
+    const S = R.S, ph = phaseOf(); if(ph === 'lobby') await sleep(Math.random() * 1800);
     for(let i = 0; i < 6 && !R.qs; i++){
       const r = await rpc('challenge_questions', { p_id: ID }), d = r.data;
       if(d && d.ok && Array.isArray(d.questions)){ R.qs = d.questions; if(R.me) R.me.joined = true; break; }
@@ -229,7 +233,7 @@
     R.qFetching = false; if(R.qs){ R.lastPaint = ''; tick(); }
   }
   async function fetchResult(){
-    R.resultFetching = true; await sleep(Math.random() * 1800);
+    R.resultFetching = true; await sleep(Math.random() * 5000);
     for(let i = 0; i < 4 && !R.result; i++){ const r = await rpc('challenge_result', { p_id: ID }); if(r.data && r.data.ok){ R.result = r.data; break; } await sleep(1500); }
     R.resultFetching = false; if(R.result && isRope(R.S)) ['lead', 'avg_a', 'avg_b', 'players_a', 'players_b', 'correct_a', 'correct_b', 'valid', 'winner', 'players', 'correct', 'opp'].forEach(k => { R.S[k] = R.result[k]; });
     if(R.result){ T('ch_done', { played: R.result.played ? 1 : 0, reached: R.result.reached ? 1 : 0, correct: R.result.correct }); R.lastPaint = ''; tick(); }
