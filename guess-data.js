@@ -1,6 +1,6 @@
 /* "কোন জেলায়?": the rules of the game that must be the same on every phone and are checked by tests (tools/tests/test_guess_page.js).
    The pool of institutions comes from the directory (migrations/2027-01-15_guess_pool.sql); everything below is pure: no page, no network.
-   The upazila is shown with the name (that is the real geography question: which district is this upazila in?), so a row needs an upazila, and an upazila that carries the district's own name ("কুমিল্লা সদর") is not used: it gives the answer away.
+   The upazila is shown with the name (that is the real geography question: which district is this upazila in?), so a row needs an upazila, and an upazila that carries the district's own name ("কুমিল্লা সদর") is not used: it gives the answer away; nor is an upazila that is also the name of ANOTHER district (the upazila Kishoreganj is in Nilphamari: a trap, not geography).
    Daily set: the same 10 questions for everybody on a Bangladesh day, because the pool is in a fixed order for that day and the first 10 usable ones are taken.
    Free play: 10 at random from the same pool. Options: the right district plus three others, two from the same division when it can be (harder), the order shuffled by a seed. */
 (function(root){
@@ -20,7 +20,7 @@
   function dayKey(ms){ var d = new Date((ms == null ? Date.now() : ms) + 6 * 3600e3); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0'); }
 
   // only rows the game can use: a district that is one of the 64, a name, a slug
-  function usable(row){ if(!(row && row.slug && row.name && divisionOf(row.district))) return false; var d = String(row.district).trim(), u = String(row.upazila || '').trim(); return String(row.name).indexOf(d) < 0 && u.length > 0 && u.indexOf(d) < 0; }
+  function usable(row){ if(!(row && row.slug && row.name && divisionOf(row.district))) return false; var d = String(row.district).trim(), u = String(row.upazila || '').trim(); return String(row.name).indexOf(d) < 0 && u.length > 0 && u.indexOf(d) < 0 && !divisionOf(u.replace(/s*সদর$/, '')); }
   function clean(pool){ var seen = {}, out = []; (Array.isArray(pool) ? pool : []).forEach(function(r){ if(usable(r) && !seen[r.slug]){ seen[r.slug] = 1; out.push({ slug: String(r.slug), name: String(r.name).trim(), type: String(r.type || ''), district: String(r.district).trim(), upazila: String(r.upazila || '').trim() }); } }); return out; }
 
   // four options for one institution
