@@ -40,8 +40,16 @@
   var LEAGUE = [
     { k: 'league',    t: 'প্রতিষ্ঠান লিগ',  d: 'কোন স্কুল আর ব্যাচ এগিয়ে, এক পাতায়', href: 'league.html', ic: 'league', g: 'linear-gradient(135deg,#6D28D9,#DB2777)', tag: 'নতুন' },
     { k: 'quiz',      t: 'আজকের কুইজ',      d: 'প্রতিদিন ৫টা প্রশ্ন, স্কুলের জন্য পয়েন্ট', href: 'quiz.html', ic: 'card', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
-    { k: 'challenge', t: 'ব্যাচ চ্যালেঞ্জ',  d: 'ব্যাচ একসঙ্গে লাইভ, বা রশি টানাটানি', href: 'challenge.html', ic: 'batch', g: 'linear-gradient(135deg,#B45309,#F59E0B)' }
+    { k: 'guess',     t: 'কোন জেলায়?',      d: 'উপজেলা দেখে জেলা চিনুন', href: 'guess.html', ic: 'info', g: 'linear-gradient(135deg,#059669,#1A56DB)' },
+    { k: 'sprint',    t: 'অঙ্ক স্প্রিন্ট',    d: '৬০ সেকেন্ডে যত অঙ্ক পারেন', href: 'sprint.html', ic: 'skill', g: 'linear-gradient(135deg,#EA580C,#DB2777)' },
+    { k: 'cricket',   t: 'ক্রিকেট কুইজ',     d: 'প্রতিটা বল একটা প্রশ্ন', href: 'cricket.html', ic: 'about', g: 'linear-gradient(135deg,#16A34A,#1A56DB)' }
   ];
+  /* the games of a BATCH (they need batches of 5 or more members): in the menu only when CHALLENGES_LIVE is true (tools/league-release.js release --all) */
+  var CHALLENGES_LIVE = false;
+  if(CHALLENGES_LIVE) LEAGUE = LEAGUE.concat([
+    { k: 'challenge', t: 'ব্যাচ চ্যালেঞ্জ',  d: 'ব্যাচ একসঙ্গে লাইভ, বা রশি টানাটানি', href: 'challenge.html', ic: 'batch', g: 'linear-gradient(135deg,#B45309,#F59E0B)' },
+    { k: 'duel',      t: 'ব্যাচ ডুয়েল',     d: 'আজকের কুইজে ব্যাচ বনাম ব্যাচ', href: 'duel.html', ic: 'batch', g: 'linear-gradient(135deg,#6D28D9,#DB2777)' }
+  ]);
   var TUTOR = [
     { k: 'tutor',      t: 'টিউটর খুঁজুন',          d: 'যাচাই করা ভাইয়া-আপু টিউটর খুঁজে নিন', href: 'tutor.html', ic: 'tutor', g: 'linear-gradient(135deg,#0F766E,#1A56DB)' },
     { k: 'tutor-join', t: 'টিউটর হিসেবে যোগ দিন', d: 'নিজের প্রোফাইল বানান, যোগ দেওয়া ফ্রি', href: 'tutor-join.html', ic: 'partner', g: 'linear-gradient(135deg,#047857,#10B981)' }
