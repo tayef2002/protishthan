@@ -148,7 +148,7 @@
     const r = await rpc('quiz_next', { p_device: DEV }); ST.busy = false;
     const d = r.data;
     if(r.error || !d){ toast('এখন লোড হয়নি, আবার চাপুন'); if(b) b.disabled = false; return; }
-    if(d.ok !== true){ if(d.error === 'NOT_READY'){ ST.ready = false; paint(); } else toast('এখন হলো না, একটু পরে আবার চেষ্টা করুন'); if(b) b.disabled = false; return; }
+    if(d.ok !== true){ if(d.error === 'NOT_READY'){ ST.ready = false; paint(); } else if(d.error === 'GUEST_LIMIT') toast('আজকের জন্য অতিথি-খেলার সীমা পূর্ণ। সাইন-ইন করে খেললে সীমা নেই।'); else toast('এখন হলো না, একটু পরে আবার চেষ্টা করুন'); if(b) b.disabled = false; return; }
     if(d.finished){ await load(); return; }
     ST.q = d; ST.deadline = performance.now() + d.remaining_ms; paintQuestion();
   }

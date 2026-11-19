@@ -8,7 +8,7 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
   const bn = Q.bn;
-  const ST = { rows: [], checks: [], reviewers: [], status: 'draft', topic: 'all', text: '', edit: null, panel: null, daily: null, loaded: false, error: '', uid: null, preview: null, msg: '' };
+  const ST = { rows: [], checks: [], reviewers: [], status: 'draft', topic: 'all', text: '', edit: null, panel: null, daily: null, league: null, loaded: false, error: '', uid: null, preview: null, msg: '' };
   const B = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
   const B_OK = 'style="padding:7px 12px;margin:6px 8px 0 0;border:1px solid #86EFAC;border-radius:8px;background:#F0FDF4;color:#166534;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer"';
   const B_BLUE = 'style="padding:8px 14px;margin:6px 8px 0 0;border:0;border-radius:8px;background:#1A56DB;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer"';
@@ -51,11 +51,11 @@
       '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px">' + stats + '</div>' +
       '<div style="font-size:13px;color:#475569;margin-bottom:10px">যাচাই হওয়া: <b>' + bn(vv) + '</b>টি' + (vv ? ' (' + esc(byTopic) + ')' : '') + '</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">' +
-        '<button type="button" ' + B_BLUE + ' data-qz="new">＋ নতুন প্রশ্ন</button><button type="button" ' + B + ' data-qz="panel" data-v="import">📥 অনেক প্রশ্ন একসঙ্গে (ইমপোর্ট)</button><button type="button" ' + B + ' data-qz="panel" data-v="reviewers">👥 যাচাইকারী (' + bn(ST.reviewers.length) + ')</button><button type="button" ' + B + ' data-qz="panel" data-v="daily">📅 আজকের কুইজ</button>' +
+        '<button type="button" ' + B_BLUE + ' data-qz="new">＋ নতুন প্রশ্ন</button><button type="button" ' + B + ' data-qz="panel" data-v="import">📥 অনেক প্রশ্ন একসঙ্গে (ইমপোর্ট)</button><button type="button" ' + B + ' data-qz="panel" data-v="reviewers">👥 যাচাইকারী (' + bn(ST.reviewers.length) + ')</button><button type="button" ' + B + ' data-qz="panel" data-v="daily">📅 আজকের কুইজ</button><button type="button" ' + B + ' data-qz="panel" data-v="league">🚫 লিগ নজরদারি</button>' +
         '<select id="qzTopic" style="padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px;margin-top:6px"><option value="all">সব বিষয়</option>' + Q.TOPICS.map(t => '<option value="' + t[0] + '"' + (ST.topic === t[0] ? ' selected' : '') + '>' + t[1] + '</option>').join('') + '</select>' +
         '<input id="qzText" type="search" placeholder="প্রশ্নে খুঁজুন…" value="' + esc(ST.text) + '" style="padding:7px 10px;border:1px solid #CBD5E1;border-radius:8px;font:inherit;font-size:13.5px;margin-top:6px;min-width:180px"><button type="button" ' + B + ' data-qz="status" data-v="all">সব দেখুন</button></div>' +
       (ST.msg ? '<div class="bill-note" style="background:#F0FDF4;border-color:#86EFAC;color:#166534">' + esc(ST.msg) + '</div>' : '') +
-      (ST.panel === 'import' ? importPanel() : '') + (ST.panel === 'reviewers' ? reviewersPanel() : '') + (ST.panel === 'daily' ? dailyPanel() : '') + (ST.edit ? formPanel() : '') +
+      (ST.panel === 'import' ? importPanel() : '') + (ST.panel === 'reviewers' ? reviewersPanel() : '') + (ST.panel === 'daily' ? dailyPanel() : '') + (ST.panel === 'league' ? leaguePanel() : '') + (ST.edit ? formPanel() : '') +
       '<div id="qzList">' + list() + '</div>';
   }
   function filtered(){
@@ -218,6 +218,42 @@
       (D.rows.length ? D.rows.map(r => '<div style="margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + new Date(r.day + 'T00:00:00').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }) + (r.day === D.today ? ' (আজ)' : '') + '</b>' + chip(r.source === 'admin' ? ['#F5F3FF', '#5B21B6'] : ['#F1F5F9', '#475569'], r.source === 'admin' ? 'আপনি বেছেছেন' : 'নিজে তৈরি') +
         (r.day > D.today ? '<button type="button" ' + B + ' data-qz="reroll" data-day="' + esc(r.day) + '" style="margin:0 0 0 auto;padding:4px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">নতুন করে বাছুন</button>' : '') + '</div><ol style="margin:6px 0 0;padding-left:22px;font-size:13.5px;color:#334155;line-height:1.7">' + r.qids.map(id => '<li>' + esc(qText(id)) + '</li>').join('') + '</ol></div>').join('') : '<div style="margin-top:10px;color:#64748B">এখনও কোনো দিনের সেট তৈরি হয়নি।</div>') + '</div>';
   }
+  /* ---------- the league watch: batches with points (are they real?), and the ones excluded from the league (migrations/2027-01-17_league_guard.sql) ---------- */
+  const bname = b => b ? (b.name || 'ব্যাচ') + ' · ' + bn(b.year || '') + ' ব্যাচ' : '';
+  async function loadLeague(){
+    const r = await sbAdmin.rpc('league_admin', { p_limit: 40 });
+    ST.league = r.error ? { err: r.error.message || 'error' } : (r.data || { excluded: [], top: [] });
+    paint();
+  }
+  function leaguePanel(){
+    const L = ST.league; if(!L) return '<div class="bill-note">লোড হচ্ছে…</div>';
+    if(L.err) return '<div style="border:2px solid #F59E0B;border-radius:14px;padding:16px;margin:0 0 14px;background:#FFFBEB"><b>লিগ নজরদারি</b><div style="color:#B91C1C;margin:6px 0">লোড করা যায়নি: ' + esc(L.err) + ' — migrations/2027-01-17_league_guard.sql চালানো হয়েছে কি?</div><button type="button" ' + B + ' data-qz="cancel">বন্ধ করুন</button></div>';
+    const th = 'style="text-align:left;padding:6px 8px;font-size:12.5px;color:#475569;border-bottom:1px solid #E2E8F0"', td = 'style="padding:6px 8px;border-bottom:1px solid #F1F5F9;font-size:13.5px"';
+    const rows = (L.top || []).map(t => {
+      const sus = !t.excluded && (t.new24 >= 5 && t.new24 >= t.members * 0.6);       // most of the members joined in the last day: look at it
+      return '<tr' + (t.excluded ? ' style="opacity:.6"' : '') + '><td ' + td + '><b>' + esc(bname(t.batch)) + '</b>' + (t.excluded ? ' ' + chip(['#FEE2E2', '#B91C1C'], 'বাদ') : '') + (sus ? ' ' + chip(['#FEF3C7', '#92400E'], 'নতুন সদস্য বেশি') : '') + '</td><td ' + td + '>' + bn(t.members) + '</td><td ' + td + '>' + bn(t.new24) + '</td><td ' + td + '>' + bn(t.week) + '</td><td ' + td + '>' + bn(t.all) + '</td><td ' + td + '>' + bn(t.matches) + '</td><td ' + td + '>' +
+        (t.excluded ? '<button type="button" ' + B + ' data-qz="lgi" data-id="' + esc(t.batch.id) + '" data-name="' + esc(bname(t.batch)) + '">ফিরিয়ে আনুন</button>' : '<button type="button" ' + B + ' data-qz="lgx" data-id="' + esc(t.batch.id) + '" data-name="' + esc(bname(t.batch)) + '" style="padding:5px 10px;margin:0;border:1px solid #FCA5A5;border-radius:8px;background:#fff;color:#B91C1C;font:inherit;font-size:13px;font-weight:700;cursor:pointer">লিগ থেকে বাদ দিন</button>') + '</td></tr>';
+    }).join('');
+    const ex = (L.excluded || []).filter(e => !(L.top || []).some(t => t.batch && e.batch && t.batch.id === e.batch.id));
+    return '<div style="border:2px solid #F59E0B;border-radius:14px;padding:16px;margin:0 0 14px;background:#FFFBEB"><b style="font-size:15px">লিগ নজরদারি</b>' +
+      '<div style="font-size:13.5px;color:#475569;margin:6px 0">যে ব্যাচ পয়েন্ট পেয়েছে, তারা এখানে আছে। "নতুন সদস্য" মানে গত ২৪ ঘণ্টায় যোগ দেওয়া সদস্য। প্রায় সবাই একদিনে যোগ দিলে (হলুদ চিহ্ন) ব্যাচটা ভালো করে দেখুন। বাদ দিলে ব্যাচের চ্যালেঞ্জ, রশি টানাটানি আর ডুয়েলের পয়েন্ট লিগে গোনা হয় না, ওদের বিপক্ষের খেলার পয়েন্টও না, আর কুইজের বোর্ডেও ওদের খেলোয়াড় ধরা হয় না। যা ঘটেছে তা ডেটায় থেকে যায়, ফিরিয়ে আনলে সব আগের মতো হয়ে যায়।</div>' +
+      ((L.top || []).length ? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #E2E8F0;border-radius:10px"><thead><tr><th ' + th + '>ব্যাচ</th><th ' + th + '>সদস্য</th><th ' + th + '>নতুন সদস্য (২৪ ঘণ্টা)</th><th ' + th + '>এই সপ্তাহে</th><th ' + th + '>মোট পয়েন্ট</th><th ' + th + '>খেলা</th><th ' + th + '></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<div style="margin:8px 0;font-size:14px">এখনও কোনো ব্যাচ লিগে পয়েন্ট পায়নি।</div>') +
+      (ex.length ? '<div style="margin-top:10px;font-size:13.5px"><b>বাদ দেওয়া ব্যাচ (এখন পয়েন্ট নেই):</b> ' + ex.map(e => esc(bname(e.batch)) + (e.reason ? ' (' + esc(e.reason) + ')' : '') + ' <button type="button" ' + B + ' data-qz="lgi" data-id="' + esc(e.batch.id) + '" data-name="' + esc(bname(e.batch)) + '">ফিরিয়ে আনুন</button>').join(' · ') + '</div>' : '') +
+      '<button type="button" ' + B + ' data-qz="cancel">বন্ধ করুন</button></div>';
+  }
+  async function leagueExclude(id, name){
+    const why = prompt('"' + name + '" ব্যাচকে লিগ থেকে বাদ দিচ্ছেন। কারণ লিখুন (নিজের জন্য, ঐচ্ছিক):', '');
+    if(why === null) return;
+    const r = await sbAdmin.rpc('league_exclude', { p_batch: id, p_reason: why });
+    if(r.error){ alert(errText(r.error)); return; }
+    ST.msg = (r.data && r.data.ok) ? name + ' লিগ থেকে বাদ গেছে ✓' : 'বাদ দেওয়া গেল না।'; await loadLeague();
+  }
+  async function leagueInclude(id, name){
+    if(!await adminConfirm('"' + name + '" ব্যাচকে লিগে ফিরিয়ে আনবেন? ওদের আগের পয়েন্ট আবার গোনা হবে।')) return;
+    const r = await sbAdmin.rpc('league_include', { p_batch: id });
+    if(r.error){ alert(errText(r.error)); return; }
+    ST.msg = name + ' লিগে ফিরেছে ✓'; await loadLeague();
+  }
   async function planDays(){
     const r = await sbAdmin.rpc('quiz_plan', { p_days: 7 });
     if(r.error){ alert(errText(r.error)); return; }
@@ -235,8 +271,10 @@
     const b = e.target.closest('[data-qz]'); if(!b) return; const k = b.dataset.qz;
     if(k === 'status'){ ST.status = b.dataset.v; ST.msg = ''; paint(); }
     else if(k === 'new'){ ST.edit = { id: null, status: 'draft', data: blank() }; ST.panel = null; paint(); const f = $('qfQ'); if(f) f.focus(); }
-    else if(k === 'panel'){ ST.panel = ST.panel === b.dataset.v ? null : b.dataset.v; ST.edit = null; ST.msg = ''; paint(); if(ST.panel === 'daily') loadDaily(); }
+    else if(k === 'panel'){ ST.panel = ST.panel === b.dataset.v ? null : b.dataset.v; ST.edit = null; ST.msg = ''; paint(); if(ST.panel === 'daily') loadDaily(); if(ST.panel === 'league') loadLeague(); }
     else if(k === 'plan') planDays();
+    else if(k === 'lgx') leagueExclude(b.dataset.id, b.dataset.name);
+    else if(k === 'lgi') leagueInclude(b.dataset.id, b.dataset.name);
     else if(k === 'reroll') rerollDay(b.dataset.day);
     else if(k === 'cancel'){ ST.edit = null; ST.panel = null; ST.preview = null; paint(); }
     else if(k === 'save') save(b.dataset.v);
