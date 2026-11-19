@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/league.css?v=2">
+<link rel="stylesheet" href="/league.css?v=4">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -33,52 +33,66 @@
 
 <main class="lg">
   <header class="lg-hero">
-    <span class="lg-kick">🏆 প্রতিষ্ঠান লিগ</span>
-    <h1>আপনার স্কুল আর ব্যাচ, <span>কে এগিয়ে?</span></h1>
-    <p>খেলুন, পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে সবার আগে নিন। সব খেলা ফ্রি, সাইন-ইন করে খেললে আপনার প্রতিষ্ঠান আর ব্যাচের নামে পয়েন্ট জমে।</p>
+    <span class="lg-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>প্রতিষ্ঠান লিগ</span>
+    <h1>আপনার স্কুল আর ব্যাচ, <em>কে এগিয়ে?</em></h1>
+    <p>ছোট ছোট খেলায় নিজেকে যাচাই করুন, পয়েন্ট জমান, নিজের প্রতিষ্ঠানকে সবার আগে নিন।</p>
+    <div class="lg-cta"><a class="lg-btn primary" href="/quiz" data-g="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>আজকের কুইজ খেলুন</a><a class="lg-btn ghost" href="#games">সব খেলা দেখুন</a></div>
+    <ul class="lg-facts"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>সব খেলা ফ্রি</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>সাইন-ইন ছাড়াই শুরু</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>প্রতিদিন নতুন প্রশ্ন</li></ul>
   </header>
 
-  <section class="lg-games" aria-label="খেলাগুলো">
-    <a class="lg-g quiz" href="/quiz" data-g="quiz"><i>📝</i><b>আজকের কুইজ</b><span>প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ডে।</span><u>খেলুন →</u></a>
-    <a class="lg-g guess" href="/guess" data-g="guess"><i>🗺️</i><b>কোন জেলায়?</b><span>উপজেলা দেখে জেলা চিনুন। ১০টা প্রশ্ন, প্রতিটা ১০ সেকেন্ড।</span><u>খেলুন →</u></a>
-    <a class="lg-g sprint" href="/sprint" data-g="sprint"><i>➗</i><b>অঙ্ক স্প্রিন্ট</b><span>৬০ সেকেন্ডে মাথায় মাথায় যত অঙ্ক পারেন।</span><u>খেলুন →</u></a>
-    <a class="lg-g cricket" href="/cricket" data-g="cricket"><i>🏏</i><b>ক্রিকেট কুইজ</b><span>প্রতিটা বল একটা প্রশ্ন, ঠিক উত্তরে রান।</span><u>খেলুন →</u></a>
-    <a class="lg-g chal" href="/challenge" data-g="challenge" data-ch="1"><i>⏱️</i><b>ব্যাচ চ্যালেঞ্জ</b><span>আপনার ব্যাচ একই সময়ে একসঙ্গে খেলে লক্ষ্য ছোঁয়ার চেষ্টা করে।</span><u id="lgLive">চ্যালেঞ্জ দেখুন →</u></a>
-    <a class="lg-g rope" href="/challenge" data-g="rope" data-ch="1"><i>🪢</i><b>রশি টানাটানি</b><span>ব্যাচ বনাম ব্যাচ। একই প্রশ্ন, যার গড় বেশি, রশি তার দিকে।</span><u>মুখোমুখি হোন →</u></a>
-    <a class="lg-g duel" href="/duel" data-g="duel" data-ch="1"><i>⚔️</i><b>ব্যাচ ডুয়েল</b><span>একটা দিন ঠিক করুন, আজকের কুইজে ব্যাচ বনাম ব্যাচ।</span><u>ডাকুন →</u></a>
+  <section class="lg-games" id="games" aria-label="খেলাগুলো">
+    <a class="lg-g quiz" href="/quiz" data-g="quiz"><span class="ic t-ind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="tx"><b>আজকের কুইজ</b><span>প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন। স্কুল আর ব্যাচের জন্য পয়েন্ট জমান।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৫ প্রশ্ন · ১৫ সেকেন্ড</em><u>খেলুন <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g guess" href="/guess" data-g="guess"><span class="ic t-grn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span class="tx"><b>কোন জেলায়?</b><span>উপজেলা দেখে জেলা চিনুন। আপনার ভূগোল-জ্ঞান কেমন?</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>১০ প্রশ্ন · ১০ সেকেন্ড</em><u>খেলুন <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g sprint" href="/sprint" data-g="sprint"><span class="ic t-org"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></span><span class="tx"><b>অঙ্ক স্প্রিন্ট</b><span>৬০ সেকেন্ডে মাথায় মাথায় যত অঙ্ক পারেন। কাগজ-কলম লাগবে না।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>৬০ সেকেন্ড</em><u>খেলুন <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g cricket" href="/cricket" data-g="cricket"><span class="ic t-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><span class="tx"><b>ক্রিকেট কুইজ</b><span>প্রতিটা বল একটা প্রশ্ন। ঠিক উত্তরে রান, ভুলে আউট।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>১২ বল · ৩ উইকেট</em><u>খেলুন <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g chal" href="/challenge" data-g="chal" data-ch="1"><span class="ic t-ind"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="tx"><b>ব্যাচ চ্যালেঞ্জ</b><span>আপনার ব্যাচ একই সময়ে একসঙ্গে খেলে লক্ষ্য ছোঁয়ার চেষ্টা করে।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ব্যাচ · লাইভ</em><u id="lgLive">চ্যালেঞ্জ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g rope" href="/challenge" data-g="rope" data-ch="1"><span class="ic t-org"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3L4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></svg></span><span class="tx"><b>রশি টানাটানি</b><span>ব্যাচ বনাম ব্যাচ। একই প্রশ্ন, যার গড় বেশি, রশি তার দিকে।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ব্যাচ · লাইভ</em><u>মুখোমুখি <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
+    <a class="lg-g duel" href="/duel" data-g="duel" data-ch="1"><span class="ic t-grn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg></span><span class="tx"><b>ব্যাচ ডুয়েল</b><span>একটা দিন ঠিক করুন, আজকের কুইজে ব্যাচ বনাম ব্যাচ।</span></span><span class="ft"><em><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ব্যাচ · দৈনিক</em><u>ডাকুন <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></u></span></a>
   </section>
 
-  <section class="lg-sec" id="boards">
-    <h2>এই সপ্তাহে কে এগিয়ে?</h2>
-    <div class="lg-tabs" role="tablist" aria-label="কোন খেলার বোর্ড">
-      <button type="button" class="lg-tab on" data-game="chal" data-ch="1" role="tab" aria-selected="true">ব্যাচ চ্যালেঞ্জ</button>
-      <button type="button" class="lg-tab" data-game="quiz" role="tab" aria-selected="false">আজকের কুইজ</button>
+  <section class="lg-sec lg-boardcard" id="boards">
+    <div class="lg-bh">
+      <div><h2>লিগ বোর্ড</h2><p>কোন প্রতিষ্ঠান আর ব্যাচ এগিয়ে, এই সপ্তাহের হিসাবে।</p></div>
+      <button type="button" class="lg-mini" id="lgMake" title="এই বোর্ডের সেরা ৫ নিয়ে একটা ছবি বানান"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>শেয়ারের ছবি</button>
     </div>
-    <div class="lg-tabs" role="tablist" aria-label="বোর্ডের ধরন">
-      <button type="button" class="lg-tab sm on" data-scope="institution" role="tab" aria-selected="true">প্রতিষ্ঠান</button>
-      <button type="button" class="lg-tab sm" data-scope="batch" role="tab" aria-selected="false">ব্যাচ</button>
-      <span class="sp"></span>
-      <button type="button" class="lg-tab sm on" data-period="week" role="tab" aria-selected="true">এই সপ্তাহ</button>
-      <button type="button" class="lg-tab sm" data-period="all" id="lgP2" role="tab" aria-selected="false">সব সময়</button>
+    <div class="lg-ctl">
+      <div class="lg-tabs seg" role="tablist" aria-label="কোন খেলার বোর্ড">
+        <button type="button" class="lg-tab on" data-game="chal" data-ch="1" role="tab" aria-selected="true">ব্যাচ চ্যালেঞ্জ</button>
+        <button type="button" class="lg-tab" data-game="quiz" role="tab" aria-selected="false">আজকের কুইজ</button>
+      </div>
+      <div class="lg-tabs seg" role="tablist" aria-label="বোর্ডের ধরন">
+        <button type="button" class="lg-tab sm on" data-scope="institution" role="tab" aria-selected="true">প্রতিষ্ঠান</button>
+        <button type="button" class="lg-tab sm" data-scope="batch" role="tab" aria-selected="false">ব্যাচ</button>
+      </div>
+      <div class="lg-tabs seg" role="tablist" aria-label="সময়">
+        <button type="button" class="lg-tab sm on" data-period="week" role="tab" aria-selected="true">এই সপ্তাহ</button>
+        <button type="button" class="lg-tab sm" data-period="all" id="lgP2" role="tab" aria-selected="false">সব সময়</button>
+      </div>
     </div>
-    <ul class="lg-list" id="lgBoard"><li class="lg-empty">লোড হচ্ছে…</li></ul>
+    <ul class="lg-list" id="lgBoard"><li class="lg-empty"><span class="lg-sk"></span><span class="lg-sk"></span><span class="lg-sk"></span></li></ul>
     <p class="lg-rule" id="lgRule"></p>
-    <div class="lg-poster" id="lgPoster" hidden>
-      <button type="button" class="lg-btn" id="lgMake">পোস্টার বানান</button>
-      <span>এই বোর্ডের সেরা ৫ নিয়ে ফেসবুক আর WhatsApp-এর জন্য একটা ছবি</span>
-    </div>
-    <div class="lg-prev" id="lgPrev" hidden><img id="lgImg" alt="লিগের পোস্টার"><div class="lg-share"><a class="lg-btn" id="lgDl" download="protishthan-league.png">ছবি নামান</a><a class="lg-btn wa" id="lgWa" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a></div></div>
+    <div class="lg-poster" id="lgPoster" hidden></div>
+    <div class="lg-prev" id="lgPrev" hidden><img id="lgImg" alt="লিগের পোস্টার"><div class="lg-share"><a class="lg-btn primary" id="lgDl" download="protishthan-league.png">ছবি নামান</a><a class="lg-btn wa" id="lgWa" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a></div></div>
+  </section>
+
+  <section class="lg-steps" aria-label="কীভাবে কাজ করে">
+    <div><span class="n">১</span><b>খেলুন</b><p>কুইজ বা যেকোনো খেলা। সাইন-ইন ছাড়াই শুরু করা যায়।</p></div>
+    <div><span class="n">২</span><b>পয়েন্ট জমান</b><p>সাইন-ইন করে খেললে পয়েন্ট আপনার প্রতিষ্ঠান আর SSC ব্যাচের নামে জমে।</p></div>
+    <div><span class="n">৩</span><b>সবার আগে নিন</b><p>বোর্ডে শুধু প্রতিষ্ঠান আর ব্যাচ দেখা যায়, কে কত পেয়েছে তা নয়।</p></div>
   </section>
 
   <section class="lg-how">
-    <h2>পয়েন্ট কীভাবে হয়</h2>
-    <ul>
-      <li><b>আজকের কুইজ:</b> প্রতিটা সঠিক উত্তরে ১০ পয়েন্ট, তাড়াতাড়ি দিলে আরও ৫ পর্যন্ত। প্রতিষ্ঠান বা ব্যাচের স্কোর হলো তার <b>সেরা ১০ জনের গড়</b>। বোর্ডে আসতে অন্তত ৩ জন খেলতে হবে।</li>
-      <li data-ch="1"><b>ব্যাচ চ্যালেঞ্জ:</b> ব্যাচের সবার সঠিক উত্তর যোগ হয়। লক্ষ্য ছুঁলে বা রশি টানাটানিতে জিতলে ৫০ পয়েন্ট বাড়তি, ড্র হলে ২৫। লিগে গোনা হতে সেই খেলায় ব্যাচের অন্তত ৫ জন খেলতে হবে।</li>
-      <li data-ch="1"><b>প্রতিষ্ঠানের চ্যালেঞ্জ পয়েন্ট</b> হলো তার ব্যাচগুলোর পয়েন্টের যোগফল।</li>
-      <li>বোর্ডে শুধু প্রতিষ্ঠান আর ব্যাচের নাম আর সংখ্যা থাকে। কে কত পেয়েছেন, তা কেউ দেখতে পায় না। খেলা শেষে শুধু যাঁরা খেলেছেন, তাঁরা নিজের ব্যাচের সেরা ৫ জনের প্রথম নাম দেখেন।</li>
-    </ul>
-    <p class="lg-note">পয়েন্ট হিসাব হয় সার্ভারে, ফোনে নয়। তবু একজন ভিন্ন ভিন্ন অ্যাকাউন্ট দিয়ে ব্যাচ বাড়ানোর চেষ্টা করতে পারে। সন্দেহজনক হলে আমরা সেই ব্যাচকে বোর্ড থেকে সরিয়ে দিই।</p>
+    <details>
+      <summary>পয়েন্টের নিয়ম আর গোপনীয়তা</summary>
+      <ul>
+        <li><b>আজকের কুইজ:</b> প্রতিটা সঠিক উত্তরে ১০ পয়েন্ট, তাড়াতাড়ি দিলে আরও ৫ পর্যন্ত। প্রতিষ্ঠান বা ব্যাচের স্কোর হলো তার <b>সেরা ১০ জনের গড়</b>। বোর্ডে আসতে অন্তত ৩ জন খেলতে হবে।</li>
+        <li data-ch="1"><b>ব্যাচ চ্যালেঞ্জ:</b> ব্যাচের সবার সঠিক উত্তর যোগ হয়। লক্ষ্য ছুঁলে বা রশি টানাটানিতে জিতলে ৫০ পয়েন্ট বাড়তি, ড্র হলে ২৫। লিগে গোনা হতে সেই খেলায় ব্যাচের অন্তত ৫ জন খেলতে হবে।</li>
+        <li data-ch="1"><b>প্রতিষ্ঠানের চ্যালেঞ্জ পয়েন্ট</b> হলো তার ব্যাচগুলোর পয়েন্টের যোগফল।</li>
+        <li>বোর্ডে শুধু প্রতিষ্ঠান আর ব্যাচের নাম আর সংখ্যা থাকে। কে কত পেয়েছেন, তা কেউ দেখতে পায় না। খেলা শেষে শুধু যাঁরা খেলেছেন, তাঁরা নিজের ব্যাচের সেরা ৫ জনের প্রথম নাম দেখেন।</li>
+        <li>অঙ্ক স্প্রিন্ট, কোন জেলায়? আর ক্রিকেট কুইজের স্কোর শুধু আপনার ফোনে থাকে, লিগের বোর্ডে যোগ হয় না।</li>
+      </ul>
+      <p class="lg-note">পয়েন্ট হিসাব হয় সার্ভারে, ফোনে নয়। তবু একজন ভিন্ন ভিন্ন অ্যাকাউন্ট দিয়ে ব্যাচ বাড়ানোর চেষ্টা করতে পারে। সন্দেহজনক হলে আমরা সেই ব্যাচকে বোর্ড থেকে সরিয়ে দিই।</p>
+    </details>
   </section>
 </main>
 
@@ -98,6 +112,7 @@
   /* the games of a BATCH (challenge, rope, duel) are switched on later, when batches of 5 exist: tools/league-release.js release --all */
   const CHALLENGES_LIVE = false;
   if(!CHALLENGES_LIVE) document.querySelectorAll('[data-ch]').forEach(e => e.remove());
+  document.querySelectorAll('.lg-ctl .lg-tabs').forEach(t => { if(t.querySelectorAll('.lg-tab').length < 2) t.hidden = true; });
   const ST = { game: CHALLENGES_LIVE ? 'chal' : 'quiz', scope: 'institution', period: 'week', rows: [], req: 0 };
   const bHref = x => '/b/' + encodeURIComponent(x.slug) + '/ssc-' + x.year;
   const iHref = x => 'institution-detail.html?slug=' + encodeURIComponent(x.slug);
@@ -117,7 +132,7 @@
     $('lgRule').innerHTML = ST.game === 'chal'
       ? 'ব্যাচের অন্তত ৫ জন খেলা খেলাগুলোই গোনা হয়। সব ব্যাচের সঙ্গে সমান নিয়মে: সঠিক উত্তর, আর লক্ষ্য ছোঁয়া বা জয়ের বাড়তি ৫০। <a href="/challenge">নিজের ব্যাচের চ্যালেঞ্জ দিন →</a>'
       : 'বোর্ডে আসতে অন্তত ৩ জন সাইন-ইন করে খেলতে হবে। স্কোর হলো <b>সেরা ১০ জনের গড়</b>, তাই ছোট স্কুলও বড় স্কুলকে হারাতে পারে। <a href="/quiz">আজকের কুইজ খেলুন →</a>';
-    $('lgP2').hidden = ST.game === 'quiz'; $('lgP2').style.display = ST.game === 'quiz' ? 'none' : '';
+    $('lgP2').hidden = ST.game === 'quiz'; $('lgP2').parentElement.hidden = ST.game === 'quiz'; $('lgP2').style.display = ST.game === 'quiz' ? 'none' : '';
     if(ST.game === 'quiz' && ST.period === 'all') ST.period = 'week';
   }
   const paintTabs = () => document.querySelectorAll('.lg-tab').forEach(x => { const on = (x.dataset.game && x.dataset.game === ST.game) || (x.dataset.scope && x.dataset.scope === ST.scope) || (x.dataset.period && x.dataset.period === ST.period); x.classList.toggle('on', !!on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
@@ -126,11 +141,12 @@
     const chal = ST.game === 'chal';
     const r = chal ? await rpc('league_board', { p_scope: ST.scope, p_period: ST.period, p_limit: 20 }) : await rpc('quiz_board', { p_scope: ST.scope, p_period: ST.period, p_district: null, p_limit: 20 });
     if(my !== ST.req) return;
-    if(r.error || !Array.isArray(r.data)){ list.innerHTML = '<li class="lg-empty">বোর্ড এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</li>'; $('lgPoster').hidden = true; return; }
+    if(r.error || !Array.isArray(r.data)){ list.innerHTML = '<li class="lg-empty"><b>বোর্ড এখন লোড করা যাচ্ছে না।</b><span>একটু পরে আবার চেষ্টা করুন।</span></li>'; $('lgMake').hidden = true; return; }
     ST.rows = r.data;
-    $('lgPoster').hidden = !r.data.length;
+    $('lgMake').hidden = !r.data.length;
     if(!r.data.length){
-      list.innerHTML = '<li class="lg-empty">' + (chal ? 'এই সময়ে কোনো ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান') + ' বোর্ডে আসেনি।<br>আপনার ব্যাচ একটা চ্যালেঞ্জ দিলেই প্রথম হতে পারে!' : 'এই সময়ে কোনো ' + (ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান') + ' বোর্ডে আসেনি।<br>আপনার স্কুলের বন্ধুদের ডাকুন, আপনার স্কুলই প্রথম হতে পারে!') + '</li>'; return;
+      const what = ST.scope === 'batch' ? 'ব্যাচ' : 'প্রতিষ্ঠান';
+      list.innerHTML = '<li class="lg-empty"><span class="lg-eic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span><b>এই সময়ে কোনো ' + what + ' বোর্ডে আসেনি।</b><span>' + (chal ? 'আপনার ব্যাচ একটা চ্যালেঞ্জ দিলেই প্রথম হতে পারে।' : 'প্রথম হওয়ার জায়গাটা এখনও ফাঁকা। সাইন-ইন করে আজকের কুইজ খেলুন, আর স্কুলের বন্ধুদের ডাকুন।') + '</span><a class="lg-btn primary sm" href="' + (chal ? '/challenge' : '/quiz') + '">' + (chal ? 'চ্যালেঞ্জ দিন' : 'আজকের কুইজ খেলুন') + '</a></li>'; return;
     }
     const mx = Math.max(1, ...r.data.map(x => Number(chal ? x.points : x.score)));
     list.innerHTML = r.data.map(x => {
@@ -144,7 +160,7 @@
     if(b.dataset.game) ST.game = b.dataset.game; if(b.dataset.scope) ST.scope = b.dataset.scope; if(b.dataset.period) ST.period = b.dataset.period;
     $('lgBoard').innerHTML = '<li class="lg-empty">লোড হচ্ছে…</li>'; T('league_board', { g: ST.game, s: ST.scope, p: ST.period }); loadBoard();
   });
-  document.querySelectorAll('.lg-g').forEach(a => a.addEventListener('click', () => T('league_go', { g: a.dataset.g })));
+  document.querySelectorAll('[data-g]').forEach(a => a.addEventListener('click', () => T('league_go', { g: a.dataset.g })));
 
   /* the poster: the best five of the board that is on the screen, drawn in the browser (nothing is sent anywhere) */
   const rr = (c, x, y, w, h, r) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
