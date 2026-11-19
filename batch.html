@@ -415,8 +415,9 @@
     else h += '<div class="bt-sda"><a class="bt-sdb" href="/challenge?vs=' + encodeURIComponent(b.id) + '">' + ic('plus', 16) + 'এই ব্যাচকে রশি টানাটানিতে ডাকুন</a><a class="bt-sdl" href="/league">লিগের বোর্ড দেখুন →</a></div>';
     return h + '<p class="bt-sdn2">শুধু ব্যাচের নাম আর সংখ্যা এখানে দেখায়, কে কত পেয়েছেন তা নয়।</p></div>';
   }
+  const LEAGUE_PUBLIC = false;      // the league card is hidden until the owner makes the league public (same switch as the menu tab); change to true to show it
   async function loadLeague(b, n, joined){
-    const box = $('league'); if(!box) return;
+    const box = $('league'); if(!box || !LEAGUE_PUBLIC) return;
     const r = await rpc('league_batch', { p_batch: b.id });
     if(r.error || !r.data || typeof r.data !== 'object') return;      // the SQL is not run yet: no card
     if($('league') === box) box.innerHTML = leagueHtml(r.data, b, n, joined);

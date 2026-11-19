@@ -41,5 +41,6 @@ const visitor = ctx.out.leagueHtml(L(), B, 8, false);
 yes('the card of a visitor: the button calls THIS batch by name (?vs=<id>) to a rope match, and says that only names and counts are shown', /href="\/challenge\?vs=b-1"/.test(visitor) && /রশি টানাটানিতে ডাকুন/.test(visitor) && /কে কত পেয়েছেন তা নয়/.test(visitor));
 const fresh = ctx.out.leagueHtml(L({ all_points: 0, week_points: 0, week_matches: 0, week_rank: null, week_total: null }), B, 3, true);
 yes('a batch that never played says so, and a batch of fewer than 5 is told it needs 5 (no challenge button)', /এখনও কোনো চ্যালেঞ্জ খেলেনি/.test(fresh) && /ব্যাচে ৫ জন সদস্য হলে|ব্যাচে 5 জন সদস্য হলে/.test(fresh) && !/class="bt-sdb"/.test(fresh), fresh);
+yes('the league card of the batch page is HIDDEN while the league is hidden: one switch (LEAGUE_PUBLIC = false) stops it before any call is made', /const LEAGUE_PUBLIC = false;/.test(batch) && /if\(!box \|\| !LEAGUE_PUBLIC\) return;/.test(batch));
 yes('the card is silent when the SQL is not run (an error or nothing gives no card), and it is shown for every viewer of an existing batch', /if\(r\.error \|\| !r\.data \|\| typeof r\.data !== 'object'\) return;/.test(batch) && /batch\.css\?v=49/.test(batch) && /\.bt-lgn\{/.test(read('batch.css')));
 console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
