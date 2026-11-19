@@ -68,13 +68,14 @@ const pv = read('privacy.html');
 const toc = [...pv.matchAll(/<a href="#([a-z]+)"><i>([০-৯]+)<\/i>/g)].map(m => [m[1], m[2]]);
 const secs = [...pv.matchAll(/<section class="lg-sec" id="([a-z]+)"><h2><span class="n">([০-৯]+)<\/span>/g)].map(m => [m[1], m[2]]);
 eq('the privacy contents list and the sections agree, in the same order', toc, secs);
-eq('the sections are numbered ১ to ১০ in order', secs.map(s => s[1]), ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '১০']);
-yes('there is a section on the tutor service, then one on the batches (আমার ব্যাচ), then the last one (contact)', secs.map(s => s[0]).join() === 'who,what,google,use,ads,rights,safe,tutor,batch,contact');
+eq('the sections are numbered ১ to ১১ in order', secs.map(s => s[1]), ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '১০', '১১']);
+yes('there is a section on the tutor service, then one on the batches (আমার ব্যাচ), then the league and the games (data of the quiz, challenges, boards, what is seen by whom), then the last one (contact)', secs.map(s => s[0]).join() === 'who,what,google,use,ads,rights,safe,tutor,batch,league,contact');
 yes('there is a section on ads and cookies', secs.some(s => s[0] === 'ads'));
 yes('it names Google AdSense and links to the ad settings', /Google AdSense/.test(pv) && /adssettings\.google\.com/.test(pv) && /policies\.google\.com\/technologies\/partner-sites/.test(pv));
 yes('it keeps the promises that stay true: no selling, no personal data to advertisers', /বিক্রি করি না, বিজ্ঞাপনদাতাকে দিই না/.test(pv));
 yes('the old sentence that would be false with ads ("we do not even track for ads") is gone', !/বিজ্ঞাপনের জন্য ট্র্যাকও করি না/.test(pv));
-yes('the date was moved', /হালনাগাদ: ১২ নভেম্বর ২০২৬/.test(pv));
+yes('the date was moved', /হালনাগাদ: ১৯ নভেম্বর ২০২৬/.test(pv));
+yes('the league section says what is kept (device code, answers, points, the batch at the time), that guest plays go after 14 days, that nobody sees who scored what, that three games keep their score only in the browser, that an admin can exclude a batch, and how to ask for deletion', /id="league"/.test(pv) && /১৪ দিন পর/.test(pv) && /কে কত পেয়েছেন, তা কেউ দেখতে পায় না/.test(pv) && /আমাদের সার্ভারে পাঠানো হয় না/.test(pv) && /লিগের বোর্ড থেকে বাদ দিতে পারেন/.test(pv) && /মুছে ফেলতে বা দেখতে চাইলে/.test(pv));
 
 // ----- the sitemap list and the footer -----
 const sm = read('tools/seo/build_sitemap.js');

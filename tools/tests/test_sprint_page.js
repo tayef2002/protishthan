@@ -1,4 +1,5 @@
 // The game "অঙ্ক স্প্রিন্ট": its questions and points (sprint-data.js) and its page (sprint.html, sprint.css).   node tools/tests/test_sprint_page.js
+const R = require('./_release.js');
 const fs = require('fs'), path = require('path');
 const read = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 let pass = 0, fail = 0;
@@ -29,7 +30,7 @@ yes('the Bangladesh day is the seed of the daily sprint: 23:30 in Dhaka is still
 yes('the words at the end fit the score (no empty or odd verdict for 0, 7, 15, 25, 35)', [0, 7, 15, 25, 35].every(n => S.verdict(n).length > 10) && new Set([0, 7, 15, 25, 35].map(S.verdict)).size === 5);
 
 // the page
-yes('it is a normal page of the site (title, canonical, share tags, nav, footer, analytics, the data file before the script), kept out of search while the league is hidden', /<title>অঙ্ক স্প্রিন্ট/.test(html) && /rel="canonical" href="https:\/\/protishthan\.com\/sprint"/.test(html) && /og:title/.test(html) && /<meta name="robots" content="noindex, follow">/.test(html) && /nav\.js/.test(html) && /footer\.js/.test(html) && /analytics\.js/.test(html) && html.indexOf('sprint-data.js') < html.indexOf('window.SprintData'));
+yes('it is a normal page of the site (title, canonical, share tags, nav, footer, analytics, the data file before the script), kept out of search while the league is hidden (indexable once it is public)', /<title>অঙ্ক স্প্রিন্ট/.test(html) && /rel="canonical" href="https:\/\/protishthan\.com\/sprint"/.test(html) && /og:title/.test(html) && R.noindexOk(html) && /nav\.js/.test(html) && /footer\.js/.test(html) && /analytics\.js/.test(html) && html.indexOf('sprint-data.js') < html.indexOf('window.SprintData'));
 yes('60 seconds from the clock of the phone (performance.now and a deadline, not a counter that drifts), a 3 second count before it, the buttons lock after an answer, the game ends by itself at the deadline', /performance\.now\(\) \+ S\.SECONDS \* 1000/.test(html) && /let c = 3/.test(html) && /if\(G\.locked \|\| G\.over\) return; G\.locked = true/.test(html) && /if\(left <= 0\) finish\(false\)/.test(html) && /if\(!G\.over\) nextQ\(\)/.test(html));
 yes('a right answer goes on after 0.14 s, a wrong one shows the right option for 0.42 s; keys 1 to 4 answer too', /good \? 140 : 420/.test(html) && /'1234'\.indexOf\(e\.key\)/.test(html) && /classList\.add\(good \? 'right' : 'wrong'\)/.test(html));
 yes('the points are those of SprintData (10 plus the row), a wrong answer takes nothing away and only breaks the row', /S\.points\(G\.streak\)/.test(html) && /else G\.streak = 0/.test(html) && !/G\.score -=/.test(html) && !/G\.score = Math\.max/.test(html));
