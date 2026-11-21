@@ -1,7 +1,7 @@
 -- প্রতিষ্ঠান লিগ: the daily quiz by CLASS BAND (ধাপ), so that a pupil gets questions of his own level.
 --  * Four bands: 'c1-5' (শ্রেণি ১-৫), 'c6-8', 'c9-10', 'c11-12' (একাদশ-দ্বাদশ / কলেজ). Every band has its OWN 5 questions a day (quiz_daily is now one row per day AND band).
 --  * A band gets the verified questions of its own band, plus the "any" (all classes) questions that are not too hard for it (c1-5: easy only, c6-8: easy and medium, the others: all).
---    The five of a day are ordered easy to hard. The ones never used (then the ones used longest ago) in that band come first, spread over the topics, so nothing repeats until the whole pool of the band is used.
+--    The five of a day are ordered easy to hard. The ones never used (then the ones used longest ago) in that band come first, at most 2 of one topic a day, so nothing repeats until the pool of the band is used.
 --  * A player plays ONE band a day: the band of his first question stays for the rest of that day (quiz_plays.band). Without a band the old default is used ('c6-8'), so an old page keeps working.
 --  * The boards are per band (a school is only compared with schools of the same band). The batch duel (SSC batches) counts the 'c9-10' band only.
 --  * quiz_today also tells which bands have enough verified questions today (bands), the band of the player (band) and whether it is already fixed for today (locked).
@@ -37,7 +37,7 @@ create or replace function public.quiz_pick(p_exclude uuid[] default '{}', p_ban
         left join (select x as qid, max(d.day) as lastday from public.quiz_daily d, unnest(d.qids) x where d.band = public.quiz_band(p_band) group by x) u on u.qid = q.id
        where q.status = 'verified' and not (q.id = any(coalesce(p_exclude, '{}'::uuid[])))
          and (q.band = public.quiz_band(p_band) or (q.band = 'any' and q.difficulty <= case public.quiz_band(p_band) when 'c1-5' then 1 when 'c6-8' then 2 else 3 end))
-    ) t order by t.lastday nulls first, t.rn, t.rnd limit 5
+    ) t where t.rn <= 2 order by t.lastday nulls first, t.rn, t.rnd limit 5
   ) z
 $$;
 

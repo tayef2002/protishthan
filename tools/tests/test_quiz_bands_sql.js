@@ -76,15 +76,21 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('a band without 5 verified questions is not ready (ready false, the band shown), and the others still are', t2.ready === false && t2.bands['c1-5'] === false && t2.bands['c9-10'] === true && (await nxt(null, 'device-zzzz', 'c1-5')).error === 'NOT_READY');
   await db.exec(`update public.quiz_questions set status = 'verified' where status = 'retired'`);
 
-  // ---- no repeat until the pool of the band is used: 11 days in a row for c11-12 (10 own + 10 any = 20 questions)
+  // ---- no repeat while there are unused questions: 3 days in a row for c11-12 (10 own + 10 any = 20 questions)
   const seen = new Map(); let again = 0, days = 0;
-  for (let k = 1; k <= 4; k++) {
+  for (let k = 1; k <= 3; k++) {
     await db.exec(`delete from public.quiz_daily where day = public.quiz_day() and band = 'c11-12'`);
     await db.exec(`insert into public.quiz_daily (day, band, qids, source) select public.quiz_day() - ${k}, 'c11-12', public.quiz_pick('{}', 'c11-12'), 'auto' on conflict do nothing`);
   }
   const past = await q(`select qids from public.quiz_daily where band = 'c11-12' and day < public.quiz_day()`);
   const all = past.flatMap(r => r.qids);
-  ok('four days in a row of one band use 20 different questions (nothing repeats while unused ones remain)', all.length === 20 && new Set(all).size === 20, all.length + ' / ' + new Set(all).size);
+  ok('three days in a row of one band use 15 different questions (nothing repeats while plenty of unused ones remain; the cap of 2 per topic may force a repeat only when the pool is nearly used up)', all.length === 15 && new Set(all).size === 15, all.length + ' / ' + new Set(all).size);
+
+  // ---- a band with a lot of one topic does not become all-math: at most 2 of one topic in a day
+  for (let i = 0; i < 40; i++) await db.query(`insert into public.quiz_questions (topic, band, difficulty, question, options, answer_idx, explanation, source, status) values ('math', 'c11-12', 2, $1, '["ক","খ","গ","ঘ"]'::jsonb, 1, 'ব্যাখ্যা', 'বই ক', 'verified')`, ['গণিত বহু ' + i]);
+  let worst = 0;
+  for (let k = 0; k < 12; k++) { const t = (await q(`select count(*) filter (where q.topic = 'math')::int as m from public.quiz_questions q where q.id = any(public.quiz_pick('{}', 'c11-12'))`))[0].m; worst = Math.max(worst, t); }
+  ok('with 40 more math questions in a band, a day still has at most 2 math questions (the other topics are not crowded out)', worst <= 2, 'worst ' + worst);
 
   // ---- boards per band: a member's points go to the board of the band he played
   for (let u = 1; u <= 3; u++) { await db.query(`insert into public.member_institution values ($1, 'school-a')`, [U(u)]); }
