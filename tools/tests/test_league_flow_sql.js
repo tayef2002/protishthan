@@ -26,7 +26,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   `);
   const U = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
   for (let i = 1; i <= 20; i++) { await db.exec(`insert into auth.users (id) values ('${U(i)}')`); await db.exec(`insert into public.members values ('${U(i)}', 'নাম${i} পদবি')`); }
-  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql']) await db.exec(M(f));
+  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql', '2027-01-17_league_guard.sql', '2027-01-18_quiz_bands.sql']) await db.exec(M(f));
   await db.exec("select set_config('test.admin', '0', false)");
   const q = async (sql, params) => (await db.query(sql, params)).rows;
   const call = async (uid, sql, params) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } };
@@ -36,7 +36,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   for (let i = 0; i < 12; i++) await db.query(`insert into public.quiz_questions (topic, question, options, answer_idx, explanation, source, status) values ($1, $2, '["ক","খ","গ","ঘ"]'::jsonb, 1, 'ব্যাখ্যা', 'বই ক', 'verified')`, [topics[i % 6], 'প্রশ্ন ' + i + ' কী?']);
 
   // everybody who plays: a member answers the 5 questions of today (choice 1 is right) - the first 'right' of them answer all right, the others miss some
-  const playDay = async (uid, rightCount) => { for (let i = 0; i < 5; i++) { const n = await call(uid, `select public.quiz_next($1) as r`, ['dev-' + uid]); if (!n || !n.ok) return { stuck: JSON.stringify(n) }; const a = await call(uid, `select public.quiz_answer($1, $2, $3) as r`, ['dev-' + uid, n.idx != null ? n.idx : i, i < rightCount ? 1 : 3]); if (!a || !a.ok) return { stuck: JSON.stringify(a) }; } return { ok: true }; };
+  const playDay = async (uid, rightCount) => { for (let i = 0; i < 5; i++) { const n = await call(uid, `select public.quiz_next($1, 'c9-10') as r`, ['dev-' + uid]); if (!n || !n.ok) return { stuck: JSON.stringify(n) }; const a = await call(uid, `select public.quiz_answer($1, $2, $3) as r`, ['dev-' + uid, n.idx != null ? n.idx : i, i < rightCount ? 1 : 3]); if (!a || !a.ok) return { stuck: JSON.stringify(a) }; } return { ok: true }; };
   const r1 = await playDay(1, 5); ok('a member can play the whole daily quiz on the real functions (5 questions)', r1.ok === true, JSON.stringify(r1));
   for (const [u, n] of [[2, 5], [3, 4], [4, 3], [7, 2], [8, 2], [9, 1]]) await playDay(u, n);
   const rows = await q(`select count(*)::int as n, count(distinct user_id)::int as u, count(*) filter (where batch_id is null)::int as nobatch, sum(points)::int as pts from public.quiz_plays where user_id is not null`);
@@ -52,7 +52,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   ok('the next day the duel is done and A wins (higher average): the winner comes from the server', done.status === 'done' && done.winner === 'a' && done.valid === true, JSON.stringify(done));
   const lb = await call(null, `select public.league_board('batch', 'all', 10) as r`), li = await call(null, `select public.league_board('institution', 'week', 10) as r`), bs = await call(null, 'select public.league_batch($1) as r', [A]), bs2 = await call(null, 'select public.league_batch($1) as r', [B]);
   ok('the league boards give A 50 points (one win) and show B with none (a loss earns 0, so B is not listed)', lb.length === 1 && lb[0].slug === 'school-a' && lb[0].points === 50 && lb[0].wins === 1 && li.length === 1 && li[0].points === 50 && bs.week_points === 50 && bs.week_wins === 1 && bs2.week_points === 0, JSON.stringify([lb, bs2.week_points]));
-  const qb = await call(null, `select public.quiz_board('batch', 'week', null, 10) as r`);
+  const qb = await call(null, `select public.quiz_board('batch', 'week', null, 10, 'c9-10') as r`);
   ok('the ordinary daily-quiz batch board and the duel agree about who is ahead (A before B), because they use the same rule', Array.isArray(qb) && qb.length === 2 && qb[0].slug === 'school-a' && qb[0].score > qb[1].score, JSON.stringify(qb.map(x => x.slug + x.score)));
   console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
 })().catch(e => { console.error('crashed:', e.message); process.exit(1); });

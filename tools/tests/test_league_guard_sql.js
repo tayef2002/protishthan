@@ -26,7 +26,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   `);
   const U = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
   for (let i = 1; i <= 60; i++) { await db.exec(`insert into auth.users (id) values ('${U(i)}')`); await db.exec(`insert into public.members values ('${U(i)}', 'নাম${i} পদবি')`); }
-  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql', '2027-01-17_league_guard.sql', '2027-01-17_league_guard.sql']) await db.exec(M(f));     // twice at the end: safe
+  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql', '2027-01-17_league_guard.sql', '2027-01-17_league_guard.sql', '2027-01-18_quiz_bands.sql', '2027-01-18_quiz_bands.sql']) await db.exec(M(f));     // twice at the end: safe
   const q = async (sql, params) => (await db.query(sql, params)).rows;
   const call = async (uid, sql, params) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); try { return (await db.query(sql, params)).rows[0].r; } catch (e) { return { thrown: e.message }; } };
   const guard = async (role, uid, sql) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); await db.exec('set role ' + role); try { return (await db.query(sql)).rows; } catch (e) { return 'denied'; } finally { await db.exec('reset role'); } };
@@ -42,7 +42,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
     const id = (await q(`insert into public.batch_challenges (created_by, batch_id, mode, opp_batch_id, start_at, target, qids) values ($1, $2, $3, $4, now() - interval '${o.ago} seconds', $5, $6::uuid[]) returning id`, [U(host++), o.batch, o.mode || 'clock', o.opp || null, o.target || 15, qrows]))[0].id;
     for (const side of o.sides) for (const u of side.users) { await db.query(`insert into public.challenge_players (challenge_id, user_id, batch_id) values ($1, $2, $3)`, [id, U(u), side.batch]); for (let sl = 0; sl < 12; sl++) await db.query(`insert into public.challenge_answers (challenge_id, user_id, slot, qid, choice, correct) values ($1, $2, $3, $4, 1, $5)`, [id, U(u), sl, qrows[sl], sl < side.right]); }
   };
-  const play = async (day, user, batch, inst, total) => { for (let idx = 0; idx < 5; idx++) { const p = Math.max(0, Math.min(15, total - idx * 15)); await db.query(`insert into public.quiz_plays (day, player, user_id, inst_slug, batch_id, idx, qid, answered_at, points, correct) values ($1::date, $2, $3, $4, $5, $6, gen_random_uuid(), now(), $7, $8)`, [day, 'u:' + U(user), U(user), inst, batch, idx, p, p > 0]); if (total - idx * 15 <= 0) break; } };
+  const play = async (day, user, batch, inst, total) => { for (let idx = 0; idx < 5; idx++) { const p = Math.max(0, Math.min(15, total - idx * 15)); await db.query(`insert into public.quiz_plays (day, player, user_id, inst_slug, batch_id, idx, qid, answered_at, points, correct, band) values ($1::date, $2, $3, $4, $5, $6, gen_random_uuid(), now(), $7, $8, 'c9-10')`, [day, 'u:' + U(user), U(user), inst, batch, idx, p, p > 0]); if (total - idx * 15 <= 0) break; } };
   const dayS = async n => (await q(`select (public.quiz_day() + ($1::int))::text as d`, [n]))[0].d;
   // the league: A clock 68, B clock 68, A beats C in a rope match (A 24 + 50, C 18), B beats C in a duel (50), B beats A in a duel (50)
   await make({ batch: A, ago: 3 * DAY, sides: [{ batch: A, users: range(1, 6), right: 3 }] });
@@ -68,14 +68,14 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   // the daily quiz boards today: A and B with 4 players each
   const today = await dayS(0);
   for (const u of range(1, 4)) await play(today, u, A, 'school-a', 50); for (const u of range(9, 4)) await play(today, u, B, 'school-b', 40);
-  const qb = await call(null, `select public.quiz_board('batch', 'today', null, 20) as r`), qi = await call(null, `select public.quiz_board('institution', 'today', null, 20) as r`);
+  const qb = await call(null, `select public.quiz_board('batch', 'today', null, 20, 'c9-10') as r`), qi = await call(null, `select public.quiz_board('institution', 'today', null, 20, 'c9-10') as r`);
   ok('the daily-quiz boards leave out the players of the excluded batch (batch board and school board): only B is listed', qb.length === 1 && qb[0].slug === 'school-b' && qi.length === 1 && qi[0].slug === 'school-b', JSON.stringify([qb.map(x => x.slug), qi.map(x => x.slug)]));
   const duelNow = await call(null, 'select public.duel_state($1) as r', [(await q(`select id from public.batch_duels where batch_a = $1 limit 1`, [A]))[0].id]);
   ok('the numbers of a single duel are still shown as they are (the exclusion is about points and boards, not about hiding what happened)', duelNow.found === true && duelNow.players_a === 3);
   await admin(true);
   const adm = await call(50, 'select public.league_admin(10) as r');
   ok('the admin view lists the excluded batch with its reason and the batches with points with members, newcomers of the last 24 hours, week and all-time points, matches and the excluded flag (A is marked, B and C are not)', adm.excluded.length === 1 && adm.excluded[0].reason === 'নতুন অ্যাকাউন্টে ভরা' && adm.excluded[0].batch.name === 'এ স্কুল' && adm.top.length === 3 && adm.top.find(x => x.batch.name === 'এ স্কুল').excluded === true && adm.top.find(x => x.batch.name === 'বি স্কুল').excluded === false && adm.top.find(x => x.batch.name === 'এ স্কুল').all === 142 && adm.top.find(x => x.batch.name === 'বি স্কুল').members === 8 && adm.top.find(x => x.batch.name === 'বি স্কুল').new24 === 8 && adm.top[0].batch.name === 'বি স্কুল', JSON.stringify(adm).slice(0, 300));
-  ok('taking the batch back restores everything: A 142, B 168, C 18, and the quiz board lists both batches again', (await call(50, `select public.league_include($1) as r`, [A])).ok === true && JSON.stringify(await pts('batch')) === JSON.stringify(before) && (await call(null, `select public.quiz_board('batch', 'today', null, 20) as r`)).length === 2);
+  ok('taking the batch back restores everything: A 142, B 168, C 18, and the quiz board lists both batches again', (await call(50, `select public.league_include($1) as r`, [A])).ok === true && JSON.stringify(await pts('batch')) === JSON.stringify(before) && (await call(null, `select public.quiz_board('batch', 'today', null, 20, 'c9-10') as r`)).length === 2);
   await admin(false);
 
   // ---- the guests of the daily quiz

@@ -25,7 +25,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   `);
   const U = n => '00000000-0000-0000-0000-' + String(n).padStart(12, '0');
   for (let i = 1; i <= 60; i++) { await db.exec(`insert into auth.users (id) values ('${U(i)}')`); await db.exec(`insert into public.members values ('${U(i)}', 'নাম${i} পদবি')`); }
-  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql', '2027-01-16_batch_duel.sql']) await db.exec(M(f));     // twice at the end: safe
+  for (const f of ['2027-01-10_quiz_bank.sql', '2027-01-11_daily_quiz.sql', '2027-01-12_batch_challenge.sql', '2027-01-13_rope_pull.sql', '2027-01-14_league.sql', '2027-01-16_batch_duel.sql', '2027-01-16_batch_duel.sql', '2027-01-17_league_guard.sql', '2027-01-18_quiz_bands.sql', '2027-01-18_quiz_bands.sql']) await db.exec(M(f));     // twice at the end: safe
   await db.exec("select set_config('test.admin', '0', false)");
   const q = async (sql, params) => (await db.query(sql, params)).rows;
   const as = async (uid, fn) => { await db.exec(`select set_config('test.uid', '${uid ? U(uid) : ''}', false)`); return fn(); };
@@ -39,7 +39,7 @@ const ok = (name, cond, extra) => { cond ? pass++ : fail++; console.log((cond ? 
   const accept = (uid, id, batch) => call(uid, 'select public.duel_accept($1, $2) as r', [id, batch]);
   const state = id => call(null, 'select public.duel_state($1) as r', [id]);
   // quiz points of one member on one day, as the daily quiz stores them (5 rows of up to 15 points, the batch of the first question)
-  const play = async (d, user, batch, total, o) => { o = o || {}; for (let idx = 0; idx < 5; idx++) { const p = Math.max(0, Math.min(15, total - idx * 15)); await db.query(`insert into public.quiz_plays (day, player, user_id, batch_id, idx, qid, answered_at, points, correct) values ($1::date, $2, $3, $4, $5, gen_random_uuid(), $6, $7, $8)`, [d, o.device ? 'd:xxxxxxxx' + user : 'u:' + U(user), o.device ? null : U(user), (o.batchAt && o.batchAt[idx]) || batch, idx, o.unanswered ? null : new Date(), p, p > 0]); if (total - idx * 15 <= 0) break; } };
+  const play = async (d, user, batch, total, o) => { o = o || {}; for (let idx = 0; idx < 5; idx++) { const p = Math.max(0, Math.min(15, total - idx * 15)); await db.query(`insert into public.quiz_plays (day, player, user_id, batch_id, idx, qid, answered_at, points, correct, band) values ($1::date, $2, $3, $4, $5, gen_random_uuid(), $6, $7, $8, 'c9-10')`, [d, o.device ? 'd:xxxxxxxx' + user : 'u:' + U(user), o.device ? null : U(user), (o.batchAt && o.batchAt[idx]) || batch, idx, o.unanswered ? null : new Date(), p, p > 0]); if (total - idx * 15 <= 0) break; } };
 
   // ---- calling a duel
   ok('signed out and a non-member cannot call one; a day that is today, in the past or more than 7 days ahead is refused (tomorrow to +7 only); a batch of fewer than 5 cannot', (await create(null, A, 2)).error === 'NOT_SIGNED_IN' && (await create(9, A, 2)).error === 'NOT_MEMBER' && (await create(1, A, 0)).error === 'BAD_DAY' && (await create(1, A, -1)).error === 'BAD_DAY' && (await create(1, A, 8)).error === 'BAD_DAY' && (await create(41, Small, 2)).error === 'BATCH_TOO_SMALL');
