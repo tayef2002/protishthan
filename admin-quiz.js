@@ -195,12 +195,15 @@
 
 
   /* ---------- the daily quiz (migrations/2027-01-11_daily_quiz.sql) ---------- */
+  const DBANDS = ['c1-5', 'c6-8', 'c9-10', 'c11-12'];
+  /* how many verified questions each band can use: its own, and the "any" ones that are not too hard for it (the rule of quiz_pick) */
+  const bandCount = b => ST.rows.filter(q => q.status === 'verified' && (q.band === b || (q.band === 'any' && q.difficulty <= (b === 'c1-5' ? 1 : b === 'c6-8' ? 2 : 3)))).length;
   const bdToday = () => new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);
   const qText = id => { const q = ST.rows.find(x => x.id === id); return q ? q.question : '(মুছে ফেলা প্রশ্ন)'; };
   async function loadDaily(){
     const d = bdToday();
     const [a, b, c] = await Promise.all([
-      sbAdmin.from('quiz_daily').select('*').gte('day', d).order('day', { ascending: true }).limit(31),
+      sbAdmin.from('quiz_daily').select('*').gte('day', d).order('day', { ascending: true }).order('band', { ascending: true }).limit(124),
       sbAdmin.from('quiz_plays').select('player', { count: 'exact', head: true }).eq('day', d).eq('idx', 0),
       sbAdmin.from('quiz_plays').select('player', { count: 'exact', head: true }).eq('day', d).eq('idx', 0).not('user_id', 'is', null)]);
     ST.daily = { err: a.error ? a.error.message : '', rows: (a.data || []), today: d, players: (b && b.count) || 0, members: (c && c.count) || 0 };
@@ -212,11 +215,12 @@
     return '<div style="border:2px solid #F59E0B;border-radius:14px;padding:16px;margin:0 0 14px;background:#FFFBEB"><b style="font-size:15px">আজকের কুইজ (প্রতিদিন ৫টা, বাংলাদেশের সময়)</b>' +
       '<div style="font-size:13.5px;color:#475569;margin:6px 0">যাচাই হওয়া প্রশ্ন থেকেই বাছা হয়: আগে প্রতিটা বিষয় থেকে একটা, যেটা সবচেয়ে আগে ব্যবহার হয়েছিল (বা কখনো হয়নি) সেটা আগে। কোনো দিনের সেট না থাকলে প্রথম খেলোয়াড় এলে নিজে নিজে তৈরি হয়। আগে থেকে তৈরি করে দেখে নিতে পারেন।</div>' +
       '<div style="margin:8px 0;font-size:14px">যাচাই হওয়া প্রশ্ন: <b>' + bn(verified) + 'টি</b>' + (verified < 5 ? ' <b style="color:#B91C1C">(আজকের কুইজ চালু করতে অন্তত ৫টা লাগবে, আলাদা আলাদা বিষয়ে হলে ভালো)</b>' : ' · প্রায় <b>' + bn(Math.floor(verified / 5)) + ' দিনের</b> নতুন প্রশ্ন আছে (এরপর আগেরগুলো আবার আসবে)') + '</div>' +
+      '<div style="margin:8px 0;font-size:14px">প্রতিটা ধাপের নিজের প্রশ্ন লাগে: ' + DBANDS.map(b => '<b>' + Q.labelOf(Q.BANDS, b) + '</b> ' + bn(bandCount(b)) + 'টি (প্রায় ' + bn(Math.floor(bandCount(b) / 5)) + ' দিন)').join(' · ') + '</div>' +
       '<div style="margin:8px 0;font-size:14px">আজ এখন পর্যন্ত শুরু করেছেন <b>' + bn(D.players) + '</b> জন, এর মধ্যে সাইন-ইন করা সদস্য <b>' + bn(D.members) + '</b> জন (শুধু এঁরাই বোর্ডে আসেন)।</div>' +
       (D.err ? '<div style="color:#B91C1C;margin:6px 0">লোড করা যায়নি: ' + esc(D.err) + ' — migrations/2027-01-11_daily_quiz.sql চালানো হয়েছে কি?</div>' : '') +
       '<button type="button" ' + B_BLUE + ' data-qz="plan">আগামী ৭ দিনের কুইজ তৈরি করুন</button><button type="button" ' + B + ' data-qz="cancel">বন্ধ করুন</button>' +
-      (D.rows.length ? D.rows.map(r => '<div style="margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + new Date(r.day + 'T00:00:00').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }) + (r.day === D.today ? ' (আজ)' : '') + '</b>' + chip(r.source === 'admin' ? ['#F5F3FF', '#5B21B6'] : ['#F1F5F9', '#475569'], r.source === 'admin' ? 'আপনি বেছেছেন' : 'নিজে তৈরি') +
-        (r.day > D.today ? '<button type="button" ' + B + ' data-qz="reroll" data-day="' + esc(r.day) + '" style="margin:0 0 0 auto;padding:4px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">নতুন করে বাছুন</button>' : '') + '</div><ol style="margin:6px 0 0;padding-left:22px;font-size:13.5px;color:#334155;line-height:1.7">' + r.qids.map(id => '<li>' + esc(qText(id)) + '</li>').join('') + '</ol></div>').join('') : '<div style="margin-top:10px;color:#64748B">এখনও কোনো দিনের সেট তৈরি হয়নি।</div>') + '</div>';
+      (D.rows.length ? D.rows.map(r => '<div style="margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #E2E8F0;border-radius:10px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + new Date(r.day + 'T00:00:00').toLocaleDateString('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }) + (r.day === D.today ? ' (আজ)' : '') + '</b>' + chip(['#EEF2FF', '#4338CA'], Q.labelOf(Q.BANDS, r.band || 'c6-8')) + chip(r.source === 'admin' ? ['#F5F3FF', '#5B21B6'] : ['#F1F5F9', '#475569'], r.source === 'admin' ? 'আপনি বেছেছেন' : 'নিজে তৈরি') +
+        (r.day > D.today ? '<button type="button" ' + B + ' data-qz="reroll" data-day="' + esc(r.day) + '" data-band="' + esc(r.band || 'c6-8') + '" style="margin:0 0 0 auto;padding:4px 10px;border:1px solid #CBD5E1;border-radius:8px;background:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer">নতুন করে বাছুন</button>' : '') + '</div><ol style="margin:6px 0 0;padding-left:22px;font-size:13.5px;color:#334155;line-height:1.7">' + r.qids.map(id => '<li>' + esc(qText(id)) + '</li>').join('') + '</ol></div>').join('') : '<div style="margin-top:10px;color:#64748B">এখনও কোনো দিনের সেট তৈরি হয়নি।</div>') + '</div>';
   }
   /* ---------- the league watch: batches with points (are they real?), and the ones excluded from the league (migrations/2027-01-17_league_guard.sql) ---------- */
   const bname = b => b ? (b.name || 'ব্যাচ') + ' · ' + bn(b.year || '') + ' ব্যাচ' : '';
@@ -255,13 +259,13 @@
     ST.msg = name + ' লিগে ফিরেছে ✓'; await loadLeague();
   }
   async function planDays(){
-    const r = await sbAdmin.rpc('quiz_plan', { p_days: 7 });
-    if(r.error){ alert(errText(r.error)); return; }
-    ST.msg = Array.isArray(r.data) && r.data.length ? bn(r.data.length) + ' দিনের কুইজ তৈরি আছে ✓' : 'তৈরি করা গেল না: যাচাই হওয়া প্রশ্ন অন্তত ৫টা লাগবে।'; await loadDaily();
+    const rs = await Promise.all(DBANDS.map(b => sbAdmin.rpc('quiz_plan', { p_days: 7, p_band: b })));
+    const bad = rs.find(r => r.error); if(bad){ alert(errText(bad.error)); return; }
+    ST.msg = DBANDS.map((b, i) => Q.labelOf(Q.BANDS, b) + ': ' + (Array.isArray(rs[i].data) && rs[i].data.length ? bn(rs[i].data.length) + ' দিন ✓' : 'প্রশ্ন কম (অন্তত ৫টা লাগবে)')).join(' · '); await loadDaily();
   }
-  async function rerollDay(day){
+  async function rerollDay(day, band){
     if(!await adminConfirm('এই দিনের ৫টা প্রশ্ন বদলে নতুন করে বাছবেন?')) return;
-    const r = await sbAdmin.rpc('quiz_reroll', { p_day: day });
+    const r = await sbAdmin.rpc('quiz_reroll', { p_day: day, p_band: band || 'c6-8' });
     if(r.error){ alert(errText(r.error)); return; }
     const d = r.data || {}; ST.msg = d.ok ? 'নতুন করে বাছা হয়েছে ✓' : d.error === 'ALREADY_PLAYED' ? 'এই দিনে কেউ খেলে ফেলেছে, বদলানো যাবে না।' : d.error === 'PAST' ? 'আগের দিন বদলানো যায় না।' : 'যথেষ্ট যাচাই হওয়া প্রশ্ন নেই।'; await loadDaily();
   }
@@ -275,7 +279,7 @@
     else if(k === 'plan') planDays();
     else if(k === 'lgx') leagueExclude(b.dataset.id, b.dataset.name);
     else if(k === 'lgi') leagueInclude(b.dataset.id, b.dataset.name);
-    else if(k === 'reroll') rerollDay(b.dataset.day);
+    else if(k === 'reroll') rerollDay(b.dataset.day, b.dataset.band);
     else if(k === 'cancel'){ ST.edit = null; ST.panel = null; ST.preview = null; paint(); }
     else if(k === 'save') save(b.dataset.v);
     else if(k === 'act') act(b.dataset.a, b.dataset.id);

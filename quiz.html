@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/quiz.css?v=4">
+<link rel="stylesheet" href="/quiz.css?v=5">
 <link rel="stylesheet" href="/myinst.css?v=6">
 <script src="/analytics.js?v=3" defer></script>
 </head>
@@ -36,7 +36,7 @@
   <header class="qz-hero">
     <a class="qz-kick" href="/league" style="text-decoration:none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>প্রতিষ্ঠান লিগ</a>
     <h1>আজকের <span>কুইজ</span></h1>
-    <p id="qzDate">৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ড, সবার জন্য একই</p>
+    <p id="qzDate">৫টা প্রশ্ন, প্রতিটা ১৫ সেকেন্ড, আপনার ধাপের সবার জন্য একই</p>
     <div class="qz-chips" id="qzChips"></div>
   </header>
 
@@ -53,6 +53,12 @@
       <button type="button" class="qz-tab on" data-period="today" role="tab" aria-selected="true">আজ</button>
       <button type="button" class="qz-tab" data-period="week" role="tab" aria-selected="false">এই সপ্তাহ</button>
     </div>
+    <div class="qz-tabs" role="tablist" aria-label="কোন ধাপের বোর্ড">
+      <button type="button" class="qz-tab" data-band="c1-5" role="tab" aria-selected="false">শ্রেণি ১-৫</button>
+      <button type="button" class="qz-tab" data-band="c6-8" role="tab" aria-selected="false">শ্রেণি ৬-৮</button>
+      <button type="button" class="qz-tab" data-band="c9-10" role="tab" aria-selected="false">শ্রেণি ৯-১০</button>
+      <button type="button" class="qz-tab" data-band="c11-12" role="tab" aria-selected="false">একাদশ-দ্বাদশ</button>
+    </div>
     <ul class="qz-list" id="qzBoard"><li class="qz-empty">লোড হচ্ছে…</li></ul>
     <p class="qz-rule">নিয়ম: একটা প্রতিষ্ঠান বা ব্যাচ বোর্ডে আসতে অন্তত ৩ জন সদস্য খেলতে হবে। স্কোর হলো তার <b>সেরা ১০ জনের গড়</b>, তাই ছোট স্কুলও বড় স্কুলকে হারাতে পারে। এখানে কারও নাম দেখানো হয় না।</p>
   </section>
@@ -60,7 +66,8 @@
   <section class="qz-how">
     <h2>কীভাবে কাজ করে</h2>
     <ul>
-      <li>প্রতিদিন সবার জন্য একই ৫টা প্রশ্ন। রাত ১২টায় নতুন কুইজ।</li>
+      <li>প্রতিদিন প্রতিটা ধাপের জন্য আলাদা ৫টা প্রশ্ন (শ্রেণি ১-৫, ৬-৮, ৯-১০, একাদশ-দ্বাদশ)। একই ধাপের সবার প্রশ্ন একই, সহজ থেকে কঠিনের দিকে। রাত ১২টায় নতুন কুইজ।</li>
+      <li>নিজের ধাপ একবার বেছে নিলে মনে থাকে। একদিনে একটা ধাপেই খেলা যায়, আর বোর্ডে স্কুল শুধু একই ধাপের স্কুলের সঙ্গে মেলে।</li>
       <li>প্রতিটা প্রশ্নের জন্য ১৫ সেকেন্ড। সঠিক উত্তরে ১০ পয়েন্ট, দ্রুত দিলে আরও ৫ পর্যন্ত। দিনে সর্বোচ্চ ৭৫।</li>
       <li>একটা প্রশ্নের উত্তর একবারই দেওয়া যায়, আর সঠিক উত্তর জানা যায় উত্তর দেওয়ার পরে।</li>
       <li>সাইন-ইন ছাড়াই খেলা যায়। আপনার প্রতিষ্ঠান আর SSC ব্যাচের বোর্ডে পয়েন্ট জমাতে সাইন-ইন করে খেলুন।</li>
@@ -86,10 +93,21 @@
   const deviceId = () => { let d = ''; try{ d = localStorage.getItem('sk_dev') || ''; if(d.length < 8){ d = (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10)); localStorage.setItem('sk_dev', d); } }catch(e){ d = d || ('t' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10)); } return d; };
   const DEV = deviceId();
   const SHARE_URL = 'https://protishthan.com/quiz';
-  const ST = { ready: false, answered: 0, points: 0, results: [], finished: false, streak: 0, signed: false, inst: null, q: null, deadline: 0, tick: 0, busy: false, down: false, scope: 'institution', period: 'today', board: null, boardReq: 0 };
+  const BANDS = [['c1-5', 'শ্রেণি ১-৫', 'প্রাথমিক স্তর'], ['c6-8', 'শ্রেণি ৬-৮', 'জুনিয়র স্তর'], ['c9-10', 'শ্রেণি ৯-১০', 'এসএসসি স্তর'], ['c11-12', 'একাদশ-দ্বাদশ', 'কলেজ স্তর']];
+  const bandName = b => (BANDS.find(x => x[0] === b) || BANDS[1])[1];
+  const savedBand = () => { try{ const v = localStorage.getItem('qz_band'); return BANDS.some(x => x[0] === v) ? v : ''; }catch(e){ return ''; } };
+  const ST = { band: savedBand(), chosen: !!savedBand(), locked: false, bands: null, bb: savedBand() || 'c6-8', ready: false, answered: 0, points: 0, results: [], finished: false, streak: 0, signed: false, inst: null, q: null, deadline: 0, tick: 0, busy: false, down: false, scope: 'institution', period: 'today', board: null, boardReq: 0 };
   const TOPIC = id => { const D = window.QuizData; return D ? D.labelOf(D.TOPICS, id) : ''; };
   const toast = m => { const t = $('qzToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
-  const rpc = async (n, a) => { const M = MB(); if(!M || !M.sb) return { error: { message: 'NO_CLIENT' } }; try{ return await M.sb.rpc(n, a || {}); }catch(e){ return { error: { message: String(e && e.message || e) } }; } };
+  const notFound = r => !!(r && r.error && /PGRST202|could not find the function|schema cache/i.test(JSON.stringify(r.error)));
+  const rpc = async (n, a) => {
+    const M = MB(); if(!M || !M.sb) return { error: { message: 'NO_CLIENT' } };
+    try{
+      let r = await M.sb.rpc(n, a || {});
+      if(a && 'p_band' in a && notFound(r)){ const b = Object.assign({}, a); delete b.p_band; ST.legacy = true; r = await M.sb.rpc(n, b); }     /* the SQL of the bands is not run yet: the old way, without a band */
+      return r;
+    }catch(e){ return { error: { message: String(e && e.message || e) } }; }
+  };
 
   /* ---------- the date and the chips ---------- */
   function head(){
@@ -101,10 +119,11 @@
   /* ---------- the state ---------- */
   async function load(){
     const M = MB(); if(M && M.ready) await M.ready();
-    const r = await rpc('quiz_today', { p_device: DEV });
+    const r = await rpc('quiz_today', { p_device: DEV, p_band: ST.band || null });
     if(r.error || !r.data){ ST.down = true; paint(); return; }
-    const d = r.data; ST.down = false; ST.ready = !!d.ready; ST.answered = d.answered || 0; ST.points = d.points || 0; ST.results = d.results || []; ST.finished = !!d.finished; ST.streak = d.streak || 0; ST.signed = !!d.signed_in; ST.inst = d.inst || null;
-    paint(); T('quiz_view', { ready: ST.ready ? 1 : 0, signed: ST.signed ? 1 : 0, answered: ST.answered });
+    const d = r.data; ST.down = false; ST.ready = !!d.ready; ST.answered = d.answered || 0; ST.points = d.points || 0; ST.results = d.results || []; ST.finished = !!d.finished; ST.streak = d.streak || 0; ST.signed = !!d.signed_in; ST.inst = d.inst || null; ST.bands = d.bands || null; ST.locked = !!d.locked;
+    if(ST.locked && d.band){ if(ST.band !== d.band){ ST.bb = d.band; syncBoardTabs(); loadBoard(); } ST.band = d.band; ST.chosen = true; try{ localStorage.setItem('qz_band', d.band); }catch(e){} }
+    syncBoardTabs(); paint(); T('quiz_view', { ready: ST.ready ? 1 : 0, signed: ST.signed ? 1 : 0, answered: ST.answered });
     if(ST.signed) loadDuel();
   }
   /* the batch duel (/duel): if my batch plays a duel today or tomorrow, say so above the game */
@@ -120,10 +139,21 @@
     head(); const box = $('qzGame');
     clearInterval(ST.tick);
     if(ST.down){ box.innerHTML = '<div class="qz-intro"><h2>এখন লোড করা যাচ্ছে না</h2><p>একটু পরে আবার চেষ্টা করুন।</p><button type="button" class="qz-go" id="qzRetry">আবার চেষ্টা করুন</button></div>'; $('qzRetry').onclick = load; return; }
-    if(!ST.ready){ box.innerHTML = '<div class="qz-intro"><h2>আজকের কুইজ এখনও তৈরি হয়নি</h2><p>একটু পরে আবার আসুন। প্রতিদিন নতুন ৫টা প্রশ্ন আসে।</p></div>'; return; }
+    if(!ST.locked && !ST.chosen && !ST.legacy) return paintBands();
+    if(!ST.ready){ box.innerHTML = '<div class="qz-intro"><h2>এই ধাপের কুইজ এখনও তৈরি হয়নি</h2><p>এই ধাপের প্রশ্ন শিগগির আসছে। প্রতিদিন নতুন ৫টা প্রশ্ন আসে।' + (ST.locked ? '' : ' ততক্ষণ অন্য ধাপে খেলতে পারেন।') + '</p>' + (ST.locked ? '' : '<button type="button" class="qz-go" id="qzOther">অন্য ধাপ বেছে নিন</button>') + '</div>'; const o = $('qzOther'); if(o) o.onclick = () => { ST.chosen = false; paintBands(); }; return; }
     if(ST.finished) return paintDone();
     paintIntro();
   }
+  /* the class band (ধাপ): chosen once, remembered; one band a day (the server fixes it with the first question) */
+  function paintBands(){
+    const bs = ST.bands || {};
+    $('qzGame').innerHTML = '<div class="qz-intro"><h2>আপনি কোন ধাপে পড়েন?</h2><p>প্রতিটা ধাপের প্রশ্ন আলাদা, ওই শ্রেণির মতো করে সাজানো। নিজের ধাপ বেছে নিন।</p><div class="qz-bands">' +
+      BANDS.map(x => '<button type="button" class="qz-band' + (ST.band === x[0] ? ' on' : '') + '" data-b="' + x[0] + '"' + (bs[x[0]] === false ? ' disabled' : '') + '><b>' + x[1] + '</b><span>' + (bs[x[0]] === false ? 'শিগগির আসছে' : x[2]) + '</span></button>').join('') +
+      '</div><p class="qz-small">আজ একটা ধাপে খেলা শুরু করলে আজ আর বদলানো যায় না।</p></div>';
+    document.querySelectorAll('#qzGame .qz-band').forEach(b => b.onclick = () => pickBand(b.dataset.b));
+  }
+  function pickBand(b){ ST.band = b; ST.chosen = true; ST.bb = b; try{ localStorage.setItem('qz_band', b); }catch(e){} T('quiz_band', { b: b }); syncBoardTabs(); load(); loadBoard(); }
+  const bandLine = () => ST.legacy ? '' : '<div class="qz-bandline"><span>' + bandName(ST.band) + '</span>' + (!ST.locked && !ST.answered ? '<button type="button" class="qz-link" id="qzChange">ধাপ বদলান</button>' : '') + '</div>';
   function who(){
     if(ST.signed && ST.inst) return '<div class="qz-who ok">✓ আপনার পয়েন্ট জমবে <b>' + esc(ST.inst.name) + '</b>-এর বোর্ডে।</div>';
     if(ST.signed) return '<div class="qz-who">আপনার প্রতিষ্ঠান বেছে নিলে পয়েন্ট স্কুলের বোর্ডে জমবে।<br><button type="button" class="qz-link" id="qzPick">প্রতিষ্ঠান বেছে নিন</button></div>';
@@ -135,16 +165,16 @@
   }
   function paintIntro(){
     const cont = ST.answered > 0;
-    $('qzGame').innerHTML = '<div class="qz-intro"><h2>' + (cont ? 'চালিয়ে যান' : 'প্রস্তুত?') + '</h2><p>' + (cont ? 'আপনি ' + bn(ST.answered) + 'টা শেষ করেছেন, বাকি ' + bn(5 - ST.answered) + 'টা।' : 'আজকের ৫টা প্রশ্ন সবার জন্য একই। প্রতিটার জন্য ১৫ সেকেন্ড।') + '</p>' +
-      '<div class="qz-badges"><span>৫টা প্রশ্ন</span><span>প্রতিটা ১৫ সেকেন্ড</span><span>সর্বোচ্চ ৭৫ পয়েন্ট</span></div>' +
+    $('qzGame').innerHTML = '<div class="qz-intro"><h2>' + (cont ? 'চালিয়ে যান' : 'প্রস্তুত?') + '</h2><p>' + (cont ? 'আপনি ' + bn(ST.answered) + 'টা শেষ করেছেন, বাকি ' + bn(5 - ST.answered) + 'টা।' : 'আজকের ৫টা প্রশ্ন, আপনার ধাপের সবার জন্য একই। প্রতিটার জন্য ১৫ সেকেন্ড।') + '</p>' +
+      bandLine() + '<div class="qz-badges"><span>৫টা প্রশ্ন</span><span>প্রতিটা ১৫ সেকেন্ড</span><span>সর্বোচ্চ ৭৫ পয়েন্ট</span></div>' +
       '<button type="button" class="qz-go" id="qzStart">' + (cont ? 'পরের প্রশ্ন' : 'শুরু করুন') + '</button>' + who() + '</div>';
     $('qzStart').onclick = () => { T('quiz_start', { signed: ST.signed ? 1 : 0, resume: cont ? 1 : 0 }); next(); };
-    bindWho();
+    bindWho(); const ch = $('qzChange'); if(ch) ch.onclick = () => { ST.chosen = false; paintBands(); };
   }
   async function next(){
     if(ST.busy) return; ST.busy = true;
     const b = $('qzStart') || $('qzNext'); if(b) b.disabled = true;
-    const r = await rpc('quiz_next', { p_device: DEV }); ST.busy = false;
+    const r = await rpc('quiz_next', { p_device: DEV, p_band: ST.band || null }); ST.busy = false;
     const d = r.data;
     if(r.error || !d){ toast('এখন লোড হয়নি, আবার চাপুন'); if(b) b.disabled = false; return; }
     if(d.ok !== true){ if(d.error === 'NOT_READY'){ ST.ready = false; paint(); } else if(d.error === 'GUEST_LIMIT') toast('আজকের জন্য অতিথি-খেলার সীমা পূর্ণ। সাইন-ইন করে খেললে সীমা নেই।'); else toast('এখন হলো না, একটু পরে আবার চেষ্টা করুন'); if(b) b.disabled = false; return; }
@@ -184,7 +214,7 @@
 
   /* ---------- the end ---------- */
   function emojiRow(){ return ST.results.map(r => r && r.correct ? '✅' : '❌').join(''); }
-  function shareText(){ return '🏆 আজকের কুইজ ' + emojiRow() + ' ' + bn(ST.points) + ' পয়েন্ট' + (ST.streak > 1 ? ' 🔥' + bn(ST.streak) + ' দিন' : '') + '\nআপনি কত পারেন? ' + SHARE_URL + '?ref=share'; }
+  function shareText(){ return '🏆 আজকের কুইজ (' + bandName(ST.band) + ') ' + emojiRow() + ' ' + bn(ST.points) + ' পয়েন্ট' + (ST.streak > 1 ? ' 🔥' + bn(ST.streak) + ' দিন' : '') + '\nআপনি কত পারেন? ' + SHARE_URL + '?ref=share'; }
   function paintDone(){
     const t = ST.points >= 60 ? 'দারুণ!' : ST.points >= 35 ? 'ভালো খেলেছেন!' : 'আরেকটু চেষ্টায় আরও ভালো হবে!';
     $('qzGame').innerHTML = '<div class="qz-done"><h2>' + t + '</h2><div class="qz-score">' + bn(ST.points) + '<small> / ৭৫</small></div><div class="qz-emoji" aria-label="ফলাফল">' + emojiRow() + '</div>' +
@@ -202,7 +232,7 @@
   /* ---------- the boards ---------- */
   async function loadBoard(){
     const my = ++ST.boardReq, list = $('qzBoard');
-    const r = await rpc('quiz_board', { p_scope: ST.scope, p_period: ST.period, p_district: null, p_limit: 20 });
+    const r = await rpc('quiz_board', { p_scope: ST.scope, p_period: ST.period, p_district: null, p_limit: 20, p_band: ST.bb });
     if(my !== ST.boardReq) return;
     if(r.error || !Array.isArray(r.data)){ list.innerHTML = '<li class="qz-empty">বোর্ড এখন লোড করা যাচ্ছে না। একটু পরে আবার চেষ্টা করুন।</li>'; return; }
     ST.board = r.data;
@@ -212,12 +242,14 @@
       return '<li class="qz-row' + (me ? ' me' : '') + '"><span class="qz-rk">' + bn(x.rank) + '</span><div class="qz-nm"><a href="' + href + '">' + esc(x.name) + (ST.scope === 'batch' ? ' · ' + bn(x.year) + ' ব্যাচ' : '') + '</a><small>' + esc(x.district || '') + ' · ' + bn(x.players) + ' জন খেলেছেন' + (me ? ' · আপনার' : '') + '</small></div><div class="qz-sc">' + bn(String(x.score).replace(/\.0$/, '')) + '<small>গড় পয়েন্ট</small></div></li>';
     }).join('');
   }
-  document.querySelector('.qz-tabs').addEventListener('click', e => {
+  function syncBoardTabs(){ const bt = document.querySelector('#boards .qz-tab[data-band]'); if(bt && bt.parentNode) bt.parentNode.hidden = !!ST.legacy; document.querySelectorAll('#boards .qz-tab').forEach(x => { const on = (x.dataset.scope && x.dataset.scope === ST.scope) || (x.dataset.period && x.dataset.period === ST.period) || (x.dataset.band && x.dataset.band === ST.bb); x.classList.toggle('on', !!on); x.setAttribute('aria-selected', on ? 'true' : 'false'); }); }
+  document.querySelector('#boards').addEventListener('click', e => {
     const b = e.target.closest('.qz-tab'); if(!b) return;
-    if(b.dataset.scope) ST.scope = b.dataset.scope; if(b.dataset.period) ST.period = b.dataset.period;
-    document.querySelectorAll('.qz-tab').forEach(x => { const on = (x.dataset.scope && x.dataset.scope === ST.scope) || (x.dataset.period && x.dataset.period === ST.period); x.classList.toggle('on', !!on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
-    $('qzBoard').innerHTML = '<li class="qz-empty">লোড হচ্ছে…</li>'; T('quiz_board', { s: ST.scope, p: ST.period }); loadBoard();
+    if(b.dataset.scope) ST.scope = b.dataset.scope; if(b.dataset.period) ST.period = b.dataset.period; if(b.dataset.band) ST.bb = b.dataset.band;
+    syncBoardTabs();
+    $('qzBoard').innerHTML = '<li class="qz-empty">লোড হচ্ছে…</li>'; T('quiz_board', { s: ST.scope, p: ST.period, b: ST.bb }); loadBoard();
   });
+  syncBoardTabs();
 
   load(); setTimeout(loadBoard, 600);
   window.__quiz = { ST, load, loadBoard };

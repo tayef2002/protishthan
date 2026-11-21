@@ -4,10 +4,10 @@ const fs = require('fs'), path = require('path'), vm = require('vm');
 const read = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 let pass = 0, fail = 0;
 const yes = (name, v, extra) => { const ok = !!v; ok ? pass++ : fail++; console.log((ok ? 'ok   ' : 'FAIL ') + name + (ok ? '' : '  ' + (extra || ''))); };
-const html = read('league.html'), css = read('league.css'), sql = read('migrations/2027-01-14_league.sql'), quizSql = read('migrations/2027-01-11_daily_quiz.sql'), nav = read('nav.js'), foot = read('footer.js'), batch = read('batch.html'), index = read('index.html');
+const html = read('league.html'), css = read('league.css'), sql = read('migrations/2027-01-14_league.sql'), quizSql = read('migrations/2027-01-11_daily_quiz.sql') + '\n' + read('migrations/2027-01-18_quiz_bands.sql'), nav = read('nav.js'), foot = read('footer.js'), batch = read('batch.html'), index = read('index.html');
 
 // the calls and their argument names
-const sig = (src, fn) => { const m = src.match(new RegExp('create or replace function public\\.' + fn + '\\(([^)]*)\\)')); return m ? m[1].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x)) : null; };
+const sig = (src, fn) => { const all = [...src.matchAll(new RegExp('create or replace function public\\.' + fn + '\\(([^)]*)\\)', 'g'))], m = all[all.length - 1]; return m ? m[1].split(',').map(x => x.trim().split(/\s+/)[0]).filter(x => /^p_/.test(x)) : null; };
 const args = (src, fn) => { const m = src.match(new RegExp("rpc\\('" + fn + "', \\{([^}]*)\\}")); return m ? m[1].split(',').map(x => x.split(':')[0].trim()).filter(Boolean) : null; };
 yes('the hub calls league_board and quiz_board with the argument names of the SQL', JSON.stringify(args(html, 'league_board')) === JSON.stringify(sig(sql, 'league_board')) && JSON.stringify(args(html, 'quiz_board')) === JSON.stringify(sig(quizSql, 'quiz_board')), JSON.stringify([args(html, 'league_board'), sig(sql, 'league_board')]));
 yes('the batch page calls league_batch with the argument name of the SQL, and only after the batch exists', JSON.stringify(args(batch, 'league_batch')) === JSON.stringify(sig(sql, 'league_batch')) && /if\(b\) loadLeague\(b, n, joined\)/.test(batch) && /if\(b\) h \+= '<div id="league"><\/div>'/.test(batch));
