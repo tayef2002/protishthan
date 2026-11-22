@@ -22,9 +22,11 @@
   /* ---------- loading ---------- */
   async function load(){
     const root = $('quizRoot'); if(!root) return;
+    /* the database gives at most 1000 rows a request: read page by page, or the counts and the duplicate check of an import would only see the newest 1000 */
+    const pageAll = async (table, order) => { let all = [], err = null; for(let from = 0; from < 20000; from += 1000){ const p = await table().select('*').order(order, { ascending: false }).range(from, from + 999); if(p.error){ err = p.error; break; } all = all.concat(p.data || []); if((p.data || []).length < 1000) break; } return err ? { error: err } : { data: all }; };
     const [a, c, r] = await Promise.all([
-      sbAdmin.from('quiz_questions').select('*').order('created_at', { ascending: false }).limit(1500),
-      sbAdmin.from('quiz_checks').select('*').limit(8000),
+      pageAll(() => sbAdmin.from('quiz_questions'), 'created_at'),
+      pageAll(() => sbAdmin.from('quiz_checks'), 'created_at'),
       sbAdmin.from('quiz_reviewers').select('*')]);
     if(a.error){ ST.error = 'লোড করা যায়নি: ' + a.error.message + ' — migrations/2027-01-10_quiz_bank.sql চালানো হয়েছে কি?'; ST.loaded = true; paint(); return; }
     ST.error = ''; ST.rows = a.data || []; ST.checks = (c && c.data) || []; ST.reviewers = (r && r.data) || [];
