@@ -12,3 +12,12 @@ Rule: a question goes into the bank only if (a) its answer is right BY CONSTRUCT
 | Everything else (English verb forms and plurals, Bangla calendar, elements, capitals, sports results, biology/physics/chemistry facts, simple science) | standard textbook tables written from knowledge, NOT individually web-checked. Verbs/plurals with two accepted forms (waked, gotten, persons, mouses) were left out on purpose |
 
 If a wrong answer is reported, retire the question in the admin tab and fix the row in the generator.
+
+## Fourth batch (2026-11-23, gen-facts4.js: 187 questions)
+| Part | How it was checked |
+|---|---|
+| UNESCO intangible heritage years: Baul songs 2008, Jamdani 2013, Mangal Shobhajatra 2016, Shital Pati 2017 | Wikipedia "Intangible Cultural Heritage elements in Bangladesh" (also lists rickshaw art 2023, Tangail saree 2025: not used) |
+| University founding years: Rajshahi 1953, Chittagong 1966, Jahangirnagar 1970 (act 20 Aug 1970); Bangla Academy 1955; Commonwealth 1972 (18 April) | web search (university and Bangla Academy sites, news, Banglapedia) |
+| Syed Waliullah (Lalsalu, Tarangabhanga is a PLAY: asked as "রচনা"), Pyarichand Mitra (Alaler Gharer Dulal, 1857), Kaliprasanna Singha (Hutom Pyanchar Naksha, 1861) | web search |
+| Counting, probability, trailing zeros, remainders, divisors puzzles | computed in the program and re-computed by brute force (listing, loops, fast power) |
+| Words, days and months in English, small-class science and geography, Bangla grammar counts (6 kārak, 5 pad), organisation founding years (WHO 1948, UNICEF 1946, SAARC 1985, ASEAN 1967, OIC 1969, WTO 1995, NATO 1949) | standard tables written from knowledge, not individually web-checked |
