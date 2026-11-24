@@ -42,7 +42,8 @@
     { k: 'quiz',      t: 'আজকের কুইজ',      d: 'প্রতিদিন ৫টা প্রশ্ন, স্কুলের জন্য পয়েন্ট', href: 'quiz.html', ic: 'card', g: 'linear-gradient(135deg,#1A56DB,#7C3AED)' },
     { k: 'guess',     t: 'কোন জেলায়?',      d: 'উপজেলা দেখে জেলা চিনুন', href: 'guess.html', ic: 'info', g: 'linear-gradient(135deg,#059669,#1A56DB)' },
     { k: 'sprint',    t: 'অঙ্ক স্প্রিন্ট',    d: '৬০ সেকেন্ডে যত অঙ্ক পারেন', href: 'sprint.html', ic: 'skill', g: 'linear-gradient(135deg,#EA580C,#DB2777)' },
-    { k: 'cricket',   t: 'ক্রিকেট কুইজ',     d: 'প্রতিটা বল একটা প্রশ্ন', href: 'cricket.html', ic: 'about', g: 'linear-gradient(135deg,#16A34A,#1A56DB)' }
+    { k: 'cricket',   t: 'ক্রিকেট কুইজ',     d: 'প্রতিটা বল একটা প্রশ্ন', href: 'cricket.html', ic: 'about', g: 'linear-gradient(135deg,#16A34A,#1A56DB)' },
+    { k: 'wordcross', t: 'শব্দ-জোড়া',       d: 'দুই শব্দের মাঝের অক্ষর খুঁজুন', href: 'wordcross.html', ic: 'skill', g: 'linear-gradient(135deg,#4F46E5,#7C3AED)' }
   ];
   /* the games of a BATCH (they need batches of 5 or more members): in the menu only when CHALLENGES_LIVE is true (tools/league-release.js release --all) */
   var CHALLENGES_LIVE = false;

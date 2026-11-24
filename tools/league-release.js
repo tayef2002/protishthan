@@ -10,7 +10,7 @@
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..');
 const rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8'), wr = (f, s) => fs.writeFileSync(path.join(ROOT, f), s);
-const ALL = ['league', 'quiz', 'challenge', 'duel', 'guess', 'sprint', 'cricket'], SOLO = ['league', 'quiz', 'guess', 'sprint', 'cricket'];
+const ALL = ['league', 'quiz', 'challenge', 'duel', 'guess', 'sprint', 'cricket', 'wordcross'], SOLO = ['league', 'quiz', 'guess', 'sprint', 'cricket', 'wordcross'];
 const NOINDEX = '<meta name="robots" content="noindex, follow">';
 const mode = process.argv[2] || 'status', withBatch = process.argv.includes('--all');
 const today = new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);

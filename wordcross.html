@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>শব্দ-জোড়া: দুই শব্দের মাঝের অক্ষর খুঁজুন | Protishthan</title>
+<meta name="description" content="একটা শব্দ আড়াআড়ি, একটা লম্বালম্বি। মাঝের ফাঁকে কোন অক্ষর বসালে দুটোই ঠিক শব্দ হয়? প্রতিদিন ৫টা নতুন ধাঁধা, ভাবতে ভাবতে খেলুন।">
+<link rel="canonical" href="https://protishthan.com/wordcross">
+<meta property="og:title" content="শব্দ-জোড়া | Protishthan">
+<meta property="og:description" content="দুই শব্দের মাঝের হারানো অক্ষরটা খুঁজে বের করুন। প্রতিদিন ৫টা ধাঁধা।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/wordcross">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/wordcross.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="wordcross"></div>
+<script src="/nav.js?v=32"></script>
+
+<main class="wc">
+  <header class="wc-hero">
+    <a class="wc-kick" href="/league" style="text-decoration:none"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>প্রতিষ্ঠান লিগ · খেলা</a>
+    <h1>শব্দ-<span>জোড়া</span></h1>
+    <p>দুই শব্দের মাঝের হারানো অক্ষরটা খুঁজে বের করুন। দুটো শব্দই ঠিক হতে হবে।</p>
+  </header>
+
+  <section class="wc-card" id="wcGame" aria-live="polite"></section>
+
+  <section class="wc-how">
+    <h2>কীভাবে খেলবেন</h2>
+    <ul>
+      <li>একটা শব্দ আড়াআড়ি, একটা লম্বালম্বি। দুটো যেখানে মিলেছে, সেই ঘরটা খালি।</li>
+      <li>নিচের অক্ষরগুলো থেকে এমন একটা বেছে নিন, যেটা বসালে <b>আড়াআড়ি আর লম্বালম্বি, দুটোই</b> ঠিক শব্দ হয়। একটা শব্দ মিলে গেলেই হবে না।</li>
+      <li>কঠিন ধাঁধায় দুটো ফাঁক থাকে, দুটোই ভরতে হয়। প্রতিটার একটা করে ক্যাটাগরি সংকেত আছে (নাম, জায়গা, ফল-খাবার...)।</li>
+      <li>প্রথমবারে ঠিক হলে ১০ পয়েন্ট, দ্বিতীয়বারে ৬। "একটু সাহায্য" নিলে ২ পয়েন্ট কাটা যায়। দিনে ৫টা ধাঁধা, সর্বোচ্চ ৫০ পয়েন্ট।</li>
+      <li>স্কোর আর টানা-দিনের হিসাব শুধু আপনার ফোনে থাকে, লিগের বোর্ডে যোগ হয় না। শব্দ বা বানান ভুল মনে হলে <a href="/feedback">আমাদের জানান</a>।</li>
+    </ul>
+  </section>
+</main>
+
+<div class="wc-toast" id="wcToast" role="status" aria-live="polite"></div>
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=32"></script>
+<script src="/wordcross-data.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const D = window.WC_DATA, P = (D && D.puzzles) || [];
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const $ = id => document.getElementById(id);
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const toast = m => { const t = $('wcToast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); };
+  const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+  const SHARE_URL = 'https://protishthan.com/wordcross';
+  const LVL = { 1: 'সহজ', 2: 'মাঝারি', 3: 'কঠিন' }, MAXTRY = { 1: 2, 2: 2, 3: 3 }, BASE = [10, 6, 3];
+  const dayKey = () => new Date(Date.now() + 6 * 3600e3).toISOString().slice(0, 10);
+  const yesterday = () => new Date(Date.now() + 6 * 3600e3 - 864e5).toISOString().slice(0, 10);
+  const untilMidnight = () => { const now = Date.now() + 6 * 3600e3, next = (Math.floor(now / 864e5) + 1) * 864e5, ms = next - now, h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return (h ? bn(h) + ' ঘণ্টা ' : '') + bn(m) + ' মিনিট'; };
+
+  /* a seeded shuffle: the same day gives the same five on every phone */
+  function seeded(str){ let h = 1779033703 ^ str.length; for(let i = 0; i < str.length; i++){ h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } let a = (h ^ h >>> 16) >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const shuf = (arr, rnd) => { const a = arr.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const byLevel = l => P.map((p, i) => p.l === l ? i : -1).filter(i => i >= 0);
+  /* the five of a day: a fixed order of every level, and each day takes the next ones, so no puzzle comes again until the whole level has been played (2 + 2 + 1 a day) */
+  const dayNo = key => Math.floor(Date.parse(key + 'T00:00:00Z') / 864e5);
+  const dailyIds = key => { const n = dayNo(key), take = (l, c) => { const o = shuf(byLevel(l), seeded('wc-order-' + l + '-' + D.v)); return Array.from({ length: c }, (_, k) => o[(n * c + k) % o.length]); }; return [].concat(take(1, 2), take(2, 2), take(3, 1)); };
+
+  /* the words of a puzzle with the cells the player has chosen (null = still empty) */
+  const across = (p, ch) => p.h.s.map((s, c) => { const t = p.h.b.indexOf(c); return t >= 0 ? (ch[t] || '·') : s; }).join('');
+  const down = (p, t, ch) => p.v[t].s.map((s, k) => k === p.v[t].j ? (ch[t] || '·') : s).join('');
+
+  /* ---------- the board ---------- */
+  function boardHTML(p, st){
+    const cols = p.h.s.length, top = Math.max.apply(null, p.v.map(v => v.j)), below = Math.max.apply(null, p.v.map(v => v.s.length - 1 - v.j)), rows = top + 1 + below, hr = top;
+    const cell = {}; const put = (r, c, o) => { cell[r + ',' + c] = o; };
+    p.h.s.forEach((s, c) => { const t = p.h.b.indexOf(c); put(hr, c, t >= 0 ? { t } : { txt: s }); });
+    p.v.forEach(v => v.s.forEach((s, k) => { if(k !== v.j) put(hr - v.j + k, v.at, { txt: s }); }));
+    let h = '<div class="wc-board" style="grid-template-columns:repeat(' + cols + ',var(--cs));grid-template-rows:repeat(' + rows + ',var(--cs))" role="group" aria-label="শব্দ-জোড়ার ছক">';
+    for(let r = 0; r < rows; r++) for(let c = 0; c < cols; c++){
+      const o = cell[r + ',' + c];
+      if(!o){ h += '<i class="wc-e"></i>'; continue; }
+      if(o.txt != null){ h += '<div class="wc-c">' + esc(o.txt) + '</div>'; continue; }
+      const t = o.t, v = st.ch[t], m = st.mark[t], cls = m === 'ok' ? 'ok' : m === 'no' ? 'no' : v ? 'fill' : (st.sel === t ? 'on' : '');
+      h += '<button type="button" class="wc-b ' + cls + '" data-t="' + t + '" aria-label="ফাঁকা ঘর ' + bn(t + 1) + (v ? ', এখানে ' + esc(v) : '') + '"' + (st.done || m === 'ok' ? ' disabled' : '') + '>' + (v ? esc(v) : '') + '</button>';
+    }
+    return h + '</div>';
+  }
+
+  /* ---------- the game ---------- */
+  const G = { mode: null, ids: [], i: 0, res: [], st: null, level: 0, daily: null };
+  function newSt(p){ return { p, ch: p.h.b.map(() => null), mark: {}, sel: 0, att: 0, done: false, ok: false, hint: false, gone: [], pts: 0 }; }
+  const dayState = () => { const d = LS.get('wc_day'); return d && d.key === dayKey() && d.ver === D.v && Array.isArray(d.ids) ? d : null; };
+  const saveDay = () => { if(G.mode === 'daily') LS.set('wc_day', { key: dayKey(), ver: D.v, ids: G.ids, res: G.res }); };
+
+  function menu(){
+    const ex = P[0], d = dayState(), done = d && d.res.length >= 5, st = newSt(ex); st.ch = ex.a.slice(); st.mark = { 0: 'ok' }; st.done = true;
+    const sk = LS.get('wc_streak');
+    $('wcGame').innerHTML = '<div class="wc-center"><h2>দুই শব্দের মাঝের অক্ষর কী?</h2><p>নিচের ছকে সোহানা আর হামিদা কীভাবে মিলেছে, দেখুন:</p>' + boardHTML(ex, st) +
+      '<p style="font-size:14.5px"><b>' + esc(across(ex, ex.a)) + '</b> (আড়াআড়ি) আর <b>' + esc(down(ex, 0, ex.a)) + '</b> (লম্বালম্বি): মাঝের ফাঁকে <b>' + esc(ex.a[0]) + '</b> বসালে দুটোই ঠিক শব্দ।</p>' +
+      '<div class="wc-chips">' + (sk && sk.n > 0 && (sk.last === dayKey() || sk.last === yesterday()) ? '<span class="wc-chip fire">🔥 ' + bn(sk.n) + ' দিন টানা</span>' : '') + '<span class="wc-chip">দিনে ৫টা ধাঁধা</span><span class="wc-chip">সর্বোচ্চ ৫০ পয়েন্ট</span></div>' +
+      '<div class="wc-btns"><button type="button" class="wc-btn" id="wcDaily">' + (done ? 'আজকের ফল দেখুন' : d && d.res.length ? 'আজকের ধাঁধা চালিয়ে যান' : 'আজকের ৫টা ধাঁধা খেলুন') + '</button></div>' +
+      '<p class="wc-small">অথবা নিজের মতো করে খেলুন, ১০টা ধাঁধা:</p>' +
+      '<div class="wc-lvls"><button type="button" data-l="1">সহজ<small>তিন অক্ষরের শব্দ</small></button><button type="button" data-l="2">মাঝারি<small>বড় শব্দ, বেশি অক্ষর</small></button><button type="button" data-l="3">কঠিন<small>দুটো ফাঁক</small></button></div></div>';
+    $('wcDaily').onclick = () => startDaily();
+    document.querySelectorAll('.wc-lvls button').forEach(b => b.onclick = () => startPractice(+b.dataset.l));
+    T('wc_view', { done: done ? 1 : 0 });
+  }
+  function startDaily(){
+    const d = dayState(); G.mode = 'daily'; G.ids = d ? d.ids : dailyIds(dayKey()); G.res = d ? d.res : [];
+    if(G.res.length >= 5) return paintDone();
+    G.i = G.res.length; saveDay(); T('wc_start', { m: 'daily', resume: d && d.res.length ? 1 : 0 }); show();
+  }
+  function startPractice(l){
+    const pool = shuf(byLevel(l), Math.random).slice(0, 10); if(pool.length < 3){ toast('এই স্তরে এখন ধাঁধা কম'); return; }
+    G.mode = 'free'; G.level = l; G.ids = pool; G.i = 0; G.res = []; T('wc_start', { m: 'free', l }); show();
+  }
+  function show(){
+    const p = P[G.ids[G.i]]; G.st = newSt(p); paint();
+  }
+  const optClass = p => p.o.length <= 4 ? 'wc-opts four' : 'wc-opts';
+  function paint(){
+    const st = G.st, p = st.p, n = G.ids.length, total = G.res.reduce((s, r) => s + r.pts, 0);
+    const cats = p.k.map(c => '<span class="wc-cat">' + esc(c) + '</span>').join('');
+    let h = '<div class="wc-top"><span class="wc-n">ধাঁধা ' + bn(G.i + 1) + '/' + bn(n) + '</span><span class="wc-lv">' + LVL[p.l] + '</span><span class="wc-pts">' + bn(total) + ' পয়েন্ট</span></div>' +
+      '<p class="wc-ask">' + (p.h.b.length > 1 ? 'দুটো ফাঁকই ভরুন, তিনটে শব্দই ঠিক হতে হবে।' : 'ফাঁকা ঘরে কোন অক্ষর বসালে দুটো শব্দই ঠিক হয়?') + '<br>সংকেত: ' + cats + '</p>' + boardHTML(p, st);
+    if(!st.done){
+      h += '<div class="' + optClass(p) + '" id="wcOpts">' + p.o.map((o, i) => '<button type="button" class="wc-opt" data-i="' + i + '"' + (isOff(st, o) ? ' disabled' : '') + '>' + esc(o) + '</button>').join('') + '</div>' +
+        '<div class="wc-tools"><button type="button" class="wc-btn ghost sm" id="wcHint"' + (st.hint ? ' disabled' : '') + '>একটু সাহায্য (−২ পয়েন্ট)</button>' + (p.h.b.length > 1 ? '<button type="button" class="wc-btn sm" id="wcCheck"' + (st.ch.every(x => x) ? '' : ' disabled') + '>যাচাই করুন</button>' : '') + '</div>' +
+        '<div class="wc-fb" id="wcFb">' + (st.msg || '') + '</div>';
+    } else {
+      h += '<div class="wc-fb" id="wcFb">' + st.msg + '</div><div class="wc-btns"><button type="button" class="wc-btn" id="wcNext">' + (G.i + 1 >= n ? 'ফল দেখুন' : 'পরের ধাঁধা') + '</button></div>';
+    }
+    $('wcGame').innerHTML = h;
+    bind();
+  }
+  const isOff = (st, o) => st.gone.includes(o) || st.ch.includes(o) && !st.done;
+  function bind(){
+    const st = G.st;
+    document.querySelectorAll('#wcGame .wc-b').forEach(b => b.onclick = () => blankTap(+b.dataset.t));
+    document.querySelectorAll('#wcGame .wc-opt').forEach(b => b.onclick = () => tile(st.p.o[+b.dataset.i]));
+    const hb = $('wcHint'); if(hb) hb.onclick = hint;
+    const cb = $('wcCheck'); if(cb) cb.onclick = check;
+    const nx = $('wcNext'); if(nx) nx.onclick = next;
+  }
+  function clearWrong(st){ Object.keys(st.mark).forEach(t => { if(st.mark[t] === 'no'){ st.ch[t] = null; delete st.mark[t]; } }); st.msg = ''; }
+  function blankTap(t){
+    const st = G.st; if(st.done || st.mark[t] === 'ok') return; clearWrong(st);
+    if(st.ch[t]) st.ch[t] = null; st.sel = t; paint();
+  }
+  function tile(o){
+    const st = G.st; if(st.done) return; clearWrong(st);
+    let t = st.ch[st.sel] == null && st.mark[st.sel] !== 'ok' ? st.sel : st.ch.findIndex((x, k) => x == null && st.mark[k] !== 'ok');
+    if(t < 0) return; st.ch[t] = o; const nextEmpty = st.ch.findIndex((x, k) => x == null && st.mark[k] !== 'ok'); st.sel = nextEmpty < 0 ? t : nextEmpty;
+    if(st.ch.every(x => x)) return check(); paint();
+  }
+  function hint(){
+    const st = G.st; if(st.hint || st.done) return;
+    const wrong = st.p.o.filter(o => !st.p.a.includes(o) && !st.gone.includes(o)); shuf(wrong, Math.random).slice(0, 2).forEach(o => st.gone.push(o)); st.hint = true; T('wc_hint', { l: st.p.l }); paint();
+  }
+  function formed(p, ch){
+    const f = []; f.push([across(p, ch), p.h.b.every((b, t) => ch[t] === p.a[t])]); p.v.forEach((v, t) => f.push([down(p, t, ch), ch[t] === p.a[t]])); return f;
+  }
+  const formHTML = (p, ch, good) => '<div class="wc-form">' + formed(p, ch).map(x => '<span class="' + (good ? 'good' : x[1] ? 'good' : 'bad') + '">' + esc(x[0]) + '</span>').join('') + '</div>';
+  function check(){
+    const st = G.st, p = st.p; if(!st.ch.every(x => x)) return;
+    st.att++; const okAll = st.ch.every((x, t) => x === p.a[t]);
+    if(okAll){
+      st.done = true; st.ok = true; p.h.b.forEach((b, t) => st.mark[t] = 'ok');
+      st.pts = Math.max(1, BASE[st.att - 1] - (st.hint ? 2 : 0));
+      st.msg = '<div class="res ok">✓ ঠিক' + '<span> +' + bn(st.pts) + '</span></div>' + formHTML(p, st.ch, true);
+    } else {
+      st.ch.forEach((x, t) => { if(x !== p.a[t]){ st.mark[t] = 'no'; if(!st.gone.includes(x)) st.gone.push(x); } else st.mark[t] = 'ok'; });
+      if(st.att >= MAXTRY[p.l]){
+        st.done = true; st.ok = false; st.pts = 0; const was = st.ch.slice(); st.ch = p.a.slice(); p.h.b.forEach((b, t) => st.mark[t] = 'ok');
+        st.msg = '<div class="res no">এবার হলো না</div><p>উত্তর: ' + p.a.map(esc).join(', ') + '</p>' + formHTML(p, st.ch, true);
+      } else {
+        st.msg = '<div class="res try">এখনও হয়নি, আবার ভাবুন</div>' + formHTML(p, st.ch, false) + '<p>লাল শব্দ বা ঘরে ভুল আছে। ' + (p.h.b.length > 1 ? 'সবুজ ঘরটা ঠিক আছে।' : 'দুটো শব্দই একসঙ্গে ঠিক হতে হবে।') + '</p>';
+      }
+    }
+    T('wc_answer', { l: p.l, ok: okAll ? 1 : 0, a: st.att, m: G.mode });
+    paint();
+  }
+  function next(){
+    const st = G.st; G.res[G.i] = { a: st.att, ok: st.ok, pts: st.pts, l: st.p.l }; saveDay();
+    if(G.i + 1 >= G.ids.length) return paintDone();
+    G.i++; show();
+  }
+
+  /* ---------- the end ---------- */
+  const emo = r => r.ok ? (r.a === 1 ? '🟩' : '🟨') : '🟥';
+  function shareText(total){
+    const when = new Date().toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', timeZone: 'Asia/Dhaka' });
+    return '🧩 শব্দ-জোড়া ' + when + '\n' + G.res.map(emo).join('') + ' ' + bn(total) + '/' + bn(G.ids.length * 10) + '\nআপনি কত পারেন? ' + SHARE_URL + '?ref=share';
+  }
+  function streak(){
+    const sk = LS.get('wc_streak') || { last: '', n: 0 }, k = dayKey();
+    if(sk.last !== k){ sk.n = sk.last === yesterday() ? sk.n + 1 : 1; sk.last = k; LS.set('wc_streak', sk); }
+    return sk.n;
+  }
+  function paintDone(){
+    const total = G.res.reduce((s, r) => s + r.pts, 0), n = G.ids.length, daily = G.mode === 'daily';
+    const sn = daily ? streak() : 0, right = G.res.filter(r => r.ok).length;
+    const t = right === n ? 'অসাধারণ, সবগুলো মিলিয়েছেন!' : right >= n / 2 ? 'ভালো খেলেছেন!' : 'আরেকটু ভাবলে আরও ভালো হবে!';
+    $('wcGame').innerHTML = '<div class="wc-center"><h2>' + t + '</h2><div class="wc-score"><b>' + bn(total) + '</b><span>/ ' + bn(n * 10) + '</span></div><div class="wc-emo" aria-label="ফলাফল">' + G.res.map(emo).join('') + '</div>' +
+      '<p>' + bn(right) + 'টা ঠিক, ' + bn(n - right) + 'টা ভুল।' + (sn > 1 ? ' 🔥 টানা ' + bn(sn) + ' দিন।' : '') + '</p>' +
+      '<div class="wc-share"><a class="wc-sbtn wa" id="wcWa" target="_blank" rel="noopener">WhatsApp-এ পাঠান</a><a class="wc-sbtn fb" id="wcFbk" target="_blank" rel="noopener">Facebook</a><button type="button" class="wc-sbtn" id="wcCopy">কপি করুন</button></div>' +
+      '<div class="wc-btns"><button type="button" class="wc-btn ghost" id="wcBack">' + (daily ? 'আরও ধাঁধা খেলুন' : 'আবার খেলুন') + '</button></div>' +
+      (daily ? '<p class="wc-small">পরের ৫টা ধাঁধা <b>' + untilMidnight() + '</b> পরে।</p>' : '') + '</div>';
+    const txt = shareText(total);
+    $('wcWa').href = 'https://wa.me/?text=' + encodeURIComponent(txt); $('wcFbk').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL + '?ref=share') + '&quote=' + encodeURIComponent(txt);
+    $('wcWa').onclick = () => T('wc_share', { ch: 'wa' }); $('wcFbk').onclick = () => T('wc_share', { ch: 'fb' });
+    $('wcCopy').onclick = async () => { T('wc_share', { ch: 'copy' }); try{ if(navigator.share && /Mobi|Android/i.test(navigator.userAgent)){ await navigator.share({ text: txt }); return; } await navigator.clipboard.writeText(txt); toast('কপি হয়েছে ✓'); }catch(e){ toast('কপি করা যায়নি'); } };
+    $('wcBack').onclick = () => { G.mode = null; menu(); };
+    T('wc_done', { m: G.mode, pts: total, ok: right });
+  }
+
+  if(!P.length){ $('wcGame').innerHTML = '<div class="wc-center"><h2>এখন লোড করা যাচ্ছে না</h2><p>পাতাটা আবার খুলুন।</p></div>'; }
+  else menu();
+  window.__wc = { G, P, dailyIds, formed };
+})();
+</script>
+</body>
+</html>

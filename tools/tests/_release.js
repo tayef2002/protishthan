@@ -4,7 +4,7 @@
 const fs = require('fs'), path = require('path');
 const read = f => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
 const nav = read('nav.js'), released = /\{ k: 'league',\s+t: 'লিগ', menu: LEAGUE/.test(nav.replace(/\/\*[\s\S]*?\*\//g, '')), chal = /var CHALLENGES_LIVE = true;/.test(nav);
-const ALL = ['league', 'quiz', 'challenge', 'duel', 'guess', 'sprint', 'cricket'], SOLO = ['league', 'quiz', 'guess', 'sprint', 'cricket'];
+const ALL = ['league', 'quiz', 'challenge', 'duel', 'guess', 'sprint', 'cricket', 'wordcross'], SOLO = ['league', 'quiz', 'guess', 'sprint', 'cricket', 'wordcross'];
 const publicPages = released ? (chal ? ALL : SOLO) : [];
 const NOINDEX = /<meta name="robots" content="noindex, follow">/;
 module.exports = { released, chal, read, PAGES: ALL, publicPages, isPublic: p => publicPages.includes(p), noindexOk: (html, page) => publicPages.includes(page) ? !/name="robots"[^>]*noindex/.test(html) : NOINDEX.test(html) };
