@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/salary.css?v=3">
+<link rel="stylesheet" href="/salary.css?v=4">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -46,6 +46,7 @@
       <form id="slForm" autocomplete="off" onsubmit="return false">
         <fieldset class="sl-step on" data-step="1"><legend>কাজ ও শিক্ষা</legend>
           <div class="sl-f full"><label for="slFamily">কোন ধরনের কাজ?</label><select id="slFamily"></select></div>
+          <div class="sl-f full" id="slRoleBox" hidden><label for="slRole" id="slRoleLb">পদ বা কাজ</label><select id="slRole"></select></div>
           <div class="sl-f"><label for="slEdu">সর্বোচ্চ শিক্ষা</label><select id="slEdu"></select></div>
           <div class="sl-f" id="slCgpaBox"><label for="slCgpa">CGPA (ঐচ্ছিক)</label><input id="slCgpa" type="number" step="0.01" min="1" max="4" inputmode="decimal" placeholder="যেমন ৩.৫০"></div>
         </fieldset>
@@ -55,7 +56,8 @@
           <div class="sl-f"><label for="slEmp">কেমন প্রতিষ্ঠান?</label><select id="slEmp"></select></div>
           <div class="sl-f"><label for="slJob">কাজের ধরন</label><select id="slJob"></select></div>
         </fieldset>
-        <fieldset class="sl-step" data-step="3"><legend>দক্ষতা</legend>
+        <fieldset class="sl-step" data-step="3"><legend>কাজের বিবরণ ও দক্ষতা</legend>
+          <div id="slExtras" class="sl-extras"></div>
           <div class="sl-f full"><span class="lb">দক্ষতা ও প্রমাণ (যা সত্যিই পারেন)</span><button type="button" class="sl-skbtn" id="slSkBtn" aria-haspopup="dialog"><span>দক্ষতা বেছে নিন</span><b id="slSkCount">০</b></button><div class="sl-sel" id="slSel"></div></div>
         </fieldset>
         <div class="sl-nav"><button type="button" class="sl-btn ghost" id="slBack" hidden>আগের ধাপ</button><button type="button" class="sl-btn" id="slNext">পরের ধাপ</button></div>
@@ -97,8 +99,8 @@
 
 <div id="pfoot" data-art="info"></div>
 <script src="/footer.js?v=32"></script>
-<script src="/salary-data.js?v=1"></script>
-<script src="/salary-engine.js?v=1"></script>
+<script src="/salary-data.js?v=2"></script>
+<script src="/salary-engine.js?v=2"></script>
 <script>
 (function(){
   'use strict';
@@ -116,15 +118,30 @@
   $('slEdu').innerHTML = opt(D.edu, saved.edu || 'hons');
   $('slExp').innerHTML = Array.from({ length: 31 }, (_, i) => '<option value="' + i + '"' + (String(i) === String(saved.exp == null ? 0 : saved.exp) ? ' selected' : '') + '>' + (i === 0 ? 'নতুন (০ বছর)' : bn(i) + ' বছর') + '</option>').join('');
   $('slCity').innerHTML = opt(D.city, saved.city || 'dhaka');
-  $('slEmp').innerHTML = opt(D.employer, saved.employer || 'local');
   $('slJob').innerHTML = opt(D.jobtype, saved.jobtype || 'full');
   if(saved.cgpa) $('slCgpa').value = saved.cgpa;
-  const chosen = new Set(saved.skills || []);
+  const fam = id => D.families.find(f => f.id === id) || null;
+  const chosen = new Set(saved.skills || []), extras = Object.assign({}, saved.extras || {});
   let tab = 'calc', rtab = 'how', step = 1, lastMid = 0, lastTrack = 0, picked = false;
 
   /* ----- the skills dialog ----- */
-  const groups = []; D.skills.forEach(s => { if(!groups.includes(s.group)) groups.push(s.group); });
-  $('slSkList').innerHTML = groups.map(g => '<h3>' + esc(g) + '</h3><div class="sl-chips">' + D.skills.filter(s => s.group === g).map(s => '<button type="button" class="sl-chip" data-id="' + s.id + '" aria-pressed="false">' + esc(s.name) + '</button>').join('') + '</div>').join('');
+  const famSkills = () => { const f = fam($('slFamily').value); return f ? f.skills.map(id => D.skills.find(s => s.id === id)).filter(Boolean) : []; };
+  function buildSkills(){
+    const list = famSkills(), groups = []; list.forEach(s => { if(!groups.includes(s.group)) groups.push(s.group); });
+    [...chosen].forEach(id => { if(!list.some(s => s.id === id)) chosen.delete(id); });
+    $('slSkList').innerHTML = groups.length ? groups.map(g => '<h3>' + esc(g) + '</h3><div class="sl-chips">' + list.filter(s => s.group === g).map(s => '<button type="button" class="sl-chip" data-id="' + s.id + '" aria-pressed="false">' + esc(s.name) + '</button>').join('') + '</div>').join('') : '<p class="sl-small">আগে "কোন ধরনের কাজ?" বেছে নিন।</p>';
+    paintChips(); paintSel();
+  }
+  /* the form follows the kind of work: its posts, its employers, its own questions */
+  function buildFamily(){
+    const f = fam($('slFamily').value), rb = $('slRoleBox');
+    rb.hidden = !f; if(f){ $('slRoleLb').textContent = f.roleLabel || 'পদ বা কাজ'; $('slRole').innerHTML = '<option value="">বেছে নিন...</option>' + opt(f.roles, saved.family === f.id ? saved.role : ''); }
+    $('slEmp').innerHTML = f ? opt(f.employers, saved.family === f.id && saved.employer ? saved.employer : f.employers[0].id) : '<option value="">আগে কাজ বেছে নিন</option>';
+    $('slEmp').disabled = !f;
+    $('slExtras').innerHTML = f ? (f.extras || []).map(q => '<div class="sl-f full"><label for="slx_' + q.id + '">' + esc(q.name) + '</label><select id="slx_' + q.id + '" data-q="' + q.id + '">' + opt(q.options, extras[q.id] || q.options[0].id) + '</select></div>').join('') : '';
+    $('slExtras').querySelectorAll('select').forEach(s => { extras[s.dataset.q] = s.value; s.addEventListener('input', () => { extras[s.dataset.q] = s.value; render(); }); });
+    $('slSkBtn').disabled = !f; buildSkills();
+  }
   const paintChips = () => document.querySelectorAll('#slSkList .sl-chip').forEach(b => { const on = chosen.has(b.dataset.id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   const paintSel = () => {
     $('slSkCount').textContent = bn(chosen.size);
@@ -140,10 +157,10 @@
   document.querySelectorAll('[data-dlg]').forEach(b => b.addEventListener('click', () => openDlg($(b.dataset.dlg))));
   document.querySelectorAll('dialog [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
   document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', e => { if(e.target === d) d.close(); }));
-  paintSel();
+  buildFamily();
 
   /* ----- steps (a phone shows one at a time) ----- */
-  const TITLES = ['কাজ ও শিক্ষা', 'অভিজ্ঞতা ও জায়গা', 'দক্ষতা'];
+  const TITLES = ['কাজ ও শিক্ষা', 'অভিজ্ঞতা ও জায়গা', 'কাজের বিবরণ ও দক্ষতা'];
   function paintSteps(){
     document.querySelectorAll('.sl-step').forEach(f => f.classList.toggle('on', +f.dataset.step === step));
     $('slDots').innerHTML = [1, 2, 3].map(i => '<i class="' + (i <= step ? 'on' : '') + '"></i>').join('') + '<span>' + bn(step) + '/৩ · ' + TITLES[step - 1] + '</span>';
@@ -161,8 +178,9 @@
     document.querySelectorAll('.sl-seg button').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
     $('slOfferBox').hidden = tab !== 'offer'; if(tab === 'offer') $('slOffer').focus({ preventScroll: true }); T('sal_tab', { t: tab }); render();
   });
-  const profile = () => ({ family: $('slFamily').value, edu: $('slEdu').value, exp: +$('slExp').value, city: $('slCity').value, employer: $('slEmp').value, jobtype: $('slJob').value, cgpa: $('slCgpa').value ? +$('slCgpa').value : null, skills: [...chosen] });
-  ['slFamily', 'slEdu', 'slExp', 'slCity', 'slEmp', 'slJob', 'slCgpa', 'slOffer'].forEach(id => $(id).addEventListener('input', () => render()));
+  const profile = () => { const f = fam($('slFamily').value), ex = {}; if(f) (f.extras || []).forEach(q => { if(extras[q.id]) ex[q.id] = extras[q.id]; }); return { family: $('slFamily').value, role: f ? $('slRole').value : '', edu: $('slEdu').value, exp: +$('slExp').value, city: $('slCity').value, employer: $('slEmp').value, jobtype: $('slJob').value, cgpa: $('slCgpa').value ? +$('slCgpa').value : null, skills: [...chosen], extras: ex }; };
+  ['slRole', 'slEdu', 'slExp', 'slCity', 'slEmp', 'slJob', 'slCgpa', 'slOffer'].forEach(id => $(id).addEventListener('input', () => render()));
+  $('slFamily').addEventListener('input', () => { saved.family = ''; buildFamily(); render(); });
 
   /* ----- the answer ----- */
   function countTo(el, to, fmt){ if(reduce || !lastMid){ el.textContent = fmt(to); return; } const from = lastMid, t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 320), v = from + (to - from) * (1 - Math.pow(1 - k, 3)); el.textContent = fmt(v); if(k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
@@ -188,14 +206,16 @@
       tabs.hidden = true; body.hidden = true; $('slRtx').textContent = 'সম্ভাব্য মাসিক স্যালারি'; lastMid = 0; return;
     }
     tabs.hidden = false; body.hidden = false;
-    const e = E.estimate(p), amt = tab === 'offer' ? +$('slOffer').value : 0, o = tab === 'offer' && amt >= 1000 ? E.offer(p, amt) : null;
+    const e = E.estimate(p); document.querySelector('#slRes .tag').textContent = e.fixed ? 'পে-স্কেল' : 'অনুমান';
+    const amt = tab === 'offer' ? +$('slOffer').value : 0, o = tab === 'offer' && amt >= 1000 ? E.offer(p, amt) : null;
     if(o){
       $('slRtx').textContent = 'আপনার অফারের অবস্থান';
       top.innerHTML = '<div class="sl-big"><span class="sl-vd ' + o.tone + '">' + esc(o.verdict) + '</span></div><p class="sl-sub">অফার <b>' + tk(amt) + '</b>, বাজার-দর <b>' + tk(e.show.mid) + '</b>। আপনার মতো ১০০ জনের মধ্যে প্রায় <b>' + bn(Math.round(o.pct)) + '</b> জনের স্যালারি এর চেয়ে কম। দরকষাকষির লক্ষ্য <b>' + tk(e.show.p75) + '</b> পর্যন্ত।</p>' + bar(e, amt);
       lastMid = 0;
     } else {
-      $('slRtx').textContent = tab === 'offer' ? 'ওপরে অফারের অঙ্ক লিখুন' : 'সম্ভাব্য মাসিক স্যালারি';
-      top.innerHTML = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>প্রতি মাসে</small></div><p class="sl-sub">এর নিচে হলে কম: <b>' + tk(e.show.p25) + '</b> · ভালো দর: <b>' + tk(e.show.p75) + '</b><br>আপনার মতো ১০ জনের ৮ জনের স্যালারি <b>' + tk(e.show.p10) + '</b> থেকে <b>' + tk(e.show.p90) + '</b> এর মধ্যে।</p>' + bar(e, 0);
+      $('slRtx').textContent = tab === 'offer' ? 'ওপরে অফারের অঙ্ক লিখুন' : e.fixed ? 'সরকারি পে-স্কেলে শুরুর মূল বেতন' : 'সম্ভাব্য মাসিক স্যালারি';
+      if(e.fixed) top.innerHTML = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>মূল বেতন, প্রতি মাসে</small></div><p class="sl-sub">সরকারি পদে বেতন নিয়মে বাঁধা, তাই এটা অনুমান নয়। এর ওপর বাড়ি ভাড়া, চিকিৎসা, উৎসব বোনাসসহ ভাতা যোগ হয়।</p>';
+      else top.innerHTML = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>প্রতি মাসে</small></div><p class="sl-sub">এর নিচে হলে কম: <b>' + tk(e.show.p25) + '</b> · ভালো দর: <b>' + tk(e.show.p75) + '</b><br>আপনার মতো ১০ জনের ৮ জনের স্যালারি <b>' + tk(e.show.p10) + '</b> থেকে <b>' + tk(e.show.p90) + '</b> এর মধ্যে।</p>' + bar(e, 0);
       countTo($('slNum'), e.show.mid, v => tk(Math.round(v / 100) * 100)); lastMid = e.show.mid;
     }
     const keys = tab === 'offer' && o ? ['say', 'how', 'up'] : ['how', 'up', 'note'], names = { say: 'কী বলবেন', how: 'হিসাব', up: 'বাড়াতে কী', note: 'মনে রাখুন' };
@@ -203,7 +223,8 @@
     if(!keys.includes(rtab)) rtab = keys[0];
     tabs.innerHTML = keys.map(k => '<button type="button" role="tab" data-k="' + k + '" class="' + (k === rtab ? 'on' : '') + '" aria-selected="' + (k === rtab) + '">' + names[k] + '</button>').join('');
     let h = '';
-    if(rtab === 'how') h = rows(e);
+    if(rtab === 'how' && !e.fixed) h = rows(e);
+    else if((rtab === 'how' || rtab === 'up') && e.fixed) h = '<p class="sl-small">সরকারি পদে স্যালারি দক্ষতা বা দরকষাকষিতে বদলায় না, পদ আর গ্রেডে ঠিক হয়। বাড়তে হলে বিসিএস বা উঁচু গ্রেডের পদে যেতে হয়।</p>';
     else if(rtab === 'up'){ const wi = E.whatIf(p).slice(0, 6); h = wi.length ? '<ul class="sl-rows">' + wi.map(x => '<li><span>' + esc(x.name) + '</span><span class="d up">+' + tk(x.add) + '</span></li>').join('') + '</ul><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p>' : '<p class="sl-small">আপনি প্রায় সব দক্ষতাই বেছে নিয়েছেন।</p>'; }
     else if(rtab === 'say' && o){ const s = say(o); h = '<div class="sl-say">' + esc(s[0]) + '</div><ul class="sl-ul">' + s.slice(1).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul><p class="sl-small">স্যালারি কম মানে চাকরি ছেড়ে দেওয়া নয়। আগে জিজ্ঞেস করুন, তুলনা করুন, আর নিজের দক্ষতা বাড়ানোর পথ দেখুন।</p>'; }
     else h = '<ul class="sl-ul">' + e.notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul>';
