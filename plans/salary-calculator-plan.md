@@ -1,6 +1,8 @@
 # ন্যায্য বেতন (salary calculator): the full plan, 2026-11-24
 
-Status: PLAN ONLY. Nothing is built. Design and build start when the owner says so.
+Status (2026-11-24, later the same day): the owner said "start". STAGE A is built and HIDDEN at /salary (noindex, not linked): the estimator and the offer check, from the published BBS Labour Force Survey tables (2022 and 2024, extracted by tools/salary/extract-lfs.js into tools/salary/lfs-tables.json) with research priors (tools/salary/gen-data.js -> salary-data.js), the calculation in salary-engine.js (tests: test_salary_engine 27, test_salary_page 11). Findings of Phase 0: the published tables give only the MEAN wage by occupation group, age group and sector (no education, no experience, no median), and the microdata of the survey sits behind a login of the BBS/IHSN catalog (a free registration that only the owner can do), so the education, experience, city and skill effects are PRIORS (confidence C) until the microdata or the reports of users replace them. Not built yet: what-if page parts beyond the list, share card, the crowd form and its SQL, the accuracy line, the method page as a separate page, the AI language layer.
+(The text below is the original plan.)
+Original status: PLAN ONLY. Nothing is built. Design and build start when the owner says so.
 
 ## 1. Why (the owner's reason, and the numbers behind it)
 Jobs are scarce and the salaries offered are often not fair. A job seeker has nobody to ask "what is a fair salary for ME?", and job posts rarely show a salary ("negotiable").

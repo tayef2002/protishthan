@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://eoqeeuujvpydhmfteqqj.supabase.co" crossorigin>
+<title>ন্যায্য বেতন: আপনার যোগ্যতায় কত বেতন চাওয়া যায় | Protishthan</title>
+<meta name="description" content="আপনার শিক্ষা, অভিজ্ঞতা আর দক্ষতা দিয়ে বাংলাদেশে মোটামুটি কত বেতন চাওয়া যায়, তার সীমা জানুন। অফারটা ন্যায্য কি না, যাচাই করুন। পরীক্ষামূলক সংস্করণ।">
+<link rel="canonical" href="https://protishthan.com/salary">
+<meta property="og:title" content="ন্যায্য বেতন | Protishthan">
+<meta property="og:description" content="আপনার যোগ্যতায় কত বেতন চাওয়া যায়? অফার ন্যায্য কি না, যাচাই করুন।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://protishthan.com/salary">
+<meta property="og:image" content="https://protishthan.com/og-image.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="member.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="brand.css?v=3">
+<link rel="stylesheet" href="/nav.css?v=19">
+<link rel="stylesheet" href="/footer.css?v=6">
+<link rel="stylesheet" href="/salary.css?v=1">
+<script src="/analytics.js?v=3" defer></script>
+</head>
+<body>
+
+<div id="nav" class="ptn" data-theme="light" data-set="main" data-cta="member" data-active="salary"></div>
+<script src="/nav.js?v=32"></script>
+
+<main class="sl">
+  <header class="sl-hero">
+    <span class="sl-kick">পরীক্ষামূলক সংস্করণ (বিটা)</span>
+    <h1>আপনার <span>ন্যায্য বেতন</span> কত?</h1>
+    <p>শিক্ষা, অভিজ্ঞতা আর দক্ষতা দিলে বাংলাদেশে সাধারণত কত বেতন চাওয়া যায়, তার একটা সীমা পাবেন। অফার পেলে সেটা ন্যায্য কি না, যাচাই করুন।</p>
+  </header>
+
+  <div class="sl-beta"><b>খোলাখুলি কথা:</b> এটা এখনও <b>অনুমান</b>। শুরুর সংখ্যা সরকারি শ্রমশক্তি জরিপ আর গবেষণার হিসাব থেকে, আসল বেতনের তথ্য জমলে আরও নির্ভুল হবে। ফলে সবসময় একটা সীমা দেখানো হয়, একটা সংখ্যা নয়।</div>
+
+  <div class="sl-tabs" role="tablist" aria-label="কী করতে চান"><button type="button" class="sl-tab on" data-tab="calc" role="tab" aria-selected="true">আমার ন্যায্য বেতন</button><button type="button" class="sl-tab" data-tab="offer" role="tab" aria-selected="false">অফার যাচাই</button></div>
+
+  <form class="sl-card" id="slForm" autocomplete="off">
+    <h2>আপনার তথ্য</h2>
+    <div class="sl-grid">
+      <div class="sl-f full"><label for="slFamily">কোন ধরনের কাজ?</label><select id="slFamily"></select></div>
+      <div class="sl-f"><label for="slEdu">সর্বোচ্চ শিক্ষা</label><select id="slEdu"></select></div>
+      <div class="sl-f"><label for="slExp">কাজের অভিজ্ঞতা (বছর)</label><select id="slExp"></select></div>
+      <div class="sl-f"><label for="slCity">কোথায় কাজ?</label><select id="slCity"></select></div>
+      <div class="sl-f"><label for="slEmp">কেমন প্রতিষ্ঠান?</label><select id="slEmp"></select></div>
+      <div class="sl-f"><label for="slJob">কাজের ধরন</label><select id="slJob"></select></div>
+      <div class="sl-f" id="slCgpaBox"><label for="slCgpa">CGPA (ঐচ্ছিক, নতুনদের জন্য)</label><input id="slCgpa" type="number" step="0.01" min="1" max="4" inputmode="decimal" placeholder="যেমন ৩.৫০"></div>
+      <div class="sl-f full" id="slOfferBox" hidden><label for="slOffer">আপনাকে কত অফার করা হয়েছে? (মাসে, টাকা)</label><input id="slOffer" type="number" min="1000" step="500" inputmode="numeric" placeholder="যেমন ১৮০০০"></div>
+    </div>
+    <div class="sl-sk"><h2 style="margin-top:12px">আপনার দক্ষতা ও প্রমাণ</h2><small style="color:var(--tx3);font-size:13px">যা সত্যিই পারেন, শুধু সেগুলো বেছে নিন। বেশি বেছে নিলেও সংখ্যা সীমার বাইরে যায় না।</small><div id="slSkills"></div></div>
+    <button type="submit" class="sl-btn" id="slGo">হিসাব করুন</button>
+  </form>
+
+  <section id="slOut" aria-live="polite"></section>
+
+  <section class="sl-card sl-met">
+    <details>
+      <summary>এই সংখ্যা কীভাবে এল, কতটা ভরসা করা যায়?</summary>
+      <p style="margin-top:8px"><b>শুরু:</b> বাংলাদেশ পরিসংখ্যান ব্যুরোর (BBS) শ্রমশক্তি জরিপ ২০২৪-এ প্রতিটা পেশা-গোষ্ঠীর গড় মাসিক মজুরি-বেতন (যেমন পেশাজীবী, অফিস-সহকারী, সেবা ও বিক্রয়)। এই গড় সব বয়স, সব শিক্ষা আর অনানুষ্ঠানিক খাত নিয়ে।</p>
+      <ul>
+        <li><b>শিক্ষা:</b> প্রতি বছরের পড়াশোনায় প্রায় ৭.৫% বেশি (বাংলাদেশের গবেষণায় পাওয়া মাত্রা)।</li>
+        <li><b>অভিজ্ঞতা:</b> প্রথম বছরগুলোতে দ্রুত, পরে ধীরে বাড়া একটা সাধারণ বক্ররেখা।</li>
+        <li><b>শহর ও প্রতিষ্ঠান:</b> ঢাকা আর বড় প্রতিষ্ঠানে বেশি, ছোট ব্যবসা ও জেলা শহরে কম। এগুলো আমাদের <b>প্রাথমিক অনুমান</b>।</li>
+        <li><b>দক্ষতা:</b> ইংরেজিতে গবেষণায় ২০-৩০% বেশি আয় পাওয়া গেছে; বাকিগুলো ছোট অনুমান, মোট বাড়তি সীমা ৩৫% (নতুনদের) বা ২৫%।</li>
+        <li><b>সময়:</b> জরিপ ২০২৪-এর, তাই আজকের দামে আনতে বছরে ৬% ধরা হয়েছে (জরিপেই দুই বছরে গড় বেতন প্রায় ১৪% বেড়েছে)।</li>
+        <li><b>সীমা:</b> একই যোগ্যতার মানুষের বেতনেও পার্থক্য হয়। তাই ফলে "এর নিচে কম" (২৫তম), "সম্ভাব্য" (মাঝামাঝি), "ভালো দর" (৭৫তম) আর ৮০% মানুষের সীমা দেখানো হয়।</li>
+        <li><b>যা এখনও নেই:</b> আসল বেতনের তথ্য, বিষয় (ডিপার্টমেন্ট), প্রতিষ্ঠানের নাম, লিঙ্গ (ইচ্ছে করে নেই)। সরকারি চাকরির জন্য পে-স্কেল আলাদা। গার্মেন্টসের সর্বনিম্ন মজুরি ১২,৫০০ টাকা (ডিসেম্বর ২০২৩)।</li>
+      </ul>
+      <p class="sl-small">সূত্র: BBS Labour Force Survey ২০২২ ও ২০২৪; নবম জাতীয় পে-স্কেল ২০২৬ (মূল বেতন); গার্মেন্টস ন্যূনতম মজুরি ২০২৩; Asadullah (২০০৬) ও Rahman-Al Hasan (২০১৮) শিক্ষার প্রাপ্তি নিয়ে; British Council/Open University ইংরেজি ও আয় নিয়ে সংশ্লেষণ। ভুল বা অদ্ভুত মনে হলে <a href="/feedback">আমাদের জানান</a>।</p>
+    </details>
+  </section>
+</main>
+
+<div id="pfoot" data-art="info"></div>
+<script src="/footer.js?v=32"></script>
+<script src="/salary-data.js?v=1"></script>
+<script src="/salary-engine.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  const E = window.SalaryEngine, D = E.data;
+  const $ = id => document.getElementById(id);
+  const bn = x => String(x).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const tk = v => '৳' + bn(Math.round(v).toLocaleString('en-US'));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const T = (n, p) => { try{ if(window.track) window.track(n, p || {}); }catch(e){} };
+  const LS = { get(k){ try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } }, set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+  const opt = (list, sel) => list.map(x => '<option value="' + x.id + '"' + (x.id === sel ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('');
+  const saved = LS.get('sl_profile') || {};
+  $('slFamily').innerHTML = '<option value="">বেছে নিন...</option>' + opt(D.families, saved.family);
+  $('slEdu').innerHTML = opt(D.edu, saved.edu || 'hons');
+  $('slExp').innerHTML = Array.from({ length: 31 }, (_, i) => '<option value="' + i + '"' + (String(i) === String(saved.exp == null ? 0 : saved.exp) ? ' selected' : '') + '>' + (i === 0 ? 'নতুন (০ বছর)' : bn(i) + ' বছর') + '</option>').join('');
+  $('slCity').innerHTML = opt(D.city, saved.city || 'dhaka');
+  $('slEmp').innerHTML = opt(D.employer, saved.employer || 'local');
+  $('slJob').innerHTML = opt(D.jobtype, saved.jobtype || 'full');
+  if(saved.cgpa) $('slCgpa').value = saved.cgpa;
+  const groups = []; D.skills.forEach(s => { if(!groups.includes(s.group)) groups.push(s.group); });
+  const chosen = new Set(saved.skills || []);
+  $('slSkills').innerHTML = groups.map(g => '<h3>' + esc(g) + '</h3><div class="sl-chips">' + D.skills.filter(s => s.group === g).map(s => '<button type="button" class="sl-chip' + (chosen.has(s.id) ? ' on' : '') + '" data-id="' + s.id + '" aria-pressed="' + chosen.has(s.id) + '">' + esc(s.name) + '</button>').join('') + '</div>').join('');
+  $('slSkills').addEventListener('click', e => {
+    const b = e.target.closest('.sl-chip'); if(!b) return; const id = b.dataset.id, on = !chosen.has(id);
+    on ? chosen.add(id) : chosen.delete(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+    const s = D.skills.find(x => x.id === id);
+    if(on && s && s.excl === 'en') D.skills.filter(x => x.excl === 'en' && x.id !== id).forEach(x => { chosen.delete(x.id); const o = document.querySelector('.sl-chip[data-id="' + x.id + '"]'); if(o){ o.classList.remove('on'); o.setAttribute('aria-pressed', 'false'); } });
+  });
+  let tab = 'calc';
+  document.querySelector('.sl-tabs').addEventListener('click', e => {
+    const b = e.target.closest('.sl-tab'); if(!b) return; tab = b.dataset.tab;
+    document.querySelectorAll('.sl-tab').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
+    $('slOfferBox').hidden = tab !== 'offer'; $('slGo').textContent = tab === 'offer' ? 'অফার যাচাই করুন' : 'হিসাব করুন'; $('slOut').innerHTML = ''; T('sal_tab', { t: tab });
+  });
+  const profile = () => ({ family: $('slFamily').value, edu: $('slEdu').value, exp: +$('slExp').value, city: $('slCity').value, employer: $('slEmp').value, jobtype: $('slJob').value, cgpa: $('slCgpa').value ? +$('slCgpa').value : null, skills: [...chosen] });
+
+  const bar = e => {
+    const lo = e.p10, hi = e.p90, span = hi - lo, pos = v => Math.max(0, Math.min(100, (v - lo) / span * 100));
+    return '<div class="sl-bar" aria-hidden="true"><i style="left:' + pos(e.p25) + '%;width:' + (pos(e.p75) - pos(e.p25)) + '%"></i><u style="left:calc(' + pos(e.mid) + '% - 2px)"></u>' +
+      '<span style="left:0;transform:none">' + tk(e.show.p10) + '</span><span style="left:' + pos(e.mid) + '%">' + tk(e.show.mid) + '</span><span style="left:100%;transform:translateX(-100%)">' + tk(e.show.p90) + '</span></div>';
+  };
+  const stepsHTML = e => '<ul class="sl-steps">' + e.steps.map((s, i) => i === 0 ? '<li><span>' + esc(bn(s.label)) + '</span><span class="d">' + tk(s.v) + '</span></li>' :
+    (Math.abs(s.delta) < 50 ? '' : '<li><span>' + esc(bn(s.label)) + '</span><span class="d ' + (s.delta > 0 ? 'up' : 'dn') + '">' + (s.delta > 0 ? '+' : '−') + tk(Math.abs(s.delta)) + '</span></li>')).join('') + '</ul>';
+  const notesHTML = e => '<ul class="sl-list">' + e.notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul>';
+
+  function showCalc(p){
+    const e = E.estimate(p), wi = E.whatIf(p).slice(0, 4);
+    $('slOut').innerHTML = '<div class="sl-card sl-res"><span class="sl-badge">অনুমান</span><div class="sl-big">' + tk(e.show.mid) + ' <small>প্রতি মাসে, সম্ভাব্য</small></div>' +
+      '<p class="sl-line">এর নিচে হলে কম: <b>' + tk(e.show.p25) + '</b> &nbsp;·&nbsp; ভালো দর (দরকষাকষির লক্ষ্য): <b>' + tk(e.show.p75) + '</b></p>' +
+      '<p class="sl-line">আপনার মতো ১০ জনের ৮ জনের বেতন <b>' + tk(e.show.p10) + '</b> থেকে <b>' + tk(e.show.p90) + '</b> এর মধ্যে।</p>' + bar(e) +
+      '</div><div class="sl-card"><h2>সংখ্যাটা কীভাবে হলো</h2>' + stepsHTML(e) + '</div>' +
+      (wi.length ? '<div class="sl-card"><h2>কী যোগ করলে কত বাড়তে পারে</h2><div class="sl-wi">' + wi.map(x => '<div><span>' + esc(x.name) + '</span><b>+' + tk(x.add) + '</b></div>').join('') + '</div><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p></div>' : '') +
+      '<div class="sl-card"><h2>মনে রাখবেন</h2>' + notesHTML(e) + '</div>';
+    T('sal_calc', { f: p.family, e: p.edu, x: Math.min(p.exp, 20), n: p.skills.length });
+  }
+  function say(o, p){
+    const e = o.est, a = tk(e.show.p25) + ' থেকে ' + tk(e.show.p75);
+    if(o.tone === 'bad' || o.tone === 'low') return ['আমি এই কাজে আমার যোগ্যতা আর অভিজ্ঞতা অনুযায়ী মাসে ' + a + ' আশা করি। আপনাদের বেতনের সীমা কত? এটা বাড়ানোর কোনো সুযোগ আছে কি?', 'প্রবেশনকালে (শিক্ষানবিশির সময়) কত মাস থাকবে, তখন বেতন কত? কবে ইনক্রিমেন্ট হবে, কত?', 'উৎসব বোনাস, ওভারটাইম, যাতায়াত, খাবার আর চিকিৎসার সুবিধা কী কী?'];
+    if(o.tone === 'fair') return ['অফারটা আপনার মতো মানুষদের বাজার-দরের কাছাকাছি। বেতন নিয়ে দরকষাকষির আগে ভাতা, ইনক্রিমেন্ট আর কাজের শর্ত দেখে নিন।', 'প্রবেশনকাল কত মাস আর তখন বেতন কত?', 'বার্ষিক ইনক্রিমেন্ট আর বোনাসের নিয়ম কী?'];
+    return ['অফারটা ভালো। বেতনের পাশাপাশি কাজের চাপ, ছুটি আর ভবিষ্যতের বাড়ার সুযোগও দেখে নিন।', 'চুক্তিতে সব ভাতা আর বোনাস লিখিত আছে কি না দেখুন।'];
+  }
+  function showOffer(p, amount){
+    const o = E.offer(p, amount), e = o.est, pct = Math.round(o.pct), lower = pct;
+    const gap = o.gap > 0 ? 'বাজার-দরের (' + tk(e.show.mid) + ') চেয়ে <b>' + tk(o.gap) + '</b> কম' : 'বাজার-দরের (' + tk(e.show.mid) + ') চেয়ে <b>' + tk(-o.gap) + '</b> বেশি';
+    const s = say(o, p);
+    $('slOut').innerHTML = '<div class="sl-card sl-res"><span class="sl-badge">অনুমান</span><div><span class="sl-verdict ' + o.tone + '">' + esc(o.verdict) + '</span></div>' +
+      '<p class="sl-line">আপনার অফার <b>' + tk(amount) + '</b>। আপনার মতো ১০০ জনের মধ্যে প্রায় <b>' + bn(lower) + '</b> জনের বেতন এর চেয়ে কম।</p>' +
+      '<p class="sl-line">' + gap + '। দরকষাকষির লক্ষ্য হতে পারে <b>' + tk(e.show.p75) + '</b> পর্যন্ত।</p>' + bar(e) +
+      '</div><div class="sl-card"><h2>কী জিজ্ঞেস করবেন, কী বলবেন</h2><div class="sl-say">' + esc(s[0]) + '</div><ul class="sl-list" style="margin-top:10px">' + s.slice(1).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul><p class="sl-small">বেতন কম মানে চাকরি ছেড়ে দেওয়া নয়। আগে জিজ্ঞেস করুন, তুলনা করুন, আর নিজের দক্ষতা বাড়ানোর পথ দেখুন।</p></div>' +
+      '<div class="sl-card"><h2>সংখ্যাটা কীভাবে হলো</h2>' + stepsHTML(e) + '</div><div class="sl-card"><h2>মনে রাখবেন</h2>' + notesHTML(e) + '</div>';
+    T('sal_offer', { f: p.family, v: o.tone });
+  }
+  $('slForm').addEventListener('submit', ev => {
+    ev.preventDefault(); const p = profile();
+    if(!p.family){ $('slFamily').focus(); alert('আগে কোন ধরনের কাজ, সেটা বেছে নিন।'); return; }
+    LS.set('sl_profile', p);
+    if(tab === 'offer'){ const a = +$('slOffer').value; if(!(a >= 1000)){ $('slOffer').focus(); alert('অফারের অঙ্কটা মাসে কত টাকা, লিখুন।'); return; } showOffer(p, a); }
+    else showCalc(p);
+    $('slOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  T('sal_view', {});
+  window.__sal = { profile };
+})();
+</script>
+</body>
+</html>
