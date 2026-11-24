@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/salary.css?v=8">
+<link rel="stylesheet" href="/salary.css?v=10">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -34,7 +34,7 @@
 
 <main class="sl">
   <header class="sl-top">
-    <div class="sl-brand"><span class="sl-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12M6 9h12M9 4c5 0 6 5 0 5.5L16 20"/></svg></span><div><h1>স্যালারি কত?</h1><span class="sl-pill">পরীক্ষামূলক (বিটা)</span></div></div>
+    <div class="sl-brand"><span class="sl-logo" aria-hidden="true">৳</span><div><h1>স্যালারি কত?</h1><span class="sl-pill">পরীক্ষামূলক (বিটা)</span></div></div>
     <div class="sl-seg" role="tablist" aria-label="কী করতে চান"><button type="button" class="on" data-tab="calc" role="tab" aria-selected="true">আমার স্যালারি</button><button type="button" data-tab="offer" role="tab" aria-selected="false">অফার যাচাই</button></div>
   </header>
 
@@ -241,7 +241,7 @@
     let h = '';
     if(rtab === 'how' && !e.fixed) h = rows(e);
     else if((rtab === 'how' || rtab === 'up') && e.fixed) h = '<p class="sl-small">সরকারি পদে স্যালারি দক্ষতা বা দরকষাকষিতে বদলায় না, পদ আর গ্রেডে ঠিক হয়। বাড়তে হলে বিসিএস বা উঁচু গ্রেডের পদে যেতে হয়।</p>';
-    else if(rtab === 'up'){ const wi = E.whatIf(p).slice(0, 6); h = wi.length ? '<ul class="sl-rows">' + wi.map(x => wrow(x.name, '+' + tk(x.add), 'up', x.add / wi[0].add * 100)).join('') + '</ul><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p>' : '<p class="sl-small">আপনি প্রায় সব দক্ষতাই বেছে নিয়েছেন।</p>'; }
+    else if(rtab === 'up'){ const wi = E.whatIf(p).slice(0, 5); h = wi.length ? '<ul class="sl-rows">' + wi.map(x => wrow(x.name, '+' + tk(x.add), 'up', x.add / wi[0].add * 100)).join('') + '</ul><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p>' : '<p class="sl-small">আপনি প্রায় সব দক্ষতাই বেছে নিয়েছেন।</p>'; }
     else if(rtab === 'say' && o){ const s = say(o); h = '<div class="sl-say">' + esc(s[0]) + '</div><ul class="sl-ul">' + s.slice(1).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul><p class="sl-small">স্যালারি কম মানে চাকরি ছেড়ে দেওয়া নয়। আগে জিজ্ঞেস করুন, তুলনা করুন, আর নিজের দক্ষতা বাড়ানোর পথ দেখুন।</p>'; }
     else h = '<ul class="sl-ul">' + e.notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul>';
     body.innerHTML = h;
