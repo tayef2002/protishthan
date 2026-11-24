@@ -1,58 +1,113 @@
-/* /salary: ন্যায্য বেতন (beta, hidden). One indigo accent, neutral surfaces, like the other pages of the league. */
+/* /salary: স্যালারি কত? (beta, hidden). A two-pane tool: the form on the left, the answer always in view on the right (a bottom sheet on a phone). One indigo accent. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ac:#4F46E5;--ac2:#4338CA;--acs:#EEF2FF;--ink:#0F172A;--tx:#1E293B;--tx2:#475569;--tx3:#64748B;--ln:#E5E7EB;--bg:#F8FAFC;--card:#fff;--ok:#059669;--oks:#ECFDF5;--bad:#DC2626;--bads:#FEF2F2;--warn:#B45309;--warns:#FEF3C7}
-body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--tx);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+:root{--ac:#4F46E5;--ac2:#4338CA;--acs:#EEF2FF;--ink:#0F172A;--tx:#1E293B;--tx2:#475569;--tx3:#64748B;--ln:#E2E8F0;--bg:#F6F7FB;--card:#fff;--ok:#059669;--oks:#ECFDF5;--bad:#DC2626;--bads:#FEF2F2;--warn:#B45309;--warns:#FEF3C7;--r:16px;--sh:0 1px 2px rgba(15,23,42,.05),0 12px 32px -16px rgba(15,23,42,.18)}
+html{scroll-behavior:smooth}
+body{font-family:'Hind Siliguri','Inter',sans-serif;color:var(--tx);background:var(--bg);line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:var(--ac)}
 button,input,select{font-family:inherit;font-size:inherit;color:inherit}
-.sl{max-width:760px;width:calc(100% - 28px);margin:0 auto;padding:96px 0 72px}
-.sl :focus-visible{outline:3px solid rgba(79,70,229,.4);outline-offset:2px;border-radius:12px}
+svg{width:1em;height:1em;flex:none}
+.sl{max-width:1040px;width:calc(100% - 28px);margin:0 auto;padding:88px 0 40px}
+.sl :focus-visible,.sl-dlg :focus-visible{outline:3px solid rgba(79,70,229,.4);outline-offset:2px;border-radius:10px}
 .sl [hidden]{display:none!important}
-.sl-hero{text-align:center;margin-bottom:16px}
-.sl-kick{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:#B45309;background:#FEF3C7;border-radius:100px;padding:5px 14px}
-.sl-hero h1{margin:12px 0 4px;font-size:clamp(30px,6.5vw,46px);line-height:1.22;color:var(--ink);letter-spacing:-.5px}
-.sl-hero h1 span{color:#4F46E5}
-.sl-hero p{color:var(--tx2);font-size:15.5px;max-width:560px;margin:0 auto}
-.sl-beta{margin:0 0 14px;padding:12px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:14px;font-size:14px;color:#92400E;line-height:1.65}
-.sl-tabs{display:inline-flex;gap:2px;padding:3px;background:#F1F5F9;border-radius:11px;margin-bottom:12px}
-.sl-tab{border:0;background:transparent;border-radius:8px;padding:7px 18px;min-height:38px;font:600 15px 'Hind Siliguri','Inter',sans-serif;color:var(--tx2);cursor:pointer}
-.sl-tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.14)}
-.sl-card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px -12px rgba(15,23,42,.12);margin-bottom:14px}
-.sl-card h2{font-size:18px;color:var(--ink);margin-bottom:10px}
-.sl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
-.sl-f{display:flex;flex-direction:column;gap:3px}
+
+/* top */
+.sl-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sl-top h1{font-size:clamp(26px,5vw,34px);line-height:1.2;color:var(--ink);letter-spacing:-.4px}
+.sl-pill{font-size:12px;font-weight:800;color:#92400E;background:#FEF3C7;border-radius:100px;padding:2px 10px;letter-spacing:.2px}
+.sl-top p{flex-basis:100%;color:var(--tx2);font-size:15px;max-width:640px}
+.sl-link{border:0;background:none;color:var(--ac);font-weight:700;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+
+/* the two panes */
+.sl-app{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+.sl-panel{background:var(--card);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh);padding:18px 18px 16px}
+.sl-seg{display:inline-flex;gap:2px;padding:3px;background:#F1F5F9;border-radius:12px;margin-bottom:14px}
+.sl-seg button{border:0;background:transparent;border-radius:9px;padding:7px 16px;min-height:38px;font:600 14.5px 'Hind Siliguri','Inter',sans-serif;color:var(--tx2);cursor:pointer}
+.sl-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.15)}
+.sl-offer{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 12px;border:1.5px solid #C7D2FE;border-radius:14px;background:#F5F7FF}
+.sl-offer span{font-weight:800;color:var(--ac2);font-size:20px}
+.sl-offer input{flex:1;min-width:0;border:0;background:transparent;font:700 22px 'Hind Siliguri','Inter',sans-serif;outline:0;color:var(--ink)}
+.sl-offer label{font-size:12.5px;font-weight:700;color:var(--tx3);display:block}
+.sl-dots{display:none}
+.sl-step{border:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-bottom:12px}
+.sl-step>legend{display:none}
+.sl-f{display:flex;flex-direction:column;gap:3px;min-width:0}
 .sl-f.full{grid-column:1/-1}
-.sl-f label{font-size:13.5px;font-weight:700;color:var(--tx2)}
-.sl-f select,.sl-f input{min-height:46px;border:1.5px solid #CBD5E1;border-radius:12px;background:#fff;padding:0 12px;width:100%}
-.sl-f small{font-size:12.5px;color:var(--tx3)}
-.sl-sk{margin-top:6px}
-.sl-sk h3{font-size:13.5px;color:var(--tx3);font-weight:700;margin:10px 0 6px}
+.sl-f label,.sl-f .lb{font-size:12.5px;font-weight:700;color:var(--tx3);letter-spacing:.1px}
+.sl-f select,.sl-f input,.sl-skbtn{min-height:46px;border:1.5px solid #CBD5E1;border-radius:12px;background:#fff;padding:0 12px;width:100%;transition:border-color .15s,box-shadow .15s}
+.sl-f select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px;padding-right:36px}
+.sl-f select:hover,.sl-f input:hover,.sl-skbtn:hover{border-color:#94A3B8}
+.sl-f select:focus,.sl-f input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,70,229,.15);outline:0}
+.sl-skbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;font-weight:600;color:var(--ink)}
+.sl-skbtn b{background:var(--acs);color:var(--ac2);border-radius:100px;padding:0 10px;font-size:13px}
+.sl-sel{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sl-sel span{font-size:12.5px;font-weight:600;background:#F1F5F9;border-radius:100px;padding:1px 10px;color:var(--tx2)}
+.sl-nav{display:none}
+
+/* the answer */
+.sl-result{background:var(--card);border:1px solid #C7D2FE;border-radius:var(--r);box-shadow:var(--sh);position:sticky;top:90px;overflow:hidden}
+.sl-rh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 6px}
+.sl-rh .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#92400E;background:#FEF3C7;border-radius:100px;padding:1px 10px}
+.sl-rh .tx{font-size:13px;color:var(--tx3);font-weight:600}
+.sl-grab{display:none;border:0;background:#F1F5F9;border-radius:100px;width:36px;height:36px;cursor:pointer;color:var(--tx2);font-size:18px;place-items:center}
+.sl-big{padding:0 18px;font-size:clamp(34px,6vw,44px);font-weight:800;color:var(--ink);line-height:1.15;letter-spacing:-.5px}
+.sl-big small{font-size:14px;font-weight:600;color:var(--tx3);letter-spacing:0;margin-left:6px}
+.sl-vd{display:inline-block;font-size:22px;font-weight:800;border-radius:12px;padding:2px 16px}
+.sl-vd.bad{background:var(--bads);color:#B91C1C}.sl-vd.low{background:var(--warns);color:#92400E}.sl-vd.fair{background:var(--oks);color:#047857}.sl-vd.good{background:#DBEAFE;color:#1E40AF}
+.sl-sub{padding:2px 18px 0;font-size:14px;color:var(--tx2)}
+.sl-sub b{color:var(--ink)}
+.sl-bar{position:relative;height:12px;border-radius:100px;background:#E0E7FF;margin:26px 22px 34px}
+.sl-bar i{position:absolute;top:0;bottom:0;border-radius:100px;background:linear-gradient(90deg,#A5B4FC,#818CF8)}
+.sl-bar u{position:absolute;top:-6px;width:4px;height:24px;border-radius:3px;background:var(--ink);text-decoration:none}
+.sl-bar em{position:absolute;top:-8px;width:16px;height:28px;margin-left:-8px;border-radius:6px;background:var(--bad);box-shadow:0 0 0 3px #fff}
+.sl-bar span{position:absolute;top:22px;transform:translateX(-50%);font-size:11.5px;color:var(--tx3);white-space:nowrap;font-weight:600}
+.sl-bar span.t{top:-24px;color:var(--ink);font-weight:800}
+.sl-rtabs{display:flex;gap:2px;padding:0 14px;border-bottom:1px solid var(--ln)}
+.sl-rtabs button{border:0;background:none;padding:9px 12px;font:600 14px 'Hind Siliguri','Inter',sans-serif;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.sl-rtabs button.on{color:var(--ac2);border-bottom-color:var(--ac)}
+.sl-rbody{padding:12px 18px 16px;max-height:250px;overflow:auto}
+.sl-rows{list-style:none;display:grid;gap:0}
+.sl-rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px;padding:7px 0;border-top:1px solid #F1F5F9}
+.sl-rows li:first-child{border-top:0}
+.sl-rows .d{font-weight:700;white-space:nowrap}.sl-rows .d.up{color:var(--ok)}.sl-rows .d.dn{color:var(--bad)}
+.sl-say{padding:10px 12px;background:#F8FAFC;border-left:4px solid #A5B4FC;border-radius:8px;font-size:14px;color:var(--tx);margin-bottom:8px}
+.sl-ul{padding-left:18px;font-size:14px;color:var(--tx2);line-height:1.75;display:grid;gap:3px}
+.sl-small{font-size:12.5px;color:var(--tx3);margin-top:8px;line-height:1.6}
+.sl-empty{padding:26px 22px 28px;text-align:center;color:var(--tx2)}
+.sl-empty svg{font-size:34px;color:#A5B4FC;margin-bottom:6px}
+.sl-empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:2px}
+
+/* dialogs (skills, method) */
+.sl-dlg{border:0;border-radius:18px;padding:0;width:min(560px,calc(100% - 24px));max-height:86vh;box-shadow:0 24px 70px -20px rgba(15,23,42,.5);color:var(--tx)}
+.sl-dlg::backdrop{background:rgba(15,23,42,.45)}
+.sl-dh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px 8px}
+.sl-dh h2{font-size:18px;color:var(--ink)}
+.sl-dx{border:0;background:#F1F5F9;border-radius:100px;width:34px;height:34px;cursor:pointer;font-size:18px;color:var(--tx2)}
+.sl-db{padding:6px 18px 12px;overflow:auto;max-height:calc(86vh - 130px)}
+.sl-db h3{font-size:12.5px;color:var(--tx3);font-weight:700;margin:12px 0 6px}
+.sl-db p,.sl-db li{font-size:14px;color:var(--tx2);line-height:1.75}.sl-db ul{padding-left:20px;display:grid;gap:3px;margin-top:4px}
 .sl-chips{display:flex;flex-wrap:wrap;gap:8px}
 .sl-chip{border:1.5px solid #CBD5E1;background:#fff;border-radius:100px;padding:6px 14px;min-height:38px;font:600 14px 'Hind Siliguri','Inter',sans-serif;color:var(--tx2);cursor:pointer;text-align:left}
-.sl-chip.on{background:#EEF2FF;border-color:#4F46E5;color:#3730A3}
-.sl-btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border:0;border-radius:12px;background:#4F46E5;color:#fff;font:700 17px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;width:100%;margin-top:14px}
-.sl-btn:hover{background:#4338CA}
-.sl-res{border-color:#C7D2FE}
-.sl-badge{display:inline-block;font-size:12.5px;font-weight:800;border-radius:100px;padding:1px 12px;background:#FEF3C7;color:#92400E}
-.sl-big{font-size:clamp(34px,8vw,48px);font-weight:800;color:var(--ink);line-height:1.15;margin:6px 0 0}
-.sl-big small{font-size:15px;font-weight:600;color:var(--tx3)}
-.sl-line{font-size:15px;color:var(--tx2);margin-top:4px}
-.sl-line b{color:var(--ink)}
-.sl-bar{position:relative;height:14px;border-radius:100px;background:#E0E7FF;margin:22px 4px 30px}
-.sl-bar i{position:absolute;top:0;bottom:0;border-radius:100px;background:#A5B4FC}
-.sl-bar u{position:absolute;top:-5px;width:4px;height:24px;border-radius:3px;background:var(--ink);text-decoration:none}
-.sl-bar span{position:absolute;top:22px;transform:translateX(-50%);font-size:12px;color:var(--tx3);white-space:nowrap}
-.sl-steps{list-style:none;display:grid;gap:6px;margin-top:6px}
-.sl-steps li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14.5px;padding:6px 0;border-top:1px solid #F1F5F9}
-.sl-steps li:first-child{border-top:0}
-.sl-steps .d{font-weight:700;white-space:nowrap}.sl-steps .d.up{color:var(--ok)}.sl-steps .d.dn{color:var(--bad)}
-.sl-verdict{display:inline-block;font-size:20px;font-weight:800;border-radius:12px;padding:4px 16px;margin:4px 0}
-.sl-verdict.bad{background:var(--bads);color:#B91C1C}.sl-verdict.low{background:var(--warns);color:#92400E}.sl-verdict.fair{background:var(--oks);color:#047857}.sl-verdict.good{background:#DBEAFE;color:#1E40AF}
-.sl-list{padding-left:20px;font-size:14.5px;color:var(--tx2);line-height:1.8;display:grid;gap:3px}
-.sl-say{margin-top:8px;padding:12px 14px;background:#F8FAFC;border-left:4px solid #A5B4FC;border-radius:8px;font-size:14.5px;color:var(--tx)}
-.sl-wi{display:grid;gap:6px}
-.sl-wi div{display:flex;justify-content:space-between;gap:10px;font-size:14.5px;padding:6px 0;border-top:1px solid #F1F5F9}.sl-wi div:first-child{border-top:0}.sl-wi b{color:var(--ok)}
-.sl-met summary{cursor:pointer;font-weight:700;color:var(--ink);padding:4px 0}
-.sl-met p,.sl-met li{font-size:14px;color:var(--tx2);line-height:1.75}
-.sl-met ul{padding-left:20px;margin-top:4px}
-.sl-small{font-size:13px;color:var(--tx3);margin-top:8px}
-@media(max-width:560px){.sl{padding-top:84px}.sl-grid{grid-template-columns:1fr}.sl-card{padding:16px 14px}}
+.sl-chip.on{background:var(--acs);border-color:var(--ac);color:#3730A3}
+.sl-df{padding:10px 18px 16px;border-top:1px solid var(--ln)}
+.sl-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:700 16px 'Hind Siliguri','Inter',sans-serif;cursor:pointer;width:100%}
+.sl-btn:hover{background:var(--ac2)}
+.sl-btn.ghost{background:#fff;color:var(--tx);border:1.5px solid #CBD5E1}.sl-btn.ghost:hover{background:#F1F5F9}
+
+/* a phone: one step at a time, the answer is a bottom sheet that is always at hand */
+@media(max-width:940px){
+  .sl{padding:78px 0 120px}
+  .sl-app{grid-template-columns:1fr}
+  .sl-dots{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .sl-dots i{flex:1;height:5px;border-radius:100px;background:#E2E8F0}.sl-dots i.on{background:var(--ac)}
+  .sl-dots span{font-size:12.5px;font-weight:700;color:var(--tx3);white-space:nowrap}
+  .sl-step{display:none}.sl-step.on{display:grid}
+  .sl-nav{display:flex;gap:10px;margin-top:6px}.sl-nav .sl-btn{flex:1}
+  .sl-nav .sl-btn.ghost{flex:0 0 40%}
+  .sl-result{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;border-radius:20px 20px 0 0;border-bottom:0;max-height:86vh;overflow:auto;box-shadow:0 -10px 40px -12px rgba(15,23,42,.35)}
+  .sl-result:not(.open) .sl-rtabs,.sl-result:not(.open) .sl-rbody,.sl-result:not(.open) .sl-bar,.sl-result:not(.open) .sl-sub{display:none}
+  .sl-result:not(.open) .sl-big{padding-bottom:12px}
+  .sl-grab{display:grid}
+  .sl-rbody{max-height:none}
+}
+@media(max-width:560px){.sl-step{grid-template-columns:1fr}.sl-panel{padding:16px 14px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.sl-f select,.sl-f input{transition:none}}
