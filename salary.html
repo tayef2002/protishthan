@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/salary.css?v=4">
+<link rel="stylesheet" href="/salary.css?v=6">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -35,7 +35,6 @@
 <main class="sl">
   <header class="sl-top">
     <h1>স্যালারি কত?</h1><span class="sl-pill">পরীক্ষামূলক (বিটা)</span>
-    <p>শিক্ষা, অভিজ্ঞতা আর দক্ষতা দিন, বাংলাদেশে সাধারণত কত স্যালারি চাওয়া যায়, সীমাসহ সঙ্গে সঙ্গে দেখুন। এটা এখনও <b>অনুমান</b>, আসল স্যালারির তথ্য জমলে আরও নির্ভুল হবে। <button type="button" class="sl-link" data-dlg="slMet">কীভাবে হিসাব হয়?</button></p>
   </header>
 
   <div class="sl-app">
@@ -44,19 +43,19 @@
       <div class="sl-offer" id="slOfferBox" hidden><span>৳</span><div style="flex:1;min-width:0"><label for="slOffer">আপনাকে কত অফার করেছে? (মাসে)</label><input id="slOffer" type="number" min="1000" step="500" inputmode="numeric" placeholder="যেমন ১৮০০০"></div></div>
       <div class="sl-dots" id="slDots" aria-hidden="true"></div>
       <form id="slForm" autocomplete="off" onsubmit="return false">
-        <fieldset class="sl-step on" data-step="1"><legend>কাজ ও শিক্ষা</legend>
+        <fieldset class="sl-step on" data-step="1" data-t="১ · কাজ ও শিক্ষা"><legend>কাজ ও শিক্ষা</legend>
           <div class="sl-f full"><label for="slFamily">কোন ধরনের কাজ?</label><select id="slFamily"></select></div>
           <div class="sl-f full" id="slRoleBox" hidden><label for="slRole" id="slRoleLb">পদ বা কাজ</label><select id="slRole"></select></div>
           <div class="sl-f"><label for="slEdu">সর্বোচ্চ শিক্ষা</label><select id="slEdu"></select></div>
           <div class="sl-f" id="slCgpaBox"><label for="slCgpa">CGPA (ঐচ্ছিক)</label><input id="slCgpa" type="number" step="0.01" min="1" max="4" inputmode="decimal" placeholder="যেমন ৩.৫০"></div>
         </fieldset>
-        <fieldset class="sl-step" data-step="2"><legend>অভিজ্ঞতা ও জায়গা</legend>
+        <fieldset class="sl-step" data-step="2" data-t="২ · অভিজ্ঞতা ও জায়গা"><legend>অভিজ্ঞতা ও জায়গা</legend>
           <div class="sl-f"><label for="slExp">কাজের অভিজ্ঞতা</label><select id="slExp"></select></div>
           <div class="sl-f"><label for="slCity">কোথায় কাজ?</label><select id="slCity"></select></div>
           <div class="sl-f"><label for="slEmp">কেমন প্রতিষ্ঠান?</label><select id="slEmp"></select></div>
           <div class="sl-f"><label for="slJob">কাজের ধরন</label><select id="slJob"></select></div>
         </fieldset>
-        <fieldset class="sl-step" data-step="3"><legend>কাজের বিবরণ ও দক্ষতা</legend>
+        <fieldset class="sl-step" data-step="3" data-t="৩ · কাজের বিবরণ ও দক্ষতা"><legend>কাজের বিবরণ ও দক্ষতা</legend>
           <div id="slExtras" class="sl-extras"></div>
           <div class="sl-f full"><span class="lb">দক্ষতা ও প্রমাণ (যা সত্যিই পারেন)</span><button type="button" class="sl-skbtn" id="slSkBtn" aria-haspopup="dialog"><span>দক্ষতা বেছে নিন</span><b id="slSkCount">০</b></button><div class="sl-sel" id="slSel"></div></div>
         </fieldset>
@@ -65,12 +64,21 @@
     </section>
 
     <aside class="sl-result" id="slRes" aria-live="polite" aria-label="আপনার স্যালারির অনুমান">
-      <div class="sl-rh"><span class="tag">অনুমান</span><span class="tx" id="slRtx">সম্ভাব্য মাসিক স্যালারি</span><button type="button" class="sl-grab" id="slGrab" aria-label="বিস্তারিত দেখুন" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></div>
+      <div class="sl-head">
+        <div class="sl-rh"><span class="tag">অনুমান</span><span class="tx" id="slRtx">সম্ভাব্য মাসিক স্যালারি</span><button type="button" class="sl-grab" id="slGrab" aria-label="বিস্তারিত দেখুন" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></div>
+        <div id="slHero"></div>
+      </div>
       <div id="slTop"></div>
       <div class="sl-rtabs" id="slRtabs" role="tablist"></div>
       <div class="sl-rbody" id="slRbody"></div>
     </aside>
   </div>
+
+  <section class="sl-about" aria-label="এই টুল সম্পর্কে">
+    <div class="sl-ab"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></span><h2>কী পাবেন</h2><p>শিক্ষা, অভিজ্ঞতা আর দক্ষতা দিন, বাংলাদেশে সাধারণত কত স্যালারি চাওয়া যায়, সীমাসহ সঙ্গে সঙ্গে দেখুন। অফার পেলে সেটা ন্যায্য কি না যাচাই করুন।</p></div>
+    <div class="sl-ab"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></span><h2>কতটা নির্ভরযোগ্য</h2><p>এটা এখনও <b>অনুমান</b>। সরকারি জরিপের গড় থেকে শুরু করে হিসাব করা হয়, আসল স্যালারির তথ্য জমলে আরও নির্ভুল হবে। সরকারি পে-স্কেল আর গার্মেন্টসের ন্যূনতম মজুরি নিয়মে বাঁধা, সেগুলো আলাদা ধরা হয়।</p></div>
+    <div class="sl-ab"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg></span><h2>কীভাবে হিসাব হয়</h2><p>প্রতিটা ধাপ ডান পাশের "হিসাব" ট্যাবে দেখা যায়। <button type="button" class="sl-link" data-dlg="slMet">পদ্ধতি ও সূত্র দেখুন</button></p></div>
+  </section>
 </main>
 
 <dialog class="sl-dlg" id="slSkDlg" aria-labelledby="slSkT">
@@ -186,11 +194,17 @@
   function countTo(el, to, fmt){ if(reduce || !lastMid){ el.textContent = fmt(to); return; } const from = lastMid, t0 = performance.now(); const tick = t => { const k = Math.min(1, (t - t0) / 320), v = from + (to - from) * (1 - Math.pow(1 - k, 3)); el.textContent = fmt(v); if(k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
   function bar(e, offerAmt){
     const lo = Math.min(e.p10, offerAmt || e.p10) * 0.97, hi = Math.max(e.p90, offerAmt || e.p90) * 1.03, pos = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
-    return '<div class="sl-bar" aria-hidden="true"><i style="left:' + pos(e.p25) + '%;width:' + (pos(e.p75) - pos(e.p25)) + '%"></i><u style="left:calc(' + pos(e.mid) + '% - 2px)"></u>' +
+    const seg = (a, b, c) => '<i class="' + c + '" style="left:' + pos(a) + '%;width:' + (pos(b) - pos(a)) + '%"></i>';
+    return '<div class="sl-bar" aria-hidden="true">' + seg(e.p10, e.p25, 'z1') + seg(e.p25, e.p75, 'z2') + seg(e.p75, e.p90, 'z3') + '<u style="left:calc(' + pos(e.mid) + '% - 2px)"></u>' +
       (offerAmt ? '<em style="left:' + pos(offerAmt) + '%"></em><span class="t" style="left:' + pos(offerAmt) + '%;' + (pos(offerAmt) < 22 ? 'transform:none;margin-left:-6px' : pos(offerAmt) > 78 ? 'transform:translateX(-100%);margin-left:6px' : '') + '">আপনার অফার ' + tk(offerAmt) + '</span>' : '') +
       '<span style="left:' + pos(e.p10) + '%">' + tk(e.show.p10) + '</span><span style="left:' + pos(e.mid) + '%">' + tk(e.show.mid) + '</span><span style="left:' + pos(e.p90) + '%">' + tk(e.show.p90) + '</span></div>';
   }
-  const rows = e => '<ul class="sl-rows">' + e.steps.map((s, i) => i === 0 ? '<li><span>' + esc(bn(s.label)) + '</span><span class="d">' + tk(s.v) + '</span></li>' : (Math.abs(s.delta) < 50 ? '' : '<li><span>' + esc(bn(s.label)) + '</span><span class="d ' + (s.delta > 0 ? 'up' : 'dn') + '">' + (s.delta > 0 ? '+' : '−') + tk(Math.abs(s.delta)) + '</span></li>')).join('') + '</ul>';
+  const tiles = e => '<div class="sl-tiles"><div class="t1"><small>এর নিচে হলে কম</small><b>' + tk(e.show.p25) + '</b></div><div class="t2"><small>সম্ভাব্য</small><b>' + tk(e.show.mid) + '</b></div><div class="t3"><small>ভালো দর</small><b>' + tk(e.show.p75) + '</b></div></div>';
+  /* a hundred people: as many as the offer beats are filled */
+  const people = (pct, tone) => { const n = Math.round(pct); let h = ''; for(let i = 0; i < 100; i++) h += '<i' + (i < n ? ' class="on ' + tone + '"' : '') + '></i>'; return '<div class="sl-ppl" aria-hidden="true">' + h + '</div>'; };
+  const wrow = (name, val, cls, w) => '<li><div class="rl"><span>' + esc(name) + '</span><span class="d ' + cls + '">' + val + '</span></div><div class="wb"><i class="' + cls + '" style="width:' + Math.max(4, w) + '%"></i></div></li>';
+  const rows = e => { const ds = e.steps.slice(1).filter(s => Math.abs(s.delta) >= 50), mx = Math.max(1, ...ds.map(s => Math.abs(s.delta)));
+    return '<div class="sl-start"><span>' + esc(bn(e.steps[0].label)) + '</span><b>' + tk(e.steps[0].v) + '</b></div><ul class="sl-rows">' + ds.map(s => wrow(bn(s.label), (s.delta > 0 ? '+' : '−') + tk(Math.abs(s.delta)), s.delta > 0 ? 'up' : 'dn', Math.abs(s.delta) / mx * 100)).join('') + '</ul>'; };
   function say(o){
     const e = o.est, a = tk(e.show.p25) + ' থেকে ' + tk(e.show.p75);
     if(o.tone === 'bad' || o.tone === 'low') return ['আমি এই কাজে আমার যোগ্যতা আর অভিজ্ঞতা অনুযায়ী মাসে ' + a + ' আশা করি। আপনাদের স্যালারির সীমা কত? এটা বাড়ানোর কোনো সুযোগ আছে কি?', 'প্রবেশনকালে (শিক্ষানবিশির সময়) কত মাস থাকবে, তখন স্যালারি কত? কবে ইনক্রিমেন্ট হবে, কত?', 'উৎসব বোনাস, ওভারটাইম, যাতায়াত, খাবার আর চিকিৎসার সুবিধা কী কী?'];
@@ -202,7 +216,7 @@
     LS.set('sl_profile', p);
     const top = $('slTop'), tabs = $('slRtabs'), body = $('slRbody');
     if(!p.family){
-      top.innerHTML = '<div class="sl-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><b>কোন ধরনের কাজ?</b>বাঁ দিক থেকে একটা বেছে নিলেই স্যালারির সীমা এখানে দেখাবে।</div>';
+      $('slHero').innerHTML = '<div class="sl-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg><b>কোন ধরনের কাজ?</b>বাঁ দিক থেকে একটা বেছে নিলেই স্যালারির সীমা এখানে দেখাবে।</div>'; top.innerHTML = '';
       tabs.hidden = true; body.hidden = true; $('slRtx').textContent = 'সম্ভাব্য মাসিক স্যালারি'; lastMid = 0; return;
     }
     tabs.hidden = false; body.hidden = false;
@@ -210,12 +224,14 @@
     const amt = tab === 'offer' ? +$('slOffer').value : 0, o = tab === 'offer' && amt >= 1000 ? E.offer(p, amt) : null;
     if(o){
       $('slRtx').textContent = 'আপনার অফারের অবস্থান';
-      top.innerHTML = '<div class="sl-big"><span class="sl-vd ' + o.tone + '">' + esc(o.verdict) + '</span></div><p class="sl-sub">অফার <b>' + tk(amt) + '</b>, বাজার-দর <b>' + tk(e.show.mid) + '</b>। আপনার মতো ১০০ জনের মধ্যে প্রায় <b>' + bn(Math.round(o.pct)) + '</b> জনের স্যালারি এর চেয়ে কম। দরকষাকষির লক্ষ্য <b>' + tk(e.show.p75) + '</b> পর্যন্ত।</p>' + bar(e, amt);
+      $('slHero').innerHTML = '<div class="sl-big"><span class="sl-vd ' + o.tone + '">' + esc(o.verdict) + '</span></div><p class="sl-hs">অফার <b>' + tk(amt) + '</b> · বাজার-দর <b>' + tk(e.show.mid) + '</b></p>';
+      top.innerHTML = '<div class="sl-more">' + people(o.pct, o.tone) + '<p class="sl-sub">আপনার মতো ১০০ জনের মধ্যে প্রায় <b>' + bn(Math.round(o.pct)) + '</b> জনের স্যালারি এর চেয়ে কম। দরকষাকষির লক্ষ্য <b>' + tk(e.show.p75) + '</b> পর্যন্ত।</p>' + bar(e, amt) + '</div>';
       lastMid = 0;
     } else {
       $('slRtx').textContent = tab === 'offer' ? 'ওপরে অফারের অঙ্ক লিখুন' : e.fixed ? 'সরকারি পে-স্কেলে শুরুর মূল বেতন' : 'সম্ভাব্য মাসিক স্যালারি';
-      if(e.fixed) top.innerHTML = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>মূল বেতন, প্রতি মাসে</small></div><p class="sl-sub">সরকারি পদে বেতন নিয়মে বাঁধা, তাই এটা অনুমান নয়। এর ওপর বাড়ি ভাড়া, চিকিৎসা, উৎসব বোনাসসহ ভাতা যোগ হয়।</p>';
-      else top.innerHTML = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>প্রতি মাসে</small></div><p class="sl-sub">এর নিচে হলে কম: <b>' + tk(e.show.p25) + '</b> · ভালো দর: <b>' + tk(e.show.p75) + '</b><br>আপনার মতো ১০ জনের ৮ জনের স্যালারি <b>' + tk(e.show.p10) + '</b> থেকে <b>' + tk(e.show.p90) + '</b> এর মধ্যে।</p>' + bar(e, 0);
+      const big = '<div class="sl-big"><span id="slNum">' + tk(e.show.mid) + '</span><small>' + (e.fixed ? 'মূল বেতন, প্রতি মাসে' : 'প্রতি মাসে') + '</small></div>';
+      if(e.fixed){ $('slHero').innerHTML = big; top.innerHTML = '<div class="sl-more"><p class="sl-sub">সরকারি পদে বেতন নিয়মে বাঁধা, তাই এটা অনুমান নয়। এর ওপর বাড়ি ভাড়া, চিকিৎসা, উৎসব বোনাসসহ ভাতা যোগ হয়।</p></div>'; }
+      else { $('slHero').innerHTML = big; top.innerHTML = '<div class="sl-more">' + tiles(e) + bar(e, 0) + '<p class="sl-sub">আপনার মতো ১০ জনের ৮ জনের স্যালারি <b>' + tk(e.show.p10) + '</b> থেকে <b>' + tk(e.show.p90) + '</b> এর মধ্যে।</p></div>'; }
       countTo($('slNum'), e.show.mid, v => tk(Math.round(v / 100) * 100)); lastMid = e.show.mid;
     }
     const keys = tab === 'offer' && o ? ['say', 'how', 'up'] : ['how', 'up', 'note'], names = { say: 'কী বলবেন', how: 'হিসাব', up: 'বাড়াতে কী', note: 'মনে রাখুন' };
@@ -225,7 +241,7 @@
     let h = '';
     if(rtab === 'how' && !e.fixed) h = rows(e);
     else if((rtab === 'how' || rtab === 'up') && e.fixed) h = '<p class="sl-small">সরকারি পদে স্যালারি দক্ষতা বা দরকষাকষিতে বদলায় না, পদ আর গ্রেডে ঠিক হয়। বাড়তে হলে বিসিএস বা উঁচু গ্রেডের পদে যেতে হয়।</p>';
-    else if(rtab === 'up'){ const wi = E.whatIf(p).slice(0, 6); h = wi.length ? '<ul class="sl-rows">' + wi.map(x => '<li><span>' + esc(x.name) + '</span><span class="d up">+' + tk(x.add) + '</span></li>').join('') + '</ul><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p>' : '<p class="sl-small">আপনি প্রায় সব দক্ষতাই বেছে নিয়েছেন।</p>'; }
+    else if(rtab === 'up'){ const wi = E.whatIf(p).slice(0, 6); h = wi.length ? '<ul class="sl-rows">' + wi.map(x => wrow(x.name, '+' + tk(x.add), 'up', x.add / wi[0].add * 100)).join('') + '</ul><p class="sl-small">এগুলো গড় অনুমান, নিশ্চয়তা নয়। শেখার আগে নিজের কাজের সঙ্গে মিলিয়ে দেখুন।</p>' : '<p class="sl-small">আপনি প্রায় সব দক্ষতাই বেছে নিয়েছেন।</p>'; }
     else if(rtab === 'say' && o){ const s = say(o); h = '<div class="sl-say">' + esc(s[0]) + '</div><ul class="sl-ul">' + s.slice(1).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul><p class="sl-small">স্যালারি কম মানে চাকরি ছেড়ে দেওয়া নয়। আগে জিজ্ঞেস করুন, তুলনা করুন, আর নিজের দক্ষতা বাড়ানোর পথ দেখুন।</p>'; }
     else h = '<ul class="sl-ul">' + e.notes.map(n => '<li>' + esc(n) + '</li>').join('') + '</ul>';
     body.innerHTML = h;
