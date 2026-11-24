@@ -11,17 +11,20 @@ svg{width:1em;height:1em;flex:none}
 .sl [hidden]{display:none!important}
 
 /* top */
-.sl-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.sl-top h1{font-size:clamp(26px,5vw,34px);line-height:1.2;color:var(--ink);letter-spacing:-.4px}
+.sl-top{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin-bottom:18px}
+.sl-brand{display:flex;align-items:center;gap:14px}
+.sl-brand>div{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.sl-logo{display:grid;place-items:center;width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#3B2FC4,#6D5DF6);color:#fff;font-size:28px;box-shadow:0 10px 24px -10px rgba(79,70,229,.7)}
+.sl-top h1{font-size:clamp(26px,5vw,34px);line-height:1.15;color:var(--ink);letter-spacing:-.4px}
 .sl-pill{font-size:12px;font-weight:800;color:#92400E;background:#FEF3C7;border-radius:100px;padding:2px 10px;letter-spacing:.2px}
 .sl-link{border:0;background:none;color:var(--ac);font-weight:700;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
 
 /* the two panes */
 .sl-app{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
 .sl-panel{background:var(--card);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh);padding:18px 18px 16px}
-.sl-seg{display:inline-flex;gap:2px;padding:3px;background:#F1F5F9;border-radius:12px;margin-bottom:14px}
+.sl-seg{display:inline-flex;gap:2px;padding:4px;background:#fff;border:1px solid var(--ln);border-radius:14px;box-shadow:var(--sh)}
 .sl-seg button{border:0;background:transparent;border-radius:9px;padding:7px 16px;min-height:38px;font:600 14.5px 'Hind Siliguri','Inter',sans-serif;color:var(--tx2);cursor:pointer}
-.sl-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.15)}
+.sl-seg button.on{background:var(--ac);color:#fff;box-shadow:0 4px 10px -4px rgba(79,70,229,.7)}
 .sl-offer{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 12px;border:1.5px solid #C7D2FE;border-radius:14px;background:#F5F7FF}
 .sl-offer span{font-weight:800;color:var(--ac2);font-size:20px}
 .sl-offer input{flex:1;min-width:0;border:0;background:transparent;font:700 22px 'Hind Siliguri','Inter',sans-serif;outline:0;color:var(--ink)}
@@ -135,6 +138,8 @@ svg{width:1em;height:1em;flex:none}
   .sl-result:not(.open) .sl-head{padding-bottom:12px}
   .sl-step::before{display:none}
   .sl-about{grid-template-columns:1fr}
+  .sl-seg{width:100%}.sl-seg button{flex:1}
+  .sl-logo{width:46px;height:46px;border-radius:14px;font-size:23px}
   .sl-grab{display:grid}
   .sl-rbody{max-height:none}
 }

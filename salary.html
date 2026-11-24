@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/salary.css?v=6">
+<link rel="stylesheet" href="/salary.css?v=7">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -34,12 +34,12 @@
 
 <main class="sl">
   <header class="sl-top">
-    <h1>স্যালারি কত?</h1><span class="sl-pill">পরীক্ষামূলক (বিটা)</span>
+    <div class="sl-brand"><span class="sl-logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12M6 9h12M9 4c5 0 6 5 0 5.5L16 20"/></svg></span><div><h1>স্যালারি কত?</h1><span class="sl-pill">পরীক্ষামূলক (বিটা)</span></div></div>
+    <div class="sl-seg" role="tablist" aria-label="কী করতে চান"><button type="button" class="on" data-tab="calc" role="tab" aria-selected="true">আমার স্যালারি</button><button type="button" data-tab="offer" role="tab" aria-selected="false">অফার যাচাই</button></div>
   </header>
 
   <div class="sl-app">
     <section class="sl-panel" aria-label="আপনার তথ্য">
-      <div class="sl-seg" role="tablist" aria-label="কী করতে চান"><button type="button" class="on" data-tab="calc" role="tab" aria-selected="true">আমার স্যালারি</button><button type="button" data-tab="offer" role="tab" aria-selected="false">অফার যাচাই</button></div>
       <div class="sl-offer" id="slOfferBox" hidden><span>৳</span><div style="flex:1;min-width:0"><label for="slOffer">আপনাকে কত অফার করেছে? (মাসে)</label><input id="slOffer" type="number" min="1000" step="500" inputmode="numeric" placeholder="যেমন ১৮০০০"></div></div>
       <div class="sl-dots" id="slDots" aria-hidden="true"></div>
       <form id="slForm" autocomplete="off" onsubmit="return false">
