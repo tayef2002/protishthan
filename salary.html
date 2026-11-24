@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="brand.css?v=3">
 <link rel="stylesheet" href="/nav.css?v=19">
 <link rel="stylesheet" href="/footer.css?v=6">
-<link rel="stylesheet" href="/salary.css?v=10">
+<link rel="stylesheet" href="/salary.css?v=11">
 <script src="/analytics.js?v=3" defer></script>
 </head>
 <body>
@@ -132,6 +132,41 @@
   const chosen = new Set(saved.skills || []), extras = Object.assign({}, saved.extras || {});
   let tab = 'calc', rtab = 'how', step = 1, lastMid = 0, lastTrack = 0, picked = false;
 
+  /* ----- custom dropdowns: the native select looks foreign to the design; the hidden native select stays the single source of truth ----- */
+  let ddOpen = null;
+  const ddClose = () => { if(!ddOpen) return; ddOpen.panel.remove(); ddOpen.btn.setAttribute('aria-expanded', 'false'); ddOpen = null; };
+  document.addEventListener('click', e => { if(ddOpen && !e.target.closest('.sl-ddp') && e.target !== ddOpen.btn && !ddOpen.btn.contains(e.target)) ddClose(); });
+  function ddShow(sel, btn){
+    ddClose();
+    const p = document.createElement('div'); p.className = 'sl-ddp'; p.setAttribute('role', 'listbox');
+    p.innerHTML = [...sel.options].map((o, i) => '<button type="button" role="option" data-i="' + i + '" aria-selected="' + (i === sel.selectedIndex) + '">' + esc(o.textContent) + (i === sel.selectedIndex ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>' : '') + '</button>').join('');
+    const f = btn.closest('.sl-f'); f.appendChild(p);
+    const r = btn.getBoundingClientRect(); if(r.bottom + Math.min(p.scrollHeight, 270) + 16 > innerHeight && r.top > 300) p.classList.add('up');
+    btn.setAttribute('aria-expanded', 'true'); ddOpen = { panel: p, btn, sel };
+    const pick = i => { sel.selectedIndex = i; sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); ddClose(); btn.focus(); };
+    p.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if(b) pick(+b.dataset.i); });
+    p.addEventListener('keydown', e => {
+      const bs = [...p.querySelectorAll('[data-i]')], at = bs.indexOf(document.activeElement);
+      if(e.key === 'Escape'){ e.preventDefault(); ddClose(); btn.focus(); }
+      else if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); bs[Math.max(0, Math.min(bs.length - 1, at + (e.key === 'ArrowDown' ? 1 : -1)))].focus(); }
+      else if(e.key === 'Home'){ e.preventDefault(); bs[0].focus(); } else if(e.key === 'End'){ e.preventDefault(); bs[bs.length - 1].focus(); }
+    });
+    const cur = p.querySelector('[aria-selected="true"]') || p.firstElementChild; if(cur){ cur.focus(); cur.scrollIntoView({ block: 'nearest' }); }
+  }
+  function dress(sel){
+    if(sel.dataset.dd){ sel._ddSync(); return; }
+    sel.dataset.dd = '1'; sel.classList.add('sl-nat'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'sl-dd'; btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+    const lb = sel.closest('.sl-f') && sel.closest('.sl-f').querySelector('label'); if(lb) btn.setAttribute('aria-label', lb.textContent);
+    btn.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    sel.after(btn);
+    const sync = () => { const o = sel.options[sel.selectedIndex]; btn.firstElementChild.textContent = o ? o.textContent : ''; btn.disabled = sel.disabled; };
+    sel._ddSync = sync; sync(); sel.addEventListener('change', sync); sel.addEventListener('input', sync);
+    btn.addEventListener('click', () => { ddOpen && ddOpen.btn === btn ? ddClose() : ddShow(sel, btn); });
+    btn.addEventListener('keydown', e => { if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); ddShow(sel, btn); } });
+  }
+  const dressAll = () => document.querySelectorAll('#slForm select').forEach(dress);
+
   /* ----- the skills dialog ----- */
   const famSkills = () => { const f = fam($('slFamily').value); return f ? f.skills.map(id => D.skills.find(s => s.id === id)).filter(Boolean) : []; };
   function buildSkills(){
@@ -148,7 +183,7 @@
     $('slEmp').disabled = !f;
     $('slExtras').innerHTML = f ? (f.extras || []).map(q => '<div class="sl-f full"><label for="slx_' + q.id + '">' + esc(q.name) + '</label><select id="slx_' + q.id + '" data-q="' + q.id + '">' + opt(q.options, extras[q.id] || q.options[0].id) + '</select></div>').join('') : '';
     $('slExtras').querySelectorAll('select').forEach(s => { extras[s.dataset.q] = s.value; s.addEventListener('input', () => { extras[s.dataset.q] = s.value; render(); }); });
-    $('slSkBtn').disabled = !f; buildSkills();
+    $('slSkBtn').disabled = !f; buildSkills(); dressAll();
   }
   const paintChips = () => document.querySelectorAll('#slSkList .sl-chip').forEach(b => { const on = chosen.has(b.dataset.id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   const paintSel = () => {

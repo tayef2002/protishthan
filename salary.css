@@ -33,7 +33,7 @@ svg{width:1em;height:1em;flex:none}
 .sl-step{border:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-bottom:16px}
 .sl-step>legend{display:none}
 .sl-step::before{content:attr(data-t);grid-column:1/-1;font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--ac2);padding-bottom:6px;border-bottom:1px solid var(--ln)}
-.sl-f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.sl-f{display:flex;flex-direction:column;gap:3px;min-width:0;position:relative}
 .sl-f.full{grid-column:1/-1}
 .sl-f label,.sl-f .lb{font-size:12.5px;font-weight:700;color:var(--tx3);letter-spacing:.1px}
 .sl-f select,.sl-f input,.sl-skbtn{min-height:46px;border:1.5px solid #CBD5E1;border-radius:12px;background:#fff;padding:0 12px;width:100%;transition:border-color .15s,box-shadow .15s}
@@ -146,3 +146,22 @@ svg{width:1em;height:1em;flex:none}
 @media(max-width:560px){.sl-step{grid-template-columns:1fr}.sl-panel{padding:16px 14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.sl-f select,.sl-f input{transition:none}}
 .sl-extras{display:contents}
+
+/* custom dropdowns */
+.sl-nat{position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;opacity:0;pointer-events:none;border:0!important;padding:0!important;clip:rect(0 0 0 0)}
+.sl-dd{min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid #CBD5E1;border-radius:12px;background:#fff;padding:0 12px;width:100%;cursor:pointer;text-align:left;font:500 15px 'Hind Siliguri','Inter',sans-serif;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.sl-dd:hover{border-color:#94A3B8}
+.sl-dd:disabled{color:var(--tx3);background:#F8FAFC;cursor:not-allowed}
+.sl-dd[aria-expanded="true"]{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+.sl-dd>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-dd>svg{color:#64748B;font-size:16px;transition:transform .15s}
+.sl-dd[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.sl-ddp{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:45;background:#fff;border:1px solid var(--ln);border-radius:14px;box-shadow:0 4px 10px rgba(15,23,42,.06),0 24px 60px -16px rgba(15,23,42,.35);padding:6px;max-height:270px;overflow:auto;overscroll-behavior:contain;animation:slddp .13s ease}
+.sl-ddp.up{top:auto;bottom:calc(100% + 6px);animation-name:slddpu}
+@keyframes slddp{from{opacity:0;transform:translateY(-5px)}}
+@keyframes slddpu{from{opacity:0;transform:translateY(5px)}}
+.sl-ddp button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:none;text-align:left;padding:9px 11px;border-radius:9px;font:500 14.5px 'Hind Siliguri','Inter',sans-serif;color:var(--tx);cursor:pointer}
+.sl-ddp button:hover,.sl-ddp button:focus-visible{background:#F1F5F9;outline:0}
+.sl-ddp button[aria-selected="true"]{background:var(--acs);color:var(--ac2);font-weight:700}
+.sl-ddp button svg{color:var(--ac);font-size:15px}
+@media(prefers-reduced-motion:reduce){.sl-ddp{animation:none}.sl-dd>svg{transition:none}}
