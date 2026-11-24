@@ -10,7 +10,9 @@
   function erf(x){ var s = x < 0 ? -1 : 1; x = Math.abs(x); var t = 1 / (1 + 0.3275911 * x), y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
   var cdf = function(z){ return 0.5 * (1 + erf(z / Math.SQRT2)); };
   var Z = { p10: -1.2816, p25: -0.6745, p75: 0.6745, p90: 1.2816 };
-  var expF = function(e){ e = clip(e, 0, P.expMax); return Math.exp(P.expB1 * e + P.expB2 * e * e); };
+  /* the curve of pay with experience: each group has its own slope (the formal market climbs faster in a profession than in plain work),
+     and the curve goes FLAT at its own peak (b1 / 2|b2|), it never turns down */
+  var expF = function(e, b1){ b1 = b1 || P.expB1; e = clip(e, 0, Math.min(P.expMax, b1 / (2 * -P.expB2))); return Math.exp(b1 * e + P.expB2 * e * e); };
   var round100 = function(v){ return Math.round(v / 100) * 100; };
   var fam = function(id){ return by(D.families, id); };
 
@@ -35,7 +37,9 @@
     var add = function(k, label, factor){ var next = cur * factor; steps.push({ k: k, label: label, v: next, delta: next - cur }); cur = next; };
     if(role) add('role', 'পদ: ' + role.name, role.mult);
     add('edu', 'শিক্ষা: ' + edu.name, clip(Math.exp((P.eduReturnBy[grp.id] || P.eduReturn) * (edu.years - grp.typicalYears)), P.eduClip[0], P.eduClip[1]));
-    add('exp', 'অভিজ্ঞতা: ' + exp + ' বছর', expF(exp) / expF(P.expRef));
+    var eb1 = (P.expB1By || {})[grp.id] || P.expB1, ef = expF(exp, eb1) / expF(P.expRef, eb1);
+    if(emp && emp.flat) ef = Math.pow(ef, emp.flat);     // in a scale-bound house (government, MPO) experience moves the pay by the rule book, far more slowly than the open market
+    add('exp', 'অভিজ্ঞতা: ' + exp + ' বছর', ef);
     if(city) add('city', 'শহর: ' + city.name, city.mult);
     if(emp) add('emp', 'প্রতিষ্ঠান: ' + emp.name, emp.mult);
     var floorFromGrade = null;
@@ -50,6 +54,9 @@
     if(f.id === 'operator' && job.id === 'full'){ floor = floorFromGrade || P.garmentFloor; floorKind = 'garment'; notes.push(f.note); }
     else if(f.note) notes.push(f.note);
     if(role && role.gov && emp && emp.govt && job.id === 'full'){ floor = P.gov.grade9Basic; floorKind = 'gov'; notes.push('সরকারি হাসপাতালে প্রথম শ্রেণির চাকরি ৯ম গ্রেডে শুরু: মূল বেতন কমপক্ষে ' + P.gov.grade9Basic + ' টাকা, এর ওপর ভাতা যোগ হয়। তাই এর নিচে দেখানো হয় না।'); }
+    /* Bangladesh Bank's rule (circular of 2022, in force): the pay of an entry officer of a private bank may not sit under 28,000 on probation, 39,000 once confirmed */
+    if(!floor && f.id === 'bank' && job.id === 'full' && emp && (emp.id === 'private' || emp.id === 'foreign') && role && ['officer', 'credit', 'forex', 'rm', 'branch'].indexOf(role.id) >= 0){ floor = exp < 1 ? P.bankFloorProb : P.bankFloor; floorKind = 'bank'; notes.push('বাংলাদেশ ব্যাংকের নিয়মে বেসরকারি ব্যাংকের অফিসারের বেতন প্রবেশনে কমপক্ষে ' + P.bankFloorProb + ', নিশ্চিতকরণের পরে ' + P.bankFloor + ' টাকা। তাই এর নিচে দেখানো হয় না।'); }
+    (f.refs || []).forEach(function(t){ notes.push(t); });
     if(floor) Object.keys(r).forEach(function(k){ if(r[k] < floor) r[k] = floor; }); mid = r.mid;
     notes.push('সরকারি চাকরির জন্য আলাদা নিয়ম: ' + P.gov.scale + ' অনুযায়ী সর্বনিম্ন (২০তম) গ্রেডে মূল বেতন ' + P.gov.grade20Basic + ' টাকা, বিসিএস ক্যাডারের শুরুর (৯ম) গ্রেডে ' + P.gov.grade9Basic + ' টাকা। এটা মূল বেতন, ভাতা আলাদা।');
     var fixed = floorKind === 'gov' && exp < 2;        // only the entry post is a rule; later the grade and the years decide
@@ -62,7 +69,7 @@
     var e = estimate(p, opts); if(!e || !(amount > 0)) return null;
     var pct = clip(cdf((Math.log(amount) - Math.log(e.mid)) / e.sigma), 0.001, 0.999) * 100, verdict, tone;
     if(e.fixed && amount >= e.floor) return { est: e, pct: 50, verdict: 'পে-স্কেলের সমান বা বেশি', tone: 'fair', gap: e.mid - amount, ask: e.p75 };
-    if(e.floor && amount < e.floor){ verdict = e.floorKind === 'gov' ? 'সরকারি পে-স্কেলের মূল বেতনের নিচে' : 'আইনের সর্বনিম্ন মজুরির নিচে'; tone = 'bad'; }
+    if(e.floor && amount < e.floor){ verdict = e.floorKind === 'gov' ? 'সরকারি পে-স্কেলের মূল বেতনের নিচে' : e.floorKind === 'bank' ? 'বাংলাদেশ ব্যাংকের বেঁধে দেওয়া ন্যূনতমের নিচে' : 'আইনের সর্বনিম্ন মজুরির নিচে'; tone = 'bad'; }
     else if(pct < 15){ verdict = 'অনেক কম'; tone = 'bad'; } else if(pct < 35){ verdict = 'একটু কম'; tone = 'low'; } else if(pct <= 65){ verdict = 'ন্যায্য'; tone = 'fair'; } else if(pct <= 85){ verdict = 'ভালো'; tone = 'good'; } else { verdict = 'খুব ভালো'; tone = 'good'; }
     return { est: e, pct: pct, verdict: verdict, tone: tone, gap: e.mid - amount, ask: e.p75 };
   }
