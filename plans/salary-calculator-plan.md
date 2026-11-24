@@ -81,3 +81,49 @@ estimate = BASE(family, education, experience) x CITY x EMPLOYER x (1 + SKILLS),
 4. Collect real salaries from users (needs sign-in, privacy text): yes or later.
 5. Who reviews the data sheet (the owner, or friends in each field).
 6. Is the money idea of section 10 something he wants to keep open.
+
+---
+
+# 12. The smart engine (v2 of section 4, written after the owner asked for real accuracy, 2026-11-24)
+
+The owner: "it must be accurate, 19 of 20, and use smart intelligence, many people will use it". Section 4 (a table times factors) is only the FIRST STAGE below. The honest contract first.
+
+## 12.1 What accuracy can be promised, and how it is measured
+- Two people with the same degree and skills are paid differently (employer, negotiation, luck). No tool can name one number that is right for 19 of 20 of them. What CAN be built, measured and shown is a CALIBRATED RANGE: "of people with your profile, 9 in 10 are paid inside this range" (and a 95 % version, "19 of 20", which is wider).
+- Method: conformal quantile prediction. The model predicts low and high quantiles; a held-out part of the data is used to widen or narrow them until the share of real salaries inside the range equals what the screen says (90 %). This gives a measured guarantee, not a hope.
+- Targets (to be MEASURED, not promised): stage A (survey data only): the middle number is off by about 25-35 % for a typical person, 90 % ranges wide (about 0.6x to 1.7x); stage B (1,000+ reports): about 20-25 %; stage C (5,000+ reports and employer size, industry known): about 15-20 %, ranges clearly narrower. A public "accuracy" line on the page tells the current number (trust).
+- After launch every user is asked once, later, "what did you really get?" (a one-tap answer). That is the ground truth that keeps the model honest.
+
+## 12.2 The layers (the intelligence), each with a job
+1. **Foundation from real survey data.** The BBS Labour Force Survey is a public-use file (the 2015-16 file states "accessible to all" with a citation and a confidentiality declaration; 126,000 households a year; it has monthly earnings, education, occupation, industry, division, urban/rural, hours). Phase 0 checks whether the 2022 file (and the later quarterly rounds) can be downloaded; if only tables are public, the tables are used. From the file a quantile regression of log earnings (the Mincer model used by Asadullah 2006 and Rahman and Al-Hasan 2018 for Bangladesh) on education, potential experience (and its square), occupation group, sector, division and urban/rural, hours gives the whole distribution (P10 to P90) for a profile, from over a hundred thousand real earners, not a guess.
+2. **Narrow roles by partial pooling.** The survey is too thin for "software engineer" or "bank officer". A hierarchical model lets a narrow role borrow strength from its occupation group and sector, and move away from them only as much as its own data (crowd reports, pasted job ads) justifies. This is the standard cure for thin cells.
+3. **Skill premiums from evidence, then from data.** Priors from research (English proficiency: a premium of 20-30 % of earnings in Bangladesh in the British Council and Open University synthesis; computer use: an econometric study of returns to computer use in Bangladesh, 2021), with wide uncertainty, so the crowd data can overrule them. Fitted with regularisation (ridge or elastic net) so that no skill gets a crazy number from a few reports. Monotone: adding a skill never lowers the estimate.
+4. **Similar people (k-nearest neighbours) on the crowd reports.** The result page can say "12 people like you reported between X and Y" with the real spread: transparent and convincing; shown only from 8 reports.
+5. **Time and inflation.** Older numbers are brought to today with the wage and price index and weighted down with age, so the model does not live in 2022.
+6. **A language layer (AI) that does NOT make the number.** An AI model (a small, cheap Claude model through our own edge function, with a per-user limit) (a) reads a free text "I know Excel, I can write Python, my English is okay, I did an internship" or a pasted CV and turns it into the tool's fixed skill list (Bangla and English), (b) reads a pasted job post and pulls out the salary, role and requirements for the data set, (c) writes the plain-Bangla explanation and the negotiation sentences. The number itself always comes from the audited model, so it is repeatable, testable and cannot be talked into a fantasy.
+7. **Progressive questions (the smart interface).** The range is shown after three answers and visibly narrows with every further answer. The next question asked is the one that would shrink the range most (information gain, computed from the model: for example "company size" or "city" for a banker, "English level" for an office job). The user stops when he is happy; the result says how wide it still is and what would narrow it.
+8. **Offer check as a position, not a verdict.** "Your 15,000 is at the 22nd percentile of people with your profile" plus how much of the gap each missing item (probation, allowances, bonus) explains.
+
+## 12.3 The stages (accuracy grows with data, the tool is honest at each stage)
+- **Stage A (launch):** layers 1, 2 (priors), 3 (priors), 5, 6, 7, 8. Ranges are wide and labelled "survey-based"; many cells say "low confidence".
+- **Stage B (1,000+ reports):** partial pooling with the crowd data, fitted skill premiums, k-nearest neighbours, first conformal calibration on real reports.
+- **Stage C (5,000+ reports):** a gradient-boosted quantile model with monotone constraints and conformal calibration; employer size and industry as inputs; the public accuracy line.
+- The model is trained OFFLINE (on my side, from the survey file and the exported reports) and written as a small static table of coefficients and quantiles: the live calculator only looks things up and adds, so it costs nothing to run, is fast on a cheap phone, and can be checked line by line. Retrained monthly while reports are coming in.
+
+## 12.4 Where the real reports come from (the engine's fuel)
+1. "Give to get": the full result and the what-if are shown after the user adds his own salary (or "I have no job yet", which gives nothing but still works).
+2. Pasted job posts (the user pastes an ad he saw, the AI layer extracts the salary range; no scraping of other sites).
+3. A one-time Facebook and campus campaign: "tell us your first salary, we publish the real picture of Bangladesh" with the result published (the first real numbers will themselves be the news).
+4. Partners: university career offices and alumni groups, HR people, who give their own anonymous aggregates.
+5. Aim for 3,000 reports in the first three months across the 8 launch families (about 375 each); the list of families can grow with the data.
+
+## 12.5 Testing the intelligence (before the public sees it)
+- Hold out 20 % of the survey file: measure the error of the middle number against two simple baselines (the overall median; the median by education only) and the real coverage of the 80 % and 90 % ranges. The engine must beat the baselines clearly, and the ranges must cover what they say (within 2-3 points) or it does not go out.
+- Fairness check: the error and the coverage by division, by urban and rural, by education level: none may be systematically worse for a group.
+- Real-life check: 30-40 people from the owner's circle (their real pay or offer against the tool), as in section 8.
+- Automatic tests of the rules (monotone, caps, golden cases) as in section 4, plus a test that the shipped tables reproduce the offline model's answers exactly.
+
+## 12.6 What this changes in the decisions list
+7. The owner agrees that Phase 0 downloads the public-use Labour Force Survey and builds the foundation from it (citation and confidentiality text on the method page).
+8. The owner agrees to a small AI cost for the language layer (a cheap model, capped per user; the amount is worked out at design time and shown to him first).
+9. "Give to get" (the user gives his salary to see the full result): yes or no.
